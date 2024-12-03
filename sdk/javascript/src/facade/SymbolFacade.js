@@ -134,6 +134,17 @@ export class SymbolAccount extends SymbolPublicAccount {
 	cosignTransaction(transaction, detached = false) {
 		return this._facade.cosignTransaction(this.keyPair, transaction, detached);
 	}
+
+	/**
+	 * Cosigns a Symbol transaction hash.
+	 * @param {Hash256} transactionHash Transaction hash.
+	 * @param {boolean} detached \c true if resulting cosignature is appropriate for network propagation.
+	 *                           \c false if resulting cosignature is appropriate for attaching to an aggregate.
+	 * @returns {sc.Cosignature|sc.DetachedCosignature} Signed cosignature.
+	 */
+	cosignTransactionHash(transactionHash, detached = false) {
+		return this._facade.static.cosignTransactionHash(this.keyPair, transactionHash, detached);
+	}
 }
 
 // endregion
@@ -320,16 +331,14 @@ export class SymbolFacade {
 	}
 
 	/**
-	 * Cosigns a Symbol transaction.
+	 * Cosigns a Symbol transaction hash.
 	 * @param {KeyPair} keyPair Key pair of the cosignatory.
-	 * @param {sc.Transaction} transaction Transaction object.
+	 * @param {Hash256} transactionHash Transaction hash.
 	 * @param {boolean} detached \c true if resulting cosignature is appropriate for network propagation.
 	 *                           \c false if resulting cosignature is appropriate for attaching to an aggregate.
 	 * @returns {sc.Cosignature|sc.DetachedCosignature} Signed cosignature.
 	 */
-	cosignTransaction(keyPair, transaction, detached = false) {
-		const transactionHash = this.hashTransaction(transaction);
-
+	static cosignTransactionHash(keyPair, transactionHash, detached = false) {
 		const initializeCosignature = cosignature => {
 			cosignature.version = 0n;
 			cosignature.signerPublicKey = new sc.PublicKey(keyPair.publicKey.bytes);
@@ -346,6 +355,20 @@ export class SymbolFacade {
 		const cosignature = new sc.Cosignature();
 		initializeCosignature(cosignature);
 		return cosignature;
+	}
+
+	/**
+	 * Cosigns a Symbol transaction.
+	 * @param {KeyPair} keyPair Key pair of the cosignatory.
+	 * @param {sc.Transaction} transaction Transaction object.
+	 * @param {boolean} detached \c true if resulting cosignature is appropriate for network propagation.
+	 *                           \c false if resulting cosignature is appropriate for attaching to an aggregate.
+	 * @returns {sc.Cosignature|sc.DetachedCosignature} Signed cosignature.
+	 */
+	cosignTransaction(keyPair, transaction, detached = false) {
+		const transactionHash = this.hashTransaction(transaction);
+
+		return SymbolFacade.cosignTransactionHash(keyPair, transactionHash, detached);
 	}
 
 	/**

@@ -334,6 +334,15 @@ describe('Symbol Facade', () => {
 			cosignTransaction: (facade, privateKey, transaction, detached) =>
 				facade.createAccount(privateKey).cosignTransaction(transaction, detached)
 		});
+
+		addCosignTransactionTests({
+			testNamePrefix: 'can cosign transaction hash ',
+			signTransaction: (facade, privateKey, transaction) => facade.createAccount(privateKey).signTransaction(transaction),
+			cosignTransaction: (facade, privateKey, transaction, detached) => {
+				const transactionHash = facade.hashTransaction(transaction);
+				return facade.createAccount(privateKey).cosignTransactionHash(transactionHash, detached);
+			}
+		});
 	});
 
 	// endregion
@@ -553,12 +562,21 @@ describe('Symbol Facade', () => {
 
 	// region cosignTransaction
 
-	describe('can cosign transactions', () => {
+	describe('can cosign transaction', () => {
 		addCosignTransactionTests({
 			testNamePrefix: '',
 			signTransaction: (facade, privateKey, transaction) => facade.signTransaction(new SymbolFacade.KeyPair(privateKey), transaction),
 			cosignTransaction: (facade, privateKey, transaction, detached) =>
 				facade.cosignTransaction(new SymbolFacade.KeyPair(privateKey), transaction, detached)
+		});
+
+		addCosignTransactionTests({
+			testNamePrefix: 'hash ',
+			signTransaction: (facade, privateKey, transaction) => facade.signTransaction(new SymbolFacade.KeyPair(privateKey), transaction),
+			cosignTransaction: (facade, privateKey, transaction, detached) => {
+				const transactionHash = facade.hashTransaction(transaction);
+				return facade.static.cosignTransactionHash(new SymbolFacade.KeyPair(privateKey), transactionHash, detached);
+			}
 		});
 	});
 
