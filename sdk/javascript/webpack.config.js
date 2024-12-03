@@ -43,6 +43,7 @@ export default {
 	resolve: {
 		extensions: ['.js'],
 		fallback: {
+			vm: false,
 			crypto: 'crypto-browserify',
 			stream: 'stream-browserify'
 		}
