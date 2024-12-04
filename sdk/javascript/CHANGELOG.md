@@ -5,7 +5,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
-## [3.2.3] - 02-Dec-2024
+## [3.2.3] - 04-Dec-2024
 
 ### Added
 - add toJson() to the generated model classes to get a JSON-safe representation of the model.
