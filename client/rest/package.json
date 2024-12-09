@@ -25,7 +25,6 @@
     "eslint-plugin-jsdoc": "^50.0.1",
     "minimist": "^1.2.8",
     "mocha": "^10.2.0",
-    "mocha-jenkins-reporter": "^0.4.8",
     "sinon": "^19.0.2",
     "tmp": "^0.2.1"
   },
