@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>symbolchain package &mdash; Symbol SDK (Python) 3.2.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>symbolchain package &mdash; Symbol SDK (Python) 3.2.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=dcedd534"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=7895512d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -264,6 +262,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.NemFacade.NemFacade.bip32_path"><code class="docutils literal notranslate"><span class="pre">NemFacade.bip32_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.NemFacade.NemFacade.create_account"><code class="docutils literal notranslate"><span class="pre">NemFacade.create_account()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.NemFacade.NemFacade.create_public_account"><code class="docutils literal notranslate"><span class="pre">NemFacade.create_public_account()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.NemFacade.NemFacade.extract_signing_payload"><code class="docutils literal notranslate"><span class="pre">NemFacade.extract_signing_payload()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.NemFacade.NemFacade.hash_transaction"><code class="docutils literal notranslate"><span class="pre">NemFacade.hash_transaction()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.NemFacade.NemFacade.now"><code class="docutils literal notranslate"><span class="pre">NemFacade.now()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.NemFacade.NemFacade.sign_transaction"><code class="docutils literal notranslate"><span class="pre">NemFacade.sign_transaction()</span></code></a></li>
@@ -276,6 +275,7 @@
 <li class="toctree-l2"><a class="reference internal" href="symbolchain.facade.html#module-symbolchain.facade.SymbolFacade">symbolchain.facade.SymbolFacade module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolAccount"><code class="docutils literal notranslate"><span class="pre">SymbolAccount</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction"><code class="docutils literal notranslate"><span class="pre">SymbolAccount.cosign_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction_hash"><code class="docutils literal notranslate"><span class="pre">SymbolAccount.cosign_transaction_hash()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolAccount.message_encoder"><code class="docutils literal notranslate"><span class="pre">SymbolAccount.message_encoder()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolAccount.sign_transaction"><code class="docutils literal notranslate"><span class="pre">SymbolAccount.sign_transaction()</span></code></a></li>
 </ul>
@@ -289,8 +289,10 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.bip32_node_to_key_pair"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.bip32_node_to_key_pair()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.bip32_path"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.bip32_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.cosign_transaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction_hash"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.cosign_transaction_hash()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.create_account"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.create_account()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.create_public_account"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.create_public_account()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.extract_signing_payload"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.extract_signing_payload()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.hash_embedded_transactions"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.hash_embedded_transactions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.hash_transaction"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.hash_transaction()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html#symbolchain.facade.SymbolFacade.SymbolFacade.now"><code class="docutils literal notranslate"><span class="pre">SymbolFacade.now()</span></code></a></li>
@@ -328,6 +330,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.AccountKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.AccountKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.AccountKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.AccountKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Address"><code class="docutils literal notranslate"><span class="pre">Address</span></code></a><ul>
@@ -349,10 +352,24 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.TYPE_HINTS"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.TYPE_HINTS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.deserialize"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.multisig_account_address"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.multisig_account_address</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.multisig_transaction_hash"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.multisig_transaction_hash</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.other_transaction_hash"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.other_transaction_hash</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.serialize"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.size"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.sort"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1.to_json"><code class="docutils literal notranslate"><span class="pre">CosignatureV1.to_json()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.TRANSACTION_TYPE"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.TRANSACTION_TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.TRANSACTION_VERSION"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.TRANSACTION_VERSION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.TYPE_HINTS"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.TYPE_HINTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.deserialize"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.deserialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.multisig_account_address"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.multisig_account_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.other_transaction_hash"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.other_transaction_hash</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.serialize"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.serialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.size"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.sort"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.CosignatureV1Body.to_json"><code class="docutils literal notranslate"><span class="pre">CosignatureV1Body.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Hash256"><code class="docutils literal notranslate"><span class="pre">Hash256</span></code></a><ul>
@@ -374,6 +391,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.LinkAction.deserialize"><code class="docutils literal notranslate"><span class="pre">LinkAction.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.LinkAction.serialize"><code class="docutils literal notranslate"><span class="pre">LinkAction.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.LinkAction.size"><code class="docutils literal notranslate"><span class="pre">LinkAction.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.LinkAction.to_json"><code class="docutils literal notranslate"><span class="pre">LinkAction.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Message"><code class="docutils literal notranslate"><span class="pre">Message</span></code></a><ul>
@@ -384,6 +402,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Message.serialize"><code class="docutils literal notranslate"><span class="pre">Message.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Message.size"><code class="docutils literal notranslate"><span class="pre">Message.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Message.sort"><code class="docutils literal notranslate"><span class="pre">Message.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Message.to_json"><code class="docutils literal notranslate"><span class="pre">Message.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MessageType"><code class="docutils literal notranslate"><span class="pre">MessageType</span></code></a><ul>
@@ -392,6 +411,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MessageType.deserialize"><code class="docutils literal notranslate"><span class="pre">MessageType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MessageType.serialize"><code class="docutils literal notranslate"><span class="pre">MessageType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MessageType.size"><code class="docutils literal notranslate"><span class="pre">MessageType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MessageType.to_json"><code class="docutils literal notranslate"><span class="pre">MessageType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Mosaic"><code class="docutils literal notranslate"><span class="pre">Mosaic</span></code></a><ul>
@@ -402,6 +422,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Mosaic.serialize"><code class="docutils literal notranslate"><span class="pre">Mosaic.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Mosaic.size"><code class="docutils literal notranslate"><span class="pre">Mosaic.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Mosaic.sort"><code class="docutils literal notranslate"><span class="pre">Mosaic.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Mosaic.to_json"><code class="docutils literal notranslate"><span class="pre">Mosaic.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinition"><code class="docutils literal notranslate"><span class="pre">MosaicDefinition</span></code></a><ul>
@@ -416,6 +437,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinition.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicDefinition.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinition.size"><code class="docutils literal notranslate"><span class="pre">MosaicDefinition.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinition.sort"><code class="docutils literal notranslate"><span class="pre">MosaicDefinition.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinition.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicDefinition.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinitionTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1</span></code></a><ul>
@@ -429,6 +451,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinitionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinitionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinitionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicDefinitionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicId"><code class="docutils literal notranslate"><span class="pre">MosaicId</span></code></a><ul>
@@ -439,6 +462,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicId.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicId.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicId.size"><code class="docutils literal notranslate"><span class="pre">MosaicId.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicId.sort"><code class="docutils literal notranslate"><span class="pre">MosaicId.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicId.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicId.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicLevy"><code class="docutils literal notranslate"><span class="pre">MosaicLevy</span></code></a><ul>
@@ -450,6 +474,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicLevy.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicLevy.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicLevy.size"><code class="docutils literal notranslate"><span class="pre">MosaicLevy.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicLevy.sort"><code class="docutils literal notranslate"><span class="pre">MosaicLevy.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicLevy.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicLevy.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicLevy.transfer_fee_type"><code class="docutils literal notranslate"><span class="pre">MosaicLevy.transfer_fee_type</span></code></a></li>
 </ul>
 </li>
@@ -460,6 +485,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicProperty.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicProperty.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicProperty.size"><code class="docutils literal notranslate"><span class="pre">MosaicProperty.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicProperty.sort"><code class="docutils literal notranslate"><span class="pre">MosaicProperty.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicProperty.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicProperty.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicProperty.value"><code class="docutils literal notranslate"><span class="pre">MosaicProperty.value</span></code></a></li>
 </ul>
 </li>
@@ -469,6 +495,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeAction.deserialize"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeAction.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeAction.size"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeAction.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1</span></code></a><ul>
@@ -482,6 +509,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicSupplyChangeTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicTransferFeeType"><code class="docutils literal notranslate"><span class="pre">MosaicTransferFeeType</span></code></a><ul>
@@ -490,6 +518,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicTransferFeeType.deserialize"><code class="docutils literal notranslate"><span class="pre">MosaicTransferFeeType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicTransferFeeType.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicTransferFeeType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicTransferFeeType.size"><code class="docutils literal notranslate"><span class="pre">MosaicTransferFeeType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MosaicTransferFeeType.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicTransferFeeType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModification"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModification</span></code></a><ul>
@@ -501,6 +530,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModification.serialize"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModification.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModification.size"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModification.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModification.sort"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModification.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModification.to_json"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModification.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV1"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1</span></code></a><ul>
@@ -512,6 +542,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV2"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV2</span></code></a><ul>
@@ -524,6 +555,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV2.serialize"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV2.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV2.size"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV2.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV2.sort"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV2.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationTransactionV2.to_json"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV2.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationType"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationType</span></code></a><ul>
@@ -532,6 +564,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationType.deserialize"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationType.serialize"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationType.size"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigAccountModificationType.to_json"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigTransactionV1"><code class="docutils literal notranslate"><span class="pre">MultisigTransactionV1</span></code></a><ul>
@@ -544,6 +577,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MultisigTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MultisigTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MultisigTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.MultisigTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MultisigTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceId"><code class="docutils literal notranslate"><span class="pre">NamespaceId</span></code></a><ul>
@@ -553,6 +587,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceId.serialize"><code class="docutils literal notranslate"><span class="pre">NamespaceId.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceId.size"><code class="docutils literal notranslate"><span class="pre">NamespaceId.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceId.sort"><code class="docutils literal notranslate"><span class="pre">NamespaceId.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceId.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceId.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceRegistrationTransactionV1"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1</span></code></a><ul>
@@ -567,6 +602,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceRegistrationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceRegistrationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceRegistrationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NamespaceRegistrationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NetworkType"><code class="docutils literal notranslate"><span class="pre">NetworkType</span></code></a><ul>
@@ -575,6 +611,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NetworkType.deserialize"><code class="docutils literal notranslate"><span class="pre">NetworkType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NetworkType.serialize"><code class="docutils literal notranslate"><span class="pre">NetworkType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NetworkType.size"><code class="docutils literal notranslate"><span class="pre">NetworkType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NetworkType.to_json"><code class="docutils literal notranslate"><span class="pre">NetworkType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableAccountKeyLinkTransactionV1"><code class="docutils literal notranslate"><span class="pre">NonVerifiableAccountKeyLinkTransactionV1</span></code></a><ul>
@@ -587,6 +624,20 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableAccountKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableAccountKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableAccountKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableAccountKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableAccountKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableAccountKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableAccountKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableAccountKeyLinkTransactionV1.to_json()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.TRANSACTION_TYPE"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.TRANSACTION_TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.TRANSACTION_VERSION"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.TRANSACTION_VERSION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.TYPE_HINTS"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.TYPE_HINTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.deserialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.deserialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.multisig_account_address"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.multisig_account_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.other_transaction_hash"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.other_transaction_hash</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.serialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableCosignatureV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableCosignatureV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicDefinitionTransactionV1"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicDefinitionTransactionV1</span></code></a><ul>
@@ -600,6 +651,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicDefinitionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicDefinitionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicDefinitionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicDefinitionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicDefinitionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicDefinitionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicDefinitionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicDefinitionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicSupplyChangeTransactionV1"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicSupplyChangeTransactionV1</span></code></a><ul>
@@ -613,6 +665,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicSupplyChangeTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicSupplyChangeTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicSupplyChangeTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicSupplyChangeTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicSupplyChangeTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicSupplyChangeTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMosaicSupplyChangeTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMosaicSupplyChangeTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV1"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV1</span></code></a><ul>
@@ -624,6 +677,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV2"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV2</span></code></a><ul>
@@ -636,6 +690,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV2.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV2.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV2.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV2.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV2.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV2.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigAccountModificationTransactionV2.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigAccountModificationTransactionV2.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigTransactionV1"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigTransactionV1</span></code></a><ul>
@@ -647,6 +702,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableMultisigTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableMultisigTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableNamespaceRegistrationTransactionV1"><code class="docutils literal notranslate"><span class="pre">NonVerifiableNamespaceRegistrationTransactionV1</span></code></a><ul>
@@ -661,6 +717,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableNamespaceRegistrationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableNamespaceRegistrationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableNamespaceRegistrationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableNamespaceRegistrationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableNamespaceRegistrationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableNamespaceRegistrationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableNamespaceRegistrationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableNamespaceRegistrationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransaction"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransaction</span></code></a><ul>
@@ -673,6 +730,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransaction.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransaction.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransaction.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransaction.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransaction.timestamp"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransaction.timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransaction.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransaction.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransaction.type_"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransaction.type_</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransaction.version"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransaction.version</span></code></a></li>
 </ul>
@@ -694,6 +752,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV2"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV2</span></code></a><ul>
@@ -709,6 +768,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV2.serialize"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV2.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV2.size"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV2.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV2.sort"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV2.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.NonVerifiableTransferTransactionV2.to_json"><code class="docutils literal notranslate"><span class="pre">NonVerifiableTransferTransactionV2.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.PublicKey"><code class="docutils literal notranslate"><span class="pre">PublicKey</span></code></a><ul>
@@ -732,6 +792,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedCosignatureV1.serialize"><code class="docutils literal notranslate"><span class="pre">SizePrefixedCosignatureV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedCosignatureV1.size"><code class="docutils literal notranslate"><span class="pre">SizePrefixedCosignatureV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedCosignatureV1.sort"><code class="docutils literal notranslate"><span class="pre">SizePrefixedCosignatureV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedCosignatureV1.to_json"><code class="docutils literal notranslate"><span class="pre">SizePrefixedCosignatureV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaic"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaic</span></code></a><ul>
@@ -741,6 +802,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaic.serialize"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaic.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaic.size"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaic.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaic.sort"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaic.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaic.to_json"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaic.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaicProperty"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaicProperty</span></code></a><ul>
@@ -750,6 +812,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaicProperty.serialize"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaicProperty.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaicProperty.size"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaicProperty.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaicProperty.sort"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaicProperty.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMosaicProperty.to_json"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMosaicProperty.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMultisigAccountModification"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMultisigAccountModification</span></code></a><ul>
@@ -759,6 +822,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMultisigAccountModification.serialize"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMultisigAccountModification.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMultisigAccountModification.size"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMultisigAccountModification.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMultisigAccountModification.sort"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMultisigAccountModification.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.SizePrefixedMultisigAccountModification.to_json"><code class="docutils literal notranslate"><span class="pre">SizePrefixedMultisigAccountModification.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Timestamp"><code class="docutils literal notranslate"><span class="pre">Timestamp</span></code></a><ul>
@@ -778,6 +842,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Transaction.size"><code class="docutils literal notranslate"><span class="pre">Transaction.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Transaction.sort"><code class="docutils literal notranslate"><span class="pre">Transaction.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Transaction.timestamp"><code class="docutils literal notranslate"><span class="pre">Transaction.timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Transaction.to_json"><code class="docutils literal notranslate"><span class="pre">Transaction.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Transaction.type_"><code class="docutils literal notranslate"><span class="pre">Transaction.type_</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.Transaction.version"><code class="docutils literal notranslate"><span class="pre">Transaction.version</span></code></a></li>
 </ul>
@@ -799,6 +864,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransactionType.deserialize"><code class="docutils literal notranslate"><span class="pre">TransactionType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransactionType.serialize"><code class="docutils literal notranslate"><span class="pre">TransactionType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransactionType.size"><code class="docutils literal notranslate"><span class="pre">TransactionType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransactionType.to_json"><code class="docutils literal notranslate"><span class="pre">TransactionType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV1"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1</span></code></a><ul>
@@ -813,6 +879,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV2"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV2</span></code></a><ul>
@@ -828,6 +895,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV2.serialize"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV2.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV2.size"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV2.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV2.sort"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV2.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html#symbolchain.nc.TransferTransactionV2.to_json"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV2.to_json()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -914,6 +982,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountAddressRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AccountAddressRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountAddressRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AccountAddressRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountAddressRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AccountAddressRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountAddressRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AccountAddressRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountKeyLinkTransactionV1"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1</span></code></a><ul>
@@ -926,6 +995,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AccountKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMetadataTransactionV1"><code class="docutils literal notranslate"><span class="pre">AccountMetadataTransactionV1</span></code></a><ul>
@@ -938,6 +1008,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMetadataTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AccountMetadataTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMetadataTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AccountMetadataTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMetadataTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">AccountMetadataTransactionV1.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMetadataTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AccountMetadataTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMetadataTransactionV1.value"><code class="docutils literal notranslate"><span class="pre">AccountMetadataTransactionV1.value</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMetadataTransactionV1.value_size_delta"><code class="docutils literal notranslate"><span class="pre">AccountMetadataTransactionV1.value_size_delta</span></code></a></li>
 </ul>
@@ -953,6 +1024,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMosaicRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AccountMosaicRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMosaicRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AccountMosaicRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMosaicRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AccountMosaicRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountMosaicRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AccountMosaicRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountOperationRestrictionTransactionV1"><code class="docutils literal notranslate"><span class="pre">AccountOperationRestrictionTransactionV1</span></code></a><ul>
@@ -966,6 +1038,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountOperationRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AccountOperationRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountOperationRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AccountOperationRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountOperationRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AccountOperationRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountOperationRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AccountOperationRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountRestrictionFlags"><code class="docutils literal notranslate"><span class="pre">AccountRestrictionFlags</span></code></a><ul>
@@ -977,6 +1050,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountRestrictionFlags.deserialize"><code class="docutils literal notranslate"><span class="pre">AccountRestrictionFlags.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountRestrictionFlags.serialize"><code class="docutils literal notranslate"><span class="pre">AccountRestrictionFlags.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountRestrictionFlags.size"><code class="docutils literal notranslate"><span class="pre">AccountRestrictionFlags.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AccountRestrictionFlags.to_json"><code class="docutils literal notranslate"><span class="pre">AccountRestrictionFlags.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Address"><code class="docutils literal notranslate"><span class="pre">Address</span></code></a><ul>
@@ -997,6 +1071,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressAliasTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AddressAliasTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressAliasTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AddressAliasTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressAliasTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AddressAliasTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressAliasTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AddressAliasTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionEntry"><code class="docutils literal notranslate"><span class="pre">AddressResolutionEntry</span></code></a><ul>
@@ -1007,6 +1082,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionEntry.size"><code class="docutils literal notranslate"><span class="pre">AddressResolutionEntry.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionEntry.sort"><code class="docutils literal notranslate"><span class="pre">AddressResolutionEntry.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionEntry.source"><code class="docutils literal notranslate"><span class="pre">AddressResolutionEntry.source</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionEntry.to_json"><code class="docutils literal notranslate"><span class="pre">AddressResolutionEntry.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionStatement"><code class="docutils literal notranslate"><span class="pre">AddressResolutionStatement</span></code></a><ul>
@@ -1016,6 +1092,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionStatement.serialize"><code class="docutils literal notranslate"><span class="pre">AddressResolutionStatement.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionStatement.size"><code class="docutils literal notranslate"><span class="pre">AddressResolutionStatement.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionStatement.sort"><code class="docutils literal notranslate"><span class="pre">AddressResolutionStatement.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionStatement.to_json"><code class="docutils literal notranslate"><span class="pre">AddressResolutionStatement.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AddressResolutionStatement.unresolved"><code class="docutils literal notranslate"><span class="pre">AddressResolutionStatement.unresolved</span></code></a></li>
 </ul>
 </li>
@@ -1028,6 +1105,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV1.transactions"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV1.transactions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV1.transactions_hash"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV1.transactions_hash</span></code></a></li>
 </ul>
@@ -1041,6 +1119,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV2.serialize"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV2.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV2.size"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV2.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV2.sort"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV2.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV2.to_json"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV2.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV2.transactions"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV2.transactions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateBondedTransactionV2.transactions_hash"><code class="docutils literal notranslate"><span class="pre">AggregateBondedTransactionV2.transactions_hash</span></code></a></li>
 </ul>
@@ -1054,6 +1133,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV1.transactions"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV1.transactions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV1.transactions_hash"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV1.transactions_hash</span></code></a></li>
 </ul>
@@ -1067,6 +1147,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV2.serialize"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV2.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV2.size"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV2.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV2.sort"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV2.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV2.to_json"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV2.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV2.transactions"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV2.transactions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AggregateCompleteTransactionV2.transactions_hash"><code class="docutils literal notranslate"><span class="pre">AggregateCompleteTransactionV2.transactions_hash</span></code></a></li>
 </ul>
@@ -1077,6 +1158,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AliasAction.deserialize"><code class="docutils literal notranslate"><span class="pre">AliasAction.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AliasAction.serialize"><code class="docutils literal notranslate"><span class="pre">AliasAction.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AliasAction.size"><code class="docutils literal notranslate"><span class="pre">AliasAction.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.AliasAction.to_json"><code class="docutils literal notranslate"><span class="pre">AliasAction.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Amount"><code class="docutils literal notranslate"><span class="pre">Amount</span></code></a><ul>
@@ -1102,6 +1184,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Block.sort"><code class="docutils literal notranslate"><span class="pre">Block.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Block.state_hash"><code class="docutils literal notranslate"><span class="pre">Block.state_hash</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Block.timestamp"><code class="docutils literal notranslate"><span class="pre">Block.timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Block.to_json"><code class="docutils literal notranslate"><span class="pre">Block.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Block.transactions_hash"><code class="docutils literal notranslate"><span class="pre">Block.transactions_hash</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Block.type_"><code class="docutils literal notranslate"><span class="pre">Block.type_</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Block.version"><code class="docutils literal notranslate"><span class="pre">Block.version</span></code></a></li>
@@ -1132,6 +1215,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockStatement.serialize"><code class="docutils literal notranslate"><span class="pre">BlockStatement.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockStatement.size"><code class="docutils literal notranslate"><span class="pre">BlockStatement.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockStatement.sort"><code class="docutils literal notranslate"><span class="pre">BlockStatement.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockStatement.to_json"><code class="docutils literal notranslate"><span class="pre">BlockStatement.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockStatement.transaction_statements"><code class="docutils literal notranslate"><span class="pre">BlockStatement.transaction_statements</span></code></a></li>
 </ul>
 </li>
@@ -1142,6 +1226,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockType.deserialize"><code class="docutils literal notranslate"><span class="pre">BlockType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockType.serialize"><code class="docutils literal notranslate"><span class="pre">BlockType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockType.size"><code class="docutils literal notranslate"><span class="pre">BlockType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.BlockType.to_json"><code class="docutils literal notranslate"><span class="pre">BlockType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Cosignature"><code class="docutils literal notranslate"><span class="pre">Cosignature</span></code></a><ul>
@@ -1152,6 +1237,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Cosignature.signer_public_key"><code class="docutils literal notranslate"><span class="pre">Cosignature.signer_public_key</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Cosignature.size"><code class="docutils literal notranslate"><span class="pre">Cosignature.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Cosignature.sort"><code class="docutils literal notranslate"><span class="pre">Cosignature.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Cosignature.to_json"><code class="docutils literal notranslate"><span class="pre">Cosignature.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Cosignature.version"><code class="docutils literal notranslate"><span class="pre">Cosignature.version</span></code></a></li>
 </ul>
 </li>
@@ -1164,6 +1250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.DetachedCosignature.signer_public_key"><code class="docutils literal notranslate"><span class="pre">DetachedCosignature.signer_public_key</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.DetachedCosignature.size"><code class="docutils literal notranslate"><span class="pre">DetachedCosignature.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.DetachedCosignature.sort"><code class="docutils literal notranslate"><span class="pre">DetachedCosignature.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.DetachedCosignature.to_json"><code class="docutils literal notranslate"><span class="pre">DetachedCosignature.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.DetachedCosignature.version"><code class="docutils literal notranslate"><span class="pre">DetachedCosignature.version</span></code></a></li>
 </ul>
 </li>
@@ -1184,6 +1271,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountAddressRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountAddressRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountAddressRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountAddressRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountAddressRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountAddressRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountAddressRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountAddressRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountKeyLinkTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountKeyLinkTransactionV1</span></code></a><ul>
@@ -1196,6 +1284,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMetadataTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMetadataTransactionV1</span></code></a><ul>
@@ -1208,6 +1297,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMetadataTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMetadataTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMetadataTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMetadataTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMetadataTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMetadataTransactionV1.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMetadataTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMetadataTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMetadataTransactionV1.value"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMetadataTransactionV1.value</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMetadataTransactionV1.value_size_delta"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMetadataTransactionV1.value_size_delta</span></code></a></li>
 </ul>
@@ -1223,6 +1313,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMosaicRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMosaicRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMosaicRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMosaicRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMosaicRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMosaicRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountMosaicRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountMosaicRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountOperationRestrictionTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountOperationRestrictionTransactionV1</span></code></a><ul>
@@ -1236,6 +1327,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountOperationRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountOperationRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountOperationRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountOperationRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountOperationRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountOperationRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAccountOperationRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedAccountOperationRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAddressAliasTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedAddressAliasTransactionV1</span></code></a><ul>
@@ -1249,6 +1341,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAddressAliasTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedAddressAliasTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAddressAliasTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedAddressAliasTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAddressAliasTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedAddressAliasTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedAddressAliasTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedAddressAliasTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedHashLockTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedHashLockTransactionV1</span></code></a><ul>
@@ -1262,6 +1355,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedHashLockTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedHashLockTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedHashLockTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedHashLockTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedHashLockTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedHashLockTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedHashLockTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedHashLockTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAddressRestrictionTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAddressRestrictionTransactionV1</span></code></a><ul>
@@ -1277,6 +1371,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAddressRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAddressRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAddressRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAddressRestrictionTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAddressRestrictionTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAddressRestrictionTransactionV1.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAddressRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAddressRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAliasTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAliasTransactionV1</span></code></a><ul>
@@ -1290,6 +1385,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAliasTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAliasTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAliasTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAliasTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAliasTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAliasTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicAliasTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicAliasTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicDefinitionTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicDefinitionTransactionV1</span></code></a><ul>
@@ -1305,6 +1401,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicDefinitionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicDefinitionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicDefinitionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicDefinitionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicDefinitionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicDefinitionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicDefinitionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicDefinitionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicGlobalRestrictionTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicGlobalRestrictionTransactionV1</span></code></a><ul>
@@ -1322,6 +1419,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicGlobalRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicGlobalRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicGlobalRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicGlobalRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicGlobalRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicGlobalRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicGlobalRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicGlobalRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicMetadataTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicMetadataTransactionV1</span></code></a><ul>
@@ -1335,6 +1433,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicMetadataTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicMetadataTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicMetadataTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicMetadataTransactionV1.target_address</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicMetadataTransactionV1.target_mosaic_id"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicMetadataTransactionV1.target_mosaic_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicMetadataTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicMetadataTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicMetadataTransactionV1.value"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicMetadataTransactionV1.value</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicMetadataTransactionV1.value_size_delta"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicMetadataTransactionV1.value_size_delta</span></code></a></li>
 </ul>
@@ -1350,6 +1449,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyChangeTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyChangeTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyChangeTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyChangeTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyChangeTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyChangeTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyChangeTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyChangeTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyRevocationTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyRevocationTransactionV1</span></code></a><ul>
@@ -1362,6 +1462,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyRevocationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyRevocationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyRevocationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyRevocationTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyRevocationTransactionV1.source_address"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyRevocationTransactionV1.source_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMosaicSupplyRevocationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMosaicSupplyRevocationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMultisigAccountModificationTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedMultisigAccountModificationTransactionV1</span></code></a><ul>
@@ -1376,6 +1477,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMultisigAccountModificationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedMultisigAccountModificationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMultisigAccountModificationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedMultisigAccountModificationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMultisigAccountModificationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedMultisigAccountModificationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedMultisigAccountModificationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedMultisigAccountModificationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceMetadataTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceMetadataTransactionV1</span></code></a><ul>
@@ -1389,6 +1491,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceMetadataTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceMetadataTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceMetadataTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceMetadataTransactionV1.target_address</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceMetadataTransactionV1.target_namespace_id"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceMetadataTransactionV1.target_namespace_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceMetadataTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceMetadataTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceMetadataTransactionV1.value"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceMetadataTransactionV1.value</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceMetadataTransactionV1.value_size_delta"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceMetadataTransactionV1.value_size_delta</span></code></a></li>
 </ul>
@@ -1406,6 +1509,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceRegistrationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceRegistrationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceRegistrationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceRegistrationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceRegistrationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceRegistrationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNamespaceRegistrationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedNamespaceRegistrationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNodeKeyLinkTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedNodeKeyLinkTransactionV1</span></code></a><ul>
@@ -1418,6 +1522,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNodeKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedNodeKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNodeKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedNodeKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNodeKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedNodeKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedNodeKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedNodeKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretLockTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretLockTransactionV1</span></code></a><ul>
@@ -1433,6 +1538,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretLockTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretLockTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretLockTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretLockTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretLockTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretLockTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretLockTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretLockTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretProofTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretProofTransactionV1</span></code></a><ul>
@@ -1447,6 +1553,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretProofTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretProofTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretProofTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretProofTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretProofTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretProofTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedSecretProofTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedSecretProofTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransaction"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransaction</span></code></a><ul>
@@ -1456,6 +1563,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransaction.signer_public_key"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransaction.signer_public_key</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransaction.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransaction.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransaction.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransaction.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransaction.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransaction.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransaction.type_"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransaction.type_</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransaction.version"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransaction.version</span></code></a></li>
 </ul>
@@ -1476,6 +1584,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransferTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransferTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransferTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransferTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransferTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransferTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedTransferTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedTransferTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVotingKeyLinkTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedVotingKeyLinkTransactionV1</span></code></a><ul>
@@ -1490,6 +1599,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVotingKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedVotingKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVotingKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedVotingKeyLinkTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVotingKeyLinkTransactionV1.start_epoch"><code class="docutils literal notranslate"><span class="pre">EmbeddedVotingKeyLinkTransactionV1.start_epoch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVotingKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedVotingKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVrfKeyLinkTransactionV1"><code class="docutils literal notranslate"><span class="pre">EmbeddedVrfKeyLinkTransactionV1</span></code></a><ul>
@@ -1502,6 +1612,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVrfKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">EmbeddedVrfKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVrfKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">EmbeddedVrfKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVrfKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">EmbeddedVrfKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.EmbeddedVrfKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">EmbeddedVrfKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizationEpoch"><code class="docutils literal notranslate"><span class="pre">FinalizationEpoch</span></code></a><ul>
@@ -1524,6 +1635,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizationRound.serialize"><code class="docutils literal notranslate"><span class="pre">FinalizationRound.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizationRound.size"><code class="docutils literal notranslate"><span class="pre">FinalizationRound.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizationRound.sort"><code class="docutils literal notranslate"><span class="pre">FinalizationRound.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizationRound.to_json"><code class="docutils literal notranslate"><span class="pre">FinalizationRound.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizedBlockHeader"><code class="docutils literal notranslate"><span class="pre">FinalizedBlockHeader</span></code></a><ul>
@@ -1535,6 +1647,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizedBlockHeader.serialize"><code class="docutils literal notranslate"><span class="pre">FinalizedBlockHeader.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizedBlockHeader.size"><code class="docutils literal notranslate"><span class="pre">FinalizedBlockHeader.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizedBlockHeader.sort"><code class="docutils literal notranslate"><span class="pre">FinalizedBlockHeader.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.FinalizedBlockHeader.to_json"><code class="docutils literal notranslate"><span class="pre">FinalizedBlockHeader.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HarvestFeeReceipt"><code class="docutils literal notranslate"><span class="pre">HarvestFeeReceipt</span></code></a><ul>
@@ -1546,6 +1659,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HarvestFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">HarvestFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HarvestFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">HarvestFeeReceipt.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HarvestFeeReceipt.target_address"><code class="docutils literal notranslate"><span class="pre">HarvestFeeReceipt.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HarvestFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">HarvestFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Hash256"><code class="docutils literal notranslate"><span class="pre">Hash256</span></code></a><ul>
@@ -1573,6 +1687,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HashLockTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">HashLockTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HashLockTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">HashLockTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HashLockTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">HashLockTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.HashLockTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">HashLockTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Height"><code class="docutils literal notranslate"><span class="pre">Height</span></code></a><ul>
@@ -1597,6 +1712,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ImportanceBlockV1.serialize"><code class="docutils literal notranslate"><span class="pre">ImportanceBlockV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ImportanceBlockV1.size"><code class="docutils literal notranslate"><span class="pre">ImportanceBlockV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ImportanceBlockV1.sort"><code class="docutils literal notranslate"><span class="pre">ImportanceBlockV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ImportanceBlockV1.to_json"><code class="docutils literal notranslate"><span class="pre">ImportanceBlockV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ImportanceBlockV1.total_voting_balance"><code class="docutils literal notranslate"><span class="pre">ImportanceBlockV1.total_voting_balance</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ImportanceBlockV1.transactions"><code class="docutils literal notranslate"><span class="pre">ImportanceBlockV1.transactions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ImportanceBlockV1.voting_eligible_accounts_count"><code class="docutils literal notranslate"><span class="pre">ImportanceBlockV1.voting_eligible_accounts_count</span></code></a></li>
@@ -1616,6 +1732,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.InflationReceipt.serialize"><code class="docutils literal notranslate"><span class="pre">InflationReceipt.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.InflationReceipt.size"><code class="docutils literal notranslate"><span class="pre">InflationReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.InflationReceipt.sort"><code class="docutils literal notranslate"><span class="pre">InflationReceipt.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.InflationReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">InflationReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LinkAction"><code class="docutils literal notranslate"><span class="pre">LinkAction</span></code></a><ul>
@@ -1624,6 +1741,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LinkAction.deserialize"><code class="docutils literal notranslate"><span class="pre">LinkAction.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LinkAction.serialize"><code class="docutils literal notranslate"><span class="pre">LinkAction.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LinkAction.size"><code class="docutils literal notranslate"><span class="pre">LinkAction.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LinkAction.to_json"><code class="docutils literal notranslate"><span class="pre">LinkAction.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashAlgorithm"><code class="docutils literal notranslate"><span class="pre">LockHashAlgorithm</span></code></a><ul>
@@ -1633,6 +1751,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashAlgorithm.deserialize"><code class="docutils literal notranslate"><span class="pre">LockHashAlgorithm.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashAlgorithm.serialize"><code class="docutils literal notranslate"><span class="pre">LockHashAlgorithm.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashAlgorithm.size"><code class="docutils literal notranslate"><span class="pre">LockHashAlgorithm.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashAlgorithm.to_json"><code class="docutils literal notranslate"><span class="pre">LockHashAlgorithm.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCompletedFeeReceipt"><code class="docutils literal notranslate"><span class="pre">LockHashCompletedFeeReceipt</span></code></a><ul>
@@ -1644,6 +1763,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCompletedFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">LockHashCompletedFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCompletedFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">LockHashCompletedFeeReceipt.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCompletedFeeReceipt.target_address"><code class="docutils literal notranslate"><span class="pre">LockHashCompletedFeeReceipt.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCompletedFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">LockHashCompletedFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCreatedFeeReceipt"><code class="docutils literal notranslate"><span class="pre">LockHashCreatedFeeReceipt</span></code></a><ul>
@@ -1655,6 +1775,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCreatedFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">LockHashCreatedFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCreatedFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">LockHashCreatedFeeReceipt.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCreatedFeeReceipt.target_address"><code class="docutils literal notranslate"><span class="pre">LockHashCreatedFeeReceipt.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashCreatedFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">LockHashCreatedFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashExpiredFeeReceipt"><code class="docutils literal notranslate"><span class="pre">LockHashExpiredFeeReceipt</span></code></a><ul>
@@ -1666,6 +1787,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashExpiredFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">LockHashExpiredFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashExpiredFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">LockHashExpiredFeeReceipt.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashExpiredFeeReceipt.target_address"><code class="docutils literal notranslate"><span class="pre">LockHashExpiredFeeReceipt.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockHashExpiredFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">LockHashExpiredFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCompletedFeeReceipt"><code class="docutils literal notranslate"><span class="pre">LockSecretCompletedFeeReceipt</span></code></a><ul>
@@ -1677,6 +1799,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCompletedFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">LockSecretCompletedFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCompletedFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">LockSecretCompletedFeeReceipt.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCompletedFeeReceipt.target_address"><code class="docutils literal notranslate"><span class="pre">LockSecretCompletedFeeReceipt.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCompletedFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">LockSecretCompletedFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCreatedFeeReceipt"><code class="docutils literal notranslate"><span class="pre">LockSecretCreatedFeeReceipt</span></code></a><ul>
@@ -1688,6 +1811,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCreatedFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">LockSecretCreatedFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCreatedFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">LockSecretCreatedFeeReceipt.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCreatedFeeReceipt.target_address"><code class="docutils literal notranslate"><span class="pre">LockSecretCreatedFeeReceipt.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretCreatedFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">LockSecretCreatedFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretExpiredFeeReceipt"><code class="docutils literal notranslate"><span class="pre">LockSecretExpiredFeeReceipt</span></code></a><ul>
@@ -1699,6 +1823,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretExpiredFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">LockSecretExpiredFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretExpiredFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">LockSecretExpiredFeeReceipt.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretExpiredFeeReceipt.target_address"><code class="docutils literal notranslate"><span class="pre">LockSecretExpiredFeeReceipt.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.LockSecretExpiredFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">LockSecretExpiredFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Mosaic"><code class="docutils literal notranslate"><span class="pre">Mosaic</span></code></a><ul>
@@ -1709,6 +1834,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Mosaic.serialize"><code class="docutils literal notranslate"><span class="pre">Mosaic.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Mosaic.size"><code class="docutils literal notranslate"><span class="pre">Mosaic.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Mosaic.sort"><code class="docutils literal notranslate"><span class="pre">Mosaic.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Mosaic.to_json"><code class="docutils literal notranslate"><span class="pre">Mosaic.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAddressRestrictionTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicAddressRestrictionTransactionV1</span></code></a><ul>
@@ -1724,6 +1850,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAddressRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicAddressRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAddressRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicAddressRestrictionTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAddressRestrictionTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">MosaicAddressRestrictionTransactionV1.target_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAddressRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicAddressRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAliasTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicAliasTransactionV1</span></code></a><ul>
@@ -1737,6 +1864,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAliasTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicAliasTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAliasTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicAliasTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAliasTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicAliasTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicAliasTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicAliasTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicDefinitionTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1</span></code></a><ul>
@@ -1752,6 +1880,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicDefinitionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicDefinitionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicDefinitionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicDefinitionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicDefinitionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicExpiredReceipt"><code class="docutils literal notranslate"><span class="pre">MosaicExpiredReceipt</span></code></a><ul>
@@ -1762,6 +1891,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicExpiredReceipt.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicExpiredReceipt.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicExpiredReceipt.size"><code class="docutils literal notranslate"><span class="pre">MosaicExpiredReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicExpiredReceipt.sort"><code class="docutils literal notranslate"><span class="pre">MosaicExpiredReceipt.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicExpiredReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicExpiredReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicFlags"><code class="docutils literal notranslate"><span class="pre">MosaicFlags</span></code></a><ul>
@@ -1773,6 +1903,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicFlags.deserialize"><code class="docutils literal notranslate"><span class="pre">MosaicFlags.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicFlags.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicFlags.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicFlags.size"><code class="docutils literal notranslate"><span class="pre">MosaicFlags.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicFlags.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicFlags.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicGlobalRestrictionTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicGlobalRestrictionTransactionV1</span></code></a><ul>
@@ -1790,6 +1921,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicGlobalRestrictionTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicGlobalRestrictionTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicGlobalRestrictionTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicGlobalRestrictionTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicGlobalRestrictionTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicGlobalRestrictionTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicGlobalRestrictionTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicGlobalRestrictionTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicId"><code class="docutils literal notranslate"><span class="pre">MosaicId</span></code></a><ul>
@@ -1809,6 +1941,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicMetadataTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicMetadataTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicMetadataTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">MosaicMetadataTransactionV1.target_address</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicMetadataTransactionV1.target_mosaic_id"><code class="docutils literal notranslate"><span class="pre">MosaicMetadataTransactionV1.target_mosaic_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicMetadataTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicMetadataTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicMetadataTransactionV1.value"><code class="docutils literal notranslate"><span class="pre">MosaicMetadataTransactionV1.value</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicMetadataTransactionV1.value_size_delta"><code class="docutils literal notranslate"><span class="pre">MosaicMetadataTransactionV1.value_size_delta</span></code></a></li>
 </ul>
@@ -1829,6 +1962,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRentalFeeReceipt.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicRentalFeeReceipt.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRentalFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">MosaicRentalFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRentalFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">MosaicRentalFeeReceipt.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRentalFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicRentalFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionEntry"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionEntry</span></code></a><ul>
@@ -1839,6 +1973,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionEntry.size"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionEntry.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionEntry.sort"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionEntry.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionEntry.source"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionEntry.source</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionEntry.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionEntry.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionStatement"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionStatement</span></code></a><ul>
@@ -1848,6 +1983,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionStatement.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionStatement.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionStatement.size"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionStatement.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionStatement.sort"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionStatement.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionStatement.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionStatement.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicResolutionStatement.unresolved"><code class="docutils literal notranslate"><span class="pre">MosaicResolutionStatement.unresolved</span></code></a></li>
 </ul>
 </li>
@@ -1868,6 +2004,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRestrictionType.deserialize"><code class="docutils literal notranslate"><span class="pre">MosaicRestrictionType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRestrictionType.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicRestrictionType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRestrictionType.size"><code class="docutils literal notranslate"><span class="pre">MosaicRestrictionType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicRestrictionType.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicRestrictionType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeAction"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction</span></code></a><ul>
@@ -1876,6 +2013,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeAction.deserialize"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeAction.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeAction.size"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeAction.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeAction.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1</span></code></a><ul>
@@ -1889,6 +2027,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyChangeTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyChangeTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyRevocationTransactionV1"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyRevocationTransactionV1</span></code></a><ul>
@@ -1901,6 +2040,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyRevocationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyRevocationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyRevocationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyRevocationTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyRevocationTransactionV1.source_address"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyRevocationTransactionV1.source_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MosaicSupplyRevocationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MosaicSupplyRevocationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MultisigAccountModificationTransactionV1"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1</span></code></a><ul>
@@ -1915,6 +2055,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MultisigAccountModificationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MultisigAccountModificationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MultisigAccountModificationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.MultisigAccountModificationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">MultisigAccountModificationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceDeletedReceipt"><code class="docutils literal notranslate"><span class="pre">NamespaceDeletedReceipt</span></code></a><ul>
@@ -1925,6 +2066,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceDeletedReceipt.serialize"><code class="docutils literal notranslate"><span class="pre">NamespaceDeletedReceipt.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceDeletedReceipt.size"><code class="docutils literal notranslate"><span class="pre">NamespaceDeletedReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceDeletedReceipt.sort"><code class="docutils literal notranslate"><span class="pre">NamespaceDeletedReceipt.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceDeletedReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceDeletedReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceExpiredReceipt"><code class="docutils literal notranslate"><span class="pre">NamespaceExpiredReceipt</span></code></a><ul>
@@ -1935,6 +2077,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceExpiredReceipt.serialize"><code class="docutils literal notranslate"><span class="pre">NamespaceExpiredReceipt.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceExpiredReceipt.size"><code class="docutils literal notranslate"><span class="pre">NamespaceExpiredReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceExpiredReceipt.sort"><code class="docutils literal notranslate"><span class="pre">NamespaceExpiredReceipt.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceExpiredReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceExpiredReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceId"><code class="docutils literal notranslate"><span class="pre">NamespaceId</span></code></a><ul>
@@ -1954,6 +2097,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceMetadataTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NamespaceMetadataTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceMetadataTransactionV1.target_address"><code class="docutils literal notranslate"><span class="pre">NamespaceMetadataTransactionV1.target_address</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceMetadataTransactionV1.target_namespace_id"><code class="docutils literal notranslate"><span class="pre">NamespaceMetadataTransactionV1.target_namespace_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceMetadataTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceMetadataTransactionV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceMetadataTransactionV1.value"><code class="docutils literal notranslate"><span class="pre">NamespaceMetadataTransactionV1.value</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceMetadataTransactionV1.value_size_delta"><code class="docutils literal notranslate"><span class="pre">NamespaceMetadataTransactionV1.value_size_delta</span></code></a></li>
 </ul>
@@ -1971,6 +2115,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationType"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationType</span></code></a><ul>
@@ -1979,6 +2124,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationType.deserialize"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationType.serialize"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationType.size"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRegistrationType.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceRegistrationType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRentalFeeReceipt"><code class="docutils literal notranslate"><span class="pre">NamespaceRentalFeeReceipt</span></code></a><ul>
@@ -1991,6 +2137,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRentalFeeReceipt.serialize"><code class="docutils literal notranslate"><span class="pre">NamespaceRentalFeeReceipt.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRentalFeeReceipt.size"><code class="docutils literal notranslate"><span class="pre">NamespaceRentalFeeReceipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRentalFeeReceipt.sort"><code class="docutils literal notranslate"><span class="pre">NamespaceRentalFeeReceipt.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NamespaceRentalFeeReceipt.to_json"><code class="docutils literal notranslate"><span class="pre">NamespaceRentalFeeReceipt.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1</span></code></a><ul>
@@ -2003,6 +2150,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1.serialize"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1.size"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1.sort"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1.to_json"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1.total_voting_balance"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1.total_voting_balance</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1.transactions"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1.transactions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NemesisBlockV1.voting_eligible_accounts_count"><code class="docutils literal notranslate"><span class="pre">NemesisBlockV1.voting_eligible_accounts_count</span></code></a></li>
@@ -2014,6 +2162,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NetworkType.deserialize"><code class="docutils literal notranslate"><span class="pre">NetworkType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NetworkType.serialize"><code class="docutils literal notranslate"><span class="pre">NetworkType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NetworkType.size"><code class="docutils literal notranslate"><span class="pre">NetworkType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NetworkType.to_json"><code class="docutils literal notranslate"><span class="pre">NetworkType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NodeKeyLinkTransactionV1"><code class="docutils literal notranslate"><span class="pre">NodeKeyLinkTransactionV1</span></code></a><ul>
@@ -2026,6 +2175,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NodeKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">NodeKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NodeKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">NodeKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NodeKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">NodeKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NodeKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">NodeKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NormalBlockV1"><code class="docutils literal notranslate"><span class="pre">NormalBlockV1</span></code></a><ul>
@@ -2036,6 +2186,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NormalBlockV1.serialize"><code class="docutils literal notranslate"><span class="pre">NormalBlockV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NormalBlockV1.size"><code class="docutils literal notranslate"><span class="pre">NormalBlockV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NormalBlockV1.sort"><code class="docutils literal notranslate"><span class="pre">NormalBlockV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NormalBlockV1.to_json"><code class="docutils literal notranslate"><span class="pre">NormalBlockV1.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.NormalBlockV1.transactions"><code class="docutils literal notranslate"><span class="pre">NormalBlockV1.transactions</span></code></a></li>
 </ul>
 </li>
@@ -2072,6 +2223,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Receipt.serialize"><code class="docutils literal notranslate"><span class="pre">Receipt.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Receipt.size"><code class="docutils literal notranslate"><span class="pre">Receipt.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Receipt.sort"><code class="docutils literal notranslate"><span class="pre">Receipt.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Receipt.to_json"><code class="docutils literal notranslate"><span class="pre">Receipt.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Receipt.type_"><code class="docutils literal notranslate"><span class="pre">Receipt.type_</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Receipt.version"><code class="docutils literal notranslate"><span class="pre">Receipt.version</span></code></a></li>
 </ul>
@@ -2089,6 +2241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptSource.serialize"><code class="docutils literal notranslate"><span class="pre">ReceiptSource.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptSource.size"><code class="docutils literal notranslate"><span class="pre">ReceiptSource.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptSource.sort"><code class="docutils literal notranslate"><span class="pre">ReceiptSource.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptSource.to_json"><code class="docutils literal notranslate"><span class="pre">ReceiptSource.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptType"><code class="docutils literal notranslate"><span class="pre">ReceiptType</span></code></a><ul>
@@ -2111,6 +2264,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptType.deserialize"><code class="docutils literal notranslate"><span class="pre">ReceiptType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptType.serialize"><code class="docutils literal notranslate"><span class="pre">ReceiptType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptType.size"><code class="docutils literal notranslate"><span class="pre">ReceiptType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.ReceiptType.to_json"><code class="docutils literal notranslate"><span class="pre">ReceiptType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretLockTransactionV1"><code class="docutils literal notranslate"><span class="pre">SecretLockTransactionV1</span></code></a><ul>
@@ -2126,6 +2280,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretLockTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">SecretLockTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretLockTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">SecretLockTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretLockTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">SecretLockTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretLockTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">SecretLockTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretProofTransactionV1"><code class="docutils literal notranslate"><span class="pre">SecretProofTransactionV1</span></code></a><ul>
@@ -2140,6 +2295,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretProofTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">SecretProofTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretProofTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">SecretProofTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretProofTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">SecretProofTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.SecretProofTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">SecretProofTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Signature"><code class="docutils literal notranslate"><span class="pre">Signature</span></code></a><ul>
@@ -2165,6 +2321,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Transaction.signer_public_key"><code class="docutils literal notranslate"><span class="pre">Transaction.signer_public_key</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Transaction.size"><code class="docutils literal notranslate"><span class="pre">Transaction.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Transaction.sort"><code class="docutils literal notranslate"><span class="pre">Transaction.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Transaction.to_json"><code class="docutils literal notranslate"><span class="pre">Transaction.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Transaction.type_"><code class="docutils literal notranslate"><span class="pre">Transaction.type_</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.Transaction.version"><code class="docutils literal notranslate"><span class="pre">Transaction.version</span></code></a></li>
 </ul>
@@ -2183,6 +2340,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionStatement.serialize"><code class="docutils literal notranslate"><span class="pre">TransactionStatement.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionStatement.size"><code class="docutils literal notranslate"><span class="pre">TransactionStatement.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionStatement.sort"><code class="docutils literal notranslate"><span class="pre">TransactionStatement.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionStatement.to_json"><code class="docutils literal notranslate"><span class="pre">TransactionStatement.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionType"><code class="docutils literal notranslate"><span class="pre">TransactionType</span></code></a><ul>
@@ -2214,6 +2372,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionType.deserialize"><code class="docutils literal notranslate"><span class="pre">TransactionType.deserialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionType.serialize"><code class="docutils literal notranslate"><span class="pre">TransactionType.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionType.size"><code class="docutils literal notranslate"><span class="pre">TransactionType.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransactionType.to_json"><code class="docutils literal notranslate"><span class="pre">TransactionType.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransferTransactionV1"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1</span></code></a><ul>
@@ -2227,6 +2386,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransferTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransferTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransferTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.TransferTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">TransferTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.UnresolvedAddress"><code class="docutils literal notranslate"><span class="pre">UnresolvedAddress</span></code></a><ul>
@@ -2244,6 +2404,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.UnresolvedMosaic.serialize"><code class="docutils literal notranslate"><span class="pre">UnresolvedMosaic.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.UnresolvedMosaic.size"><code class="docutils literal notranslate"><span class="pre">UnresolvedMosaic.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.UnresolvedMosaic.sort"><code class="docutils literal notranslate"><span class="pre">UnresolvedMosaic.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.UnresolvedMosaic.to_json"><code class="docutils literal notranslate"><span class="pre">UnresolvedMosaic.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.UnresolvedMosaicId"><code class="docutils literal notranslate"><span class="pre">UnresolvedMosaicId</span></code></a><ul>
@@ -2264,6 +2425,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VotingKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">VotingKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VotingKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">VotingKeyLinkTransactionV1.sort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VotingKeyLinkTransactionV1.start_epoch"><code class="docutils literal notranslate"><span class="pre">VotingKeyLinkTransactionV1.start_epoch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VotingKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">VotingKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VotingPublicKey"><code class="docutils literal notranslate"><span class="pre">VotingPublicKey</span></code></a><ul>
@@ -2283,6 +2445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfKeyLinkTransactionV1.serialize"><code class="docutils literal notranslate"><span class="pre">VrfKeyLinkTransactionV1.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfKeyLinkTransactionV1.size"><code class="docutils literal notranslate"><span class="pre">VrfKeyLinkTransactionV1.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfKeyLinkTransactionV1.sort"><code class="docutils literal notranslate"><span class="pre">VrfKeyLinkTransactionV1.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfKeyLinkTransactionV1.to_json"><code class="docutils literal notranslate"><span class="pre">VrfKeyLinkTransactionV1.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfProof"><code class="docutils literal notranslate"><span class="pre">VrfProof</span></code></a><ul>
@@ -2293,6 +2456,7 @@
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfProof.serialize"><code class="docutils literal notranslate"><span class="pre">VrfProof.serialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfProof.size"><code class="docutils literal notranslate"><span class="pre">VrfProof.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfProof.sort"><code class="docutils literal notranslate"><span class="pre">VrfProof.sort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfProof.to_json"><code class="docutils literal notranslate"><span class="pre">VrfProof.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html#symbolchain.sc.VrfProof.verification_hash"><code class="docutils literal notranslate"><span class="pre">VrfProof.verification_hash</span></code></a></li>
 </ul>
 </li>
@@ -2570,6 +2734,12 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.BaseValue.</span></span><span class="sig-name descname"><span class="pre">BaseValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.BaseValue.BaseValue" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#symbolchain.Ordered.Ordered" title="symbolchain.Ordered.Ordered"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ordered</span></code></a></p>
 <p>Represents a base int.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.BaseValue.BaseValue.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.BaseValue.BaseValue.to_json" title="Link to this definition"></a></dt>
+<dd><p>Returns representation of this object that can be stored in JSON.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -2717,6 +2887,12 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.ByteArray.</span></span><span class="sig-name descname"><span class="pre">ByteArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.ByteArray.ByteArray" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#symbolchain.Ordered.Ordered" title="symbolchain.Ordered.Ordered"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ordered</span></code></a></p>
 <p>Represents a fixed size byte array.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.ByteArray.ByteArray.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.ByteArray.ByteArray.to_json" title="Link to this definition"></a></dt>
+<dd><p>Returns representation of this object that can be stored in JSON.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>

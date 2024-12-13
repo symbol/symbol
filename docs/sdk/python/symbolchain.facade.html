@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>symbolchain.facade package &mdash; Symbol SDK (Python) 3.2.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>symbolchain.facade package &mdash; Symbol SDK (Python) 3.2.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=dcedd534"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=7895512d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -76,8 +74,8 @@
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.NodeDescriptorRepository">symbolchain.NodeDescriptorRepository module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Ordered">symbolchain.Ordered module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.PrivateKeyStorage">symbolchain.PrivateKeyStorage module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.QrSignatureStorage">symbolchain.QrSignatureStorage module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.QrStorage">symbolchain.QrStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#symbolchain-qrsignaturestorage-module">symbolchain.QrSignatureStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#symbolchain-qrstorage-module">symbolchain.QrStorage module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.RuleBasedTransactionFactory">symbolchain.RuleBasedTransactionFactory module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.SharedKey">symbolchain.SharedKey module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.TransactionDescriptorProcessor">symbolchain.TransactionDescriptorProcessor module</a></li>
@@ -286,6 +284,12 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.facade.NemFacade.NemFacade.extract_signing_payload">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_signing_payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.NemFacade.NemFacade.extract_signing_payload" title="Link to this definition"></a></dt>
+<dd><p>Gets the payload to sign given a NEM transaction.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="symbolchain.facade.NemFacade.NemFacade.hash_transaction">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hash_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.NemFacade.NemFacade.hash_transaction" title="Link to this definition"></a></dt>
 <dd><p>Hashes a NEM transaction.</p>
@@ -299,13 +303,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="symbolchain.facade.NemFacade.NemFacade.sign_transaction">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sign_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.NemFacade.NemFacade.sign_transaction" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sign_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.NemFacade.NemFacade.sign_transaction" title="Link to this definition"></a></dt>
 <dd><p>Signs a NEM transaction.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="symbolchain.facade.NemFacade.NemFacade.verify_transaction">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verify_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.NemFacade.NemFacade.verify_transaction" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">verify_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.NemFacade.NemFacade.verify_transaction" title="Link to this definition"></a></dt>
 <dd><p>Verifies a NEM transaction.</p>
 </dd></dl>
 
@@ -330,6 +334,12 @@
 <dt class="sig sig-object py" id="symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction">
 <span class="sig-name descname"><span class="pre">cosign_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detached</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction" title="Link to this definition"></a></dt>
 <dd><p>Cosigns a Symbol transaction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction_hash">
+<span class="sig-name descname"><span class="pre">cosign_transaction_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detached</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction_hash" title="Link to this definition"></a></dt>
+<dd><p>Cosigns a Symbol transaction hash.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -460,6 +470,12 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction_hash">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cosign_transaction_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detached</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction_hash" title="Link to this definition"></a></dt>
+<dd><p>Cosigns a Symbol transaction hash.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="symbolchain.facade.SymbolFacade.SymbolFacade.create_account">
 <span class="sig-name descname"><span class="pre">create_account</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.SymbolFacade.SymbolFacade.create_account" title="Link to this definition"></a></dt>
 <dd><p>Creates a Symbol account from a private key.</p>
@@ -469,6 +485,12 @@
 <dt class="sig sig-object py" id="symbolchain.facade.SymbolFacade.SymbolFacade.create_public_account">
 <span class="sig-name descname"><span class="pre">create_public_account</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.SymbolFacade.SymbolFacade.create_public_account" title="Link to this definition"></a></dt>
 <dd><p>Creates a Symbol public account from a public key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.facade.SymbolFacade.SymbolFacade.extract_signing_payload">
+<span class="sig-name descname"><span class="pre">extract_signing_payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.facade.SymbolFacade.SymbolFacade.extract_signing_payload" title="Link to this definition"></a></dt>
+<dd><p>Gets the payload to sign given a Symbol transaction.</p>
 </dd></dl>
 
 <dl class="py method">
