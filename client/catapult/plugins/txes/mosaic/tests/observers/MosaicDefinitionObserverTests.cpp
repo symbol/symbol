@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
 #include "src/cache/MosaicCache.h"
+#include "src/observers/Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"

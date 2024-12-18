@@ -5,8 +5,8 @@
 #ifndef ED25519_DONNA_BATCHVERIFY_H
 #define ED25519_DONNA_BATCHVERIFY_H
 
-#include "ed25519-donna.h"
 #include "ed25519.h"
+#include "ed25519-donna.h"
 
 #define max_batch_size 64
 #define heap_batch_size ((max_batch_size * 2) + 1)

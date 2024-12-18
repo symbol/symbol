@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ServiceLocator.h"
 #include "tests/int/node/test/LocalNodeBasicTests.h"
+#include "catapult/extensions/ServiceLocator.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
 #include "tests/TestHarness.h"
 
