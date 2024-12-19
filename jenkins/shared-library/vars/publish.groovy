@@ -144,7 +144,7 @@ void gitHubPagesPublisher(Map config, String phase) {
 	}
 
 	githubHelper.executeGitAuthenticatedCommand {
-		withCredentials([string(credentialsId: TRANSIFEX_TOKEN_ID, variable: 'TRANSIFEX_TOKEN')]) {
+		withCredentials([string(credentialsId: 'TRANSIFEX_TOKEN_ID', variable: 'TRANSIFEX_TOKEN')]) {
 			runScript(env.GITHUB_PAGES_PUBLISH_SCRIPT_FILEPATH)
 		}
 	}
