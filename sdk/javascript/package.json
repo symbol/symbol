@@ -67,7 +67,7 @@
     "typescript": "~5.7.2",
     "url": "~0.11.3",
     "webpack": "~5.97.0",
-    "webpack-cli": "~5.1.4",
+    "webpack-cli": "~6.0.1",
     "yargs": "~17.7.2"
   },
   "dependencies": {
