@@ -10,7 +10,7 @@
     "sslCertificatePath": "",
     "crossDomain": {
         "allowedHosts": ["*"],
-        "allowedMethods": ["GET", "POST", "PUT", "OPTIONS"]
+        "allowedMethods": ["GET"]
     },
 
     "apiNode": {
@@ -19,11 +19,7 @@
         "timeout": 1000,
         "tlsClientCertificatePath": "/",
         "tlsClientKeyPath": "/",
-        "tlsCaCertificatePath": "/",
-
-        "inflationPropertyFilePath": "/",
-        "networkPropertyFilePath": "/",
-        "nodePropertyFilePath": "/"
+        "tlsCaCertificatePath": "/"
     },
 
     "throttling": {
