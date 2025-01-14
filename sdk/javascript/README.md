@@ -17,14 +17,20 @@ Most common functionality is grouped under facades so that the same programming 
 
 ## Building the SDK
 
-* Install requirements for the catbuffer module. From the top level `catbuffer/parser` folder, run:
+* Manually install dependencies:
+    * [Node.js](https://nodejs.org/) (version >=22 or <=20)
+    * [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+    * [Rustup](https://rustup.rs/)
+    * [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+    * [Python 3](https://www.python.org/downloads/)
+
+* Install requirements for the generator module:
 
     ```sh
-    pip3 install -r requirements.txt
+    python3 -m pip install -r generator/requirements.txt
     ```
 
-* Manually install dependencies: [Node.js](https://nodejs.org/) (version >=22 or <=20), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), [Rustup](https://rustup.rs/), and [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
-* From the `sdk/javascript` folder, run:
+* Run:
 
     ```sh
     npm install
