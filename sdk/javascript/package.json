@@ -63,7 +63,7 @@
     "process": "~0.11.10",
     "rimraf": "~6.0.1",
     "stream-browserify": "~3.0.0",
-    "typedoc": "^0.27.2",
+    "typedoc": "^0.27.6",
     "typescript": "~5.7.2",
     "url": "~0.11.3",
     "webpack": "~5.97.0",
@@ -72,6 +72,7 @@
   },
   "dependencies": {
     "@noble/hashes": "~1.7.0",
+    "@types/node": "^22.10.5",
     "bitcore-mnemonic": "~10.7.0",
     "ripemd160": "~2.0.2"
   },

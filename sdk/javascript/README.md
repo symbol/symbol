@@ -15,6 +15,28 @@ JavaScript SDK for interacting with the Symbol and NEM blockchains.
 
 Most common functionality is grouped under facades so that the same programming paradigm can be used for interacting with both Symbol and NEM.
 
+## Building the SDK
+
+* Install requirements for the catbuffer module. From the top level `catbuffer/parser` folder, run:
+
+    ```sh
+    pip3 install -r requirements.txt
+    ```
+
+* Manually install dependencies: [Node.js](https://nodejs.org/) (version >=22 or <=20), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), [Rustup](https://rustup.rs/), and [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
+* From the `sdk/javascript` folder, run:
+
+    ```sh
+    npm install
+    scripts/ci/build.sh
+    ```
+
+* Optionally, to build the documentation, run:
+
+    ```sh
+    scripts/generate_docs.sh
+    ```
+
 ## Sending a Transaction
 
 To send a transaction, first create a facade for the desired network:

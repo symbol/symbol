@@ -8,9 +8,9 @@
     ],
     "out": "./build/html",
 
-    "includeVersion": "true",
-    "excludePrivate": "true",
-    "excludeExternals": "true",
+    "includeVersion": true,
+    "excludePrivate": true,
+    "excludeExternals": true,
 
-    "sortEntryPoints": "false"
+    "sortEntryPoints": false
 }
