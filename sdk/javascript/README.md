@@ -15,6 +15,34 @@ JavaScript SDK for interacting with the Symbol and NEM blockchains.
 
 Most common functionality is grouped under facades so that the same programming paradigm can be used for interacting with both Symbol and NEM.
 
+## Building the SDK
+
+* Manually install dependencies:
+    * [Node.js](https://nodejs.org/) (any [actively supported version](https://nodejs.org/en/about/previous-releases))
+    * [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+    * [Rustup](https://rustup.rs/)
+    * [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+    * [Python 3](https://www.python.org/downloads/)
+
+* Install requirements for the generator module:
+
+    ```sh
+    python3 -m pip install -r generator/requirements.txt
+    ```
+
+* Run:
+
+    ```sh
+    npm install
+    scripts/ci/build.sh
+    ```
+
+* Optionally, to build the documentation, run:
+
+    ```sh
+    scripts/generate_docs.sh
+    ```
+
 ## Sending a Transaction
 
 To send a transaction, first create a facade for the desired network:

@@ -2,7 +2,7 @@
 
 [![Build Status](https://api.travis-ci.com/symbol/catbuffer-parser.svg?branch=main)](https://travis-ci.com/symbol/catbuffer-parser)
 
-This project is the reference parser implementation for the CATS (Compact Affinitized Transfer Schema) DSL that is used by the Symbol blockchain. The parser converts a CATS file or files into an AST that can be used by a generator to produce serialization and deserialzation code for defined objects.
+This project is the reference parser implementation for the CATS (Compact Affinitized Transfer Schema) DSL that is used by the Symbol blockchain. The parser converts a CATS file or files into an AST that can be used by a generator to produce serialization and deserialization code for defined objects.
 
 - A reference to the DSL format can be found [here](docs/cats_dsl.md).
 - For a sampling of real world schemas, those used by the Symbol blockchain can be found [here](https://github.com/symbol/catbuffer-schemas).
