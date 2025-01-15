@@ -18,7 +18,7 @@ Most common functionality is grouped under facades so that the same programming 
 ## Building the SDK
 
 * Manually install dependencies:
-    * [Node.js](https://nodejs.org/) (version >=22 or <=20)
+    * [Node.js](https://nodejs.org/) (any [actively supported version](https://nodejs.org/en/about/previous-releases))
     * [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
     * [Rustup](https://rustup.rs/)
     * [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
