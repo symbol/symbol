@@ -1,0 +1,222 @@
+@font-face {
+    font-family: 'Aldrich';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(../fonts/Aldrich-Regular.ttf) format('truetype');
+}
+
+@font-face {
+    font-family: 'Exo2';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url(../fonts/Exo2-VariableFont.ttf) format('truetype');
+}
+
+/* Colors */
+:root {
+    --userbook-color: #F4A900;
+    --userbook-color--dark: #a57504;
+    --userbook-color--light: #f7cc67;
+    --devbook-color: #20B5AC;
+    --devbook-color--dark: #136d67;
+    --devbook-color--light: #77c4be;
+    --textbook-color: #7000DF;
+    --textbook-color--dark: #4a0194;
+    --textbook-color--light: #9756d5;
+}
+
+.userbook-section {
+    --md-primary-fg-color: var(--userbook-color);
+    --md-primary-fg-color--dark: var(--userbook-color--dark);
+    --md-primary-fg-color--light: var(--userbook-color--light);
+}
+
+.devbook-section {
+    --md-primary-fg-color: var(--devbook-color);
+    --md-primary-fg-color--dark: var(--devbook-color--dark);
+    --md-primary-fg-color--light: var(--devbook-color--light);
+}
+
+.textbook-section {
+    --md-primary-fg-color: var(--textbook-color);
+    --md-primary-fg-color--dark: var(--textbook-color--dark);
+    --md-primary-fg-color--light: var(--textbook-color--light);
+}
+
+[data-md-color-scheme=slate][data-md-color-primary=indigo] {
+    --md-typeset-a-color: var(--md-primary-fg-color--light);
+    --md-accent-fg-color: var(--md-primary-fg-color);
+    --md-default-bg-color--light: #333;
+}
+
+[data-md-color-scheme=default][data-md-color-primary=indigo] {
+    --md-typeset-a-color: var(--md-primary-fg-color--dark);
+    --md-accent-fg-color: var(--md-primary-fg-color);
+    --md-default-bg-color--light: #DDD;
+}
+
+/* Home page cards */
+.userbook {
+    background: url("../images/userbook.png") no-repeat center;
+}
+
+.devbook {
+    background: url("../images/devbook.png") no-repeat center;
+}
+
+.textbook {
+    background: url("../images/textbook.png") no-repeat center;
+}
+
+.userbook:hover {
+    background: url("../images/userbook-open.png") no-repeat center;
+}
+
+.devbook:hover {
+    background: url("../images/devbook-open.png") no-repeat center;
+}
+
+.textbook:hover {
+    background: url("../images/textbook-open.png") no-repeat center;
+}
+
+.md-typeset .grid .card {
+    text-align: center;
+    padding: 0;
+}
+
+.md-typeset .grid .card a {
+    font-size: 2em;
+    font-family: "Aldrich";
+    display: block;
+    line-height: 300px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+/* Top navigation tab style: centered, with icons and custom font*/
+.md-tabs .md-tabs__item:first-child {
+    display: none;
+}
+
+.md-tabs .md-tabs__item a {
+    padding-left: 2rem;
+    font-size: 2em;
+    font-family: "Aldrich";
+    line-height: 2.4em;
+    margin-top: 0;
+}
+
+.md-tabs .md-tabs__item:nth-child(2) {
+    background: url("../images/userbook.png") no-repeat;
+    background-size: 1.4rem;
+    background-position: left center;
+}
+
+.md-tabs .md-tabs__item:nth-child(3) {
+    background: url("../images/devbook.png") no-repeat;
+    background-size: 1.4rem;
+    background-position: left center;
+}
+
+.md-tabs .md-tabs__item:nth-child(4) {
+    background: url("../images/textbook.png") no-repeat;
+    background-size: 1.4rem;
+    background-position: left center;
+}
+
+.md-tabs .md-tabs__item--active:nth-child(2) {
+    background: url("../images/userbook-open.png") no-repeat;
+    background-size: 2.4rem;
+    background-position: left center;
+}
+
+.md-tabs .md-tabs__item--active:nth-child(3) {
+    background: url("../images/devbook-open.png") no-repeat;
+    background-size: 2.4rem;
+    background-position: left center;
+}
+
+.md-tabs .md-tabs__item--active:nth-child(4) {
+    background: url("../images/textbook-open.png") no-repeat;
+    background-size: 2.4rem;
+    background-position: left center;
+}
+
+.md-tabs__list {
+    justify-content: center;
+    gap: 30px;
+}
+
+/* Bigger logo */
+[dir=ltr] .md-header__title {
+    margin-left: 0;
+}
+
+.md-header__button.md-logo {
+    margin: 0;
+    padding: .4rem;
+}
+
+.md-header__button.md-logo img {
+    height: 2rem;
+}
+
+/* Header */
+.md-tabs,
+.md-header {
+    background-color: var(--md-primary-fg-color--dark);
+}
+
+.md-tabs {
+    border-bottom: 1px solid var(--md-primary-fg-color);
+}
+
+/* Separator for source file facts at page bottom */
+aside.md-source-file {
+    border-top: 1px solid var(--md-primary-fg-color);
+    padding-top: 0.5rem;
+    margin-top: 2rem;
+}
+
+/* Footer */
+.md-copyright {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-right: 36px;
+}
+
+/* Links to other sections use the color of that section */
+.md-content a[href*="userbook"][href^='..'] {
+    color: var(--userbook-color--light);
+}
+
+.md-content a[href*="userbook"][href^='..']:hover {
+    color: var(--userbook-color);
+}
+
+.md-content a[href*="devbook"][href^='..'] {
+    color: var(--devbook-color--light);
+}
+
+.md-content a[href*="devbook"][href^='..']:hover {
+    color: var(--devbook-color);
+}
+
+.md-content a[href*="textbook"][href^='..'] {
+    color: var(--textbook-color--light);
+}
+
+.md-content a[href*="textbook"][href^='..']:hover {
+    color: var(--textbook-color);
+}
+
+/* Tooltips */
+.md-tooltip__inner,
+[role=tooltip]>.md-tooltip2__inner {
+    font-size: 0.6rem;
+    background-color: var(--md-default-bg-color--light);
+}
