@@ -451,7 +451,7 @@ class LinuxSystemGenerator:
 
 		print_args = {
 			'BOOST_ARCHIVE': f'boost_{boost_version.replace(".", "_")}',
-			'BOOST_URI': f'https://boostorg.jfrog.io/artifactory/main/release/{boost_version}/source',
+			'BOOST_URI': f'https://archives.boost.io/release/{boost_version}/source',
 			'BOOTSTRAP_OPTIONS': ' '.join(self.options.bootstrap()),
 			'B2_OPTIONS': ' '.join(self.options.b2()),
 			'BOOST_DISABLED_LIBS': ' '.join(BOOST_DISABLED_LIBS)
@@ -557,7 +557,7 @@ class WindowsSystemGenerator:
 		boost_version = self.options.versions['boost']
 		print_args = {
 			'BOOST_ARCHIVE': f'boost_{boost_version.replace(".", "_")}',
-			'BOOST_URI': f'https://boostorg.jfrog.io/artifactory/main/release/{boost_version}/source',
+			'BOOST_URI': f'https://archives.boost.io/release/{boost_version}/source',
 			'BOOTSTRAP_OPTIONS': ' '.join(self.options.bootstrap()),
 			'B2_OPTIONS': ' '.join(self.options.b2()),
 			'BOOST_DISABLED_LIBS': ' '.join(BOOST_DISABLED_LIBS),

@@ -25,7 +25,7 @@ class Downloader:
 		version = self.versions['boost']
 		archive_name = f'boost_{version.replace(".", "_")}'
 		tar_filename = f'{archive_name}.tar.gz'
-		tar_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/{version}/source/{tar_filename}'
+		tar_source_path = f'https://archives.boost.io/release/{version}/source/{tar_filename}'
 
 		self.process_manager.dispatch_subprocess(['curl', '-o', tar_filename, '-SL', tar_source_path])
 		self.process_manager.dispatch_subprocess(['tar', '-xzf', tar_filename])
@@ -35,7 +35,7 @@ class Downloader:
 		version = self.versions['boost']
 		archive_name = f'boost_{version.replace(".", "_")}'
 		zip_filename = f'{archive_name}.7z'
-		zip_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/{version}/source/{zip_filename}'
+		zip_source_path = f'https://archives.boost.io/release/{version}/source/{zip_filename}'
 
 		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'wget', zip_source_path, '-outfile', zip_filename])
 		self.process_manager.dispatch_subprocess(['powershell', '-Command', '7z', 'x', zip_filename])
