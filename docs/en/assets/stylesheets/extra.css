@@ -2,7 +2,7 @@
     font-family: 'Aldrich';
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: block;
     src: url(../fonts/Aldrich-Regular.ttf) format('truetype');
 }
 
@@ -10,39 +10,45 @@
     font-family: 'Exo2';
     font-style: normal;
     font-weight: 100 900;
-    font-display: swap;
+    font-display: block;
     src: url(../fonts/Exo2-VariableFont.ttf) format('truetype');
 }
 
 /* Colors */
 :root {
     --userbook-color: #F4A900;
-    --userbook-color--dark: #a57504;
+    --userbook-color--dark: rgb(39 33 17);
     --userbook-color--light: #f7cc67;
+    --userbook-color--transparent: #F4A90020;
     --devbook-color: #20B5AC;
-    --devbook-color--dark: #136d67;
+    --devbook-color--dark: rgb(32 43 50);
     --devbook-color--light: #77c4be;
+    --devbook-color--transparent: #20B5AC20;
     --textbook-color: #7000DF;
-    --textbook-color--dark: #4a0194;
+    --textbook-color--dark: rgb(40 25 59);
     --textbook-color--light: #9756d5;
+    --textbook-color--transparent: #7000DF20;
 }
 
 .userbook-section {
     --md-primary-fg-color: var(--userbook-color);
     --md-primary-fg-color--dark: var(--userbook-color--dark);
     --md-primary-fg-color--light: var(--userbook-color--light);
+    --md-accent-fg-color--transparent: var(--userbook-color--transparent);
 }
 
 .devbook-section {
     --md-primary-fg-color: var(--devbook-color);
     --md-primary-fg-color--dark: var(--devbook-color--dark);
     --md-primary-fg-color--light: var(--devbook-color--light);
+    --md-accent-fg-color--transparent: var(--devbook-color--transparent);
 }
 
 .textbook-section {
     --md-primary-fg-color: var(--textbook-color);
     --md-primary-fg-color--dark: var(--textbook-color--dark);
     --md-primary-fg-color--light: var(--textbook-color--light);
+    --md-accent-fg-color--transparent: var(--textbook-color--transparent);
 }
 
 [data-md-color-scheme=slate][data-md-color-primary=indigo] {
@@ -89,7 +95,7 @@
 
 .md-typeset .grid .card a {
     font-size: 2em;
-    font-family: "Aldrich";
+    font-family: Aldrich, sans-serif;
     display: block;
     line-height: 300px;
     color: white;
@@ -104,7 +110,7 @@
 .md-tabs .md-tabs__item a {
     padding-left: 2rem;
     font-size: 2em;
-    font-family: "Aldrich";
+    font-family: Aldrich, sans-serif;
     line-height: 2.4em;
     margin-top: 0;
 }
@@ -171,7 +177,16 @@
 }
 
 .md-tabs {
-    border-bottom: 1px solid var(--md-primary-fg-color);
+    border-bottom: 3px solid var(--md-primary-fg-color);
+}
+
+.md-header--shadow {
+    box-shadow: none;
+    border-bottom: 3px solid var(--md-primary-fg-color);
+}
+
+.md-header__source {
+    display: none;
 }
 
 /* Separator for source file facts at page bottom */
@@ -219,4 +234,20 @@ aside.md-source-file {
 [role=tooltip]>.md-tooltip2__inner {
     font-size: 0.6rem;
     background-color: var(--md-default-bg-color--light);
+}
+
+/* Search box */
+.md-search__form {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--md-primary-fg-color);
+    border-radius: 0.4rem;
+}
+
+.md-search__icon svg {
+    fill: var(--md-primary-fg-color);
+}
+
+.md-search__input::placeholder {
+    color: var(--md-primary-fg-color);
+    opacity: 1;
 }
