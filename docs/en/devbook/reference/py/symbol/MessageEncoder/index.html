@@ -2069,6 +2069,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.encode" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;encode
@@ -2446,6 +2455,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.encode" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;encode
@@ -2556,17 +2574,21 @@
 
 
 <h2 id="symbolchain.symbol.MessageEncoder.MessageEncoder" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="p">(</span><span class="n">key_pair</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>MessageEncoder</code>
+
 
 <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="06c81ae2c885a312bfb8d74cf292407a">symbolchain.symbol.MessageEncoder.MessageEncoder</a> 
+</dt>
+<dd>
         <p>Encrypts and encodes messages between two parties.</p>
-
-        <p>Creates message encoder around key pair.</p>
+    </dd>
+</dl>
 
 
 
@@ -2589,7 +2611,7 @@
 
 
 <h3 id="symbolchain.symbol.MessageEncoder.MessageEncoder.public_key" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">public_key</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">public_key</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -2610,15 +2632,42 @@
 <div class="doc doc-object doc-function">
 
 
+<h3 id="symbolchain.symbol.MessageEncoder.MessageEncoder.__init__" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key_pair</span><span class="p">)</span></code>
+
+<a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.__init__" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
+
+
+    <div class="doc doc-contents ">
+    <dl class="automatic-reference-term"><dt>
+	<a id="debe892dfbdd14372756b7576e52a596">symbolchain.symbol.MessageEncoder.MessageEncoder.__init__</a> 
+</dt>
+<dd>
+        <p>Creates message encoder around key pair.</p>
+    </dd>
+</dl>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h3 id="symbolchain.symbol.MessageEncoder.MessageEncoder.encode" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">encode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
 
 <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.encode" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="ba120264eddd99a79b1217a60c4163a9">symbolchain.symbol.MessageEncoder.MessageEncoder.encode</a> 
+</dt>
+<dd>
         <p>Encodes message to recipient using recommended format.</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2628,14 +2677,19 @@
 
 
 <h3 id="symbolchain.symbol.MessageEncoder.MessageEncoder.encode_deprecated" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">encode_deprecated</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">encode_deprecated</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
 
 <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.encode_deprecated" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="cdb81b75b297b23fd5630a49b10d5b9e">symbolchain.symbol.MessageEncoder.MessageEncoder.encode_deprecated</a> 
+</dt>
+<dd>
         <p>Encodes message to recipient using (deprecated) wallet format.</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2645,7 +2699,7 @@
 
 
 <h3 id="symbolchain.symbol.MessageEncoder.MessageEncoder.encode_persistent_harvesting_delegation" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">encode_persistent_harvesting_delegation</span><span class="p">(</span><span class="n">node_public_key</span><span class="p">,</span> <span class="n">remote_key_pair</span><span class="p">,</span> <span class="n">vrf_root_key_pair</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">encode_persistent_harvesting_delegation</span><span class="p">(</span><span class="n">node_public_key</span><span class="p">,</span> <span class="n">remote_key_pair</span><span class="p">,</span> <span class="n">vrf_root_key_pair</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -2655,8 +2709,13 @@
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="c193a106f88a06a2486b5f620141861d">symbolchain.symbol.MessageEncoder.MessageEncoder.encode_persistent_harvesting_delegation</a> 
+</dt>
+<dd>
         <p>Encodes persistent harvesting delegation to node.</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2666,16 +2725,21 @@
 
 
 <h3 id="symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">try_decode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">encoded_message</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">try_decode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">encoded_message</span><span class="p">)</span></code>
 
 <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="40a097d99d26f56c39c20cac901bafd3">symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode</a> 
+</dt>
+<dd>
         <p>Tries to decode encoded message, returns tuple:
 * True, message - if message has been decoded and decrypted
 * False, encoded_message - otherwise</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2685,16 +2749,21 @@
 
 
 <h3 id="symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode_deprecated" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">try_decode_deprecated</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">encoded_message</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">try_decode_deprecated</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">encoded_message</span><span class="p">)</span></code>
 
 <a href="#symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode_deprecated" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="ee23b7cd73650ba612fa9ce23a2ea011">symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode_deprecated</a> 
+</dt>
+<dd>
         <p>Tries to decode encoded wallet message, returns tuple:
 * True, message - if message has been decoded and decrypted
 * False, encoded_message - otherwise</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2913,7 +2982,7 @@
       
     
     
-        <script>document.body.className+=" devbook-section"</script>>
+        <script>document.body.className+=" devbook-section"</script>
     
 
   </body>

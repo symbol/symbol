@@ -151,6 +151,10 @@
     background-position: left center;
 }
 
+.md-tabs[hidden] .md-tabs__item {
+    background: none;
+}
+
 .md-tabs__list {
     justify-content: center;
     gap: 30px;
@@ -250,4 +254,15 @@ aside.md-source-file {
 .md-search__input::placeholder {
     color: var(--md-primary-fg-color);
     opacity: 1;
+}
+
+/* Hide definition list terms generated automatically for the reference guide */
+.automatic-reference-term dt {
+    display: none;
+}
+
+/* Glossaries */
+a:target {
+    background-color: var(--md-accent-fg-color--transparent);
+    display: block;
 }

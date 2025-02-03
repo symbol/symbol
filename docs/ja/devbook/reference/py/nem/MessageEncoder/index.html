@@ -1624,6 +1624,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#symbolchain.nem.MessageEncoder.MessageEncoder.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#symbolchain.nem.MessageEncoder.MessageEncoder.encode" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;encode
@@ -2428,6 +2437,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#symbolchain.nem.MessageEncoder.MessageEncoder.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#symbolchain.nem.MessageEncoder.MessageEncoder.encode" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;encode
@@ -2520,17 +2538,21 @@
 
 
 <h2 id="symbolchain.nem.MessageEncoder.MessageEncoder" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">nem</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="p">(</span><span class="n">key_pair</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>MessageEncoder</code>
+
 
 <a href="#symbolchain.nem.MessageEncoder.MessageEncoder" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="bd4b0d8eef5df793906aa7090fc06552">symbolchain.nem.MessageEncoder.MessageEncoder</a> 
+</dt>
+<dd>
         <p>Encrypts and encodes messages between two parties.</p>
-
-        <p>Creates message encoder around key pair.</p>
+    </dd>
+</dl>
 
 
 
@@ -2553,7 +2575,7 @@
 
 
 <h3 id="symbolchain.nem.MessageEncoder.MessageEncoder.public_key" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">nem</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">public_key</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">public_key</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -2574,15 +2596,42 @@
 <div class="doc doc-object doc-function">
 
 
+<h3 id="symbolchain.nem.MessageEncoder.MessageEncoder.__init__" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key_pair</span><span class="p">)</span></code>
+
+<a href="#symbolchain.nem.MessageEncoder.MessageEncoder.__init__" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+
+
+    <div class="doc doc-contents ">
+    <dl class="automatic-reference-term"><dt>
+	<a id="cf665d397463fd37274f813086ee7b49">symbolchain.nem.MessageEncoder.MessageEncoder.__init__</a> 
+</dt>
+<dd>
+        <p>Creates message encoder around key pair.</p>
+    </dd>
+</dl>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h3 id="symbolchain.nem.MessageEncoder.MessageEncoder.encode" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">nem</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">encode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
 
 <a href="#symbolchain.nem.MessageEncoder.MessageEncoder.encode" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="bb83bc27d952417959bbc2c998861307">symbolchain.nem.MessageEncoder.MessageEncoder.encode</a> 
+</dt>
+<dd>
         <p>Encodes message to recipient using recommended format.</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2592,14 +2641,19 @@
 
 
 <h3 id="symbolchain.nem.MessageEncoder.MessageEncoder.encode_deprecated" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">nem</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">encode_deprecated</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">encode_deprecated</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
 
 <a href="#symbolchain.nem.MessageEncoder.MessageEncoder.encode_deprecated" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="61728a2fb6024b45e1d28732b49080df">symbolchain.nem.MessageEncoder.MessageEncoder.encode_deprecated</a> 
+</dt>
+<dd>
         <p>Encodes message to recipient using deprecated encryption and key derivation.</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2609,16 +2663,21 @@
 
 
 <h3 id="symbolchain.nem.MessageEncoder.MessageEncoder.try_decode" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">symbolchain</span><span class="o">.</span><span class="n">nem</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">MessageEncoder</span><span class="o">.</span><span class="n">try_decode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">encoded_message</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">try_decode</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">,</span> <span class="n">encoded_message</span><span class="p">)</span></code>
 
 <a href="#symbolchain.nem.MessageEncoder.MessageEncoder.try_decode" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
-
+    <dl class="automatic-reference-term"><dt>
+	<a id="1c89e292ded256389dba07ec25251f4e">symbolchain.nem.MessageEncoder.MessageEncoder.try_decode</a> 
+</dt>
+<dd>
         <p>Tries to decode encoded message, returns tuple:
 * True, message - if message has been decoded and decrypted
 * False, encoded_message - otherwise</p>
+    </dd>
+</dl>
 
     </div>
 
@@ -2837,7 +2896,7 @@
       
     
     
-        <script>document.body.className+=" devbook-section"</script>>
+        <script>document.body.className+=" devbook-section"</script>
     
 
   </body>
