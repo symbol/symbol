@@ -12,13 +12,13 @@ class CatapultConan(ConanFile):
 		self.requires("boost/1.83.0", run=True)
 		self.requires("openssl/3.3.2", run=True)
 		self.requires("cppzmq/4.10.0@nemtech/stable", run=True)
-		self.requires("mongo-cxx-driver/3.11.0@nemtech/stable", run=True)
-		self.requires("rocksdb/9.7.4@nemtech/stable", run=True)
+		self.requires("mongo-cxx-driver/4.0.0@nemtech/stable", run=True)
+		self.requires("rocksdb/9.8.4@nemtech/stable", run=True)
 
 	def build_requirements(self):
 		# pylint: disable=not-callable
 		self.test_requires("gtest/1.15.0")
-		self.test_requires("benchmark/1.9.0@nemtech/stable")
+		self.test_requires("benchmark/1.9.1@nemtech/stable")
 
 	def layout(self):
 		cmake_layout(self)
