@@ -1,0 +1,7 @@
+defaultCiPipeline {
+	operatingSystem = ['ubuntu']
+	instanceSize = 'medium'
+	environment = 'java'
+	packageId = 'sdk-java'
+	codeCoverageTool = 'jacoco-gradle'
+}

@@ -24,6 +24,12 @@ coverage:
         flags:
           - client-rest
 
+      sdk-java:
+        target: auto
+        threshold: 1%
+        flags:
+          - sdk-java
+
       sdk-javascript:
         target: auto
         threshold: 1%
@@ -56,6 +62,11 @@ flags:
   client-rest:
     paths:
       - client/rest
+    carryforward: true
+
+  sdk-java:
+    paths:
+      - sdk/java
     carryforward: true
 
   sdk-javascript:
