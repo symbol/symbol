@@ -35,7 +35,7 @@ RUN pip install gitlint
 # install gradle
 SHELL ["/bin/bash", "-c"]
 RUN curl -s "https://get.sdkman.io" | bash \
-    && source "/home/ubuntu/.sdkman/bin/sdkman-init.sh" \
-    && sdk install gradle
+	&& source "/home/ubuntu/.sdkman/bin/sdkman-init.sh" \
+	&& sdk install gradle
 ENV PATH="$PATH:/home/ubuntu/.sdkman/candidates/gradle/current/bin"
 WORKDIR /home/ubuntu
