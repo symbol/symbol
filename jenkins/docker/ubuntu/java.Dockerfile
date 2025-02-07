@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 # install dependencies (install tzdata first to prevent 'geographic area' prompt)
 RUN apt-get update \
 	&& apt-get install -y tzdata \
-	&& apt-get install -y openjdk-11-jdk-headless git curl libssl-dev maven ca-certificates \
+	&& apt-get install -y openjdk-11-jdk-headless git curl libssl-dev maven ca-certificates zip unzip \
 	&& update-ca-certificates
 
 # install python
@@ -32,4 +32,10 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # install gitlint
 RUN pip install gitlint
 
+# install gradle
+SHELL ["/bin/bash", "-c"]
+RUN curl -s "https://get.sdkman.io" | bash \
+    && source "/home/ubuntu/.sdkman/bin/sdkman-init.sh" \
+    && sdk install gradle
+ENV PATH="$PATH:/home/ubuntu/.sdkman/candidates/gradle/current/bin"
 WORKDIR /home/ubuntu
