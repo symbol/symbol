@@ -125,6 +125,24 @@ updates:
           - minor
           - patch
 
+  - package-ecosystem: gradle
+    directory: /sdk/java
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [sdk-javascript]
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: '[dependency]'
+    groups:
+      sdk-java-dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
   - package-ecosystem: npm
     directory: /sdk/javascript
     schedule:
