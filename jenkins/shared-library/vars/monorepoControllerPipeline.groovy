@@ -121,7 +121,7 @@ void triggerJobs(String branchName) {
 		println "no build projects found for path:${currentJobName} ${jenkinsfilesJobToRun}"
 		println "Trigger files: ${triggeredJenkinsfile}"
 		println 'defaulting to all jobs'
-		siblingNameMap = allJenkinsfiles
+		siblingNameMap = jobHelper.siblingJobNames(allJenkinsfiles, currentJobName)
 	}
 
 	Map<String, Closure> buildJobs = [:]
