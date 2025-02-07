@@ -24,6 +24,12 @@ coverage:
         flags:
           - client-rest
 
+      sdk-java:
+        target: auto
+        threshold: 1%
+        flags:
+          - sdk-java
+
       sdk-javascript:
         target: auto
         threshold: 1%

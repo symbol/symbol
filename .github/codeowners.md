@@ -8,5 +8,6 @@ client/rest/             @Jaguar0625 @gimre-xymcity
 linters/                 @Jaguar0625 @gimre-xymcity @wayonb
 sdk/python/              @Jaguar0625 @gimre-xymcity
 sdk/javascript/          @Jaguar0625 @gimre-xymcity
+sdk/java/               @Jaguar0625 @Wayonb
 mkdocs/                  @segfaultxavi
 jenkins/                 @Wayonb
