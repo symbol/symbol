@@ -116,7 +116,7 @@ void triggerJobs(String branchName) {
 	Map<String, String> jenkinsfilesJobToRun = triggeredJenkinsfile + dependencyJenkinsfile + requiredJenkinsfile
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(jenkinsfilesJobToRun, currentJobName)
 
-	if (siblingNameMap.size() == 0) {
+	if (0 == triggeredJenkinsfile.size()) {
 		// In some cases Jenkins think there is no changes, so run all the jobs to be safe.
 		println "no build projects found for path:${currentJobName} ${jenkinsfilesJobToRun}"
 		println "Trigger files: ${triggeredJenkinsfile}"
