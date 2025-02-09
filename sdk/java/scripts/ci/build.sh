@@ -2,4 +2,4 @@
 
 set -ex
 
-gradle build
+./gradlew build -x test

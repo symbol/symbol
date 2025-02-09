@@ -2,4 +2,4 @@
 
 set -ex
 
-gradle spotlessCheck
+./gradlew spotlessCheck
