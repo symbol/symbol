@@ -113,11 +113,16 @@ void triggerJobs(String branchName) {
 	final Map<String, String> dependencyJenkinsfile = findDependencyMultibranchPipelinesToRun(triggeredJenkinsfile, buildConfiguration)
 	final Map<String, String> requiredJenkinsfile = findRequiredMultibranchPipelinesToRun(buildConfiguration)
 	final String currentJobName = Paths.get(currentBuild.fullProjectName).parent
-	final Map<String, String> jenkinsfilesJobToRun = triggeredJenkinsfile + dependencyJenkinsfile + requiredJenkinsfile
+	Map<String, String> jenkinsfilesJobToRun = triggeredJenkinsfile + dependencyJenkinsfile + requiredJenkinsfile
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(jenkinsfilesJobToRun, currentJobName)
 
-	if (siblingNameMap.size() == 0) {
-		return
+	if (0 == triggeredJenkinsfile.size()) {
+		// In some cases Jenkins think there is no changes, so run all the jobs to be safe.
+		println "no build projects found for path:${currentJobName} ${jenkinsfilesJobToRun}"
+		println "Trigger files: ${triggeredJenkinsfile}"
+		println 'defaulting to all jobs'
+		jenkinsfilesJobToRun = allJenkinsfiles
+		siblingNameMap = jobHelper.siblingJobNames(jenkinsfilesJobToRun, currentJobName)
 	}
 
 	Map<String, Closure> buildJobs = [:]
