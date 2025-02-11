@@ -50,6 +50,10 @@ void verifyCodeCoverageResult(String tool, Integer minimumCodeCoverage) {
 			logger.logInfo("Minimum code coverage set in pom is ${readJacocoCoverageLimit()}")
 			runScript('mvn jacoco:check@jacoco-check')
 		},
+		'jacoco-gradle': { Integer target ->
+			runScript('gradle jacocoLogTestCoverage')
+			runScript('gradle jacocoTestCoverageVerification')
+		},
 		'golang': { Integer target ->
 			logCodeCoverageMinimum(target)
 			String coverageOutput = runScript('go tool cover -func coverage.out', true)
