@@ -24,7 +24,7 @@
   "overrides": [
     {
       "name": "benchmark",
-      "version": "1.8.3#3"
+      "version": "1.9.1#1"
     },
     {
       "name": "boost",
@@ -652,23 +652,23 @@
     },
     {
       "name": "gtest",
-      "version": "1.14.0#1"
+      "version": "1.15.0#0"
     },
     {
       "name": "mongo-c-driver",
-      "version": "1.25.4#0"
+      "version": "1.30.0#0"
     },
     {
       "name": "mongo-cxx-driver",
-      "version": "3.9.0#0"
+      "version": "4.0.0#0"
     },
     {
       "name": "openssl",
-      "version": "3.2.1#0"
+      "version": "3.4.1#0"
     },
     {
       "name": "rocksdb",
-      "version": "8.9.1#0"
+      "version": "9.10.0#1"
     },
     {
       "name": "zeromq",
