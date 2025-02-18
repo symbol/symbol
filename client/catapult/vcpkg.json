@@ -668,7 +668,7 @@
     },
     {
       "name": "rocksdb",
-      "version": "9.10.0#1"
+      "version": "9.8.4#1"
     },
     {
       "name": "zeromq",
