@@ -7,11 +7,11 @@ RUN apt-get update >/dev/null \
 	&& apt-get install -y tzdata \
 	&& apt-get install -y git curl zip unzip
 
-# mongodb 6.0
+# mongodb 8.0
 RUN apt-get install -y wget gnupg \
-	&& wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc |  gpg --dearmor | tee /usr/share/keyrings/mongodb.gpg > /dev/null \
-	&& echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse"  \
-	| tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
+	&& wget -qO - https://www.mongodb.org/static/pgp/server-8.0.asc |  gpg --dearmor | tee /usr/share/keyrings/mongodb.gpg > /dev/null \
+	&& echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse"  \
+	| tee /etc/apt/sources.list.d/mongodb-org-8.0.list \
 	&& apt-get update \
 	&& apt-get install -y mongodb-org
 
