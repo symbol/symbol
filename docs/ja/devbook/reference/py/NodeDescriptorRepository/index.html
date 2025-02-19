@@ -185,6 +185,54 @@
 </div>
     
     
+      <form class="md-header__option" data-md-component="doc_selector">
+  
+    <input class="md-option" aria-label="NEMドキュメントに切り替える" type="radio" name="__doc_selector" id="__doc_selector_Symbol" onchange="handleDocSelector('Symbol')">
+    <label class="md-header__button md-icon" title="NEMドキュメントに切り替える" for="__doc_selector_NEM">
+      <img src="../../../../assets/images/symbol-docs.png"/>
+    </label>
+  
+    <input class="md-option" aria-label="Symbolドキュメントに切り替える" type="radio" name="__doc_selector" id="__doc_selector_NEM" onchange="handleDocSelector('NEM')">
+    <label class="md-header__button md-icon" title="Symbolドキュメントに切り替える" for="__doc_selector_Symbol">
+      <img src="../../../../assets/images/nem-docs.png"/>
+    </label>
+  
+</form>
+
+<script>
+  window.addEventListener("load", function(e) {
+    // Set current selection
+    var doc_selector = __md_get("__doc_selector") || "Symbol";
+    handleDocSelector(doc_selector);
+    document.getElementById("__doc_selector_" + doc_selector).checked = true;
+
+    // Hide tabs in doc-selection tab groups
+    for (var label_set of document.querySelectorAll(".tabbed-labels")) {
+      for (var label of label_set.getElementsByTagName("label"))
+        if (label.innerText.trim() === "NEM") {
+          label_set.style="display:none";
+        }
+    }
+  });
+
+  // Selector event
+  function handleDocSelector(doc_selector) {
+    __md_set("__doc_selector", doc_selector);
+
+    main:
+    for (var set of document.querySelectorAll(".tabbed-set")) {
+      var labels = set.querySelector(".tabbed-labels")
+        for (var label of labels.getElementsByTagName("label"))
+          if (label.innerText.trim() === doc_selector) {
+            var input = document.getElementById(label.htmlFor)
+            input.checked = true
+            continue main
+          }
+      }
+    }
+</script>
+    
+    
       <label class="md-header__button md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
@@ -2293,6 +2341,425 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../js/test.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JavaScript API リファレンス
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3" id="__nav_3_14_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java API リファレンス
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_14_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3">
+            <span class="md-nav__icon md-icon"></span>
+            Java API リファレンス
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1" id="__nav_3_14_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    org
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_14_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            org
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1" id="__nav_3_14_3_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    symbol
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_14_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            symbol
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1" id="__nav_3_14_3_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    sdk
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_3_14_3_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            sdk
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1_1" id="__nav_3_14_3_1_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="7" aria-labelledby="__nav_3_14_3_1_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            utils
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_array_helpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ArrayHelpers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_base32/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Base32
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_view/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferView
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferWriter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_character_map_builder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CharacterMapBuilder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_converter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Converter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_serializer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serializer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2557,7 +3024,7 @@
     <div class="doc doc-contents ">
 
     <dl class="automatic-reference-term"><dt>
-	<a id="bfed6f5c0e20fa15c73e28e1809771df">symbolchain.NodeDescriptorRepository.NodeDescriptor</a> 
+	<a id="2faac7545aad79358f6f63bd74ad840a">symbolchain.NodeDescriptorRepository.NodeDescriptor</a> 
 </dt>
 <dd>
         <p>Represents a node.</p>
@@ -2593,7 +3060,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="986959086d14b3069311c4702c1aea8d">symbolchain.NodeDescriptorRepository.NodeDescriptor.__init__</a> 
+	<a id="74454cb752bc52129f8f680a4c65145b">symbolchain.NodeDescriptorRepository.NodeDescriptor.__init__</a> 
 </dt>
 <dd>
         <p>Creates a descriptor from a yaml container.</p>
@@ -2626,7 +3093,7 @@
     <div class="doc doc-contents ">
 
     <dl class="automatic-reference-term"><dt>
-	<a id="fe96d2a2988ca3880a820fd664ad1864">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository</a> 
+	<a id="d5e12e3b95eaf12328b91192385d397b">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository</a> 
 </dt>
 <dd>
         <p>Loads read-only node descriptors from YAML.</p>
@@ -2662,7 +3129,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="aa31c55ea2740407e97d97c3c89da0f3">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository.__init__</a> 
+	<a id="5f49ea0a3982b9ccd4087485faf6bbb1">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository.__init__</a> 
 </dt>
 <dd>
         <p>Loads node descriptors from the specified input.</p>
@@ -2684,7 +3151,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="63dcd741f2426f730ecc2e470b7e35ae">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository.find_all_by_role</a> 
+	<a id="ef0954e2cc428e8d2637f8d86100b11d">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository.find_all_by_role</a> 
 </dt>
 <dd>
         <p>Finds all node descriptors with a matching role.</p>
@@ -2706,7 +3173,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="ebf779c291c08c3bb863a62b0182ca45">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository.find_all_not_by_role</a> 
+	<a id="fbcd463dc27be173c4ed6de6f526302e">symbolchain.NodeDescriptorRepository.NodeDescriptorRepository.find_all_not_by_role</a> 
 </dt>
 <dd>
         <p>Finds all node descriptors without a matching role.</p>
@@ -2752,10 +3219,60 @@
               </article>
             </div>
           
-          
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+          <!-- User-preference: link content tabs -->
 
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+  <script>
+    var tabs = __md_get("__tabs")
+    if (Array.isArray(tabs)) {
+      main: for (var set of document.querySelectorAll(".tabbed-set")) {
+        var labels = set.querySelector(".tabbed-labels")
+        for (var tab of tabs)
+          for (var label of labels.getElementsByTagName("label"))
+            if (label.innerText.trim() === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main
+            }
+      }
+
+      // Initialize dynamic links
+      main2: for (var set of document.querySelectorAll(".dylink")) {
+        var labels = set.querySelectorAll(".dylink-option")
+        for (var tab of tabs)
+          for (var label of labels)
+            if (label.htmlFor === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main2
+            }
+      }
+    }
+    // Link dynamic links to their tabs
+    var tab_groups = document.getElementsByClassName("tabbed-labels");
+    for (var tab_group of tab_groups) {
+        labels = tab_group.getElementsByTagName("label");
+        for (var label of labels) {
+            label.addEventListener("click", function(e){
+                tab_name = e.target.innerText.trim();
+                dylink_options = document.getElementsByClassName("dylink-option");
+                for (var dylink_option of dylink_options) {
+                    if (dylink_option.htmlFor === tab_name) {
+                        radio = document.getElementById(dylink_option.htmlFor);
+                        radio.checked = true;
+                    }
+                }
+            })
+        }
+    }
+  </script>
+
+
+<!-- Switch to content tab target -->
+<script>
+  var target = document.getElementById(location.hash.slice(1))
+  if (target && target.name)
+    target.checked = target.name.startsWith("__tabbed_")
+</script>
         </div>
         
       </main>

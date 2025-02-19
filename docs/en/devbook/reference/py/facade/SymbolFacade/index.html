@@ -22,7 +22,7 @@
     
     
       
-        <title>SymbolFacade - Symbol Docs WIP ⚠</title>
+        <title>SymbolFacade - Symbol Docs WIP 🚧</title>
       
     
     
@@ -43,8 +43,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Exo2";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo+2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Exo 2";--md-code-font:"Roboto Mono"}</style>
       
     
     
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP ⚠" class="md-header__button md-logo" aria-label="Symbol Docs WIP ⚠" data-md-component="logo">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-header__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
       
   <img src="../../../../../assets/images/symbol-logo.svg" alt="logo">
 
@@ -105,7 +105,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Symbol Docs WIP ⚠
+            Symbol Docs WIP 🚧
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -183,6 +183,54 @@
     </div>
   </div>
 </div>
+    
+    
+      <form class="md-header__option" data-md-component="doc_selector">
+  
+    <input class="md-option" aria-label="Switch to NEM documentation" type="radio" name="__doc_selector" id="__doc_selector_Symbol" onchange="handleDocSelector('Symbol')">
+    <label class="md-header__button md-icon" title="Switch to NEM documentation" for="__doc_selector_NEM">
+      <img src="../../../../../assets/images/symbol-docs.png"/>
+    </label>
+  
+    <input class="md-option" aria-label="Switch to Symbol documentation" type="radio" name="__doc_selector" id="__doc_selector_NEM" onchange="handleDocSelector('NEM')">
+    <label class="md-header__button md-icon" title="Switch to Symbol documentation" for="__doc_selector_Symbol">
+      <img src="../../../../../assets/images/nem-docs.png"/>
+    </label>
+  
+</form>
+
+<script>
+  window.addEventListener("load", function(e) {
+    // Set current selection
+    var doc_selector = __md_get("__doc_selector") || "Symbol";
+    handleDocSelector(doc_selector);
+    document.getElementById("__doc_selector_" + doc_selector).checked = true;
+
+    // Hide tabs in doc-selection tab groups
+    for (var label_set of document.querySelectorAll(".tabbed-labels")) {
+      for (var label of label_set.getElementsByTagName("label"))
+        if (label.innerText.trim() === "NEM") {
+          label_set.style="display:none";
+        }
+    }
+  });
+
+  // Selector event
+  function handleDocSelector(doc_selector) {
+    __md_set("__doc_selector", doc_selector);
+
+    main:
+    for (var set of document.querySelectorAll(".tabbed-set")) {
+      var labels = set.querySelector(".tabbed-labels")
+        for (var label of labels.getElementsByTagName("label"))
+          if (label.innerText.trim() === doc_selector) {
+            var input = document.getElementById(label.htmlFor)
+            input.checked = true
+            continue main
+          }
+      }
+    }
+</script>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -336,12 +384,12 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP ⚠" class="md-nav__button md-logo" aria-label="Symbol Docs WIP ⚠" data-md-component="logo">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-nav__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
       
   <img src="../../../../../assets/images/symbol-logo.svg" alt="logo">
 
     </a>
-    Symbol Docs WIP ⚠
+    Symbol Docs WIP 🚧
   </label>
   
     <div class="md-nav__source">
@@ -2445,6 +2493,425 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../js/test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JavaScript API Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3" id="__nav_3_14_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_14_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3">
+            <span class="md-nav__icon md-icon"></span>
+            Java API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1" id="__nav_3_14_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    org
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_14_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            org
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1" id="__nav_3_14_3_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    symbol
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_14_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            symbol
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1" id="__nav_3_14_3_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    sdk
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_3_14_3_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            sdk
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1_1" id="__nav_3_14_3_1_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="7" aria-labelledby="__nav_3_14_3_1_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            utils
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_array_helpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ArrayHelpers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_base32/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Base32
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_view/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferView
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferWriter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_character_map_builder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CharacterMapBuilder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_converter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Converter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_serializer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serializer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2861,7 +3328,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="symbolchain.facade.SymbolFacade.SymbolPublicAccount" href="#symbolchain.facade.SymbolFacade.SymbolPublicAccount">SymbolPublicAccount</a></code></p>
 
     <dl class="automatic-reference-term"><dt>
-	<a id="06627ead4939beedbda6425830e2e818">symbolchain.facade.SymbolFacade.SymbolAccount</a> 
+	<a id="f8449aa1c09ec7fe97fb09ac4c5e5087">symbolchain.facade.SymbolFacade.SymbolAccount</a> 
 </dt>
 <dd>
         <p>Symbol account.</p>
@@ -2897,7 +3364,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="0ce2ab26085510214c6007fe7397b604">symbolchain.facade.SymbolFacade.SymbolAccount.__init__</a> 
+	<a id="795285928b024c069eb46e90f623e6a5">symbolchain.facade.SymbolFacade.SymbolAccount.__init__</a> 
 </dt>
 <dd>
         <p>Creates a Symbol account.</p>
@@ -2919,7 +3386,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="f2821c4e32a3e4965138e66e2ca235f7">symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction</a> 
+	<a id="db8750cd17a888e77cc0c6197efc3285">symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction</a> 
 </dt>
 <dd>
         <p>Cosigns a Symbol transaction.</p>
@@ -2941,7 +3408,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="0cd991657822f4bdfd368598305a7bf6">symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction_hash</a> 
+	<a id="7881e759e2e84bf2a7dd1e57fc3b2118">symbolchain.facade.SymbolFacade.SymbolAccount.cosign_transaction_hash</a> 
 </dt>
 <dd>
         <p>Cosigns a Symbol transaction hash.</p>
@@ -2963,7 +3430,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="adb649045a1398bc064ac27e5d08bac4">symbolchain.facade.SymbolFacade.SymbolAccount.message_encoder</a> 
+	<a id="30f47f29fd00bf187bbe0c23b1fb1e22">symbolchain.facade.SymbolFacade.SymbolAccount.message_encoder</a> 
 </dt>
 <dd>
         <p>Creates a message encoder that can be used for encrypting and encoding messages between two parties.</p>
@@ -2985,7 +3452,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="5b9d91530fc7975d9ccc6be9d3baaffc">symbolchain.facade.SymbolFacade.SymbolAccount.sign_transaction</a> 
+	<a id="44af751bdf12da933be387a6833b313b">symbolchain.facade.SymbolFacade.SymbolAccount.sign_transaction</a> 
 </dt>
 <dd>
         <p>Signs a Symbol transaction.</p>
@@ -3018,7 +3485,7 @@
     <div class="doc doc-contents ">
 
     <dl class="automatic-reference-term"><dt>
-	<a id="7d0a68defbcd9aef1778550a77702251">symbolchain.facade.SymbolFacade.SymbolFacade</a> 
+	<a id="c6af624effc3af62457119a67dbaefbe">symbolchain.facade.SymbolFacade.SymbolFacade</a> 
 </dt>
 <dd>
         <p>Facade used to interact with Symbol blockchain.</p>
@@ -3054,7 +3521,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="ee0d4887a04398b6ed15c720b18cb018">symbolchain.facade.SymbolFacade.SymbolFacade.__init__</a> 
+	<a id="eee26f1c4b7eb6ade4070a91c6ca118a">symbolchain.facade.SymbolFacade.SymbolFacade.__init__</a> 
 </dt>
 <dd>
         <p>Creates a Symbol facade.</p>
@@ -3080,7 +3547,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="b793889cb43f5c5656a8b80d85807022">symbolchain.facade.SymbolFacade.SymbolFacade.bip32_node_to_key_pair</a> 
+	<a id="909ac4d9f30e9f0e2140066d3751fb42">symbolchain.facade.SymbolFacade.SymbolFacade.bip32_node_to_key_pair</a> 
 </dt>
 <dd>
         <p>Derives a Symbol KeyPair from a BIP32 node.</p>
@@ -3102,7 +3569,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="cd04d41e30f8dcddb5200d50dbb859ab">symbolchain.facade.SymbolFacade.SymbolFacade.bip32_path</a> 
+	<a id="13f6ec6102c04f531b576fafa5764b42">symbolchain.facade.SymbolFacade.SymbolFacade.bip32_path</a> 
 </dt>
 <dd>
         <p>Creates a network compatible BIP32 path for the specified account.</p>
@@ -3124,7 +3591,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="8799c592a4f8933919c39cc6363225d6">symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction</a> 
+	<a id="e49a90e99c2f092478e2170d1188d337">symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction</a> 
 </dt>
 <dd>
         <p>Cosigns a Symbol transaction.</p>
@@ -3150,7 +3617,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="2072cfcf8396beaac17cb14d7357dba1">symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction_hash</a> 
+	<a id="2c3150e15ff2c93bcffef3d193924e4b">symbolchain.facade.SymbolFacade.SymbolFacade.cosign_transaction_hash</a> 
 </dt>
 <dd>
         <p>Cosigns a Symbol transaction hash.</p>
@@ -3172,7 +3639,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="5cc2392b6c3a2fa108c7e0a6baa67079">symbolchain.facade.SymbolFacade.SymbolFacade.create_account</a> 
+	<a id="9b0eab3ccbbcf5039ee5874ca25e0a8d">symbolchain.facade.SymbolFacade.SymbolFacade.create_account</a> 
 </dt>
 <dd>
         <p>Creates a Symbol account from a private key.</p>
@@ -3194,7 +3661,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="dc2e2a10aaaf87ea2127c3ac38e7f7e3">symbolchain.facade.SymbolFacade.SymbolFacade.create_public_account</a> 
+	<a id="bee33e30c7c1eda10a099cb4add505bb">symbolchain.facade.SymbolFacade.SymbolFacade.create_public_account</a> 
 </dt>
 <dd>
         <p>Creates a Symbol public account from a public key.</p>
@@ -3216,7 +3683,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="8ba9c55dffb7d21a6c918fbac83a0205">symbolchain.facade.SymbolFacade.SymbolFacade.extract_signing_payload</a> 
+	<a id="345d2ec9a373ffa04ee26df14a64a2e6">symbolchain.facade.SymbolFacade.SymbolFacade.extract_signing_payload</a> 
 </dt>
 <dd>
         <p>Gets the payload to sign given a Symbol transaction.</p>
@@ -3242,7 +3709,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="da38d1278afb9a83d1099d6d444b271e">symbolchain.facade.SymbolFacade.SymbolFacade.hash_embedded_transactions</a> 
+	<a id="3b41648b08933ad4181a080e46c093a0">symbolchain.facade.SymbolFacade.SymbolFacade.hash_embedded_transactions</a> 
 </dt>
 <dd>
         <p>Hashes embedded transactions of an aggregate.</p>
@@ -3264,7 +3731,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="ad21bcce74abf270c9968d9ae84fc16e">symbolchain.facade.SymbolFacade.SymbolFacade.hash_transaction</a> 
+	<a id="085d1f3e63d1b30a8fb617068a689567">symbolchain.facade.SymbolFacade.SymbolFacade.hash_transaction</a> 
 </dt>
 <dd>
         <p>Hashes a Symbol transaction.</p>
@@ -3286,7 +3753,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="abef4e96d48e7a16145af39a5128e6c5">symbolchain.facade.SymbolFacade.SymbolFacade.now</a> 
+	<a id="2935178ba1f95c8e2084d37dec74ac5f">symbolchain.facade.SymbolFacade.SymbolFacade.now</a> 
 </dt>
 <dd>
         <p>Creates a network timestamp representing the current time.</p>
@@ -3308,7 +3775,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="9f347f06f32ab8404cdd33b108957f0b">symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction</a> 
+	<a id="042806706379e1e87cb8231bec098dcc">symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction</a> 
 </dt>
 <dd>
         <p>Signs a Symbol transaction.</p>
@@ -3330,7 +3797,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="c61049917c7bd3ae8851c5d89db9aeb1">symbolchain.facade.SymbolFacade.SymbolFacade.verify_transaction</a> 
+	<a id="48494179656fb2bd28548e7f4b8d4518">symbolchain.facade.SymbolFacade.SymbolFacade.verify_transaction</a> 
 </dt>
 <dd>
         <p>Verifies a Symbol transaction.</p>
@@ -3363,7 +3830,7 @@
     <div class="doc doc-contents ">
 
     <dl class="automatic-reference-term"><dt>
-	<a id="44444d47ad8c53a77d6363347fcd1332">symbolchain.facade.SymbolFacade.SymbolPublicAccount</a> 
+	<a id="f5bc8b3cab26ccbf6b9defda12ec03e2">symbolchain.facade.SymbolFacade.SymbolPublicAccount</a> 
 </dt>
 <dd>
         <p>Symbol public account.</p>
@@ -3399,7 +3866,7 @@
 
     <div class="doc doc-contents ">
     <dl class="automatic-reference-term"><dt>
-	<a id="e5b288938ab056f31fc8ccc16bcede1c">symbolchain.facade.SymbolFacade.SymbolPublicAccount.__init__</a> 
+	<a id="da87c623bd1e10c96a2e90b0be4b9020">symbolchain.facade.SymbolFacade.SymbolPublicAccount.__init__</a> 
 </dt>
 <dd>
         <p>Creates a Symbol public account.</p>
@@ -3445,10 +3912,60 @@
               </article>
             </div>
           
-          
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+          <!-- User-preference: link content tabs -->
 
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+  <script>
+    var tabs = __md_get("__tabs")
+    if (Array.isArray(tabs)) {
+      main: for (var set of document.querySelectorAll(".tabbed-set")) {
+        var labels = set.querySelector(".tabbed-labels")
+        for (var tab of tabs)
+          for (var label of labels.getElementsByTagName("label"))
+            if (label.innerText.trim() === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main
+            }
+      }
+
+      // Initialize dynamic links
+      main2: for (var set of document.querySelectorAll(".dylink")) {
+        var labels = set.querySelectorAll(".dylink-option")
+        for (var tab of tabs)
+          for (var label of labels)
+            if (label.htmlFor === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main2
+            }
+      }
+    }
+    // Link dynamic links to their tabs
+    var tab_groups = document.getElementsByClassName("tabbed-labels");
+    for (var tab_group of tab_groups) {
+        labels = tab_group.getElementsByTagName("label");
+        for (var label of labels) {
+            label.addEventListener("click", function(e){
+                tab_name = e.target.innerText.trim();
+                dylink_options = document.getElementsByClassName("dylink-option");
+                for (var dylink_option of dylink_options) {
+                    if (dylink_option.htmlFor === tab_name) {
+                        radio = document.getElementById(dylink_option.htmlFor);
+                        radio.checked = true;
+                    }
+                }
+            })
+        }
+    }
+  </script>
+
+
+<!-- Switch to content tab target -->
+<script>
+  var target = document.getElementById(location.hash.slice(1))
+  if (target && target.name)
+    target.checked = target.name.startsWith("__tabbed_")
+</script>
         </div>
         
       </main>

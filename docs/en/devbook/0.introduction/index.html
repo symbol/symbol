@@ -22,7 +22,7 @@
     
     
       
-        <title>0.introduction - Symbol Docs WIP ⚠</title>
+        <title>0.introduction - Symbol Docs WIP 🚧</title>
       
     
     
@@ -43,8 +43,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Exo2";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo+2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Exo 2";--md-code-font:"Roboto Mono"}</style>
       
     
     
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP ⚠" class="md-header__button md-logo" aria-label="Symbol Docs WIP ⚠" data-md-component="logo">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-header__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
       
   <img src="../../assets/images/symbol-logo.svg" alt="logo">
 
@@ -105,7 +105,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Symbol Docs WIP ⚠
+            Symbol Docs WIP 🚧
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -183,6 +183,54 @@
     </div>
   </div>
 </div>
+    
+    
+      <form class="md-header__option" data-md-component="doc_selector">
+  
+    <input class="md-option" aria-label="Switch to NEM documentation" type="radio" name="__doc_selector" id="__doc_selector_Symbol" onchange="handleDocSelector('Symbol')">
+    <label class="md-header__button md-icon" title="Switch to NEM documentation" for="__doc_selector_NEM">
+      <img src="../../assets/images/symbol-docs.png"/>
+    </label>
+  
+    <input class="md-option" aria-label="Switch to Symbol documentation" type="radio" name="__doc_selector" id="__doc_selector_NEM" onchange="handleDocSelector('NEM')">
+    <label class="md-header__button md-icon" title="Switch to Symbol documentation" for="__doc_selector_Symbol">
+      <img src="../../assets/images/nem-docs.png"/>
+    </label>
+  
+</form>
+
+<script>
+  window.addEventListener("load", function(e) {
+    // Set current selection
+    var doc_selector = __md_get("__doc_selector") || "Symbol";
+    handleDocSelector(doc_selector);
+    document.getElementById("__doc_selector_" + doc_selector).checked = true;
+
+    // Hide tabs in doc-selection tab groups
+    for (var label_set of document.querySelectorAll(".tabbed-labels")) {
+      for (var label of label_set.getElementsByTagName("label"))
+        if (label.innerText.trim() === "NEM") {
+          label_set.style="display:none";
+        }
+    }
+  });
+
+  // Selector event
+  function handleDocSelector(doc_selector) {
+    __md_set("__doc_selector", doc_selector);
+
+    main:
+    for (var set of document.querySelectorAll(".tabbed-set")) {
+      var labels = set.querySelector(".tabbed-labels")
+        for (var label of labels.getElementsByTagName("label"))
+          if (label.innerText.trim() === doc_selector) {
+            var input = document.getElementById(label.htmlFor)
+            input.checked = true
+            continue main
+          }
+      }
+    }
+</script>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -336,12 +384,12 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP ⚠" class="md-nav__button md-logo" aria-label="Symbol Docs WIP ⚠" data-md-component="logo">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-nav__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
       
   <img src="../../assets/images/symbol-logo.svg" alt="logo">
 
     </a>
-    Symbol Docs WIP ⚠
+    Symbol Docs WIP 🚧
   </label>
   
     <div class="md-nav__source">
@@ -577,6 +625,30 @@
       Link Testing Zone
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Link Testing Zone">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#url-of-references-to-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      URL of References to SDK
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-snippets-with-chain-selector" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Snippets with Chain Selector
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2272,6 +2344,425 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/js/test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JavaScript API Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3" id="__nav_3_14_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_14_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3">
+            <span class="md-nav__icon md-icon"></span>
+            Java API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1" id="__nav_3_14_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    org
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_14_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            org
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1" id="__nav_3_14_3_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    symbol
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_14_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            symbol
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1" id="__nav_3_14_3_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    sdk
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_3_14_3_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            sdk
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1_1" id="__nav_3_14_3_1_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="7" aria-labelledby="__nav_3_14_3_1_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            utils
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_array_helpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ArrayHelpers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_base32/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Base32
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_view/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferView
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferWriter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_character_map_builder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CharacterMapBuilder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_converter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Converter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_serializer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serializer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2449,6 +2940,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Link Testing Zone">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#url-of-references-to-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      URL of References to SDK
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-snippets-with-chain-selector" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Snippets with Chain Selector
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2489,10 +3004,10 @@
     
 
 <a class="mkdocs-ezglossary-link"
-    id="f00a4c57a0ad4263970f6a339ef8d111"
+    id="e171ae93c94fc9273acea85414e5ae82"
     title="In colloquial terms, a system is said to be Turing-complete if it can perform any kind of computation."
     name="_:Turing-complete"
-    href="../../textbook/glossary/#3a5c429762f7b940473b62160ee9685d">Turing-complete</a> platform). It's important to understand that blockchains are <em>tools</em>, and as a developer you want to pick the right tool for the right job.</p>
+    href="../../textbook/glossary/#08c161b1ec9c5d7a0e2a656b8f32fcd5">Turing-complete</a> platform). It's important to understand that blockchains are <em>tools</em>, and as a developer you want to pick the right tool for the right job.</p>
 <p>However, high-level comparisons can always be helpful for both researchers and developers. Here's how Symbol compares to both.</p>
 <h3 id="bitcoin">Bitcoin<a class="headerlink" href="#bitcoin" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Bitcoin is focused on being <em>the best money</em>.</p>
@@ -2506,19 +3021,28 @@
     
 
 <a class="mkdocs-ezglossary-link"
-    id="6f259527c6ef07834bf9b7cc0c22997c"
+    id="4b78eff92b8ad23763c1c466113b2133"
     title="The coolest coin."
     name="_:XYM"
-    href="../../textbook/glossary/#d7efb98c4af11920e7b7dcf3b758d48c">XYM</a></p>
+    href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>, or as markdown link:
+<a href="XYM:"></a>, 
+    
+
+<a class="mkdocs-ezglossary-link"
+    id="2a9f06a950c70b338c34c29e92731c4a"
+    title="The coolest coin."
+    name="_:XYM"
+    href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a></p>
 <p>Autoref: <a class="autorefs autorefs-internal" href="../7.xym/#xym">XYM</a></p>
 <p>Code refs:</p>
 <ul>
-<li>Class: 
+<li>
+<p>Class: 
     
     
 
 <a class="mkdocs-ezglossary-link"
-    id="ecbc4c2660564e75766a1b8ac2fcf6fe"
+    id="d325a0a821e8c7a9167986104d189d71"
     title="Factory of BIP32 root nodes"
     name="Python:symbolchain.Bip32.Bip32"
     href="../../devbook/reference/py/Bip32/#symbolchain.Bip32.Bip32">Bip32</a>, 
@@ -2526,20 +3050,138 @@
     
 
 <a class="mkdocs-ezglossary-link"
-    id="27814c88a2ccf974de205438a6469b82"
+    id="7843a92507740253ba9ff4cd6523eb14"
     title="Facade used to interact with Symbol blockchain."
     name="Python:symbolchain.facade.SymbolFacade.SymbolFacade"
-    href="../../devbook/reference/py/facade/SymbolFacade/#symbolchain.facade.SymbolFacade.SymbolFacade">symbolchain.facade.SymbolFacade.SymbolFacade</a></li>
-<li>Method:  
+    href="../../devbook/reference/py/facade/SymbolFacade/#symbolchain.facade.SymbolFacade.SymbolFacade">symbolchain.facade.SymbolFacade.SymbolFacade</a></p>
+</li>
+<li>
+<p>Method:</p>
+<ul>
+<li>Python: 
     
     
 
 <a class="mkdocs-ezglossary-link"
-    id="637f978e93f517858f5153399f5df47a"
+    id="9a8497405fefd4a7973444a8bf574e74"
     title="Creates a Symbol account from a private key."
     name="Python:symbolchain.facade.SymbolFacade.SymbolFacade.create_account"
     href="../../devbook/reference/py/facade/SymbolFacade/#symbolchain.facade.SymbolFacade.SymbolFacade.create_account">SymbolFacade.create_account</a></li>
+<li>JS: 
+    
+
+<a class="mkdocs-ezglossary-link"
+    id="2d61f45cb08ce2cf6826b6713070ac13"
+    title="Look at me! I'm a test facade!"
+    name="JS:testFacade"
+    href="../../devbook/reference/js/test/#6623b430f64c6c37c87f12e16c29bbb5">testFacade</a></li>
+<li>Java: 
+    
+
+<a class="mkdocs-ezglossary-link"
+    id="a337878af2dcbc89c37955642a90086c"
+    title="Writes array of variable size objects."
+    name="Java:org.symbol.sdk.utils.ArrayHelpers.writeVariableSizeElements"
+    href="../../devbook/reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_array_helpers/#a9eddfacceb8025edacbf04d030a42be">ArrayHelpers.writeVariableSizeElements</a></li>
 </ul>
+</li>
+<li>
+<p>With icons: <code>SymbolFacade.create_account</code> <a href="Python:symbolchain.facade.SymbolFacade.SymbolFacade.create_account"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14 7.5A2.86 2.86 0 0 1 22 10.36v3.78A2.86 2.86 0 0 1 19.14 17H12c0 .39.32.96.71.96H17v1.68a2.86 2.86 0 0 1-2.86 2.86H9.86A2.86 2.86 0 0 1 7 19.64v-3.75a2.85 2.85 0 0 1 2.86-2.85h5.25a2.85 2.85 0 0 0 2.85-2.86V7.5zm-4.28 11.79c-.4 0-.72.3-.72.89s.32.71.72.71a.71.71 0 0 0 .71-.71c0-.59-.32-.89-.71-.89m-10-1.79A2.86 2.86 0 0 1 2 14.64v-3.78A2.86 2.86 0 0 1 4.86 8H12c0-.39-.32-.96-.71-.96H7V5.36A2.86 2.86 0 0 1 9.86 2.5h4.28A2.86 2.86 0 0 1 17 5.36v3.75a2.85 2.85 0 0 1-2.86 2.85H8.89a2.85 2.85 0 0 0-2.85 2.86v2.68zM9.14 5.71c.4 0 .72-.3.72-.89s-.32-.71-.72-.71c-.39 0-.71.12-.71.71s.32.89.71.89"/></svg></span></a> <a href="JS:testFacade"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h18v18H3zm4.73 15.04c.4.85 1.19 1.55 2.54 1.55 1.5 0 2.53-.8 2.53-2.55v-5.78h-1.7V17c0 .86-.35 1.08-.9 1.08-.58 0-.82-.4-1.09-.87zm5.98-.18c.5.98 1.51 1.73 3.09 1.73 1.6 0 2.8-.83 2.8-2.36 0-1.41-.81-2.04-2.25-2.66l-.42-.18c-.73-.31-1.04-.52-1.04-1.02 0-.41.31-.73.81-.73.48 0 .8.21 1.09.73l1.31-.87c-.55-.96-1.33-1.33-2.4-1.33-1.51 0-2.48.96-2.48 2.23 0 1.38.81 2.03 2.03 2.55l.42.18c.78.34 1.24.55 1.24 1.13 0 .48-.45.83-1.15.83-.83 0-1.31-.43-1.67-1.03z"/></svg></span></a><a href="Java:org.symbol.sdk.utils.Writer.getStorage"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 6.08s-6.84 1.71-3.56 5.48c.97 1.11-.25 2.11-.25 2.11s2.45-1.25 1.31-2.85c-1.06-1.47-1.86-2.2 2.5-4.74m-4.47 1.2C16.08 4.08 14 2 14 2c.84 3.3-2.96 4.3-4.33 6.36-.94 1.4.46 2.91 2.33 4.64-.71-1.7-3.22-3.16.03-5.72M9.37 17.47c-3.08.86 1.88 2.63 5.79.96-.38-.15-.75-.33-1.1-.54-1.36.31-2.76.37-4.14.18-1.31-.16-.55-.6-.55-.6m5.32-1.68c-1.75.38-3.56.47-5.34.26-1.31-.13-.45-.77-.45-.77-3.4 1.13 1.88 2.4 6.6 1.02-.29-.11-.57-.3-.81-.51m3.42 3.3s.57.47-.61.83c-2.28.68-9.43.89-11.41.03-.71-.31.63-.74 1.05-.83.23-.06.46-.08.69-.08-.79-.54-5.13 1.1-2.19 1.56 7.97 1.3 14.54-.6 12.47-1.51m-2.74-4.86c.29-.19.6-.35.92-.49 0 0-1.51.26-3.02.4-1.6.16-3.21.18-4.81.06-2.35-.31 1.29-1.2 1.29-1.2-1.1 0-2.18.26-3.16.75-2.05 1 5.1 1.45 8.78.48m.9 2.42c-.02.04-.04.07-.08.1 5.01-1.31 3.17-4.64.77-3.81-.13.06-.24.14-.31.25.14-.05.28-.09.43-.12 1.2-.24 2.92 1.63-.81 3.58m.13 4.61c-3.01.52-6.09.56-9.12.14 0 0 .46.38 2.81.53 3.6.23 9.13-.13 9.26-1.83.03.01-.23.65-2.95 1.16"/></svg></span></a></p>
+</li>
+<li>
+<p>Dynamic link: <span markdown class="dylink"><input type="radio" name="rGroup" id="Python" /><label class="dylink-option" for="Python" markdown>
+    
+    
+
+<a class="mkdocs-ezglossary-link"
+    id="00340762f1cb0cfc8eab69a8ca81cd49"
+    title="Creates a Symbol account from a private key."
+    name="Python:symbolchain.facade.SymbolFacade.SymbolFacade.create_account"
+    href="../../devbook/reference/py/facade/SymbolFacade/#symbolchain.facade.SymbolFacade.SymbolFacade.create_account">SymbolFacade.create_account</a></label><input type="radio" name="rGroup" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown>
+    
+
+<a class="mkdocs-ezglossary-link"
+    id="b2a2c0e938d87f383a34657142c2c091"
+    title="Look at me! I'm a test facade!"
+    name="JS:testFacade"
+    href="../../devbook/reference/js/test/#6623b430f64c6c37c87f12e16c29bbb5">testFacade</a></label><input type="radio" name="rGroup" id="Java" /><label class="dylink-option" for="Java" markdown>
+    
+
+<a class="mkdocs-ezglossary-link"
+    id="1633fe53a92b9666ae57292016f001fa"
+    title="Writes array of variable size objects."
+    name="Java:org.symbol.sdk.utils.ArrayHelpers.writeVariableSizeElements"
+    href="../../devbook/reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_array_helpers/#a9eddfacceb8025edacbf04d030a42be">ArrayHelpers.writeVariableSizeElements</a></label></span></p>
+</li>
+</ul>
+<h3 id="url-of-references-to-sdk">URL of References to SDK<a class="headerlink" href="#url-of-references-to-sdk" title="Anchor link to this section for reference">⚓︎</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14 7.5A2.86 2.86 0 0 1 22 10.36v3.78A2.86 2.86 0 0 1 19.14 17H12c0 .39.32.96.71.96H17v1.68a2.86 2.86 0 0 1-2.86 2.86H9.86A2.86 2.86 0 0 1 7 19.64v-3.75a2.85 2.85 0 0 1 2.86-2.85h5.25a2.85 2.85 0 0 0 2.85-2.86V7.5zm-4.28 11.79c-.4 0-.72.3-.72.89s.32.71.72.71a.71.71 0 0 0 .71-.71c0-.59-.32-.89-.71-.89m-10-1.79A2.86 2.86 0 0 1 2 14.64v-3.78A2.86 2.86 0 0 1 4.86 8H12c0-.39-.32-.96-.71-.96H7V5.36A2.86 2.86 0 0 1 9.86 2.5h4.28A2.86 2.86 0 0 1 17 5.36v3.75a2.85 2.85 0 0 1-2.86 2.85H8.89a2.85 2.85 0 0 0-2.85 2.86v2.68zM9.14 5.71c.4 0 .72-.3.72-.89s-.32-.71-.72-.71c-.39 0-.71.12-.71.71s.32.89.71.89"/></svg></span> Python</label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h18v18H3zm4.73 15.04c.4.85 1.19 1.55 2.54 1.55 1.5 0 2.53-.8 2.53-2.55v-5.78h-1.7V17c0 .86-.35 1.08-.9 1.08-.58 0-.82-.4-1.09-.87zm5.98-.18c.5.98 1.51 1.73 3.09 1.73 1.6 0 2.8-.83 2.8-2.36 0-1.41-.81-2.04-2.25-2.66l-.42-.18c-.73-.31-1.04-.52-1.04-1.02 0-.41.31-.73.81-.73.48 0 .8.21 1.09.73l1.31-.87c-.55-.96-1.33-1.33-2.4-1.33-1.51 0-2.48.96-2.48 2.23 0 1.38.81 2.03 2.03 2.55l.42.18c.78.34 1.24.55 1.24 1.13 0 .48-.45.83-1.15.83-.83 0-1.31-.43-1.67-1.03z"/></svg></span> JavaScript</label><label for="__tabbed_1_3"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 6.08s-6.84 1.71-3.56 5.48c.97 1.11-.25 2.11-.25 2.11s2.45-1.25 1.31-2.85c-1.06-1.47-1.86-2.2 2.5-4.74m-4.47 1.2C16.08 4.08 14 2 14 2c.84 3.3-2.96 4.3-4.33 6.36-.94 1.4.46 2.91 2.33 4.64-.71-1.7-3.22-3.16.03-5.72M9.37 17.47c-3.08.86 1.88 2.63 5.79.96-.38-.15-.75-.33-1.1-.54-1.36.31-2.76.37-4.14.18-1.31-.16-.55-.6-.55-.6m5.32-1.68c-1.75.38-3.56.47-5.34.26-1.31-.13-.45-.77-.45-.77-3.4 1.13 1.88 2.4 6.6 1.02-.29-.11-.57-.3-.81-.51m3.42 3.3s.57.47-.61.83c-2.28.68-9.43.89-11.41.03-.71-.31.63-.74 1.05-.83.23-.06.46-.08.69-.08-.79-.54-5.13 1.1-2.19 1.56 7.97 1.3 14.54-.6 12.47-1.51m-2.74-4.86c.29-.19.6-.35.92-.49 0 0-1.51.26-3.02.4-1.6.16-3.21.18-4.81.06-2.35-.31 1.29-1.2 1.29-1.2-1.1 0-2.18.26-3.16.75-2.05 1 5.1 1.45 8.78.48m.9 2.42c-.02.04-.04.07-.08.1 5.01-1.31 3.17-4.64.77-3.81-.13.06-.24.14-.31.25.14-.05.28-.09.43-.12 1.2-.24 2.92 1.63-.81 3.58m.13 4.61c-3.01.52-6.09.56-9.12.14 0 0 .46.38 2.81.53 3.6.23 9.13-.13 9.26-1.83.03.01-.23.65-2.95 1.16"/></svg></span> Java</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><code>symbolchain.nem.html#symbolchain.nem.MessageEncoder.MessageEncoder.public_key</code></p>
+</div>
+<div class="tabbed-block">
+<p><code>classes/nem.MessageEncoder.html#publickey</code></p>
+</div>
+<div class="tabbed-block">
+<p><code>org.symbol.sdk.utils.Writer.getStorage</code></p>
+</div>
+</div>
+</div>
+<h3 id="code-snippets-with-chain-selector">Code Snippets with Chain Selector<a class="headerlink" href="#code-snippets-with-chain-selector" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>To send a transaction, first create a facade for the desired network:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Symbol</label><label for="__tabbed_2_2">NEM</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14 7.5A2.86 2.86 0 0 1 22 10.36v3.78A2.86 2.86 0 0 1 19.14 17H12c0 .39.32.96.71.96H17v1.68a2.86 2.86 0 0 1-2.86 2.86H9.86A2.86 2.86 0 0 1 7 19.64v-3.75a2.85 2.85 0 0 1 2.86-2.85h5.25a2.85 2.85 0 0 0 2.85-2.86V7.5zm-4.28 11.79c-.4 0-.72.3-.72.89s.32.71.72.71a.71.71 0 0 0 .71-.71c0-.59-.32-.89-.71-.89m-10-1.79A2.86 2.86 0 0 1 2 14.64v-3.78A2.86 2.86 0 0 1 4.86 8H12c0-.39-.32-.96-.71-.96H7V5.36A2.86 2.86 0 0 1 9.86 2.5h4.28A2.86 2.86 0 0 1 17 5.36v3.75a2.85 2.85 0 0 1-2.86 2.85H8.89a2.85 2.85 0 0 0-2.85 2.86v2.68zM9.14 5.71c.4 0 .72-.3.72-.89s-.32-.71-.72-.71c-.39 0-.71.12-.71.71s.32.89.71.89"/></svg></span> Python</label><label for="__tabbed_3_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h18v18H3zm4.73 15.04c.4.85 1.19 1.55 2.54 1.55 1.5 0 2.53-.8 2.53-2.55v-5.78h-1.7V17c0 .86-.35 1.08-.9 1.08-.58 0-.82-.4-1.09-.87zm5.98-.18c.5.98 1.51 1.73 3.09 1.73 1.6 0 2.8-.83 2.8-2.36 0-1.41-.81-2.04-2.25-2.66l-.42-.18c-.73-.31-1.04-.52-1.04-1.02 0-.41.31-.73.81-.73.48 0 .8.21 1.09.73l1.31-.87c-.55-.96-1.33-1.33-2.4-1.33-1.51 0-2.48.96-2.48 2.23 0 1.38.81 2.03 2.03 2.55l.42.18c.78.34 1.24.55 1.24 1.13 0 .48-.45.83-1.15.83-.83 0-1.31-.43-1.67-1.03z"/></svg></span> JavaScript</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span>
+<span class="normal"><a href="#__codelineno-0-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">symbolchain.CryptoTypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrivateKey</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">symbolchain.facade.SymbolFacade</span><span class="w"> </span><span class="kn">import</span> <span class="n">SymbolFacade</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="n">facade</span> <span class="o">=</span> <span class="n">SymbolFacade</span><span class="p">(</span><span class="s1">&#39;testnet&#39;</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SymbolFacade</span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../src/symbol/index.js&#39;</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">facade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">SymbolFacade</span><span class="p">(</span><span class="s1">&#39;testnet&#39;</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14 7.5A2.86 2.86 0 0 1 22 10.36v3.78A2.86 2.86 0 0 1 19.14 17H12c0 .39.32.96.71.96H17v1.68a2.86 2.86 0 0 1-2.86 2.86H9.86A2.86 2.86 0 0 1 7 19.64v-3.75a2.85 2.85 0 0 1 2.86-2.85h5.25a2.85 2.85 0 0 0 2.85-2.86V7.5zm-4.28 11.79c-.4 0-.72.3-.72.89s.32.71.72.71a.71.71 0 0 0 .71-.71c0-.59-.32-.89-.71-.89m-10-1.79A2.86 2.86 0 0 1 2 14.64v-3.78A2.86 2.86 0 0 1 4.86 8H12c0-.39-.32-.96-.71-.96H7V5.36A2.86 2.86 0 0 1 9.86 2.5h4.28A2.86 2.86 0 0 1 17 5.36v3.75a2.85 2.85 0 0 1-2.86 2.85H8.89a2.85 2.85 0 0 0-2.85 2.86v2.68zM9.14 5.71c.4 0 .72-.3.72-.89s-.32-.71-.72-.71c-.39 0-.71.12-.71.71s.32.89.71.89"/></svg></span> Python</label><label for="__tabbed_4_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h18v18H3zm4.73 15.04c.4.85 1.19 1.55 2.54 1.55 1.5 0 2.53-.8 2.53-2.55v-5.78h-1.7V17c0 .86-.35 1.08-.9 1.08-.58 0-.82-.4-1.09-.87zm5.98-.18c.5.98 1.51 1.73 3.09 1.73 1.6 0 2.8-.83 2.8-2.36 0-1.41-.81-2.04-2.25-2.66l-.42-.18c-.73-.31-1.04-.52-1.04-1.02 0-.41.31-.73.81-.73.48 0 .8.21 1.09.73l1.31-.87c-.55-.96-1.33-1.33-2.4-1.33-1.51 0-2.48.96-2.48 2.23 0 1.38.81 2.03 2.03 2.55l.42.18c.78.34 1.24.55 1.24 1.13 0 .48-.45.83-1.15.83-.83 0-1.31-.43-1.67-1.03z"/></svg></span> JavaScript</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">symbolchain.CryptoTypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrivateKey</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">symbolchain.facade.NemFacade</span><span class="w"> </span><span class="kn">import</span> <span class="n">NemFacade</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="n">facade</span> <span class="o">=</span> <span class="n">NemFacade</span><span class="p">(</span><span class="s1">&#39;testnet&#39;</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SymbolFacade</span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../src/nem/index.js&#39;</span><span class="p">;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">facade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NemFacade</span><span class="p">(</span><span class="s1">&#39;testnet&#39;</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 
 
@@ -2562,7 +3204,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 19, 2025</span>
   </span>
 
     
@@ -2605,10 +3247,60 @@
               </article>
             </div>
           
-          
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+          <!-- User-preference: link content tabs -->
 
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+  <script>
+    var tabs = __md_get("__tabs")
+    if (Array.isArray(tabs)) {
+      main: for (var set of document.querySelectorAll(".tabbed-set")) {
+        var labels = set.querySelector(".tabbed-labels")
+        for (var tab of tabs)
+          for (var label of labels.getElementsByTagName("label"))
+            if (label.innerText.trim() === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main
+            }
+      }
+
+      // Initialize dynamic links
+      main2: for (var set of document.querySelectorAll(".dylink")) {
+        var labels = set.querySelectorAll(".dylink-option")
+        for (var tab of tabs)
+          for (var label of labels)
+            if (label.htmlFor === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main2
+            }
+      }
+    }
+    // Link dynamic links to their tabs
+    var tab_groups = document.getElementsByClassName("tabbed-labels");
+    for (var tab_group of tab_groups) {
+        labels = tab_group.getElementsByTagName("label");
+        for (var label of labels) {
+            label.addEventListener("click", function(e){
+                tab_name = e.target.innerText.trim();
+                dylink_options = document.getElementsByClassName("dylink-option");
+                for (var dylink_option of dylink_options) {
+                    if (dylink_option.htmlFor === tab_name) {
+                        radio = document.getElementById(dylink_option.htmlFor);
+                        radio.checked = true;
+                    }
+                }
+            })
+        }
+    }
+  </script>
+
+
+<!-- Switch to content tab target -->
+<script>
+  var target = document.getElementById(location.hash.slice(1))
+  if (target && target.name)
+    target.checked = target.name.startsWith("__tabbed_")
+</script>
         </div>
         
       </main>

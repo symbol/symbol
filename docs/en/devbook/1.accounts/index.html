@@ -22,7 +22,7 @@
     
     
       
-        <title>1.accounts - Symbol Docs WIP ⚠</title>
+        <title>1.accounts - Symbol Docs WIP 🚧</title>
       
     
     
@@ -43,8 +43,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Exo2";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo+2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Exo 2";--md-code-font:"Roboto Mono"}</style>
       
     
     
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP ⚠" class="md-header__button md-logo" aria-label="Symbol Docs WIP ⚠" data-md-component="logo">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-header__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
       
   <img src="../../assets/images/symbol-logo.svg" alt="logo">
 
@@ -105,7 +105,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Symbol Docs WIP ⚠
+            Symbol Docs WIP 🚧
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -183,6 +183,54 @@
     </div>
   </div>
 </div>
+    
+    
+      <form class="md-header__option" data-md-component="doc_selector">
+  
+    <input class="md-option" aria-label="Switch to NEM documentation" type="radio" name="__doc_selector" id="__doc_selector_Symbol" onchange="handleDocSelector('Symbol')">
+    <label class="md-header__button md-icon" title="Switch to NEM documentation" for="__doc_selector_NEM">
+      <img src="../../assets/images/symbol-docs.png"/>
+    </label>
+  
+    <input class="md-option" aria-label="Switch to Symbol documentation" type="radio" name="__doc_selector" id="__doc_selector_NEM" onchange="handleDocSelector('NEM')">
+    <label class="md-header__button md-icon" title="Switch to Symbol documentation" for="__doc_selector_Symbol">
+      <img src="../../assets/images/nem-docs.png"/>
+    </label>
+  
+</form>
+
+<script>
+  window.addEventListener("load", function(e) {
+    // Set current selection
+    var doc_selector = __md_get("__doc_selector") || "Symbol";
+    handleDocSelector(doc_selector);
+    document.getElementById("__doc_selector_" + doc_selector).checked = true;
+
+    // Hide tabs in doc-selection tab groups
+    for (var label_set of document.querySelectorAll(".tabbed-labels")) {
+      for (var label of label_set.getElementsByTagName("label"))
+        if (label.innerText.trim() === "NEM") {
+          label_set.style="display:none";
+        }
+    }
+  });
+
+  // Selector event
+  function handleDocSelector(doc_selector) {
+    __md_set("__doc_selector", doc_selector);
+
+    main:
+    for (var set of document.querySelectorAll(".tabbed-set")) {
+      var labels = set.querySelector(".tabbed-labels")
+        for (var label of labels.getElementsByTagName("label"))
+          if (label.innerText.trim() === doc_selector) {
+            var input = document.getElementById(label.htmlFor)
+            input.checked = true
+            continue main
+          }
+      }
+    }
+</script>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -336,12 +384,12 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP ⚠" class="md-nav__button md-logo" aria-label="Symbol Docs WIP ⚠" data-md-component="logo">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-nav__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
       
   <img src="../../assets/images/symbol-logo.svg" alt="logo">
 
     </a>
-    Symbol Docs WIP ⚠
+    Symbol Docs WIP 🚧
   </label>
   
     <div class="md-nav__source">
@@ -2335,6 +2383,425 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/js/test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JavaScript API Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3" id="__nav_3_14_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_14_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3">
+            <span class="md-nav__icon md-icon"></span>
+            Java API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1" id="__nav_3_14_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    org
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_14_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            org
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1" id="__nav_3_14_3_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    symbol
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_14_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            symbol
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1" id="__nav_3_14_3_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    sdk
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_3_14_3_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            sdk
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14_3_1_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14_3_1_1_1_1" id="__nav_3_14_3_1_1_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="7" aria-labelledby="__nav_3_14_3_1_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14_3_1_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            utils
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_array_helpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ArrayHelpers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_base32/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Base32
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_view/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferView
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_buffer_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferWriter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_character_map_builder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CharacterMapBuilder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/classorg_1_1symbol_1_1sdk_1_1utils_1_1_converter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Converter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_serializer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serializer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/java/interfaceorg_1_1symbol_1_1sdk_1_1utils_1_1_writer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2620,14 +3087,14 @@
 <p>Create a random account for a network by creating a <code>SymbolFacade</code> of the desired network. For most instances, it should be created around the name of a well-known network: "mainnet" or "testnet". All examples in this guide will use <code>SymbolNetwork("testnet")</code></p>
 <p>!example create_random_account</p>
 <p>example output:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    address: TCEVUET3MJE73F2VG6G3LRWKZN4A3DLX4WJ5XBA
+<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    address: TCEVUET3MJE73F2VG6G3LRWKZN4A3DLX4WJ5XBA
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> public key: D1CBF707D990A8C08C3EF68EFECF25B684934C16D9C8BE8B32D34DC511F13070
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>private key: 91597A3C1FD648D630FEEB339351C168D0581F46F07FA13277F26D5EE0D40283
 </span></code></pre></div></p>
 <p>Alternatively, a seed phrase can be used (or randomly generated) and used to derive accounts.</p>
 <p>!example create_random_bip32_account</p>
 <p>example output:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>   mnemonic: east actual egg series spot express addict always human swallow decrease turn surround direct place burst million curious dish divorce net nephew allow height
+<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>   mnemonic: east actual egg series spot express addict always human swallow decrease turn surround direct place burst million curious dish divorce net nephew allow height
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    address: TBDSOVXFLHZWDLGSEBEE5Z5SLD2DP7P2VDXYB7Y
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> public key: E2CCAD62EEBB5826042776796D26D66611EE84411C3CDF0CA5E0B4CC2FCFBE4D
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>private key: 984D4E4EC6AB5C772876135D88DF40F13B7B5880324A6D7F19E16DB292F8C443
@@ -2639,10 +3106,10 @@
 <h3 id="tutorial-querying-the-balance-of-an-account">Tutorial: Querying the Balance of an Account<a class="headerlink" href="#tutorial-querying-the-balance-of-an-account" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Account state can be easily queried using <code>/accounts/&lt;account-id&gt;</code> identifier.</p>
 <p><strong>Query by address:</strong>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>https://<span class="si">${</span><span class="nv">SYMBOL_API_NODE</span><span class="si">}</span>:3001/accounts/TA4RYHMNHCFRCT2PCWOCJMWVAQ3ZCJDOTF2SGBI
+<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>https://<span class="si">${</span><span class="nv">SYMBOL_API_NODE</span><span class="si">}</span>:3001/accounts/TA4RYHMNHCFRCT2PCWOCJMWVAQ3ZCJDOTF2SGBI
 </span></code></pre></div></p>
 <p><strong>Query by public key:</strong>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>https://<span class="si">${</span><span class="nv">SYMBOL_API_NODE</span><span class="si">}</span>:3001/accounts/23AC0770A1060241604A8E60A47166E3E5B4034D4EE321DBE19B342E85B21544
+<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>https://<span class="si">${</span><span class="nv">SYMBOL_API_NODE</span><span class="si">}</span>:3001/accounts/23AC0770A1060241604A8E60A47166E3E5B4034D4EE321DBE19B342E85B21544
 </span></code></pre></div></p>
 <p>Getting actual balance in a generic fashion is a bit more complicated.</p>
 <p>First network currency id needs to be retrieved.
@@ -2693,7 +3160,7 @@ In general every vanity generator works by searching for random secret keys, the
 <p>Note, currently both vanity generators provide BIP-39 mnemonic which can be used in wallet apps.</p>
 <ol>
 <li><strong>product/tools/vanity</strong> - this generator is a python script, that is supposed to be called as a module:
-   <div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>symbol/product/tools/vanity
+   <div class="highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>symbol/product/tools/vanity
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>vanity<span class="w"> </span>--blockchain<span class="w"> </span>symbol<span class="w"> </span>--network<span class="w"> </span>testnet<span class="w"> </span>--patterns<span class="w"> </span>HELLO<span class="w"> </span>--format<span class="w"> </span>pretty
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>address<span class="w"> </span><span class="o">(</span>testnet<span class="o">)</span>:<span class="w"> </span>TAHELLOCN5XFWRIAWKSPPYMATZHGXTJEI52NGBQ
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">       </span>public<span class="w"> </span>key:<span class="w"> </span>77643BA9D1C7B3D05B8C6BDDDAB17BE5BADEF17E94746628ED321DE4E56D4967
@@ -2701,7 +3168,7 @@ In general every vanity generator works by searching for random secret keys, the
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">         </span>mnemonic:<span class="w"> </span>twice<span class="w"> </span>despair<span class="w"> </span>october<span class="w"> </span>tenant<span class="w"> </span>swamp<span class="w"> </span>second<span class="w"> </span>harvest<span class="w"> </span>lens<span class="w"> </span>mom<span class="w"> </span>violin<span class="w"> </span>catch<span class="w"> </span>response<span class="w"> </span>naive<span class="w"> </span>stomach<span class="w"> </span>divorce<span class="w"> </span>captain<span class="w"> </span>humble<span class="w"> </span>kite<span class="w"> </span>income<span class="w"> </span>ranch<span class="w"> </span><span class="nb">help</span><span class="w"> </span>bacon<span class="w"> </span>asthma<span class="w"> </span>enhance
 </span></code></pre></div>
    It can search for multiple strings at once:
-   <div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>vanity<span class="w"> </span>--blockchain<span class="w"> </span>symbol<span class="w"> </span>--network<span class="w"> </span>mainnet<span class="w"> </span>--patterns<span class="w"> </span>JPG,TXT,DOC<span class="w"> </span>--format<span class="w"> </span>pretty
+   <div class="highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>vanity<span class="w"> </span>--blockchain<span class="w"> </span>symbol<span class="w"> </span>--network<span class="w"> </span>mainnet<span class="w"> </span>--patterns<span class="w"> </span>JPG,TXT,DOC<span class="w"> </span>--format<span class="w"> </span>pretty
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>address<span class="w"> </span><span class="o">(</span>mainnet<span class="o">)</span>:<span class="w"> </span>NDDOCGCLCXT5UYOCR62KTTF5LBOGYJIQG4T7TPA
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">       </span>public<span class="w"> </span>key:<span class="w"> </span>20D84535171838BEDC663A59ABFB131668BC3226AF44DCCAC627CFC3835F5D97
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span>private<span class="w"> </span>key:<span class="w"> </span>7760F90593A88A079BD650F0A2982AC8F3F08B960D47466D1D2E922D28D9B7A8
@@ -2718,7 +3185,7 @@ In general every vanity generator works by searching for random secret keys, the
 </span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">      </span>mnemonic:<span class="w"> </span>witness<span class="w"> </span>just<span class="w"> </span>change<span class="w"> </span>dentist<span class="w"> </span>congress<span class="w"> </span>find<span class="w"> </span>hurry<span class="w"> </span>surround<span class="w"> </span>smile<span class="w"> </span>lucky<span class="w"> </span>chest<span class="w"> </span>idea<span class="w"> </span>valid<span class="w"> </span>kick<span class="w"> </span>actual<span class="w"> </span>scale<span class="w"> </span>brother<span class="w"> </span>blind<span class="w"> </span>float<span class="w"> </span>broken<span class="w"> </span>twin<span class="w"> </span>reflect<span class="w"> </span>poet<span class="w"> </span>once
 </span></code></pre></div></li>
 <li><strong>catapult.tools.addressgen</strong>, example invocation:
-   <div class="language-shell highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$<span class="w"> </span>./bin/catapult.tools.addressgen<span class="w"> </span>--network<span class="w"> </span>mainnet<span class="w"> </span>--input<span class="w"> </span>HELLO
+   <div class="highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$<span class="w"> </span>./bin/catapult.tools.addressgen<span class="w"> </span>--network<span class="w"> </span>mainnet<span class="w"> </span>--input<span class="w"> </span>HELLO
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>...
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">     </span>address<span class="w"> </span><span class="o">(</span>mainnet<span class="o">)</span>:<span class="w"> </span>NANFMSZRRIZDHELLO77SWVRFY53KGO3EWLOEN2Q
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">       </span>address<span class="w"> </span>decoded:<span class="w"> </span>681A564B318A3233916B77FF2B5625C776A33B64B2DC46EA
@@ -2729,7 +3196,7 @@ In general every vanity generator works by searching for random secret keys, the
    While searching for 5 chars might finish in few minutes, search time increases exponentially with every    character. Searching for strings containing characters outside of base32 alphabet (i.e. <code>0</code>, <code>1</code>, <code>8</code>,    <code>9</code>) will never finish.</li>
 </ol>
 <p>Due to how base32 encoding works, the only available prefixes in mainnet are <code>NA, NB, NC, ND</code>, to    search starting at the beginning of an address prefix input with a caret sign <code>^</code>:
-   <div class="language-shell highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$<span class="w"> </span>./bin/catapult.tools.addressgen<span class="w"> </span>--network<span class="w"> </span>mainnet<span class="w"> </span>--input<span class="w"> </span>^NAHELL
+   <div class="highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$<span class="w"> </span>./bin/catapult.tools.addressgen<span class="w"> </span>--network<span class="w"> </span>mainnet<span class="w"> </span>--input<span class="w"> </span>^NAHELL
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">     </span>address<span class="w"> </span><span class="o">(</span>mainnet<span class="o">)</span>:<span class="w"> </span>NAHELLACJKBYBQGQ7ZGLOOYDFWKE2ZSWB3A3HDQ
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">       </span>address<span class="w"> </span>decoded:<span class="w"> </span>680E45AC024A8380C0D0FE4CB73B032D944D66560EC1B38E
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">            </span>public<span class="w"> </span>key:<span class="w"> </span>B939FF4BA0F86812A6315E0D5DA179A0FD4384CE11F291B8A02E6BE46F8EFA7A
@@ -2800,10 +3267,60 @@ In general every vanity generator works by searching for random secret keys, the
               </article>
             </div>
           
-          
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+          <!-- User-preference: link content tabs -->
 
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+  <script>
+    var tabs = __md_get("__tabs")
+    if (Array.isArray(tabs)) {
+      main: for (var set of document.querySelectorAll(".tabbed-set")) {
+        var labels = set.querySelector(".tabbed-labels")
+        for (var tab of tabs)
+          for (var label of labels.getElementsByTagName("label"))
+            if (label.innerText.trim() === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main
+            }
+      }
+
+      // Initialize dynamic links
+      main2: for (var set of document.querySelectorAll(".dylink")) {
+        var labels = set.querySelectorAll(".dylink-option")
+        for (var tab of tabs)
+          for (var label of labels)
+            if (label.htmlFor === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main2
+            }
+      }
+    }
+    // Link dynamic links to their tabs
+    var tab_groups = document.getElementsByClassName("tabbed-labels");
+    for (var tab_group of tab_groups) {
+        labels = tab_group.getElementsByTagName("label");
+        for (var label of labels) {
+            label.addEventListener("click", function(e){
+                tab_name = e.target.innerText.trim();
+                dylink_options = document.getElementsByClassName("dylink-option");
+                for (var dylink_option of dylink_options) {
+                    if (dylink_option.htmlFor === tab_name) {
+                        radio = document.getElementById(dylink_option.htmlFor);
+                        radio.checked = true;
+                    }
+                }
+            })
+        }
+    }
+  </script>
+
+
+<!-- Switch to content tab target -->
+<script>
+  var target = document.getElementById(location.hash.slice(1))
+  if (target && target.name)
+    target.checked = target.name.startsWith("__tabbed_")
+</script>
         </div>
         
       </main>
