@@ -1,0 +1,240 @@
+---
+title: Transfer
+---
+
+# Creating a Transfer Transaction
+
+Transfer transactions are the most basic type of Symbol transaction.
+They allow sending <XYM:> or any other type of mosaic from one <account:> to another.
+
+This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status
+until it is confirmed.  
+Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
+up-to-date values.
+
+You should have completed the [Hello World](site:/devbook/start/hello-world) tutorial to understand how to run the
+tutorials.
+
+## Full Code
+
+{% import 'tutorial.jinja2' as tutorial with context %}
+
+{{ tutorial.code_full('devbook/transactions/transfer', ['py', 'js']) }}
+
+The whole code is wrapped in a single `try` block to provide simple error handling,
+but applications will probably want to use more fine-grained control.
+
+## Code Explanation
+
+### Fetching Network Time
+
+{{ tutorial.code_snippet(['py:22:29', 'js:20:28']) }}
+
+Transactions on Symbol must include a deadline, which defines how long the network should attempt to confirm the
+transaction before discarding it.
+Deadlines are expressed in absolute network time, so the first step is to fetch the current network time from a node.
+
+??? info "What is the network time?"
+    Symbol defines time as the number of seconds elapsed since the creation of its first block,
+    known as the Nemesis block (or Genesis block, for the rest of blockchains).
+
+    All transaction deadlines and timestamps are calculated relative to this origin.
+
+    If you want to display timestamps in a more human-friendly way such as UTC, you need to add the timestamp of the
+    Nemesis block, which you can retrieve from the network properties:
+
+    === ":simple-python: Python"
+
+        ```py
+        properties_path = '/network/properties'
+        print(f'Fetching network properties from {properties_path}')
+        with urllib.request.urlopen(f'{NODE_URL}{properties_path}') as response:
+            response_json = json.loads(response.read().decode())
+            epoch_adjustment = datetime.datetime.fromtimestamp(
+                int(response_json['network']['epochAdjustment'].rstrip('s')))
+            print(f'  Nemesis timestamp: {epoch_adjustment}')
+        ```
+
+    === ":simple-javascript: JavaScript"
+
+        ```js
+        const propertiesPath = '/network/properties';
+        console.log('Fetching network properties from', propertiesPath);
+        const propertiesResponse = await fetch(`${NODE_URL}${propertiesPath}`);
+        const propertiesJSON = await propertiesResponse.json();
+        const epochAdjustment = new Date(parseInt(
+          propertiesJSON['network']['epochAdjustment']) * 1000);
+        console.log('  Nemesis timestamp:', epochAdjustment);
+        ```
+
+If a transaction's deadline is earlier than the current network time or more than two hours in the future,
+the transaction will be rejected.
+To avoid this, you need to know the current network time before constructing the transaction, using the
+[`/node/time`](site:/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime) endpoint.
+
+However, applications do not need to query the network time before every transaction.
+It can be fetched once and then adjusted using the local system clock when needed.
+This provides a good balance between accuracy and performance.
+
+### Fetching Recommended Fees
+
+{{ tutorial.code_snippet(['py:31:39', 'js:30:38']) }}
+
+Transactions on Symbol must pay a fee to incentivize nodes to include them in blocks.
+If the fee is too low, no node may include the transaction.
+If it is too high, the sender wastes funds.
+In addition, each node may enforce a minimum fee threshold for incoming transactions.
+
+The optimal fee depends on the current state of the network,
+particularly the number of transactions being submitted and the fees they are offering.
+To support fee estimation, Symbol provides the
+[`/network/fees/transaction`](site:/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees)
+endpoint that returns a _recommended fee multiplier_ based on recent transaction activity.
+
+The final fee is calculated by multiplying the recommended multiplier by the transaction's size in bytes.
+This ensures that larger transactions pay proportionally more while smaller ones remain cost-effective.
+
+Although applications can use a fixed fee for simplicity, it is more efficient to follow the network recommendation.
+As with network time, there is no need to query the multiplier for every transaction,
+but it should be refreshed regularly.
+
+The snippet above takes the greater of the recommended multiplier (`medianFeeMultiplier`) and the node's minimum
+multiplier (`minFeeMultiplier`), and stores it for later use once the transaction size is known.
+
+### Building the Transaction
+
+{{ tutorial.code_snippet({
+  'py': { 'range': [41, 54] },
+  'js': {
+    'range': [40, 52],
+    'descriptor': 'TransferTransactionV1Descriptor'
+  }
+}) }}
+
+All required transaction properties must be provided when building the transfer transaction.
+The snippet includes the following fields:
+
+* **Type**: Transfer transactions use the type `transfer_transaction_v1`.
+
+* **Signer public key**: The signer is the account that will pay the fee.
+    In a transfer transaction, it is also the source of the transferred mosaics.
+
+* **Deadline**: This value is set to two hours after the current network time, which is the maximum allowed deadline.
+
+* **Recipient address**: In this example, the recipient is the same as the sender,
+    which is useful for demonstration but not terribly practical.
+
+* **Mosaics**: This is an array, because a transfer transaction can send multiple mosaics at once.
+    Each entry includes a mosaic ID and an absolute amount.
+
+    In the example, the mosaic ID for <XYM:> is obtained using its alias, `symbol.xym`, which is easier to remember
+    than the full hexadecimal ID.
+
+    Absolute amounts depend on the mosaic's divisibility.
+    For XYM, the divisibility is 6, so 1 XYM must be expressed as `1_000_000`.
+
+Note that the fee field is not set in the descriptor.
+Instead, the fee is calculated after the transaction is built, using the previously obtained multiplier and the
+transaction's size in bytes.
+
+### Signing and Serializing
+
+{{ tutorial.code_snippet(['py:56:61', 'js:54:59']) }}
+
+Once the transaction is created, it must be signed with the signing account's private key.
+Signing ensures the transaction is authentic and authorized by the sender.
+
+<Python:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction> returns a <signature:> encoded as a
+hexadecimal string.
+
+<Python:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature> adds the signature to the
+transaction and serializes it into a JSON payload ready to be submitted directly to a node for announcement.
+
+### Announcing the Transaction
+
+{{ tutorial.code_snippet(['py:63:73', 'js:61:69']) }}
+
+Announcing a transaction is a simple `PUT` request to the
+[`/transactions`](site:/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction) endpoint
+of any Symbol API node.
+As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.
+
+However, this response does **not** indicate that the transaction is valid or accepted by the network.
+Validation, fee checks, and other rules are applied asynchronously after the transaction is received.
+
+To confirm that the transaction is actually accepted and included in a block, its status must be monitored separately,
+as shown in the next step.
+
+### Waiting for Confirmation
+
+{{ tutorial.code_snippet(['py:75:96', 'js:71:116']) }}
+
+!!! note
+    This step uses polling to check whether the transaction has been confirmed.
+    Polling is used here for illustration purposes, but it is not the recommended approach for real applications.
+
+    A production-grade application should use WebSockets to receive confirmation events directly from the node.
+    This provides a simpler and more responsive solution without the overhead of repeated API calls.
+
+    In addition, the logic for checking transaction status is reusable.
+    It can be moved into a utility function or module, since it is needed after announcing every transaction.
+
+The snippet above repeatedly queries the
+[`/transactionStatus`](site:/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus)
+endpoint using the hash of the submitted transaction.
+The response may take one of several forms:
+
+* An HTTP error, indicating that the node has not yet started processing the transaction.
+* A valid JSON object containing the transaction status.
+
+If the status group is `confirmed`, the transaction has been accepted and included in a block.
+
+If the status group is `failed`, the transaction has been rejected, for example, due to insufficient funds.
+
+In any other case, the code waits one second and tries again, up to a maximum of 60 times.
+
+Note that the code performs the first wait **before** performing the first status check.
+This gives the node some time to begin processing the transaction after it is announced.
+
+## Output
+
+The output shown below corresponds to a typical run of the program.
+
+```text
+--8<-- 'devbook/transactions/transfer.log'
+```
+
+The number of status checks before confirmation can vary based on network conditions,
+and the initial `unknown` status may or may not appear,
+depending on how quickly the node begins processing the transaction.
+
+To see the transaction from the network's perspective, you can visit the
+[Symbol Testnet Explorer](https://testnet.symbol.fyi/) and search for the transaction hash.  
+The hash is printed in the line that says `Waiting for confirmation from /transactionStatus/...`.  
+You should see the transaction move through the confirmation process in real time.
+
+Alternatively, you can search for the `signer_public_key` to view the transaction in the history of the signer account.
+
+## Conclusion
+
+This tutorial showed how to:
+
+* **Create a transaction** using the
+    <Python:symbolchain.symbol.TransactionFactory.TransactionFactory.create|TransactionFactory.create> method,
+    and providing deadline and fee information obtained from the
+    [`/node/time`](site:/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime) and
+    [`/network/fees/transaction`](site:/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees)
+    endpoints.
+
+* **Sign the transaction** using the
+    <Python:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction|SymbolFacade.sign_transaction> and
+    <Python:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature|TransactionFactory.attach_signature> methods.
+
+* **Announce the transaction** using the
+    [`/transactions`](site:/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction) endpoint.
+
+* **Confirm the transaction** by polling the
+    [`/transactionStatus`](site:/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus)
+    endpoint.
+
+Other transaction types follow the same general process.
