@@ -80,3 +80,4 @@ updates:
       - /linters/python
       - /sdk/javascript/generator
       - /sdk/python
+      - /mkdocs
