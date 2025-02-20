@@ -24,7 +24,7 @@ import MockServer from '../utils/MockServer.js';
 import test from '../utils/routeTestUtils.js';
 import { expect } from 'chai';
 
-const restVersion = '2.4.4';
+const restVersion = '2.5.0';
 
 describe('Light REST node routes', () => {
 	describe('get', () => {
