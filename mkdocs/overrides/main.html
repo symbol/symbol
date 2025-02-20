@@ -3,6 +3,6 @@
 {% block scripts %}
     {{ super() }}
     {% if page and page.meta and page.meta.section_class %}
-        <script>document.body.className+=" {{ page.meta.section_class }}"</script>>
+        <script>document.body.className+=" {{ page.meta.section_class }}"</script>
     {% endif %}
 {% endblock %}
