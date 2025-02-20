@@ -101,10 +101,10 @@ extra:
   homepage: https://symbol.github.io/symbol
   alternate:
     - name: English
-      link: /en/
+      link: /symbol/en/
       lang: en
     - name: 日本語
-      link: /ja/
+      link: /symbol/ja/
       lang: ja
   social:
     - icon: fontawesome/solid/house
