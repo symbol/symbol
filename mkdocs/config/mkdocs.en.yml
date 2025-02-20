@@ -1,0 +1,156 @@
+site_name: Symbol Docs
+docs_dir: ../pages/en
+site_dir: ../../docs/en
+site_url: http://localhost:8000
+repo_url: https://github.com/symbol/symbol
+repo_name: symbol
+edit_uri: edit/master/docs
+plugins:
+  - search:
+      lang: en
+  - meta-manager
+  - ezglossary: # Automatic glossary tooltips
+      use_default: true
+      inline_refs: none
+      markdown_links: true
+      tooltip: full
+  - autorefs:
+      resolve_closest: true
+  - gen-files: # Generate stub files for API reference docs, to be filled by mkdocstrings
+      scripts:
+        - ../scripts/gen_ref_pages_py.py
+  - mkdocstrings: # Generate API reference docs from actual source code
+      default_handler: python
+      handlers:
+        python:
+          paths: [../../sdk/python]
+          options:
+            show_source: false
+            merge_init_into_class: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_root_toc_entry: false
+            show_object_full_path: true
+  - literate-nav: # Allow navigation to be specified in the md files created by gen-files
+      nav_file: navigation.md
+  - git-revision-date-localized: # git dates in page footers
+      enable_creation_date: true
+      exclude:
+        - devbook/reference/py/*
+  - git-authors: # git authors in page footers
+      exclude:
+        - devbook/reference/py/*
+markdown_extensions:
+  - attr_list
+  - admonition
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: !relative $docs_dir
+      check_paths: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - def_list
+  - md_in_html
+  - toc:
+      permalink: ⚓︎
+      title: On this page
+      toc_depth: 3
+theme:
+  name: material
+  language: en
+  custom_dir: ../overrides
+  favicon: assets/images/favicon.ico
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/images/symbol-logo.svg
+  features:
+    - content.tooltips # Material tooltips instead of browser
+    #- navigation.instant # Single-page application
+    - navigation.tracking # URL follows the current section in the page
+    - navigation.tabs # Top navbar
+    - toc.follow # Current section in TOC is always visible
+    - content.tabs.link # Linked content tabs
+    - content.code.copy # Copy code button in code blocks
+    - content.action.edit # Edit on GitHub button
+    - content.action.view # View on GitHub button
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+extra:
+  homepage: http://127.0.0.1:8000
+  alternate:
+    - name: English
+      link: /en/
+      lang: en
+    - name: 日本語
+      link: /ja/
+      lang: ja
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+  social:
+    - icon: fontawesome/solid/house
+      link: https://docs.symbol.dev
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/SymbolSyndicate
+    - icon: fontawesome/brands/github
+      link: https://github.com/symbol
+    - icon: fontawesome/brands/discord
+      link: https://discord.com/invite/xymcity
+copyright: >
+  Copyright &copy; 2025 The Symbol Syndicate
+extra_css:
+  - assets/stylesheets/extra.css
+nav:
+  - index.md
+  - User Guide:
+      - userbook/intro.md
+  - Developer Guide:
+      - devbook/0.introduction.md
+      - devbook/1.accounts.md
+      - devbook/2.namespaces.md
+      - devbook/3.mosaics.md
+      - devbook/4.transactions.md
+      - devbook/5.nodes.md
+      - devbook/6.blocks.md
+      - devbook/7.xym.md
+      - devbook/8.advanced.md
+      - devbook/9.catapult.md
+      - devbook/a.catbuffer.md
+      - devbook/b.analytics.md
+      - devbook/c.other.md
+      - SDKs:
+          - Python API Reference: devbook/reference/py/
+  - Textbook:
+      - textbook/intro.md
+      - textbook/glossary.md
