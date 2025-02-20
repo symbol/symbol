@@ -255,3 +255,8 @@ aside.md-source-file {
     color: var(--md-primary-fg-color);
     opacity: 1;
 }
+
+/* Hide definition list terms generated automatically for the reference guide */
+.automatic-reference-term dt {
+    display: none;
+}
