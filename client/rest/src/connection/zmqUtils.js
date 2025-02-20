@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import zmq from 'zeromq';
+import zmq from 'zeromq/v5-compat.js';
 import EventEmitter from 'events';
 
 const logAllMonitorEvents = (zsocket, throttle, logger) => {
