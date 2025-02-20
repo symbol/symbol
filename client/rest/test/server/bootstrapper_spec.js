@@ -31,7 +31,7 @@ import restify from 'restify';
 import sinon from 'sinon';
 import winston from 'winston';
 import WebSocket from 'ws';
-import zmq from 'zeromq';
+import zmq from 'zeromq/v5-compat.js';
 import EventEmitter from 'events';
 
 const supportedHttpMethods = ['get', 'post', 'put'];
@@ -827,7 +827,8 @@ describe('server (bootstrapper)', () => {
 
 		const createBoundZsocket = () => {
 			const zsocket = zmq.socket('pub');
-			zsocket.bindSync(`tcp://127.0.0.1:${ports.mq}`);
+			// For each test use a new port.  Seems port not getting released on close.
+			zsocket.bindSync(`tcp://127.0.0.1:${ports.mq++}`);
 			return zsocket;
 		};
 

@@ -20,7 +20,7 @@
  */
 
 import zmqUtils from './zmqUtils.js';
-import zmq from 'zeromq';
+import zmq from 'zeromq/v5-compat.js';
 
 const createZmqSocket = (key, zmqConfig, logger, currentSocketCount) => {
 	const zsocket = zmq.socket('sub');
