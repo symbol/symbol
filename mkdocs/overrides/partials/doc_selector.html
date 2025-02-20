@@ -1,0 +1,41 @@
+<form class="md-header__option" data-md-component="doc_selector">
+  {% for option in config.extra.doc_selector %}
+    <input class="md-option" aria-label="{{ option.toggle }}" type="radio" name="__doc_selector" id="__doc_selector_{{ option.name }}" onchange="handleDocSelector('{{ option.name }}')">
+    <label class="md-header__button md-icon" title="{{ option.toggle }}" for="__doc_selector_{{ option.target }}">
+      <img src="{{ option.icon | url }}"/>
+    </label>
+  {% endfor %}
+</form>
+
+<script>
+  window.addEventListener("load", function(e) {
+    // Set current selection
+    var doc_selector = __md_get("__doc_selector") || "Symbol";
+    handleDocSelector(doc_selector);
+    document.getElementById("__doc_selector_" + doc_selector).checked = true;
+
+    // Hide tabs in doc-selection tab groups
+    for (var label_set of document.querySelectorAll(".tabbed-labels")) {
+      for (var label of label_set.getElementsByTagName("label"))
+        if (label.innerText.trim() === "NEM") {
+          label_set.style="display:none";
+        }
+    }
+  });
+
+  // Selector event
+  function handleDocSelector(doc_selector) {
+    __md_set("__doc_selector", doc_selector);
+
+    main:
+    for (var set of document.querySelectorAll(".tabbed-set")) {
+      var labels = set.querySelector(".tabbed-labels")
+        for (var label of labels.getElementsByTagName("label"))
+          if (label.innerText.trim() === doc_selector) {
+            var input = document.getElementById(label.htmlFor)
+            input.checked = true
+            continue main
+          }
+      }
+    }
+</script>

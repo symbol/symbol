@@ -276,3 +276,13 @@ a:target {
 .md-typeset .dylink input[type=radio]:checked+.dylink-option {
     display: inline;
 }
+
+/* Documentation selector icons */
+.md-icon img {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.md-header__option[data-md-component="doc_selector"] .md-option:not(:checked)+.md-icon {
+    display: none;
+}
