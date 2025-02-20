@@ -48,15 +48,6 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better.
-  doc_selector:
-    - name: Symbol
-      target: NEM
-      toggle: Switch to NEM documentation
-      icon: assets/images/symbol-docs.png
-    - name: NEM
-      target: Symbol
-      toggle: Switch to Symbol documentation
-      icon: assets/images/nem-docs.png
 nav:
   - index.md
   - User Guide:

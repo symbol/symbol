@@ -42,9 +42,6 @@
     {% if config.extra.alternate %}
       {% include "partials/alternate.html" %}
     {% endif %}
-    {% if config.extra.doc_selector %}
-      {% include "partials/doc_selector.html" %}
-    {% endif %}
     {% if "material/search" in config.plugins %}
       <label class="md-header__button md-icon" for="__search">
         {% set icon = config.theme.icon.search or "material/magnify" %}
