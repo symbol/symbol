@@ -21,14 +21,14 @@ properties:
   totalTransactionsCount:
     type: integer
     description: >
-      Total number of [transactions](https://docs.symbolplatform.com/concepts/transaction.html)
+      Total number of [transactions](https://docs.symbol.dev/concepts/transaction.html)
       confirmed in this block, including *embedded* transactions
       (i.e. transactions contained within aggregate transactions).
     example: 1
   transactionsCount:
     type: integer
     description: >
-      Number of [transactions](https://docs.symbolplatform.com/concepts/transaction.html)
+      Number of [transactions](https://docs.symbol.dev/concepts/transaction.html)
       confirmed in this block. This does not count *embedded* transactions
       (i.e. transactions contained within aggregate transactions).
     example: 1
@@ -37,8 +37,8 @@ properties:
     description: >
       Number of statements (of any kind) present in this block.
       Bear in mind that some of them (like
-      [resolution statements](https://docs.symbolplatform.com/concepts/receipt.html#resolution-statement))
+      [resolution statements](https://docs.symbol.dev/concepts/receipt.html#resolution-statement))
       are triggered by transactions present in the block, but in general,
-      [transaction statements](https://docs.symbolplatform.com/concepts/receipt.html#transaction-statement)
+      [transaction statements](https://docs.symbol.dev/concepts/receipt.html#transaction-statement)
       are not.
     example: 1
