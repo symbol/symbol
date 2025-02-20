@@ -14,6 +14,31 @@
     src: url(../fonts/Exo2-VariableFont.ttf) format('truetype');
 }
 
+/* Colors */
+.userbook-section {
+    --md-primary-fg-color: #F4A900;
+    --md-primary-fg-color--dark: #a57504;
+    --md-primary-fg-color--light: #f7cc67;
+    --md-typeset-a-color: var(--md-primary-fg-color--light);
+    --md-accent-fg-color: var(--md-primary-fg-color);
+}
+
+.devbook-section {
+    --md-primary-fg-color: #20B5AC;
+    --md-primary-fg-color--dark: #136d67;
+    --md-primary-fg-color--light: #77c4be;
+    --md-typeset-a-color: var(--md-primary-fg-color--light);
+    --md-accent-fg-color: var(--md-primary-fg-color);
+}
+
+.textbook-section {
+    --md-primary-fg-color: #7000DF;
+    --md-primary-fg-color--dark: #4a0194;
+    --md-primary-fg-color--light: #9756d5;
+    --md-typeset-a-color: var(--md-primary-fg-color--light);
+    --md-accent-fg-color: var(--md-primary-fg-color);
+}
+
 /* Home page cards */
 .userbook {
     background: url("../images/userbook.png") no-repeat center;
@@ -113,17 +138,6 @@
 
 .md-header__button.md-logo img {
     height: 2rem;
-}
-
-/* Header colors */
-.md-tabs.userbook-section, .md-header.userbook-section {
-    background-color: saddlebrown;
-}
-.md-tabs.devbook-section, .md-header.devbook-section {
-    background-color: darkgreen;
-}
-.md-tabs.textbook-section, .md-header.textbook-section {
-    background-color: brown;
 }
 
 /* Separator for source file facts at page bottom */
