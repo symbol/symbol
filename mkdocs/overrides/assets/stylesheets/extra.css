@@ -19,23 +19,31 @@
     --md-primary-fg-color: #F4A900;
     --md-primary-fg-color--dark: #a57504;
     --md-primary-fg-color--light: #f7cc67;
-    --md-typeset-a-color: var(--md-primary-fg-color--light);
-    --md-accent-fg-color: var(--md-primary-fg-color);
 }
 
 .devbook-section {
     --md-primary-fg-color: #20B5AC;
     --md-primary-fg-color--dark: #136d67;
     --md-primary-fg-color--light: #77c4be;
-    --md-typeset-a-color: var(--md-primary-fg-color--light);
-    --md-accent-fg-color: var(--md-primary-fg-color);
 }
 
 .textbook-section {
     --md-primary-fg-color: #7000DF;
     --md-primary-fg-color--dark: #4a0194;
     --md-primary-fg-color--light: #9756d5;
+}
+
+[data-md-color-scheme=slate] .userbook-section,
+[data-md-color-scheme=slate] .devbook-section,
+[data-md-color-scheme=slate] .textbook-section {
     --md-typeset-a-color: var(--md-primary-fg-color--light);
+    --md-accent-fg-color: var(--md-primary-fg-color);
+}
+
+[data-md-color-scheme=default] .userbook-section,
+[data-md-color-scheme=default] .devbook-section,
+[data-md-color-scheme=default] .textbook-section {
+    --md-typeset-a-color: var(--md-primary-fg-color--dark);
     --md-accent-fg-color: var(--md-primary-fg-color);
 }
 
@@ -140,9 +148,19 @@
     height: 2rem;
 }
 
+/* Header */
+.md-tabs,
+.md-header {
+    background-color: var(--md-primary-fg-color--dark);
+}
+
+.md-tabs {
+    border-bottom: 1px solid var(--md-primary-fg-color);
+}
+
 /* Separator for source file facts at page bottom */
 aside.md-source-file {
-    border-top: 1px solid var(--md-default-fg-color--lighter);
+    border-top: 1px solid var(--md-primary-fg-color);
     padding-top: 0.5rem;
     margin-top: 2rem;
 }
