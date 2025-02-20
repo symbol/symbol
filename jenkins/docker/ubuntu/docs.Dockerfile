@@ -23,8 +23,6 @@ RUN apt-get install -y ca-certificates curl gnupg \
 	&& apt-get update \
 	&& apt-get install -y nodejs
 
-RUN npm install -g typedoc typedoc-plugin-markdown
-
 # doxygen
 RUN apt-get install -y bison cmake flex gcc g++ graphviz make qtcreator qt6-tools-dev texlive-full
 ARG DOXYGEN_VERSION=1.13.2
