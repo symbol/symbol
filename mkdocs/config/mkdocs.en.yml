@@ -9,7 +9,7 @@ plugins:
     lang: en
   mkdoxy: # Generate API reference docs for Java
     projects:
-      Hello: # name of project must be alphanumeric + numbers (without spaces)
+      JavaSDK: # name of project must be alphanumeric + numbers (without spaces)
         doxy-cfg: # standard doxygen configuration (key: value)
           OUTPUT_LANGUAGE: English
 markdown_extensions:
