@@ -1,11 +1,13 @@
-site_name: Symbol Docs
-docs_dir: pages
+site_name: Symbolドキュメント
+docs_dir: ../pages/ja
+site_dir: ../../docs/ja
 site_url: http://localhost:8000
 repo_url: https://github.com/symbol/symbol
 repo_name: symbol
 edit_uri: edit/master/docs
 plugins:
-  - search
+  - search:
+      lang: ja
   - meta-manager
   - ezglossary: # Automatic glossary tooltips
       use_default: true
@@ -16,12 +18,12 @@ plugins:
       resolve_closest: true
   - gen-files: # Generate stub files for API reference docs, to be filled by mkdocstrings
       scripts:
-        - scripts/gen_ref_pages_py.py
+        - ../scripts/gen_ref_pages_py.py
   - mkdocstrings: # Generate API reference docs from actual source code
       default_handler: python
       handlers:
         python:
-          paths: [../sdk/python]
+          paths: [../../sdk/python]
           options:
             show_source: false
             merge_init_into_class: true
@@ -60,12 +62,12 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: ⚓︎
-      title: On this page
+      title: このページに
       toc_depth: 3
 theme:
   name: material
-  language: en
-  custom_dir: pages/assets/overrides
+  language: ja
+  custom_dir: ../overrides
   favicon: assets/images/favicon.ico
   icon:
     repo: fontawesome/brands/github
@@ -104,18 +106,17 @@ extra:
   homepage: http://127.0.0.1:8000
   alternate:
     - name: English
-      link: /
+      link: /en/
       lang: en
     - name: 日本語
       link: /ja/
       lang: ja
   consent:
-    title: Cookie consent
+    title: クッキーの同意
     description: >-
-      We use cookies to recognize your repeated visits and preferences, as well
-      as to measure the effectiveness of our documentation and whether users
-      find what they're searching for. With your consent, you're helping us to
-      make our documentation better.
+      当社では、お客様の繰り返しのアクセスや好みを認識するため、
+      また、当社のドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
+      お客様の同意により、当社はドキュメントの改善に協力することになります。
   social:
     - icon: fontawesome/solid/house
       link: https://docs.symbol.dev
@@ -131,9 +132,9 @@ extra_css:
   - assets/stylesheets/extra.css
 nav:
   - index.md
-  - User Guide:
+  - ユーザーガイド:
       - userbook/intro.md
-  - Developer Guide:
+  - 開発者ガイド:
       - devbook/0.introduction.md
       - devbook/1.accounts.md
       - devbook/2.namespaces.md
@@ -148,7 +149,7 @@ nav:
       - devbook/b.analytics.md
       - devbook/c.other.md
       - SDKs:
-          - Python API Reference: devbook/reference/py/
-  - Textbook:
+          - Python API リファレンス: devbook/reference/py/
+  - 教科書:
       - textbook/intro.md
       - textbook/glossary.md
