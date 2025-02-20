@@ -125,6 +125,24 @@ updates:
           - minor
           - patch
 
+  - package-ecosystem: pip
+    directory: /mkdocs
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [mkdocs]
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: '[dependency]'
+    groups:
+      mkdocs-python-dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
   - package-ecosystem: npm
     directory: /sdk/javascript
     schedule:

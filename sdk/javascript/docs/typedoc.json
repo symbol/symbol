@@ -1,16 +1,44 @@
 {
-    "$schema": "https://typedoc.org/schema.json",
+    "$schema": "https://typedoc-plugin-markdown.org/schema.json",
 
     "entryPoints": [
         "../ts/src/index.d.ts",
-        "../ts/src/nem/index.d.ts",
-        "../ts/src/symbol/index.d.ts"
+        "../ts/src/Bip32.d.ts",
+        "../ts/src/Network.d.ts",
+        "../ts/src/NetworkTimestamp.d.ts",
+        "../ts/src/symbol/index.d.ts",
+        "../ts/src/symbol/merkle.d.ts",
+        "../ts/src/symbol/MessageEncoder.d.ts"
     ],
-    "out": "./build/html",
+    "plugin": [
+        "typedoc-plugin-markdown"
+    ],
 
+    "router": "kind-structure",
     "includeVersion": true,
     "excludePrivate": true,
     "excludeExternals": true,
+    "sortEntryPoints": false,
+    "cleanOutputDir": true,
+    "readme": "none",
+    "disableSources": true,
+    "gitRemote": "upstream",
+    "exclude": ["**/nem/*"],
+    "disableGit": true,
 
-    "sortEntryPoints": false
+    // Markdown plugin options
+    "hidePageHeader": true,
+    "hidePageTitle": false,
+    "hideBreadcrumbs": true,
+    "hideGroupHeadings": true,
+    "useCodeBlocks": true,
+    "excludeScopesInPaths": true,
+    "parametersFormat": "table",
+    "propertiesFormat": "table",
+    "enumMembersFormat": "table",
+    "classPropertiesFormat": "table",
+    "propertyMembersFormat": "table",
+    "typeDeclarationFormat": "table",
+    "interfacePropertiesFormat": "table",
+    "useHTMLEncodedBrackets": true
 }
