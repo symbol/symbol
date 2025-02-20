@@ -1,7 +1,7 @@
 site_name: Symbolドキュメント WIP ⚠
 docs_dir: ../pages/ja
 site_dir: ../../docs/ja
-site_url: http://localhost:8000
+site_url: http://symbol.github.io/symbol
 repo_url: https://github.com/symbol/symbol
 repo_name: symbol
 edit_uri: blob/new-docs/mkdocs/pages/ja
@@ -104,7 +104,7 @@ theme:
         icon: material/brightness-4
         name: システム設定に切り替える
 extra:
-  homepage: http://127.0.0.1:8000
+  homepage: https://symbol.github.io/symbol
   alternate:
     - name: English
       link: /en/
@@ -120,7 +120,7 @@ extra:
       お客様の同意により、当社はドキュメントの改善に協力することになります。
   social:
     - icon: fontawesome/solid/house
-      link: https://docs.symbol.dev
+      link: https://symbol.github.io/symbol
     - icon: fontawesome/brands/x-twitter
       link: https://x.com/SymbolSyndicate
     - icon: fontawesome/brands/github

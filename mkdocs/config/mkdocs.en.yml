@@ -1,7 +1,7 @@
 site_name: Symbol Docs WIP ⚠
 docs_dir: ../pages/en
 site_dir: ../../docs/en
-site_url: http://localhost:8000
+site_url: http://symbol.github.io/symbol
 repo_url: https://github.com/symbol/symbol
 repo_name: symbol
 edit_uri: blob/new-docs/mkdocs/pages/en
@@ -106,7 +106,7 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
 extra:
-  homepage: http://127.0.0.1:8000
+  homepage: https://symbol.github.io/symbol
   alternate:
     - name: English
       link: /en/
@@ -123,7 +123,7 @@ extra:
       make our documentation better.
   social:
     - icon: fontawesome/solid/house
-      link: https://docs.symbol.dev
+      link: https://symbol.github.io/symbol
     - icon: fontawesome/brands/x-twitter
       link: https://x.com/SymbolSyndicate
     - icon: fontawesome/brands/github
