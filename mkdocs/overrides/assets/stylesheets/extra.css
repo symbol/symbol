@@ -48,12 +48,14 @@
     --md-typeset-a-color: var(--md-primary-fg-color--light);
     --md-accent-fg-color: var(--md-primary-fg-color);
     --md-default-bg-color--light: #333;
+    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 }
 
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
     --md-typeset-a-color: var(--md-primary-fg-color--dark);
     --md-accent-fg-color: var(--md-primary-fg-color);
     --md-default-bg-color--light: #DDD;
+    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 }
 
 /* Home page cards */
@@ -174,12 +176,12 @@
 }
 
 .md-tabs {
-    border-bottom: 3px solid var(--md-primary-fg-color);
+    border-bottom: 2px solid var(--md-primary-fg-color);
 }
 
 .md-header--shadow {
     box-shadow: none;
-    border-bottom: 3px solid var(--md-primary-fg-color);
+    border-bottom: 2px solid var(--md-primary-fg-color);
 }
 
 .md-header__source {
