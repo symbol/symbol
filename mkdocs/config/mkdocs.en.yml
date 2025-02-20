@@ -67,6 +67,8 @@ markdown_extensions:
 theme:
   name: material
   language: en
+  font:
+    text: Exo2
   custom_dir: ../overrides
   favicon: assets/images/favicon.ico
   icon:
