@@ -22,4 +22,6 @@ for f in mkdocs_gen_files.editor.FilesEditor.current().files:
 	nav[parts] = path.as_posix()
 
 with mkdocs_gen_files.open("devbook/reference/ts/links.md", "w") as nav_file:
+	# Exclude the index file from being indexed by the search plugin
+	nav_file.writelines(["---\n", "search:\n", "    exclude: true\n", "---\n\n"])
 	nav_file.writelines(nav.build_literate_nav())

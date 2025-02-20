@@ -33,7 +33,7 @@ def on_pre_build(config: base.Config):
 	spec_path = Path(__file__).parent.parent.parent.joinpath("openapi").resolve()
 	md_path = Path(config.docs_dir).joinpath("devbook", "reference", "rest").resolve()
 	for f in ['openapi-symbol.yml']:
-		shutil.copyfile(spec_path / f, md_path / f)
+		shutil.copy2(spec_path / f, md_path / f)
 
 @mkdocs.plugins.event_priority(0)
 def on_page_markdown(content, page, config, files):
@@ -50,7 +50,7 @@ def on_page_markdown(content, page, config, files):
 		nonlocal symbol_name
 		symbol_name = m.group(2)
 		# Insert zero-width spaces in camel-case titles, in case they are very long
-		symbol_name_zws = re.sub(r'([a-z])([A-Z])', r'\1&ZeroWidthSpace;\2', symbol_name)
+		symbol_name_zws = re.sub(r'([a-z])([A-Z])', r'\1<wbr>\2', symbol_name)
 		if m.group(1) not in dict:
 			return f'# {m.group(1)}: {symbol_name_zws}'
 		return f'# <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_zws}'
