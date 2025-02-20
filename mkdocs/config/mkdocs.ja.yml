@@ -10,6 +10,7 @@ plugins:
       lang: ja
   - meta-manager
   - ezglossary: # Automatic glossary tooltips
+      templates: templates/ezglossary
       use_default: true
       inline_refs: none
       markdown_links: true
@@ -21,7 +22,7 @@ plugins:
         - ../scripts/gen_ref_pages_py.py
   - mkdocstrings: # Generate API reference docs from actual source code
       default_handler: python
-      custom_templates: ../mkdocstrings-templates
+      custom_templates: ../templates/mkdocstrings
       handlers:
         python:
           paths: [../../sdk/python]
