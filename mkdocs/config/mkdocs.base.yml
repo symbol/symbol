@@ -118,6 +118,15 @@ extra:
   symbol:
     java-sdk:
       include-prefixes: ["classorg", "interfaceorg"]
+  doc_selector:
+    - name: Symbol
+      target: NEM
+      toggle: Switch to NEM documentation
+      icon: assets/images/symbol-docs.png
+    - name: NEM
+      target: Symbol
+      toggle: Switch to Symbol documentation
+      icon: assets/images/nem-docs.png
 copyright: >
   Copyright &copy; 2025 The Symbol Syndicate
 extra_css:
