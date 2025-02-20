@@ -45,6 +45,15 @@ extra:
       当社では、お客様の繰り返しのアクセスや好みを認識するため、
       また、当社のドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
       お客様の同意により、当社はドキュメントの改善に協力することになります。
+  doc_selector:
+    - name: Symbol
+      target: NEM
+      toggle: NEMドキュメントに切り替える
+      icon: assets/images/symbol-docs.png
+    - name: NEM
+      target: Symbol
+      toggle: Symbolドキュメントに切り替える
+      icon: assets/images/nem-docs.png
 nav:
   - index.md
   - ユーザーガイド:
