@@ -260,3 +260,9 @@ aside.md-source-file {
 .automatic-reference-term dt {
     display: none;
 }
+
+/* Glossaries */
+a:target {
+    background-color: var(--md-accent-fg-color--transparent);
+    display: block;
+}
