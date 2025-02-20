@@ -72,10 +72,11 @@ nav:
       - devbook/a.catbuffer.md
       - devbook/b.analytics.md
       - devbook/c.other.md
-      - SDKs:
-          - Python API リファレンス: devbook/reference/py/
-          - JavaScript API リファレンス: devbook/reference/js/test.md
-          - Java API リファレンス: devbook/reference/java/
+      - リファレンスガイド:
+          - Python SDK: devbook/reference/py/
+          - JavaScript SDK: devbook/reference/js/test.md
+          - Java SDK: devbook/reference/java/
+          - Symbol REST API: devbook/reference/rest/symbol.md
   - 教科書:
       - textbook/intro.md
       - textbook/glossary.md

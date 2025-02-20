@@ -54,6 +54,7 @@ plugins:
   git-authors: # git authors in page footers
     exclude:
       - devbook/reference/*
+  swagger-ui-tag: {}
 hooks:
   - ../scripts/hooks.py
 markdown_extensions:
