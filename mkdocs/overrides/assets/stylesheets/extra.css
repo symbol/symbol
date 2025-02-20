@@ -179,6 +179,10 @@
     border-bottom: 3px solid var(--md-primary-fg-color);
 }
 
+.md-header__source {
+    display: none;
+}
+
 /* Separator for source file facts at page bottom */
 aside.md-source-file {
     border-top: 1px solid var(--md-primary-fg-color);
