@@ -62,6 +62,7 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: ⚓︎
+      permalink_title: 参照用にこのセクションへのアンカーリンク
       title: このページに
       toc_depth: 3
 theme:
@@ -87,21 +88,21 @@ theme:
     - media: "(prefers-color-scheme)"
       toggle:
         icon: material/brightness-auto
-        name: Switch to light mode
+        name: ライトモードに切り替える
 
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
+        name: ダークモードに切り替える
 
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       toggle:
         icon: material/brightness-4
-        name: Switch to system preference
+        name: システム設定に切り替える
 extra:
   homepage: http://127.0.0.1:8000
   alternate:
