@@ -10,7 +10,7 @@ plugins:
       lang: en
   - meta-manager
   - ezglossary: # Automatic glossary tooltips
-      templates: templates/ezglossary ### RELATIVE TO CWD!!! ###
+      templates: ../templates/ezglossary
       use_default: true
       inline_refs: none
       markdown_links: true

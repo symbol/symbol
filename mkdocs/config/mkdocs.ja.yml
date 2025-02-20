@@ -1,3 +1,5 @@
+INHERIT: ./mkdocs.base.yml
+
 site_name: Symbolドキュメント WIP ⚠
 docs_dir: ../pages/ja
 site_dir: ../../docs/ja
@@ -10,7 +12,7 @@ plugins:
       lang: ja
   - meta-manager
   - ezglossary: # Automatic glossary tooltips
-      templates: templates/ezglossary ### RELATIVE TO CWD!!! ###
+      templates: ../templates/ezglossary
       use_default: true
       inline_refs: none
       markdown_links: true
