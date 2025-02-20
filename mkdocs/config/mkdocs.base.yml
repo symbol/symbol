@@ -55,6 +55,9 @@ plugins:
       - devbook/reference/*
 hooks:
   - ../scripts/hooks.py
+symbol:
+  java-sdk:
+    include-prefixes: ["classorg", "namespaceorg", "namespaces", "annotated", "interfaceorg"]
 markdown_extensions:
   attr_list: {}
   admonition: {}
