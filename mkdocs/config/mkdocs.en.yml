@@ -1,4 +1,4 @@
-site_name: Symbol Docs WIP ⚠
+site_name: Symbol Docs WIP 🚧
 docs_dir: ../pages/en
 site_dir: ../../docs/en
 site_url: http://symbol.github.io/symbol
@@ -33,15 +33,31 @@ plugins:
             show_symbol_type_toc: true
             show_root_toc_entry: false
             show_object_full_path: false
+  - mkdoxy:
+      save-api: .doxy
+      projects:
+        Hello: # name of project must be alphanumeric + numbers (without spaces)
+          src-dirs: ../sdk/java # path to source code (support multiple paths separated by space) => INPUT
+          full-doc: true # if you want to generate full documentation
+          api-path: devbook/reference/java
+          doxy-cfg: # standard doxygen configuration (key: value)
+            FILE_PATTERNS: "*.java" # specify file patterns to filter out
+            OPTIMIZE_OUTPUT_JAVA: true
+            JAVADOC_AUTOBRIEF: true
+            STRIP_FROM_PATH: !relative $config_dir/../..
+            SOURCE_BROWSER: true
+            OUTPUT_LANGUAGE: English
+            SOURCE_TOOLTIPS: true
+            INLINE_SOURCES: true
   - literate-nav: # Allow navigation to be specified in the md files created by gen-files
-      nav_file: navigation.md
+      nav_file: links.md
   - git-revision-date-localized: # git dates in page footers
       enable_creation_date: true
       exclude:
-        - devbook/reference/py/*
+        - devbook/reference/*
   - git-authors: # git authors in page footers
       exclude:
-        - devbook/reference/py/*
+        - devbook/reference/*
 markdown_extensions:
   - attr_list
   - admonition
@@ -156,6 +172,7 @@ nav:
       - SDKs:
           - Python API Reference: devbook/reference/py/
           - JavaScript API Reference: devbook/reference/js/test.md
+          - Java API Reference: devbook/reference/java/
   - Textbook:
       - textbook/intro.md
       - textbook/glossary.md
