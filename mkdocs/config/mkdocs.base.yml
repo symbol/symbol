@@ -53,6 +53,8 @@ plugins:
   git-authors: # git authors in page footers
     exclude:
       - devbook/reference/*
+hooks:
+  - ../scripts/hooks.py
 markdown_extensions:
   attr_list: {}
   admonition: {}
