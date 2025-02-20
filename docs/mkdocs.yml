@@ -4,6 +4,8 @@ site_url: http://localhost:8000
 repo_url: https://github.com/symbol/symbol
 repo_name: symbol
 edit_uri: edit/master/docs
+hooks:
+  - scripts/cleanup.py
 plugins:
   - search
   - meta-manager
@@ -12,13 +14,6 @@ plugins:
       inline_refs: none
       markdown_links: true
       tooltip: full
-  - git-revision-date-localized: # git dates in page footers
-      enable_creation_date: true
-      exclude:
-        - en/devbook/reference/py/*
-  - git-authors: # git authors in page footers
-      exclude:
-        - en/devbook/reference/py/*
   - autorefs:
       resolve_closest: true
   - mkdocstrings: # Generate API reference docs from actual source code
@@ -36,8 +31,25 @@ plugins:
   - gen-files: # Generate stub files for API reference docs, to be filled by mkdocstrings
       scripts:
         - scripts/gen_ref_pages_py.py
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: ja
+          name: 日本語
+          build: true
   - literate-nav: # Allow navigation to be specified in the md files created by gen-files
       nav_file: navigation.md
+  - git-revision-date-localized: # git dates in page footers
+      enable_creation_date: true
+      exclude:
+        - devbook/reference/py/*
+  - git-authors: # git authors in page footers
+      exclude:
+        - devbook/reference/py/*
 markdown_extensions:
   - attr_list
   - admonition
@@ -100,14 +112,14 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
 extra:
-  homepage: http://127.0.0.1:8000/en/
+  homepage: http://127.0.0.1:8000
   alternate:
     - name: English
-      link: /en/
+      link: /
       lang: en
     - name: 日本語
-      link: /jp/
-      lang: jp
+      link: /ja/
+      lang: ja
   consent:
     title: Cookie consent
     description: >-
@@ -129,25 +141,25 @@ copyright: >
 extra_css:
   - assets/stylesheets/extra.css
 nav:
-  - en/index.md
+  - index.md
   - User Guide:
-      - en/userbook/intro.md
+      - userbook/intro.md
   - Developer Guide:
-      - en/devbook/0.introduction.md
-      - en/devbook/1.accounts.md
-      - en/devbook/2.namespaces.md
-      - en/devbook/3.mosaics.md
-      - en/devbook/4.transactions.md
-      - en/devbook/5.nodes.md
-      - en/devbook/6.blocks.md
-      - en/devbook/7.xym.md
-      - en/devbook/8.advanced.md
-      - en/devbook/9.catapult.md
-      - en/devbook/a.catbuffer.md
-      - en/devbook/b.analytics.md
-      - en/devbook/c.other.md
+      - devbook/0.introduction.md
+      - devbook/1.accounts.md
+      - devbook/2.namespaces.md
+      - devbook/3.mosaics.md
+      - devbook/4.transactions.md
+      - devbook/5.nodes.md
+      - devbook/6.blocks.md
+      - devbook/7.xym.md
+      - devbook/8.advanced.md
+      - devbook/9.catapult.md
+      - devbook/a.catbuffer.md
+      - devbook/b.analytics.md
+      - devbook/c.other.md
       - SDKs:
-          - Python API Reference: en/devbook/reference/py/
+          - Python API Reference: devbook/reference/py/
   - Textbook:
-      - en/textbook/intro.md
-      - en/textbook/glossary.md
+      - textbook/intro.md
+      - textbook/glossary.md
