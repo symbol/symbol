@@ -87,7 +87,7 @@ theme:
   name: material
   language: en
   font:
-    text: Exo2
+    text: Exo 2
   custom_dir: ../overrides
   favicon: assets/images/favicon.ico
   icon:
