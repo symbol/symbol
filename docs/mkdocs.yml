@@ -108,6 +108,24 @@ extra:
     - name: 日本語
       link: /jp/
       lang: jp
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+  social:
+    - icon: fontawesome/solid/house
+      link: https://docs.symbol.dev
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/SymbolSyndicate
+    - icon: fontawesome/brands/github
+      link: https://github.com/symbol
+    - icon: fontawesome/brands/discord
+      link: https://discord.com/invite/xymcity
+copyright: >
+  Copyright &copy; 2025 The Symbol Syndicate
 extra_css:
   - assets/stylesheets/extra.css
 nav:
