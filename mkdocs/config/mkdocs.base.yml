@@ -17,6 +17,7 @@ plugins:
     projects:
       JavaSDK: # name of project must be alphanumeric + numbers (without spaces)
         src-dirs: ../sdk/java/src/main # path to source code (support multiple paths separated by space) => INPUT
+        template-dir: "!relative $config_dir/../templates/mkdoxy"
         full-doc: true # if you want to generate full documentation
         api-path: devbook/reference/java
         doxy-cfg: # standard doxygen configuration (key: value)
@@ -55,9 +56,6 @@ plugins:
       - devbook/reference/*
 hooks:
   - ../scripts/hooks.py
-symbol:
-  java-sdk:
-    include-prefixes: ["classorg", "namespaceorg", "namespaces", "annotated", "interfaceorg"]
 markdown_extensions:
   attr_list: {}
   admonition: {}
@@ -117,6 +115,9 @@ extra:
       link: https://github.com/symbol
     - icon: fontawesome/brands/discord
       link: https://discord.com/invite/xymcity
+  symbol:
+    java-sdk:
+      include-prefixes: ["classorg", "interfaceorg"]
 copyright: >
   Copyright &copy; 2025 The Symbol Syndicate
 extra_css:
