@@ -45,16 +45,12 @@
     --md-primary-fg-color--light: var(--textbook-color--light);
 }
 
-[data-md-color-scheme=slate] .userbook-section,
-[data-md-color-scheme=slate] .devbook-section,
-[data-md-color-scheme=slate] .textbook-section {
+[data-md-color-scheme=slate][data-md-color-primary=indigo] {
     --md-typeset-a-color: var(--md-primary-fg-color--light);
     --md-accent-fg-color: var(--md-primary-fg-color);
 }
 
-[data-md-color-scheme=default] .userbook-section,
-[data-md-color-scheme=default] .devbook-section,
-[data-md-color-scheme=default] .textbook-section {
+[data-md-color-scheme=default][data-md-color-primary=indigo] {
     --md-typeset-a-color: var(--md-primary-fg-color--dark);
     --md-accent-fg-color: var(--md-primary-fg-color);
 }
