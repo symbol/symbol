@@ -1,26 +1,8 @@
-"""Generate the Python code reference pages.
-Generates them in-place, instead of in a temporary folder as is customary,
-so that the i18n plugin picks up the files.
-"""
-
 from pathlib import Path
 
 import mkdocs_gen_files
 
-#import pdb; pdb.set_trace()
-
-if mkdocs_gen_files.config.plugins['i18n'].current_language != 'en':
-    # Remove SDKs section from all languages but English
-    if type(mkdocs_gen_files.config.nav[2]['Developer Guide'][13]) is not dict or 'SDKs' not in mkdocs_gen_files.config.nav[2]['Developer Guide'][13]:
-        raise Exception ("Update the gen_ref_pages.py script")
-    else:
-        del (mkdocs_gen_files.config.nav[2]['Developer Guide'][13])
-    # And don't generate any files either
-    exit()
-
 nav = mkdocs_gen_files.Nav()
-
-#print ("CALLING GEN FILES")
 
 root = Path(__file__).parent.parent.parent
 src = root / "sdk/python/symbolchain"
