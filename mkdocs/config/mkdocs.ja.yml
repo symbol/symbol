@@ -10,30 +10,14 @@ plugins:
       lang: ja
   - meta-manager
   - ezglossary: # Automatic glossary tooltips
-      templates: templates/ezglossary
+      templates: templates/ezglossary ### RELATIVE TO CWD!!! ###
       use_default: true
       inline_refs: none
       markdown_links: true
       tooltip: full
   - autorefs:
       resolve_closest: true
-  - gen-files: # Generate stub files for API reference docs, to be filled by mkdocstrings
-      scripts:
-        - ../scripts/gen_ref_pages_py.py
-  - mkdocstrings: # Generate API reference docs from actual source code
-      default_handler: python
-      custom_templates: ../templates/mkdocstrings
-      handlers:
-        python:
-          paths: [../../sdk/python]
-          options:
-            show_source: false
-            merge_init_into_class: false
-            show_symbol_type_heading: true
-            show_symbol_type_toc: true
-            show_root_toc_entry: false
-            show_object_full_path: false
-  - mkdoxy:
+  - mkdoxy: # Generate API reference docs for Java
       save-api: .doxy
       projects:
         Hello: # name of project must be alphanumeric + numbers (without spaces)
@@ -49,6 +33,23 @@ plugins:
             OUTPUT_LANGUAGE: Japanese
             SOURCE_TOOLTIPS: true
             INLINE_SOURCES: true
+  - gen-files: # Generate stub files for API reference docs, to be filled by mkdocstrings
+      scripts:
+        - ../scripts/gen_ref_pages_py.py
+        - ../scripts/gen_ref_pages_java.py
+  - mkdocstrings: # Generate API reference docs for Python and JS
+      default_handler: python
+      custom_templates: ../templates/mkdocstrings
+      handlers:
+        python:
+          paths: [../../sdk/python]
+          options:
+            show_source: false
+            merge_init_into_class: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_root_toc_entry: false
+            show_object_full_path: false
   - literate-nav: # Allow navigation to be specified in the md files created by gen-files
       nav_file: links.md
   - git-revision-date-localized: # git dates in page footers
