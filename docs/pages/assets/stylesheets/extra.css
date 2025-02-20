@@ -125,3 +125,11 @@ aside.md-source-file {
     padding-top: 0.5rem;
     margin-top: 2rem;
 }
+
+/* Footer */
+.md-copyright {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-right: 36px;
+}
