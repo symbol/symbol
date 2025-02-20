@@ -12,9 +12,11 @@ url_source: True
 
 {% if configMemDef.get('brief') -%}
 {% if node.has_brief -%}
+<dl class="automatic-reference-term" markdown><dt>Java:{{ node.name_long|replace("::",".") }}</dt><dd>
 {{node.brief + "\n"}}
+</dd></dl>
 {%- endif -%}
-{%- endif -%}
+{%- endif %}
 
 {{node.codeblock | use_code_language(node.code_language)}}
 
@@ -27,7 +29,7 @@ url_source: True
 
 {% if configMemDef.get('implements') -%}
 {% if node.reimplements %}
-Implements [*{{node.reimplements.name_long}}*]({{node.reimplements.url}})
+Implements <Java:{{node.reimplements.name_long|replace("::",".")}}|{{node.reimplements.name_long}}>
 {% endif %}
 {%- endif -%}
 
