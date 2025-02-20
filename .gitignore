@@ -27,3 +27,6 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Generated docs
+docs
