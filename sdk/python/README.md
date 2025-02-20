@@ -33,9 +33,9 @@ facade = SymbolFacade('testnet')
 _NEM_
 ```python
 from symbolchain.CryptoTypes import PrivateKey
-from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.facade.NemFacade import NemFacade
 
-facade = SymbolFacade('testnet')
+facade = NemFacade('testnet')
 ````
 
 Second, describe the transaction using a Python dictionary. For example, a transfer transaction can be described as follows:
@@ -74,7 +74,7 @@ Third, sign the transaction and attach the signature:
 private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
 signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
 
-json_payload = facade.transactionFactory.attachSignature(transaction, signature)
+json_payload = facade.transaction_factory.attach_signature(transaction, signature)
 ```
 
 Finally, send the payload to the desired network using the specified node endpoint:
