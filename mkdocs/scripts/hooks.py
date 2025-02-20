@@ -12,10 +12,11 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
     We only keep filenames starting with 'classorg', which are the classes defined in the Java SDK.
     """
     out_files: list[File] = []
+    prefixes = tuple(config["symbol"]["java-sdk"]["include-prefixes"])
     for f in in_files:
         if f.src_uri.startswith("devbook/reference/java"):
             #import pdb; pdb.set_trace()
-            if not f.name.startswith("classorg"):
+            if not f.name.startswith(prefixes):
                 log.debug(f"Custom hook: Removing {f.name}")
                 continue
         out_files.append(f)
