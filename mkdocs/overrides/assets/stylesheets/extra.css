@@ -190,3 +190,26 @@ aside.md-source-file {
     gap: 16px;
     margin-right: 36px;
 }
+
+/* Links to other sections use the color of that section */
+.md-content a[href*="userbook"][href^='..'] {
+    color: var(--userbook-color--light);
+}
+.md-content a[href*="userbook"][href^='..']:hover {
+    color: var(--userbook-color);
+}
+
+.md-content a[href*="devbook"][href^='..'] {
+    color: var(--devbook-color--light);
+}
+.md-content a[href*="devbook"][href^='..']:hover {
+    color: var(--devbook-color);
+}
+
+.md-content a[href*="textbook"][href^='..'] {
+    color: var(--textbook-color--light);
+}
+
+.md-content a[href*="textbook"][href^='..']:hover {
+    color: var(--textbook-color);
+}
