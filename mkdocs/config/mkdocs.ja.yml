@@ -4,7 +4,7 @@ site_dir: ../../docs/ja
 site_url: http://localhost:8000
 repo_url: https://github.com/symbol/symbol
 repo_name: symbol
-edit_uri: edit/master/docs
+edit_uri: blob/new-docs/mkdocs/pages/ja
 plugins:
   - search:
       lang: ja
