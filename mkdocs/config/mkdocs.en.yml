@@ -51,10 +51,9 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
-      pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets:
-      base_path: !relative $docs_dir
+      base_path: !relative $config_dir/../..
       check_paths: true
   - pymdownx.superfences
   - pymdownx.tabbed:
@@ -156,6 +155,7 @@ nav:
       - devbook/c.other.md
       - SDKs:
           - Python API Reference: devbook/reference/py/
+          - JavaScript API Reference: devbook/reference/js/test.md
   - Textbook:
       - textbook/intro.md
       - textbook/glossary.md

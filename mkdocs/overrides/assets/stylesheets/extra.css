@@ -266,3 +266,18 @@ a:target {
     background-color: var(--md-accent-fg-color--transparent);
     display: block;
 }
+
+/* Dynamic links */
+.md-typeset .dylink input {
+    height: 0;
+    width: 0;
+    margin: 0;
+}
+
+.md-typeset .dylink label {
+    display: none;
+}
+
+.md-typeset .dylink input[type=radio]:checked+.dylink-option {
+    display: inline;
+}
