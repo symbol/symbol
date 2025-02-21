@@ -51,7 +51,7 @@ java {
 spotless {
 	java {
 		def gitRoot = "git rev-parse --show-toplevel".execute().text.trim()
-        eclipse('4.13').configFile("$gitRoot/linters/java/eclipse-formatter.xml")
+		eclipse('4.13').configFile("$gitRoot/linters/java/eclipse-formatter.xml")
 
 		// Optional configurations:
 		importOrder()
