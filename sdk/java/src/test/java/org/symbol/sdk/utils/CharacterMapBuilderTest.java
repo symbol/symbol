@@ -8,9 +8,10 @@ import java.util.Map;
 import org.junit.Test;
 
 public class CharacterMapBuilderTest {
+	// region builder
 
 	@Test
-	public void testCreateEmptyMap() {
+	public void canCreateEmptyMap() {
 		// Arrange:
 		final CharacterMapBuilder builder = CharacterMapBuilder.create();
 
@@ -22,7 +23,7 @@ public class CharacterMapBuilderTest {
 	}
 
 	@Test
-	public void testCreateMapWithSingleArbitraryRangeZeroBase() {
+	public void canCreateMapWithSingleArbitraryRangeZeroBase() {
 		// Arrange:
 		final CharacterMapBuilder builder = CharacterMapBuilder.create(b -> b.addRange('d', 'f', (byte) 0));
 		final Map<Character, Byte> expectedMap = new HashMap<Character, Byte>() {
@@ -37,11 +38,11 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat("Character map should be empty", charMap, is(expectedMap));
+		assertThat(charMap, is(expectedMap));
 	}
 
 	@Test
-	public void testCreateMapWithSingleArbitraryRangeNonZeroBase() {
+	public void canCreateMapWithSingleArbitraryRangeNonZeroBase() {
 		// Arrange:
 		final CharacterMapBuilder builder = CharacterMapBuilder.create(b -> b.addRange('a', 'c', (byte) 17));
 		final Map<Character, Byte> expectedMap = new HashMap<Character, Byte>() {
@@ -56,11 +57,11 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat("Character map should be empty", charMap, is(expectedMap));
+		assertThat(charMap, is(expectedMap));
 	}
 
 	@Test
-	public void testCreateMapWithMultipleArbitrary() {
+	public void canCreateMapWithMultipleArbitrary() {
 		// Arrange:
 		final CharacterMapBuilder builder = CharacterMapBuilder.create(b -> {
 			b.addRange('b', 'b', (byte) 8);
@@ -82,11 +83,11 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat("Character map should be empty", charMap, is(expectedMap));
+		assertThat(charMap, is(expectedMap));
 	}
 
 	@Test
-	public void testCreateMapWithMultipleArbitraryOverlappingRange() {
+	public void canCreateMapWithMultipleArbitraryOverlappingRange() {
 		// Arrange:
 		final CharacterMapBuilder builder = CharacterMapBuilder.create(b -> {
 			b.addRange('b', 'b', (byte) 18);
@@ -108,6 +109,8 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat("Character map should be empty", charMap, is(expectedMap));
+		assertThat(charMap, is(expectedMap));
 	}
+
+	// endregion
 }

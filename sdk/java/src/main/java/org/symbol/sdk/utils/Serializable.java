@@ -3,7 +3,7 @@ package org.symbol.sdk.utils;
 /**
  * This interface serialize a catbuffer object.
  */
-public interface Serializer {
+public interface Serializable {
 
 	/**
 	 * Serializes an object to bytes.

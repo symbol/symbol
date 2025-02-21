@@ -9,11 +9,11 @@ import java.nio.ByteOrder;
 public class BufferView {
 	ByteBuffer bufferViewImpl;
 
-	BufferView(final byte[] buffer) {
+	private BufferView(final byte[] buffer) {
 		this.bufferViewImpl = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN);
 	}
 
-	BufferView(final ByteBuffer buffer) {
+	private BufferView(final ByteBuffer buffer) {
 		this.bufferViewImpl = buffer.slice();
 	}
 

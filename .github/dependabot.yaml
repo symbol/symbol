@@ -131,7 +131,7 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: [sdk-javascript]
+    labels: [sdk-java]
     versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'

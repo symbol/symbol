@@ -20,7 +20,7 @@ public class Base32Test {
 		}
 	};
 
-	// encode
+	// region encode
 
 	@Test
 	public void canEncodeEmptyByteArray() {
@@ -81,7 +81,9 @@ public class Base32Test {
 		}
 	}
 
-	// decode
+	// endregion
+
+	// region decode
 
 	@Test
 	public void canDecodeEmptyString() {
@@ -148,7 +150,9 @@ public class Base32Test {
 		});
 	}
 
-	// round trip
+	// endregion
+
+	// region round trip
 
 	@Test
 	public void canDecodeThenEncodeValue() {
@@ -181,4 +185,6 @@ public class Base32Test {
 			assertThat(input, equalTo(Converter.bytesToHex(result)));
 		});
 	}
+
+	// endregion
 }

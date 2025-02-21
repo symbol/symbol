@@ -44,7 +44,7 @@ public class ArrayHelpers {
 		return 0;
 	}
 
-	private static <T extends Serializer, U extends Comparable<U>> List<T> readArrayImpl(final ByteBuffer buffer,
+	private static <T extends Serializable, U extends Comparable<U>> List<T> readArrayImpl(final ByteBuffer buffer,
 			final Function<ByteBuffer, T> factory, final Function<T, U[]> accessor, final BiPredicate<Integer, ByteBuffer> shouldContinue) {
 		final List<T> elements = new ArrayList<>();
 		T previousElement = null;
@@ -66,7 +66,7 @@ public class ArrayHelpers {
 		return elements;
 	}
 
-	private static <T extends Serializer, U extends Comparable<U>> void writeArrayImpl(final Writer output, final List<T> elements,
+	private static <T extends Serializable, U extends Comparable<U>> void writeArrayImpl(final Writer output, final List<T> elements,
 			final int count, final Function<T, U[]> accessor) {
 		for (int i = 0; i < count; ++i) {
 			final T element = elements.get(i);
@@ -94,7 +94,7 @@ public class ArrayHelpers {
 	 * @param elements Serializable elements.
 	 * @return Computed size.
 	 */
-	public static int size(final List<Serializer> elements) {
+	public static int size(final List<Serializable> elements) {
 		return size(elements, 0, false);
 	}
 
@@ -106,13 +106,13 @@ public class ArrayHelpers {
 	 * @param skipLastElementPadding true if last element should not be aligned.
 	 * @return Computed size.
 	 */
-	public static int size(final List<Serializer> elements, int alignment, boolean skipLastElementPadding) {
+	public static int size(final List<Serializable> elements, int alignment, boolean skipLastElementPadding) {
 		if (elements.isEmpty())
 			return 0;
 
-		final Stream<Serializer> stream = elements.stream();
+		final Stream<Serializable> stream = elements.stream();
 		if (0 == alignment)
-			return stream.mapToInt(Serializer::getSize).sum();
+			return stream.mapToInt(Serializable::getSize).sum();
 
 		if (!skipLastElementPadding)
 			return stream.mapToInt(e -> alignUp(e.getSize(), alignment)).sum();
@@ -129,8 +129,8 @@ public class ArrayHelpers {
 	 * @param accessor Optional accessor used to check objects order.
 	 * @return List of deserialized objects.
 	 */
-	public static <U extends Comparable<U>> List<Serializer> readArray(final ByteBuffer buffer,
-			final Function<ByteBuffer, Serializer> factory, Function<Serializer, U[]> accessor) {
+	public static <U extends Comparable<U>> List<Serializable> readArray(final ByteBuffer buffer,
+			final Function<ByteBuffer, Serializable> factory, Function<Serializable, U[]> accessor) {
 		// note: this method is used only for '__FILL__' type arrays
 		// this loop assumes properly sliced buffer is passed and that there's no additional data.
 		return readArrayImpl(buffer, factory, accessor, (__, buf) -> 0 < buf.remaining());
@@ -143,7 +143,7 @@ public class ArrayHelpers {
 	 * @param factory Factory used to deserialize objects.
 	 * @return List of deserialized objects.
 	 */
-	public static List<Serializer> readArray(final ByteBuffer buffer, final Function<ByteBuffer, Serializer> factory) {
+	public static List<Serializable> readArray(final ByteBuffer buffer, final Function<ByteBuffer, Serializable> factory) {
 		// note: this method is used only for '__FILL__' type arrays
 		// this loop assumes properly sliced buffer is passed and that there's no additional data.
 		return readArrayImpl(buffer, factory, null, (__, buf) -> 0 < buf.remaining());
@@ -158,8 +158,8 @@ public class ArrayHelpers {
 	 * @param accessor Optional accessor used to check objects order.
 	 * @return List of deserialized objects.
 	 */
-	public static <U extends Comparable<U>> List<Serializer> readArrayCount(final ByteBuffer buffer,
-			final Function<ByteBuffer, Serializer> factory, final int count, Function<Serializer, U[]> accessor) {
+	public static <U extends Comparable<U>> List<Serializable> readArrayCount(final ByteBuffer buffer,
+			final Function<ByteBuffer, Serializable> factory, final int count, Function<Serializable, U[]> accessor) {
 		return readArrayImpl(buffer, factory, accessor, (index, __) -> count > index);
 	}
 
@@ -171,7 +171,7 @@ public class ArrayHelpers {
 	 * @param count Number of object to deserialize.
 	 * @return List of deserialized objects.
 	 */
-	public static List<Serializer> readArrayCount(final ByteBuffer buffer, final Function<ByteBuffer, Serializer> factory,
+	public static List<Serializable> readArrayCount(final ByteBuffer buffer, final Function<ByteBuffer, Serializable> factory,
 			final int count) {
 		return readArrayImpl(buffer, factory, null, (index, __) -> count > index);
 	}
@@ -185,7 +185,7 @@ public class ArrayHelpers {
 	 * @param skipLastElementPadding true if last element is not aligned/padded.
 	 * @return List of deserialized objects.
 	 */
-	public static <T extends Serializer> List<T> readVariableSizeElements(final ByteBuffer buffer, final Function<ByteBuffer, T> factory,
+	public static <T extends Serializable> List<T> readVariableSizeElements(final ByteBuffer buffer, final Function<ByteBuffer, T> factory,
 			final int alignment, final boolean skipLastElementPadding) {
 		final List<T> elements = new ArrayList<>();
 		while (0 < buffer.remaining()) {
@@ -217,7 +217,7 @@ public class ArrayHelpers {
 	 * @param alignment Alignment used to make sure each object is at boundary.
 	 * @return List of deserialized objects.
 	 */
-	public static <T extends Serializer> List<T> readVariableSizeElements(final ByteBuffer buffer, final Function<ByteBuffer, T> factory,
+	public static <T extends Serializable> List<T> readVariableSizeElements(final ByteBuffer buffer, final Function<ByteBuffer, T> factory,
 			final int alignment) {
 		return readVariableSizeElements(buffer, factory, alignment, false);
 	}
@@ -229,8 +229,8 @@ public class ArrayHelpers {
 	 * @param elements Serializable elements.
 	 * @param accessor Optional accessor used to check objects order.
 	 */
-	public static <U extends Comparable<U>> void writeArray(final Writer output, final List<Serializer> elements,
-			final Function<Serializer, U[]> accessor) {
+	public static <U extends Comparable<U>> void writeArray(final Writer output, final List<Serializable> elements,
+			final Function<Serializable, U[]> accessor) {
 		writeArrayImpl(output, elements, elements.size(), accessor);
 	}
 
@@ -240,7 +240,7 @@ public class ArrayHelpers {
 	 * @param output Output buffer.
 	 * @param elements Serializable elements.
 	 */
-	public static void writeArray(final Writer output, final List<Serializer> elements) {
+	public static void writeArray(final Writer output, final List<Serializable> elements) {
 		writeArrayImpl(output, elements, elements.size(), null);
 	}
 
@@ -252,8 +252,8 @@ public class ArrayHelpers {
 	 * @param count Number of objects to write.
 	 * @param accessor Optional accessor used to check objects order.
 	 */
-	public static <U extends Comparable<U>> void writeArrayCount(final Writer output, final List<Serializer> elements, final int count,
-			Function<Serializer, U[]> accessor) {
+	public static <U extends Comparable<U>> void writeArrayCount(final Writer output, final List<Serializable> elements, final int count,
+			Function<Serializable, U[]> accessor) {
 		writeArrayImpl(output, elements, count, accessor);
 	}
 
@@ -264,7 +264,7 @@ public class ArrayHelpers {
 	 * @param elements Serializable elements.
 	 * @param count Number of objects to write.
 	 */
-	public static void writeArrayCount(final Writer output, final List<Serializer> elements, final int count) {
+	public static void writeArrayCount(final Writer output, final List<Serializable> elements, final int count) {
 		writeArrayImpl(output, elements, count, null);
 	}
 
@@ -276,11 +276,11 @@ public class ArrayHelpers {
 	 * @param alignment Alignment used to make sure each object is at boundary.
 	 * @param skipLastElementPadding true if last element should not be aligned/padded.
 	 */
-	public static void writeVariableSizeElements(final Writer output, final List<Serializer> elements, final int alignment,
+	public static void writeVariableSizeElements(final Writer output, final List<Serializable> elements, final int alignment,
 			boolean skipLastElementPadding) {
-		Iterator<Serializer> iterator = elements.iterator();
+		Iterator<Serializable> iterator = elements.iterator();
 		while (iterator.hasNext()) {
-			final Serializer element = iterator.next();
+			final Serializable element = iterator.next();
 			output.write(element.serialize());
 			if (!skipLastElementPadding || iterator.hasNext()) {
 				final int alignedSize = alignUp(element.getSize(), alignment);
@@ -297,7 +297,7 @@ public class ArrayHelpers {
 	 * @param elements Serializable elements.
 	 * @param alignment Alignment used to make sure each object is at boundary.
 	 */
-	public static void writeVariableSizeElements(final Writer output, final List<Serializer> elements, final int alignment) {
+	public static void writeVariableSizeElements(final Writer output, final List<Serializable> elements, final int alignment) {
 		writeVariableSizeElements(output, elements, alignment, false);
 	}
 }

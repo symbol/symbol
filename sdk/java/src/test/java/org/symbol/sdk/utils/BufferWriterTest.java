@@ -18,7 +18,6 @@ public class BufferWriterTest {
 		final Exception exception = assertThrows(Exception.class, () -> writer.write(new byte[]{
 				42
 		}));
-		// .to.throw('offset is out of bounds')
 	}
 
 	@Test

@@ -14,7 +14,7 @@ import org.junit.Test;
 public class ArrayHelpersTest {
 	// region helpers
 
-	class MockElement implements Serializer {
+	class MockElement implements Serializable {
 		final int size;
 		public int tag;
 
@@ -59,7 +59,7 @@ public class ArrayHelpersTest {
 
 	class ElementsTestContext {
 		final int[] elementSizes;
-		final List<Serializer> elements;
+		final List<Serializable> elements;
 		final Writer output;
 		final List<String> writes;
 
@@ -139,7 +139,7 @@ public class ArrayHelpersTest {
 		assertThat(ArrayHelpers.deepCompare(new Integer[]{
 				1, 12, 3, 4, 16
 		}, new Integer[]{
-				1, 15, 3
+				1, 12, 3, 4
 		}), equalTo(1));
 	}
 
@@ -265,7 +265,7 @@ public class ArrayHelpersTest {
 
 	// endregion
 
-	// region readers
+	// region readers helpers
 
 	class ReadTestContext {
 		final byte[] buffer;
@@ -284,13 +284,15 @@ public class ArrayHelpersTest {
 			this.sizes = sizes;
 		}
 
-		final Serializer factory(final ByteBuffer buffer) {
+		final Serializable factory(final ByteBuffer buffer) {
 			final int size = this.sizes[this.index++];
 			final MockElement element = new MockElement(size, this.subView.position());
 			this.subView.position(buffer.position() + size);
 			return element;
 		};
 	}
+
+	// endregion
 
 	// region ReadArray
 
@@ -319,7 +321,7 @@ public class ArrayHelpersTest {
 		final ReadTestContext context = new ReadTestContext(readArraySizes);
 
 		// Act:
-		final List<Serializer> elements = ArrayHelpers.readArray(context.subView, context::factory);
+		final List<Serializable> elements = ArrayHelpers.readArray(context.subView, context::factory);
 
 		// Assert:
 		assertThat(elements, equalTo(readArrayExpectedElement));
@@ -331,7 +333,7 @@ public class ArrayHelpersTest {
 		final ReadTestContext context = new ReadTestContext(readArraySizes);
 
 		// Act:
-		final List<Serializer> elements = ArrayHelpers.readArray(context.subView, context::factory, element -> new Integer[]{
+		final List<Serializable> elements = ArrayHelpers.readArray(context.subView, context::factory, element -> new Integer[]{
 				((MockElement) element).getTag()
 		});
 
@@ -340,7 +342,7 @@ public class ArrayHelpersTest {
 	}
 
 	@Test
-	public void canReadArrayWhenUsingAccessorAndElementAreUnOrdered() {
+	public void cannotReadArrayWhenUsingAccessorAndElementAreUnOrdered() {
 		// Arrange:
 		final ReadTestContext context = new ReadTestContext(readArraySizes);
 
@@ -357,7 +359,7 @@ public class ArrayHelpersTest {
 	// region ReadArrayCount
 
 	@Test
-	public void readArrayCountCanThrowsWhenAnyElementHasZeroSize() {
+	public void readArrayCountCanThrowWhenAnyElementHasZeroSize() {
 		// Arrange:
 		final ReadTestContext context = new ReadTestContext(new int[]{
 				10, 0, 5, 1, 1
@@ -381,7 +383,7 @@ public class ArrayHelpersTest {
 		final ReadTestContext context = new ReadTestContext(readArrayCountSizes);
 
 		// Act:
-		final List<Serializer> elements = ArrayHelpers.readArrayCount(context.subView, context::factory, 3);
+		final List<Serializable> elements = ArrayHelpers.readArrayCount(context.subView, context::factory, 3);
 
 		// Assert:
 		assertThat(elements, equalTo(readArrayCountExpectedElement));
@@ -393,7 +395,7 @@ public class ArrayHelpersTest {
 		final ReadTestContext context = new ReadTestContext(readArrayCountSizes);
 
 		// Act:
-		final List<Serializer> elements = ArrayHelpers.readArrayCount(context.subView, context::factory, 3, element -> new Integer[]{
+		final List<Serializable> elements = ArrayHelpers.readArrayCount(context.subView, context::factory, 3, element -> new Integer[]{
 				((MockElement) element).getTag()
 		});
 
@@ -407,7 +409,7 @@ public class ArrayHelpersTest {
 		final ReadTestContext context = new ReadTestContext(readArrayCountSizes);
 
 		// Act:
-		final List<Serializer> elements = ArrayHelpers.readArrayCount(context.subView, context::factory, 3, element -> new Integer[]{
+		final List<Serializable> elements = ArrayHelpers.readArrayCount(context.subView, context::factory, 3, element -> new Integer[]{
 				123, 1, ((MockElement) element).getTag(), 3
 		});
 
@@ -416,7 +418,7 @@ public class ArrayHelpersTest {
 	}
 
 	@Test
-	public void canReadArrayCountWhenUsingAccessorAndElementAreUnOrdered() {
+	public void cannatReadArrayCountWhenUsingAccessorAndElementAreUnOrdered() {
 		// Arrange:
 		final ReadTestContext context = new ReadTestContext(readArrayCountSizes);
 
@@ -456,7 +458,7 @@ public class ArrayHelpersTest {
 				new MockElement(12, 15 + 8 + 12), new MockElement(13, 15 + 8 + 12 + 12), new MockElement(3, 15 + 8 + 12 + 12 + 16));
 
 		// Act:
-		final List<Serializer> elements = ArrayHelpers.readVariableSizeElements(context.subView, context::factory, 4);
+		final List<Serializable> elements = ArrayHelpers.readVariableSizeElements(context.subView, context::factory, 4);
 
 		// Assert:
 		assertThat(elements, equalTo(expectedElements));
@@ -474,7 +476,7 @@ public class ArrayHelpersTest {
 			final ReadTestContext context2 = new ReadTestContext(new int[]{
 					24, 25
 			}, 49);
-			final List<Serializer> elements = ArrayHelpers.readArray(context2.subView, context2::factory);
+			final List<Serializable> elements = ArrayHelpers.readArray(context2.subView, context2::factory);
 			final List<MockElement> readArrayExpectedElement = Arrays.asList(new MockElement(24, 15), new MockElement(25, 15 + 24));
 
 			assertThat(elements, equalTo(readArrayExpectedElement));
@@ -495,7 +497,7 @@ public class ArrayHelpersTest {
 		final List<MockElement> readArrayExpectedElement = Arrays.asList(new MockElement(23, 15), new MockElement(25, 15 + 24));
 
 		// Act:
-		final List<Serializer> elements = ArrayHelpers.readVariableSizeElements(context.subView, context::factory, 4, true);
+		final List<Serializable> elements = ArrayHelpers.readVariableSizeElements(context.subView, context::factory, 4, true);
 
 		// Assert:
 		assertThat(elements, equalTo(readArrayExpectedElement));
@@ -515,8 +517,6 @@ public class ArrayHelpersTest {
 	}
 
 	// endregion
-
-	// region writers
 
 	// region writeArray
 
@@ -622,7 +622,7 @@ public class ArrayHelpersTest {
 
 	// endregion
 
-	// writeVariableSizeElements
+	// region writeVariableSizeElements
 
 	@Test
 	public void writeVariableSizeElementsCanWritesAllElementsAndAligns() {
@@ -674,6 +674,4 @@ public class ArrayHelpersTest {
 	}
 
 	// endregion
-
-	// endregion writers
 }

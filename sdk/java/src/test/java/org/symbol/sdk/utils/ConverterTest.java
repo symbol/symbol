@@ -12,10 +12,10 @@ import org.junit.Test;
 
 public class ConverterTest {
 
-	// toByte tests
+	// region toByte
 
 	@Test
-	public void convertAllValidHexCharCombinationToByte() {
+	public void canConvertAllValidHexCharCombinationToByte() {
 		// Arrange:
 		final Map<Character, Integer> charToValueMappings = new HashMap<>();
 		for (int code = '0'; code <= '9'; ++code)
@@ -38,6 +38,9 @@ public class ConverterTest {
 				numTests.incrementAndGet();
 			});
 		});
+
+		// Sanity:
+		assertThat(numTests.get(), equalTo(22 * 22));
 	}
 
 	@Test
@@ -61,7 +64,9 @@ public class ConverterTest {
 		});
 	}
 
-	// isHexString
+	// endregion
+
+	// region isHexString
 
 	@Test
 	public void validHexString() {
@@ -96,7 +101,9 @@ public class ConverterTest {
 		});
 	}
 
-	// hexToBytes
+	// endregion
+
+	// region hexToBytes
 
 	@Test
 	public void canParseEmptyHexStringToBytes() {
@@ -147,9 +154,8 @@ public class ConverterTest {
 		final String input = "abcdef012345G789ABCDEF";
 
 		// Act + Assert:
-		final String message = String.format("unrecognized hex char 'G7'");
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> Converter.hexToBytes(input));
-		assertThat(thrown.getMessage(), equalTo(message));
+		assertThat(thrown.getMessage(), equalTo("unrecognized hex char 'G7'"));
 	}
 
 	@Test
@@ -163,7 +169,9 @@ public class ConverterTest {
 		assertThat(thrown.getMessage(), equalTo(message));
 	}
 
-	// bytesToHex
+	// endregion
+
+	// region bytesToHex
 
 	@Test
 	public void canParseEmptyByteArrayToString() {
@@ -207,4 +215,6 @@ public class ConverterTest {
 		final String expected = "026EE415FC15";
 		assertThat(expected, equalTo(actual));
 	}
+
+	// endregion
 }
