@@ -46,11 +46,12 @@ public class ArrayHelpers {
 
 	private static <T extends Serializable, U extends Comparable<U>> List<T> readArrayImpl(final ByteBuffer buffer,
 			final Function<ByteBuffer, T> factory, final Function<T, U[]> accessor, final BiPredicate<Integer, ByteBuffer> shouldContinue) {
+		final BufferView view = BufferView.wrap(buffer);
 		final List<T> elements = new ArrayList<>();
 		T previousElement = null;
 		int i = 0;
-		while (shouldContinue.test(i, buffer)) {
-			final T element = factory.apply(buffer);
+		while (shouldContinue.test(i, view.getBuffer())) {
+			final T element = factory.apply(view.getBuffer());
 
 			if (0 >= element.getSize())
 				throw new IllegalStateException("element size has invalid size");
@@ -59,6 +60,8 @@ public class ArrayHelpers {
 				throw new IllegalStateException("elements in array are not sorted");
 
 			elements.add(element);
+			view.shiftRight(element.getSize());
+
 			previousElement = element;
 			++i;
 		}
@@ -187,23 +190,24 @@ public class ArrayHelpers {
 	 */
 	public static <T extends Serializable> List<T> readVariableSizeElements(final ByteBuffer buffer, final Function<ByteBuffer, T> factory,
 			final int alignment, final boolean skipLastElementPadding) {
+		final BufferView view = BufferView.wrap(buffer);
 		final List<T> elements = new ArrayList<>();
-		while (0 < buffer.remaining()) {
-			final T element = factory.apply(buffer);
+
+		while (0 < view.getBuffer().remaining()) {
+			final T element = factory.apply(view.getBuffer());
 
 			if (0 >= element.getSize())
 				throw new IllegalStateException("element size has invalid size");
 
 			elements.add(element);
 
-			final int alignedSize = (skipLastElementPadding && element.getSize() >= buffer.remaining())
+			final int alignedSize = (skipLastElementPadding && element.getSize() >= view.getBuffer().remaining())
 					? element.getSize()
 					: alignUp(element.getSize(), alignment);
-			final int sizeAdjustment = alignedSize - element.getSize();
-			if (sizeAdjustment > buffer.remaining())
+			if (alignedSize > view.getBuffer().remaining())
 				throw new IllegalStateException("unexpected buffer length");
 
-			buffer.position(buffer.position() + sizeAdjustment);
+			view.shiftRight(alignedSize);
 		}
 
 		return elements;

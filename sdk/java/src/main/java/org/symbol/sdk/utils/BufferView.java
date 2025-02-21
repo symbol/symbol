@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
  * Buffer view.
  */
 public class BufferView {
-	ByteBuffer bufferViewImpl;
+	private ByteBuffer bufferViewImpl;
 
 	private BufferView(final byte[] buffer) {
 		this.bufferViewImpl = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN);

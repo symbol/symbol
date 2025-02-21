@@ -285,10 +285,9 @@ public class ArrayHelpersTest {
 		}
 
 		final Serializable factory(final ByteBuffer buffer) {
+			final BufferView view = BufferView.wrap(buffer);
 			final int size = this.sizes[this.index++];
-			final MockElement element = new MockElement(size, this.subView.position());
-			this.subView.position(buffer.position() + size);
-			return element;
+			return new MockElement(size, view.getBuffer().arrayOffset() + view.getBuffer().position());
 		};
 	}
 
@@ -418,7 +417,7 @@ public class ArrayHelpersTest {
 	}
 
 	@Test
-	public void cannatReadArrayCountWhenUsingAccessorAndElementAreUnOrdered() {
+	public void cannotReadArrayCountWhenUsingAccessorAndElementAreUnOrdered() {
 		// Arrange:
 		final ReadTestContext context = new ReadTestContext(readArrayCountSizes);
 
@@ -511,9 +510,9 @@ public class ArrayHelpersTest {
 		}, 48);
 
 		// Act + Assert:
-		final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+		final IllegalStateException thrown = assertThrows(IllegalStateException.class,
 				() -> ArrayHelpers.readVariableSizeElements(context.subView, context::factory, 4, true));
-		assertThat(thrown.getMessage(), equalTo("newPosition > limit: (64 > 63)"));
+		assertThat(thrown.getMessage(), equalTo("unexpected buffer length"));
 	}
 
 	// endregion
