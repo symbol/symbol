@@ -73,7 +73,7 @@
   "dependencies": {
     "@noble/hashes": "~1.7.0",
     "@types/node": "^22.10.5",
-    "bitcore-mnemonic": "~10.7.0",
+    "bitcore-mnemonic": "~10.8.0",
     "ripemd160": "~2.0.2"
   },
   "files": [
