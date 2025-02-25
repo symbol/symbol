@@ -38,7 +38,7 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat(charMap, is(expectedMap));
+		assertThat(charMap, equalTo(expectedMap));
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat(charMap, is(expectedMap));
+		assertThat(charMap, equalTo(expectedMap));
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat(charMap, is(expectedMap));
+		assertThat(charMap, equalTo(expectedMap));
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class CharacterMapBuilderTest {
 		final Map<Character, Byte> charMap = builder.build();
 
 		// Assert:
-		assertThat(charMap, is(expectedMap));
+		assertThat(charMap, equalTo(expectedMap));
 	}
 
 	// endregion

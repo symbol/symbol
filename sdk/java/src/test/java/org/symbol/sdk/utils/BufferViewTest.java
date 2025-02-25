@@ -258,4 +258,6 @@ public class BufferViewTest {
 		final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> context.view.window(-1));
 		assertThat(exception.getMessage(), equalTo("size cannot be negative"));
 	}
+
+	// endregion
 }

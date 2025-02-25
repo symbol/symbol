@@ -432,7 +432,7 @@ public class ArrayHelpersTest {
 
 	// endregion
 
-	// read variable size
+	// region readVariableSize
 
 	@Test
 	public void readVariableSizeCanThrowsWhenAnyElementHasZeroSize() {

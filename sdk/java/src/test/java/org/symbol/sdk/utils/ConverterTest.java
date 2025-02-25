@@ -115,7 +115,7 @@ public class ConverterTest {
 
 		// Assert:
 		final byte[] expected = new byte[0];
-		assertThat(expected, is(equalTo(actual)));
+		assertThat(expected, equalTo(actual));
 	}
 
 	@Test
@@ -130,7 +130,7 @@ public class ConverterTest {
 		final byte[] expected = {
 				0x02, 0x6E, (byte) 0xE4, 0x15, (byte) 0xFC, 0x15
 		};
-		assertThat(expected, is(equalTo(actual)));
+		assertThat(expected, equalTo(actual));
 	}
 
 	@Test
@@ -145,7 +145,7 @@ public class ConverterTest {
 		final byte[] expected = {
 				(byte) 0xAB, (byte) 0xCD, (byte) 0xEF, 0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF
 		};
-		assertThat(expected, is(equalTo(actual)));
+		assertThat(expected, equalTo(actual));
 	}
 
 	@Test
