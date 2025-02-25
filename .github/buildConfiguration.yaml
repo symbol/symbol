@@ -20,6 +20,12 @@ builds:
       - catbuffer/parser
       - linters
 
+  - name: Sdk Java
+    path: sdk/java
+    dependsOn:
+      - catbuffer/parser
+      - linters
+
   - name: Sdk Javascript
     path: sdk/javascript
     dependsOn:
