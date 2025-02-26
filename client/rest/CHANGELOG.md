@@ -14,8 +14,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ### Changed
 
-- Upgrade to MongoDb 7.x.
-- Update rest image to Node.js 20.
+- Upgrade to MongoDB 7.x.
+- Update REST image to Node.js 20.
 - Migrate REST project from CJS to ES6.
 - Replace custom REST serialization to use Javascript SDK.
 
