@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
 #include "src/cache/HashCache.h"
+#include "src/observers/Observers.h"
 #include "catapult/model/EntityHasher.h"
 #include "tests/test/HashCacheTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockConsumers.h"
 #include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/consumers/BlockConsumers.h"
 #include "catapult/io/FileQueue.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
