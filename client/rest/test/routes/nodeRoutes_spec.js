@@ -25,7 +25,7 @@ import nodeRoutes from '../../src/routes/nodeRoutes.js';
 import errors from '../../src/server/errors.js';
 import { expect } from 'chai';
 
-const restVersion = '2.4.4';
+const restVersion = '2.5.0';
 
 describe('node routes', () => {
 	describe('get', () => {
