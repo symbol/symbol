@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.8] - 19-Feb-2025
+
+### Changed
+- update catapult dependencies, including:
+  - rocksDB to v9.8.4
+  - OpenSSL to 3.4.1
+  - clang compiler to v19
+  - mongo-c-driver to v1.30.0
+  - mongo-cxx-driver to v4.10.0
+
 ## [1.0.3.7] - 04-Apr-2024
 
 ### Changed
@@ -495,6 +505,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.3.8]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.7...client%2Fcatapult%2Fv1.0.3.8
 [1.0.3.7]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.6...client%2Fcatapult%2Fv1.0.3.7
 [1.0.3.6]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.5...client%2Fcatapult%2Fv1.0.3.6
 [1.0.3.5]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.4...client%2Fcatapult%2Fv1.0.3.5
