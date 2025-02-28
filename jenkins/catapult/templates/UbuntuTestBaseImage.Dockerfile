@@ -21,6 +21,13 @@ RUN apt-get -y update && apt-get install -y \
 	&& \
 	rm -rf /var/lib/apt/lists/*
 
+RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux.git && \
+	cd linux.git/tools/perf && \
+	NO_LIBTRACEEVENT=1 make && \
+	cp perf /usr/bin && \
+	cd ../../.. && \
+	rm -rf linux.git
+
 # add ubuntu user (used by jenkins)
 RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
 USER ubuntu
@@ -30,11 +37,3 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN pip3 install -U colorama conan cryptography gitpython pycodestyle pylint ply PyYAML
-
-USER root
-RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux.git && \
-	cd linux.git/tools/perf && \
-	NO_LIBTRACEEVENT=1 make && \
-	cp perf /usr/bin && \
-	cd ../../.. && \
-	rm -rf linux.git

@@ -61,7 +61,6 @@ def install_pip_package(user, package_name):
 	print_lines([
 		f'USER {user}',
 		f'RUN python3 -m pip install -U {package_name}',
-		'USER root'
 	])
 
 
@@ -295,6 +294,7 @@ class UbuntuSystem:
 			'xz-utils'
 		]
 		print_line_with_continuation([
+			'USER root',
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}',
 			'rm -rf /var/lib/apt/lists/*'
@@ -307,6 +307,7 @@ class UbuntuSystem:
 			apt_packages += ['libssl-dev']
 
 		print_line([
+			'USER root',
 			'RUN apt-get -y update',
 			'apt-get remove -y --purge pylint',
 			'apt-get install -y {APT_PACKAGES}'
@@ -316,6 +317,7 @@ class UbuntuSystem:
 	@staticmethod
 	def add_conan_packages(packages):
 		print_line([
+			'USER root',
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}'
 		], APT_PACKAGES=' '.join(packages))
@@ -434,7 +436,6 @@ class LinuxSystemGenerator:
 			f'ENV VIRTUAL_ENV=/home/{self.system.user()}/venv',
 			'RUN python3 -m venv $VIRTUAL_ENV',
 			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"',
-			'USER root'
 		])
 
 	def generate_phase_boost(self):
@@ -524,6 +525,7 @@ class LinuxSystemGenerator:
 		self.add_openssl(self.options, self.options.openssl_configure() if self.options.sanitizers else [])
 
 		print_lines([
+			f'USER {self.system.user()}',
 			'RUN echo "docker image build $BUILD_NUMBER"',
 			'CMD ["/bin/bash"]'
 		])

@@ -165,6 +165,7 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 		'docker', 'commit',
 		'--change', f'WORKDIR {USER_HOME}',
 		'--change', f'ENV LD_LIBRARY_PATH="{USER_HOME}/lib:{USER_HOME}/deps"',
+		'--change', f'USER ubuntu',
 		container_id,
 		destination_image_name
 	])

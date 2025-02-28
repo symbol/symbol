@@ -68,8 +68,7 @@ List<String> resolveDockerImageDigests(Object packageJson, String latestImageNam
 }
 
 void dockerBuildAndPushImage(String imageName, String buildArgs='.') {
-	runScript("docker build -t ${imageName} ${buildArgs}")
-	runScript("docker push ${imageName}")
+	runScript("docker buildx build --builder=container --provenance=true --sbom=true --push -t ${imageName} ${buildArgs}")
 }
 
 void loginAndRunCommand(String dockerCredentialsId, String hostName, Closure command) {
