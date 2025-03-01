@@ -440,6 +440,7 @@ class LinuxSystemGenerator:
 
 	def generate_phase_boost(self):
 		print(f'FROM {self.options.layer_image_name("os")}')
+		print_line(['USER root'])
 		gosu_version = self.options.versions['gosu']
 		gosu_target = '/usr/local/bin/gosu'
 		gosu_uri = f'https://github.com/tianon/gosu/releases/download/{gosu_version}'
@@ -466,6 +467,7 @@ class LinuxSystemGenerator:
 			'./b2 {B2_OPTIONS} --prefix=/mybuild {BOOST_DISABLED_LIBS} -j 8 stage release',
 			'./b2 {B2_OPTIONS} {BOOST_DISABLED_LIBS} install'
 		], **print_args)
+		print_line([f'USER {self.system.user()}'])
 
 	def add_git_dependency(self, organization, project, options, revision=1):
 		version = self.options.versions[f'{organization}_{project}']
@@ -504,6 +506,7 @@ class LinuxSystemGenerator:
 
 	def generate_phase_deps(self):
 		print(f'FROM {self.options.layer_image_name("boost")}')
+		print_line(['USER root'])
 
 		self.add_openssl(self.options, [])
 
@@ -515,8 +518,11 @@ class LinuxSystemGenerator:
 
 		self.add_git_dependency('facebook', 'rocksdb', self.options.rocks())
 
+		print_line([f'USER {self.system.user()}'])
+
 	def generate_phase_test(self):
 		print(f'FROM {self.options.layer_image_name("deps")}')
+		print_line(['USER root'])
 		self.add_git_dependency('google', 'googletest', self.options.googletest())
 		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
 
@@ -532,9 +538,11 @@ class LinuxSystemGenerator:
 
 	def generate_phase_conan(self):
 		print(f'FROM {self.options.layer_image_name("os")}')
+		print_line(['USER root'])
 
 		self.system.add_conan_packages(['python3-pip'])
 		install_pip_package(self.system.user(), 'conan')
+		 print_line([f'USER {self.system.user()}'])
 
 
 class WindowsSystemGenerator:
