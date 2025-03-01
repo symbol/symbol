@@ -525,10 +525,9 @@ class LinuxSystemGenerator:
 		print_line(['USER root'])
 		self.add_git_dependency('google', 'googletest', self.options.googletest())
 		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
+		self.add_openssl(self.options, self.options.openssl_configure() if self.options.sanitizers else [])
 
 		self.system.add_test_packages(self.system.user(), not self.options.sanitizers)
-
-		self.add_openssl(self.options, self.options.openssl_configure() if self.options.sanitizers else [])
 
 		print_lines([
 			f'USER {self.system.user()}',
