@@ -1,4 +1,4 @@
-ARG UBUNTU_VERSION=22.04
+ARG UBUNTU_VERSION=24.04
 ARG NODE_MAJOR=20
 
 FROM ubuntu:${UBUNTU_VERSION} as builder
@@ -18,7 +18,7 @@ RUN apt-get install -y build-essential
 
 WORKDIR /app
 COPY . .
-RUN npm uninstall . && rm -rf node_modules && npm install
+RUN npm uninstall . && rm -rf node_modules && npm install --omit=dev
 
 FROM ubuntu:${UBUNTU_VERSION}
 
@@ -32,8 +32,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y curl gnupg \
 	&& apt-get update \
 	&& apt-get install -y nodejs
 
+USER ubuntu
 WORKDIR /app
-COPY --from=builder /app .
+COPY --chown=1000:1000 --from=builder /app .
 
 RUN node --version && npm --version
 EXPOSE 3000
