@@ -293,8 +293,8 @@ class UbuntuSystem:
 			'python3-ply',
 			'xz-utils'
 		]
+		print_line(['USER root'])
 		print_line_with_continuation([
-			'USER root',
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}',
 			'rm -rf /var/lib/apt/lists/*'
@@ -306,8 +306,8 @@ class UbuntuSystem:
 		if install_openssl:
 			apt_packages += ['libssl-dev']
 
+		print_line(['USER root'])
 		print_line([
-			'USER root',
 			'RUN apt-get -y update',
 			'apt-get remove -y --purge pylint',
 			'apt-get install -y {APT_PACKAGES}'
@@ -316,8 +316,8 @@ class UbuntuSystem:
 
 	@staticmethod
 	def add_conan_packages(packages):
+		print_line(['USER root'])
 		print_line([
-			'USER root',
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}'
 		], APT_PACKAGES=' '.join(packages))
