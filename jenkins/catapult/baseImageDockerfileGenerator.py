@@ -542,7 +542,7 @@ class LinuxSystemGenerator:
 
 		self.system.add_conan_packages(['python3-pip'])
 		install_pip_package(self.system.user(), 'conan')
-		 print_line([f'USER {self.system.user()}'])
+		print_line([f'USER {self.system.user()}'])
 
 
 class WindowsSystemGenerator:
