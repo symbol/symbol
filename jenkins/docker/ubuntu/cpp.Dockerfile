@@ -6,6 +6,7 @@ RUN apt-get install -y shellcheck
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 
+USER root
 # mongodb 8.0
 RUN apt-get install -y wget gnupg \
 	&& wget -qO - https://www.mongodb.org/static/pgp/server-8.0.asc |  gpg --dearmor | tee /usr/share/keyrings/mongodb.gpg > /dev/null \
