@@ -167,9 +167,12 @@ void dockerBuildAndPushLayer(String layer, String baseImageDockerfileGeneratorCo
 				cat Dockerfile
 			"""
 
-		docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-			docker.build(destImageName).push()
-		}
+		dockerHelper.dockerBuildAndPushImage(
+			"${env.OPERATING_SYSTEM}",
+			"${env.DOCKER_URL}",
+			"${env.DOCKER_CREDENTIALS_ID}",
+			destImageName
+		)
 	}
 }
 

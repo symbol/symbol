@@ -101,27 +101,26 @@ pipeline {
 						}
 
 						String archImageName = destImageName + "-${ARCHITECTURE}"
+						String buildArg = "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} ."
 
 						echo "Docker image name: ${archImageName}"
 						echo "Dockerfile name: ${dockerfile}"
 						echo "Base image name: ${baseImage}"
 
-						if ('windows' == "${OPERATING_SYSTEM}") {
-							// Windows does not support docker buildx
-							dockerImage = docker.build(archImageName, "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} .")
-							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								dockerImage.push()
-							}
-						} else {
-							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID, DOCKER_URL) {
-								dockerHelper.dockerBuildAndPushImage(
-									archImageName,
-									"--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} ."
-								)
-							}
-						}
-
-						dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
+						dockerHelper.dockerBuildAndPushImage(
+							params.OPERATING_SYSTEM,
+							"${env.DOCKER_URL}",
+							"${env.DOCKER_CREDENTIALS_ID}",
+							archImageName,
+							buildArg
+						)
+						dockerHelper.tagDockerImage(
+							"${env.OPERATING_SYSTEM}",
+							"${env.DOCKER_URL}",
+							"${env.DOCKER_CREDENTIALS_ID}",
+							archImageName,
+							destImageName
+						)
 					}
 				}
 			}

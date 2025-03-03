@@ -28,3 +28,8 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor > /etc/
 	update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100 && \
 	rm -rf /var/lib/apt/lists/* && \
 	clang --version
+
+RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
+USER ubuntu
+WORKDIR /home/ubuntu
+ENV PATH=$PATH:/home/ubuntu/.local/bin

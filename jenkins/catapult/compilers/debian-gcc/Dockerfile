@@ -15,3 +15,8 @@ RUN apt-get update >/dev/null && \
 	gcc g++ \
 	>/dev/null && \
 	rm -rf /var/lib/apt/lists/*
+
+RUN id -u "debian" || useradd --uid 1000 -ms /bin/bash debian
+USER debian
+WORKDIR /home/debian
+ENV PATH=$PATH:/home/debian/.local/bin

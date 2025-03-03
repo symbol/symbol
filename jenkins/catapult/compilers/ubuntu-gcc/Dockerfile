@@ -26,3 +26,8 @@ RUN apt-get update >/dev/null && \
 	update-alternatives --install /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-${COMPILER_VERSION} 100 && \
 	update-alternatives --install /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-${COMPILER_VERSION} 100 && \
 	rm -rf /var/lib/apt/lists/*
+
+RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
+USER ubuntu
+WORKDIR /home/ubuntu
+ENV PATH=$PATH:/home/ubuntu/.local/bin

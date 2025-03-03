@@ -186,9 +186,13 @@ pipeline {
 					steps {
 						script {
 							helper.runStepAndRecordFailure {
-								docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-									docker.image(buildImageFullName).push()
-								}
+								dockerHelper.dockerBuildAndPushImage(
+									params.OPERATING_SYSTEM,
+									"${env.DOCKER_URL}",
+									"${env.DOCKER_CREDENTIALS_ID}",
+									archImageName,
+									buildArg
+								)
 							}
 						}
 					}

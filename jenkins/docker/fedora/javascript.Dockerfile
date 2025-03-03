@@ -1,4 +1,4 @@
-ARG FROM_IMAGE='fedora:40'
+ARG FROM_IMAGE='fedora:41'
 
 FROM ${FROM_IMAGE}
 

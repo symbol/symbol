@@ -96,3 +96,17 @@ void tagDockerImage(String operatingSystem, String dockerUrl, String dockerCrede
 		}
 	}
 }
+
+void dockerBuildAndPushImage(String operatingSystem, String dockerUrl, String dockerCredentialsId,  String imageName, String buildArgs='.') {
+	if ('windows' == operatingSystem) {
+		// Windows does not support docker buildx
+		dockerImage = docker.build(imageName, buildArgs)
+		docker.withRegistry(dockerUrl, dockerCredentialsId) {
+			dockerImage.push()
+		}
+	} else {
+		dockerHelper.loginAndRunCommand(dockerCredentialsId, dockerUrl) {
+			dockerHelper.dockerBuildAndPushImage(imageName, buildArgs)
+		}
+	}
+}

@@ -410,7 +410,8 @@ class LinuxSystemGenerator:
 		print_lines([
 			'FROM {BASE_IMAGE_NAME}',
 			'ARG DEBIAN_FRONTEND=noninteractive',
-			'LABEL maintainer="Catapult Development Team"'
+			'LABEL maintainer="Catapult Development Team"',
+			'USER root'
 		], BASE_IMAGE_NAME=self.options.base_image_name)
 
 		self.system.add_base_os_packages()
