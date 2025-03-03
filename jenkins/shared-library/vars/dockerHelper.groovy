@@ -105,8 +105,8 @@ void dockerBuildAndPushImage(String operatingSystem, String dockerUrl, String do
 			dockerImage.push()
 		}
 	} else {
-		dockerHelper.loginAndRunCommand(dockerCredentialsId, dockerUrl) {
-			dockerHelper.dockerBuildAndPushImage(imageName, buildArgs)
+		loginAndRunCommand(dockerCredentialsId, dockerUrl) {
+			dockerBuildAndPushImage(imageName, buildArgs)
 		}
 	}
 }
