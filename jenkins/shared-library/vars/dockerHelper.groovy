@@ -97,7 +97,7 @@ void tagDockerImage(String operatingSystem, String dockerUrl, String dockerCrede
 	}
 }
 
-void dockerBuildAndPushImage(String operatingSystem, String dockerUrl, String dockerCredentialsId,  String imageName, String buildArgs='.') {
+void dockerBuildAndPushImage(String operatingSystem, String dockerUrl, String dockerCredentialsId, String imageName, String buildArgs='.') {
 	if ('windows' == operatingSystem) {
 		// Windows does not support docker buildx
 		dockerImage = docker.build(imageName, buildArgs)
