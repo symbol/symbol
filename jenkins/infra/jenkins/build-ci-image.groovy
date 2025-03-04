@@ -80,10 +80,14 @@ pipeline {
 						{
 							String versionArg = getVersionArg(params.CI_IMAGE, buildEnvironment)
 							String buildArg = "-f ${CI_IMAGE}.Dockerfile ${versionArg} --build-arg FROM_IMAGE=${dockerFromImage} ."
-							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								docker.build(archImageName, buildArg).push()
-							}
 
+							dockerHelper.dockerBuildAndPushImage(
+								params.OPERATING_SYSTEM,
+								"${env.DOCKER_URL}",
+								"${env.DOCKER_CREDENTIALS_ID}",
+								archImageName,
+								buildArg
+							)
 							dockerHelper.tagDockerImage(
 								params.OPERATING_SYSTEM,
 								"${env.DOCKER_URL}",
