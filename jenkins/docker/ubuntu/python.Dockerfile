@@ -10,6 +10,10 @@ RUN apt-get update >/dev/null \
 # install python
 ARG FROM_IMAGE
 ARG PYTHON_VERSION='3.11'
+# Adding the Deadsnakes PPA
+RUN apt-get install -y software-properties-common && \
+	add-apt-repository ppa:deadsnakes/ppa && \
+	apt-get update
 RUN apt-get install -y python${PYTHON_VERSION} python3-pip python${PYTHON_VERSION}-venv python${PYTHON_VERSION}-dev  \
 		&& update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 10
 

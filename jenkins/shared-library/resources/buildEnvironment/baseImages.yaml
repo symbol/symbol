@@ -9,7 +9,7 @@ ubuntu-base:
   python: 3.9
   nodejs: 18
 ubuntu-latest:
-  image: ubuntu:24.10
+  image: ubuntu:24.04
   python: 3.13
   nodejs: 21
 windows-lts:
