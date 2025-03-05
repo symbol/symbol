@@ -1,16 +1,39 @@
 {
-    "$schema": "https://typedoc.org/schema.json",
+    "$schema": "https://typedoc-plugin-markdown.org/schema.json",
 
     "entryPoints": [
         "../ts/src/index.d.ts",
-        "../ts/src/nem/index.d.ts",
         "../ts/src/symbol/index.d.ts"
     ],
-    "out": "./build/html",
+    "plugin": [
+        "typedoc-plugin-markdown"
+    ],
 
     "includeVersion": true,
     "excludePrivate": true,
     "excludeExternals": true,
+    "sortEntryPoints": false,
+    "cleanOutputDir": true,
+    "readme": "none",
+    "disableSources": true,
+    "gitRemote": "upstream",
+    "exclude": ["**/nem/*"],
+    "disableGit": true,
 
-    "sortEntryPoints": false
+    // Markdown plugin options
+    "outputFileStrategy": "members",
+    "hidePageHeader": true,
+    "hidePageTitle": true,
+    "hideBreadcrumbs": true,
+    "hideGroupHeadings": true,
+    "useCodeBlocks": true,
+    "excludeScopesInPaths": true,
+    "parametersFormat": "table",
+    "propertiesFormat": "table",
+    "enumMembersFormat": "table",
+    "classPropertiesFormat": "table",
+    "propertyMembersFormat": "table",
+    "typeDeclarationFormat": "table",
+    "interfacePropertiesFormat": "table",
+    "useHTMLEncodedBrackets": true
 }

@@ -28,10 +28,16 @@ plugins:
           SOURCE_BROWSER: true
           SOURCE_TOOLTIPS: true
           INLINE_SOURCES: true
+  typedoc:
+    output_dir: devbook/reference/ts
+    source: '../sdk/javascript/ts/src/index.web.d.ts'
+    tsconfig: '../sdk/javascript/tsconfig/check-bindings.json'
+    options: '../sdk/javascript/docs/typedoc.json'
   gen-files: # Generate stub files for API reference docs, to be filled by mkdocstrings
     scripts:
       - ../scripts/gen_ref_pages_py.py
       - ../scripts/gen_ref_pages_java.py
+      - ../scripts/gen_ref_pages_ts.py
   mkdocstrings: # Generate API reference docs for Python and JS
     default_handler: python
     custom_templates: ../templates/mkdocstrings
@@ -91,6 +97,7 @@ theme:
   features:
     - content.tooltips # Material tooltips instead of browser
     #- navigation.instant # Single-page application
+    #- navigation.prune # Navigation only holds visible items
     - navigation.tracking # URL follows the current section in the page
     - navigation.tabs # Top navbar
     - toc.follow # Current section in TOC is always visible

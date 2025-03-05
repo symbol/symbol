@@ -65,7 +65,7 @@ nav:
       - devbook/c.other.md
       - リファレンスガイド:
           - Python SDK: devbook/reference/py/
-          - JavaScript SDK: devbook/reference/js/test.md
+          - TypeScript SDK: devbook/reference/ts/
           - Java SDK: devbook/reference/java/
           - Symbol REST API: devbook/reference/rest/symbol.md
   - 教科書:
