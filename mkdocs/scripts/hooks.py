@@ -4,6 +4,7 @@ from mkdocs.structure import files
 from mkdocs.config import Config, base
 import shutil
 from pathlib import Path
+import re
 
 log = logging.getLogger('mkdocs')
 
@@ -38,3 +39,31 @@ def on_pre_build(config: base.Config):
     md_path = Path(config.docs_dir).joinpath("devbook", "reference", "rest").resolve()
     for f in ['openapi-symbol.yml']:
         shutil.copyfile(spec_path / f, md_path / f)
+
+@mkdocs.plugins.event_priority(0)
+def on_page_markdown(content, page, config, files):
+    """
+    Customize markdown for TS API pages. The Typedoc-markdown plugin does not
+    support templates so we need this workaround.
+    """
+    if not page.url.startswith("devbook/reference/ts"):
+        return content
+
+    symbol_name = ''
+    def symbol_type_repl(m):
+        dict = {"Class":"class", "Function":"method"}
+        nonlocal symbol_name
+        symbol_name = m.group(2)
+        if m.group(1) not in dict:
+            return f'# {m.group(1)}: {m.group(2)}'
+        return f'# <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {m.group(2)}'
+
+    # Add object type icon at the header
+    content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, 1)
+
+    # Add glossary definition to page title
+    content = re.sub(r'\n\n(.*)\n\n', rf'\n\n<dl class="automatic-reference-term" markdown><dt>TS:{symbol_name}</dt><dd>\1</dd></dl>\n\n', content, 1)
+
+    #import pdb; pdb.set_trace()
+
+    return content

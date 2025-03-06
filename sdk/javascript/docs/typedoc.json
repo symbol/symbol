@@ -23,7 +23,7 @@
     // Markdown plugin options
     "outputFileStrategy": "members",
     "hidePageHeader": true,
-    "hidePageTitle": true,
+    "hidePageTitle": false,
     "hideBreadcrumbs": true,
     "hideGroupHeadings": true,
     "useCodeBlocks": true,
