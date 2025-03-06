@@ -62,8 +62,13 @@ def on_page_markdown(content, page, config, files):
     content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, 1)
 
     # Add glossary definition to page title
-    content = re.sub(r'\n\n(.*)\n\n', rf'\n\n<dl class="automatic-reference-term" markdown><dt>TS:{symbol_name}</dt><dd>\1</dd></dl>\n\n', content, 1)
+    content = re.sub(r'\n\n(.*?)\n\n', rf'\n\n<dl class="automatic-reference-term" markdown><dt>TS:{symbol_name}</dt><dd>\1</dd></dl>\n\n', content, 1)
 
-    #import pdb; pdb.set_trace()
+    # Add glossary definition to methods
+    m = re.search(r'\n## Methods\n', content)
+    if m:
+        content = content[:m.start()] + re.sub(
+            r"(\n### )([^(]*?)(\(\)\n\n```.*?```\n\n)(.*?)(\n\n####)",
+            rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>TS:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
 
     return content
