@@ -23,27 +23,6 @@
     --textbook-color--transparent: #7000DF20;
 }
 
-.userbook-section {
-    --md-primary-fg-color: var(--userbook-color);
-    --md-primary-fg-color--dark: var(--userbook-color--dark);
-    --md-primary-fg-color--light: var(--userbook-color--light);
-    --md-accent-fg-color--transparent: var(--userbook-color--transparent);
-}
-
-.devbook-section {
-    --md-primary-fg-color: var(--devbook-color);
-    --md-primary-fg-color--dark: var(--devbook-color--dark);
-    --md-primary-fg-color--light: var(--devbook-color--light);
-    --md-accent-fg-color--transparent: var(--devbook-color--transparent);
-}
-
-.textbook-section {
-    --md-primary-fg-color: var(--textbook-color);
-    --md-primary-fg-color--dark: var(--textbook-color--dark);
-    --md-primary-fg-color--light: var(--textbook-color--light);
-    --md-accent-fg-color--transparent: var(--textbook-color--transparent);
-}
-
 [data-md-color-scheme=slate][data-md-color-primary=indigo] {
     --md-typeset-a-color: var(--md-primary-fg-color--light);
     --md-accent-fg-color: var(--md-primary-fg-color);

@@ -2,6 +2,7 @@
 hide:
   - navigation
   - toc
+section_name: textbook
 ---
 
 # Welcome to the Symbol documentation pages

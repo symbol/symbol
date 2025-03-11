@@ -121,7 +121,7 @@ Plugins:
 
 Overrides:
 
-* `main.html`: Defines the `scripts` block to add a one-liner that adds the section class (`userbook`, `devbook` or `textbook`) to the document body.
+* `main.html`: Defines the `styles` block that sets colors depending on the section (`userbook`, `devbook` or `textbook`).
 * `partials/source.html`: Empty file to remove the GitHub info on the corner.
 * `partials/copyright.html`: Add cookie settings link in the footer.
 * `partials/javascripts/content.html`: Script to handle dynamic links that change depending on selected programming language (EXPERIMENTAL).
