@@ -3,7 +3,7 @@ repo_url: https://github.com/symbol/symbol
 repo_name: symbol
 plugins:
   search: {}
-  meta-manager: {}
+  meta-manager: {} # Add recursive metadata to md files
   ezglossary: # Automatic glossary tooltips
     templates: ../templates/ezglossary
     use_default: true
@@ -28,17 +28,17 @@ plugins:
           SOURCE_BROWSER: true
           SOURCE_TOOLTIPS: true
           INLINE_SOURCES: true
-  typedoc:
+  typedoc: # Generate API reference docs for TypeScript
     output_dir: devbook/reference/ts
     source: '../sdk/javascript/ts/src/index.web.d.ts'
     tsconfig: '../sdk/javascript/tsconfig/check-bindings.json'
     options: '../sdk/javascript/docs/typedoc.json'
-  gen-files: # Generate stub files for API reference docs, to be filled by mkdocstrings
+  gen-files: # Generate stub files for API reference docs and link.md files for literate-nav
     scripts:
       - ../scripts/gen_ref_pages_py.py
       - ../scripts/gen_ref_pages_java.py
       - ../scripts/gen_ref_pages_ts.py
-  mkdocstrings: # Generate API reference docs for Python and JS
+  mkdocstrings: # Generate API reference docs for Python
     default_handler: python
     custom_templates: ../templates/mkdocstrings
     handlers:
@@ -60,7 +60,7 @@ plugins:
   git-authors: # git authors in page footers
     exclude:
       - devbook/reference/*
-  swagger-ui-tag: {}
+  swagger-ui-tag: {} # Allow embedding OpenAPI specs
 hooks:
   - ../scripts/hooks.py
 markdown_extensions:
