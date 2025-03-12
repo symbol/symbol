@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>symbolchain.external package &mdash; Symbol SDK (Python) 3.2.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=7895512d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="symbolchain.facade package" href="symbolchain.facade.html" />
+    <link rel="prev" title="symbolchain package" href="symbolchain.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Symbol SDK (Python)
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">symbolchain</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="symbolchain.html">symbolchain package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="symbolchain.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">symbolchain.external package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html">symbolchain.facade package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.impl.html">symbolchain.impl package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html">symbolchain.nc package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nem.html">symbolchain.nem package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html">symbolchain.sc package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.symbol.html">symbolchain.symbol package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.AccountDescriptorRepository">symbolchain.AccountDescriptorRepository module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.ArrayHelpers">symbolchain.ArrayHelpers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BaseValue">symbolchain.BaseValue module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Bip32">symbolchain.Bip32 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BlockchainSettings">symbolchain.BlockchainSettings module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BufferReader">symbolchain.BufferReader module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BufferWriter">symbolchain.BufferWriter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.ByteArray">symbolchain.ByteArray module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Cipher">symbolchain.Cipher module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.CodeWordsEncoder">symbolchain.CodeWordsEncoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.CryptoTypes">symbolchain.CryptoTypes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.DiceMnemonicGenerator">symbolchain.DiceMnemonicGenerator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Network">symbolchain.Network module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.NetworkTimestamp">symbolchain.NetworkTimestamp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.NodeDescriptorRepository">symbolchain.NodeDescriptorRepository module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Ordered">symbolchain.Ordered module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.PrivateKeyStorage">symbolchain.PrivateKeyStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#symbolchain-qrsignaturestorage-module">symbolchain.QrSignatureStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#symbolchain-qrstorage-module">symbolchain.QrStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.RuleBasedTransactionFactory">symbolchain.RuleBasedTransactionFactory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.SharedKey">symbolchain.SharedKey module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.TransactionDescriptorProcessor">symbolchain.TransactionDescriptorProcessor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Transforms">symbolchain.Transforms module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.ripemd160">symbolchain.ripemd160 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Symbol SDK (Python)</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">symbolchain</a></li>
+          <li class="breadcrumb-item"><a href="symbolchain.html">symbolchain package</a></li>
+      <li class="breadcrumb-item active">symbolchain.external package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/symbolchain.external.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="symbolchain-external-package">
+<h1>symbolchain.external package<a class="headerlink" href="#symbolchain-external-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-symbolchain.external.ed25519">
+<span id="symbolchain-external-ed25519-module"></span><h2>symbolchain.external.ed25519 module<a class="headerlink" href="#module-symbolchain.external.ed25519" title="Link to this heading"></a></h2>
+<p>NB: This code is not safe for use with secret keys or secret data.
+The only safe use of this code is for verifying signatures on public messages.</p>
+<p>Functions for computing the public key of a secret key and for signing
+a message are included, namely publickey_unsafe and signature_unsafe,
+for testing purposes only.</p>
+<p>The root of the problem is that Python’s long-integer arithmetic is
+not designed for use in cryptography.  Specifically, it may take more
+or less time to execute an operation depending on the values of the
+inputs, and its memory access patterns may also depend on the inputs.
+This opens it to timing and cache side-channel attacks which can
+disclose data to an attacker.  We rely on Python’s long-integer
+arithmetic, so we cannot handle secrets without risking their disclosure.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.Hint_hash">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">Hint_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hashobj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.Hint_hash" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.SignatureMismatch">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">SignatureMismatch</span></span><a class="headerlink" href="#symbolchain.external.ed25519.SignatureMismatch" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.bit">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">bit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.bit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.checkvalid_hash">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">checkvalid_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hashobj=&lt;built-in</span> <span class="pre">function</span> <span class="pre">openssl_sha512&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.checkvalid_hash" title="Link to this definition"></a></dt>
+<dd><p>Not safe to use when any argument is secret.</p>
+<p>See module docstring.  This function should be used only for
+verifying public signatures of public messages.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.decodeint">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">decodeint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.decodeint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.decodepoint">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">decodepoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.decodepoint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.derive_shared_secret_unsafe">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">derive_shared_secret_unsafe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hashobj=&lt;built-in</span> <span class="pre">function</span> <span class="pre">openssl_sha512&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.derive_shared_secret_unsafe" title="Link to this definition"></a></dt>
+<dd><p>Not safe to use with secret keys or secret data.</p>
+<p>See module docstring.  This function should be used for testing only.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.edwards_add">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">edwards_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.edwards_add" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.edwards_double">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">edwards_double</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.edwards_double" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.encodeint">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">encodeint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.encodeint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.encodepoint">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">encodepoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.encodepoint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.inv">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">inv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.inv" title="Link to this definition"></a></dt>
+<dd><p>$= z^{-1} mod q$, for z != 0</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.iscanonical">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">iscanonical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.iscanonical" title="Link to this definition"></a></dt>
+<dd><p>public key s is canonical if y coordinate is smaller than prime <cite>q</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.isinmainsubgroup">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">isinmainsubgroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.isinmainsubgroup" title="Link to this definition"></a></dt>
+<dd><p>checks if point P is in main subgroup.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.isoncurve">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">isoncurve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.isoncurve" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.make_Bpow">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">make_Bpow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.make_Bpow" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.pow2">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">pow2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.pow2" title="Link to this definition"></a></dt>
+<dd><p>== pow(x, 2**p, q)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.publickey_hash_unsafe">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">publickey_hash_unsafe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hashobj=&lt;built-in</span> <span class="pre">function</span> <span class="pre">openssl_sha512&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.publickey_hash_unsafe" title="Link to this definition"></a></dt>
+<dd><p>Not safe to use with secret keys or secret data.</p>
+<p>See module docstring.  This function should be used for testing only.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.scalarmult">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">scalarmult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.scalarmult" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.scalarmult_B">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">scalarmult_B</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.scalarmult_B" title="Link to this definition"></a></dt>
+<dd><p>Implements scalarmult(B, e) more efficiently.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.signature_hash_unsafe">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">signature_hash_unsafe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hashobj=&lt;built-in</span> <span class="pre">function</span> <span class="pre">openssl_sha512&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.signature_hash_unsafe" title="Link to this definition"></a></dt>
+<dd><p>Not safe to use with secret keys or secret data.</p>
+<p>See module docstring.  This function should be used for testing only.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.external.ed25519.xrecover">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.external.ed25519.</span></span><span class="sig-name descname"><span class="pre">xrecover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.external.ed25519.xrecover" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-symbolchain.external">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-symbolchain.external" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="symbolchain.html" class="btn btn-neutral float-left" title="symbolchain package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="symbolchain.facade.html" class="btn btn-neutral float-right" title="symbolchain.facade package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Symbol Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

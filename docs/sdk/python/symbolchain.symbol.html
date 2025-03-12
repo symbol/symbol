@@ -1,0 +1,630 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>symbolchain.symbol package &mdash; Symbol SDK (Python) 3.2.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=7895512d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="symbolchain.sc package" href="symbolchain.sc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Symbol SDK (Python)
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">symbolchain</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="symbolchain.html">symbolchain package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="symbolchain.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.external.html">symbolchain.external package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.facade.html">symbolchain.facade package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.impl.html">symbolchain.impl package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nc.html">symbolchain.nc package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.nem.html">symbolchain.nem package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="symbolchain.sc.html">symbolchain.sc package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">symbolchain.symbol package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.AccountDescriptorRepository">symbolchain.AccountDescriptorRepository module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.ArrayHelpers">symbolchain.ArrayHelpers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BaseValue">symbolchain.BaseValue module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Bip32">symbolchain.Bip32 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BlockchainSettings">symbolchain.BlockchainSettings module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BufferReader">symbolchain.BufferReader module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.BufferWriter">symbolchain.BufferWriter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.ByteArray">symbolchain.ByteArray module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Cipher">symbolchain.Cipher module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.CodeWordsEncoder">symbolchain.CodeWordsEncoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.CryptoTypes">symbolchain.CryptoTypes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.DiceMnemonicGenerator">symbolchain.DiceMnemonicGenerator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Network">symbolchain.Network module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.NetworkTimestamp">symbolchain.NetworkTimestamp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.NodeDescriptorRepository">symbolchain.NodeDescriptorRepository module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Ordered">symbolchain.Ordered module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.PrivateKeyStorage">symbolchain.PrivateKeyStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#symbolchain-qrsignaturestorage-module">symbolchain.QrSignatureStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#symbolchain-qrstorage-module">symbolchain.QrStorage module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.RuleBasedTransactionFactory">symbolchain.RuleBasedTransactionFactory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.SharedKey">symbolchain.SharedKey module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.TransactionDescriptorProcessor">symbolchain.TransactionDescriptorProcessor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.Transforms">symbolchain.Transforms module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain.ripemd160">symbolchain.ripemd160 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="symbolchain.html#module-symbolchain">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Symbol SDK (Python)</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">symbolchain</a></li>
+          <li class="breadcrumb-item"><a href="symbolchain.html">symbolchain package</a></li>
+      <li class="breadcrumb-item active">symbolchain.symbol package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/symbolchain.symbol.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="symbolchain-symbol-package">
+<h1>symbolchain.symbol package<a class="headerlink" href="#symbolchain-symbol-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-symbolchain.symbol.IdGenerator">
+<span id="symbolchain-symbol-idgenerator-module"></span><h2>symbolchain.symbol.IdGenerator module<a class="headerlink" href="#module-symbolchain.symbol.IdGenerator" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.IdGenerator.generate_mosaic_alias_id">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.IdGenerator.</span></span><span class="sig-name descname"><span class="pre">generate_mosaic_alias_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fully_qualified_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.IdGenerator.generate_mosaic_alias_id" title="Link to this definition"></a></dt>
+<dd><p>Generates a mosaic id from a fully qualified mosaic alias name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.IdGenerator.generate_mosaic_id">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.IdGenerator.</span></span><span class="sig-name descname"><span class="pre">generate_mosaic_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonce</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.IdGenerator.generate_mosaic_id" title="Link to this definition"></a></dt>
+<dd><p>Generates a mosaic id from an owner address and a nonce.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.IdGenerator.generate_namespace_id">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.IdGenerator.</span></span><span class="sig-name descname"><span class="pre">generate_namespace_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_namespace_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.IdGenerator.generate_namespace_id" title="Link to this definition"></a></dt>
+<dd><p>Generates a namespace id from a name and an optional parent namespace id.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.IdGenerator.generate_namespace_path">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.IdGenerator.</span></span><span class="sig-name descname"><span class="pre">generate_namespace_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fully_qualified_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.IdGenerator.generate_namespace_path" title="Link to this definition"></a></dt>
+<dd><p>Parses a fully qualified namespace name into a path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.IdGenerator.is_valid_namespace_name">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.IdGenerator.</span></span><span class="sig-name descname"><span class="pre">is_valid_namespace_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.IdGenerator.is_valid_namespace_name" title="Link to this definition"></a></dt>
+<dd><p>Returns true if a name is a valid namespace name.</p>
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.KeyPair">
+<span id="symbolchain-symbol-keypair-module"></span><h2>symbolchain.symbol.KeyPair module<a class="headerlink" href="#module-symbolchain.symbol.KeyPair" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.KeyPair.KeyPair">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.KeyPair.</span></span><span class="sig-name descname"><span class="pre">KeyPair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.KeyPair.KeyPair" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents an ED25519 private and public key.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="symbolchain.symbol.KeyPair.KeyPair.private_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">private_key</span></span><a class="headerlink" href="#symbolchain.symbol.KeyPair.KeyPair.private_key" title="Link to this definition"></a></dt>
+<dd><p>Gets the private key.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="symbolchain.symbol.KeyPair.KeyPair.public_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">public_key</span></span><a class="headerlink" href="#symbolchain.symbol.KeyPair.KeyPair.public_key" title="Link to this definition"></a></dt>
+<dd><p>Gets the public key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.KeyPair.KeyPair.sign">
+<span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.KeyPair.KeyPair.sign" title="Link to this definition"></a></dt>
+<dd><p>Signs a message with the private key.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.KeyPair.Verifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.KeyPair.</span></span><span class="sig-name descname"><span class="pre">Verifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.KeyPair.Verifier" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Verifies signatures signed by a single key pair.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.KeyPair.Verifier.verify">
+<span class="sig-name descname"><span class="pre">verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.KeyPair.Verifier.verify" title="Link to this definition"></a></dt>
+<dd><p>Verifies a message signature.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.Merkle">
+<span id="symbolchain-symbol-merkle-module"></span><h2>symbolchain.symbol.Merkle module<a class="headerlink" href="#module-symbolchain.symbol.Merkle" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.BranchNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">BranchNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.BranchNode" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#symbolchain.symbol.Merkle.TreeNode" title="symbolchain.symbol.Merkle.TreeNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">TreeNode</span></code></a></p>
+<p>Branch node in a compact patricia tree.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.BranchNode.calculate_hash">
+<span class="sig-name descname"><span class="pre">calculate_hash</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.BranchNode.calculate_hash" title="Link to this definition"></a></dt>
+<dd><p>Calculates node hash.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.LeafNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">LeafNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.LeafNode" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#symbolchain.symbol.Merkle.TreeNode" title="symbolchain.symbol.Merkle.TreeNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">TreeNode</span></code></a></p>
+<p>Leaf node in a compact patricia tree.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.LeafNode.calculate_hash">
+<span class="sig-name descname"><span class="pre">calculate_hash</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.LeafNode.calculate_hash" title="Link to this definition"></a></dt>
+<dd><p>Calculates node hash.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.MerkleHashBuilder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">MerkleHashBuilder</span></span><a class="headerlink" href="#symbolchain.symbol.Merkle.MerkleHashBuilder" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Builder for creating a merkle hash.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.MerkleHashBuilder.final">
+<span class="sig-name descname"><span class="pre">final</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.MerkleHashBuilder.final" title="Link to this definition"></a></dt>
+<dd><p>Calculates the merkle hash.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.MerkleHashBuilder.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.MerkleHashBuilder.update" title="Link to this definition"></a></dt>
+<dd><p>Adds a hash to the merkle hash.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.MerklePart">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">MerklePart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_left</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.MerklePart" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.MerklePart.hash">
+<span class="sig-name descname"><span class="pre">hash</span></span><a class="headerlink" href="#symbolchain.symbol.Merkle.MerklePart.hash" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.MerklePart.is_left">
+<span class="sig-name descname"><span class="pre">is_left</span></span><a class="headerlink" href="#symbolchain.symbol.Merkle.MerklePart.is_left" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">PatriciaMerkleProofResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Possible results of a patricia merkle proof.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.INCONCLUSIVE">
+<span class="sig-name descname"><span class="pre">INCONCLUSIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16385</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.INCONCLUSIVE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.LEAF_VALUE_MISMATCH">
+<span class="sig-name descname"><span class="pre">LEAF_VALUE_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32771</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.LEAF_VALUE_MISMATCH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.PATH_MISMATCH">
+<span class="sig-name descname"><span class="pre">PATH_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32773</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.PATH_MISMATCH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.STATE_HASH_DOES_NOT_MATCH_ROOTS">
+<span class="sig-name descname"><span class="pre">STATE_HASH_DOES_NOT_MATCH_ROOTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32769</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.STATE_HASH_DOES_NOT_MATCH_ROOTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.UNANCHORED_PATH_TREE">
+<span class="sig-name descname"><span class="pre">UNANCHORED_PATH_TREE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32770</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.UNANCHORED_PATH_TREE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.UNLINKED_NODE">
+<span class="sig-name descname"><span class="pre">UNLINKED_NODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32772</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.UNLINKED_NODE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.VALID_NEGATIVE">
+<span class="sig-name descname"><span class="pre">VALID_NEGATIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.VALID_NEGATIVE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaMerkleProofResult.VALID_POSITIVE">
+<span class="sig-name descname"><span class="pre">VALID_POSITIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaMerkleProofResult.VALID_POSITIVE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaTreePath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">PatriciaTreePath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaTreePath" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaTreePath.path">
+<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaTreePath.path" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.PatriciaTreePath.size">
+<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#symbolchain.symbol.Merkle.PatriciaTreePath.size" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.TreeNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">TreeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.TreeNode" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Node in a compact patricia tree.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.TreeNode.hex_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hex_path</span></span><a class="headerlink" href="#symbolchain.symbol.Merkle.TreeNode.hex_path" title="Link to this definition"></a></dt>
+<dd><p>Gets hex representation of path.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.deserialize_patricia_tree_nodes">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">deserialize_patricia_tree_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.deserialize_patricia_tree_nodes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.prove_merkle">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">prove_merkle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leaf_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merkle_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.prove_merkle" title="Link to this definition"></a></dt>
+<dd><p>Proves a merkle hash.
+Merkle <em>hash chain</em> path is ordered from leaf to root, where each element is MerklePart.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.Merkle.prove_patricia_merkle">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Merkle.</span></span><span class="sig-name descname"><span class="pre">prove_patricia_merkle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_to_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merkle_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subcache_merkle_roots</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Merkle.prove_patricia_merkle" title="Link to this definition"></a></dt>
+<dd><p>Proves a patricia merkle hash.
+Merkle <em>node</em> path is ordered from root to leaf, where each element is either BranchNode or LeafNode.</p>
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.MessageEncoder">
+<span id="symbolchain-symbol-messageencoder-module"></span><h2>symbolchain.symbol.MessageEncoder module<a class="headerlink" href="#module-symbolchain.symbol.MessageEncoder" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.MessageEncoder.MessageEncoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.MessageEncoder.</span></span><span class="sig-name descname"><span class="pre">MessageEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_pair</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#symbolchain.symbol.KeyPair.KeyPair" title="symbolchain.symbol.KeyPair.KeyPair"><span class="pre">KeyPair</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.MessageEncoder.MessageEncoder" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Encrypts and encodes messages between two parties.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.MessageEncoder.MessageEncoder.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recipient_public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="symbolchain.html#symbolchain.CryptoTypes.PublicKey" title="symbolchain.CryptoTypes.PublicKey"><span class="pre">PublicKey</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.MessageEncoder.MessageEncoder.encode" title="Link to this definition"></a></dt>
+<dd><p>Encodes message to recipient using recommended format.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.MessageEncoder.MessageEncoder.encode_deprecated">
+<span class="sig-name descname"><span class="pre">encode_deprecated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recipient_public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="symbolchain.html#symbolchain.CryptoTypes.PublicKey" title="symbolchain.CryptoTypes.PublicKey"><span class="pre">PublicKey</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.MessageEncoder.MessageEncoder.encode_deprecated" title="Link to this definition"></a></dt>
+<dd><p>Encodes message to recipient using (deprecated) wallet format.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.MessageEncoder.MessageEncoder.encode_persistent_harvesting_delegation">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode_persistent_harvesting_delegation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_public_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_key_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrf_root_key_pair</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.MessageEncoder.MessageEncoder.encode_persistent_harvesting_delegation" title="Link to this definition"></a></dt>
+<dd><p>Encodes persistent harvesting delegation to node.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="symbolchain.symbol.MessageEncoder.MessageEncoder.public_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">public_key</span></span><a class="headerlink" href="#symbolchain.symbol.MessageEncoder.MessageEncoder.public_key" title="Link to this definition"></a></dt>
+<dd><p>Public key used for message encoding.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode">
+<span class="sig-name descname"><span class="pre">try_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recipient_public_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode" title="Link to this definition"></a></dt>
+<dd><p>Tries to decode encoded message, returns tuple:
+* True, message - if message has been decoded and decrypted
+* False, encoded_message - otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode_deprecated">
+<span class="sig-name descname"><span class="pre">try_decode_deprecated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recipient_public_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.MessageEncoder.MessageEncoder.try_decode_deprecated" title="Link to this definition"></a></dt>
+<dd><p>Tries to decode encoded wallet message, returns tuple:
+* True, message - if message has been decoded and decrypted
+* False, encoded_message - otherwise</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.Metadata">
+<span id="symbolchain-symbol-metadata-module"></span><h2>symbolchain.symbol.Metadata module<a class="headerlink" href="#module-symbolchain.symbol.Metadata" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.Metadata.metadata_generate_key">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Metadata.</span></span><span class="sig-name descname"><span class="pre">metadata_generate_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Metadata.metadata_generate_key" title="Link to this definition"></a></dt>
+<dd><p>Generates a metadata key from a string.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="symbolchain.symbol.Metadata.metadata_update_value">
+<span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Metadata.</span></span><span class="sig-name descname"><span class="pre">metadata_update_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Metadata.metadata_update_value" title="Link to this definition"></a></dt>
+<dd><p>Creates a metadata payload for updating old value to new value.</p>
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.Network">
+<span id="symbolchain-symbol-network-module"></span><h2>symbolchain.symbol.Network module<a class="headerlink" href="#module-symbolchain.symbol.Network" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Address">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Network.</span></span><span class="sig-name descname"><span class="pre">Address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.Address" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="symbolchain.html#symbolchain.ByteArray.ByteArray" title="symbolchain.ByteArray.ByteArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ByteArray</span></code></a></p>
+<p>Represents a Symbol address.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Address.ENCODED_SIZE">
+<span class="sig-name descname"><span class="pre">ENCODED_SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">39</span></em><a class="headerlink" href="#symbolchain.symbol.Network.Address.ENCODED_SIZE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Address.SIZE">
+<span class="sig-name descname"><span class="pre">SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">24</span></em><a class="headerlink" href="#symbolchain.symbol.Network.Address.SIZE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Address.from_decoded_address_hex_string">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_decoded_address_hex_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hex_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.Address.from_decoded_address_hex_string" title="Link to this definition"></a></dt>
+<dd><p>Creates an address from a decoded address hex string (typically from REST).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Address.from_namespace_id">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_namespace_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_identifier</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.Address.from_namespace_id" title="Link to this definition"></a></dt>
+<dd><p>Creates an address from a namespace id.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Address.to_namespace_id">
+<span class="sig-name descname"><span class="pre">to_namespace_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.Address.to_namespace_id" title="Link to this definition"></a></dt>
+<dd><p>Attempts to convert this address into a namespace id.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Network">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Network.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_hash_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.Network" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="symbolchain.html#symbolchain.Network.Network" title="symbolchain.Network.Network"><code class="xref py py-class docutils literal notranslate"><span class="pre">Network</span></code></a></p>
+<p>Represents a Symbol network.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Network.MAINNET">
+<span class="sig-name descname"><span class="pre">MAINNET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;symbolchain.symbol.Network.Network</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#symbolchain.symbol.Network.Network.MAINNET" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Network.NETWORKS">
+<span class="sig-name descname"><span class="pre">NETWORKS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;symbolchain.symbol.Network.Network</span> <span class="pre">object&gt;,</span> <span class="pre">&lt;symbolchain.symbol.Network.Network</span> <span class="pre">object&gt;]</span></em><a class="headerlink" href="#symbolchain.symbol.Network.Network.NETWORKS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Network.TESTNET">
+<span class="sig-name descname"><span class="pre">TESTNET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;symbolchain.symbol.Network.Network</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#symbolchain.symbol.Network.Network.TESTNET" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Network.address_hasher">
+<span class="sig-name descname"><span class="pre">address_hasher</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.Network.address_hasher" title="Link to this definition"></a></dt>
+<dd><p>Gets the primary hasher to use in the public key to address conversion.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.Network.create_address">
+<span class="sig-name descname"><span class="pre">create_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address_without_checksum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checksum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.Network.create_address" title="Link to this definition"></a></dt>
+<dd><p>Creates an encoded address from an address without checksum and checksum bytes.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.NetworkTimestamp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.Network.</span></span><span class="sig-name descname"><span class="pre">NetworkTimestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.NetworkTimestamp" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="symbolchain.html#symbolchain.NetworkTimestamp.NetworkTimestamp" title="symbolchain.NetworkTimestamp.NetworkTimestamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">NetworkTimestamp</span></code></a></p>
+<p>Represents a symbol network timestamp with millisecond resolution.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.NetworkTimestamp.add_milliseconds">
+<span class="sig-name descname"><span class="pre">add_milliseconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.NetworkTimestamp.add_milliseconds" title="Link to this definition"></a></dt>
+<dd><p>Adds a specified number of milliseconds to this timestamp.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.Network.NetworkTimestamp.add_seconds">
+<span class="sig-name descname"><span class="pre">add_seconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.Network.NetworkTimestamp.add_seconds" title="Link to this definition"></a></dt>
+<dd><p>Adds a specified number of seconds to this timestamp.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.SharedKey">
+<span id="symbolchain-symbol-sharedkey-module"></span><h2>symbolchain.symbol.SharedKey module<a class="headerlink" href="#module-symbolchain.symbol.SharedKey" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.SharedKey.SharedKey">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.SharedKey.</span></span><span class="sig-name descname"><span class="pre">SharedKey</span></span><a class="headerlink" href="#symbolchain.symbol.SharedKey.SharedKey" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="symbolchain.html#symbolchain.SharedKey.SharedKey" title="symbolchain.SharedKey.SharedKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SharedKey</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.SharedKey.SharedKey.derive_shared_key">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">derive_shared_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_public_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.SharedKey.SharedKey.derive_shared_key" title="Link to this definition"></a></dt>
+<dd><p>Derives shared encryption key from private key and public key.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.TransactionFactory">
+<span id="symbolchain-symbol-transactionfactory-module"></span><h2>symbolchain.symbol.TransactionFactory module<a class="headerlink" href="#module-symbolchain.symbol.TransactionFactory" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.TransactionFactory.TransactionFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.TransactionFactory.</span></span><span class="sig-name descname"><span class="pre">TransactionFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_rule_overrides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.TransactionFactory.TransactionFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Factory for creating Symbol transactions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attach_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature" title="Link to this definition"></a></dt>
+<dd><p>Attaches a signature to a transaction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.TransactionFactory.TransactionFactory.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_descriptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autosort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.TransactionFactory.TransactionFactory.create" title="Link to this definition"></a></dt>
+<dd><p>Creates a transaction from a transaction descriptor.
+When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
+When unset, descriptor arrays will be presumed to be already sorted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.TransactionFactory.TransactionFactory.create_embedded">
+<span class="sig-name descname"><span class="pre">create_embedded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_descriptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autosort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.TransactionFactory.TransactionFactory.create_embedded" title="Link to this definition"></a></dt>
+<dd><p>Creates an embedded transaction from a transaction descriptor.
+When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
+When unset, descriptor arrays will be presumed to be already sorted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.TransactionFactory.TransactionFactory.deserialize">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.TransactionFactory.TransactionFactory.deserialize" title="Link to this definition"></a></dt>
+<dd><p>Deserializes a transaction from a binary payload.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.TransactionFactory.TransactionFactory.deserialize_embedded">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_embedded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.TransactionFactory.TransactionFactory.deserialize_embedded" title="Link to this definition"></a></dt>
+<dd><p>Deserializes an embedded transaction from a binary payload.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.TransactionFactory.TransactionFactory.lookup_transaction_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lookup_transaction_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.TransactionFactory.TransactionFactory.lookup_transaction_name" title="Link to this definition"></a></dt>
+<dd><p>Looks up the friendly name for the specified transaction.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol.VotingKeysGenerator">
+<span id="symbolchain-symbol-votingkeysgenerator-module"></span><h2>symbolchain.symbol.VotingKeysGenerator module<a class="headerlink" href="#module-symbolchain.symbol.VotingKeysGenerator" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="symbolchain.symbol.VotingKeysGenerator.VotingKeysGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">symbolchain.symbol.VotingKeysGenerator.</span></span><span class="sig-name descname"><span class="pre">VotingKeysGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_key_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key_generator=&lt;function</span> <span class="pre">PrivateKey.random&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.VotingKeysGenerator.VotingKeysGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generates symbol voting keys.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="symbolchain.symbol.VotingKeysGenerator.VotingKeysGenerator.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_epoch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#symbolchain.symbol.VotingKeysGenerator.VotingKeysGenerator.generate" title="Link to this definition"></a></dt>
+<dd><p>Generates voting keys for specified epochs.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-symbolchain.symbol">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-symbolchain.symbol" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="symbolchain.sc.html" class="btn btn-neutral float-left" title="symbolchain.sc package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Symbol Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
