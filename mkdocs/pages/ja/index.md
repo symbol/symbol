@@ -9,22 +9,28 @@ section_name: textbook
 
 <div class="grid" markdown>
 
-<div class="card" markdown>
-<a href="userbook/intro/index.html" markdown class="userbook">
-ユーザーガイド</a>
-コーディングなしで何かをすることを学ぶ。
+<div class="card">
+<a href="userbook/intro/index.html" class="userbook">
+  <div></div>
+  <h2>ユーザーガイド</h2>
+  <p>コーディングなしで何かをすることを学ぶ。</p>
+</a>
 </div>
 
-<div class="card" markdown>
-<a href="devbook/0.introduction/index.html" markdown class="devbook">
-開発者ガイド</a>
-コーディングで何かを学ぶ。
+<div class="card">
+<a href="devbook/0.introduction/index.html" class="devbook">
+  <div></div>
+  <h2>開発者ガイド</h2>
+  <p>コーディングで何かを学ぶ。</p>
+</a>
 </div>
 
-<div class="card" markdown>
-<a href="textbook/intro/index.html" markdown class="textbook">
-教科書</a>
-物の仕組みを学ぶ。
+<div class="card">
+<a href="textbook/intro/index.html" class="textbook">
+  <div></div>
+  <h2>教科書</h2>
+  <p>物の仕組みを学ぶ。</p>
+</a>
 </div>
 
 </div>
