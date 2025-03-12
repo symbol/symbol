@@ -38,28 +38,34 @@
 }
 
 /* Home page cards */
-.userbook {
-    background: url("../images/userbook.png") no-repeat center;
+.userbook div {
+    min-width: 300px;
+    min-height: 300px;
+    background: url("../images/userbook.png") no-repeat center / contain;
 }
 
-.devbook {
-    background: url("../images/devbook.png") no-repeat center;
+.devbook div {
+    min-width: 300px;
+    min-height: 300px;
+    background: url("../images/devbook.png") no-repeat center / contain;
 }
 
-.textbook {
-    background: url("../images/textbook.png") no-repeat center;
+.textbook div {
+    min-width: 300px;
+    min-height: 300px;
+    background: url("../images/textbook.png") no-repeat center / contain;
 }
 
-.userbook:hover {
-    background: url("../images/userbook-open.png") no-repeat center;
+.userbook:hover div {
+    background: url("../images/userbook-open.png") no-repeat center / contain;
 }
 
-.devbook:hover {
-    background: url("../images/devbook-open.png") no-repeat center;
+.devbook:hover div {
+    background: url("../images/devbook-open.png") no-repeat center / contain;
 }
 
-.textbook:hover {
-    background: url("../images/textbook-open.png") no-repeat center;
+.textbook:hover div {
+    background: url("../images/textbook-open.png") no-repeat center / contain;
 }
 
 .md-typeset .grid .card {
@@ -67,13 +73,27 @@
     padding: 0;
 }
 
+.md-typeset .grid .card:hover {
+    border: 1px solid var(--md-default-fg-color);
+}
+
 .md-typeset .grid .card a {
-    font-size: 2em;
-    font-family: Aldrich, sans-serif;
     display: block;
-    line-height: 300px;
-    color: white;
-    margin-bottom: 10px;
+    padding: 10px;
+    height: 100%;
+}
+
+.md-typeset .grid .card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-family: Aldrich, sans-serif;
+    color: var(--md-default-fg-color);
+}
+
+.md-typeset .grid .card p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--md-default-fg-color--light);
 }
 
 /* Top navigation tab style: centered, with icons and custom font*/
