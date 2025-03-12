@@ -7,7 +7,7 @@ section_name: textbook
 
 # Symbolドキュメントページへようこそ
 
-<div class="grid" markdown>
+<div class="grid">
 
 <div class="card">
 <a href="userbook/intro/index.html" class="userbook">
