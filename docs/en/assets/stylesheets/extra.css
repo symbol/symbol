@@ -23,27 +23,6 @@
     --textbook-color--transparent: #7000DF20;
 }
 
-.userbook-section {
-    --md-primary-fg-color: var(--userbook-color);
-    --md-primary-fg-color--dark: var(--userbook-color--dark);
-    --md-primary-fg-color--light: var(--userbook-color--light);
-    --md-accent-fg-color--transparent: var(--userbook-color--transparent);
-}
-
-.devbook-section {
-    --md-primary-fg-color: var(--devbook-color);
-    --md-primary-fg-color--dark: var(--devbook-color--dark);
-    --md-primary-fg-color--light: var(--devbook-color--light);
-    --md-accent-fg-color--transparent: var(--devbook-color--transparent);
-}
-
-.textbook-section {
-    --md-primary-fg-color: var(--textbook-color);
-    --md-primary-fg-color--dark: var(--textbook-color--dark);
-    --md-primary-fg-color--light: var(--textbook-color--light);
-    --md-accent-fg-color--transparent: var(--textbook-color--transparent);
-}
-
 [data-md-color-scheme=slate][data-md-color-primary=indigo] {
     --md-typeset-a-color: var(--md-primary-fg-color--light);
     --md-accent-fg-color: var(--md-primary-fg-color);
@@ -52,35 +31,41 @@
 }
 
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
-    --md-typeset-a-color: var(--md-primary-fg-color--dark);
+    --md-typeset-a-color: var(--md-primary-fg-color--light);
     --md-accent-fg-color: var(--md-primary-fg-color);
     --md-default-bg-color--light: #DDD;
     --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 }
 
 /* Home page cards */
-.userbook {
-    background: url("../images/userbook.png") no-repeat center;
+.userbook div {
+    min-width: 300px;
+    min-height: 300px;
+    background: url("../images/userbook.png") no-repeat center / contain;
 }
 
-.devbook {
-    background: url("../images/devbook.png") no-repeat center;
+.devbook div {
+    min-width: 300px;
+    min-height: 300px;
+    background: url("../images/devbook.png") no-repeat center / contain;
 }
 
-.textbook {
-    background: url("../images/textbook.png") no-repeat center;
+.textbook div {
+    min-width: 300px;
+    min-height: 300px;
+    background: url("../images/textbook.png") no-repeat center / contain;
 }
 
-.userbook:hover {
-    background: url("../images/userbook-open.png") no-repeat center;
+.userbook:hover div {
+    background: url("../images/userbook-open.png") no-repeat center / contain;
 }
 
-.devbook:hover {
-    background: url("../images/devbook-open.png") no-repeat center;
+.devbook:hover div {
+    background: url("../images/devbook-open.png") no-repeat center / contain;
 }
 
-.textbook:hover {
-    background: url("../images/textbook-open.png") no-repeat center;
+.textbook:hover div {
+    background: url("../images/textbook-open.png") no-repeat center / contain;
 }
 
 .md-typeset .grid .card {
@@ -88,13 +73,27 @@
     padding: 0;
 }
 
+.md-typeset .grid .card:hover {
+    border: 1px solid var(--md-default-fg-color);
+}
+
 .md-typeset .grid .card a {
-    font-size: 2em;
-    font-family: Aldrich, sans-serif;
     display: block;
-    line-height: 300px;
-    color: white;
-    margin-bottom: 10px;
+    padding: 10px;
+    height: 100%;
+}
+
+.md-typeset .grid .card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-family: Aldrich, sans-serif;
+    color: var(--md-default-fg-color);
+}
+
+.md-typeset .grid .card p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--md-default-fg-color--light);
 }
 
 /* Top navigation tab style: centered, with icons and custom font*/
@@ -275,14 +274,4 @@ a:target {
 
 .md-typeset .dylink input[type=radio]:checked+.dylink-option {
     display: inline;
-}
-
-/* Documentation selector icons */
-.md-icon img {
-    width: 1.2rem;
-    height: 1.2rem;
-}
-
-.md-header__option[data-md-component="doc_selector"] .md-option:not(:checked)+.md-icon {
-    display: none;
 }
