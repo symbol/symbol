@@ -16,7 +16,7 @@ struct Block
 	inline EntityBody
 
 	# previous block hash
-	previous_block_hash = Hash256
+	previous_block_hash = inline SizePrefixedHash256
 
 	# block height
 	height = Height
