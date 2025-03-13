@@ -35,7 +35,8 @@
     --md-typeset-a-color: var(--md-primary-fg-color--light);
     --md-accent-fg-color: var(--md-primary-fg-color);
     --md-default-bg-color--light: #DDD;
-    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);--md-blanket-color: #FFFC;
+    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
+    --md-blanket-color: #FFFC;
 }
 
 /* Home page cards */
