@@ -1,7 +1,7 @@
 defaultCiPipeline {
 	operatingSystem = ['ubuntu']
 	instanceSize = 'medium'
-	environment = 'linter'
+	environment = 'docs'
 	packageId = 'docs'
 	publisher = 'gh-pages'
 }
