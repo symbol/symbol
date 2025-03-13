@@ -119,36 +119,48 @@
     background: url("../images/userbook.png") no-repeat;
     background-size: 1.4rem;
     background-position: left center;
+    filter: opacity(25%);
 }
 
 .md-tabs .md-tabs__item:nth-child(3) {
     background: url("../images/devbook.png") no-repeat;
     background-size: 1.4rem;
     background-position: left center;
+    filter: opacity(25%);
 }
 
 .md-tabs .md-tabs__item:nth-child(4) {
     background: url("../images/textbook.png") no-repeat;
     background-size: 1.4rem;
     background-position: left center;
+    filter: opacity(25%);
+}
+
+.md-tabs .md-tabs__item:nth-child(2):hover,
+.md-tabs .md-tabs__item:nth-child(3):hover,
+.md-tabs .md-tabs__item:nth-child(4):hover {
+    filter: opacity(75%);
 }
 
 .md-tabs .md-tabs__item--active:nth-child(2) {
     background: url("../images/userbook-open.png") no-repeat;
     background-size: 2.4rem;
     background-position: left center;
+    filter: none;
 }
 
 .md-tabs .md-tabs__item--active:nth-child(3) {
     background: url("../images/devbook-open.png") no-repeat;
     background-size: 2.4rem;
     background-position: left center;
+    filter: none;
 }
 
 .md-tabs .md-tabs__item--active:nth-child(4) {
     background: url("../images/textbook-open.png") no-repeat;
     background-size: 2.4rem;
     background-position: left center;
+    filter: none;
 }
 
 .md-tabs[hidden] .md-tabs__item {
@@ -158,6 +170,7 @@
 .md-tabs__list {
     justify-content: center;
     gap: 30px;
+    margin-bottom: 10px;
 }
 
 /* Bigger logo */
