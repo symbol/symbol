@@ -28,13 +28,14 @@
     --md-accent-fg-color: var(--md-primary-fg-color);
     --md-default-bg-color--light: #333;
     --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
+    --md-blanket-color: #000C;
 }
 
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
     --md-typeset-a-color: var(--md-primary-fg-color--light);
     --md-accent-fg-color: var(--md-primary-fg-color);
     --md-default-bg-color--light: #DDD;
-    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
+    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);--md-blanket-color: #FFFC;
 }
 
 /* Home page cards */
@@ -71,10 +72,14 @@
 .md-typeset .grid .card {
     text-align: center;
     padding: 0;
+    border: 0;
+    transition: box-shadow 0s;
 }
 
 .md-typeset .grid .card:hover {
-    border: 1px solid var(--md-default-fg-color);
+    position: relative;
+    box-shadow: 0 0 0 9999px var(--md-blanket-color);
+    background: var(--md-blanket-color);
 }
 
 .md-typeset .grid .card a {

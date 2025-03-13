@@ -2,1066 +2,1066 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>http://symbol.github.io/symbol/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/0.introduction/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/1.accounts/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/2.namespaces/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/3.mosaics/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/4.transactions/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/5.nodes/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/6.blocks/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/7.xym/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/8.advanced/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/9.catapult/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/a.catbuffer/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/b.analytics/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/c.other/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/java/links/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/AccountDescriptorRepository/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/ArrayHelpers/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/BaseValue/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/Bip32/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/BlockchainSettings/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/BufferReader/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/BufferWriter/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/ByteArray/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/Cipher/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/CodeWordsEncoder/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/CryptoTypes/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/DiceMnemonicGenerator/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/Network/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/NetworkTimestamp/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/NodeDescriptorRepository/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/Ordered/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/PrivateKeyStorage/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/QrSignatureStorage/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/QrStorage/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/RuleBasedTransactionFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/SharedKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/TransactionDescriptorProcessor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/Transforms/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/links/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/ripemd160/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/external/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/external/ed25519/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/facade/BatchOperations/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/facade/NemFacade/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/facade/SymbolFacade/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/facade/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/impl/CipherHelpers/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/impl/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/nc/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/nem/KeyPair/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/nem/MessageEncoder/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/nem/Network/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/nem/SharedKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/nem/TransactionFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/nem/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/sc/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/IdGenerator/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/KeyPair/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/Merkle/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/MessageEncoder/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/Metadata/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/Network/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/SharedKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/TransactionFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/VotingKeysGenerator/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/py/symbol/__init__/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/rest/symbol/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/links/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/BaseValue/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/Bip32/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/ByteArray/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/Hash256/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/NetworkLocator/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/PrivateKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/PublicKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/SharedKey256/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/classes/Signature/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/bytesToBigInt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/bytesToInt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/deepCompare/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/hexToUint8/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/intToBytes/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/isHexString/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/tryParseUint/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/core/namespaces/utils/functions/uint8ToHex/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/Address/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/KeyPair/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/MessageEncoder/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/Network/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/NetworkTimestamp/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/SymbolAccount/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/SymbolFacade/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/SymbolPublicAccount/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/SymbolTransactionFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/Verifier/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/classes/VotingKeysGenerator/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/deserializePatriciaTreeNodes/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/generateMosaicAliasId/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/generateMosaicId/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/generateNamespaceId/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/generateNamespacePath/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/isValidNamespaceName/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/metadataGenerateKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/metadataUpdateValue/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/proveMerkle/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/functions/provePatriciaMerkle/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/CosignatureDescriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicDescriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AccountMetadataTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AccountRestrictionFlags/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Address/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AddressAliasTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AddressResolutionEntry/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AddressResolutionStatement/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AggregateBondedTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AggregateBondedTransactionV2/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/AliasAction/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Amount/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Block/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/BlockDuration/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/BlockFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/BlockFeeMultiplier/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/BlockStatement/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/BlockType/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Cosignature/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/DetachedCosignature/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Difficulty/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedTransaction/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedTransactionFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/FinalizationEpoch/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/FinalizationPoint/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/FinalizationRound/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/FinalizedBlockHeader/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/HarvestFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Hash256/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Hash512/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/HashLockTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Height/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Importance/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ImportanceBlockV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ImportanceHeight/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/InflationReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LinkAction/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LockHashAlgorithm/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Mosaic/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicAliasTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicExpiredReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicFlags/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicId/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicNonce/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicResolutionEntry/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicResolutionStatement/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicRestrictionKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicRestrictionType/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicSupplyChangeAction/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NamespaceDeletedReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NamespaceExpiredReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NamespaceId/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NamespaceRegistrationType/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NemesisBlockV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NetworkType/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/NormalBlockV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ProofGamma/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ProofScalar/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ProofVerificationHash/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/PublicKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Receipt/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ReceiptFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ReceiptSource/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/ReceiptType/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/SecretLockTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/SecretProofTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Signature/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Timestamp/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/Transaction/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/TransactionFactory/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/TransactionStatement/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/TransactionType/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/TransferTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/UnresolvedAddress/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/UnresolvedMosaic/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/UnresolvedMosaicId/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/VotingPublicKey/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/devbook/reference/ts/namespaces/symbol/namespaces/models/classes/VrfProof/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/textbook/glossary/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/textbook/intro/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
     <url>
          <loc>http://symbol.github.io/symbol/userbook/intro/</loc>
-         <lastmod>2025-03-12</lastmod>
+         <lastmod>2025-03-13</lastmod>
     </url>
 </urlset>
