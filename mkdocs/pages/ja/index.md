@@ -39,4 +39,10 @@ section_name: textbook
 .md-tabs, .md-source-file {
     display:none;
 }
+.md-main {
+    overflow: hidden;
+}
+.md-typeset .grid {
+    gap: 0;
+}
 </style>
