@@ -37,6 +37,8 @@ builds:
 
   - name: mkdocs
     path: mkdocs
+    dependsOn:
+      - sdk/javascript
 
 customBuilds:
   - name: Nightly Job
