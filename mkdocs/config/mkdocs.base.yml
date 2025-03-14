@@ -17,7 +17,7 @@ plugins:
     projects:
       JavaSDK: # name of project must be alphanumeric + numbers (without spaces)
         src-dirs: ../sdk/java/src/main # path to source code (support multiple paths separated by space) => INPUT
-        template-dir: "!relative $config_dir/../templates/mkdoxy"
+        template-dir: templates/mkdoxy
         full-doc: true # if you want to generate full documentation
         api-path: devbook/reference/java
         doxy-cfg: # standard doxygen configuration (key: value)
