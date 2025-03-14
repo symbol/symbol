@@ -42,12 +42,6 @@ RUN curl -Os https://www.doxygen.nl/files/doxygen-${DOXYGEN_VERSION}.src.tar.gz 
 	&& cd ../.. \
 	&& rm -rf doxygen-${DOXYGEN_VERSION} doxygen-${DOXYGEN_VERSION}.src.tar.gz
 
-# codecov uploader
-RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
-	&& curl -Os "https://uploader.codecov.io/latest/${ARCH}/codecov" \
-	&& chmod +x codecov \
-	&& mv codecov /usr/local/bin
-
 # add ubuntu user (used by jenkins)
 RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
 USER ubuntu
