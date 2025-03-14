@@ -10,8 +10,6 @@ plugins:
     inline_refs: none
     markdown_links: true
     tooltip: full
-  autorefs:
-    resolve_closest: true
   mkdoxy: # Generate API reference docs for Java
     save-api: .doxy
     projects:
