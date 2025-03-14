@@ -39,6 +39,7 @@ builds:
     path: mkdocs
     dependsOn:
       - sdk/javascript
+      - sdk/python
 
 customBuilds:
   - name: Nightly Job
