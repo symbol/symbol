@@ -26,11 +26,6 @@ plugins:
           SOURCE_BROWSER: true
           SOURCE_TOOLTIPS: true
           INLINE_SOURCES: true
-  typedoc: # Generate API reference docs for TypeScript
-    output_dir: devbook/reference/ts
-    source: '../sdk/javascript/ts/src/index.web.d.ts'
-    tsconfig: '../sdk/javascript/tsconfig/check-bindings.json'
-    options: '../sdk/javascript/docs/typedoc.json'
   gen-files: # Generate stub files for API reference docs and link.md files for literate-nav
     scripts:
       - ../scripts/gen_ref_pages_py.py
@@ -61,6 +56,7 @@ plugins:
   swagger-ui-tag: {} # Allow embedding OpenAPI specs
 hooks:
   - ../scripts/hooks.py
+  - ../scripts/typedoc-plugin.py
 markdown_extensions:
   attr_list: {}
   admonition: {}
@@ -125,6 +121,12 @@ extra:
   symbol:
     java-sdk:
       include-prefixes: ["classorg", "interfaceorg"]
+    ts-sdk:
+      output_dir: devbook/reference/ts
+      source: ../sdk/javascript/ts/src/index.web.d.ts
+      tsconfig: ../sdk/javascript/tsconfig/check-bindings.json
+      options: ../sdk/javascript/docs/typedoc.json
+      enabled: true
 copyright: >
   Copyright &copy; 2025 The Symbol Syndicate
 extra_css:
