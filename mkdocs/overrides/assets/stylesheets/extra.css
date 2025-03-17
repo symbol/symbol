@@ -59,7 +59,7 @@
 }
 
 .userbook:hover div {
-	background: url("../images/userbook-animated.svg") no-repeat center / contain;
+	background: url("../images/userbook-open.png") no-repeat center / contain;
 }
 
 .devbook:hover div {
