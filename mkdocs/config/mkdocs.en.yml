@@ -7,10 +7,10 @@ edit_uri: blob/new-docs/mkdocs/pages/en
 plugins:
   search:
     lang: en
-  mkdoxy: # Generate API reference docs for Java
+  mkdoxy:  # Generate API reference docs for Java
     projects:
-      JavaSDK: # name of project must be alphanumeric + numbers (without spaces)
-        doxy-cfg: # standard doxygen configuration (key: value)
+      JavaSDK:  # name of project must be alphanumeric + numbers (without spaces)
+        doxy-cfg:  # standard doxygen configuration (key: value)
           OUTPUT_LANGUAGE: English
 markdown_extensions:
   toc:
@@ -22,7 +22,7 @@ theme:
     text: Exo 2
   palette:
     # Palette toggle for automatic mode
-    - media: "(prefers-color-scheme)"
+    - media: (prefers-color-scheme)
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
