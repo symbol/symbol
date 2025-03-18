@@ -90,7 +90,7 @@
 }
 
 .md-typeset .grid .card h2 {
-	margin: 0;
+	margin: 10px 0 0 0;
 	font-size: 1.5rem;
 	font-family: Aldrich, sans-serif;
 	color: var(--md-default-fg-color);
