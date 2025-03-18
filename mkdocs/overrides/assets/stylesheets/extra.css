@@ -28,6 +28,7 @@
 	--md-accent-fg-color: var(--md-primary-fg-color);
 	--md-default-bg-color--light: #333;
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
+	--md-footer-fg-color: var(--md-primary-fg-color);
 	--md-blanket-color: #000C;
 }
 
@@ -36,6 +37,7 @@
 	--md-accent-fg-color: var(--md-primary-fg-color);
 	--md-default-bg-color--light: #DDD;
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
+	--md-footer-fg-color: var(--md-primary-fg-color);
 	--md-blanket-color: #FFFC;
 }
 
@@ -204,6 +206,11 @@
 
 .md-header__source {
 	display: none;
+}
+
+.md-header__button:hover {
+	color: var(--md-primary-fg-color);
+	opacity: 1;
 }
 
 /* Separator for source file facts at page bottom */
