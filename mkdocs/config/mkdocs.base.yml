@@ -51,6 +51,7 @@ plugins:
     exclude:
       - devbook/reference/*
   git-authors:  # git authors in page footers
+    sort_authors_by: contribution
     exclude:
       - devbook/reference/*
   swagger-ui-tag: {}  # Allow embedding OpenAPI specs
