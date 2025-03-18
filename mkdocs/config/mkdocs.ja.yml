@@ -47,9 +47,9 @@ extra:
       お客様の同意により、当社はドキュメントの改善に協力することになります。
 nav:
   - index.md
-  - ユーザーガイド:
+  - ユーザーマニュアル:
       - userbook/intro.md
-  - 開発者ガイド:
+  - 開発者マニュアル:
       - devbook/0.introduction.md
       - devbook/1.accounts.md
       - devbook/2.namespaces.md

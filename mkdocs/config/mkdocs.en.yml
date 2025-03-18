@@ -50,9 +50,9 @@ extra:
       make our documentation better.
 nav:
   - index.md
-  - User Guide:
+  - User Manual:
       - userbook/intro.md
-  - Developer Guide:
+  - Developer Manual:
       - devbook/0.introduction.md
       - devbook/1.accounts.md
       - devbook/2.namespaces.md
