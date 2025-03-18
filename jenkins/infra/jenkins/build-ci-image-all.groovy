@@ -54,6 +54,14 @@ pipeline {
 					}
 				}
 
+				stage('docs') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('docs')
+						}
+					}
+				}
+
 				stage('golang') {
 					steps {
 						script {
