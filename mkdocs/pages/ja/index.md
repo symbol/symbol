@@ -3,6 +3,7 @@ hide:
   - navigation
   - toc
 section_name: textbook
+disable_actions: true
 ---
 
 # Symbolドキュメントページへようこそ
