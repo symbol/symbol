@@ -12,7 +12,7 @@ section_name: textbook
 <div class="card">
 <a href="userbook/intro/index.html" class="userbook">
   <div></div>
-  <h2>User Guide</h2>
+  <h2>User Manual</h2>
   <p>Learn to do stuff without coding.</p>
 </a>
 </div>
@@ -20,7 +20,7 @@ section_name: textbook
 <div class="card">
 <a href="devbook/0.introduction/index.html" class="devbook">
   <div></div>
-  <h2>Developer Guide</h2>
+  <h2>Developer Manual</h2>
   <p>Learn to do stuff by coding.</p>
 </a>
 </div>
