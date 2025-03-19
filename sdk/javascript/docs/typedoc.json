@@ -3,12 +3,18 @@
 
     "entryPoints": [
         "../ts/src/index.d.ts",
-        "../ts/src/symbol/index.d.ts"
+        "../ts/src/Bip32.d.ts",
+        "../ts/src/Network.d.ts",
+        "../ts/src/NetworkTimestamp.d.ts",
+        "../ts/src/symbol/index.d.ts",
+        "../ts/src/symbol/merkle.d.ts",
+        "../ts/src/symbol/MessageEncoder.d.ts"
     ],
     "plugin": [
         "typedoc-plugin-markdown"
     ],
 
+    "router": "kind-structure",
     "includeVersion": true,
     "excludePrivate": true,
     "excludeExternals": true,
@@ -21,7 +27,6 @@
     "disableGit": true,
 
     // Markdown plugin options
-    "outputFileStrategy": "members",
     "hidePageHeader": true,
     "hidePageTitle": false,
     "hideBreadcrumbs": true,

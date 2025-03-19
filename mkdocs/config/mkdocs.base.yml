@@ -124,7 +124,6 @@ extra:
       include-prefixes: [classorg, interfaceorg]
     ts-sdk:
       output_dir: devbook/reference/ts
-      source: ../sdk/javascript/ts/src/index.web.d.ts
       tsconfig: ../sdk/javascript/tsconfig/check-bindings.json
       options: ../sdk/javascript/docs/typedoc.json
       enabled: true
