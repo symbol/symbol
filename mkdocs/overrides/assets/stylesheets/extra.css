@@ -301,3 +301,16 @@ a:target {
 .md-typeset .dylink input[type=radio]:checked+.dylink-option {
 	display: inline;
 }
+
+/* TypeScript reference guide */
+
+#extended-by+ul, #extends+ul {
+	display: inline;
+	list-style: none;
+	margin: 0;
+}
+
+#extended-by+ul li, #extends+ul li {
+	display: inline;
+	margin: 0;
+}
