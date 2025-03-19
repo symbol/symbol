@@ -21,9 +21,6 @@ def on_files(files, config):
 	if not plugin_config["enabled"]:
 		return files
 
-	# Path to your TypeScript source code
-	src_path = plugin_config["source"]
-
 	# Path to the typedoc.json options file
 	typedoc_options = plugin_config["options"]
 
@@ -71,7 +68,7 @@ def on_files(files, config):
 		# Flattening the list of pairs to pass into subprocess.run
 		flattened_config = [item for pair in typedoc_config for item in pair]
 
-		command = [get_npx_filename(), "typedoc", *flattened_config, src_path]
+		command = [get_npx_filename(), "typedoc", *flattened_config]
 		subprocess.run(command, check=True)
 	except subprocess.CalledProcessError as e:
 		log.error("TypeDoc failed with error code %d" % e.returncode)
