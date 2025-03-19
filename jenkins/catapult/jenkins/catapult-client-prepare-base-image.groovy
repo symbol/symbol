@@ -106,10 +106,14 @@ pipeline {
 						echo "Dockerfile name: ${dockerfile}"
 						echo "Base image name: ${baseImage}"
 
-						dockerImage = docker.build(archImageName, "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} .")
-						docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-							dockerImage.push()
-						}
+						final String buildArg = "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} ."
+						dockerHelper.dockerBuildAndPushImage(
+								params.OPERATING_SYSTEM,
+								"${env.DOCKER_URL}",
+								"${env.DOCKER_CREDENTIALS_ID}",
+								archImageName,
+								buildArg
+						)
 						dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
 					}
 				}

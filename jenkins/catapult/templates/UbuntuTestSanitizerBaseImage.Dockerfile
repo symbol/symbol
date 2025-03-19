@@ -1,5 +1,5 @@
 # image name required as ARG
-ARG FROM_IMAGE=''
+ARG FROM_IMAGE='ubuntu:24.04'
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM ${FROM_IMAGE}
@@ -21,14 +21,14 @@ RUN apt-get -y update && apt-get install -y \
 	&& \
 	rm -rf /var/lib/apt/lists/*
 
-# add ubuntu user (used by jenkins)
-RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
-USER ubuntu
-WORKDIR /home/ubuntu
-ENV VIRTUAL_ENV=/home/ubuntu/venv
+# add catapult user (used by jenkins)
+ARG HOME_DIR=/home/catapult
+RUN groupadd -g 1000 catapult && \
+	useradd -m -u 1000 -g catapult -d ${HOME_DIR} catapult
+USER catapult
+WORKDIR ${HOME_DIR}
+ENV VIRTUAL_ENV=${HOME_DIR}/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN pip3 install -U colorama conan cryptography gitpython pycodestyle pylint ply PyYAML
-
-USER root

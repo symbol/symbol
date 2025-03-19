@@ -67,8 +67,12 @@ List<String> resolveDockerImageDigests(Object packageJson, String latestImageNam
 	return digests.values().toList()
 }
 
-void dockerBuildAndPushImage(String imageName, String buildArgs='.') {
-	runScript("docker buildx build --builder=container --provenance=true --sbom=true --push -t ${imageName} ${buildArgs}")
+void dockerBuildAndPushImage(String imageName, String buildArgs='.', Boolean pushImage=true) {
+	String dockerBuildCommand = "docker buildx build --builder=container --provenance=true --load --sbom=true -t ${imageName}"
+
+	if (pushImage)
+		dockerBuildCommand += ' --push'
+	runScript("${dockerBuildCommand} ${buildArgs}")
 }
 
 void loginAndRunCommand(String dockerCredentialsId, String hostName, Closure command) {
@@ -97,7 +101,7 @@ void tagDockerImage(String operatingSystem, String dockerUrl, String dockerCrede
 	}
 }
 
-void dockerBuildAndPushImage(String operatingSystem, String dockerUrl, String dockerCredentialsId, String imageName, String buildArgs='.') {
+void dockerBuildAndPushImage(String operatingSystem, String dockerUrl, String dockerCredentialsId, String imageName, String buildArgs='.', Boolean pushImage=true) {
 	if ('windows' == operatingSystem) {
 		// Windows does not support docker buildx
 		dockerImage = docker.build(imageName, buildArgs)
@@ -108,7 +112,7 @@ void dockerBuildAndPushImage(String operatingSystem, String dockerUrl, String do
 		final String dockerHost = helper.resolveUrlHostName(dockerUrl)
 		final String fullImageName = "${dockerHost}/${imageName}"
 		loginAndRunCommand(dockerCredentialsId, dockerHost) {
-			dockerBuildAndPushImage(fullImageName, buildArgs)
+			dockerBuildAndPushImage(fullImageName, buildArgs, pushImage)
 		}
 	}
 }

@@ -408,7 +408,8 @@ class LinuxSystemGenerator:
 		print_lines([
 			'FROM {BASE_IMAGE_NAME}',
 			'ARG DEBIAN_FRONTEND=noninteractive',
-			'LABEL maintainer="Catapult Development Team"'
+			'LABEL maintainer="Catapult Development Team"',
+			'USER root'
 		], BASE_IMAGE_NAME=self.options.base_image_name)
 
 		self.system.add_base_os_packages()
@@ -434,11 +435,13 @@ class LinuxSystemGenerator:
 			f'ENV VIRTUAL_ENV=/home/{self.system.user()}/venv',
 			'RUN python3 -m venv $VIRTUAL_ENV',
 			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"',
-			'USER root'
 		])
 
 	def generate_phase_boost(self):
-		print(f'FROM {self.options.layer_image_name("os")}')
+		print_lines([
+			f'FROM {self.options.layer_image_name("os")}',
+			'USER root'
+		])
 		gosu_version = self.options.versions['gosu']
 		gosu_target = '/usr/local/bin/gosu'
 		gosu_uri = f'https://github.com/tianon/gosu/releases/download/{gosu_version}'
@@ -465,6 +468,7 @@ class LinuxSystemGenerator:
 			'./b2 {B2_OPTIONS} --prefix=/mybuild {BOOST_DISABLED_LIBS} -j 8 stage release',
 			'./b2 {B2_OPTIONS} {BOOST_DISABLED_LIBS} install'
 		], **print_args)
+		print(f'USER {self.system.user()}')
 
 	def add_git_dependency(self, organization, project, options, revision=1):
 		version = self.options.versions[f'{organization}_{project}']
@@ -502,7 +506,10 @@ class LinuxSystemGenerator:
 			COMPILER=compiler)
 
 	def generate_phase_deps(self):
-		print(f'FROM {self.options.layer_image_name("boost")}')
+		print_lines([
+			f'FROM {self.options.layer_image_name("boost")}',
+			'USER root'
+		])
 
 		self.add_openssl(self.options, [])
 
@@ -513,9 +520,14 @@ class LinuxSystemGenerator:
 		self.add_git_dependency('zeromq', 'cppzmq', self.options.cppzmq())
 
 		self.add_git_dependency('facebook', 'rocksdb', self.options.rocks())
+		print(f'USER {self.system.user()}')
 
 	def generate_phase_test(self):
-		print(f'FROM {self.options.layer_image_name("deps")}')
+		print_lines([
+			f'FROM {self.options.layer_image_name("deps")}',
+			'USER root'
+		])
+
 		self.add_git_dependency('google', 'googletest', self.options.googletest())
 		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
 
@@ -525,14 +537,19 @@ class LinuxSystemGenerator:
 
 		print_lines([
 			'RUN echo "docker image build $BUILD_NUMBER"',
-			'CMD ["/bin/bash"]'
+			'CMD ["/bin/bash"]',
+			f'USER {self.system.user()}'
 		])
 
 	def generate_phase_conan(self):
-		print(f'FROM {self.options.layer_image_name("os")}')
+		print_lines([
+			f'FROM {self.options.layer_image_name("os")}',
+			'USER root'
+		])
 
 		self.system.add_conan_packages(['python3-pip'])
 		install_pip_package(self.system.user(), 'conan')
+		print(f'USER {self.system.user()}')
 
 
 class WindowsSystemGenerator:
