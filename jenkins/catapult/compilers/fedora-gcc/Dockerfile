@@ -18,6 +18,3 @@ RUN groupadd -g 1000 fedora && \
 	useradd -m -u 1000 -g fedora -d ${HOME_DIR} fedora
 USER fedora
 WORKDIR ${HOME_DIR}
-ENV VIRTUAL_ENV=${HOME_DIR}/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"

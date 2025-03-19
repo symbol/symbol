@@ -31,6 +31,3 @@ RUN apt-get update >/dev/null && \
 ARG HOME_DIR=/home/ubuntu
 USER ubuntu
 WORKDIR ${HOME_DIR}
-ENV VIRTUAL_ENV=${HOME_DIR}/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
