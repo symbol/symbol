@@ -12,11 +12,11 @@ COPY . src/
 ARG COMPILER_CONFIGURATION='gcc-latest'
 ARG BUILD_CONFIGURATION='release-public'
 RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "amd64" || echo "arm64")  \
-    && python3 /tmp/build/src/jenkins/catapult/runDockerBuildInnerBuild.py \
-    --compiler-configuration=/tmp/build/src/jenkins/catapult/configurations/${ARCH}/${COMPILER_CONFIGURATION}.yaml \
-    --build-configuration=/tmp/build/src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
-    --source-path=/tmp/build/src/client/catapult \
-    --out-dir=/tmp/build/binaries
+	&& python3 /tmp/build/src/jenkins/catapult/runDockerBuildInnerBuild.py \
+	--compiler-configuration=/tmp/build/src/jenkins/catapult/configurations/${ARCH}/${COMPILER_CONFIGURATION}.yaml \
+	--build-configuration=/tmp/build/src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
+	--source-path=/tmp/build/src/client/catapult \
+	--out-dir=/tmp/build/binaries
 
 FROM ${RELEASE_BASE_IMAGE}
 LABEL maintainer="Catapult Development Team"
