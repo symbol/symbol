@@ -28,11 +28,9 @@ RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 	cd ../../.. && \
 	rm -rf linux.git
 
-# add catapult user (used by jenkins)
-ARG HOME_DIR=/home/catapult
-RUN groupadd -g 1000 catapult && \
-	useradd -m -u 1000 -g catapult -d ${HOME_DIR} catapult
-USER catapult
+# add ubuntu user (used by jenkins)
+ARG HOME_DIR=/home/ubuntu
+USER ubuntu
 WORKDIR ${HOME_DIR}
 ENV VIRTUAL_ENV=${HOME_DIR}/venv
 RUN python3 -m venv $VIRTUAL_ENV
