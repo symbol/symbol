@@ -70,4 +70,7 @@ def on_page_markdown(content, page, config, files):
 			r"(\n### )([^(]*?)(\(\)\n\n```.*?```\n\n)([^#].*?)(\n\n####)",
 			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>TS:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
 
+	# Add special anchor because the typedoc-md plugin forgot to add it?
+	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, 1)
+
 	return content
