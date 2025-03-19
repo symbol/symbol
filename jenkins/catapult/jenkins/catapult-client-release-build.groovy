@@ -128,12 +128,12 @@ pipeline {
 						script {
 							final String hostName = helper.resolveUrlHostName(dockerUrl)
 							final String defaultUser = 'fedora' == "${params.OPERATING_SYSTEM}" ? 'fedora' : 'ubuntu'
-							final String buildArg = "-f jenkins/catapult/templates/release.Dockerfile " +
+							final String buildArg = "-f symbol-mono/jenkins/catapult/templates/release.Dockerfile " +
 								"--build-arg BUILD_IMAGE=${baseImageNames[0]} " +
 								"--build-arg RELEASE_BASE_IMAGE=${baseImageNames[1]} " +
 								"--build-arg BUILD_CONFIGURATION=${BUILD_CONFIGURATION} " +
 								"--build-arg COMPILER_CONFIGURATION=${COMPILER_CONFIGURATION} " +
-								"--build-arg USER_NAME=${defaultUser} ."
+								"--build-arg USER_NAME=${defaultUser} symbol-mono/"
 							final String archImageName = "${hostName}/${dockerRepoName}:${resolveShortArchitectureImageLabel(compilerConfigurationFilepath)}"
 
 							dockerHelper.dockerBuildAndPushImage(
