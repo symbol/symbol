@@ -26,7 +26,7 @@ import { uniqueLongList } from '../../src/db/dbUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
-import { PublicKey, utils } from 'symbol-sdk';
+import { NetworkLocator, PublicKey, utils } from 'symbol-sdk';
 import { Address, Network, models } from 'symbol-sdk/symbol';
 
 const { TransactionType } = models;
@@ -63,7 +63,7 @@ describe('catapult db', () => {
 		return dbObject;
 	};
 
-	const network = new Network(Testnet_Network);
+	const network = NetworkLocator.findByIdentifier(Network.NETWORKS, Testnet_Network);
 	const keyToAddress = key => network.publicKeyToAddress(new PublicKey(key)).bytes;
 
 	const runDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
@@ -126,6 +126,14 @@ describe('catapult db', () => {
 
 			// Act + Assert: no exception
 			expect(() => db.close()).to.not.throw();
+		});
+
+		it('can create db with network id', () => {
+			// Arrange:
+			const db = new CatapultDb({ networkId: Testnet_Network });
+
+			// Act + Assert:
+			expect(db.network).to.equal(Network.TESTNET);
 		});
 	});
 
