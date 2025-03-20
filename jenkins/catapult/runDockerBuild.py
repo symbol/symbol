@@ -148,6 +148,7 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	script_path = prepare_replacements['script_path']
 	process_manager.dispatch_subprocess([
 		'docker', 'run',
+		'--user=root',
 		f'--cidfile={cid_filepath}',
 		f'--volume={script_path}:{EnvironmentManager.root_directory("scripts")}',
 		f'--volume={OUTPUT_DIR}:{EnvironmentManager.root_directory("data")}',
