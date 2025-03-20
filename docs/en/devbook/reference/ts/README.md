@@ -1,6 +1,11 @@
-# TypeDoc API v3.2.3
+# symbol-sdk v3.2.3
 
-## Namespaces
+## Modules
 
-- [core](namespaces/core/README.md)
-- [symbol](namespaces/symbol/README.md)
+- [index](index/README.md)
+- [Bip32](Bip32/README.md)
+- [Network](Network/README.md)
+- [NetworkTimestamp](NetworkTimestamp/README.md)
+- [symbol](symbol/README.md)
+- [symbol/merkle](symbol/merkle/README.md)
+- [symbol/MessageEncoder](symbol/MessageEncoder/README.md)
