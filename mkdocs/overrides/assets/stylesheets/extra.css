@@ -61,15 +61,15 @@
 }
 
 .userbook:hover div {
-	background: url("../images/userbook-open.png") no-repeat center / contain;
+	background: url("../images/userbook-open.svg") no-repeat center / contain;
 }
 
 .devbook:hover div {
-	background: url("../images/devbook-open.png") no-repeat center / contain;
+	background: url("../images/devbook-open.svg") no-repeat center / contain;
 }
 
 .textbook:hover div {
-	background: url("../images/textbook-open.png") no-repeat center / contain;
+	background: url("../images/textbook-open.svg") no-repeat center / contain;
 }
 
 .md-typeset .grid .card {
@@ -118,21 +118,21 @@
 }
 
 .md-tabs .md-tabs__item:nth-child(2) {
-	background: url("../images/userbook.png") no-repeat;
+	background: url("../images/userbook-small.png") no-repeat;
 	background-size: 1.4rem;
 	background-position: left center;
 	filter: opacity(25%);
 }
 
 .md-tabs .md-tabs__item:nth-child(3) {
-	background: url("../images/devbook.png") no-repeat;
+	background: url("../images/devbook-small.png") no-repeat;
 	background-size: 1.4rem;
 	background-position: left center;
 	filter: opacity(25%);
 }
 
 .md-tabs .md-tabs__item:nth-child(4) {
-	background: url("../images/textbook.png") no-repeat;
+	background: url("../images/textbook-small.png") no-repeat;
 	background-size: 1.4rem;
 	background-position: left center;
 	filter: opacity(25%);
@@ -145,21 +145,21 @@
 }
 
 .md-tabs .md-tabs__item--active:nth-child(2) {
-	background: url("../images/userbook-open.png") no-repeat;
+	background: url("../images/userbook-open-small.png") no-repeat;
 	background-size: 2.4rem;
 	background-position: left center;
 	filter: none;
 }
 
 .md-tabs .md-tabs__item--active:nth-child(3) {
-	background: url("../images/devbook-open.png") no-repeat;
+	background: url("../images/devbook-open-small.png") no-repeat;
 	background-size: 2.4rem;
 	background-position: left center;
 	filter: none;
 }
 
 .md-tabs .md-tabs__item--active:nth-child(4) {
-	background: url("../images/textbook-open.png") no-repeat;
+	background: url("../images/textbook-open-small.png") no-repeat;
 	background-size: 2.4rem;
 	background-position: left center;
 	filter: none;
