@@ -4,6 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 FROM ${FROM_IMAGE}
 LABEL maintainer="Catapult Development Team"
+USER root
 RUN apt-get -y update && apt-get install -y \
 	bison \
 	gdb \
