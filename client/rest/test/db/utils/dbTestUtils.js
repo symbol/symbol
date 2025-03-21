@@ -24,7 +24,7 @@ import CatapultDb from '../../../src/db/CatapultDb.js';
 import { convertToLong } from '../../../src/db/dbUtils.js';
 import test from '../../testUtils.js';
 import MongoDb from 'mongodb';
-import { PublicKey } from 'symbol-sdk';
+import { NetworkLocator, PublicKey } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
 const { Binary, Long, ObjectId } = MongoDb;
@@ -63,7 +63,7 @@ const createImportances = count => {
 };
 
 const createAccount = (objectId, publicKey, savePublicKey, mosaics, importances) => {
-	const network = new Network(testDbOptions.networkId);
+	const network = NetworkLocator.findByIdentifier(Network.NETWORKS, testDbOptions.networkId);
 	const decoded = network.publicKeyToAddress(new PublicKey(publicKey)).bytes;
 	const account = {
 		address: new Binary(decoded),
