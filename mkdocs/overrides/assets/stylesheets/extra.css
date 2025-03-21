@@ -314,3 +314,14 @@ a:target {
 	display: inline;
 	margin: 0;
 }
+
+/* MkDocStrings extensions for Java */
+code.doc-symbol-interface,
+a code.doc-symbol-interface {
+	color: var(--doc-symbol-module-fg-color);
+	background-color: var(--doc-symbol-module-bg-color);
+}
+
+code.doc-symbol-interface::after {
+	content: "interface";
+}
