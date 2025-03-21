@@ -2,6 +2,8 @@
 	{# For Python reference docs we point to the header, because the actual
 	glossary term is hidden by the automatic-reference-term class #}
 	{% set dest_anchor = entry.term %}
+{% elif entry.section == 'TS' %}
+	{% set dest_anchor = entry.term.split('.')[-1].lower() %}
 {% else %}
 	{% set dest_anchor = entry.target %}
 {% endif %}
