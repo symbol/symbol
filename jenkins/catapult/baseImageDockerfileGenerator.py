@@ -437,11 +437,14 @@ class LinuxSystemGenerator:
 			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"',
 		])
 
-	def generate_phase_boost(self):
+	def _print_dockerfile_image_layer_header(self, layer):
 		print_lines([
-			f'FROM {self.options.layer_image_name("os")}',
+			f'FROM {self.options.layer_image_name(layer)}',
 			'USER root'
 		])
+
+	def generate_phase_boost(self):
+		self._print_dockerfile_image_layer_header("os")
 		gosu_version = self.options.versions['gosu']
 		gosu_target = '/usr/local/bin/gosu'
 		gosu_uri = f'https://github.com/tianon/gosu/releases/download/{gosu_version}'
@@ -506,10 +509,7 @@ class LinuxSystemGenerator:
 			COMPILER=compiler)
 
 	def generate_phase_deps(self):
-		print_lines([
-			f'FROM {self.options.layer_image_name("boost")}',
-			'USER root'
-		])
+		self._print_dockerfile_image_layer_header("boost")
 
 		self.add_openssl(self.options, [])
 
@@ -523,10 +523,7 @@ class LinuxSystemGenerator:
 		print(f'USER {self.system.user()}')
 
 	def generate_phase_test(self):
-		print_lines([
-			f'FROM {self.options.layer_image_name("deps")}',
-			'USER root'
-		])
+		self._print_dockerfile_image_layer_header("deps")
 
 		self.add_git_dependency('google', 'googletest', self.options.googletest())
 		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
@@ -542,10 +539,7 @@ class LinuxSystemGenerator:
 		])
 
 	def generate_phase_conan(self):
-		print_lines([
-			f'FROM {self.options.layer_image_name("os")}',
-			'USER root'
-		])
+		self._print_dockerfile_image_layer_header("os")
 
 		self.system.add_conan_packages(['python3-pip'])
 		install_pip_package(self.system.user(), 'conan')

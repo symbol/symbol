@@ -13,6 +13,6 @@ RUN apt-get -y update && apt-get install -y \
 # add ubuntu user (used by jenkins)
 # create the user for debian image
 RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
-ARG HOME_DIR=/home/catapult
+ARG HOME_DIR=/home/ubuntu
 USER ubuntu
 WORKDIR ${HOME_DIR}
