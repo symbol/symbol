@@ -4,7 +4,6 @@ ARG RELEASE_BASE_IMAGE='symbolplatform/symbol-server-build-base:ubuntu-gcc-13'
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM ${BUILD_IMAGE} AS builder
-LABEL maintainer="Catapult Development Team"
 
 WORKDIR /tmp/build
 COPY . src/

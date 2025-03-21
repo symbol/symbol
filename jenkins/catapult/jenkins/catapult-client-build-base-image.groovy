@@ -168,10 +168,10 @@ void dockerBuildAndPushLayer(String layer, String baseImageDockerfileGeneratorCo
 			"""
 
 		dockerHelper.dockerBuildAndPushImage(
-				"${env.OPERATING_SYSTEM}",
-				"${env.DOCKER_URL}",
-				"${env.DOCKER_CREDENTIALS_ID}",
-				destImageName
+			"${env.OPERATING_SYSTEM}",
+			"${env.DOCKER_URL}",
+			"${env.DOCKER_CREDENTIALS_ID}",
+			destImageName
 		)
 	}
 }

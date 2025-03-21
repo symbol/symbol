@@ -108,13 +108,19 @@ pipeline {
 
 						final String buildArg = "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} ."
 						dockerHelper.dockerBuildAndPushImage(
-								params.OPERATING_SYSTEM,
-								"${env.DOCKER_URL}",
-								"${env.DOCKER_CREDENTIALS_ID}",
-								archImageName,
-								buildArg
+							params.OPERATING_SYSTEM,
+							"${env.DOCKER_URL}",
+							"${env.DOCKER_CREDENTIALS_ID}",
+							archImageName,
+							buildArg
 						)
-						dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
+						dockerHelper.tagDockerImage(
+							"${OPERATING_SYSTEM}",
+							"${DOCKER_URL}",
+							"${DOCKER_CREDENTIALS_ID}",
+							archImageName,
+							destImageName
+						)
 					}
 				}
 			}

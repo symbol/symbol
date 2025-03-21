@@ -29,7 +29,6 @@ RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 	rm -rf linux.git
 
 # add ubuntu user (used by jenkins)
-# create the user for debian image
 RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
 ARG HOME_DIR=/home/ubuntu
 USER ubuntu
