@@ -1,3 +1,3 @@
 # Introduction
 
-Welcome to the user manual.
+Welcome to the User Manual.
