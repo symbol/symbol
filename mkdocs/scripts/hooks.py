@@ -49,9 +49,11 @@ def on_page_markdown(content, page, config, files):
 		dict = {"Class":"class", "Function":"method"}
 		nonlocal symbol_name
 		symbol_name = m.group(2)
+		# Insert zero-width spaces in camel-case titles, in case they are very long
+		symbol_name_zws = re.sub(r'([a-z])([A-Z])', r'\1&ZeroWidthSpace;\2', symbol_name)
 		if m.group(1) not in dict:
-			return f'# {m.group(1)}: {m.group(2)}'
-		return f'# <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {m.group(2)}'
+			return f'# {m.group(1)}: {symbol_name_zws}'
+		return f'# <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_zws}'
 
 	# Add object type icon at the header
 	content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, 1)
