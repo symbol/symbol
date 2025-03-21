@@ -148,7 +148,7 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	script_path = prepare_replacements['script_path']
 	process_manager.dispatch_subprocess([
 		'docker', 'run',
-		f'--user={"ContainerAdministrator" if "windows" == prepare_replacements["os"] else "root"}',
+		f'--user={prepare_replacements["user"]}',
 		f'--cidfile={cid_filepath}',
 		f'--volume={script_path}:{EnvironmentManager.root_directory("scripts")}',
 		f'--volume={OUTPUT_DIR}:{EnvironmentManager.root_directory("data")}',
@@ -240,7 +240,7 @@ def main():
 		'build_disposition': options.build_disposition,
 		'source_path': source_path,
 		'script_path': script_path,
-		"os": args.operating_system
+		'user': 'ContainerAdministrator' if 'windows' == args.operating_system else 'root'
 	})
 
 
