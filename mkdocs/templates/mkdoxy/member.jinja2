@@ -5,7 +5,7 @@ implements: True
 ---
 {% filter indent(config.get('indent_level', 0), True) %}
 
-# {{node.kind.value|title}} {{node.name_long}}
+# <code class="doc-symbol doc-symbol-heading doc-symbol-{{node.kind.value}}"></code> {{node.name_long}}
 {% if node.has_templateparams %}
 **template &lt;{{node.templateparams}}&gt;**
 {% endif %}

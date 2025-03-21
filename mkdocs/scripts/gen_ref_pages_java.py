@@ -16,10 +16,9 @@ for f in mkdocs_gen_files.editor.FilesEditor.current().files:
 		module_path = path.relative_to(".").with_suffix("")
 		doc_path = path
 
-		match = re.search(r'\n# ([^\s]*) ([^\s]*)', f.content_bytes.decode("utf-8"))
+		match = re.search(r'\n# <code .*?></code> ([^\s]*)', f.content_bytes.decode("utf-8"))
 		if match:
-			type = match.group(1)
-			title = match.group(2).replace("::", "/")
+			title = match.group(1).replace("::", "/")
 			module_path = Path(title)
 
 		parts = tuple(module_path.parts)

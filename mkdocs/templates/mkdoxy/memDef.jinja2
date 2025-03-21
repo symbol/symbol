@@ -8,7 +8,7 @@ url_source: True
 {# This template is used inside of member.py #}
 {% filter indent(config.get('indent_level', 0), True) %}
 
-### {{node.kind.value}} {{node.name_long if node.is_group else node.name_short}} {{node.overload_suffix}}
+### <code class="doc-symbol doc-symbol-heading doc-symbol-{{node.kind.value}}"></code> {{node.name_long if node.is_group else node.name_short}} {{node.overload_suffix}}
 
 {% if configMemDef.get('brief') -%}
 {% if node.has_brief -%}
