@@ -90,10 +90,21 @@ pipeline {
 									? 'mcr.microsoft.com/powershell:latest'
 									: "${params.OPERATING_SYSTEM}:${osVersion}"
 							String buildArg = "--build-arg COMPILER_VERSION=${compilerVersion} --build-arg FROM_IMAGE=${fromImage} ."
-							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								docker.build(archImageName, buildArg).push()
-							}
-							dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
+
+							dockerHelper.dockerBuildAndPushImage(
+								params.OPERATING_SYSTEM,
+								"${env.DOCKER_URL}",
+								"${env.DOCKER_CREDENTIALS_ID}",
+								archImageName,
+								buildArg
+							)
+							dockerHelper.tagDockerImage(
+								"${OPERATING_SYSTEM}",
+								"${DOCKER_URL}",
+								"${DOCKER_CREDENTIALS_ID}",
+								archImageName,
+								destImageName
+							)
 						}
 					}
 				}

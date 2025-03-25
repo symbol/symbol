@@ -15,3 +15,10 @@ RUN apt-get update >/dev/null && \
 	gcc g++ \
 	>/dev/null && \
 	rm -rf /var/lib/apt/lists/*
+
+# add ubuntu user (used by jenkins)
+ARG HOME_DIR=/home/ubuntu
+RUN groupadd -g 1000 ubuntu && \
+	useradd -m -u 1000 -g ubuntu -d ${HOME_DIR} ubuntu
+USER ubuntu
+WORKDIR ${HOME_DIR}

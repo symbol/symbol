@@ -1,9 +1,10 @@
 # image name required as ARG
-ARG FROM_IMAGE=''
+ARG FROM_IMAGE='ubuntu:24.04'
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM ${FROM_IMAGE}
 LABEL maintainer="Catapult Development Team"
+USER root
 RUN apt-get -y update && apt-get install -y \
 	bison \
 	gdb \
@@ -23,12 +24,11 @@ RUN apt-get -y update && apt-get install -y \
 
 # add ubuntu user (used by jenkins)
 RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
+ARG HOME_DIR=/home/ubuntu
 USER ubuntu
-WORKDIR /home/ubuntu
-ENV VIRTUAL_ENV=/home/ubuntu/venv
+WORKDIR ${HOME_DIR}
+ENV VIRTUAL_ENV=${HOME_DIR}/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN pip3 install -U colorama conan cryptography gitpython pycodestyle pylint ply PyYAML
-
-USER root
