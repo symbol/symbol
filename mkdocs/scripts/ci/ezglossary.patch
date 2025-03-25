@@ -3,11 +3,11 @@ index 816a87f..f766f9f 100644
 --- a/src/mkdocs_ezglossary_plugin/plugin.py
 +++ b/src/mkdocs_ezglossary_plugin/plugin.py
 @@ -234,6 +234,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
-                 sec = f"{td.section}:" if td.section != "_" else ""
-                 return f'<a href="{sec}{term}">{text}</a>'
-                 
+				sec = f"{td.section}:" if td.section != "_" else ""
+				return f'<a href="{sec}{term}">{text}</a>'
+
 +            entry.definition = re.sub(r'<([a-z-_]*):>', r'\1', entry.definition)
 +
-             entry.definition = _html2text(entry.definition)
-             
-             return template.render("link.html",
+			entry.definition = _html2text(entry.definition)
+
+			return template.render("link.html",
