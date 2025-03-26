@@ -61,4 +61,5 @@ nav:
           - Symbol REST API: devbook/reference/rest/symbol.md
   - Textbook:
       - textbook/intro.md
+      - textbook/cryptography.md
       - textbook/glossary.md
