@@ -330,3 +330,9 @@ a code.doc-symbol-interface {
 code.doc-symbol-interface::after {
 	content: "interface";
 }
+
+/* Reset admonition text size to normal */
+.md-typeset .admonition,
+.md-typeset details {
+	font-size: inherit;
+}
