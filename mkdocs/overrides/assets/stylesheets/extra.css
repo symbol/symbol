@@ -253,6 +253,11 @@ aside.md-source-file {
 	color: var(--textbook-color);
 }
 
+/* Anchors (links without href target) have no color */
+.md-content a:not([href]) {
+	color: var(--md-default-fg-color);
+}
+
 /* Tooltips */
 .md-tooltip__inner,
 [role=tooltip]>.md-tooltip2__inner {
