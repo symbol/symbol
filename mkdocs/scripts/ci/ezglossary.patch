@@ -6,7 +6,8 @@ index 816a87f..f766f9f 100644
 				sec = f"{td.section}:" if td.section != "_" else ""
 				return f'<a href="{sec}{term}">{text}</a>'
 
-+            entry.definition = re.sub(r'<([a-z-_]*):>', r'\1', entry.definition)
++            entry.definition = re.sub(r'<([^:]*):>', r'\1', entry.definition)
++            entry.definition = re.sub(r'<[^:]*:\|([^>]*)>', r'\1', entry.definition)
 +
 			entry.definition = _html2text(entry.definition)
 
