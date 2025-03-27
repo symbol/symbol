@@ -253,6 +253,11 @@ aside.md-source-file {
 	color: var(--textbook-color);
 }
 
+/* Anchors (links without href target) have no color */
+.md-content a:not([href]) {
+	color: var(--md-default-fg-color);
+}
+
 /* Tooltips */
 .md-tooltip__inner,
 [role=tooltip]>.md-tooltip2__inner {
@@ -282,8 +287,22 @@ aside.md-source-file {
 }
 
 /* Glossaries */
-a:target {
+dl:not(.automatic-reference-term) {
+	border: 1px solid var(--md-primary-fg-color);
+	border-radius: 4px;
+}
+
+dt {
 	background-color: var(--md-accent-fg-color--transparent);
+	padding: 8px;
+}
+
+dd {
+	margin-right: 1.875em;
+}
+
+dt:has(a:target) {
+	background-color: var(--md-primary-fg-color--light);
 	display: block;
 }
 
@@ -313,4 +332,21 @@ a:target {
 #extended-by+ul li, #extends+ul li {
 	display: inline;
 	margin: 0;
+}
+
+/* MkDocStrings extensions for Java */
+code.doc-symbol-interface,
+a code.doc-symbol-interface {
+	color: var(--doc-symbol-module-fg-color);
+	background-color: var(--doc-symbol-module-bg-color);
+}
+
+code.doc-symbol-interface::after {
+	content: "interface";
+}
+
+/* Reset admonition text size to normal */
+.md-typeset .admonition,
+.md-typeset details {
+	font-size: inherit;
 }
