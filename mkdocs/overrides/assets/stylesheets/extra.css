@@ -287,8 +287,22 @@ aside.md-source-file {
 }
 
 /* Glossaries */
-a:target {
+dl:not(.automatic-reference-term) {
+	border: 1px solid var(--md-primary-fg-color);
+	border-radius: 4px;
+}
+
+dt {
 	background-color: var(--md-accent-fg-color--transparent);
+	padding: 8px;
+}
+
+dd {
+	margin-right: 1.875em;
+}
+
+dt:has(a:target) {
+	background-color: var(--md-primary-fg-color--light);
 	display: block;
 }
 
