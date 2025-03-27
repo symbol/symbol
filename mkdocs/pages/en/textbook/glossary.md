@@ -13,7 +13,7 @@ APR
 :   Annual Percentage Rate.
 
 Arbitrage
-:   When a trader purchases an asset in one place and sells it in another place to profit from a deviation in natural prices between markets.
+:   When a trader purchases an asset in a market and sells it in a different one, to profit from a deviation in prices between markets.
 
 Backrunning
 :   To broadcast ``transactionA`` with slightly lower gas (or fees) than an already pending ``transactionB`` so that ``transactionA`` gets mined *right after* ``transactionB`` in the same block.
@@ -40,7 +40,7 @@ CSD
 :   Central Securities Deposit.
 
 DAO
-:   Decentralized Autonomous Organization.
+:   Decentralized Autonomous Organization. An organization whose governance happens completely on a blockchain.
 
 Dapp
 :   Decentralized Application. An application that runs on a blockchain instead of a single computer.
@@ -96,7 +96,7 @@ IRS
 :   Internal Revenue Service. Who you pay your taxes to if you live in the United States or are an American citizen.
 
 KYC
-:   Know Your Customer.
+:   Know Your Customer. Related to <AML:>.
 
 LATAM
 :   Latin America (Central and South America).
@@ -112,7 +112,9 @@ NEM
 :   The New Economy Movement.
 
 NFT
-:   A non-fungible token, a way to represent anything as a blockchain-based asset.
+:   A non-fungible <token:>, a way to represent individual entities as a blockchain-based asset.
+    Coins are fungible, because they are all worth the same and can therefore be interchanged.
+    Paintings are non-fungible, because each one is unique and therefore non-interchangeable.
 
 NIS1
 :   The first version of <NEM:>'s blockchain node that operates the public mainnet with the native currency <XEM:>.
