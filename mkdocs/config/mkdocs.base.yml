@@ -9,7 +9,14 @@ plugins:
     use_default: true
     inline_refs: none
     markdown_links: true
-    tooltip: full
+    tooltip: short
+    ignore_case: true
+    strict: true
+    sections:
+      - Python
+      - TS
+      - Java
+      - _
   mkdoxy:  # Generate API reference docs for Java
     save-api: .doxy
     projects:

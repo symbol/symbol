@@ -33,7 +33,7 @@ def on_pre_build(config: base.Config):
 	spec_path = Path(__file__).parent.parent.parent.joinpath("openapi").resolve()
 	md_path = Path(config.docs_dir).joinpath("devbook", "reference", "rest").resolve()
 	for f in ['openapi-symbol.yml']:
-		shutil.copyfile(spec_path / f, md_path / f)
+		shutil.copy2(spec_path / f, md_path / f)
 
 @mkdocs.plugins.event_priority(0)
 def on_page_markdown(content, page, config, files):
