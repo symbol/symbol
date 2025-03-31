@@ -40,6 +40,9 @@ RUN apt-get install -y libssl-dev pkg-config \
 # there is no aarch64 build of binaryen -  https://github.com/WebAssembly/binaryen/issues/5337
 	&& if [ "$(uname -m)" = "aarch64" ]; then apt-get install -y binaryen; fi
 
+# install node-canvas dependencies - https://github.com/Automattic/node-canvas/wiki/Installation:-Ubuntu-and-other-Debian-based-systems
+RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+
 # codecov uploader
 RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
 	&& curl -Os "https://uploader.codecov.io/latest/${ARCH}/codecov" \
