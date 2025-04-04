@@ -101,19 +101,20 @@ void pythonPublisher(Map config, String phase) {
 	if (config.publisher != 'pypi') {
 		return
 	}
-
+	
 	if (shouldPublishToInternalRepository(phase, config)) {
 		final String ownerName = helper.resolveOrganizationName()
 		withCredentials([usernamePassword(credentialsId: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID",
 			usernameVariable: 'USERNAME',
-			passwordVariable: 'PASSWORD')]) {
-			publishArtifact {
-				final String artifactRepositoryName = resolveArtifactRepositoryName('pypi-hosted', config.isPublicGitHubRepo)
-				String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName)
+			passwordVariable: 'PYPI_TOKEN')]) {
+			final String artifactRepositoryName = resolveArtifactRepositoryName('pypi-hosted', config.isPublicGitHubRepo)
+			String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName)
+			env.PYPI_URL = publishUrl
 
+			publishArtifact {
 				poetryBuildPackage()
 				runScript("poetry config repositories.internal ${publishUrl}")
-				runScript('poetry config http-basic.internal $USERNAME $PASSWORD')
+				runScript('poetry config http-basic.internal $USERNAME $PYPI_TOKEN')
 				runScript('poetry publish --repository internal')
 			}
 		}
