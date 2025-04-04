@@ -58,6 +58,11 @@ flags:
       - client/rest
     carryforward: true
 
+  mkdocs:
+    paths:
+      - mkdocs
+    carryforward: true
+
   sdk-javascript:
     paths:
       - sdk/javascript

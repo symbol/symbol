@@ -1,0 +1,719 @@
+openapi: 3.0.0
+info:
+  title: NEM NIS API
+  description: "Version 1.19\r\n\r\n19:27, March 20, 2017 \r\n\r\nhttp://bob.nem.ninja/docs/"
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:7890
+  - url: http://bigalice3.nem.ninja:7890
+paths:
+  /heartbeat:
+    get:
+      tags:
+        - default
+      summary: Heart beat
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /status:
+    get:
+      tags:
+        - default
+      summary: Status
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/generate:
+    get:
+      tags:
+        - default
+      summary: Retrieving account data
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/get:
+    get:
+      tags:
+        - default
+      summary: Requesting the account data
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: 'NAPWGNSU24MHS5QZ6E5ZO4VH3V3LWR7AKRHUZQKH '
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/get/from-public-key:
+    get:
+      tags:
+        - default
+      summary: Requesting the account data (public key)
+      parameters:
+        - name: publicKey
+          in: query
+          schema:
+            type: string
+          example: '0faf7cb9db726cac69b86ec1543fb4b50c7fa84ffc45bab9d5b63c9af54e0f15 '
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/get/forwarded:
+    get:
+      tags:
+        - default
+      summary: Requesting the original account data for a delegate account
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: NC2ZQKEFQIL3JZEOB2OZPWXWPOR6LKYHIROCR7PK
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/get/forwarded/from-public-key:
+    get:
+      tags:
+        - default
+      summary: Requesting the original account data for a delegate account (Public key)
+      parameters:
+        - name: publicKey
+          in: query
+          schema:
+            type: string
+          example: bdd8dd702acb3d88daf188be8d6d9c54b3a29a32561a068b25d2261b2b2b7f02
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/status:
+    get:
+      tags:
+        - default
+      summary: Requesting the account status
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TALICELCD3XPH4FFI5STGGNSNSWPOTG5E4DS2TOS
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/transfers/incoming:
+    get:
+      tags:
+        - default
+      summary: Requesting transaction data for an account (Incoming)
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TALICELCD3XPH4FFI5STGGNSNSWPOTG5E4DS2TOS
+        - name: hash
+          in: query
+          schema:
+            type: string
+          example: 949583a20ebdfdcb58277eb42fef3e66e9e6bbfc47304d8741a82c68f7c53a2
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/transfers/outgoing:
+    get:
+      tags:
+        - default
+      summary: Requesting transaction data for an account (Outgoing)
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TALICELCD3XPH4FFI5STGGNSNSWPOTG5E4DS2TOS
+        - name: hash
+          in: query
+          schema:
+            type: string
+          example: 949583a20ebdfdcb58277eb42fef3e66e9e6bbfc47304d8741a82c68f7c53a22
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/transfers/all:
+    get:
+      tags:
+        - default
+      summary: Requesting transaction data for an account (All)
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TALICELCD3XPH4FFI5STGGNSNSWPOTG5E4DS2TOS
+        - name: hash
+          in: query
+          schema:
+            type: string
+          example: 949583a20ebdfdcb58277eb42fef3e66e9e6bbfc47304d8741a82c68f7c53a22
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/unconfirmedTransactions:
+    get:
+      tags:
+        - default
+      summary: Unconfirmed transactions
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TALICELCD3XPH4FFI5STGGNSNSWPOTG5E4DS2TOS
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/harvests:
+    get:
+      tags:
+        - default
+      summary: Requesting harvest info data for an account
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TALICELCD3XPH4FFI5STGGNSNSWPOTG5E4DS2TOS
+        - name: hash
+          in: query
+          schema:
+            type: string
+          example: 81d52a7df4abba8bb1613bcc42b6b93cf3114524939035d88ae8e864cd2c34c8
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/importances:
+    get:
+      tags:
+        - default
+      summary: Retrieving account importances for accounts
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/namespace/page:
+    get:
+      tags:
+        - default
+      summary: Retrieving namespaces that an account owns
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH
+        - name: parent
+          in: query
+          schema:
+            type: string
+          example: makoto.metal
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/mosaic/definition/page:
+    get:
+      tags:
+        - default
+      summary: Retrieving mosaic definitions that an account has created
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH
+        - name: parent
+          in: query
+          schema:
+            type: string
+          example: makoto.metal.coins
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/mosaic/owned:
+    get:
+      tags:
+        - default
+      summary: Retrieving mosaics that an account owns
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /chain/height:
+    get:
+      tags:
+        - default
+      summary: Block chain height
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /chain/score:
+    get:
+      tags:
+        - default
+      summary: Block chain score
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /chain/last-block:
+    get:
+      tags:
+        - default
+      summary: Last block of the block chain score
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /block/get:
+    get:
+      tags:
+        - default
+      summary: Getting a block with a given hash
+      parameters:
+        - name: blockHash
+          in: query
+          schema:
+            type: string
+          example: 58efa578aea719b644e8d7c731852bb26d8505257e03a897c8102e8c894a99d6
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/info:
+    get:
+      tags:
+        - default
+      summary: Basic node information
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/extended-info:
+    get:
+      tags:
+        - default
+      summary: Extended node information
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/peer-list/all:
+    get:
+      tags:
+        - default
+      summary: Complete neighborhood
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/peer-list/reachable:
+    get:
+      tags:
+        - default
+      summary: Reachable neighborhood
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/peer-list/active:
+    get:
+      tags:
+        - default
+      summary: Active neighborhood
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/active-peers/max-chain-height:
+    get:
+      tags:
+        - default
+      summary: Maximum chain height in the active neighborhood
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/experiences:
+    get:
+      tags:
+        - default
+      summary: Requesting node experiences
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /namespace/roots:
+    get:
+      tags:
+        - default
+      summary: Retrieving root namespaces
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: integer
+          example: '26754'
+        - name: pageSize;
+          in: query
+          schema:
+            type: integer
+          example: '35'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /namespace:
+    get:
+      tags:
+        - default
+      summary: Retrieving a specific namespace
+      parameters:
+        - name: namespace
+          in: query
+          schema:
+            type: string
+          example: makoto.metal.coins
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /namespace/mosaic/definition/page:
+    get:
+      tags:
+        - default
+      summary: Retrieving mosaic definitions
+      parameters:
+        - name: namespace
+          in: query
+          schema:
+            type: string
+          example: makoto.metal.coins
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /debug/time-synchronization:
+    get:
+      tags:
+        - default
+      summary: Monitoring the network time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /debug/connections/incoming:
+    get:
+      tags:
+        - default
+      summary: Monitoring incoming calls
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /debug/connections/outgoing:
+    get:
+      tags:
+        - default
+      summary: Monitoring outgoing calls
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /debug/timers:
+    get:
+      tags:
+        - default
+      summary: Monitoring timers
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/historical/get:
+    get:
+      tags:
+        - default
+      summary: Retrieving historical account data
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+          example: NALICELGU3IVY4DPJKHYLSSVYFFWYS5QPLYEZDJJ
+        - name: startHeight
+          in: query
+          schema:
+            type: integer
+          example: '17592'
+        - name: endHeight
+          in: query
+          schema:
+            type: integer
+          example: '17592'
+        - name: increment
+          in: query
+          schema:
+            type: integer
+          example: '1'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /local/account/transfers/incoming:
+    post:
+      tags:
+        - default
+      summary: Incoming transactions with decoded messages
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /local/account/transfers/outgoing:
+    post:
+      tags:
+        - default
+      summary: Outgoing transactions with decoded messages
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /local/account/transfers/all:
+    post:
+      tags:
+        - default
+      summary: All transactions with decoded messages
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/unlock:
+    post:
+      tags:
+        - default
+      summary: Unlocking the account (enables harvesting)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                privateKey:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/lock:
+    post:
+      tags:
+        - default
+      summary: Locking the account (stops harvesting)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                privateKey:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /account/unlocked/info:
+    post:
+      tags:
+        - default
+      summary: Retrieving the unlock info
+      requestBody:
+        content: {}
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /block/at/public:
+    post:
+      tags:
+        - default
+      summary: Getting a block with a given height
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                'blockHeight ':
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /local/chain/blocks-after:
+    post:
+      tags:
+        - default
+      summary: Getting part of a chain
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                blockHeight:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /node/boot:
+    post:
+      tags:
+        - default
+      summary: Booting the local node
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                bootNodeRequest:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /transaction/prepare-announce:
+    post:
+      tags:
+        - default
+      summary: Initiating a transaction
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                requestPrepareAnnounce:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /transaction/announce:
+    post:
+      tags:
+        - default
+      summary: Sending the data to NIS
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                requestAnnounce:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

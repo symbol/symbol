@@ -1,0 +1,9 @@
+{% extends "_base/attribute.html.jinja" %}
+
+{% block docstring scoped %}
+	<dl class="automatic-reference-term"><dt>Python:{{ html_id  }}</dt><dd>
+	{% with docstring_sections = attribute.docstring.parsed %}
+		{% include "docstring"|get_template with context %}
+	{% endwith %}
+	</dd></dl>
+{% endblock docstring %}
