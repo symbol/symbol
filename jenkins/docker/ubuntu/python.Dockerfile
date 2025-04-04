@@ -58,4 +58,4 @@ RUN python3 -m pip install poetry gitlint wheel setuptools
 
 # install common python packages
 RUN python3 -m pip install --upgrade aiohttp colorama coverage cryptography Jinja2 lark ply Pillow pynacl pytest PyYAML pyzbar requests \
-	ripemd-hash safe-pysha3 websockets zenlog
+	ripemd-hash safe-pysha3 twine websockets zenlog
