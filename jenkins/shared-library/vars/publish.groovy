@@ -101,7 +101,7 @@ void pythonPublisher(Map config, String phase) {
 	if (config.publisher != 'pypi') {
 		return
 	}
-	
+
 	if (shouldPublishToInternalRepository(phase, config)) {
 		final String ownerName = helper.resolveOrganizationName()
 		withCredentials([usernamePassword(credentialsId: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID",
