@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "TransactionConsumers.h"
 #include "ConsumerResultFactory.h"
+#include "TransactionConsumers.h"
 
 namespace catapult { namespace consumers {
 
