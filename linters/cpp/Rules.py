@@ -76,9 +76,6 @@ class DefaultRules:
 	@staticmethod
 	def first_test_include_check(sorted_includes, path_elements):
 		full_path = '/'.join(path_elements)
-		if 'test' not in path_elements:
-			if any(subdir in path_elements for subdir in ['int', 'bench', 'stress']):
-				return sorted_includes[0].include
 
 		if path_elements[0] != 'tests':
 			return '<first_test_include_check called on non test path>' + full_path
@@ -88,6 +85,10 @@ class DefaultRules:
 			if include_path[0] == '<':
 				return include_path
 			return '"{}"'.format(include_path)
+
+		if 'test' not in path_elements:
+			if any(subdir in path_elements for subdir in ['int', 'bench', 'stress']):
+				return sorted_includes[0].include
 
 		if path_elements[-1].endswith('Tests.cpp'):
 			include_dir = '/'.join(path_elements[1:-1])
@@ -146,10 +147,15 @@ class PluginRules:
 
 	@staticmethod
 	def first_include_check(sorted_includes, path_elements):
-		del sorted_includes
+		filename_derived_header = '"{}.h"'.format(path_elements[-1][:-4])
+
 		full_path = '/'.join(path_elements)
 		if full_path in PLUGINS_FIRSTINCLUDES:
 			return '"{}"'.format(PLUGINS_FIRSTINCLUDES[full_path])
+
+		for sorted_include in sorted_includes:
+			if filename_derived_header == sorted_include.include:
+				return filename_derived_header
 
 		if 'validators' in path_elements:
 			return '"Validators.h"'
@@ -157,7 +163,7 @@ class PluginRules:
 		if 'observers' in path_elements:
 			return '"Observers.h"'
 
-		return '"{}.h"'.format(path_elements[-1][:-4])
+		return sorted_includes[0].include
 
 	@staticmethod
 	def first_test_include_check(sorted_includes, path_elements):
@@ -266,9 +272,6 @@ class ExtensionRules:
 			plugin_name = path_elements[-1][5:-10]
 			return '"{}Mapper.h"'.format(plugin_name)
 
-		if 'filters' in path_elements and 'timesync' in path_elements:
-			return '"SynchronizationFilters.h"'
-
 		return '"{}.h"'.format(path_elements[-1][:-4])
 
 	@staticmethod
@@ -290,9 +293,6 @@ class ExtensionRules:
 
 		if path_elements[-1].startswith('Mongo') and path_elements[-1].endswith('PluginTests.cpp'):
 			return '"mongo/tests/test/MongoPluginTestUtils.h"'
-
-		if 'filters' in path_elements and 'timesync' in path_elements:
-			return '"timesync/src/filters/SynchronizationFilters.h"'
 
 		tests_id = path_elements.index('tests')
 		if 'int' in path_elements and path_elements.index('int') == tests_id + 1:

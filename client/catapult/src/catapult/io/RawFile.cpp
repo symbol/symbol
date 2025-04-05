@@ -28,8 +28,8 @@
 #include <sys/types.h>
 
 #ifdef _MSC_VER
-#include <io.h>
 #include <windows.h>
+#include <io.h>
 #else
 #include <unistd.h>
 #include <sys/file.h>

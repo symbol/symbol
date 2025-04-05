@@ -116,7 +116,17 @@ def check_cpp_include(inc_a, inc_b):
 
 
 INCLUDE_PRIORITIES_1LVL = {
-	'"src': 100, '"mongo': 125, '"zeromq': 125, '"plugins': 150, '"catapult': 200, '"symbol': 200, '"tests': 500, '"test': 500
+	'"src': 100,
+	# note: 'finalization/' is not a proper prefix, it's a hack so that includes in FinalizationExtension.cpp,
+	# are properly sorted
+	'"finalization': 124,
+	'"mongo': 125,
+	'"zeromq': 125,
+	'"plugins': 150,
+	'"catapult': 200,
+	'"symbol': 200,
+	'"tests': 500,
+	'"test': 500
 }
 
 INCLUDE_PRIORITIES_2LVL = {'extended': -100, 'txes': -50}
@@ -195,7 +205,10 @@ class SortableInclude(HeaderParser.Include):
 			if result is not None:
 				return result
 		else:
-			pass
+			if path_a[0] == path_b[0]:
+				result = check_include_depth(path_a, path_b)
+				if result is not None:
+					return result
 
 		return path_a < path_b
 
@@ -214,7 +227,7 @@ class SortableInclude(HeaderParser.Include):
 			other_c_header = other.include.endswith('.h>') and not is_cpp_include(other.include)
 			if self_c_header and not other_c_header:
 				return False
-			if (self_c_header and other_c_header) or not (self_c_header or other_c_header):
+			if (self_c_header and other_c_header) or (not self_c_header and not other_c_header):
 				return self.compare_paths(other)
 			return True
 

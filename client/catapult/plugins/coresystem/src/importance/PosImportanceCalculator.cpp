@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ImportanceCalculator.h"
 #include "CalculatorUtils.h"
+#include "ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/HeightGrouping.h"

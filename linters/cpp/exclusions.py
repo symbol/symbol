@@ -93,7 +93,7 @@ CORE_FIRSTINCLUDES = {
 	'src/catapult/consumers/HashCalculatorConsumer.cpp': 'BlockConsumers.h',
 	'src/catapult/consumers/HashCheckConsumer.cpp': 'BlockConsumers.h',
 	'src/catapult/consumers/NewBlockConsumer.cpp': 'BlockConsumers.h',
-	'src/catapult/consumers/NewTransactionsConsumer.cpp': 'TransactionConsumers.h',
+	'src/catapult/consumers/NewTransactionsConsumer.cpp': 'ConsumerResultFactory.h',
 	'src/catapult/consumers/StatelessValidationConsumer.cpp': 'BlockConsumers.h',
 
 	'src/catapult/ionet/IoEnums.cpp': 'ConnectResult.h',
@@ -109,9 +109,9 @@ CORE_FIRSTINCLUDES = {
 
 	'tests/catapult/consumers/BatchSignatureConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
 	'tests/catapult/consumers/BlockchainCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/BlockchainSyncCleanupConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/BlockchainSyncConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/HashCalculatorConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
+	'tests/catapult/consumers/BlockchainSyncCleanupConsumerTests.cpp': 'catapult/config/CatapultDataDirectory.h',
+	'tests/catapult/consumers/BlockchainSyncConsumerTests.cpp': 'catapult/cache_core/AccountStateCache.h',
+	'tests/catapult/consumers/HashCalculatorConsumerTests.cpp': 'sdk/src/extensions/BlockExtensions.h',
 	'tests/catapult/consumers/HashCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
 	'tests/catapult/consumers/NewBlockConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
 	'tests/catapult/consumers/NewTransactionsConsumerTests.cpp': 'catapult/consumers/TransactionConsumers.h',
@@ -129,25 +129,73 @@ CORE_FIRSTINCLUDES = {
 	'tests/catapult/utils/CountOfTests.cpp': 'catapult/types.h',
 	'tests/catapult/utils/MacroBasedEnumTests.cpp': 'catapult/utils/MacroBasedEnumIncludes.h',
 	'tests/catapult/utils/TraitsTests.cpp': 'catapult/utils/traits/Traits.h',
-	'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h'
+	'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h',
+
+	'tests/int/node/basic/LocalNodeBasicTests.cpp': 'tests/int/node/test/LocalNodeBasicTests.h',
+	'tests/int/stress/NemesisBlockLoaderIntegrityTests.cpp': 'catapult/extensions/NemesisBlockLoader.h',
+	'tests/int/stress/UtUpdaterIntegrityTests.cpp': 'catapult/chain/UtUpdater.h'
 }
 
 PLUGINS_FIRSTINCLUDES = {
 	# plugins
-	'plugins/coresystem/src/importance/PosImportanceCalculator.cpp': 'ImportanceCalculator.h',
-	'plugins/coresystem/src/importance/RestoreImportanceCalculator.cpp': 'ImportanceCalculator.h',
+	'plugins/txes/mosaic/src/validators/ActiveMosaicView.cpp': 'ActiveMosaicView.h',
+	'plugins/txes/restriction_account/src/validators/AccountRestrictionView.cpp': 'AccountRestrictionView.h',
+
 	'plugins/coresystem/src/validators/KeyLinkActionValidator.cpp': 'KeyLinkValidators.h',
 	'plugins/coresystem/src/validators/VotingKeyLinkRangeValidator.cpp': 'KeyLinkValidators.h',
-
 	'plugins/coresystem/tests/importance/PosImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
 	'plugins/coresystem/tests/importance/RestoreImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
+	'plugins/coresystem/tests/observers/RecalculateImportancesObserverTests.cpp': 'src/importance/ImportanceCalculator.h',
 	'plugins/coresystem/tests/validators/KeyLinkActionValidatorTests.cpp': 'src/validators/KeyLinkValidators.h',
 	'plugins/coresystem/tests/validators/VotingKeyLinkRangeValidatorTests.cpp': 'src/validators/KeyLinkValidators.h',
 
-	'plugins/txes/metadata/tests/model/MetadataTransactionTests.cpp': 'src/model/AccountMetadataTransaction.h',
+	'plugins/coresystem/tests/validators/ZeroAccountValidatorTests.cpp': 'sdk/src/extensions/ConversionExtensions.h',
 
+	'plugins/services/hashcache/tests/observers/TransactionHashObserverTests.cpp': 'src/cache/HashCache.h',
+	'plugins/services/hashcache/tests/validators/UniqueTransactionHashValidatorTests.cpp': 'src/cache/HashCache.h',
+
+	'plugins/txes/account_link/tests/validators/RemoteInteractionValidatorTests.cpp': 'src/model/AccountKeyLinkTransaction.h',
+	'plugins/txes/aggregate/tests/validators/AggregateTransactionVersionValidatorTests.cpp': 'src/model/AggregateEntityType.h',
+	'plugins/txes/lock_hash/tests/observers/CompletedAggregateObserverTests.cpp': 'src/model/HashLockReceiptType.h',
+	'plugins/txes/lock_hash/tests/observers/ExpiredHashLockInfoObserverTests.cpp': 'src/model/HashLockReceiptType.h',
+	'plugins/txes/lock_hash/tests/observers/HashLockObserverTests.cpp': 'src/model/HashLockReceiptType.h',
+	'plugins/txes/lock_hash/tests/validators/HashLockCacheUniqueValidatorTests.cpp':
+		'plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h',
+	'plugins/txes/lock_hash/tests/validators/HashLockDurationValidatorTests.cpp': 'src/state/HashLockInfo.h',
+
+	'plugins/txes/lock_secret/tests/observers/ExpiredSecretLockInfoObserverTests.cpp': 'src/model/SecretLockReceiptType.h',
+	'plugins/txes/lock_secret/tests/observers/ProofObserverTests.cpp': 'src/model/SecretLockReceiptType.h',
+	'plugins/txes/lock_secret/tests/observers/SecretLockObserverTests.cpp': 'src/model/SecretLockReceiptType.h',
+	'plugins/txes/lock_secret/tests/validators/ProofSecretValidatorTests.cpp': 'src/model/LockHashUtils.h',
+	'plugins/txes/lock_secret/tests/validators/SecretLockCacheUniqueValidatorTests.cpp':
+		'plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h',
+	'plugins/txes/lock_secret/tests/validators/SecretLockDurationValidatorTests.cpp': 'src/state/SecretLockInfo.h',
+
+	'plugins/txes/metadata/tests/model/MetadataTransactionTests.cpp': 'src/model/AccountMetadataTransaction.h',
+	'plugins/txes/mosaic/tests/observers/MosaicDefinitionObserverTests.cpp': 'src/cache/MosaicCache.h',
+	'plugins/txes/mosaic/tests/validators/ActiveMosaicViewTests.cpp': 'src/validators/ActiveMosaicView.h',
+	'plugins/txes/mosaic/tests/validators/MosaicAvailabilityValidatorTests.cpp': 'src/cache/MosaicCache.h',
+	'plugins/txes/mosaic/tests/validators/MosaicDurationValidatorTests.cpp': 'src/cache/MosaicCache.h',
+	'plugins/txes/mosaic/tests/validators/MosaicIdValidatorTests.cpp': 'src/model/MosaicIdGenerator.h',
+	'plugins/txes/multisig/tests/validators/MultisigAggregateEligibleCosignatoriesValidatorTests.cpp':
+		'src/plugins/MultisigAccountModificationTransactionPlugin.h',
+	'plugins/txes/multisig/tests/validators/MultisigAggregateSufficientCosignatoriesValidatorTests.cpp':
+		'src/plugins/MultisigAccountModificationTransactionPlugin.h',
+	'plugins/txes/multisig/tests/validators/MultisigInvalidCosignatoriesValidatorTests.cpp': 'src/cache/MultisigCache.h',
+	'plugins/txes/multisig/tests/validators/MultisigInvalidSettingsValidatorTests.cpp': 'src/cache/MultisigCache.h',
+	'plugins/txes/namespace/tests/validators/NamespaceAvailabilityValidatorTests.cpp': 'src/cache/NamespaceCache.h',
+	'plugins/txes/namespace/tests/validators/NamespaceDurationOverflowValidatorTests.cpp': 'src/model/NamespaceConstants.h',
+	'plugins/txes/namespace/tests/validators/NamespaceNameValidatorTests.cpp': 'src/model/NamespaceIdGenerator.h',
+	'plugins/txes/namespace/tests/validators/RootNamespaceMaxChildrenValidatorTests.cpp': 'src/cache/NamespaceCache.h',
 	'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp':
 		'src/model/AccountAddressRestrictionTransaction.h',
+	'plugins/txes/restriction_account/tests/validators/AccountOperationRestrictionNoSelfBlockingValidatorTests.cpp':
+		'src/model/AccountOperationRestrictionTransaction.h',
+	'plugins/txes/restriction_account/tests/validators/AccountRestrictionValueModificationValidatorTests.cpp':
+		'sdk/src/extensions/ConversionExtensions.h',
+	'plugins/txes/restriction_account/tests/validators/AccountRestrictionViewTests.cpp': 'src/validators/AccountRestrictionView.h',
+	'plugins/txes/restriction_account/tests/validators/MaxAccountRestrictionValuesValidatorTests.cpp':
+		'sdk/src/extensions/ConversionExtensions.h',
 
 	# sdk
 	'sdk/tests/builders/AliasBuilderTests.cpp': 'src/builders/AddressAliasBuilder.h',
@@ -157,7 +205,6 @@ PLUGINS_FIRSTINCLUDES = {
 }
 
 TOOLS_FIRSTINCLUDES = {
-	'tools/health/main.cpp': 'ApiNodeHealthUtils.h'
 }
 
 EXTENSION_FIRSTINCLUDES = {
@@ -165,7 +212,15 @@ EXTENSION_FIRSTINCLUDES = {
 	'extensions/mongo/plugins/mosaic/src/MongoMosaicPlugin.cpp': 'MosaicDefinitionMapper.h',
 	'extensions/mongo/plugins/multisig/src/MongoMultisigPlugin.cpp': 'MultisigAccountModificationMapper.h',
 	'extensions/mongo/plugins/namespace/src/MongoNamespacePlugin.cpp': 'AddressAliasMapper.h',
-	'extensions/mongo/plugins/restriction_mosaic/src/MongoMosaicRestrictionPlugin.cpp': 'MosaicAddressRestrictionMapper.h'
+	'extensions/mongo/plugins/restriction_mosaic/src/MongoMosaicRestrictionPlugin.cpp': 'MosaicAddressRestrictionMapper.h',
+
+	'extensions/timesync/src/filters/ClampingFilter.cpp': 'SynchronizationFilters.h',
+	'extensions/timesync/src/filters/ResponseDelayDetectionFilter.cpp': 'SynchronizationFilters.h',
+	'extensions/timesync/src/filters/ReversedTimestampsFilter.cpp': 'SynchronizationFilters.h',
+
+	'extensions/timesync/tests/filters/ClampingFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h',
+	'extensions/timesync/tests/filters/ResponseDelayDetectionFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h',
+	'extensions/timesync/tests/filters/ReversedTimestampsFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h'
 }
 
 SKIP_FORWARDS = (

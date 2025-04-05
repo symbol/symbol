@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "src/validators/Validators.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

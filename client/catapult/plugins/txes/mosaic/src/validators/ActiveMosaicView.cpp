@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
 #include "ActiveMosaicView.h"
+#include "Validators.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 
 namespace catapult { namespace validators {
