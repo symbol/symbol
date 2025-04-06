@@ -2,7 +2,7 @@
 title: Welcome
 ---
 
-# Welcome to the textbook
+# Welcome to the Textbook
 
 This book explains the concepts that power the Symbol blockchain.
 
