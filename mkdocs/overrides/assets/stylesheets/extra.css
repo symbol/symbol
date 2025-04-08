@@ -258,6 +258,18 @@ aside.md-source-file {
 	color: var(--md-default-fg-color);
 }
 
+/* Add icon indicating external links */
+.md-content .md-typeset a:not(.md-icon) {
+	&[href^="//"]::after,
+	&[href^="http://"]::after,
+	&[href^="https://"]::after {
+		content: "↗";
+		font-size: smaller;
+		margin-left: .2em;
+		vertical-align: top;
+	}
+}
+
 /* Tooltips */
 .md-tooltip__inner,
 [role=tooltip]>.md-tooltip2__inner {
