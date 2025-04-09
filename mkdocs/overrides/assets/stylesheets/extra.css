@@ -38,7 +38,7 @@
 	--md-default-bg-color--light: #DDD;
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
-	--md-blanket-color: #FFFC;
+	--md-blanket-color: #CCCE;
 }
 
 /* Home page cards */
@@ -361,4 +361,44 @@ code.doc-symbol-interface::after {
 .md-typeset .admonition,
 .md-typeset details {
 	font-size: inherit;
+}
+
+/* GLightBox images and descriptions */
+.md-typeset a.glightbox img {
+	transition: box-shadow 0.25s;
+	box-shadow: none;
+	border-radius: 0.4rem;
+}
+
+.md-typeset a.glightbox img:hover {
+	transition: box-shadow 0.25s;
+	box-shadow: 0 0 0 2px var(--md-accent-fg-color);
+}
+
+.glightbox-clean .gcontainer .gslide-description {
+	background: var(--md-default-bg-color);
+}
+
+.glightbox-clean .gcontainer .gslide-desc {
+	font-family: "Exo 2";
+}
+
+.glightbox-container .goverlay {
+	background: var(--md-blanket-color);
+}
+
+.glightbox-container .twemoji svg {
+	fill: currentcolor;
+	width: 1.125em;
+}
+
+/* Tutorial steps */
+.big-number {
+	font-size: x-large;
+	color: var(--md-primary-fg-color);
+}
+
+/* Tables */
+.md-typeset table:not([class]) {
+	border: 0;
 }

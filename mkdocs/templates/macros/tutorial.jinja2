@@ -1,0 +1,19 @@
+{% set ns = namespace(step_count=1) %}
+
+{% macro list_begin() -%}
+{% set ns.step_count = 1 %}
+<table markdown>
+{%- endmacro %}
+
+{% macro list_end() -%}
+</table>
+{%- endmacro %}
+
+{% macro step_begin() -%}
+<tr markdown><td markdown><div markdown class="step-{{ ns.step_count }}"><span class="big-number">{{ ns.step_count }}. </span>
+{%- endmacro -%}
+
+{% macro step_end(fname) -%}
+</div></td><td markdown>![]({{ fname }}){ .data-description=".step-{{ ns.step_count }}" }</td></tr>
+{% set ns.step_count = ns.step_count + 1 %}
+{%- endmacro %}

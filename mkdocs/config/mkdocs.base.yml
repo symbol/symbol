@@ -62,6 +62,13 @@ plugins:
     exclude:
       - devbook/reference/*
   swagger-ui-tag: {}  # Allow embedding OpenAPI specs
+  glightbox:
+    auto_caption: false
+    caption_position: left
+    background: none
+    shadow: false
+  macros:
+    include_dir: templates/macros
 hooks:
   - ../scripts/hooks.py
   - ../scripts/typedoc-plugin.py
