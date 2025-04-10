@@ -24,7 +24,7 @@ If the profile was originally created in the Symbol Desktop Wallet, you can find
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-0.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-0.jpg") }}
 Open the Symbol Desktop Wallet and click **Create a new profile?**
 {{ tutorial.step_end() }}
 

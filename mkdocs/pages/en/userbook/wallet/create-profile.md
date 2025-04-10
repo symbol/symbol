@@ -40,18 +40,18 @@ Follow these steps to create a new profile in the Symbol Desktop Wallet:
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-0.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-0.jpg") }}
 Open the Symbol Desktop Wallet and click **Create a new profile?**
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-1.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-1.jpg") }}
 Click **Create Mnemonic**.
 
 To create a new profile, you need a new seed, which will generate the accounts in your profile.  
 The wallet will generate a unique secret phrase (also called a mnemonic) for you.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-2.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-2.jpg") }}
 Fill in your profile details:
 
 Give your profile a name.  
@@ -67,18 +67,18 @@ This hint can help jog your memory if you forget the password.
 Click **Next**.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-3.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-3.jpg") }}
 Move your mouse around the screen until the progress bar reaches 100%.
 
 This motion is used as a source of randomness (entropy) to help generate a truly unique secret phrase.  
 It ensures that no two users will ever end up with the same phrase by chance.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-4.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-4.jpg") }}
 Click **Display mnemonic words** to view your secret phrase.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-5.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-5.jpg") }}
 Click the copy button :octicons-copy-24: to save the phrase.
 
 Paste the phrase somewhere secret and secure, such as an encrypted notes app or a password manager.
@@ -87,13 +87,13 @@ Ideally, also copy the phrase by hand onto a piece of paper and store it in a sa
 Avoid keeping it only on a digital device, which could be lost or compromised.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-6.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-6.jpg") }}
 Confirm the phrase by selecting the words in the correct order. Click **Next** when finished.
 
 This step checks that you have written down the phrase correctly and in the right order.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/desktop-create-profile-7.png") }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-7.jpg") }}
 Read the safety tips, accept the Terms and Conditions, and click **Finish**.
 {{ tutorial.step_end() }}
 
