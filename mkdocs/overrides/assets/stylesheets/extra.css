@@ -415,6 +415,10 @@ code.doc-symbol-interface::after {
 	font-size: inherit;
 }
 
+.md-typeset table.tutorial tr:hover {
+	background-color: var(--md-typeset-table-color--light);
+}
+
 .md-typeset .tutorial img {
 	float: right;
 	width: 50%;
