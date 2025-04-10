@@ -24,36 +24,39 @@ If the profile was originally created in the Symbol Desktop Wallet, you can find
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin() }}
+{{ tutorial.step_begin("screenshots/desktop-create-profile-0.png") }}
 Open the Symbol Desktop Wallet and click **Create a new profile?**
-{{ tutorial.step_end("screenshots/desktop-create-profile-0.png") }}
+{{ tutorial.step_end() }}
 
-{{ tutorial.step_begin() }}
+{{ tutorial.step_begin("screenshots/desktop-import-profile-1.jpg") }}
 Select **Import Profile**.
-{{ tutorial.step_end("screenshots/desktop-import-profile-1.jpg") }}
+{{ tutorial.step_end() }}
 
-{{ tutorial.step_begin() }}
+{{ tutorial.step_begin("screenshots/desktop-import-profile-2.jpg") }}
 Fill in your profile details:
 
-* Give your profile a name.  
-  This is just for your own reference to help you keep multiple profiles organized.
-* Select the network type (usually `Mainnet`).
-* Enter and confirm a password.
-* Optionally, add a password hint.
+Give your profile a name.  
+This is just for your own reference to help you keep multiple profiles organized.
+
+Select the network type (usually `Mainnet`).
+
+Enter and confirm a password.
+
+Optionally, add a password hint.
 
 Click **Next**.
-{{ tutorial.step_end("screenshots/desktop-import-profile-2.jpg") }}
+{{ tutorial.step_end() }}
 
-{{ tutorial.step_begin() }}
+{{ tutorial.step_begin("screenshots/desktop-import-profile-3.jpg") }}
 Enter the mnemonic phrase for the profile to restore.
 
 This is the secret phrase you received when you first created the profile.  
 Make sure the words are in the correct order and separated by spaces, or the Next button will not be enabled.
 
 Click **Next**.
-{{ tutorial.step_end("screenshots/desktop-import-profile-3.jpg") }}
+{{ tutorial.step_end() }}
 
-{{ tutorial.step_begin() }}
+{{ tutorial.step_begin("screenshots/desktop-import-profile-4.jpg") }}
 Select which accounts to restore.
 
 The wallet will scan the mnemonic for associated accounts and let you choose which ones to include in the profile.
@@ -65,11 +68,11 @@ The ones you do not select now can be added later.
 See the [Creating an Account](./create-account.md) tutorial.
 
 Click **Next** when you are done selecting accounts.
-{{ tutorial.step_end("screenshots/desktop-import-profile-4.jpg") }}
+{{ tutorial.step_end() }}
 
-{{ tutorial.step_begin() }}
+{{ tutorial.step_begin("screenshots/desktop-import-profile-5.jpg") }}
 Read the safety tips, accept the Terms and Conditions, and click **Finish**.
-{{ tutorial.step_end("screenshots/desktop-import-profile-5.jpg") }}
+{{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 

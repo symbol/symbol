@@ -404,8 +404,19 @@ code.doc-symbol-interface::after {
 	color: var(--md-primary-fg-color);
 }
 
-/* Tables */
-.md-typeset table:not([class]) {
+.md-typeset table.tutorial {
 	border: 0;
 	font-size: inherit;
+}
+
+.md-typeset .tutorial img {
+	float: right;
+	width: 50%;
+	margin-left: 1em;
+}
+
+.md-typeset .tutorial td {
+	padding: 1em;
+	border-top: 1px solid var(--md-default-bg-color--light);
+	border-bottom: 1px solid var(--md-default-bg-color--light);
 }
