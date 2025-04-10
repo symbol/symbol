@@ -53,11 +53,12 @@ nav:
   - User Manual:
       - userbook/intro.md
       - Symbol Desktop Wallet:
-          - Setup:
-              - userbook/wallet/install.md
+          - userbook/wallet/install.md
+          - Profiles:
               - userbook/wallet/create-profile.md
               - userbook/wallet/import-profile.md
-          - Operation:
+              - userbook/wallet/export-profile.md
+          - Accounts:
               - userbook/wallet/create-account.md
   - Developer Manual:
       - devbook/intro.md

@@ -386,6 +386,7 @@ code.doc-symbol-interface::after {
 
 .glightbox-clean .gcontainer .gslide-desc {
 	font-family: "Exo 2";
+	font-size: inherit;
 }
 
 .glightbox-container .goverlay {
@@ -406,4 +407,5 @@ code.doc-symbol-interface::after {
 /* Tables */
 .md-typeset table:not([class]) {
 	border: 0;
+	font-size: inherit;
 }

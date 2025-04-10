@@ -35,7 +35,7 @@ They are configured using dedicated transaction types and can only be modified b
 ## Mnemonics
 
 Mnemonic Phrase
-:   A human-readable representation of an account’s private key, typically shown as a list of 12 or 24 random words.
+:   A human-readable representation of a <key pair:|private key>, typically shown as a list of 12 or 24 random words.
 
     It is also called just Mnemonic, and often used when creating or restoring accounts in <HD Wallet:|HD wallets>.
 

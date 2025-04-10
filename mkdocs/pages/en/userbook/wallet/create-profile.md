@@ -4,24 +4,33 @@ title: Creating a Profile
 
 # Creating a new Profile
 
+This page explains what is a wallet profile and how to create a **new** one from scratch.  
+If you have a backup of a previous profile and want to restore it, follow the [Importing a Profile](./import-profile.md) tutorial instead.
+
 ## What Is a Profile
 
-The Symbol Desktop Wallet uses profiles to group and manage related <account:|accounts>.  
-For example, you can use different profiles to keep personal and work accounts separate.
+Profile
+:   A password-protected container that stores multiple <account:|accounts> on a given device,
+    similar to how profiles work in a browser or operating system.
 
-Each profile is protected by its own password and stores the <key pair:|keys> and metadata needed to access its accounts.  
-The wallet supports multiple profiles on the same device.
+The Symbol Desktop Wallet is an <HD Wallet:>, which means it can generate multiple accounts from a single <mnemonic phrase:>.  
+This phrase, also called a seed, is unique to each profile and created during setup.
 
-The Symbol Desktop Wallet is an <HD Wallet:>, which means it can generate multiple accounts from a single secret phrase.  
-This phrase, also called a seed, is unique to each profile and is created during the profile setup process.
+Each profile includes:
+
+* The mnemonic phrase, from which account keys can be derived.
+* The list of managed accounts, both derived from the phrase and imported externally.
+* Network settings, such as whether the profile uses Mainnet or Testnet.
+* A password to protect access and encrypt the profile contents.
+* Optional metadata, such as a profile name and password hint, for user convenience.
+
+Profiles keep things organized and separate, and you can have multiple profiles on the same machine.
+For example, one for personal use and one for work, each with its own accounts and settings.
 
 ## Prerequisites
 
 * Make sure you have installed the Symbol Desktop Wallet.  
 If you haven’t done that yet, see the [Installing the Wallet](./install.md) guide.
-
-* This page explains how to create a **new** profile from scratch.  
-If you have a backup of a previous profile and want to restore it, follow the [Importing a Profile](./import-profile.md) tutorial instead.
 
 ## How to Create a Profile
 
