@@ -299,23 +299,28 @@ aside.md-source-file {
 }
 
 /* Glossaries */
-dl:not(.automatic-reference-term) {
+.md-content dl:not(.automatic-reference-term) {
 	border: 1px solid var(--md-primary-fg-color);
 	border-radius: 4px;
 }
 
-dt {
+.md-content dt {
 	background-color: var(--md-accent-fg-color--transparent);
 	padding: 8px;
 }
 
-dd {
+.md-content dd {
 	margin-right: 1.875em;
 }
 
-dt:has(a:target) {
+.md-content dt:has(a:target) {
 	background-color: var(--md-primary-fg-color--light);
 	display: block;
+}
+
+.md-content dt a:target {
+	color: var(--md-default-bg-color);
+	font-weight: bold;
 }
 
 /* Dynamic links */
