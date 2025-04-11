@@ -402,6 +402,7 @@ code.doc-symbol-interface::after {
 .glightbox-container .twemoji svg {
 	fill: currentcolor;
 	width: 1.125em;
+	vertical-align: text-bottom;
 }
 
 /* Tutorial steps */
