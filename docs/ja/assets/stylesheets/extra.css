@@ -229,27 +229,33 @@ aside.md-source-file {
 }
 
 /* Links to other sections use the color of that section */
-.md-content a[href*="userbook"][href^='..'] {
+.md-content a[href*="userbook"][href^='..'],
+.gslide-desc a[href*="userbook"][href^='..'] {
 	color: var(--userbook-color--light);
 }
 
-.md-content a[href*="userbook"][href^='..']:hover {
+.md-content a[href*="userbook"][href^='..']:hover,
+.gslide-desc a[href*="userbook"][href^='..']:hover {
 	color: var(--userbook-color);
 }
 
-.md-content a[href*="devbook"][href^='..'] {
+.md-content a[href*="devbook"][href^='..'],
+.gslide-desc a[href*="devbook"][href^='..'] {
 	color: var(--devbook-color--light);
 }
 
-.md-content a[href*="devbook"][href^='..']:hover {
+.md-content a[href*="devbook"][href^='..']:hover,
+.gslide-desc a[href*="devbook"][href^='..']:hover {
 	color: var(--devbook-color);
 }
 
-.md-content a[href*="textbook"][href^='..'] {
+.md-content a[href*="textbook"][href^='..'],
+.gslide-desc a[href*="textbook"][href^='..'] {
 	color: var(--textbook-color--light);
 }
 
-.md-content a[href*="textbook"][href^='..']:hover {
+.md-content a[href*="textbook"][href^='..']:hover,
+.gslide-desc a[href*="textbook"][href^='..']:hover {
 	color: var(--textbook-color);
 }
 
@@ -299,23 +305,28 @@ aside.md-source-file {
 }
 
 /* Glossaries */
-dl:not(.automatic-reference-term) {
+.md-content dl:not(.automatic-reference-term) {
 	border: 1px solid var(--md-primary-fg-color);
 	border-radius: 4px;
 }
 
-dt {
+.md-content dt {
 	background-color: var(--md-accent-fg-color--transparent);
 	padding: 8px;
 }
 
-dd {
+.md-content dd {
 	margin-right: 1.875em;
 }
 
-dt:has(a:target) {
+.md-content dt:has(a:target) {
 	background-color: var(--md-primary-fg-color--light);
 	display: block;
+}
+
+.md-content dt a:target {
+	color: var(--md-default-bg-color);
+	font-weight: bold;
 }
 
 /* Dynamic links */
@@ -381,6 +392,7 @@ code.doc-symbol-interface::after {
 
 .glightbox-clean .gcontainer .gslide-desc {
 	font-family: "Exo 2";
+	font-size: inherit;
 }
 
 .glightbox-container .goverlay {
@@ -390,6 +402,7 @@ code.doc-symbol-interface::after {
 .glightbox-container .twemoji svg {
 	fill: currentcolor;
 	width: 1.125em;
+	vertical-align: text-bottom;
 }
 
 /* Tutorial steps */
@@ -398,7 +411,23 @@ code.doc-symbol-interface::after {
 	color: var(--md-primary-fg-color);
 }
 
-/* Tables */
-.md-typeset table:not([class]) {
+.md-typeset table.tutorial {
 	border: 0;
+	font-size: inherit;
+}
+
+.md-typeset table.tutorial tr:hover {
+	background-color: var(--md-typeset-table-color--light);
+}
+
+.md-typeset .tutorial img {
+	float: right;
+	width: 50%;
+	margin-left: 1em;
+}
+
+.md-typeset .tutorial td {
+	padding: 1em;
+	border-top: 1px solid var(--md-default-bg-color--light);
+	border-bottom: 1px solid var(--md-default-bg-color--light);
 }

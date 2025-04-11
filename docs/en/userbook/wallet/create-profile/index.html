@@ -503,46 +503,6 @@
                 
   
   
-    
-  
-  
-  
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_1" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_2_2_1" id="__nav_2_2_1_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Setup
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_2_2_1">
-            <span class="md-nav__icon md-icon"></span>
-            Setup
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
   
   
     <li class="md-nav__item">
@@ -559,6 +519,46 @@
   
 
               
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_2" id="__nav_2_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Profiles
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Profiles
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -680,6 +680,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../export-profile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exporting a Profile
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../delete-profile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Deleting a Profile
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -705,24 +747,24 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_3" >
         
           
-          <label class="md-nav__link" for="__nav_2_2_2" id="__nav_2_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_2_3" id="__nav_2_2_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Operation
+    Accounts
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_2_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_3">
             <span class="md-nav__icon md-icon"></span>
-            Operation
+            Accounts
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -7952,99 +7994,107 @@
 
 
 <h1 id="creating-a-new-profile">Creating a new Profile<a class="headerlink" href="#creating-a-new-profile" title="Anchor link to this section for reference">⚓︎</a></h1>
+<p>This page explains what is a wallet profile and how to create a <strong>new</strong> one from scratch.<br />
+If you have a backup of a previous profile and want to restore it, follow the <a href="../import-profile/">Importing a Profile</a> tutorial instead.</p>
 <h2 id="what-is-a-profile">What Is a Profile<a class="headerlink" href="#what-is-a-profile" title="Anchor link to this section for reference">⚓︎</a></h2>
-<p>The Symbol Desktop Wallet uses profiles to group and manage related <a class="mkdocs-ezglossary-link"
+<dl>
+<dt>
+	<a id="7f4ec0a39352d650ffbbd726163d6212">Profile</a> 
+</dt>
+<dd>A password-protected container that stores multiple <a class="mkdocs-ezglossary-link"
 	id="ba4085ba6723a9010a957c38654bd2ec"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
 	name="_:Account"
-	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a>.<br />
-For example, you can use different profiles to keep personal and work accounts separate.</p>
-<p>Each profile is protected by its own password and stores the <a class="mkdocs-ezglossary-link"
-	id="a1a1e7725a768ff7989e8d86b089691b"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
-	name="_:Key Pair"
-	href="../../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">keys</a> and metadata needed to access its accounts.<br />
-The wallet supports multiple profiles on the same device.</p>
+	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> on a given device,
+similar to how profiles work in a browser or operating system.</dd>
+
+</dl>
 <p>The Symbol Desktop Wallet is an <a class="mkdocs-ezglossary-link"
 	id="a98c7d31d63c18d90ba0e385a176e716"
 	title="A Hierarchical Deterministic (HD) wallet derive a series of accounts from a single seed, which allows handling a group of accounts using a single seed instead of multiple key pairs."
 	name="_:HD Wallet"
-	href="../../../textbook/accounts/#abf5d486eea9467288f1b0c72e1bb6eb">HD Wallet</a>, which means it can generate multiple accounts from a single secret phrase.<br />
-This phrase, also called a seed, is unique to each profile and is created during the profile setup process.</p>
+	href="../../../textbook/accounts/#abf5d486eea9467288f1b0c72e1bb6eb">HD Wallet</a>, which means it can generate multiple accounts from a single <a class="mkdocs-ezglossary-link"
+	id="c3b44d7bbc1babf1d703f221a32e6613"
+	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
+	name="_:Mnemonic Phrase"
+	href="../../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrase</a>.<br />
+This phrase, also called a seed, is unique to each profile and created during setup.</p>
+<p>Each profile includes:</p>
+<ul>
+<li>The mnemonic phrase, from which account keys can be derived.</li>
+<li>The list of managed accounts, both derived from the phrase and imported externally.</li>
+<li>Network settings, such as whether the profile uses Mainnet or Testnet.</li>
+<li>A password to protect access and encrypt the profile contents.</li>
+<li>Optional metadata, such as a profile name and password hint, for user convenience.</li>
+</ul>
+<p>Profiles keep things organized and separate, and you can have multiple profiles on the same machine.
+For example, one for personal use and one for work, each with its own accounts and settings.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section for reference">⚓︎</a></h2>
 <ul>
-<li>
-<p>Make sure you have installed the Symbol Desktop Wallet.<br />
-If you haven’t done that yet, see the <a href="../install/">Installing the Wallet</a> guide.</p>
-</li>
-<li>
-<p>This page explains how to create a <strong>new</strong> profile from scratch.<br />
-If you have a backup of a previous profile and want to restore it, follow the <a href="../import-profile/">Importing a Profile</a> tutorial instead.</p>
-</li>
+<li>Make sure you have installed the Symbol Desktop Wallet.<br />
+If you haven’t done that yet, see the <a href="../install/">Installing the Wallet</a> guide.</li>
 </ul>
 <h2 id="how-to-create-a-profile">How to Create a Profile<a class="headerlink" href="#how-to-create-a-profile" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Follow these steps to create a new profile in the Symbol Desktop Wallet:</p>
-<table>
+<table class="tutorial">
 <tr>
-<p><td markdown><div markdown class="step-1"><span class="big-number">1. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-0.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-1" data-desc-position="left"><img .data-description=".step-1" alt="" src="../screenshots/create-profile-0.jpg" /></a><div markdown class="step-1"><span class="big-number">1. </span>
 Open the Symbol Desktop Wallet and click <strong>Create a new profile?</strong>
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-0.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-1" data-desc-position="left"><img .data-description=".step-1" alt="" src="../screenshots/desktop-create-account-0.png" /></a></td></p>
+</div></td></p>
 </tr>
 <tr>
-<p><td markdown><div markdown class="step-2"><span class="big-number">2. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-1.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-2" data-desc-position="left"><img .data-description=".step-2" alt="" src="../screenshots/create-profile-1.jpg" /></a><div markdown class="step-2"><span class="big-number">2. </span>
 Click <strong>Create Mnemonic</strong>.</p>
 <p>To create a new profile, you need a new seed, which will generate the accounts in your profile.<br />
 The wallet will generate a unique secret phrase (also called a mnemonic) for you.
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-1.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-2" data-desc-position="left"><img .data-description=".step-2" alt="" src="../screenshots/desktop-create-account-1.png" /></a></td></p>
+</div></td></p>
 </tr>
 <tr>
-<p><td markdown><div markdown class="step-3"><span class="big-number">3. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-2.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-3" data-desc-position="left"><img .data-description=".step-3" alt="" src="../screenshots/create-profile-2.jpg" /></a><div markdown class="step-3"><span class="big-number">3. </span>
 Fill in your profile details:</p>
-<ul>
-<li>Give your profile a name.<br />
-  This is just for your own reference to help you keep multiple profiles organized.</li>
-<li>Select the network type (usually <code>Mainnet</code>).</li>
-<li>Enter and confirm a password.</li>
-<li>Optionally, add a password hint.<br />
-  This hint can help jog your memory if you forget the password.</li>
-<li>Click <strong>Next</strong>.
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-2.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-3" data-desc-position="left"><img .data-description=".step-3" alt="" src="../screenshots/desktop-create-account-2.png" /></a></td></li>
-</ul>
+<p>Give your profile a name.<br />
+This is just for your own reference to help you keep multiple profiles organized.</p>
+<p>Select the network type (usually <code>Mainnet</code>).</p>
+<p>Enter and confirm a password.</p>
+<p>Optionally, add a password hint.<br />
+This hint can help jog your memory if you forget the password.</p>
+<p>Click <strong>Next</strong>.
+</div></td></p>
 </tr>
 <tr>
-<p><td markdown><div markdown class="step-4"><span class="big-number">4. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-3.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-4" data-desc-position="left"><img .data-description=".step-4" alt="" src="../screenshots/create-profile-3.jpg" /></a><div markdown class="step-4"><span class="big-number">4. </span>
 Move your mouse around the screen until the progress bar reaches 100%.</p>
 <p>This motion is used as a source of randomness (entropy) to help generate a truly unique secret phrase.<br />
 It ensures that no two users will ever end up with the same phrase by chance.
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-3.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-4" data-desc-position="left"><img .data-description=".step-4" alt="" src="../screenshots/desktop-create-account-3.png" /></a></td></p>
+</div></td></p>
 </tr>
 <tr>
-<p><td markdown><div markdown class="step-5"><span class="big-number">5. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-4.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-5" data-desc-position="left"><img .data-description=".step-5" alt="" src="../screenshots/create-profile-4.jpg" /></a><div markdown class="step-5"><span class="big-number">5. </span>
 Click <strong>Display mnemonic words</strong> to view your secret phrase.
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-4.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-5" data-desc-position="left"><img .data-description=".step-5" alt="" src="../screenshots/desktop-create-account-4.png" /></a></td></p>
+</div></td></p>
 </tr>
 <tr>
-<p><td markdown><div markdown class="step-6"><span class="big-number">6. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-5.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-6" data-desc-position="left"><img .data-description=".step-6" alt="" src="../screenshots/create-profile-5.jpg" /></a><div markdown class="step-6"><span class="big-number">6. </span>
 Click the copy button <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.024 3.75c0-.966.784-1.75 1.75-1.75H20.25c.966 0 1.75.784 1.75 1.75v11.498a1.75 1.75 0 0 1-1.75 1.75H8.774a1.75 1.75 0 0 1-1.75-1.75Zm1.75-.25a.25.25 0 0 0-.25.25v11.498c0 .139.112.25.25.25H20.25a.25.25 0 0 0 .25-.25V3.75a.25.25 0 0 0-.25-.25Z"/><path d="M1.995 10.749a1.75 1.75 0 0 1 1.75-1.751H5.25a.75.75 0 1 1 0 1.5H3.745a.25.25 0 0 0-.25.25L3.5 20.25c0 .138.111.25.25.25h9.5a.25.25 0 0 0 .25-.25v-1.51a.75.75 0 1 1 1.5 0v1.51A1.75 1.75 0 0 1 13.25 22h-9.5A1.75 1.75 0 0 1 2 20.25z"/></svg></span> to save the phrase.</p>
 <p>Paste the phrase somewhere secret and secure, such as an encrypted notes app or a password manager.</p>
 <p>Ideally, also copy the phrase by hand onto a piece of paper and store it in a safe place.<br />
 Avoid keeping it only on a digital device, which could be lost or compromised.
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-5.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-6" data-desc-position="left"><img .data-description=".step-6" alt="" src="../screenshots/desktop-create-account-5.png" /></a></td></p>
+</div></td></p>
 </tr>
 <tr>
-<p><td markdown><div markdown class="step-7"><span class="big-number">7. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-6.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-7" data-desc-position="left"><img .data-description=".step-7" alt="" src="../screenshots/create-profile-6.jpg" /></a><div markdown class="step-7"><span class="big-number">7. </span>
 Confirm the phrase by selecting the words in the correct order. Click <strong>Next</strong> when finished.</p>
 <p>This step checks that you have written down the phrase correctly and in the right order.
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-6.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-7" data-desc-position="left"><img .data-description=".step-7" alt="" src="../screenshots/desktop-create-account-6.png" /></a></td></p>
+</div></td></p>
 </tr>
 <tr>
-<p><td markdown><div markdown class="step-8"><span class="big-number">8. </span>
+<p><td markdown><a class="glightbox" href="../screenshots/create-profile-7.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-8" data-desc-position="left"><img .data-description=".step-8" alt="" src="../screenshots/create-profile-7.jpg" /></a><div markdown class="step-8"><span class="big-number">8. </span>
 Read the safety tips, accept the Terms and Conditions, and click <strong>Finish</strong>.
-</div></td><td markdown><a class="glightbox" href="../screenshots/desktop-create-account-7.png" data-type="image" data-width="auto" data-height="auto" data-description=".step-8" data-desc-position="left"><img .data-description=".step-8" alt="" src="../screenshots/desktop-create-account-7.png" /></a></td></p>
+</div></td></p>
 </tr>
 </table>
 <p>You will be taken to the main screen of the wallet:</p>
-<p><a class="glightbox" href="../screenshots/desktop-create-account-8.jpg" data-type="image" data-width="auto" data-height="auto" data-desc-position="left"><img alt="Profile created successfully" src="../screenshots/desktop-create-account-8.jpg" /></a></p>
+<p><a class="glightbox" href="../screenshots/create-profile-8.jpg" data-type="image" data-width="auto" data-height="auto" data-desc-position="left"><img alt="Profile created successfully" src="../screenshots/create-profile-8.jpg" /></a></p>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Your new profile is now ready to use.</p>
 <ul>
@@ -8072,7 +8122,7 @@ Read the safety tips, accept the Terms and Conditions, and click <strong>Finish<
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 10, 2025</span>
   </span>
 
     
