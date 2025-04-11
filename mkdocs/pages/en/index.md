@@ -19,7 +19,7 @@ disable_actions: true
 </div>
 
 <div class="card">
-<a href="devbook/0.introduction/index.html" class="devbook">
+<a href="devbook/intro/index.html" class="devbook">
   <div></div>
   <h2>Developer Manual</h2>
   <p>Learn to do stuff by coding.</p>

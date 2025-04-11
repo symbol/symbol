@@ -1,12 +1,12 @@
-{% if entry.section == 'Python' %}
+{% if entry.section == 'Python' -%}
 	{# For Python reference docs we point to the header, because the actual
 	glossary term is hidden by the automatic-reference-term class #}
-	{% set dest_anchor = entry.term %}
-{% elif entry.section == 'TS' %}
-	{% set dest_anchor = entry.term.split('.')[-1].lower() %}
-{% else %}
-	{% set dest_anchor = entry.target %}
-{% endif %}
+	{%- set dest_anchor = entry.term -%}
+{%- elif entry.section == 'TS' -%}
+	{%- set dest_anchor = entry.term.split('.')[-1].lower() -%}
+{%- else -%}
+	{%- set dest_anchor = entry.target -%}
+{%- endif -%}
 <a class="mkdocs-ezglossary-link"
 	id="{{ target }}"
 	title="{{ entry.definition }}"

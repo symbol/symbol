@@ -1,5 +1,11 @@
-# Introduction
+---
+title: Welcome
+---
 
-Welcome to the textbook.
+# Welcome to the Textbook
 
-You will learn everything about <XYM:> here.
+This book explains the concepts that power the Symbol blockchain.
+
+The [User Manual](../userbook/intro.md) and the [Developer Manual](../devbook/intro.md) already provide links to the appropriate textbook pages when needed, so there is typically no need to read this book cover to cover.
+
+Anyway, feel free to browse the textbook using the navigation menu!

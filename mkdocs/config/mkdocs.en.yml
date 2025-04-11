@@ -52,6 +52,15 @@ nav:
   - index.md
   - User Manual:
       - userbook/intro.md
+      - Symbol Desktop Wallet:
+          - userbook/wallet/install.md
+          - Profiles:
+              - userbook/wallet/create-profile.md
+              - userbook/wallet/import-profile.md
+              - userbook/wallet/export-profile.md
+              - userbook/wallet/delete-profile.md
+          - Accounts:
+              - userbook/wallet/create-account.md
   - Developer Manual:
       - devbook/intro.md
       - Reference Guides:
@@ -61,4 +70,6 @@ nav:
           - Symbol REST API: devbook/reference/rest/symbol.md
   - Textbook:
       - textbook/intro.md
+      - textbook/cryptography.md
+      - textbook/accounts.md
       - textbook/glossary.md

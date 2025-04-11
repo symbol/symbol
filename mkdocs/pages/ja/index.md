@@ -19,7 +19,7 @@ disable_actions: true
 </div>
 
 <div class="card">
-<a href="devbook/0.introduction/index.html" class="devbook">
+<a href="devbook/intro/index.html" class="devbook">
   <div></div>
   <h2>開発者マニュアル</h2>
   <p>コーディングで何かを学ぶ。</p>
