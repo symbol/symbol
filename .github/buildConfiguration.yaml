@@ -35,6 +35,12 @@ builds:
     path: linters
     required: true
 
+  - name: mkdocs
+    path: mkdocs
+    dependsOn:
+      - sdk/javascript
+      - sdk/python
+
 customBuilds:
   - name: Nightly Job
     jobName: nightlyJob
