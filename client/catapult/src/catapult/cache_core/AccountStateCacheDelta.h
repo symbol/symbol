@@ -165,6 +165,9 @@ namespace catapult { namespace cache {
 		/// Prunes the cache at \a height.
 		void prune(Height height);
 
+		/// Gets the usage frequency of a cache item.
+		size_t getUsageFrequency(const Address& address) const;
+
 	private:
 		Address getAddress(const Key& publicKey);
 
@@ -198,6 +201,9 @@ namespace catapult { namespace cache {
 
 		QueuedRemovalSet<Address> m_queuedRemoveByAddress;
 		QueuedRemovalSet<Key> m_queuedRemoveByPublicKey;
+
+		// Tracks the usage frequency of cache items
+		std::unordered_map<Address, size_t, utils::ArrayHasher<Address>> m_usageFrequency;
 	};
 
 	/// Delta on top of the account state cache.

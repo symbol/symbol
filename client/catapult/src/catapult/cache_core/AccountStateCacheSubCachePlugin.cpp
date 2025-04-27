@@ -216,14 +216,22 @@ namespace catapult { namespace cache {
 			const CacheConfiguration& config,
 			const AccountStateCacheTypes::Options& options)
 			: BaseType(std::make_unique<AccountStateCache>(config, options))
+			, m_cacheSizeLimit(1000) // Default cache size limit
 	{}
 
 	std::unique_ptr<CacheStorage> AccountStateCacheSubCachePlugin::createStorage() {
 		auto pStorage = BaseType::createStorage();
-		if (pStorage)
-			return std::make_unique<AccountStateFullCacheStorage>(std::move(pStorage), this->cache());
+		if (pStorage) {
+			auto cacheStorage = std::make_unique<AccountStateFullCacheStorage>(std::move(pStorage), this->cache());
+			this->cache().limitCacheSize(m_cacheSizeLimit);
+			return cacheStorage;
+		}
 
 		return std::make_unique<AccountStateCacheSummaryCacheStorage>(this->cache());
+	}
+
+	void AccountStateCacheSubCachePlugin::setCacheSizeLimit(size_t cacheSizeLimit) {
+		m_cacheSizeLimit = cacheSizeLimit;
 	}
 
 	// endregion

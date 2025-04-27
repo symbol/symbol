@@ -23,6 +23,8 @@
 #include "AccountStateCacheDelta.h"
 #include "AccountStateCacheView.h"
 #include "catapult/cache/BasicCache.h"
+#include <list>
+#include <unordered_map>
 
 namespace catapult { namespace cache {
 
@@ -63,9 +65,22 @@ namespace catapult { namespace cache {
 			*m_pHighValueAccounts = std::move(highValueAccounts);
 		}
 
+		/// Limits the size of the cache by removing least recently used (LRU) items.
+		void limitCacheSize(size_t maxSize) {
+			while (m_usageFrequency.size() > maxSize) {
+				auto lru = m_usageFrequency.back();
+				m_usageFrequency.pop_back();
+				this->remove(lru);
+			}
+		}
+
 	private:
 		// unique pointer to allow reference to be valid after moves of this cache
 		std::unique_ptr<HighValueAccounts> m_pHighValueAccounts;
+
+		// Tracks the usage frequency of cache items
+		std::list<Address> m_usageFrequency;
+		std::unordered_map<Address, std::list<Address>::iterator, utils::ArrayHasher<Address>> m_usageFrequencyMap;
 	};
 
 	/// Synchronized cache composed of stateful account information.

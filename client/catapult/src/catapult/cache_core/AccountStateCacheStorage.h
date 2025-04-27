@@ -36,5 +36,8 @@ namespace catapult { namespace cache {
 
 		/// Purges \a accountState from \a cacheDelta.
 		static void Purge(const ValueType& accountState, DestinationType& cacheDelta);
+
+		/// Removes least recently used (LRU) items when the cache size exceeds a specified limit.
+		static void RemoveLRUItems(DestinationType& cacheDelta, size_t maxSize);
 	};
 }}

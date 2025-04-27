@@ -37,5 +37,11 @@ namespace catapult { namespace cache {
 
 	public:
 		std::unique_ptr<CacheStorage> createStorage() override;
+
+		/// Sets the cache size limit.
+		void setCacheSizeLimit(size_t cacheSizeLimit);
+
+	private:
+		size_t m_cacheSizeLimit;
 	};
 }}

@@ -168,6 +168,17 @@ namespace catapult { namespace cache {
 	void BasicAccountStateCacheDelta::updateHighValueAccounts(Height height) {
 		m_highValueAccountsUpdater.setHeight(height);
 		m_highValueAccountsUpdater.update(m_pStateByAddress->deltas());
+
+		// Update usage frequency
+		for (const auto& delta : m_pStateByAddress->deltas().Added) {
+			const auto& address = delta.second.Address;
+			auto it = m_usageFrequencyMap.find(address);
+			if (it != m_usageFrequencyMap.end()) {
+				m_usageFrequency.erase(it->second);
+			}
+			m_usageFrequency.push_front(address);
+			m_usageFrequencyMap[address] = m_usageFrequency.begin();
+		}
 	}
 
 	void BasicAccountStateCacheDelta::processHighValueRemovedAccounts(model::ImportanceHeight importanceHeight) {
@@ -191,6 +202,14 @@ namespace catapult { namespace cache {
 
 			if (state::HasHistoricalInformation(accountState))
 				filteredRemovedHighValueAddresses.insert(address);
+
+			// Update usage frequency
+			auto it = m_usageFrequencyMap.find(address);
+			if (it != m_usageFrequencyMap.end()) {
+				m_usageFrequency.erase(it->second);
+				m_usageFrequency.push_front(address);
+				m_usageFrequencyMap[address] = m_usageFrequency.begin();
+			}
 		}
 
 		m_highValueAccountsUpdater.setRemovedAddresses(std::move(filteredRemovedHighValueAddresses));

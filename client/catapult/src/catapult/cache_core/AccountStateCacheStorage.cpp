@@ -26,6 +26,10 @@ namespace catapult { namespace cache {
 
 	void AccountStateCacheStorage::LoadInto(const ValueType& accountState, DestinationType& cacheDelta) {
 		cacheDelta.addAccount(accountState);
+
+		// Remove LRU items if cache size exceeds limit
+		size_t maxSize = 1000; // Example limit, adjust as needed
+		cacheDelta.limitCacheSize(maxSize);
 	}
 
 	void AccountStateCacheStorage::Purge(const ValueType& accountState, DestinationType& cacheDelta) {
