@@ -1,6 +1,7 @@
 INHERIT: ./mkdocs.base.yml
 
 site_name: Symbol Docs WIP 🚧
+site_url: http://symbol.github.io/symbol/en
 docs_dir: ../pages/en
 site_dir: ../../docs/en
 edit_uri: blob/new-docs/mkdocs/pages/en
