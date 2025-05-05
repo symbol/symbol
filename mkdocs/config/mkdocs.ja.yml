@@ -1,6 +1,7 @@
 INHERIT: ./mkdocs.base.yml
 
 site_name: Symbolドキュメント WIP ⚠
+site_url: http://symbol.github.io/symbol/ja
 docs_dir: ../pages/ja
 site_dir: ../../docs/ja
 edit_uri: blob/new-docs/mkdocs/pages/ja
