@@ -30,6 +30,10 @@
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
 	--md-blanket-color: #000C;
+	--md-code-bg-color: var(--md-primary-fg-color--dark);
+	--md-typeset-mark-color: inherit;
+	--md-code-hl-string-color: #d59781;
+	--md-code-hl-comment-color: green;
 }
 
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
@@ -39,6 +43,9 @@
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
 	--md-blanket-color: #CCCE;
+	--md-code-bg-color: var(--md-accent-fg-color--transparent);
+	--md-code-hl-string-color: #d59781;
+	--md-code-hl-comment-color: green;
 }
 
 /* Home page cards */
@@ -430,4 +437,11 @@ code.doc-symbol-interface::after {
 	padding: 1em;
 	border-top: 1px solid var(--md-default-bg-color--light);
 	border-bottom: 1px solid var(--md-default-bg-color--light);
+}
+
+/* Links around code blocks */
+.md-typeset p:has(.source-link) {
+	margin-top: 0;
+	font-size: small;
+	float: right;
 }
