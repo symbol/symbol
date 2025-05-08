@@ -41,7 +41,8 @@ WINDOWS_DEPENDENCY_FLAGS = {
 	'google_googletest': ['-Dgtest_force_shared_crt=on'],
 
 	'mongodb_mongo-c-driver': ['-DENABLE_EXTRA_ALIGNMENT=0'],
-	'mongodb_mongo-cxx-driver': ['-DENABLE_TESTS=OFF']
+	'mongodb_mongo-cxx-driver': ['-DENABLE_TESTS=OFF'],
+	'zeromq_libzmq': ['-DCMAKE_POLICY_VERSION_MINIMUM=3.5']
 }
 
 
