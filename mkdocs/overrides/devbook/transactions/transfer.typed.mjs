@@ -39,15 +39,17 @@ try {
 	console.log('  Fee multiplier:', feeMult);
 
 	// Build the transaction
-	const typedDescriptor = new descriptors.TransferTransactionV1Descriptor(
-		facade.network.publicKeyToAddress(signerKeyPair.publicKey), [
-		new descriptors.UnresolvedMosaicDescriptor(
-			new models.UnresolvedMosaicId(
-				generateMosaicAliasId('symbol.xym')),
-			new models.Amount(1_000_000n)) // 1 XYM
-	],
-		'hello symbol'
-	);
+	const typedDescriptor =
+		new descriptors.TransferTransactionV1Descriptor(
+			facade.network.publicKeyToAddress(signerKeyPair.publicKey),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					new models.UnresolvedMosaicId(
+						generateMosaicAliasId('symbol.xym')),
+					new models.Amount(1_000_000n) // 1 XYM
+				)
+			]
+		);
 	const transaction = facade.createTransactionFromTypedDescriptor(
 		typedDescriptor, signerKeyPair.publicKey, 0, 2 * 60 * 60);
 	transaction.fee = new models.Amount(feeMult * transaction.size);
