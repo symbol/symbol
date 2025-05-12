@@ -2,19 +2,78 @@
 title: Typed Descriptors
 ---
 
-# Creating a Transfer Transaction Using Typed Descriptors
+# Creating Transactions Using Typed Descriptors in JavaScript
 
-<TS:SymbolFacade.createTransactionFromTypedDescriptor> is a typed alternative to
-<TS:SymbolTransactionFactory.create>.
-It uses structured, type-safe parameters, making it easier to construct transactions correctly and reduce the
-chance of mistakes.
+Transactions are a fundamental part of the Symbol blockchain, because most interactions with the network happen
+through them.
 
-For example, the snippet above could use the <TS:{{descriptor}}> to define the transaction in a type-safe way.
+All JavaScript examples throughout the tutorials use the <TS:SymbolTransactionFactory.create> method
+to create transactions, due to its compact syntax.
+However, this method is not type-safe: it accepts a generic object and depends on it having the correct fields.
 
----
+This page shows how to use <TS:SymbolFacade.createTransactionFromTypedDescriptor> instead.
+This alternative accepts well-defined parameters, offering better type safety and improved IDE support.
 
-**Caution**:
-The `deadline` parameter of the typed version is relative to the local system time, not the network time.
-This removes the need to fetch the network time, but can lead to drift if the system clock is inaccurate.
+The code presented here is the same as in the [Creating a Transfer Transaction](./transfer.md) tutorial,
+with the only difference being the transaction creation step.
+For brevity, only that section is shown here.
+The rest of the process, including signing and announcing the transaction, remains unchanged.
 
-Applications should periodically synchronize with the network time to ensure deadlines are calculated correctly.
+=== "JavaScript"
+
+    ```js linenums="41"
+    --8<-- "devbook/transactions/transfer.typed.mjs:41:55"
+    ```
+
+    [Download the full tutorial code.]({{ config.repo_url }}/raw/refs/heads/{{config.extra.symbol.branch}}/mkdocs/overrides/devbook/transactions/transfer.typed.mjs){ .source-link }
+
+## Creation Process
+
+Transactions are created in a type-safe manner in two steps: creating a transaction descriptor and creating the transaction itself.
+
+### Creating the Descriptor
+
+=== "JavaScript"
+
+    ```js linenums="41"
+    --8<-- "devbook/transactions/transfer.typed.mjs:41:52"
+    ```
+
+Typed descriptors are what provide type safety when building transactions in JavaScript,
+because of their constructors with structured parameters.
+
+See for example the <TS:TransferTransactionV1Descriptor> used in the code.
+
+Whenever one such descriptor is available, tutorials will link to both the relevant reference page and this guide.
+
+### Creating the Transaction
+
+=== "JavaScript"
+
+    ```js linenums="53"
+    --8<-- "devbook/transactions/transfer.typed.mjs:53:55"
+    ```
+
+Once the descriptor is ready, creating the transaction is straightforward: it simply involves passing the descriptor to the
+<TS:SymbolFacade.createTransactionFromTypedDescriptor> method and provide the desired fees and deadline.
+
+Note that, as in the [Creating a Transfer Transaction](./transfer.md#building-the-transaction) tutorial,
+the transaction's fee must be calculated after construction because it depends on the transaction's size.
+
+!!! warning "Deadlines are provided differently in the typed and untyped versions"
+
+    Deadlines passed to <TS:SymbolTransactionFactory.create> are specified in milliseconds and are relative to the _network time_.
+    In contrast, deadlines passed to <TS:SymbolFacade.createTransactionFromTypedDescriptor> are specified in seconds
+    and are relative to the _system time_, that is, the local clock of the machine running the code.
+
+    This approach is convenient because it removes the need to fetch the current network time: for example,
+    to make a transaction expire in two hours, you only need to provide a deadline of `#!js 2 * 60 * 60` seconds as in the code above.
+
+    However, if the system clock is not properly synchronized with the network time, transactions may expire earlier
+    than expected, or be rejected entirely if the provided deadline exceeds the network's maximum allowed offset of 2 hours.
+
+    **Therefore, applications using the type-safe method should periodically check the network time to ensure the
+    system clock is properly synchronized.**
+
+Once the transaction has been created, you can use it normally.
+There is no difference between transactions created using the typed and untyped methods.
