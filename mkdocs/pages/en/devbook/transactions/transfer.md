@@ -5,7 +5,7 @@ title: Transfer
 # Creating a Transfer Transaction
 
 Transfer transactions are the most basic type of Symbol transaction.
-They allow sending <XYM:> or any other type of mosaic from one <account:> to another.
+They allow sending <XYM:> or any other type of mosaic from one <account:> to another, optionally including a message.
 
 This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status
 until it is confirmed.  
@@ -135,7 +135,12 @@ The snippet includes the following fields:
 
 Note that the fee field is not set in the descriptor.
 Instead, the fee is calculated after the transaction is built, using the previously obtained multiplier and the
-transaction's size in bytes.
+transaction's size in bytes, which is only known once the descriptor has been constructed.
+
+!!! info "Including a message in the transaction"
+
+    Transactions can optionally include a free-form message.
+    A later tutorial explains how to do this.
 
 ### Signing and Serializing
 
