@@ -12,9 +12,9 @@ plugins:
     ignore_case: true
     strict: true
     sections:
-      - Python
-      - TS
-      - Java
+      - py
+      - js
+      - java
       - _
   mkdoxy:  # Generate API reference docs for Java
     save-api: .doxy
