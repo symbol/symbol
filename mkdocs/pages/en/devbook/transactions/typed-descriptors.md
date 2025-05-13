@@ -7,11 +7,11 @@ title: Typed Descriptors
 Transactions are a fundamental part of the Symbol blockchain, because most interactions with the network happen
 through them.
 
-All JavaScript examples throughout the tutorials use the <TS:SymbolTransactionFactory.create> method
+All JavaScript examples throughout the tutorials use the <js:SymbolTransactionFactory.create> method
 to create transactions, due to its compact syntax.
 However, this method is not type-safe: it accepts a generic object and depends on it having the correct fields.
 
-This page shows how to use <TS:SymbolFacade.createTransactionFromTypedDescriptor> instead.
+This page shows how to use <js:SymbolFacade.createTransactionFromTypedDescriptor> instead.
 This alternative accepts well-defined parameters, offering better type safety and improved IDE support.
 
 The code presented here is the same as in the [Creating a Transfer Transaction](./transfer.md) tutorial,
@@ -42,7 +42,7 @@ Transactions are created in a type-safe manner in two steps: creating a transact
 Typed descriptors are what provide type safety when building transactions in JavaScript,
 because of their constructors with structured parameters.
 
-See for example the <TS:TransferTransactionV1Descriptor> used in the code.
+See for example the <js:TransferTransactionV1Descriptor> used in the code.
 
 Whenever one such descriptor is available, tutorials will link to both the relevant reference page and this guide.
 
@@ -55,15 +55,15 @@ Whenever one such descriptor is available, tutorials will link to both the relev
     ```
 
 Once the descriptor is ready, creating the transaction is straightforward: it simply involves passing the descriptor to the
-<TS:SymbolFacade.createTransactionFromTypedDescriptor> method and provide the desired fees and deadline.
+<js:SymbolFacade.createTransactionFromTypedDescriptor> method and provide the desired fees and deadline.
 
 Note that, as in the [Creating a Transfer Transaction](./transfer.md#building-the-transaction) tutorial,
 the transaction's fee must be calculated after construction because it depends on the transaction's size.
 
 !!! warning "Deadlines are provided differently in the typed and untyped versions"
 
-    Deadlines passed to <TS:SymbolTransactionFactory.create> are specified in milliseconds and are relative to the _network time_.
-    In contrast, deadlines passed to <TS:SymbolFacade.createTransactionFromTypedDescriptor> are specified in seconds
+    Deadlines passed to <js:SymbolTransactionFactory.create> are specified in milliseconds and are relative to the _network time_.
+    In contrast, deadlines passed to <js:SymbolFacade.createTransactionFromTypedDescriptor> are specified in seconds
     and are relative to the _system time_, that is, the local clock of the machine running the code.
 
     This approach is convenient because it removes the need to fetch the current network time: for example,

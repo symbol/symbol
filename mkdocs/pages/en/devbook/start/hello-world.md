@@ -17,14 +17,14 @@ No accounts, keys, or transactions are required, just a basic SDK call and a RES
 
 {{ tutorial.code_snippet(['py:7:11', 'js:6:10']) }}
 
-The <Python:symbolchain.facade.SymbolFacade.SymbolFacade|SymbolFacade> class is the main entry point to the Symbol SDK.
+The <py:symbolchain.facade.SymbolFacade.SymbolFacade|SymbolFacade> class is the main entry point to the Symbol SDK.
 It provides most of the methods you will need when working with Symbol:
 from building and signing transactions to retrieving network-related information.
 
 To create a facade, simply specify the name of the network you want to work with, either `mainnet` or `testnet`.
 
 This example then demonstrates how to retrieve the network launch date.
-The <Python:symbolchain.NetworkTimestamp.NetworkTimestampDatetimeConverter.to_datetime|to_datetime()> method converts
+The <py:symbolchain.NetworkTimestamp.NetworkTimestampDatetimeConverter.to_datetime|to_datetime()> method converts
 a network timestamp into a UTC datetime.
 By passing `0` (the genesis timestamp) you can obtain the moment the genesis block was produced, that is,
 the network's launch date.
