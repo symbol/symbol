@@ -38,7 +38,7 @@ def on_pre_build(config: base.Config):
 @mkdocs.plugins.event_priority(0)
 def on_page_markdown(content, page, config, files):
 	"""
-	Customize markdown for TS API pages. The Typedoc-markdown plugin does not
+	Customize markdown for JS API pages. The Typedoc-markdown plugin does not
 	support templates so we need this workaround.
 	"""
 	if not page.url.startswith("devbook/reference/ts"):
@@ -62,7 +62,7 @@ def on_page_markdown(content, page, config, files):
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
 	content = re.sub(
 		r'^(.*?)\n\n([^#].*?)\n\n',
-		rf'\1\n\n<dl class="automatic-reference-term" markdown><dt>TS:{symbol_name}</dt><dd>\2</dd></dl>\n\n', content, 1)
+		rf'\1\n\n<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\n\n', content, 1)
 
 	# Add glossary definition to methods
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
@@ -70,7 +70,7 @@ def on_page_markdown(content, page, config, files):
 	if m:
 		content = content[:m.start()] + re.sub(
 			r"(\n### )([^(]*?)(\(\)\n\n```.*?```\n\n)([^#].*?)(\n\n####)",
-			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>TS:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
+			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
 
 	# Add special anchor because the typedoc-md plugin forgot to add it?
 	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, 1)

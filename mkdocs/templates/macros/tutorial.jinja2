@@ -1,5 +1,6 @@
 {% set ns = namespace(step_count=1) %}
-{% set lang_name = {"py":":simple-python: Python", "js":":simple-javascript: JavaScript"} %}
+{% set lang_name = {"py":"Python", "js":"JavaScript"} %}
+{% set lang_icon = {"py":":simple-python:", "js":":simple-javascript:"} %}
 {% set lang_ext = {"py":"py", "js":"mjs"} %}
 
 {% macro list_begin() -%}
@@ -35,7 +36,7 @@
 {# Now iterate over the normalized dictionary #}
 {%- for l, props in langs.items() -%}
 {%- set caption = props.caption if props.caption is defined else None -%}
-=== "{{lang_name[l]}}"
+=== "{{lang_icon[l]}} {{lang_name[l]}}"
 
     ```{{l}} linenums="1"
     --8<-- "{{filename}}.{{lang_ext[l]}}"
@@ -68,14 +69,14 @@
 {%- set end = props.range[1] -%}
 {%- set caption = props.caption if props.caption is defined else None -%}
 {%- set descriptor = props.descriptor if props.descriptor is defined else None -%}
-=== "{{lang_name[l]}}"
+=== "{{lang_icon[l]}} {{lang_name[l]}}"
 
     ```{{l}} linenums="{{start}}"
     --8<-- "{{ns.filename}}.{{lang_ext[l]}}:{{start}}:{{end}}"
     ```
 
     {% if descriptor -%}
-    > Use a <TS:{{descriptor}}> to create this transaction in a type-safe way.  
+    > Use a <js:{{descriptor}}> to create this transaction in a type-safe way.  
     > See the [Typed Descriptors](site:/devbook/transactions/typed-descriptors) tutorial for details.
     {% endif %}
 

@@ -149,10 +149,10 @@ transaction's size in bytes, which is only known once the descriptor has been co
 Once the transaction is created, it must be signed with the signing account's private key.
 Signing ensures the transaction is authentic and authorized by the sender.
 
-<Python:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction> returns a <signature:> encoded as a
+<py:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction> returns a <signature:> encoded as a
 hexadecimal string.
 
-<Python:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature> adds the signature to the
+<py:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature> adds the signature to the
 transaction and serializes it into a JSON payload ready to be submitted directly to a node for announcement.
 
 ### Announcing the Transaction
@@ -225,15 +225,15 @@ Alternatively, you can search for the `signer_public_key` to view the transactio
 This tutorial showed how to:
 
 * **Create a transaction** using the
-    <Python:symbolchain.symbol.TransactionFactory.TransactionFactory.create|TransactionFactory.create> method,
+    <py:symbolchain.symbol.TransactionFactory.TransactionFactory.create|TransactionFactory.create> method,
     and providing deadline and fee information obtained from the
     [`/node/time`](site:/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime) and
     [`/network/fees/transaction`](site:/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees)
     endpoints.
 
 * **Sign the transaction** using the
-    <Python:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction|SymbolFacade.sign_transaction> and
-    <Python:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature|TransactionFactory.attach_signature> methods.
+    <py:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction|SymbolFacade.sign_transaction> and
+    <py:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature|TransactionFactory.attach_signature> methods.
 
 * **Announce the transaction** using the
     [`/transactions`](site:/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction) endpoint.
