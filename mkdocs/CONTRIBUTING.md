@@ -97,7 +97,7 @@ The simplified one accepts a list of strings, describing the language and line r
 
 {{ tutorial.code_full("devbook/hello-world", ["py", "js"]) }}
 {{ tutorial.code_snippet(["py:4:4", "js:4:4"])}}
-{{ tutorial.code_snippet(["py:6:16", "js:6:16:The <TS:TransferTransactionV1Descriptor> constructor only accepts parameters of the right type, \
+{{ tutorial.code_snippet(["py:6:16", "js:6:16:The <js:TransferTransactionV1Descriptor> constructor only accepts parameters of the right type, \
 making it easier to use during development. We can do almost any markdown here:\n
 * One **black**\n
 * Two"]) }}
@@ -136,7 +136,7 @@ Each language tab can have an optional caption, separated from the language code
 Lines must be continued by escaping the line break, and line breaks are inserted with \n.
 See the example above.
 
-Supported languages are: Python (`py`), JavaScript (`js`), and JavaScript with strongly-typed descriptors (`tjs`).
+Supported languages are: Python (`py`) and JavaScript (`js`).
 See [`tutorial.jinja2`](./templates/macros/tutorial.jinja2) for details.
 
 ## Technical Writing
