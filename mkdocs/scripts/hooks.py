@@ -83,13 +83,13 @@ def camel_to_snake(name):
 def page_markdown_dylinks(content, page, config, files):
 	"""
 	The Dynamic Links (dylinks) parser.
-	Turn expressions like ;class; and ;class.method; into links to the reference pages that change
+	Turn expressions like <dy:ClassName> and <dy:ClassName.methodName> into links to the reference pages that change
 	text and href depending on the selected language.
 	Accepts JavaScript.camelCase and reformats to Python.snake_case.
 	"""
 	langs = ['py', 'js']
 	lang_names = ['Python', 'JavaScript']
-	class_remaps = {'SymbolTransactionFactory':'TransactionFactory'}
+	class_remaps = config['extra']['symbol']['class-remaps']
 	rgroup_id = 999
 	def class_formatter(m):
 		nonlocal rgroup_id
