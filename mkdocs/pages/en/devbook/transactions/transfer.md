@@ -70,7 +70,7 @@ Deadlines are expressed in absolute network time, so the first step is to fetch 
 If a transaction's deadline is earlier than the current network time or more than two hours in the future,
 the transaction will be rejected.
 To avoid this, you need to know the current network time before constructing the transaction, using the
-[`/node/time`](site:/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime) endpoint.
+<get:/node/time> endpoint.
 
 However, applications do not need to query the network time before every transaction.
 It can be fetched once and then adjusted using the local system clock when needed.
@@ -87,8 +87,7 @@ In addition, each node may enforce a minimum fee threshold for incoming transact
 
 The optimal fee depends on the current state of the network,
 particularly the number of transactions being submitted and the fees they are offering.
-To support fee estimation, Symbol provides the
-[`/network/fees/transaction`](site:/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees)
+To support fee estimation, Symbol provides the <get:/network/fees/transaction>
 endpoint that returns a _recommended fee multiplier_ based on recent transaction activity.
 
 The final fee is calculated by multiplying the recommended multiplier by the transaction's size in bytes.
@@ -158,9 +157,7 @@ ready to be submitted directly to a node for announcement.
 
 {{ tutorial.code_snippet(['py:63:73', 'js:61:69']) }}
 
-Announcing a transaction is a simple `PUT` request to the
-[`/transactions`](site:/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction) endpoint
-of any Symbol API node.
+Announcing a transaction is a simple `PUT` request to the <put:/transactions> endpoint of any Symbol API node.
 As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.
 
 However, this response does **not** indicate that the transaction is valid or accepted by the network.
@@ -183,9 +180,7 @@ as shown in the next step.
     In addition, the logic for checking transaction status is reusable.
     It can be moved into a utility function or module, since it is needed after announcing every transaction.
 
-The snippet above repeatedly queries the
-[`/transactionStatus`](site:/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus)
-endpoint using the hash of the submitted transaction.
+The snippet above repeatedly queries the <get:/transactionStatus/{hash}> endpoint using the hash of the submitted transaction.
 The response may take one of several forms:
 
 * An HTTP error, indicating that the node has not yet started processing the transaction.
@@ -224,19 +219,14 @@ Alternatively, you can search for the `signer_public_key` to view the transactio
 This tutorial showed how to:
 
 * **Create a transaction** using the <dy:SymbolTransactionFactory.create> method,
-    and providing deadline and fee information obtained from the
-    [`/node/time`](site:/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime) and
-    [`/network/fees/transaction`](site:/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees)
+    and providing deadline and fee information obtained from the <get:/node/time> and <get:/network/fees/transaction>
     endpoints.
 
 * **Sign the transaction** using the <dy:SymbolFacade.signTransaction> and <dy:SymbolTransactionFactory.attachSignature>
     methods.
 
-* **Announce the transaction** using the
-    [`/transactions`](site:/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction) endpoint.
+* **Announce the transaction** using the <put:/transactions> endpoint.
 
-* **Confirm the transaction** by polling the
-    [`/transactionStatus`](site:/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus)
-    endpoint.
+* **Confirm the transaction** by polling the <get:/transactionStatus/{hash}> endpoint.
 
 Other transaction types follow the same general process.

@@ -15,7 +15,7 @@
 			if (iframe && iframe.contentWindow) {
 				if (iframe.contentWindow.document.readyState === "complete") {
 					const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-					const element = await waitFor(() => iframeDoc.querySelector(`[id*='${elementSelector}']`));
+					const element = await waitFor(() => iframeDoc.querySelector(`[id='${elementSelector}']`));
 
 					if (element) {
 						// Ensure the operation detail is expanded before scrolling
