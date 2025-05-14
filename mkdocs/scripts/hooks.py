@@ -5,6 +5,7 @@ from mkdocs.config import Config, base
 import shutil
 from pathlib import Path
 import re
+import yaml
 
 log = logging.getLogger('mkdocs')
 
@@ -28,12 +29,14 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 @mkdocs.plugins.event_priority(50)
 def on_pre_build(config: base.Config):
 	"""
-	Copy OpenAPI spec files next to their markdown.
+	Copy the OpenAPI spec file next to its markdown, and load it into the config.
 	"""
 	spec_path = Path(__file__).parent.parent.parent.joinpath("openapi").resolve()
 	md_path = Path(config.docs_dir).joinpath("devbook", "reference", "rest").resolve()
-	for f in ['openapi-symbol.yml']:
-		shutil.copy2(spec_path / f, md_path / f)
+	spec_fname = 'openapi-symbol.yml'
+	shutil.copy2(spec_path / spec_fname, md_path / spec_fname)
+	with open(spec_path / spec_fname, 'r', encoding='utf-8') as f:
+		config['extra']['symbol']['openapi'] = yaml.safe_load(f)
 
 def page_markdown_js_typedoc(content, page, config, files):
 	"""
@@ -120,8 +123,29 @@ def page_markdown_dylinks(content, page, config, files):
 
 	return content
 
+def page_markdown_rest(content, page, config, files):
+	def path_formatter(m):
+		method = m.group(1)
+		path = m.group(2)
+		spec = config['extra']['symbol']['openapi']['paths']
+		if path not in spec:
+			log.warning(f'Page {page.file.src_path} has invalid path {path}')
+			return f'**INVALID PATH `{path}`**'
+		spec = spec[path]
+		if method not in spec:
+			log.warning(f'Page {page.file.src_path} has invalid method `{method}` in path {path}')
+			return f'**INVALID PATH `{method}:{path}`**'
+		spec = spec[method]
+		summary = spec['summary']
+		r = f'[`{path}`](site:/devbook/reference/rest/symbol#operations-{spec['tags'][0].replace(' ', '_')}-{spec['operationId']} "{summary}")'
+		return r
+
+	content = re.sub(r'<(get|put|post):([^>]*)>', path_formatter, content)
+	return content
+
 @mkdocs.plugins.event_priority(0)
 def on_page_markdown(content, page, config, files):
 	content = page_markdown_js_typedoc(content, page, config, files)
 	content = page_markdown_dylinks(content, page, config, files)
+	content = page_markdown_rest(content, page, config, files)
 	return content
