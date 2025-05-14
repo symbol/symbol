@@ -58,9 +58,48 @@ That said, if understanding a document requires previous knowledge, you must alw
 * Always specify the language for code blocks so that neither the syntax highlighter nor the text editor must guess.
     If no specific type makes sense, just use `text`.
 
-## Special Macros
+## Additional Formatting and Macros
 
-A few macros have been created to simplify repeated process like tutorial steps and multi-language code snippets.
+Some plugins enable additional formatting. On top of them, a few macros have been created to simplify repeated process
+like tutorial steps and multi-language code snippets.
+
+### Glossary Links
+
+Define glossary terms using:
+
+```markdown
+category:glossary_term
+:   Definition.
+```
+
+If no category is used (and no colon after it), the default category is used.
+The default category can also be used explicitly by using `_`.
+
+Link to glossary terms using `<category:glossary_term>` and you'll get a popup with the definition when hovering
+over the term in the text.
+
+Link to glossary terms in the default category using `<glossary_term:>`.
+
+You can provide an alternate text instead of the glossary term using a pipe `|`:
+`<category:glossary_term|alternate_text>`.
+This is useful when a plural fits better in a sentence, but the term is defined in singular, for example.
+
+Every API class and method defines a term, so they can be linked to using, for example: `<py:SymbolFacade>`.
+The available categories are `py`, `js`, and `java`.
+REST endpoints do not support glossary links yet.
+
+### Dynamic Links
+
+A special language code `dy` means that this is a link to an API class or method that changes depending on the
+language the user has selected in any of the code tabs.
+
+For example, `<dy:SymbolFacade.signTransaction>` will point to the `<js:SymbolFacade.signTransaction>` reference page
+when the last tab the user has read was **JavaScript**, and will change to `<py:SymbolFacade.sign_transaction>` if
+**Python** was selected.
+Note that the name of the method changes automatically.
+
+The code to handle this conversion is located in `hooks.py` and it takes care of JS to Python name changes.
+Additional class name remaps can be provided in `mkdocs.yml` in the `extra.symbol.class-remaps` section.
 
 ### Tutorial Steps
 
@@ -120,7 +159,7 @@ The extended syntax accepts a list of objects, keyed by language code:
 Available parameters are:
 
 * `range`: List of two values indicating the start and end lines of the code snippet.
-* `descriptor`: If present, includes an admonition about typed descriptors including a link to this decsriptor.
+* `descriptor`: If present, includes an admonition about typed descriptors including a link to this descriptor.
 * `caption`: Free text to add below the snippet.
 
 `code_snippet` uses the filename of the previous `code_full`.
@@ -138,6 +177,10 @@ See the example above.
 
 Supported languages are: Python (`py`) and JavaScript (`js`).
 See [`tutorial.jinja2`](./templates/macros/tutorial.jinja2) for details.
+
+### Links to Reference Guides
+
+All classes
 
 ## Technical Writing
 
