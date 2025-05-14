@@ -35,9 +35,10 @@ the network's launch date.
 
 Interaction with the Symbol blockchain happens through API nodes, which expose a REST interface for
 querying network state and submitting transactions.
-Not all nodes provide this interface, so it is important to connect to one that does.
+Not all nodes provide this interface, so it is important to connect to one labeled as **API Node**.
 
-In this example, the program connects to a public API node and retrieves the current blockchain height.
+This example connects to an API node and retrieves the current blockchain height from the <get:/chain/info> endpoint.
+
 This request does not require any private keys or authorization, making it a simple and effective test to confirm that
 the environment is set up correctly and can reach the network.
 
@@ -51,7 +52,8 @@ The output shown below corresponds to a typical run of the program.
 
 ## Conclusion
 
-If you got the output shown above, you're all set! You have access to the Symbol SDK and successfully reached a Symbol API node.
+If you got the output shown above, you're all set!
+You have access to the Symbol SDK and successfully reached a Symbol API node.
 
 That's all you need to start your Symbol adventure.
 
