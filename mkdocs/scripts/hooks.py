@@ -113,7 +113,7 @@ def page_markdown_dylinks(content, page, config, files):
 				if class_name in class_remaps:
 					class_name = class_remaps[class_name]
 				method_name = camel_to_snake(method_name)
-			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}.{method_name}></label>'
+			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}.{method_name}|{class_name}.{method_name}()></label>'
 		r += '</span>'
 		rgroup_id += 1
 		return r
@@ -137,7 +137,7 @@ def page_markdown_rest(content, page, config, files):
 			return f'**INVALID PATH `{method}:{path}`**'
 		spec = spec[method]
 		summary = spec['summary']
-		r = f'[`{path}`](site:/devbook/reference/rest/symbol#operations-{spec['tags'][0].replace(' ', '_')}-{spec['operationId']} "{summary}")'
+		r = f'[`{path}`&nbsp;`{method.upper()}`{{.rest-method .rest-method-{method}}}](site:/devbook/reference/rest/symbol#operations-{spec['tags'][0].replace(' ', '_')}-{spec['operationId']} "{summary}")'
 		return r
 
 	content = re.sub(r'<(get|put|post):([^>]*)>', path_formatter, content)

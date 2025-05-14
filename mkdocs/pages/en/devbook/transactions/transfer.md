@@ -157,7 +157,7 @@ ready to be submitted directly to a node for announcement.
 
 {{ tutorial.code_snippet(['py:63:73', 'js:61:69']) }}
 
-Announcing a transaction is a simple `PUT` request to the <put:/transactions> endpoint of any Symbol API node.
+Announcing a transaction is a simple request to the <put:/transactions> endpoint of any Symbol API node.
 As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.
 
 However, this response does **not** indicate that the transaction is valid or accepted by the network.
