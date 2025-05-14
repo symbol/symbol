@@ -35,8 +35,7 @@ def on_pre_build(config: base.Config):
 	for f in ['openapi-symbol.yml']:
 		shutil.copy2(spec_path / f, md_path / f)
 
-@mkdocs.plugins.event_priority(0)
-def on_page_markdown(content, page, config, files):
+def page_markdown_js_typedoc(content, page, config, files):
 	"""
 	Customize markdown for JS API pages. The Typedoc-markdown plugin does not
 	support templates so we need this workaround.
@@ -49,11 +48,11 @@ def on_page_markdown(content, page, config, files):
 		dict = {"Class":"class", "Function":"method"}
 		nonlocal symbol_name
 		symbol_name = m.group(2)
-		# Insert zero-width spaces in camel-case titles, in case they are very long
-		symbol_name_zws = re.sub(r'([a-z])([A-Z])', r'\1<wbr>\2', symbol_name)
+		# Insert manual word breaks in camel-case titles, in case they are very long
+		symbol_name_wbr = re.sub(r'([a-z])([A-Z])', r'\1<wbr>\2', symbol_name)
 		if m.group(1) not in dict:
-			return f'# {m.group(1)}: {symbol_name_zws}'
-		return f'# <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_zws}'
+			return f'# {m.group(1)}: {symbol_name_wbr}'
+		return f'# <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_wbr}'
 
 	# Add object type icon at the header
 	content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, 1)
@@ -75,4 +74,54 @@ def on_page_markdown(content, page, config, files):
 	# Add special anchor because the typedoc-md plugin forgot to add it?
 	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, 1)
 
+	return content
+
+def camel_to_snake(name):
+    s1 = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+def page_markdown_dylinks(content, page, config, files):
+	"""
+	The Dynamic Links (dylinks) parser.
+	Turn expressions like ;class; and ;class.method; into links to the reference pages that change
+	text and href depending on the selected language.
+	Accepts JavaScript.camelCase and reformats to Python.snake_case.
+	"""
+	langs = ['py', 'js']
+	lang_names = ['Python', 'JavaScript']
+	class_remaps = {'SymbolTransactionFactory':'TransactionFactory'}
+	rgroup_id = 999
+	def class_formatter(m):
+		nonlocal rgroup_id
+		r = '<span markdown class="dylink">'
+		for ndx, l in enumerate(langs):
+			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{m.group(1)}></label>'
+		r += '</span>'
+		rgroup_id += 1
+		return r
+
+	def method_formatter(m):
+		nonlocal rgroup_id
+		r = '<span markdown class="dylink">'
+		for ndx, l in enumerate(langs):
+			class_name = m.group(1)
+			method_name = m.group(2)
+			if l == 'py':
+				if class_name in class_remaps:
+					class_name = class_remaps[class_name]
+				method_name = camel_to_snake(method_name)
+			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}.{method_name}></label>'
+		r += '</span>'
+		rgroup_id += 1
+		return r
+
+	content = re.sub(r'<dy:([A-Za-z]*)>', class_formatter, content)
+	content = re.sub(r'<dy:([A-Za-z]*)\.([A-Za-z_]*)>', method_formatter, content)
+
+	return content
+
+@mkdocs.plugins.event_priority(0)
+def on_page_markdown(content, page, config, files):
+	content = page_markdown_js_typedoc(content, page, config, files)
+	content = page_markdown_dylinks(content, page, config, files)
 	return content
