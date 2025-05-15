@@ -12,8 +12,8 @@ until it is confirmed.
 Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
 up-to-date values.
 
-You should have completed the [Hello World](site:/devbook/start/hello-world) tutorial to understand how to run the
-tutorials.
+If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
+development environment is set up correctly.
 
 ## Full Code
 
@@ -212,21 +212,19 @@ To see the transaction from the network's perspective, you can visit the
 The hash is printed in the line that says `Waiting for confirmation from /transactionStatus/...`.  
 You should see the transaction move through the confirmation process in real time.
 
-Alternatively, you can search for the `signer_public_key` to view the transaction in the history of the signer account.
+Alternatively, you can search for the `signerPublicKey` to view the transaction in the history of the signer account.
 
 ## Conclusion
 
 This tutorial showed how to:
 
-* **Create a transaction** using the <dy:SymbolTransactionFactory.create> method,
-    and providing deadline and fee information obtained from the <get:/node/time> and <get:/network/fees/transaction>
-    endpoints.
-
-* **Sign the transaction** using the <dy:SymbolFacade.signTransaction> and <dy:SymbolTransactionFactory.attachSignature>
-    methods.
-
-* **Announce the transaction** using the <put:/transactions> endpoint.
-
-* **Confirm the transaction** by polling the <get:/transactionStatus/{hash}> endpoint.
+| Step                                                     | Related documentation                                                               |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [Obtain deadline information](#fetching-network-time)    | <get:/node/time>                                                                    |
+| [Obtain fee information](#fetching-recommended-fees)     | <get:/network/fees/transaction>                                                     |
+| [Create a transaction](#creating-a-transfer-transaction) | <dy:SymbolTransactionFactory.create>                                                |
+| [Sign the transaction](#signing-and-serializing)         | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
+| [Announce the transaction](#announcing-the-transaction)  | <put:/transactions>                                                                 |
+| [Wait for confirmation](#waiting-for-confirmation)       | <get:/transactionStatus/{hash}>                                                     |
 
 Other transaction types follow the same general process.
