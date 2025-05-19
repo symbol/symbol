@@ -494,13 +494,17 @@ code.doc-symbol-interface::after {
 	font-family: "Exo 2";
 }
 
+.graphviz .edge text {
+	fill: var(--md-default-fg-color--light);
+}
+
 .graphviz .edge path,
 .graphviz .edge polygon {
 	stroke: var(--md-primary-fg-color--light);
 	fill: var(--md-primary-fg-color--light);
 }
 
-.graphviz .node:hover path {
+.graphviz .node:hover a path {
 	fill: var(--md-primary-fg-color);
 	transition: fill 0.25s;
 }
