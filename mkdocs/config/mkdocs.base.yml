@@ -97,6 +97,7 @@ markdown_extensions:
   toc:
     permalink: ⚓︎
     toc_depth: 3
+  mkdocs_graphviz: {}
 theme:
   name: material
   custom_dir: ../overrides
@@ -144,7 +145,7 @@ extra:
       output_dir: devbook/reference/ts
       tsconfig: ../sdk/javascript/tsconfig/check-bindings.json
       options: ../sdk/javascript/docs/typedoc.json
-      enabled: true
+      enabled: false
     class-remaps:
       SymbolTransactionFactory: TransactionFactory
 copyright: >
