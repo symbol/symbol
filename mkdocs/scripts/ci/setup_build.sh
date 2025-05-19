@@ -3,9 +3,6 @@ set -ex
 # Install Typedoc
 npm install
 
-# Install Graphviz
-sudo apt install graphviz
-
 # Build Typescript SDK
 pushd ../sdk/javascript
 npm install
