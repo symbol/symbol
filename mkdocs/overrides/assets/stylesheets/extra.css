@@ -481,3 +481,26 @@ code.doc-symbol-interface::after {
 [data-md-color-scheme=default] .md-typeset a code.rest-method-post {
 	background-color: #49cc90
 }
+
+/* Graphviz diagrams */
+.graphviz .node path {
+	stroke: var(--md-primary-fg-color);
+	fill: var(--md-accent-fg-color--transparent);
+	transition: fill 0.25s;
+}
+
+.graphviz text {
+	fill: var(--md-default-fg-color);
+	font-family: "Exo 2";
+}
+
+.graphviz .edge path,
+.graphviz .edge polygon {
+	stroke: var(--md-primary-fg-color--light);
+	fill: var(--md-primary-fg-color--light);
+}
+
+.graphviz .node:hover path {
+	fill: var(--md-primary-fg-color);
+	transition: fill 0.25s;
+}
