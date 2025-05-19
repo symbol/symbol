@@ -1,6 +1,6 @@
 import {
-    SymbolFacade,
-    NetworkTimestamp
+	SymbolFacade,
+	NetworkTimestamp
 } from 'symbol-sdk/symbol';
 
 const facade = new SymbolFacade('mainnet');
@@ -12,17 +12,17 @@ console.log(`Network launch date: ${launchDate.toISOString()}`);
 const NODE_URL = 'https://001-sai-dual.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 try {
-    // Fetch current chain information
-    const infoPath = '/chain/info';
-    console.log(`Fetching chain information from ${infoPath}`);
-    const response = await fetch(`${NODE_URL}${infoPath}`,
-        { timeout: 10000 });
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const responseJson = await response.json();
-    const height = parseInt(responseJson.height, 10);
-    console.log(`  Blockchain height: ${height.toLocaleString()} blocks`);
+	// Fetch current chain information
+	const infoPath = '/chain/info';
+	console.log(`Fetching chain information from ${infoPath}`);
+	const response = await fetch(`${NODE_URL}${infoPath}`,
+		{ timeout: 10000 });
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+	const responseJson = await response.json();
+	const height = parseInt(responseJson.height, 10);
+	console.log(`  Blockchain height: ${height.toLocaleString()} blocks`);
 } catch (e) {
-    console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
+	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }
