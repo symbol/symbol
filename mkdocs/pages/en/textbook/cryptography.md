@@ -101,4 +101,4 @@ While keys, and therefore <address:|addresses> too, are normally generated rando
 This involves generating <key pair:|key pairs> repeatedly until one produces an address that meets the desired criteria.
 The process usually requires substantial time and computation depending on the complexity of the pattern.
 
-Vanity addresses can be useful for branding, visibility, or personal preference—but they offer no security advantage.
+Vanity addresses can be useful for branding, visibility, or personal preference, but they offer no security advantage.
