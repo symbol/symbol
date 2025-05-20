@@ -483,7 +483,8 @@ code.doc-symbol-interface::after {
 }
 
 /* Graphviz diagrams */
-.graphviz .node path {
+.graphviz .node path,
+.graphviz .node polygon {
 	stroke: var(--md-primary-fg-color);
 	fill: var(--md-accent-fg-color--transparent);
 	transition: fill 0.25s;
@@ -504,7 +505,8 @@ code.doc-symbol-interface::after {
 	fill: var(--md-primary-fg-color--light);
 }
 
-.graphviz .node:hover a path {
+.graphviz .node:hover a path,
+.graphviz .node:hover a polygon {
 	fill: var(--md-primary-fg-color);
 	transition: fill 0.25s;
 }

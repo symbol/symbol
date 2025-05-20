@@ -21,9 +21,11 @@ digraph "Transaction Lifecycle" {
     // Main vertical flow
     Creation     [label="Transaction is created and signed", URL="#1-creation-and-signature"];
     Announcement [label="Transaction is announced", URL="#2-announcement"];
-    Validation   [label="Is it\nvalid?", shape=diamond, URL="#3-validation"];
+    Validation   [label="Is it
+valid?", shape=diamond, style="", URL="#3-validation"];
     Propagation  [label="Propagate to other nodes", URL="#4-propagation"];
-    Consensus    [label="Is there\nconsensus?", shape=diamond, URL="#5-consensus"];
+    Consensus    [label="Is there
+consensus?", shape=diamond, style="", URL="#5-consensus"];
     Confirmation [label="Transaction is included in a new block", URL="#6-confirmation"];
     Finalization [label="The block becomes immutable", URL="#7-finalization"];
 
@@ -34,14 +36,14 @@ digraph "Transaction Lifecycle" {
     // Main flow edges
     Creation ->     Announcement;
     Announcement -> Validation;
-    Validation ->   Propagation [label=Yes];
+    Validation ->   Propagation [label="   Yes", labelfloat=true];
     Propagation ->  Consensus;
-    Consensus ->    Confirmation [label=Yes];
+    Consensus ->    Confirmation [label="   Yes", labelfloat=true];
     Confirmation -> Finalization;
 
     // Rejection branches to the right
-    Validation ->   Rejection1 [label=No, style=dashed, minlen=3];
-    Consensus ->    Rejection2 [label=No, style=dashed, minlen=3];
+    Validation ->   Rejection1 [label=No, style=dashed, minlen=2];
+    Consensus ->    Rejection2 [label=No, style=dashed, minlen=2];
 
     // Position rejection nodes on the same rank as their source
     { rank = same; Validation; Rejection1 }
