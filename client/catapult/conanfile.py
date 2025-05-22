@@ -12,6 +12,7 @@ class CatapultConan(ConanFile):
 		self.requires("boost/1.83.0", run=True)
 		self.requires("openssl/3.4.1", run=True)
 		self.requires("cppzmq/4.10.0@nemtech/stable", run=True)
+		self.requires("mongo-c-driver/1.30.3@nemtech/stable", run=True)
 		self.requires("mongo-cxx-driver/4.0.0@nemtech/stable", run=True)
 		self.requires("rocksdb/10.1.3@nemtech/stable", run=True)
 
