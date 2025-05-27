@@ -489,8 +489,14 @@ code.doc-symbol-interface::after {
 }
 
 /* Graphviz diagrams */
+.graphviz {
+	display: block;
+	margin: auto;
+}
+
 .graphviz .node path,
-.graphviz .node polygon {
+.graphviz .node polygon,
+.graphviz .node ellipse {
 	stroke: var(--md-accent-to-bg-color);
 	fill: var(--md-accent-fg-color--transparent);
 	transition: fill 0.25s;
@@ -512,7 +518,8 @@ code.doc-symbol-interface::after {
 }
 
 .graphviz .node:hover a path,
-.graphviz .node:hover a polygon {
+.graphviz .node:hover a polygon,
+.graphviz .node:hover a ellipse {
 	fill: var(--md-accent-to-bg-color);
 	transition: fill 0.25s;
 }
