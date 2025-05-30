@@ -88,7 +88,7 @@ Hardware wallet
     The keys are stored in an encrypted memory and never leave the device, so hardware wallets are deemed one of
     the most secure ways to access an account.
     They typically only provide signing functionality, so they must be paired with a software <wallet:> or
-    application that creates the <transaction:|transactions> and announces them.
+    application that creates the <transactions:> and announces them.
 
 HTLC
 :   Hashed Time-Lock Contract.
@@ -191,13 +191,6 @@ VPS
 
 VRF
 :   Verifiable Random Function.
-
-Wallet
-:   Application that manages one or more <account:|accounts>.
-    It typically allows users to view balances, initiate transactions, and sign them.
-    A self-custody wallet possesses the account's <key pair:|private keys> and can therefore produce signatures
-    directly.
-    Compare with a <hardware wallet:>.
 
 XEM
 :   The native currency of the <NIS1:> blockchain.

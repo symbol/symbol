@@ -8,9 +8,10 @@ plugins:
     use_default: true
     inline_refs: none
     markdown_links: true
-    tooltip: short
+    tooltip: full
     ignore_case: true
     strict: true
+    plurals: en
     sections:
       - py
       - js

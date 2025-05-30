@@ -5,15 +5,17 @@ These are the basic cryptography concepts that underpin all of Symbol's technolo
 ## Keys
 
 Key Pair
-:   A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key).
+:   A pair formed by a very long, secret random number (the private key) and a
+    public number derived from it (the public key).
 
-    The actual value of the **private key** is meaningless, and it is meant to be kept secret.
-    It should be impossible to guess by unauthorized parties, and it is extremely unlikely that the same number is generated twice by chance.
+The actual value of the **private key** is meaningless, and it is meant to be kept secret.
+It should be impossible to guess by unauthorized parties, and it is extremely unlikely that the same number is
+generated twice by chance.
 
-    The **public key** serves as the public identifier of the key pair and can be disseminated widely.
-    It can be used to prove that the private key is known without revealing it.
+The **public key** serves as the public identifier of the key pair and can be disseminated widely.
+It can be used to prove that the private key is known without revealing it.
 
-    The public key can be derived from the private key, **but not the other way around**.
+The public key can be derived from the private key, **but not the other way around**.
 
 Symbol uses key pairs in different places, for different purposes:
 
@@ -42,31 +44,39 @@ Symbol uses key pairs in different places, for different purposes:
     | **Transport** | 🟡 LOW   | An attacker could steal harvesting delegations away from the node, but harmless otherwise. |
 
 On Symbol, both the private and the public key are 256-bit (32-byte) integers.
-The public key is obtained via [Elliptic Curve Cryptography](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography) using the [twisted Edwards curve](https://en.wikipedia.org/wiki/Twisted_Edwards_curve).
+The public key is obtained via [Elliptic Curve Cryptography](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography)
+using the [twisted Edwards curve](https://en.wikipedia.org/wiki/Twisted_Edwards_curve).
 
 ## Signatures
 
 Signature
 :   A digital attachment to a document that certifies that the document is approved by a given <account:>.
 
-    The signature is obtained by processing the document with the <key pair:|private key> of the account, so that anybody can use the associated public key to verify that the signature matches the document, but only the owner of the private key can produce an identical signature.
+The signature is obtained by processing the document with the <key pair:|private key> of the account,
+so that anybody can use the associated public key to verify that the signature matches the document,
+but only the owner of the private key can produce an identical signature.
 
 All transactions on Symbol are signed, but the signatures required depend on the transaction type and its participants.
-For example, transferring assets from a single-owner account to another only requires the signature of the source account's private key.
+For example, transferring assets from a single-owner account to another only requires the signature of the
+source account's private key.
 
-However, transferring assets from a <multisignature account:|multiple-owner account> requires the approval of all preconfigured signers, and must therefore gather multiple signatures before it is considered valid.
+However, transferring assets from a <multisignature account:|multiple-owner account> requires the approval of all
+preconfigured signers, and must therefore gather multiple signatures before it is considered valid.
 
-Signatures on Symbol are 512-bit (64-byte) long and are generated using the [Ed25519](https://ed25519.cr.yp.to) and [SHA‑512](https://en.wikipedia.org/wiki/SHA-2) algorithms.
+Signatures on Symbol are 512-bit (64-byte) long and are generated using the [Ed25519](https://ed25519.cr.yp.to) and
+[SHA‑512](https://en.wikipedia.org/wiki/SHA-2) algorithms.
 
 ## Addresses
 
 Address
-:   A convenient, shorter form of a <key pair:|public key>, that simplifies sharing it by requiring only letters and numbers. It's typically a synonym for <account:>.
+:   A convenient, shorter form of a <key pair:|public key>, that simplifies sharing it by requiring only
+    letters and numbers. It's typically a synonym for <account:>.
 
-    Keys, both public and private, are binary data which is hard to print and share, whereas addresses are made up of only latin letters and numbers.
+Keys, both public and private, are binary data which is hard to print and share, whereas addresses are made up of
+only latin letters and numbers.
 
-    Moreover, Symbol keys require 32 bytes of binary data, or 64 hexadecimal characters.
-    Addresses, on the other hand, only require 39 characters, reaching a compromise between length and practicality.
+Moreover, Symbol keys require 32 bytes of binary data, or 64 hexadecimal characters.
+Addresses, on the other hand, only require 39 characters, reaching a compromise between length and practicality.
 
 On Symbol, addresses are obtained from public keys by:
 
@@ -96,9 +106,9 @@ On Symbol, addresses are obtained from public keys by:
 
 ## Vanity addresses
 
-While keys, and therefore <address:|addresses> too, are normally generated randomly, it is possible to create **vanity addresses** that include specific patterns or prefixes.
+While keys, and therefore <addresses:> too, are normally generated randomly, it is possible to create **vanity addresses** that include specific patterns or prefixes.
 
-This involves generating <key pair:|key pairs> repeatedly until one produces an address that meets the desired criteria.
+This involves generating <key pairs:> repeatedly until one produces an address that meets the desired criteria.
 The process usually requires substantial time and computation depending on the complexity of the pattern.
 
 Vanity addresses can be useful for branding, visibility, or personal preference, but they offer no security advantage.
