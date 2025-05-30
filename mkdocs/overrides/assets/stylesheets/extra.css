@@ -26,7 +26,6 @@
 [data-md-color-scheme=slate][data-md-color-primary=indigo] {
 	--md-typeset-a-color: var(--md-primary-fg-color--light);
 	--md-accent-fg-color: var(--md-primary-fg-color);
-	--md-accent-to-bg-color: var(--md-primary-fg-color);
 	--md-default-bg-color--light: #333;
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
@@ -42,7 +41,6 @@
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
 	--md-typeset-a-color: var(--md-primary-fg-color--light);
 	--md-accent-fg-color: var(--md-primary-fg-color);
-	--md-accent-to-bg-color: var(--md-primary-fg-color--light);
 	--md-default-bg-color--light: #DDD;
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
@@ -494,14 +492,6 @@ code.doc-symbol-interface::after {
 	margin: auto;
 }
 
-.graphviz .node path,
-.graphviz .node polygon,
-.graphviz .node ellipse {
-	stroke: var(--md-accent-to-bg-color);
-	fill: var(--md-accent-fg-color--transparent);
-	transition: fill 0.25s;
-}
-
 .graphviz text {
 	fill: var(--md-default-fg-color);
 	font-family: "Exo 2";
@@ -517,11 +507,23 @@ code.doc-symbol-interface::after {
 	fill: var(--md-primary-fg-color--light);
 }
 
+.graphviz .node path,
+.graphviz .node polygon,
+.graphviz .node ellipse {
+	stroke: var(--md-primary-fg-color--light);
+	fill: var(--md-accent-fg-color--transparent);
+	transition: fill 0.25s;
+}
+
 .graphviz .node:hover a path,
 .graphviz .node:hover a polygon,
 .graphviz .node:hover a ellipse {
-	fill: var(--md-accent-to-bg-color);
+	fill: var(--md-primary-fg-color--light);
 	transition: fill 0.25s;
+}
+
+.graphviz .cluster polygon {
+	stroke: var(--md-primary-fg-color--light);
 }
 
 /* Tables customization */
