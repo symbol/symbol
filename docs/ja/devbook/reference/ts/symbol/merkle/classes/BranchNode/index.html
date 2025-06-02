@@ -7478,7 +7478,7 @@
 <h1 id="branchnode"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Branch<wbr>Node<a class="headerlink" href="#branchnode" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="8f8b5f6be9ccb8b46039f7680ca3e1b7">BranchNode</a> 
+	<a id="117fddbb318f1014c2e35c6b88bb0ecb">BranchNode</a> 
 </dt>
 <dd>Branch node in a compact Patricia tree.</dd>
 </p>
@@ -7560,7 +7560,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="55ab3933c853a3c7dbd98e45f81bfffc">BranchNode.calculateHash</a> 
+	<a id="c009cb364e503eb91c55b3fc6e024ecd">BranchNode.calculateHash</a> 
 </dt>
 <dd>Calculates node hash.</dd>
 </p>
@@ -7611,7 +7611,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7627,8 +7627,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

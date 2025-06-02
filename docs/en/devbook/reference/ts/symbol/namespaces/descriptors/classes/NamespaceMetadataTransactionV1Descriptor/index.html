@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="namespacemetadatatransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Namespace<wbr>Metadata<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#namespacemetadatatransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="e3919df027791da7e84a9aa5c641a961">NamespaceMetadataTransactionV1Descriptor</a> 
+	<a id="fe27518ea631b888110953aecb4bf790">NamespaceMetadataTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for NamespaceMetadataTransactionV1Descriptor.</dd>
 </p>
@@ -8063,7 +8084,7 @@ Compare to AccountMetadataTransaction and MosaicMetadataTransaction.</p>
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="2804c9f97975a12665938124a57fbb62">NamespaceMetadataTransactionV1Descriptor.toMap</a> 
+	<a id="55e7ec9f32fdb6a049efb5547a1cdace">NamespaceMetadataTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8112,7 +8133,7 @@ Compare to AccountMetadataTransaction and MosaicMetadataTransaction.</p>
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8128,8 +8149,8 @@ Compare to AccountMetadataTransaction and MosaicMetadataTransaction.</p>
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7788,6 +7788,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7890,18 +7911,19 @@
 
 
 <h2 id="symbolchain.ripemd160.ripemd160" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">ripemd160</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+	<a id=ripemd160.ripemd160></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">ripemd160</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.ripemd160.ripemd160" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="1e3e24aa6b768abb1b20a8017b0a0442">symbolchain.ripemd160.ripemd160</a> 
+	<a id="f6e0f3274db040e3a9019cbb996135bc">ripemd160.ripemd160</a> 
 </dt>
-<dd>
-        <p>Calculates RIPEMD-160 hash of data.</p>
-	</dd>
+<dd>        <p>Calculates RIPEMD-160 hash of data.</p>
+</dd>
 </dl>
 
 
@@ -7957,7 +7979,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7973,8 +7995,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

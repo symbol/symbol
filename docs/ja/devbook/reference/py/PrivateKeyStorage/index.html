@@ -7386,7 +7386,9 @@
 
 
 <h2 id="symbolchain.PrivateKeyStorage.PrivateKeyStorage" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>PrivateKeyStorage</code>
+	<a id=PrivateKeyStorage></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>PrivateKeyStorage</code>
+
 
 
 <a href="#symbolchain.PrivateKeyStorage.PrivateKeyStorage" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -7395,11 +7397,10 @@
     <div class="doc doc-contents ">
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="aa54d4e7545e9da3f30794730b1e0e1d">symbolchain.PrivateKeyStorage.PrivateKeyStorage</a> 
+	<a id="c54b9f140751446c196dfbc9d6a3ce30">PrivateKeyStorage</a> 
 </dt>
-<dd>
-        <p>Loads and saves private keys as PEM files with optional encryption in a directory.</p>
-	</dd>
+<dd>        <p>Loads and saves private keys as PEM files with optional encryption in a directory.</p>
+</dd>
 </dl>
 
 
@@ -7425,18 +7426,19 @@
 
 
 <h3 id="symbolchain.PrivateKeyStorage.PrivateKeyStorage.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+	<a id=PrivateKeyStorage.__init__></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.PrivateKeyStorage.PrivateKeyStorage.__init__" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="9657a4c276143c1d0679084388c6205a">symbolchain.PrivateKeyStorage.PrivateKeyStorage.__init__</a> 
+	<a id="5b75452d52945b4b43b7bdf3fa12dce3">PrivateKeyStorage.__init__</a> 
 </dt>
-<dd>
-        <p>Creates storage for a directory.</p>
-	</dd>
+<dd>        <p>Creates storage for a directory.</p>
+</dd>
 </dl>
 
 
@@ -7448,18 +7450,19 @@
 
 
 <h3 id="symbolchain.PrivateKeyStorage.PrivateKeyStorage.load" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+	<a id=PrivateKeyStorage.load></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.PrivateKeyStorage.PrivateKeyStorage.load" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="1969083aeab7e735377c1ebc2beb9b68">symbolchain.PrivateKeyStorage.PrivateKeyStorage.load</a> 
+	<a id="d74989ddbd7c41bd53e3bf2c5397ebd2">PrivateKeyStorage.load</a> 
 </dt>
-<dd>
-        <p>Loads a private key with the specified name.</p>
-	</dd>
+<dd>        <p>Loads a private key with the specified name.</p>
+</dd>
 </dl>
 
 
@@ -7471,18 +7474,19 @@
 
 
 <h3 id="symbolchain.PrivateKeyStorage.PrivateKeyStorage.save" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">private_key</span><span class="p">)</span></code>
+	<a id=PrivateKeyStorage.save></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">private_key</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.PrivateKeyStorage.PrivateKeyStorage.save" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="2a587c929678512930d7512c5fe0a677">symbolchain.PrivateKeyStorage.PrivateKeyStorage.save</a> 
+	<a id="5f6c18d69e54bd1e2ba234fc437e95e1">PrivateKeyStorage.save</a> 
 </dt>
-<dd>
-        <p>Saves a private key with the specified name.</p>
-	</dd>
+<dd>        <p>Saves a private key with the specified name.</p>
+</dd>
 </dl>
 
 
@@ -7547,7 +7551,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7563,8 +7567,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

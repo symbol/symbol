@@ -7412,7 +7412,7 @@
 <h1 id="aggregatebondedtransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Aggregate<wbr>Bonded<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#aggregatebondedtransactionv1descriptor" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="42635274f5bdb214999c36169a0e273b">AggregateBondedTransactionV1Descriptor</a> 
+	<a id="c8536f1fceeabba7ad166435f1b2ad59">AggregateBondedTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for AggregateBondedTransactionV1Descriptor.</dd>
 </p>
@@ -7487,7 +7487,7 @@ To prevent spam attacks, before trying to announce this transaction a HashLockTr
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="426d688f222f705e25f69c1da5f78693">AggregateBondedTransactionV1Descriptor.toMap</a> 
+	<a id="9e8634993df81396821af2efe28a3fdc">AggregateBondedTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -7536,7 +7536,7 @@ To prevent spam attacks, before trying to announce this transaction a HashLockTr
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7552,8 +7552,8 @@ To prevent spam attacks, before trying to announce this transaction a HashLockTr
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

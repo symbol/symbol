@@ -7902,6 +7902,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8086,7 +8107,7 @@
 <h1 id="address"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Address<a class="headerlink" href="#address" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="137201004d42aad85a77cdf9386a0572">Address</a> 
+	<a id="3e0d85d475f4412ce8563a7d983b6d8f">Address</a> 
 </dt>
 <dd>Represents a fixed size byte array.</dd>
 </p>
@@ -8172,7 +8193,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="7beb92b3be38e1ec8e18d0b0e8db5502">Address.serialize</a> 
+	<a id="10d12cd2db67e4d77689c291a01da064">Address.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -8188,7 +8209,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="931df38dd8aa16628a004fe9dba4e9ac">Address.toString</a> 
+	<a id="4696f8cd117aac3eed07e0d4799079a1">Address.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -8260,7 +8281,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8276,8 +8297,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

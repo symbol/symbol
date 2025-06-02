@@ -7821,6 +7821,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7956,7 +7977,9 @@
 
 
 <h2 id="symbolchain.CodeWordsEncoder.CodeWords" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>CodeWords</code>
+	<a id=CodeWords></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>CodeWords</code>
+
 
 
 <a href="#symbolchain.CodeWordsEncoder.CodeWords" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -7965,11 +7988,10 @@
     <div class="doc doc-contents ">
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="9a2cab01e07c48d60271766fc476ce8c">symbolchain.CodeWordsEncoder.CodeWords</a> 
+	<a id="b0997f32e8a2233923b33327c011f61d">CodeWords</a> 
 </dt>
-<dd>
-        <p>Represents a group of words that encode some binary data.</p>
-	</dd>
+<dd>        <p>Represents a group of words that encode some binary data.</p>
+</dd>
 </dl>
 
 
@@ -8004,7 +8026,9 @@
 
 
 <h2 id="symbolchain.CodeWordsEncoder.CodeWordsEncoder" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>CodeWordsEncoder</code>
+	<a id=CodeWordsEncoder></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>CodeWordsEncoder</code>
+
 
 
 <a href="#symbolchain.CodeWordsEncoder.CodeWordsEncoder" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -8013,11 +8037,10 @@
     <div class="doc doc-contents ">
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="55a1badba0176cd313208a5ee8f844e7">symbolchain.CodeWordsEncoder.CodeWordsEncoder</a> 
+	<a id="fd84bcc3d04ca3aaa3dad41fc86635f9">CodeWordsEncoder</a> 
 </dt>
-<dd>
-        <p>Encodes and decodes values using wordlists.</p>
-	</dd>
+<dd>        <p>Encodes and decodes values using wordlists.</p>
+</dd>
 </dl>
 
 
@@ -8043,18 +8066,19 @@
 
 
 <h3 id="symbolchain.CodeWordsEncoder.CodeWordsEncoder.decode_int" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">decode_int</span><span class="p">(</span><span class="n">code_words</span><span class="p">)</span></code>
+	<a id=CodeWordsEncoder.decode_int></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">decode_int</span><span class="p">(</span><span class="n">code_words</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.CodeWordsEncoder.CodeWordsEncoder.decode_int" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="969274f6f2f81da3ca6d6156780a78c3">symbolchain.CodeWordsEncoder.CodeWordsEncoder.decode_int</a> 
+	<a id="ab2319a4f220e7a668e89257fc6fece8">CodeWordsEncoder.decode_int</a> 
 </dt>
-<dd>
-        <p>Decodes one or more code words into an integer.</p>
-	</dd>
+<dd>        <p>Decodes one or more code words into an integer.</p>
+</dd>
 </dl>
 
 
@@ -8066,18 +8090,19 @@
 
 
 <h3 id="symbolchain.CodeWordsEncoder.CodeWordsEncoder.encode_int" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">encode_int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code>
+	<a id=CodeWordsEncoder.encode_int></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">encode_int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.CodeWordsEncoder.CodeWordsEncoder.encode_int" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="e0faed4da16dbce47b167a24f6cf6232">symbolchain.CodeWordsEncoder.CodeWordsEncoder.encode_int</a> 
+	<a id="1e804cb5d7646700e71c6a4c546d2dba">CodeWordsEncoder.encode_int</a> 
 </dt>
-<dd>
-        <p>Encodes an integer into one or more code words.</p>
-	</dd>
+<dd>        <p>Encodes an integer into one or more code words.</p>
+</dd>
 </dl>
 
 
@@ -8142,7 +8167,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8158,8 +8183,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

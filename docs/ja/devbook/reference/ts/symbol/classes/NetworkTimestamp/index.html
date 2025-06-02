@@ -7548,7 +7548,7 @@
 <h1 id="networktimestamp"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Network<wbr>Timestamp<a class="headerlink" href="#networktimestamp" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="9dbe2d21ab48e72afcd48fa9fd974c34">NetworkTimestamp</a> 
+	<a id="4588ae3aa377805ed0bc889f10557eb5">NetworkTimestamp</a> 
 </dt>
 <dd>Represents a Symbol network timestamp with millisecond resolution.</dd>
 </p>
@@ -7619,7 +7619,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="9984ac4e47d7fee09485d16ab587990b">NetworkTimestamp.addHours</a> 
+	<a id="50607f9ba7258c3e95e12513e828d1fb">NetworkTimestamp.addHours</a> 
 </dt>
 <dd>Adds a specified number of hours to this timestamp.</dd>
 </p>
@@ -7652,7 +7652,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="bdaa6b646e89afdbb453b6e60ec8eadb">NetworkTimestamp.addMilliseconds</a> 
+	<a id="97c215dbe0b46a0521b18536f86fa869">NetworkTimestamp.addMilliseconds</a> 
 </dt>
 <dd>Adds a specified number of milliseconds to this timestamp.</dd>
 </p>
@@ -7683,7 +7683,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="36822673cbc33f9f19c0a312d105a15b">NetworkTimestamp.addMinutes</a> 
+	<a id="9752fa233dd36525e8f85d551b293644">NetworkTimestamp.addMinutes</a> 
 </dt>
 <dd>Adds a specified number of minutes to this timestamp.</dd>
 </p>
@@ -7716,7 +7716,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="a2463d664aeec2be56fb6cf4edb6b1f4">NetworkTimestamp.addSeconds</a> 
+	<a id="3057d5d6fe1718719a5e1271d3d323ae">NetworkTimestamp.addSeconds</a> 
 </dt>
 <dd>Adds a specified number of seconds to this timestamp.</dd>
 </p>
@@ -7749,7 +7749,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="c468771374edd940d4eaaff0e6ffd61f">NetworkTimestamp.toString</a> 
+	<a id="db0a1af0c4fca7494b470d75252bc2e2">NetworkTimestamp.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -7800,7 +7800,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7816,8 +7816,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7813,6 +7813,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../glossary/" class="md-nav__link">
         
   
@@ -7936,21 +7957,23 @@
 <dt>
 	<a id="d2ea30f34aa8993ee9cbd363be7ecb50">Key Pair</a> 
 </dt>
-<dd><p>A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key).</p>
+<dd>A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key).</dd>
+
+</dl>
 <p>The actual value of the <strong>private key</strong> is meaningless, and it is meant to be kept secret.
-It should be impossible to guess by unauthorized parties, and it is extremely unlikely that the same number is generated twice by chance.</p>
+It should be impossible to guess by unauthorized parties, and it is extremely unlikely that the same number is
+generated twice by chance.</p>
 <p>The <strong>public key</strong> serves as the public identifier of the key pair and can be disseminated widely.
 It can be used to prove that the private key is known without revealing it.</p>
 <p>The public key can be derived from the private key, <strong>but not the other way around</strong>.</p>
-</dd>
-
-</dl>
 <p>Symbol uses key pairs in different places, for different purposes:</p>
 <ul>
 <li>
 <p>A <strong>Main Key</strong> is associated with every <a class="mkdocs-ezglossary-link"
-	id="cbcccb616ba4948b4a2df7d025be25b3"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="8b8d6e3a9d0c478738f19ba3ce7923d3"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>, identifying its owner.</p>
 </li>
@@ -8009,53 +8032,64 @@ It can be used to prove that the private key is known without revealing it.</p>
 </table>
 </details>
 <p>On Symbol, both the private and the public key are 256-bit (32-byte) integers.
-The public key is obtained via <a href="https://en.wikipedia.org/wiki/Elliptic-curve_cryptography">Elliptic Curve Cryptography</a> using the <a href="https://en.wikipedia.org/wiki/Twisted_Edwards_curve">twisted Edwards curve</a>.</p>
+The public key is obtained via <a href="https://en.wikipedia.org/wiki/Elliptic-curve_cryptography">Elliptic Curve Cryptography</a>
+using the <a href="https://en.wikipedia.org/wiki/Twisted_Edwards_curve">twisted Edwards curve</a>.</p>
 <h2 id="signatures">Signatures<a class="headerlink" href="#signatures" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
 	<a id="64c803c8046a084f159cb3fa471c7450">Signature</a> 
 </dt>
-<dd><p>A digital attachment to a document that certifies that the document is approved by a given <a class="mkdocs-ezglossary-link"
-	id="aa275b9fbbd0a752a967f1a3b6bada21"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+<dd>A digital attachment to a document that certifies that the document is approved by a given <a class="mkdocs-ezglossary-link"
+	id="cbcccb616ba4948b4a2df7d025be25b3"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
-	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>.</p>
-<p>The signature is obtained by processing the document with the <a class="mkdocs-ezglossary-link"
-	id="72bd6182e6c3cf72ac6347b419cda644"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
-	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private key</a> of the account, so that anybody can use the associated public key to verify that the signature matches the document, but only the owner of the private key can produce an identical signature.</p>
-</dd>
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>.</dd>
 
 </dl>
+<p>The signature is obtained by processing the document with the <a class="mkdocs-ezglossary-link"
+	id="e6aafb118fb19acba48f84ba692e1c0e"
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
+	name="_:Key Pair"
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private key</a> of the account,
+so that anybody can use the associated public key to verify that the signature matches the document,
+but only the owner of the private key can produce an identical signature.</p>
 <p>All transactions on Symbol are signed, but the signatures required depend on the transaction type and its participants.
-For example, transferring assets from a single-owner account to another only requires the signature of the source account's private key.</p>
+For example, transferring assets from a single-owner account to another only requires the signature of the
+source account's private key.</p>
 <p>However, transferring assets from a <a class="mkdocs-ezglossary-link"
 	id="cd159ad011a8282ba939efe0c8b2f9fd"
-	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to approve transactions."
+	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to
+approve transactions."
 	name="_:Multisignature Account"
-	href="../../textbook/accounts/#acdd6609b712640449e6fc8c54e718ec">multiple-owner account</a> requires the approval of all preconfigured signers, and must therefore gather multiple signatures before it is considered valid.</p>
-<p>Signatures on Symbol are 512-bit (64-byte) long and are generated using the <a href="https://ed25519.cr.yp.to">Ed25519</a> and <a href="https://en.wikipedia.org/wiki/SHA-2">SHA‑512</a> algorithms.</p>
+	href="../../textbook/accounts/#acdd6609b712640449e6fc8c54e718ec">multiple-owner account</a> requires the approval of all
+preconfigured signers, and must therefore gather multiple signatures before it is considered valid.</p>
+<p>Signatures on Symbol are 512-bit (64-byte) long and are generated using the <a href="https://ed25519.cr.yp.to">Ed25519</a> and
+<a href="https://en.wikipedia.org/wiki/SHA-2">SHA‑512</a> algorithms.</p>
 <h2 id="addresses">Addresses<a class="headerlink" href="#addresses" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
 	<a id="1d724e052438d54ca474b7ddbf21c36d">Address</a> 
 </dt>
-<dd><p>A convenient, shorter form of a <a class="mkdocs-ezglossary-link"
-	id="b21315aa7d6f6627360d48c5bad0a72f"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+<dd>A convenient, shorter form of a <a class="mkdocs-ezglossary-link"
+	id="72bd6182e6c3cf72ac6347b419cda644"
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">public key</a>, that simplifies sharing it by requiring only letters and numbers. It's typically a synonym for <a class="mkdocs-ezglossary-link"
-	id="ba4085ba6723a9010a957c38654bd2ec"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">public key</a>, that simplifies sharing it by requiring only
+letters and numbers. It's typically a synonym for <a class="mkdocs-ezglossary-link"
+	id="aa275b9fbbd0a752a967f1a3b6bada21"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
-	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>.</p>
-<p>Keys, both public and private, are binary data which is hard to print and share, whereas addresses are made up of only latin letters and numbers.</p>
-<p>Moreover, Symbol keys require 32 bytes of binary data, or 64 hexadecimal characters.
-Addresses, on the other hand, only require 39 characters, reaching a compromise between length and practicality.</p>
-</dd>
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>.</dd>
 
 </dl>
+<p>Keys, both public and private, are binary data which is hard to print and share, whereas addresses are made up of
+only latin letters and numbers.</p>
+<p>Moreover, Symbol keys require 32 bytes of binary data, or 64 hexadecimal characters.
+Addresses, on the other hand, only require 39 characters, reaching a compromise between length and practicality.</p>
 <p>On Symbol, addresses are obtained from public keys by:</p>
 <ol>
 <li>
@@ -8084,17 +8118,19 @@ Addresses, on the other hand, only require 39 characters, reaching a compromise 
 </div>
 <h2 id="vanity-addresses">Vanity addresses<a class="headerlink" href="#vanity-addresses" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>While keys, and therefore <a class="mkdocs-ezglossary-link"
-	id="ff170b93d8bc496ba271f842c3f818db"
-	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only letters and numbers. It's typically a synonym for account."
+	id="177fdef01d2027087e3484ff8a1ae0d2"
+	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
+letters and numbers. It's typically a synonym for account."
 	name="_:Address"
 	href="../../textbook/cryptography/#1d724e052438d54ca474b7ddbf21c36d">addresses</a> too, are normally generated randomly, it is possible to create <strong>vanity addresses</strong> that include specific patterns or prefixes.</p>
 <p>This involves generating <a class="mkdocs-ezglossary-link"
-	id="a1a1e7725a768ff7989e8d86b089691b"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	id="e4c56ed4cc0beccb40ebaa66ee880481"
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
 	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">key pairs</a> repeatedly until one produces an address that meets the desired criteria.
 The process usually requires substantial time and computation depending on the complexity of the pattern.</p>
-<p>Vanity addresses can be useful for branding, visibility, or personal preference—but they offer no security advantage.</p>
+<p>Vanity addresses can be useful for branding, visibility, or personal preference, but they offer no security advantage.</p>
 
 
 
@@ -8117,7 +8153,7 @@ The process usually requires substantial time and computation depending on the c
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 30, 2025</span>
   </span>
 
     
@@ -8180,7 +8216,7 @@ The process usually requires substantial time and computation depending on the c
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8196,8 +8232,8 @@ The process usually requires substantial time and computation depending on the c
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

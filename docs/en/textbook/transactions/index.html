@@ -1,0 +1,8761 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="http://symbol.github.io/symbol/en/textbook/transactions/">
+      
+      
+        <link rel="prev" href="../accounts/">
+      
+      
+        <link rel="next" href="../glossary/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Transactions - Symbol Docs WIP 🚧</title>
+      
+    
+    
+
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+
+<style>
+[data-md-color-primary=indigo] {
+	--md-primary-fg-color: var(--textbook-color);
+	--md-primary-fg-color--dark: var(--textbook-color--dark);
+	--md-primary-fg-color--light: var(--textbook-color--light);
+	--md-accent-fg-color--transparent: var(--textbook-color--transparent);
+}
+</style>
+
+
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo+2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Exo 2";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: none; }
+    .glightbox-clean .gslide-media {
+        -webkit-box-shadow: none;
+        box-shadow: none;
+    }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#transactions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-header__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
+      
+  <img src="../../assets/images/symbol-logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Symbol Docs WIP 🚧
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Transactions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/symbol/en/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/symbol/ja/" hreflang="ja" class="md-select__link">
+              日本語
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Welcome to the Symbol documentation pages
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../userbook/intro/" class="md-tabs__link">
+          
+  
+  User Manual
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../devbook/intro/" class="md-tabs__link">
+          
+  
+  Developer Manual
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../intro/" class="md-tabs__link">
+          
+  
+  Textbook
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://symbol.github.io/symbol" title="Symbol Docs WIP 🚧" class="md-nav__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
+      
+  <img src="../../assets/images/symbol-logo.svg" alt="logo">
+
+    </a>
+    Symbol Docs WIP 🚧
+  </label>
+  
+    <div class="md-nav__source">
+      
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome to the Symbol documentation pages
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    User Manual
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Manual
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Symbol Desktop Wallet
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Symbol Desktop Wallet
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installing the Wallet
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_2" id="__nav_2_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Profiles
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Profiles
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/create-profile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating a Profile
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/import-profile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importing a Profile
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/export-profile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exporting a Profile
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/delete-profile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Deleting a Profile
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_3" id="__nav_2_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Accounts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Accounts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/create-account/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating an Account
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/import-account/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importing an Account
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userbook/wallet/delete-account/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Deleting an Account
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Developer Manual
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Developer Manual
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/start/setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/start/hello-world/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hello World
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Transactions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/transactions/transfer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transfer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/transactions/typed-descriptors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Typed Descriptors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Reference Guides
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Reference Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Python SDK
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            Python SDK
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1" id="__nav_3_4_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    symbolchain
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            symbolchain
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+      init  
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/AccountDescriptorRepository/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountDescriptorRepository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/ArrayHelpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ArrayHelpers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/BaseValue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BaseValue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/Bip32/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bip32
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/BlockchainSettings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BlockchainSettings
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/BufferReader/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferReader
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/BufferWriter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BufferWriter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/ByteArray/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ByteArray
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/Cipher/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cipher
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/CodeWordsEncoder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CodeWordsEncoder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/CryptoTypes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CryptoTypes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/DiceMnemonicGenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DiceMnemonicGenerator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/Network/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Network
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/NetworkTimestamp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NetworkTimestamp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/NodeDescriptorRepository/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NodeDescriptorRepository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/Ordered/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ordered
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/PrivateKeyStorage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PrivateKeyStorage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/QrSignatureStorage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    QrSignatureStorage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/QrStorage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    QrStorage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/RuleBasedTransactionFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RuleBasedTransactionFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/SharedKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SharedKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/TransactionDescriptorProcessor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransactionDescriptorProcessor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/Transforms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transforms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_25" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1_25" id="__nav_3_4_1_1_25_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    external
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_25_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1_25">
+            <span class="md-nav__icon md-icon"></span>
+            external
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/external/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+      init  
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/external/ed25519/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ed25519
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_26" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1_26" id="__nav_3_4_1_1_26_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    facade
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_26_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1_26">
+            <span class="md-nav__icon md-icon"></span>
+            facade
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/facade/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+      init  
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/facade/BatchOperations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BatchOperations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/facade/NemFacade/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NemFacade
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/facade/SymbolFacade/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SymbolFacade
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_27" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1_27" id="__nav_3_4_1_1_27_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    impl
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_27_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1_27">
+            <span class="md-nav__icon md-icon"></span>
+            impl
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/impl/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+      init  
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/impl/CipherHelpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CipherHelpers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/nc/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    nc
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_29" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1_29" id="__nav_3_4_1_1_29_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    nem
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_29_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1_29">
+            <span class="md-nav__icon md-icon"></span>
+            nem
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/nem/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+      init  
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/nem/KeyPair/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyPair
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/nem/MessageEncoder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MessageEncoder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/nem/Network/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Network
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/nem/SharedKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SharedKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/nem/TransactionFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransactionFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/ripemd160/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ripemd160
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/sc/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    sc
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_32" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1_32" id="__nav_3_4_1_1_32_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    symbol
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_32_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1_32">
+            <span class="md-nav__icon md-icon"></span>
+            symbol
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/__init__/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+      init  
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/IdGenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IdGenerator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/KeyPair/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyPair
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/Merkle/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merkle
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/MessageEncoder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MessageEncoder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/Metadata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/Network/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Network
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/SharedKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SharedKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/TransactionFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransactionFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/py/symbol/VotingKeysGenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VotingKeysGenerator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    TypeScript SDK
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            TypeScript SDK
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_1" id="__nav_3_4_2_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Bip32
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Bip32
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/Bip32/classes/Bip32/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bip32
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/Bip32/classes/Bip32Node/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bip32Node
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_2" id="__nav_3_4_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Network
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Network
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/Network/classes/Network/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Network
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/Network/classes/NetworkLocator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NetworkLocator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_2_3" id="__nav_3_4_2_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    type-aliases
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            type-aliases
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/Network/type-aliases/AddressConstructable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AddressConstructable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/Network/type-aliases/Constructable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Constructable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/Network/type-aliases/EncodedSizeAccessor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EncodedSizeAccessor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_3" id="__nav_3_4_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    NetworkTimestamp
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            NetworkTimestamp
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/NetworkTimestamp/classes/NetworkTimestamp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NetworkTimestamp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/NetworkTimestamp/classes/NetworkTimestampDatetimeConverter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NetworkTimestampDatetimeConverter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_4" id="__nav_3_4_2_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    index
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            index
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/classes/BaseValue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BaseValue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/classes/ByteArray/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ByteArray
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/classes/Hash256/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hash256
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/classes/PrivateKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PrivateKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/classes/PublicKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PublicKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/classes/SharedKey256/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SharedKey256
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/classes/Signature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Signature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_4_8" id="__nav_3_4_2_4_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_2_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            utils
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/bytesToBigInt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    bytesToBigInt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/bytesToInt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    bytesToInt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/deepCompare/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    deepCompare
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/hexToUint8/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    hexToUint8
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/intToBytes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    intToBytes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/isHexString/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    isHexString
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/tryParseUint/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    tryParseUint
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/index/namespaces/utils/functions/uint8ToHex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    uint8ToHex
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_5" id="__nav_3_4_2_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    symbol
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            symbol
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_5_1" id="__nav_3_4_2_5_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    MessageEncoder
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_2_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            MessageEncoder
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/MessageEncoder/classes/default/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    default
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_5_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_5_1_2" id="__nav_3_4_2_5_1_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    type-aliases
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_3_4_2_5_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_5_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            type-aliases
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/MessageEncoder/type-aliases/TryDecodeResult/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TryDecodeResult
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/Address/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Address
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/KeyPair/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyPair
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/Network/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Network
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/NetworkTimestamp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NetworkTimestamp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/SymbolAccount/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SymbolAccount
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/SymbolFacade/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SymbolFacade
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/SymbolPublicAccount/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SymbolPublicAccount
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SymbolTransactionFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/Verifier/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Verifier
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/classes/VotingKeysGenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VotingKeysGenerator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/functions/generateMosaicAliasId/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    generateMosaicAliasId
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/functions/generateMosaicId/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    generateMosaicId
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/functions/generateNamespaceId/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    generateNamespaceId
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/functions/generateNamespacePath/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    generateNamespacePath
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/functions/isValidNamespaceName/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    isValidNamespaceName
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/functions/metadataGenerateKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    metadataGenerateKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/functions/metadataUpdateValue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    metadataUpdateValue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_5_19" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_5_19" id="__nav_3_4_2_5_19_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    merkle
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_2_5_19_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_5_19">
+            <span class="md-nav__icon md-icon"></span>
+            merkle
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/classes/BranchNode/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BranchNode
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/classes/LeafNode/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LeafNode
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/classes/MerkleHashBuilder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MerkleHashBuilder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/classes/PatriciaMerkleProofResult/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PatriciaMerkleProofResult
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/classes/TreeNode/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TreeNode
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/functions/deserializePatriciaTreeNodes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    deserializePatriciaTreeNodes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/functions/proveMerkle/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    proveMerkle
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/functions/provePatriciaMerkle/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    provePatriciaMerkle
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_5_19_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_5_19_9" id="__nav_3_4_2_5_19_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    type-aliases
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_3_4_2_5_19_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_5_19_9">
+            <span class="md-nav__icon md-icon"></span>
+            type-aliases
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/type-aliases/MerklePart/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MerklePart
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/merkle/type-aliases/PatriciaTreePath/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PatriciaTreePath
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_5_20" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_5_20" id="__nav_3_4_2_5_20_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    descriptors
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_2_5_20_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_5_20">
+            <span class="md-nav__icon md-icon"></span>
+            descriptors
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountAddressRestrictionTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountKeyLinkTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountMetadataTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountMosaicRestrictionTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountOperationRestrictionTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AddressAliasTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV2Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV2Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/CosignatureDescriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CosignatureDescriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DetachedCosignatureDescriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HashLockTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicAddressRestrictionTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicAliasTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicDefinitionTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicDescriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicDescriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicGlobalRestrictionTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicMetadataTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicSupplyChangeTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicSupplyRevocationTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MultisigAccountModificationTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceMetadataTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceRegistrationTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NodeKeyLinkTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SecretLockTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SecretProofTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransferTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    UnresolvedMosaicDescriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VotingKeyLinkTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VrfKeyLinkTransactionV1Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_5_21" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_5_21" id="__nav_3_4_2_5_21_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    models
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_2_5_21_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_5_21">
+            <span class="md-nav__icon md-icon"></span>
+            models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountAddressRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AccountMetadataTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountMetadataTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountMosaicRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountOperationRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AccountRestrictionFlags/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccountRestrictionFlags
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Address/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Address
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AddressAliasTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AddressAliasTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AddressResolutionEntry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AddressResolutionEntry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AddressResolutionStatement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AddressResolutionStatement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AliasAction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AliasAction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Amount/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Amount
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Block/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Block
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/BlockDuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BlockDuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/BlockFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BlockFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/BlockFeeMultiplier/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BlockFeeMultiplier
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/BlockStatement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BlockStatement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/BlockType/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BlockType
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Cosignature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cosignature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/DetachedCosignature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DetachedCosignature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Difficulty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Difficulty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedAccountAddressRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedAccountKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedAccountMetadataTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedAccountMosaicRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedAccountOperationRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedAddressAliasTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedHashLockTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMosaicAddressRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMosaicAliasTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMosaicDefinitionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMosaicGlobalRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMosaicMetadataTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMosaicSupplyChangeTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMosaicSupplyRevocationTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedMultisigAccountModificationTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedNamespaceMetadataTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedNamespaceRegistrationTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedNodeKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedSecretLockTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedSecretProofTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransaction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedTransaction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransactionFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedTransactionFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedTransferTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedVotingKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EmbeddedVrfKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationEpoch/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FinalizationEpoch
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationPoint/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FinalizationPoint
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationRound/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FinalizationRound
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizedBlockHeader/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FinalizedBlockHeader
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/HarvestFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HarvestFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Hash256/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hash256
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Hash512/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hash512
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/HashLockTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HashLockTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Height/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Height
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Importance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ImportanceBlockV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ImportanceBlockV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ImportanceHeight/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ImportanceHeight
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/InflationReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    InflationReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LinkAction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LinkAction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashAlgorithm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockHashAlgorithm
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockHashCompletedFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockHashCreatedFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockHashExpiredFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockSecretCompletedFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockSecretCreatedFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockSecretExpiredFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Mosaic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mosaic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicAddressRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicAliasTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicAliasTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicDefinitionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicExpiredReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicExpiredReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicFlags/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicFlags
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicGlobalRestrictionTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicId/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicId
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicMetadataTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicNonce/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicNonce
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicRentalFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicResolutionEntry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicResolutionEntry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicResolutionStatement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicResolutionStatement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRestrictionKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicRestrictionKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRestrictionType/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicRestrictionType
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyChangeAction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicSupplyChangeAction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicSupplyChangeTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MosaicSupplyRevocationTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MultisigAccountModificationTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceDeletedReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceDeletedReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceExpiredReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceExpiredReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceId/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceId
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceMetadataTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceRegistrationTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRegistrationType/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceRegistrationType
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NamespaceRentalFeeReceipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NemesisBlockV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NemesisBlockV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NetworkType/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NetworkType
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NodeKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/NormalBlockV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NormalBlockV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ProofGamma/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ProofGamma
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ProofScalar/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ProofScalar
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ProofVerificationHash/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ProofVerificationHash
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/PublicKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PublicKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Receipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Receipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ReceiptFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptSource/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ReceiptSource
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptType/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ReceiptType
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/SecretLockTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SecretLockTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/SecretProofTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SecretProofTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Signature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Signature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Timestamp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Timestamp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/Transaction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transaction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransactionFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionStatement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransactionStatement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionType/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransactionType
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/TransferTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransferTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedAddress/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    UnresolvedAddress
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedMosaic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    UnresolvedMosaic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedMosaicId/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    UnresolvedMosaicId
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VotingKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/VotingPublicKey/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VotingPublicKey
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VrfKeyLinkTransactionV1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/VrfProof/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VrfProof
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_3" id="__nav_3_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java SDK
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Java SDK
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/java/links/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Links
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/rest/symbol/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Symbol REST API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Textbook
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Textbook
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cryptography/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basic Cryptography
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../accounts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Accounts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fundamental-transaction-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fundamental Transaction Types
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fundamental Transaction Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregate Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-aggregate-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Aggregate Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bonded-aggregate-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonded Aggregate Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedded-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Embedded Transactions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transaction-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transaction Lifecycle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Transaction Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-creation-and-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Creation and signature
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-announcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Announcement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Propagation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-consensus" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Consensus
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-confirmation" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Confirmation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-finalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Finalization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-transaction-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Transaction Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validation Details
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#types-of-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types of Transactions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Glossary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fundamental-transaction-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fundamental Transaction Types
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fundamental Transaction Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregate Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-aggregate-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Aggregate Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bonded-aggregate-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonded Aggregate Transactions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedded-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Embedded Transactions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transaction-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transaction Lifecycle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Transaction Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-creation-and-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Creation and signature
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-announcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Announcement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Propagation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-consensus" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Consensus
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-confirmation" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Confirmation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-finalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Finalization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-transaction-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Transaction Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validation Details
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#types-of-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types of Transactions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+	
+		<a href="https://github.com/symbol/symbol/blob/new-docs/mkdocs/pages/en/textbook/transactions.md" title="Edit this page" class="md-content__button md-icon">
+			
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+		</a>
+	
+	
+		
+			
+		
+		<a href="https://github.com/symbol/symbol/raw/new-docs/mkdocs/pages/en/textbook/transactions.md" title="View source of this page" class="md-content__button md-icon">
+			
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+		</a>
+	
+
+
+<h1 id="transactions">Transactions<a class="headerlink" href="#transactions" title="Anchor link to this section for reference">⚓︎</a></h1>
+<dl>
+<dt>
+	<a id="dbaff459c19d2574b92538a13b4b8910">Transaction</a> 
+</dt>
+<dd>A transaction represents an action or group of actions to perform on the Symbol blockchain,
+like moving funds from one <a class="mkdocs-ezglossary-link"
+	id="ba4085ba6723a9010a957c38654bd2ec"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
+	name="_:Account"
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> to another, or registering a new currency, for example.</dd>
+
+</dl>
+<p>These actions are expressed in a signed message which needs to be announced to the network.
+Nodes in the network then validate it and, if it is accepted, the transaction gets included in a block and
+changes the state of the blockchain.</p>
+<h2 id="fundamental-transaction-types">Fundamental Transaction Types<a class="headerlink" href="#fundamental-transaction-types" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Symbol supports two core transaction types: basic and aggregate, with the latter further divided into
+complete and bonded variants.</p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="258pt" height="200pt" viewBox="0.00 0.00 258.35 200.08" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 196.08)"><title>Fundamental Transaction Types</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-196.08 254.35,-196.08 254.35,4 -4,4"/><!-- Transaction --><g id="node1" class="node"><title>Transaction</title><ellipse fill="none" stroke="#789abc" cx="79.78" cy="-174.08" rx="54.58" ry="18"/><text text-anchor="middle" x="79.78" y="-170.98" font-family="Times,serif" font-size="12.00" fill="#789abc">Transaction</text></g><!-- Basic --><g id="node2" class="node"><title>Basic</title><g id="a_node2"><a xlink:href="#basic-transactions" xlink:title="Basic"><ellipse fill="none" stroke="#789abc" cx="30.78" cy="-102.08" rx="30.56" ry="18"/><text text-anchor="middle" x="30.78" y="-98.98" font-family="Times,serif" font-size="12.00" fill="#789abc">Basic</text></a></g></g><!-- Transaction&#45;&gt;Basic --><g id="edge1" class="edge"><title>Transaction&#45;&gt;Basic</title><path fill="none" stroke="#789abc" d="M67.92,-156.14C61.85,-147.46 54.35,-136.75 47.68,-127.23"/><polygon fill="#789abc" stroke="#789abc" points="50.46,-125.1 41.86,-118.91 44.73,-129.11 50.46,-125.1"/></g><!-- Aggregate --><g id="node3" class="node"><title>Aggregate</title><g id="a_node3"><a xlink:href="#aggregate-transactions" xlink:title="Aggregate"><ellipse fill="none" stroke="#789abc" cx="128.78" cy="-102.08" rx="49.5" ry="18"/><text text-anchor="middle" x="128.78" y="-98.98" font-family="Times,serif" font-size="12.00" fill="#789abc">Aggregate</text></a></g></g><!-- Transaction&#45;&gt;Aggregate --><g id="edge2" class="edge"><title>Transaction&#45;&gt;Aggregate</title><path fill="none" stroke="#789abc" d="M91.64,-156.14C97.48,-147.8 104.64,-137.57 111.1,-128.33"/><polygon fill="#789abc" stroke="#789abc" points="114.16,-130.07 117.03,-119.87 108.43,-126.06 114.16,-130.07"/></g><!-- Complete --><g id="node4" class="node"><title>Complete</title><g id="a_node4"><a xlink:href="#complete-aggregate-transactions" xlink:title="Aggregate&#10;Complete"><ellipse fill="none" stroke="#789abc" cx="62.78" cy="-24.04" rx="56.64" ry="24.08"/><text text-anchor="middle" x="62.78" y="-27.44" font-family="Times,serif" font-size="12.00" fill="#789abc">Aggregate</text><text text-anchor="middle" x="62.78" y="-14.44" font-family="Times,serif" font-size="12.00" fill="#789abc">Complete</text></a></g></g><!-- Aggregate&#45;&gt;Complete --><g id="edge3" class="edge"><title>Aggregate&#45;&gt;Complete</title><path fill="none" stroke="#789abc" d="M114.46,-84.58C106.85,-75.81 97.25,-64.76 88.41,-54.57"/><polygon fill="#789abc" stroke="#789abc" points="91.03,-52.25 81.83,-46.99 85.74,-56.84 91.03,-52.25"/></g><!-- Bonded --><g id="node5" class="node"><title>Bonded</title><g id="a_node5"><a xlink:href="#bonded-aggregate-transactions" xlink:title="Aggregate&#10;Bonded"><ellipse fill="none" stroke="#789abc" cx="193.78" cy="-24.04" rx="56.64" ry="24.08"/><text text-anchor="middle" x="193.78" y="-27.44" font-family="Times,serif" font-size="12.00" fill="#789abc">Aggregate</text><text text-anchor="middle" x="193.78" y="-14.44" font-family="Times,serif" font-size="12.00" fill="#789abc">Bonded</text></a></g></g><!-- Aggregate&#45;&gt;Bonded --><g id="edge4" class="edge"><title>Aggregate&#45;&gt;Bonded</title><path fill="none" stroke="#789abc" d="M142.88,-84.58C150.31,-75.9 159.64,-64.98 168.28,-54.87"/><polygon fill="#789abc" stroke="#789abc" points="171.18,-56.87 175.01,-46.99 165.86,-52.32 171.18,-56.87"/></g></g></svg></p>
+<h3 id="basic-transactions">Basic Transactions<a class="headerlink" href="#basic-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
+<dl>
+<dt>
+	<a id="bcea03960e60020401e81c2a1de149b0">Basic Transaction</a> 
+</dt>
+<dd>A basic <a class="mkdocs-ezglossary-link"
+	id="4e3112a264187f80026bf59933185136"
+	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
+like moving funds from one account to another, or registering a new currency, for example."
+	name="_:Transaction"
+	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transaction</a> represents a single action, initiated by a single account,
+requiring only that account's <a class="mkdocs-ezglossary-link"
+	id="5eb7c7fefcee2df55153bdcaeebdb6a7"
+	title="A digital attachment to a document that certifies that the document is approved by a given account."
+	name="_:Signature"
+	href="../../textbook/cryptography/#64c803c8046a084f159cb3fa471c7450">signature</a>.</dd>
+
+</dl>
+<p>Transferring funds out of an account or registering a new namespace are basic transactions, for example.</p>
+<h3 id="aggregate-transactions">Aggregate Transactions<a class="headerlink" href="#aggregate-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
+<dl>
+<dt>
+	<a id="f4cd3e5143da74ac79f397be4a500b5c">Aggregate Transaction</a> 
+</dt>
+<dd>Aggregate transactions group multiple basic transactions together and execute them atomically:
+either all of the <a class="mkdocs-ezglossary-link"
+	id="1a69ad48467efc338a0b0f263a775584"
+	title="When basic transactions are included in an aggregate transaction they are called embedded transactions."
+	name="_:Embedded Transaction"
+	href="../../textbook/transactions/#0010b0d59ce3bbeed299dd79c16ed261">embedded transactions</a> are accepted or none is.</dd>
+
+</dl>
+<p>They are initiated by a single account, but require signatures from every involved account.</p>
+<dl>
+<dt>
+	<a id="d14dfb1cfc7b4e3ae407fa46774259d2">Cosignature</a> 
+</dt>
+<dd>When a transaction requires multiple signatures, they are called cosignatures.</dd>
+
+</dl>
+<p>Aggregate transactions provide a great deal of flexibility to Symbol, because they enable coordinated behavior
+between multiple accounts, without requiring trust between them.</p>
+<div class="admonition tip">
+<p class="admonition-title">Aggregate Transaction Example</p>
+<p>Accounts A and B want to exchange assets, so two transfer transactions are required.
+But they do not trust each other, so neither wants to be the first one to announce their transaction, and risk
+the other party not fulfilling their part.</p>
+<p>By wrapping both transactions in an aggregate:</p>
+<ul>
+<li>Both parties can review the whole exchange before signing it.</li>
+<li>They can be sure that both transactions will be executed, or none of them will be.</li>
+<li>They can be sure that none of the transactions will be modified after the signature.</li>
+<li>It does not matter who announces the aggregate transaction.</li>
+</ul>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="200pt" height="215pt" viewBox="0.00 0.00 200.00 215.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 211)"><title>%3</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-211 196,-211 196,4 -4,4"/><g id="clust1" class="cluster"><title>clusterAggregate</title><g id="a_clust1"><a xlink:title="Aggregate Transaction"><polygon fill="transparent" stroke="#789abc" points="4,-8 4,-199 188,-199 188,-8 4,-8"/><text text-anchor="middle" x="96" y="-185.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Aggregate Transaction</text></a></g></g><g id="clust2" class="cluster"><title>clusterT1</title><g id="a_clust2"><a xlink:title="Embedded Transaction 1"><polygon fill="transparent" stroke="#789abc" stroke-dasharray="5,2" points="12,-97 12,-170 180,-170 180,-97 12,-97"/><text text-anchor="middle" x="96" y="-156.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Embedded Transaction 1</text></a></g></g><g id="clust3" class="cluster"><title>clusterT2</title><g id="a_clust3"><a xlink:title="Embedded Transaction 2"><polygon fill="transparent" stroke="#789abc" stroke-dasharray="5,2" points="12,-16 12,-89 180,-89 180,-16 12,-16"/><text text-anchor="middle" x="96" y="-75.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Embedded Transaction 2</text></a></g></g><!-- A1 --><g id="node1" class="node"><title>A1</title><g id="a_node1"><a xlink:title="A"><ellipse fill="none" stroke="#789abc" cx="51" cy="-123" rx="27" ry="18"/><text text-anchor="middle" x="51" y="-119.3" font-family="Times,serif" font-size="14.00" fill="#789abc">A</text></a></g></g><!-- B1 --><g id="node2" class="node"><title>B1</title><g id="a_node2"><a xlink:title="B"><ellipse fill="none" stroke="#789abc" cx="141" cy="-123" rx="27" ry="18"/><text text-anchor="middle" x="141" y="-119.3" font-family="Times,serif" font-size="14.00" fill="#789abc">B</text></a></g></g><!-- A1&#45;&gt;B1 --><g id="edge1" class="edge"><title>A1&#45;&gt;B1</title><path fill="none" stroke="#789abc" d="M78.4,-123C86.39,-123 95.31,-123 103.82,-123"/><polygon fill="#789abc" stroke="#789abc" points="103.92,-126.5 113.92,-123 103.92,-119.5 103.92,-126.5"/></g><!-- A2 --><g id="node3" class="node"><title>A2</title><g id="a_node3"><a xlink:title="A"><ellipse fill="none" stroke="#789abc" cx="51" cy="-42" rx="27" ry="18"/><text text-anchor="middle" x="51" y="-38.3" font-family="Times,serif" font-size="14.00" fill="#789abc">A</text></a></g></g><!-- B2 --><g id="node4" class="node"><title>B2</title><g id="a_node4"><a xlink:title="B"><ellipse fill="none" stroke="#789abc" cx="141" cy="-42" rx="27" ry="18"/><text text-anchor="middle" x="141" y="-38.3" font-family="Times,serif" font-size="14.00" fill="#789abc">B</text></a></g></g><!-- A2&#45;&gt;B2 --><g id="edge2" class="edge"><title>A2&#45;&gt;B2</title><path fill="none" stroke="#789abc" d="M88.52,-42C97.04,-42 105.95,-42 113.92,-42"/><polygon fill="#789abc" stroke="#789abc" points="88.4,-38.5 78.4,-42 88.4,-45.5 88.4,-38.5"/></g></g></svg></p>
+</div>
+<p>Depending on whether an aggregate transaction has all the required signatures when it is announced to the network,
+two different transaction types are considered: complete and bonded.</p>
+<h3 id="complete-aggregate-transactions">Complete Aggregate Transactions<a class="headerlink" href="#complete-aggregate-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
+<dl>
+<dt>
+	<a id="bef9024194e49776adfcf3924351889c">Complete Aggregate Transaction</a> 
+</dt>
+<dd>An <a class="mkdocs-ezglossary-link"
+	id="09c76ad36f63f2ddf7945123c3b2bdf4"
+	title="Aggregate transactions group multiple basic transactions together and execute them atomically:
+either all of the embedded transactions are accepted or none is."
+	name="_:Aggregate Transaction"
+	href="../../textbook/transactions/#f4cd3e5143da74ac79f397be4a500b5c">aggregate transaction</a> submitted to the network with all required <a class="mkdocs-ezglossary-link"
+	id="4c0fc4018df638d90f8c273471a52d3e"
+	title="When a transaction requires multiple signatures, they are called cosignatures."
+	name="_:Cosignature"
+	href="../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a> already attached.
+Nodes can therefore proceed to validation and include the transaction in a block immediately.</dd>
+
+</dl>
+<p>This transaction type requires that cosignatures are collected off-chain.</p>
+<h3 id="bonded-aggregate-transactions">Bonded Aggregate Transactions<a class="headerlink" href="#bonded-aggregate-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
+<dl>
+<dt>
+	<a id="0f2f74e774ec018e1bfcf6b51b862582">Bonded Aggregate Transaction</a> 
+</dt>
+<dd>An <a class="mkdocs-ezglossary-link"
+	id="e28c177ca172b7e7b8b08d9539c0c72d"
+	title="Aggregate transactions group multiple basic transactions together and execute them atomically:
+either all of the embedded transactions are accepted or none is."
+	name="_:Aggregate Transaction"
+	href="../../textbook/transactions/#f4cd3e5143da74ac79f397be4a500b5c">aggregate transaction</a> submitted to the network without all required <a class="mkdocs-ezglossary-link"
+	id="761f12af7ecd1516d37cabf103732d83"
+	title="When a transaction requires multiple signatures, they are called cosignatures."
+	name="_:Cosignature"
+	href="../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a>.
+The network temporarily holds the transaction while waiting for the additional cosignatures.</dd>
+
+</dl>
+<p>Using this type of transaction, all involved parties interact exclusively on-chain.</p>
+<p>Specific transaction types exist so the required accounts can submit the missing cosignatures.</p>
+<p>Once the network receives all required cosignatures, the aggregate transaction continues processing.</p>
+<p>To prevent spam which could exhaust network resources, initiating a bonded aggregate transaction requires a
+small deposit or <em>bond</em>.
+If all cosignatures are collected before the transaction expires, the bond is returned, otherwise, it is forfeited.</p>
+<h3 id="embedded-transactions">Embedded Transactions<a class="headerlink" href="#embedded-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
+<dl>
+<dt>
+	<a id="0010b0d59ce3bbeed299dd79c16ed261">Embedded Transaction</a> 
+</dt>
+<dd>When basic transactions are included in an aggregate transaction they are called embedded transactions.</dd>
+
+</dl>
+<p>Embedded transactions behave exactly like basic transactions, except for:</p>
+<ul>
+<li>
+<p>They are not signed individually.
+    Instead, the whole aggregate transaction is signed by every required account, and all the signatures are
+    attached.</p>
+<p>For example, if an aggregate contains multiple transactions from the same account, only one signature
+from that account is required.</p>
+</li>
+<li>
+<p>They do not provide fee or deadline information.
+    Again, this is provided by the enclosing aggregate transaction.</p>
+</li>
+<li>
+<p>Not all transaction types are allowed as embedded transactions.
+    As an important example, aggregate transactions cannot be embedded within other aggregate transactions.</p>
+</li>
+</ul>
+<h2 id="transaction-lifecycle">Transaction Lifecycle<a class="headerlink" href="#transaction-lifecycle" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="374pt" height="462pt" viewBox="0.00 0.00 373.50 462.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 458)"><title>Transaction Lifecycle</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-458 369.5,-458 369.5,4 -4,4"/><!-- Creation --><g id="node1" class="node"><title>Creation</title><g id="a_node1"><a xlink:href="#1-creation-and-signature" xlink:title="Transaction is created and signed"><path fill="none" stroke="#789abc" d="M223,-454C223,-454 26,-454 26,-454 20,-454 14,-448 14,-442 14,-442 14,-430 14,-430 14,-424 20,-418 26,-418 26,-418 223,-418 223,-418 229,-418 235,-424 235,-430 235,-430 235,-442 235,-442 235,-448 229,-454 223,-454"/><text text-anchor="middle" x="124.5" y="-432.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Transaction is created and signed</text></a></g></g><!-- Announcement --><g id="node2" class="node"><title>Announcement</title><g id="a_node2"><a xlink:href="#2-announcement" xlink:title="Transaction is announced"><path fill="none" stroke="#789abc" d="M199,-395C199,-395 50,-395 50,-395 44,-395 38,-389 38,-383 38,-383 38,-371 38,-371 38,-365 44,-359 50,-359 50,-359 199,-359 199,-359 205,-359 211,-365 211,-371 211,-371 211,-383 211,-383 211,-389 205,-395 199,-395"/><text text-anchor="middle" x="124.5" y="-373.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Transaction is announced</text></a></g></g><!-- Creation&#45;&gt;Announcement --><g id="edge1" class="edge"><title>Creation&#45;&gt;Announcement</title><path fill="none" stroke="#789abc" d="M124.5,-417.9C124.5,-413.95 124.5,-409.66 124.5,-405.4"/><polygon fill="#789abc" stroke="#789abc" points="128,-405.09 124.5,-395.09 121,-405.09 128,-405.09"/></g><!-- Validation --><g id="node3" class="node"><title>Validation</title><g id="a_node3"><a xlink:href="#3-validation" xlink:title="Is it&#10;valid?"><polygon fill="none" stroke="#789abc" points="124.5,-336 71.5,-302 124.5,-268 177.5,-302 124.5,-336"/><text text-anchor="middle" x="124.5" y="-305.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Is it</text><text text-anchor="middle" x="124.5" y="-292.4" font-family="Times,serif" font-size="12.00" fill="#789abc">valid?</text></a></g></g><!-- Announcement&#45;&gt;Validation --><g id="edge2" class="edge"><title>Announcement&#45;&gt;Validation</title><path fill="none" stroke="#789abc" d="M124.5,-358.7C124.5,-354.91 124.5,-350.72 124.5,-346.41"/><polygon fill="#789abc" stroke="#789abc" points="128,-346.22 124.5,-336.22 121,-346.22 128,-346.22"/></g><!-- Propagation --><g id="node4" class="node"><title>Propagation</title><g id="a_node4"><a xlink:href="#4-propagation" xlink:title="Propagate to other nodes"><path fill="none" stroke="#789abc" d="M197.5,-245C197.5,-245 51.5,-245 51.5,-245 45.5,-245 39.5,-239 39.5,-233 39.5,-233 39.5,-221 39.5,-221 39.5,-215 45.5,-209 51.5,-209 51.5,-209 197.5,-209 197.5,-209 203.5,-209 209.5,-215 209.5,-221 209.5,-221 209.5,-233 209.5,-233 209.5,-239 203.5,-245 197.5,-245"/><text text-anchor="middle" x="124.5" y="-223.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Propagate to other nodes</text></a></g></g><!-- Validation&#45;&gt;Propagation --><g id="edge3" class="edge"><title>Validation&#45;&gt;Propagation</title><path fill="none" stroke="#789abc" d="M124.5,-267.92C124.5,-263.75 124.5,-259.52 124.5,-255.45"/><polygon fill="#789abc" stroke="#789abc" points="128,-255.21 124.5,-245.21 121,-255.21 128,-255.21"/><text text-anchor="middle" x="140" y="-253.4" font-family="Times,serif" font-size="12.00" fill="#789abc"> &#160;&#160;Yes</text></g><!-- Rejection1 --><g id="node8" class="node"><title>Rejection1</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M321.5,-320C321.5,-320 277.5,-320 277.5,-320 271.5,-320 265.5,-314 265.5,-308 265.5,-308 265.5,-296 265.5,-296 265.5,-290 271.5,-284 277.5,-284 277.5,-284 321.5,-284 321.5,-284 327.5,-284 333.5,-290 333.5,-296 333.5,-296 333.5,-308 333.5,-308 333.5,-314 327.5,-320 321.5,-320"/><text text-anchor="middle" x="299.5" y="-298.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Rejected</text></g><!-- Validation&#45;&gt;Rejection1 --><g id="edge7" class="edge"><title>Validation&#45;&gt;Rejection1</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M177.96,-302C202.74,-302 231.83,-302 255.34,-302"/><polygon fill="#789abc" stroke="#789abc" points="255.38,-305.5 265.38,-302 255.38,-298.5 255.38,-305.5"/><text text-anchor="middle" x="221.5" y="-308.4" font-family="Times,serif" font-size="12.00" fill="#789abc">No</text></g><!-- Consensus --><g id="node5" class="node"><title>Consensus</title><g id="a_node5"><a xlink:href="#5-consensus" xlink:title="Is there&#10;consensus?"><polygon fill="none" stroke="#789abc" points="124.5,-186 39.5,-152 124.5,-118 209.5,-152 124.5,-186"/><text text-anchor="middle" x="124.5" y="-155.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Is there</text><text text-anchor="middle" x="124.5" y="-142.4" font-family="Times,serif" font-size="12.00" fill="#789abc">consensus?</text></a></g></g><!-- Propagation&#45;&gt;Consensus --><g id="edge4" class="edge"><title>Propagation&#45;&gt;Consensus</title><path fill="none" stroke="#789abc" d="M124.5,-208.7C124.5,-204.91 124.5,-200.72 124.5,-196.41"/><polygon fill="#789abc" stroke="#789abc" points="128,-196.22 124.5,-186.22 121,-196.22 128,-196.22"/></g><!-- Confirmation --><g id="node6" class="node"><title>Confirmation</title><g id="a_node6"><a xlink:href="#6-confirmation" xlink:title="Transaction is included in a new block"><path fill="none" stroke="#789abc" d="M237,-95C237,-95 12,-95 12,-95 6,-95 0,-89 0,-83 0,-83 0,-71 0,-71 0,-65 6,-59 12,-59 12,-59 237,-59 237,-59 243,-59 249,-65 249,-71 249,-71 249,-83 249,-83 249,-89 243,-95 237,-95"/><text text-anchor="middle" x="124.5" y="-73.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Transaction is included in a new block</text></a></g></g><!-- Consensus&#45;&gt;Confirmation --><g id="edge5" class="edge"><title>Consensus&#45;&gt;Confirmation</title><path fill="none" stroke="#789abc" d="M124.5,-117.92C124.5,-113.75 124.5,-109.52 124.5,-105.45"/><polygon fill="#789abc" stroke="#789abc" points="128,-105.21 124.5,-95.21 121,-105.21 128,-105.21"/><text text-anchor="middle" x="140" y="-103.4" font-family="Times,serif" font-size="12.00" fill="#789abc"> &#160;&#160;Yes</text></g><!-- Rejection2 --><g id="node9" class="node"><title>Rejection2</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M353.5,-170C353.5,-170 309.5,-170 309.5,-170 303.5,-170 297.5,-164 297.5,-158 297.5,-158 297.5,-146 297.5,-146 297.5,-140 303.5,-134 309.5,-134 309.5,-134 353.5,-134 353.5,-134 359.5,-134 365.5,-140 365.5,-146 365.5,-146 365.5,-158 365.5,-158 365.5,-164 359.5,-170 353.5,-170"/><text text-anchor="middle" x="331.5" y="-148.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Rejected</text></g><!-- Consensus&#45;&gt;Rejection2 --><g id="edge8" class="edge"><title>Consensus&#45;&gt;Rejection2</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M209.59,-152C236.16,-152 264.4,-152 287.01,-152"/><polygon fill="#789abc" stroke="#789abc" points="287.29,-155.5 297.29,-152 287.29,-148.5 287.29,-155.5"/><text text-anchor="middle" x="253.5" y="-158.4" font-family="Times,serif" font-size="12.00" fill="#789abc">No</text></g><!-- Finalization --><g id="node7" class="node"><title>Finalization</title><g id="a_node7"><a xlink:href="#7-finalization" xlink:title="The block becomes immutable"><path fill="none" stroke="#789abc" d="M212.5,-36C212.5,-36 36.5,-36 36.5,-36 30.5,-36 24.5,-30 24.5,-24 24.5,-24 24.5,-12 24.5,-12 24.5,-6 30.5,0 36.5,0 36.5,0 212.5,0 212.5,0 218.5,0 224.5,-6 224.5,-12 224.5,-12 224.5,-24 224.5,-24 224.5,-30 218.5,-36 212.5,-36"/><text text-anchor="middle" x="124.5" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">The block becomes immutable</text></a></g></g><!-- Confirmation&#45;&gt;Finalization --><g id="edge6" class="edge"><title>Confirmation&#45;&gt;Finalization</title><path fill="none" stroke="#789abc" d="M124.5,-58.9C124.5,-54.95 124.5,-50.66 124.5,-46.4"/><polygon fill="#789abc" stroke="#789abc" points="128,-46.09 124.5,-36.09 121,-46.09 128,-46.09"/></g></g></svg></p>
+<p>All transactions follow the same general lifecycle.</p>
+<h3 id="1-creation-and-signature">1. Creation and signature<a class="headerlink" href="#1-creation-and-signature" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>A software client, typically an app, creates the transaction and fills in all its parameters.
+For example, a transfer transaction requires the source <a class="mkdocs-ezglossary-link"
+	id="ade964b26f2fca50919eaa8b4151ff79"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
+	name="_:Account"
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>, destination account, and amount.</p>
+<p>This step also involves collecting all required signatures.
+For a transfer transaction, only the source account's signature is required, but more complex transactions might
+require multiple signatures.</p>
+<p>Each signature is typically provided by a <a class="mkdocs-ezglossary-link"
+	id="802e984db75a6f29ab99800cb91c032a"
+	title="An application used to manage Symbol accounts, initiate transactions and sign them."
+	name="_:Wallet"
+	href="../../textbook/accounts/#6dcb4862772a4786031897c88dd72ca4">wallet</a>.
+Signatures prove that all required parties have authorized the transaction, since only the holder of an account's
+<a class="mkdocs-ezglossary-link"
+	id="a1a1e7725a768ff7989e8d86b089691b"
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
+	name="_:Key Pair"
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private key</a> can produce a valid signature.</p>
+<h3 id="2-announcement">2. Announcement<a class="headerlink" href="#2-announcement" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>The application connects to one of the API nodes in the network and submits the transaction.</p>
+<h3 id="3-validation">3. Validation<a class="headerlink" href="#3-validation" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>The node checks that the transaction is well-formed and includes all required, valid signatures.
+Some transaction types require additional semantic checks.
+For example, a transfer transaction verifies that the source account has enough funds.</p>
+<p>For the complete list of checks see <a href="#validation-details">Validation Details</a> below.</p>
+<p>If any of these checks fail, the transaction is rejected and the process stops.
+If all checks pass, the process continues.</p>
+<h3 id="4-propagation">4. Propagation<a class="headerlink" href="#4-propagation" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Once the node considers the transaction to be valid, it is broadcast to the peer nodes in the network.</p>
+<p>Each receiving node performs the same validation:
+it checks the transaction's structure, signatures, and any conditions specific to its type.
+If the transaction passes validation, it is further propagated to other peers.</p>
+<p>This process ensures that a broad portion of the network knows about the transaction and accepts it as valid.</p>
+<h3 id="5-consensus">5. Consensus<a class="headerlink" href="#5-consensus" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Each node has an importance score based on its staked funds and other factors.
+This score is used as a weight when evaluating the node's vote on a transaction's validity.</p>
+<p>The consensus algorithm collects votes from nodes until a predefined threshold is reached.
+If the threshold is reached, the transaction is confirmed.
+If not, it remains in this stage until it eventually expires and is rejected.</p>
+<h3 id="6-confirmation">6. Confirmation<a class="headerlink" href="#6-confirmation" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Once enough positive weighted votes are collected, the transaction is added to a block and considered confirmed.</p>
+<p>However, due to the distributed nature of the blockchain, blocks can occasionally be rolled back and confirmed
+transactions reverted.
+This can occur when a large number of previously disconnected nodes rejoin the network and override decisions made
+on transactions confirmed during the disconnection.</p>
+<p>A common solution is to wait for several additional blocks after a transaction is confirmed.
+Each new block adds another layer of confirmation, increasing confidence that the transaction will not be reverted.</p>
+<p>On Symbol, however, an additional mechanism guarantees that confirmed transactions cannot be reverted.</p>
+<h3 id="7-finalization">7. Finalization<a class="headerlink" href="#7-finalization" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Finalization is the process that makes blocks, and the transactions they contain, irreversible.</p>
+<p>It runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.</p>
+<p>By waiting for finalization, applications can be certain the transactions they submitted will not be reverted.</p>
+<h2 id="common-transaction-structure"><img alt="🚧" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f6a7.svg" title=":construction:" /> Common Transaction Structure<a class="headerlink" href="#common-transaction-structure" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>All transaction types in Symbol share a set of common attributes:</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Signer public key</strong></td>
+<td>Identifies the account initiating the transaction.</td>
+</tr>
+<tr>
+<td><strong>Signature</strong></td>
+<td>A cryptographic proof that the signer authorized the transaction.</td>
+</tr>
+<tr>
+<td><strong>Deadline</strong></td>
+<td>A network timestamp after which the transaction expires.</td>
+</tr>
+<tr>
+<td><strong>Max fee</strong></td>
+<td>The maximum fee the signer is willing to pay to have the transaction included in a block.</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>Transaction type, which determines which additional attributes, if any, are present.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="validation-details"><img alt="🚧" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f6a7.svg" title=":construction:" /> Validation Details<a class="headerlink" href="#validation-details" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>All nodes in the network independently perform the following checks before accepting a transaction:</p>
+<ul>
+<li><strong>Signature verification</strong>: Ensures the signer approves the transaction, and the data has not been tampered with.</li>
+<li><strong>Fee sufficiency</strong>: Verifies that the provided fee meets the node's minimum requirement and that
+    the signer has sufficient funds.</li>
+<li><strong>Deadline check</strong>: Rejects transactions whose deadline has already passed.</li>
+<li><strong>Semantic checks</strong>: Validates that the transaction is logically correct based on its type.
+    For example, in a transfer transaction, the sender must own enough of the specified mosaics to cover both
+    the transferred amount and the associated fee.</li>
+</ul>
+<p>Invalid transactions are discarded and not propagated further through the network.</p>
+<h2 id="types-of-transactions"><img alt="🚧" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f6a7.svg" title=":construction:" /> Types of Transactions<a class="headerlink" href="#types-of-transactions" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Symbol supports multiple transaction types, each tailored to a specific kind of operation.
+These are built on top of the common structure and include additional fields as needed.</p>
+<p>All transaction types inherit the same processing flow and validation steps, but vary in intent and data structure.</p>
+<p>More transaction types can be added via plugins.</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 30, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 19, 2025</span>
+  </span>
+
+    
+    
+      
+  
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Contributors">
+      
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
+      
+    </span>
+    <nav>
+      
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:not.committed.yet">Not Committed Yet</a>
+    </nav>
+  </span>
+
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          <!-- User-preference: link content tabs -->
+
+	<script>
+		var tabs = __md_get("__tabs")
+		if (Array.isArray(tabs)) {
+			main: for (var set of document.querySelectorAll(".tabbed-set")) {
+				var labels = set.querySelector(".tabbed-labels")
+				for (var tab of tabs)
+					for (var label of labels.getElementsByTagName("label"))
+						if (label.innerText.trim() === tab) {
+							var input = document.getElementById(label.htmlFor)
+							input.checked = true
+							continue main
+						}
+			}
+
+			// Initialize dynamic links
+			main2: for (var set of document.querySelectorAll(".dylink")) {
+				var labels = set.querySelectorAll(".dylink-option")
+				for (var tab of tabs)
+					for (var label of labels)
+						if (label.htmlFor === tab) {
+							var input = set.querySelector(`#${label.htmlFor}`)
+							input.checked = true
+							continue main2
+						}
+			}
+		}
+		// Link dynamic links to their tabs
+		var tab_groups = document.getElementsByClassName("tabbed-labels");
+		for (var tab_group of tab_groups) {
+				labels = tab_group.getElementsByTagName("label");
+				for (var label of labels) {
+						label.addEventListener("click", function(e){
+								tab_name = e.target.innerText.trim();
+								dylink_options = document.getElementsByClassName("dylink-option");
+								for (var dylink_option of dylink_options) {
+										if (dylink_option.htmlFor === tab_name) {
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
+										}
+								}
+						})
+				}
+		}
+	</script>
+
+
+<!-- Switch to content tab target -->
+<script>
+	var target = document.getElementById(location.hash.slice(1))
+	if (target && target.name)
+		target.checked = target.name.startsWith("__tabbed_")
+</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <!--
+	Copyright (c) 2016-2022 Martin Donath <martin.donath@squidfunk.com>
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to
+	deal in the Software without restriction, including without limitation the
+	rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+	sell copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+	IN THE SOFTWARE.
+-->
+
+<div class="md-copyright">
+	
+		<div>
+			Copyright &copy; 2025 The Symbol Syndicate
+
+		</div>
+	
+	<div class="md-copyright__highlight">
+		<a href="#__consent">Cookie settings</a>
+	</div>
+
+	
+		<div>
+			Made with 
+			<a
+			href="https://squidfunk.github.io/mkdocs-material/"
+			target="_blank" rel="noopener"
+			>
+			Material for MkDocs
+		</a>
+	</div>
+	
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://symbol.github.io/symbol" target="_blank" rel="noopener" title="symbol.github.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1v16.2c0 22.1-17.9 40-40 40h-16c-1.1 0-2.2 0-3.3-.1-1.4.1-2.8.1-4.2.1L416 512h-24c-22.1 0-40-17.9-40-40v-88c0-17.7-14.3-32-32-32h-64c-17.7 0-32 14.3-32 32v88c0 22.1-17.9 40-40 40h-55.9c-1.5 0-3-.1-4.5-.2-1.2.1-2.4.2-3.6.2h-16c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9.1-2.8v-69.7h-32c-18 0-32-14-32-32.1 0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7l255.4 224.5c8 7 12 15 11 24"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://x.com/SymbolSyndicate" target="_blank" rel="noopener" title="x.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9zm-24.8 373.8h39.1L151.1 88h-42z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/symbol" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://discord.com/invite/xymcity" target="_blank" rel="noopener" title="discord.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485 485 0 0 0 404.081 32.03a1.82 1.82 0 0 0-1.923.91 338 338 0 0 0-14.9 30.6 447.9 447.9 0 0 0-134.426 0 310 310 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.7 483.7 0 0 0-119.688 37.107 1.7 1.7 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.02 2.02 0 0 0 .765 1.375 487.7 487.7 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348 348 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321 321 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251 251 0 0 0 9.109-7.137 1.82 1.82 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.81 1.81 0 0 1 1.924.233 235 235 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.4 301.4 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391 391 0 0 0 30.014 48.815 1.86 1.86 0 0 0 2.063.7A486 486 0 0 0 610.7 405.729a1.88 1.88 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541M222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241m195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+  
+    
+  
+
+
+
+  
+
+
+<h4>Cookie consent</h4>
+<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="github" checked>
+          <span class="task-list-indicator"></span>
+          GitHub
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
+</html>

@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="cosignaturedescriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Cosignature<wbr>Descriptor<a class="headerlink" href="#cosignaturedescriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="7e521e3635f450a31d27b15ca7b7caef">CosignatureDescriptor</a> 
+	<a id="93dc1d29f4fb39240711ca2341a3dbdb">CosignatureDescriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for CosignatureDescriptor.</dd>
 </p>
@@ -8042,7 +8063,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="c76d0870c66e986e121d2bb25cf8e16c">CosignatureDescriptor.toMap</a> 
+	<a id="9e2bd14c1304eb976536a58b9b3b38dd">CosignatureDescriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8091,7 +8112,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8107,8 +8128,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

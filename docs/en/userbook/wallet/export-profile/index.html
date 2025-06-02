@@ -7808,6 +7808,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7918,7 +7939,8 @@
 <h1 id="exporting-a-profile">Exporting a Profile<a class="headerlink" href="#exporting-a-profile" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This page explains how to export a <a class="mkdocs-ezglossary-link"
 	id="715ccc1f06d7c8c5bc346d6c108957fe"
-	title="A password-protected container that stores multiple accounts on a given device,"
+	title="A password-protected container that stores multiple accounts on a given device,
+similar to how profiles work in a browser or operating system."
 	name="_:Profile"
 	href="../../../userbook/wallet/create-profile/#7f4ec0a39352d650ffbbd726163d6212">profile</a> and all the accounts it contains from the Symbol Desktop Wallet.<br />
 Exporting a profile allows you to create a backup or use the same accounts on another device by <a href="../import-profile/">importing the profile</a> there.</p>
@@ -7930,11 +7952,12 @@ Exporting a profile allows you to create a backup or use the same accounts on an
 <dd><p>A printable document containing information to restore a wallet profile and all its accounts.</p>
 <p>The information is intended to be printed on paper and may include QR codes, <a class="mkdocs-ezglossary-link"
 	id="2f55e9632631ab17956ed25d3175c0f8"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
 	href="../../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a>,
 <a class="mkdocs-ezglossary-link"
-	id="b07a283a75691a1b12fafe6f3bf753d9"
+	id="c3b44d7bbc1babf1d703f221a32e6613"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
 	href="../../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrases</a>, or all of them.</p>
@@ -7980,7 +8003,11 @@ Enter your profile password to confirm access.
 Click the <strong><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z"/></svg></span> Download</strong> button.</p>
 <p>You will receive a PDF document containing a <a class="mkdocs-ezglossary-link"
 	id="24ea20aadabc60591dbed2c574fa7fdd"
-	title="A printable document containing information to restore a wallet profile and all its accounts."
+	title="A printable document containing information to restore a wallet profile and all its accounts.
+The information is intended to be printed on paper and may include QR codes, private keys,
+mnemonic phrases, or all of them.
+Paper wallets are less convenient than digital backups because the information must be entered manually.
+However, they are more secure because they are not stored or accessed online."
 	name="_:Paper Wallet"
 	href="../../../userbook/wallet/export-profile/#85d0cb74b3b1811657842c75358f55d6">paper wallet</a>.<br />
 This document should be printed and then deleted from your device for security.
@@ -7989,7 +8016,7 @@ This document should be printed and then deleted from your device for security.
 <tr>
 <p><td markdown><a class="glightbox" href="../screenshots/export-profile-5.jpg" data-type="image" data-width="auto" data-height="auto" data-description=".step-6" data-desc-position="left"><img .data-description=".step-6" alt="" src="../screenshots/export-profile-5.jpg" /></a><div markdown class="step-6"><span class="big-number">6. </span>
 This image shows an example of a paper wallet containing an exported <a class="mkdocs-ezglossary-link"
-	id="6e58719af8e255c7aed0a692b2aee949"
+	id="b07a283a75691a1b12fafe6f3bf753d9"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
 	href="../../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrase</a>.</p>
@@ -8001,7 +8028,8 @@ This image shows an example of a paper wallet containing an exported <a class="m
 This image shows an example of a paper wallet containing an individual account.</p>
 <p>The account may have been generated from a mnemonic phrase or imported directly from a <a class="mkdocs-ezglossary-link"
 	id="178c643e17cf0ae322339f2ca6cd58bf"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
 	href="../../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private key</a>.
 </div></td></p>
@@ -8100,7 +8128,7 @@ This image shows an example of a paper wallet containing an individual account.<
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8116,8 +8144,8 @@ This image shows an example of a paper wallet containing an individual account.<
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

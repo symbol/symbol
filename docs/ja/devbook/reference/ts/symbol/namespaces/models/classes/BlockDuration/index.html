@@ -7502,7 +7502,7 @@
 <h1 id="blockduration"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Block<wbr>Duration<a class="headerlink" href="#blockduration" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="88e9e8841bd7c27006bda8f371303613">BlockDuration</a> 
+	<a id="3c6c7bde7c65981d9e5bae5df373b29f">BlockDuration</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -7588,7 +7588,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="2cfcb634067ae0e9e8f458ee4e67ca22">BlockDuration.serialize</a> 
+	<a id="4d516e6d636603a73e81aa2734ba74c2">BlockDuration.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7604,7 +7604,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="39af08d50c52a5bcd6088535e344f3ef">BlockDuration.toString</a> 
+	<a id="c586db9ad3aa309596ead4d540af9d80">BlockDuration.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -7697,7 +7697,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7713,8 +7713,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

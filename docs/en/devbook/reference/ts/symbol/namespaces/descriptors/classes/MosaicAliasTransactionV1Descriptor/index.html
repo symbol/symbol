@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="mosaicaliastransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Mosaic<wbr>Alias<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#mosaicaliastransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="dec0898515471050e25759c63fed699f">MosaicAliasTransactionV1Descriptor</a> 
+	<a id="080d279e55f00a1183d162f51f6efdc3">MosaicAliasTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for MosaicAliasTransactionV1Descriptor.</dd>
 </p>
@@ -8047,7 +8068,7 @@ Setting an alias to a mosaic is only possible if the account announcing this tra
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="985671f5d6028e820181934e358b9691">MosaicAliasTransactionV1Descriptor.toMap</a> 
+	<a id="cea313a4b2103580620adf6ea588bcde">MosaicAliasTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8096,7 +8117,7 @@ Setting an alias to a mosaic is only possible if the account announcing this tra
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8112,8 +8133,8 @@ Setting an alias to a mosaic is only possible if the account announcing this tra
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

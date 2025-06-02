@@ -7808,6 +7808,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7918,12 +7939,14 @@
 <h1 id="deleting-a-profile">Deleting a Profile<a class="headerlink" href="#deleting-a-profile" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This page explains how to permanently delete a <a class="mkdocs-ezglossary-link"
 	id="9af3aa96e405ef1ca11f7175b0c88816"
-	title="A password-protected container that stores multiple accounts on a given device,"
+	title="A password-protected container that stores multiple accounts on a given device,
+similar to how profiles work in a browser or operating system."
 	name="_:Profile"
 	href="../../../userbook/wallet/create-profile/#7f4ec0a39352d650ffbbd726163d6212">profile</a> from the Symbol Desktop Wallet.<br />
 This action removes access to all <a class="mkdocs-ezglossary-link"
-	id="2a291e5452d1d8578c19a114d2c022f7"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="045a324f83c53de3eff056eae2bf3201"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> managed by that profile on this device.</p>
 <div class="admonition note">
@@ -7932,7 +7955,8 @@ This action removes access to all <a class="mkdocs-ezglossary-link"
 The accounts themselves, along with any assets they contain, remain on the blockchain.<br />
 If the <a class="mkdocs-ezglossary-link"
 	id="c75db8306eceda0aac733a98601e958e"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
 	href="../../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a> to those accounts have been copied elsewhere, the assets can still be accessed from another device or wallet.</p>
 </div>
@@ -8061,7 +8085,7 @@ Make sure you have a backup before proceeding.
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8077,8 +8101,8 @@ Make sure you have a backup before proceeding.
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7876,6 +7876,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8036,7 +8057,7 @@
 <h1 id="symbolaccount"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Symbol<wbr>Account<a class="headerlink" href="#symbolaccount" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="67802c36cf340cd1064e738dd25299da">SymbolAccount</a> 
+	<a id="bd7a338ef822dd421f4de2595e465da4">SymbolAccount</a> 
 </dt>
 <dd>Symbol account.</dd>
 </p>
@@ -8126,7 +8147,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="77abef9ef7fa5415f34c0ed8972f35ce">SymbolAccount.cosignTransaction</a> 
+	<a id="28097487d9c6cb4390ff49521eabda78">SymbolAccount.cosignTransaction</a> 
 </dt>
 <dd>Cosigns a Symbol transaction.</dd>
 </p>
@@ -8165,7 +8186,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="e7dd6fc26ff767310593183a227e4eec">SymbolAccount.cosignTransactionHash</a> 
+	<a id="e6e547f16690fbdc9a9f9dee2c8600b7">SymbolAccount.cosignTransactionHash</a> 
 </dt>
 <dd>Cosigns a Symbol transaction hash.</dd>
 </p>
@@ -8202,7 +8223,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="72a4ba32f6add63c2d385d7f50261ffa">SymbolAccount.messageEncoder</a> 
+	<a id="e06b8a8194b73bd9b4c7226b9f62385a">SymbolAccount.messageEncoder</a> 
 </dt>
 <dd>Creates a message encoder that can be used for encrypting and encoding messages between two parties.</dd>
 </p>
@@ -8216,7 +8237,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="94d2025f5513cbe51e4575bd7d9579ac">SymbolAccount.signTransaction</a> 
+	<a id="2e36ad93a2cddc414af69528e625ceb3">SymbolAccount.signTransaction</a> 
 </dt>
 <dd>Signs a Symbol transaction.</dd>
 </p>
@@ -8282,7 +8303,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8298,8 +8319,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

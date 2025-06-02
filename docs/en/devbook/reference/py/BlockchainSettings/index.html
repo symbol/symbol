@@ -7812,6 +7812,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7938,7 +7959,9 @@
 
 
 <h2 id="symbolchain.BlockchainSettings.BlockchainSettings" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>BlockchainSettings</code>
+	<a id=BlockchainSettings></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>BlockchainSettings</code>
+
 
 
 <a href="#symbolchain.BlockchainSettings.BlockchainSettings" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -7947,11 +7970,10 @@
     <div class="doc doc-contents ">
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="275277ba395b294176f1ea5124ab4c87">symbolchain.BlockchainSettings.BlockchainSettings</a> 
+	<a id="2940f001f18a1bc95653b28719d1d3c4">BlockchainSettings</a> 
 </dt>
-<dd>
-        <p>Settings describing a blockchain.</p>
-	</dd>
+<dd>        <p>Settings describing a blockchain.</p>
+</dd>
 </dl>
 
 
@@ -7977,18 +7999,19 @@
 
 
 <h3 id="symbolchain.BlockchainSettings.BlockchainSettings.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">settings_dict</span><span class="p">)</span></code>
+	<a id=BlockchainSettings.__init__></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">settings_dict</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.BlockchainSettings.BlockchainSettings.__init__" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="7d9614633c207abc8dc23653a5d6a66f">symbolchain.BlockchainSettings.BlockchainSettings.__init__</a> 
+	<a id="21e8ae0e324b5910b2f5c23d496e37cf">BlockchainSettings.__init__</a> 
 </dt>
-<dd>
-        <p>Creates blockchain settings from a dictionary.</p>
-	</dd>
+<dd>        <p>Creates blockchain settings from a dictionary.</p>
+</dd>
 </dl>
 
 
@@ -8000,7 +8023,9 @@
 
 
 <h3 id="symbolchain.BlockchainSettings.BlockchainSettings.load_from_yaml" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_from_yaml</span><span class="p">(</span><span class="n">yaml_input</span><span class="p">)</span></code>
+	<a id=BlockchainSettings.load_from_yaml></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_from_yaml</span><span class="p">(</span><span class="n">yaml_input</span><span class="p">)</span></code>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -8011,11 +8036,10 @@
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="2f4bd802761ce8316d23602ef8bf8174">symbolchain.BlockchainSettings.BlockchainSettings.load_from_yaml</a> 
+	<a id="7c21f51f1fb9e323a2119d81d7387f34">BlockchainSettings.load_from_yaml</a> 
 </dt>
-<dd>
-        <p>Loads settings from YAML.</p>
-	</dd>
+<dd>        <p>Loads settings from YAML.</p>
+</dd>
 </dl>
 
 
@@ -8080,7 +8104,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8096,8 +8120,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

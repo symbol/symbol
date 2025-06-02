@@ -7808,6 +7808,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7918,7 +7939,8 @@
 <h1 id="importing-an-existing-profile">Importing an Existing Profile<a class="headerlink" href="#importing-an-existing-profile" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This page explains how to restore an <strong>existing</strong> <a class="mkdocs-ezglossary-link"
 	id="5938a12966d2d5463d02d8c19f3d1c31"
-	title="A password-protected container that stores multiple accounts on a given device,"
+	title="A password-protected container that stores multiple accounts on a given device,
+similar to how profiles work in a browser or operating system."
 	name="_:Profile"
 	href="../../../userbook/wallet/create-profile/#7f4ec0a39352d650ffbbd726163d6212">profile</a> from a previous installation of the Symbol Desktop Wallet, or from another compatible wallet.<br />
 To learn what a profile is, or to create a new one from scratch, follow the <a href="../create-profile/">Creating a Profile</a> tutorial instead.</p>
@@ -7931,13 +7953,14 @@ If you have not done that yet, see the <a href="../install/">Installing the Wall
 <li>
 <p>Make sure you understand what is a <a class="mkdocs-ezglossary-link"
 	id="66c6fe5139ac8fc8e4fa7003321c7df7"
-	title="A password-protected container that stores multiple accounts on a given device,"
+	title="A password-protected container that stores multiple accounts on a given device,
+similar to how profiles work in a browser or operating system."
 	name="_:Profile"
 	href="../../../userbook/wallet/create-profile/#7f4ec0a39352d650ffbbd726163d6212">profile</a>.</p>
 </li>
 <li>
 <p>You will need the <a class="mkdocs-ezglossary-link"
-	id="63dab93e75827387187e17c0aa9bf1e2"
+	id="be8862375a4b64134b0b82fbc0848b60"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
 	href="../../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrase</a> for the profile you want to restore.<br />
@@ -8086,7 +8109,7 @@ Read the safety tips, accept the Terms and Conditions, and click <strong>Finish<
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8102,8 +8125,8 @@ Read the safety tips, accept the Terms and Conditions, and click <strong>Finish<
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

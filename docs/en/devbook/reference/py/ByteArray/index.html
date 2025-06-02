@@ -7812,6 +7812,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7938,7 +7959,9 @@
 
 
 <h2 id="symbolchain.ByteArray.ByteArray" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>ByteArray</code>
+	<a id=ByteArray></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>ByteArray</code>
+
 
 
 <a href="#symbolchain.ByteArray.ByteArray" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -7949,11 +7972,10 @@
               Bases: <code><span title="symbolchain.Ordered.Ordered">Ordered</span></code></p>
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="bd2ae203194a1db4382838f3ff53e94a">symbolchain.ByteArray.ByteArray</a> 
+	<a id="92563ac58574a22242142c6ce20a1b6a">ByteArray</a> 
 </dt>
-<dd>
-        <p>Represents a fixed size byte array.</p>
-	</dd>
+<dd>        <p>Represents a fixed size byte array.</p>
+</dd>
 </dl>
 
 
@@ -7979,18 +8001,19 @@
 
 
 <h3 id="symbolchain.ByteArray.ByteArray.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">fixed_size</span><span class="p">,</span> <span class="n">array_input</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+	<a id=ByteArray.__init__></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">fixed_size</span><span class="p">,</span> <span class="n">array_input</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.ByteArray.ByteArray.__init__" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="dd8a12d5b42f0268cc617c0c88626e0f">symbolchain.ByteArray.ByteArray.__init__</a> 
+	<a id="16abbae7314cf5cac19bb8cebbc4f303">ByteArray.__init__</a> 
 </dt>
-<dd>
-        <p>Creates a byte array from bytes or hex string.</p>
-	</dd>
+<dd>        <p>Creates a byte array from bytes or hex string.</p>
+</dd>
 </dl>
 
 
@@ -8002,18 +8025,19 @@
 
 
 <h3 id="symbolchain.ByteArray.ByteArray.to_json" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">to_json</span><span class="p">()</span></code>
+	<a id=ByteArray.to_json></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">to_json</span><span class="p">()</span></code>
+
 
 <a href="#symbolchain.ByteArray.ByteArray.to_json" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="c28b2159d4f3907d6d6a532870c357aa">symbolchain.ByteArray.ByteArray.to_json</a> 
+	<a id="39fd570fd8fa13014a5ef001af7aa18d">ByteArray.to_json</a> 
 </dt>
-<dd>
-        <p>Returns representation of this object that can be stored in JSON.</p>
-	</dd>
+<dd>        <p>Returns representation of this object that can be stored in JSON.</p>
+</dd>
 </dl>
 
 
@@ -8078,7 +8102,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8094,8 +8118,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

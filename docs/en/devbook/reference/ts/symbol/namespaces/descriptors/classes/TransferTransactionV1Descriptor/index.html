@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="transfertransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Transfer<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#transfertransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="d9077dd6b1de93f6da72f22c17261754">TransferTransactionV1Descriptor</a> 
+	<a id="3d4cc74351f0b1df2da1679de9814b8e">TransferTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for TransferTransactionV1Descriptor.</dd>
 </p>
@@ -8038,7 +8059,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="cb7f230f49894139866d7e0d7be8dd0d">TransferTransactionV1Descriptor.toMap</a> 
+	<a id="e6e884025153996fc7e4bc93ff4f37df">TransferTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8087,7 +8108,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8103,8 +8124,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7412,7 +7412,7 @@
 <h1 id="mosaicsupplychangetransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Mosaic<wbr>Supply<wbr>Change<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#mosaicsupplychangetransactionv1descriptor" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="854e4e64bf7e416ab5b6e41d0676ec04">MosaicSupplyChangeTransactionV1Descriptor</a> 
+	<a id="83317083ba4571e0c35c07221e564fff">MosaicSupplyChangeTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for MosaicSupplyChangeTransactionV1Descriptor.</dd>
 </p>
@@ -7492,7 +7492,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="dd59a607c48add6970db0c6c7e740b8c">MosaicSupplyChangeTransactionV1Descriptor.toMap</a> 
+	<a id="42b4c303114428c76b5cdd807182f494">MosaicSupplyChangeTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -7541,7 +7541,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7557,8 +7557,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

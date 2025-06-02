@@ -14,7 +14,7 @@
         <link rel="prev" href="../cryptography/">
       
       
-        <link rel="next" href="../glossary/">
+        <link rel="next" href="../transactions/">
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
@@ -7831,6 +7831,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../glossary/" class="md-nav__link">
         
   
@@ -7972,7 +7993,9 @@
 </dt>
 <dd>A secure place where digital assets like cryptocurrencies or <a class="mkdocs-ezglossary-link"
 	id="2db3fd3895d0c2f17ea60cfa2ddf2342"
-	title="A non-fungible token, a way to represent individual entities as a blockchain-based asset."
+	title="A non-fungible token, a way to represent individual entities as a blockchain-based asset.
+Coins are fungible, because they are all worth the same and can therefore be interchanged.
+Paintings are non-fungible, because each one is unique and therefore non-interchangeable."
 	name="_:NFT"
 	href="../../textbook/glossary/#991e45b8165abd1db1e24f8dc0f4e14a">NFTs</a> can be stored.
 It functions similarly to a safe deposit box in traditional banking.</dd>
@@ -7980,12 +8003,15 @@ It functions similarly to a safe deposit box in traditional banking.</dd>
 </dl>
 <p>In the case of blockchain, accounts are secured by a <a class="mkdocs-ezglossary-link"
 	id="d2d32d73933a5e585c5181b865d1abc2"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">key pair</a>: assets can only be <strong>transferred out</strong> of an account by using its private key, but the public key can be shared freely in order to <strong>receive</strong> assets.</p>
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">key pair</a>: assets can only be <strong>transferred out</strong> of an account
+by using its private key, but the public key can be shared freely in order to <strong>receive</strong> assets.</p>
 <p>Public keys are commonly shared as an <a class="mkdocs-ezglossary-link"
 	id="99cb16ab825a74dc4e69a307ea7937a5"
-	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only letters and numbers. It's typically a synonym for account."
+	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
+letters and numbers. It's typically a synonym for account."
 	name="_:Address"
 	href="../../textbook/cryptography/#1d724e052438d54ca474b7ddbf21c36d">address</a> for convenience, so the terms "account" and "address" are used as synonyms.</p>
 <p>Besides managing digital assets, accounts also represent the ownership of a private key, and act as a form of digital identity.
@@ -8001,40 +8027,49 @@ Prior to activation, no information about them is recorded on-chain and they do 
 <dt>
 	<a id="a0a0b2390a7807b40a0c6b786d824d14">Restriction</a> 
 </dt>
-<dd>Rule that filter what types of transactions are allowed to or from an account.</dd>
+<dd>Rule that filters what types of transactions are allowed to or from an account.</dd>
 
 </dl>
 <p>Account restrictions can be of three types:</p>
 <ul>
 <li><strong>Address restrictions</strong>: Block or allow transactions from specific <a class="mkdocs-ezglossary-link"
-	id="d995b9ad196aeed098cf141cbf0d6c74"
-	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only letters and numbers. It's typically a synonym for account."
+	id="a68112f1aae0a39a32c2ef9447d4c79b"
+	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
+letters and numbers. It's typically a synonym for account."
 	name="_:Address"
 	href="../../textbook/cryptography/#1d724e052438d54ca474b7ddbf21c36d">addresses</a>.</li>
 <li><strong>Mosaic restrictions</strong>: Block or allow transactions involving certain mosaics.</li>
 <li><strong>Operation restrictions</strong>: Block or allow specific transaction types (e.g. transfers, metadata updates).</li>
 </ul>
 <p>Restrictions help prevent spam, misconfiguration, and unauthorized access.
-They are configured using dedicated transaction types and can only be modified by the account owner or cosignatories in the case of multisig accounts.</p>
+They are configured using dedicated transaction types and can only be modified by the account owner or cosignatories
+in the case of <a class="mkdocs-ezglossary-link"
+	id="18a1c4dca517820859c2379391f487e2"
+	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to
+approve transactions."
+	name="_:Multisignature Account"
+	href="../../textbook/accounts/#acdd6609b712640449e6fc8c54e718ec">multisignature accounts</a>.</p>
 <h2 id="mnemonics">Mnemonics<a class="headerlink" href="#mnemonics" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
 	<a id="caca6bf16f8acd51395d644299eb6351">Mnemonic Phrase</a> 
 </dt>
-<dd><p>A human-readable representation of a <a class="mkdocs-ezglossary-link"
+<dd>A human-readable representation of a <a class="mkdocs-ezglossary-link"
 	id="fc38fd151163c753a557fe5fce58c990"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private key</a>, typically shown as a list of 12 or 24 random words.</p>
-<p>It is also called just Mnemonic, and often used when creating or restoring accounts in <a class="mkdocs-ezglossary-link"
-	id="972463e9bb2fb81f590c23707435a7a4"
-	title="A Hierarchical Deterministic (HD) wallet derive a series of accounts from a single seed, which allows handling a group of accounts using a single seed instead of multiple key pairs."
-	name="_:HD Wallet"
-	href="../../textbook/accounts/#abf5d486eea9467288f1b0c72e1bb6eb">HD wallets</a>.</p>
-</dd>
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private key</a>, typically shown as a list of 12 or 24 random words.</dd>
 
 </dl>
-<p>Symbol uses the <a href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">BIP-39</a> standard that requires 24 English words.</p>
+<p>It is also called just Mnemonic, and often used when creating or restoring accounts in <a class="mkdocs-ezglossary-link"
+	id="24acc3b55e011d01b15647f3ea6c454a"
+	title="A Hierarchical Deterministic (HD) wallet derives a series of accounts from a single seed,
+which is more convenient than having to manage multiple key pairs."
+	name="_:HD Wallet"
+	href="../../textbook/accounts/#abf5d486eea9467288f1b0c72e1bb6eb">HD Wallets</a>.</p>
+<p>Symbol uses the <a href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">BIP-39</a> standard that requires
+24 English words.</p>
 <div class="admonition warning">
 <p class="admonition-title">Treat mnemonics as if they were private keys</p>
 <p>Access to a mnemonic phrase provides full access to all accounts generated from it.
@@ -8045,92 +8080,100 @@ Never share it, and avoid storing it unencrypted in digital form.</p>
 <dt>
 	<a id="6dcb4862772a4786031897c88dd72ca4">Wallet</a> 
 </dt>
-<dd><p>An application used to manage Symbol accounts.</p>
-<p>It stores <a class="mkdocs-ezglossary-link"
-	id="4440146771f9c65a3fe559182234a5da"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
-	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a> or <a class="mkdocs-ezglossary-link"
-	id="d3260df0ce4ec64d2eec7e0e3d9c9ff0"
-	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
-	name="_:Mnemonic Phrase"
-	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrases</a>, and uses them to signs transactions.
-More broadly, wallets provide tools for exploring and interacting with the blockchain.</p>
-</dd>
+<dd>An application used to manage Symbol accounts, initiate transactions and sign them.</dd>
 
 </dl>
+<p>It stores <a class="mkdocs-ezglossary-link"
+	id="4440146771f9c65a3fe559182234a5da"
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
+	name="_:Key Pair"
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a> or <a class="mkdocs-ezglossary-link"
+	id="e670f24252f14a225873ab2d2da1334c"
+	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
+	name="_:Mnemonic Phrase"
+	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">Mnemonic Phrases</a>, and uses them to signs transactions.
+More broadly, wallets provide tools for exploring and interacting with the blockchain.</p>
 <p>Wallets can be:</p>
 <ul>
 <li>
 <p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 2H3c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 18H3V6h18z"/></svg></span> <strong>Software wallets</strong></p>
 <p>Applications installed on desktop or mobile devices.</p>
 <p>These typically offer the full range of functionality, at an increased security risk:
-the software wallet must be online in order to interact with the blockchain, exposing the stored private keys to potential compromise, even if protected by a password.</p>
+the software wallet must be online in order to interact with the blockchain, exposing the stored private keys to
+potential compromise, even if protected by a password.</p>
 </li>
 <li>
 <p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 4h10c1.11 0 2 .89 2 2v2h-3.41L16 10.59v4l-2 2V20h-4v-3.41l-2-2V9.41l2-2zm8 7.41V14h4v-4h-2.59zM6.59 8 8 6.59V4H4c-1.11 0-2 .89-2 2v2zM6 14v-4H2v4zm2 3.41L6.59 16H2v2c0 1.11.89 2 2 2h4zM17.41 16 16 17.41V20h4c1.11 0 2-.89 2-2v-2z"/></svg></span> <strong>Hardware wallets</strong></p>
 <p>External physical devices that store keys offline.</p>
 <p>These are designed primarily for secure transaction signing and must be connected to a software wallet to operate.</p>
-<p>The private keys they contain never leave the device except when explicitly backed up, making hardware wallets significantly more secure.</p>
+<p>The private keys they contain never leave the device except when explicitly backed up, making hardware wallets
+significantly more secure.</p>
 </li>
 </ul>
-<p>Most wallets allow managing multiple accounts, QR code scanning (for signing and requesting transaction signatures), metadata entry, and <a class="mkdocs-ezglossary-link"
+<p>Most wallets allow managing multiple accounts, QR code scanning (for signing and requesting transaction signatures),
+metadata entry, and <a class="mkdocs-ezglossary-link"
 	id="e76ebc291c0c90981a548e5b58f5667c"
-	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to approve transactions."
+	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to
+approve transactions."
 	name="_:Multisignature Account"
 	href="../../textbook/accounts/#acdd6609b712640449e6fc8c54e718ec">multisig</a> configuration.
 Accounts can be also imported or exported using either <a class="mkdocs-ezglossary-link"
 	id="9359b46fd1407668b1291b190b6aa446"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
 	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a> or <a class="mkdocs-ezglossary-link"
-	id="d3260df0ce4ec64d2eec7e0e3d9c9ff0"
+	id="e670f24252f14a225873ab2d2da1334c"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
-	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrases</a>.</p>
+	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">Mnemonic Phrases</a>.</p>
 <h2 id="hd-wallets">HD Wallets<a class="headerlink" href="#hd-wallets" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
 	<a id="abf5d486eea9467288f1b0c72e1bb6eb">HD Wallet</a> 
 </dt>
-<dd><p>A Hierarchical Deterministic (HD) <a class="mkdocs-ezglossary-link"
+<dd>A Hierarchical Deterministic (HD) <a class="mkdocs-ezglossary-link"
 	id="2f907252065823fc938082c060878c00"
-	title="An application used to manage Symbol accounts."
+	title="An application used to manage Symbol accounts, initiate transactions and sign them."
 	name="_:Wallet"
-	href="../../textbook/accounts/#6dcb4862772a4786031897c88dd72ca4">wallet</a> derive a series of <a class="mkdocs-ezglossary-link"
-	id="398c57727cbe064080385d822c9e4b77"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	href="../../textbook/accounts/#6dcb4862772a4786031897c88dd72ca4">wallet</a> derives a series of <a class="mkdocs-ezglossary-link"
+	id="0bf66a86103a6e1ae19ae3660a281f47"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
-	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> from a single seed, which allows handling a group of accounts using a single seed instead of multiple <a class="mkdocs-ezglossary-link"
-	id="e6aafb118fb19acba48f84ba692e1c0e"
-	title="A pair formed by a very long, secret random number (the private key) and a public number derived from it (the public key)."
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> from a single seed,
+which is more convenient than having to manage multiple <a class="mkdocs-ezglossary-link"
+	id="6813b0eb0fa68e6d67c17cd31a1b75dd"
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
 	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">key pairs</a>.</p>
-<p>This greatly simplifies the management of multiple accounts, but extra caution must be taken to keep the seed safe because compromising the seed compromises all the accounts derived from it.
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">key pairs</a>.</dd>
+
+</dl>
+<p>This greatly simplifies the management of multiple accounts, but extra caution must be taken to keep the seed safe
+because compromising the seed compromises all the accounts derived from it.
 The seed is typically a <a class="mkdocs-ezglossary-link"
-	id="90f0891644259364dc4643f919cbde06"
+	id="d3260df0ce4ec64d2eec7e0e3d9c9ff0"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
 	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrase</a>.</p>
 <p>Most wallets are HD wallets.</p>
-</dd>
-
-</dl>
 <p>Symbol uses the <a href="https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki">BIP-32</a> standard to generate accounts from the seed.</p>
 <h2 id="metadata">Metadata<a class="headerlink" href="#metadata" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
 	<a id="5b4d2d257b88ac43547a89cd6f75d41b">Metadata</a> 
 </dt>
-<dd><p>Structured data attached an <a class="mkdocs-ezglossary-link"
-	id="2583842618a5a4b877bd703b6fe44d80"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+<dd>Structured data attached an <a class="mkdocs-ezglossary-link"
+	id="398c57727cbe064080385d822c9e4b77"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
-	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> or to other blockchain entities like mosaics and namespaces.</p>
-<p>Metadata on Symbol consists of key–value pairs and is stored on-chain.</p>
-</dd>
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> or to other blockchain entities like mosaics and namespaces.</dd>
 
 </dl>
+<p>Metadata on Symbol consists of key–value pairs and is stored on-chain.</p>
 <p>Since metadata cannot be attached to an account without its explicit approval, its use cases include:</p>
 <ul>
 <li>Tagging accounts with identity information.</li>
@@ -8143,17 +8186,20 @@ The seed is typically a <a class="mkdocs-ezglossary-link"
 	<a id="acdd6609b712640449e6fc8c54e718ec">Multisignature Account</a> 
 </dt>
 <dd>An <a class="mkdocs-ezglossary-link"
-	id="8b8d6e3a9d0c478738f19ba3ce7923d3"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="2583842618a5a4b877bd703b6fe44d80"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
-	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> (called <strong>multisig</strong>) requiring signature from multiple parties (called <strong>cosignatories</strong>) to approve transactions.</dd>
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> (called <strong>multisig</strong>) requiring signature from multiple parties (called <strong>cosignatories</strong>) to
+approve transactions.</dd>
 
 </dl>
 <p>Multisig accounts are configured by:</p>
 <ul>
 <li>Defining the list of cosignatories.</li>
 <li>
-<p>Setting approval thresholds, i.e., how many signatures (<strong>M</strong>) out of the total number of cosignatories (<strong>N</strong>) are required to authorize an operation.</p>
+<p>Setting approval thresholds, i.e., how many signatures (<strong>M</strong>) out of the total number of cosignatories (<strong>N</strong>)
+    are required to authorize an operation.</p>
 <p>This is known as an <strong>M-of-N</strong> multisig, and can be configured differently depending on the type of operation to authorize:</p>
 <ul>
 <li><strong>Approval threshold</strong>: number of required signatures to approve a regular transaction.</li>
@@ -8174,8 +8220,10 @@ The seed is typically a <a class="mkdocs-ezglossary-link"
 </li>
 <li>
 <p><strong>Account ownership transfer</strong>.</p>
-<p>Transferring private keys is not a viable mechanism to change ownership of an account, because the receiver can never be sure that the sender has deleted their copy of the keys.</p>
-<p>To solve this issue, the sender can configure the transferred account as a 1-of-1 multisig, and set the receiver account as the only cosignatory.</p>
+<p>Transferring private keys is not a viable mechanism to change ownership of an account,
+because the receiver can never be sure that the sender has deleted their copy of the keys.</p>
+<p>To solve this issue, the sender can configure the transferred account as a 1-of-1 multisig,
+and set the receiver account as the only cosignatory.</p>
 <p>The account can be transferred again by changing the single cosignatory as many times as needed.</p>
 </li>
 </ul>
@@ -8225,7 +8273,7 @@ The seed is typically a <a class="mkdocs-ezglossary-link"
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 30, 2025</span>
   </span>
 
     
@@ -8288,7 +8336,7 @@ The seed is typically a <a class="mkdocs-ezglossary-link"
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8304,8 +8352,8 @@ The seed is typically a <a class="mkdocs-ezglossary-link"
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

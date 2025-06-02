@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="aggregatecompletetransactionv2descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Aggregate<wbr>Complete<wbr>Transaction<wbr>V2Descriptor<a class="headerlink" href="#aggregatecompletetransactionv2descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="ba9bd2c9df50703d689b145fa09d1a93">AggregateCompleteTransactionV2Descriptor</a> 
+	<a id="997fa03b295d19fb6f50d8a31ce173db">AggregateCompleteTransactionV2Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for AggregateCompleteTransactionV2Descriptor.</dd>
 </p>
@@ -8039,7 +8060,7 @@ Use this transaction when all required signatures are available when the transac
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="f0d237b4282bc04c47593e233add5f25">AggregateCompleteTransactionV2Descriptor.toMap</a> 
+	<a id="9c56abe951250542417840adace27b37">AggregateCompleteTransactionV2Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8088,7 +8109,7 @@ Use this transaction when all required signatures are available when the transac
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8104,8 +8125,8 @@ Use this transaction when all required signatures are available when the transac
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

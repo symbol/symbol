@@ -7412,7 +7412,7 @@
 <h1 id="vrfkeylinktransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Vrf<wbr>Key<wbr>Link<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#vrfkeylinktransactionv1descriptor" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="3d702ec602bc1ff33e6e49cc06ec40e8">VrfKeyLinkTransactionV1Descriptor</a> 
+	<a id="d01500ab6da31ab41c8f6bccb349a06f">VrfKeyLinkTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for VrfKeyLinkTransactionV1Descriptor.</dd>
 </p>
@@ -7482,7 +7482,7 @@ This transaction is required for all accounts wishing to <a href="/concepts/harv
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="1c204c9a870652c48a1267b2d83ceee0">VrfKeyLinkTransactionV1Descriptor.toMap</a> 
+	<a id="ae719763bfb388d67f95246192d2096c">VrfKeyLinkTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -7531,7 +7531,7 @@ This transaction is required for all accounts wishing to <a href="/concepts/harv
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7547,8 +7547,8 @@ This transaction is required for all accounts wishing to <a href="/concepts/harv
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

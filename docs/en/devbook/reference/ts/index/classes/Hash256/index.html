@@ -7867,6 +7867,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8018,7 +8039,7 @@
 <h1 id="hash256"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Hash256<a class="headerlink" href="#hash256" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="0a3b0ab5169d31fb86586505fcdedef3">Hash256</a> 
+	<a id="a87580e3e800c0f17cc33ec20f0c70ea">Hash256</a> 
 </dt>
 <dd>Represents a 256-bit hash.</dd>
 </p>
@@ -8094,7 +8115,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="637df2e2dd1dbd6859b70ab89dd6a808">Hash256.toJson</a> 
+	<a id="c3125374df66e0569a6fadeeecefec9e">Hash256.toJson</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -8110,7 +8131,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="9f8216e9fd53dd3e577463816f47d45a">Hash256.toString</a> 
+	<a id="11459ee98ffd96901e2e9b8b5d539d68">Hash256.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -8126,7 +8147,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="14ea8524b5a8796b159caf65aeab9593">Hash256.zero</a> 
+	<a id="482651078bdda9785cd14637a69a803b">Hash256.zero</a> 
 </dt>
 <dd>Creates a zeroed hash.</dd>
 </p>
@@ -8175,7 +8196,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8191,8 +8212,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

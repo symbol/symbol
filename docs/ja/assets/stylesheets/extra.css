@@ -34,6 +34,8 @@
 	--md-typeset-mark-color: inherit;
 	--md-code-hl-string-color: #d59781;
 	--md-code-hl-comment-color: green;
+	--md-typeset-table-color: var(--md-primary-fg-color);
+	--md-typeset-table-color--light: var(--md-accent-fg-color--transparent);
 }
 
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
@@ -46,6 +48,8 @@
 	--md-code-bg-color: var(--md-accent-fg-color--transparent);
 	--md-code-hl-string-color: #d59781;
 	--md-code-hl-comment-color: green;
+	--md-typeset-table-color: var(--md-primary-fg-color);
+	--md-typeset-table-color--light: var(--md-accent-fg-color--transparent);
 }
 
 /* Home page cards */
@@ -444,4 +448,86 @@ code.doc-symbol-interface::after {
 	margin-top: 0;
 	font-size: small;
 	float: right;
+}
+
+/* Decorators for links to REST API */
+.md-typeset code.rest-method {
+	color: white;
+	border-radius: 0.25rem;
+	font-size: .5rem;
+	font-family: sans-serif;
+	font-weight: bold;
+	padding: 2px 6px;
+	line-height: 1;
+	vertical-align: middle;
+}
+
+[data-md-color-scheme=slate] .md-typeset a code.rest-method-get {
+	background-color: #2a69a7;
+}
+
+[data-md-color-scheme=slate] .md-typeset a code.rest-method-put {
+	background-color: #d59d58
+}
+
+[data-md-color-scheme=slate] .md-typeset a code.rest-method-post {
+	background-color: #48cb90
+}
+
+[data-md-color-scheme=default] .md-typeset a code.rest-method-get {
+	background-color: #61affe;
+}
+
+[data-md-color-scheme=default] .md-typeset a code.rest-method-put {
+	background-color: #fca130
+}
+
+[data-md-color-scheme=default] .md-typeset a code.rest-method-post {
+	background-color: #49cc90
+}
+
+/* Graphviz diagrams */
+.graphviz {
+	display: block;
+	margin: auto;
+}
+
+.graphviz text {
+	fill: var(--md-default-fg-color);
+	font-family: "Exo 2";
+}
+
+.graphviz .edge text {
+	fill: var(--md-default-fg-color--light);
+}
+
+.graphviz .edge path,
+.graphviz .edge polygon {
+	stroke: var(--md-primary-fg-color--light);
+	fill: var(--md-primary-fg-color--light);
+}
+
+.graphviz .node path,
+.graphviz .node polygon,
+.graphviz .node ellipse {
+	stroke: var(--md-primary-fg-color--light);
+	fill: var(--md-accent-fg-color--transparent);
+	transition: fill 0.25s;
+}
+
+.graphviz .node:hover a path,
+.graphviz .node:hover a polygon,
+.graphviz .node:hover a ellipse {
+	fill: var(--md-primary-fg-color--light);
+	transition: fill 0.25s;
+}
+
+.graphviz .cluster polygon {
+	stroke: var(--md-primary-fg-color--light);
+}
+
+/* Tables customization */
+.md-typeset table:not([class]) th {
+	color: var(--md-primary-fg-color--light);
+	background: var(--md-accent-fg-color--transparent);
 }

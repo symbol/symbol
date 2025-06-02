@@ -7458,7 +7458,7 @@
 <h1 id="keypair"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Key<wbr>Pair<a class="headerlink" href="#keypair" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="a63e13e2478a1db3e11938692add71f4">KeyPair</a> 
+	<a id="1c5f0eead2ec255c156bab95128eb5ab">KeyPair</a> 
 </dt>
 <dd>Represents an ED25519 private and public key.</dd>
 </p>
@@ -7511,7 +7511,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="f471ec949098dd9ba4b1c5f9e33492d3">KeyPair.sign</a> 
+	<a id="3cce88c5e05c8f28498ce73509c1184d">KeyPair.sign</a> 
 </dt>
 <dd>Signs a message with the private key.</dd>
 </p>
@@ -7577,7 +7577,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7593,8 +7593,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7899,6 +7899,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8112,7 +8133,9 @@
 
 
 <h2 id="symbolchain.Network.Network" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>Network</code>
+	<a id=Network></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>Network</code>
+
 
 
 <a href="#symbolchain.Network.Network" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -8121,11 +8144,10 @@
     <div class="doc doc-contents ">
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="df2527a7a33f02d73ca933f639afe929">symbolchain.Network.Network</a> 
+	<a id="b10cff404110ca25f1f92b2a706fa5d1">Network</a> 
 </dt>
-<dd>
-        <p>Represents a network.</p>
-	</dd>
+<dd>        <p>Represents a network.</p>
+</dd>
 </dl>
 
 
@@ -8151,18 +8173,19 @@
 
 
 <h3 id="symbolchain.Network.Network.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">datetime_converter</span><span class="p">,</span> <span class="n">address_class</span><span class="p">,</span> <span class="n">network_timestamp_class</span><span class="p">)</span></code>
+	<a id=Network.__init__></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">datetime_converter</span><span class="p">,</span> <span class="n">address_class</span><span class="p">,</span> <span class="n">network_timestamp_class</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.Network.Network.__init__" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="77e657d4bf34bbfedd03102ea614f6b1">symbolchain.Network.Network.__init__</a> 
+	<a id="cf25e9e553452e6368e53760ad73aa4c">Network.__init__</a> 
 </dt>
-<dd>
-        <p>Creates a new network with the specified properties.</p>
-	</dd>
+<dd>        <p>Creates a new network with the specified properties.</p>
+</dd>
 </dl>
 
 
@@ -8174,7 +8197,9 @@
 
 
 <h3 id="symbolchain.Network.Network.address_hasher" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">address_hasher</span><span class="p">()</span></code>
+	<a id=Network.address_hasher></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">address_hasher</span><span class="p">()</span></code>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -8185,11 +8210,10 @@
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="d114a41589fa18a59444edcc39f3f3a0">symbolchain.Network.Network.address_hasher</a> 
+	<a id="8f2dcba1d56e426249544a03bd1408bb">Network.address_hasher</a> 
 </dt>
-<dd>
-        <p>Gets the primary hasher to use in the public key to address conversion.</p>
-	</dd>
+<dd>        <p>Gets the primary hasher to use in the public key to address conversion.</p>
+</dd>
 </dl>
 
 
@@ -8201,7 +8225,9 @@
 
 
 <h3 id="symbolchain.Network.Network.create_address" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_address</span><span class="p">(</span><span class="n">address_without_checksum</span><span class="p">,</span> <span class="n">checksum</span><span class="p">)</span></code>
+	<a id=Network.create_address></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_address</span><span class="p">(</span><span class="n">address_without_checksum</span><span class="p">,</span> <span class="n">checksum</span><span class="p">)</span></code>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -8212,11 +8238,10 @@
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="d21b798ea8ae170e0a86b458d6590633">symbolchain.Network.Network.create_address</a> 
+	<a id="3180abe6cb5b74c5560e85430e04246c">Network.create_address</a> 
 </dt>
-<dd>
-        <p>Creates an encoded address from an address without checksum and checksum bytes.</p>
-	</dd>
+<dd>        <p>Creates an encoded address from an address without checksum and checksum bytes.</p>
+</dd>
 </dl>
 
 
@@ -8228,18 +8253,19 @@
 
 
 <h3 id="symbolchain.Network.Network.from_datetime" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">from_datetime</span><span class="p">(</span><span class="n">reference_datetime</span><span class="p">)</span></code>
+	<a id=Network.from_datetime></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">from_datetime</span><span class="p">(</span><span class="n">reference_datetime</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.Network.Network.from_datetime" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="a8decbd1a41dc4c5ddd2189835b80080">symbolchain.Network.Network.from_datetime</a> 
+	<a id="47ab3ee6932802649ab38f477fdf922c">Network.from_datetime</a> 
 </dt>
-<dd>
-        <p>Converts a datetime to a network timestamp.</p>
-	</dd>
+<dd>        <p>Converts a datetime to a network timestamp.</p>
+</dd>
 </dl>
 
 
@@ -8251,18 +8277,19 @@
 
 
 <h3 id="symbolchain.Network.Network.is_valid_address" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">is_valid_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span></code>
+	<a id=Network.is_valid_address></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">is_valid_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.Network.Network.is_valid_address" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="90a60ac326a17f26fe934d7620de5499">symbolchain.Network.Network.is_valid_address</a> 
+	<a id="50dc2cd793b85f23e9d59ed7232c955c">Network.is_valid_address</a> 
 </dt>
-<dd>
-        <p>Checks if an address is valid and belongs to this network.</p>
-	</dd>
+<dd>        <p>Checks if an address is valid and belongs to this network.</p>
+</dd>
 </dl>
 
 
@@ -8274,18 +8301,19 @@
 
 
 <h3 id="symbolchain.Network.Network.is_valid_address_string" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">is_valid_address_string</span><span class="p">(</span><span class="n">address_string</span><span class="p">)</span></code>
+	<a id=Network.is_valid_address_string></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">is_valid_address_string</span><span class="p">(</span><span class="n">address_string</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.Network.Network.is_valid_address_string" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="935912e41e7fe1943f61cb993f2679c3">symbolchain.Network.Network.is_valid_address_string</a> 
+	<a id="cf3ba095bd9befcb5a146275a95b189f">Network.is_valid_address_string</a> 
 </dt>
-<dd>
-        <p>Checks if an address string is valid and belongs to this network.</p>
-	</dd>
+<dd>        <p>Checks if an address string is valid and belongs to this network.</p>
+</dd>
 </dl>
 
 
@@ -8297,18 +8325,19 @@
 
 
 <h3 id="symbolchain.Network.Network.public_key_to_address" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">public_key_to_address</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span></code>
+	<a id=Network.public_key_to_address></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">public_key_to_address</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.Network.Network.public_key_to_address" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="29fb1283dbf9af56e7d3af03ad5adf75">symbolchain.Network.Network.public_key_to_address</a> 
+	<a id="3e50c8be4ce899e474a9628c19e727dd">Network.public_key_to_address</a> 
 </dt>
-<dd>
-        <p>Converts a public key to an address.</p>
-	</dd>
+<dd>        <p>Converts a public key to an address.</p>
+</dd>
 </dl>
 
 
@@ -8320,18 +8349,19 @@
 
 
 <h3 id="symbolchain.Network.Network.to_datetime" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">to_datetime</span><span class="p">(</span><span class="n">reference_network_timestamp</span><span class="p">)</span></code>
+	<a id=Network.to_datetime></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">to_datetime</span><span class="p">(</span><span class="n">reference_network_timestamp</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.Network.Network.to_datetime" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="a4c15ad6a63d08a1a52567bb87e821f6">symbolchain.Network.Network.to_datetime</a> 
+	<a id="c738876252c50385840b57cdc16e5a8c">Network.to_datetime</a> 
 </dt>
-<dd>
-        <p>Converts a network timestamp to a datetime.</p>
-	</dd>
+<dd>        <p>Converts a network timestamp to a datetime.</p>
+</dd>
 </dl>
 
 
@@ -8352,7 +8382,9 @@
 
 
 <h2 id="symbolchain.Network.NetworkLocator" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>NetworkLocator</code>
+	<a id=NetworkLocator></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>NetworkLocator</code>
+
 
 
 <a href="#symbolchain.Network.NetworkLocator" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -8361,11 +8393,10 @@
     <div class="doc doc-contents ">
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="005a834b008d49f9957d4ecab9cee315">symbolchain.Network.NetworkLocator</a> 
+	<a id="2616e243bbd6d7bf0b15e7e4b85a4feb">NetworkLocator</a> 
 </dt>
-<dd>
-        <p>Provides utility functions for finding a network.</p>
-	</dd>
+<dd>        <p>Provides utility functions for finding a network.</p>
+</dd>
 </dl>
 
 
@@ -8391,7 +8422,9 @@
 
 
 <h3 id="symbolchain.Network.NetworkLocator.find_by_identifier" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">find_by_identifier</span><span class="p">(</span><span class="n">networks</span><span class="p">,</span> <span class="n">identifiers</span><span class="p">)</span></code>
+	<a id=NetworkLocator.find_by_identifier></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">find_by_identifier</span><span class="p">(</span><span class="n">networks</span><span class="p">,</span> <span class="n">identifiers</span><span class="p">)</span></code>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -8402,11 +8435,10 @@
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="0a74ebb41d9d1510e0f9a07b6b5ff541">symbolchain.Network.NetworkLocator.find_by_identifier</a> 
+	<a id="066fcd031d855a238c3c5eccc14c4da4">NetworkLocator.find_by_identifier</a> 
 </dt>
-<dd>
-        <p>Finds a network with a specified identifier within a list of networks.</p>
-	</dd>
+<dd>        <p>Finds a network with a specified identifier within a list of networks.</p>
+</dd>
 </dl>
 
 
@@ -8418,7 +8450,9 @@
 
 
 <h3 id="symbolchain.Network.NetworkLocator.find_by_name" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">find_by_name</span><span class="p">(</span><span class="n">networks</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span></code>
+	<a id=NetworkLocator.find_by_name></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">find_by_name</span><span class="p">(</span><span class="n">networks</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span></code>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -8429,11 +8463,10 @@
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="d81e220e99adfa2ca9e089253fa13132">symbolchain.Network.NetworkLocator.find_by_name</a> 
+	<a id="cd1495829e69398882404c85dbc5f402">NetworkLocator.find_by_name</a> 
 </dt>
-<dd>
-        <p>Finds a network with a specified name within a list of networks.</p>
-	</dd>
+<dd>        <p>Finds a network with a specified name within a list of networks.</p>
+</dd>
 </dl>
 
 
@@ -8498,7 +8531,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8514,8 +8547,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

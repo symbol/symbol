@@ -7830,6 +7830,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7965,12 +7986,14 @@
 <h2 id="what-is-it">What Is It<a class="headerlink" href="#what-is-it" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>The Symbol Desktop Wallet is a graphical application used to interact with the Symbol blockchain.
 It allows users to manage multiple <a class="mkdocs-ezglossary-link"
-	id="cdc9790796255812e1a50c10575f1545"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="96373ff71ea1666b67eff65614c7f7f7"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a>, send and receive transactions, sign <a class="mkdocs-ezglossary-link"
 	id="e76ebc291c0c90981a548e5b58f5667c"
-	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to approve transactions."
+	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to
+approve transactions."
 	name="_:Multisignature Account"
 	href="../../../textbook/accounts/#acdd6609b712640449e6fc8c54e718ec">multisig</a> operations, view metadata, and more.</p>
 <p>There are two versions of the wallet:</p>
@@ -8086,7 +8109,7 @@ It allows users to manage multiple <a class="mkdocs-ezglossary-link"
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8102,8 +8125,8 @@ It allows users to manage multiple <a class="mkdocs-ezglossary-link"
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

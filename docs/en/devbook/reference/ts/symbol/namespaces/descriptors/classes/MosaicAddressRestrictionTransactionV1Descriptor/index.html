@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="mosaicaddressrestrictiontransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Mosaic<wbr>Address<wbr>Restriction<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#mosaicaddressrestrictiontransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="12d2b446bea3e77f6f23ceac12ebb261">MosaicAddressRestrictionTransactionV1Descriptor</a> 
+	<a id="63d4d573f858cd555fdf7e6fea5a05a3">MosaicAddressRestrictionTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for MosaicAddressRestrictionTransactionV1Descriptor.</dd>
 </p>
@@ -8066,7 +8087,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="cd5ae1b93d80050fcbbe6aa5e6da7904">MosaicAddressRestrictionTransactionV1Descriptor.toMap</a> 
+	<a id="7e2a31447814d5649f65100f521dd8f5">MosaicAddressRestrictionTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8115,7 +8136,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8131,8 +8152,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

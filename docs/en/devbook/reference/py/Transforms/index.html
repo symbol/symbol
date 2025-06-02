@@ -7788,6 +7788,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7890,18 +7911,19 @@
 
 
 <h2 id="symbolchain.Transforms.ripemd_keccak_256" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">ripemd_keccak_256</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></code>
+	<a id=Transforms.ripemd_keccak_256></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">ripemd_keccak_256</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.Transforms.ripemd_keccak_256" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="5a82bc0ee1f65e55046f1baca0ef2f75">symbolchain.Transforms.ripemd_keccak_256</a> 
+	<a id="c39816469a85ff3ccc75c461214c0ab4">Transforms.ripemd_keccak_256</a> 
 </dt>
-<dd>
-        <p>Hashes payload with keccak 256 and then hashes the result with ripemd160.</p>
-	</dd>
+<dd>        <p>Hashes payload with keccak 256 and then hashes the result with ripemd160.</p>
+</dd>
 </dl>
 
 
@@ -7957,7 +7979,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7973,8 +7995,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

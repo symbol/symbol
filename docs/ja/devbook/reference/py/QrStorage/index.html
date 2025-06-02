@@ -7386,7 +7386,9 @@
 
 
 <h2 id="symbolchain.QrStorage.QrStorage" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>QrStorage</code>
+	<a id=QrStorage></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>QrStorage</code>
+
 
 
 <a href="#symbolchain.QrStorage.QrStorage" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -7395,11 +7397,10 @@
     <div class="doc doc-contents ">
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="d698acfa92032aa77f951dab97e43782">symbolchain.QrStorage.QrStorage</a> 
+	<a id="9e56e111a1d1c75457fe9741c031f546">QrStorage</a> 
 </dt>
-<dd>
-        <p>Loads and saves binary data as QR codes in a directory.</p>
-	</dd>
+<dd>        <p>Loads and saves binary data as QR codes in a directory.</p>
+</dd>
 </dl>
 
 
@@ -7425,18 +7426,19 @@
 
 
 <h3 id="symbolchain.QrStorage.QrStorage.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span></code>
+	<a id=QrStorage.__init__></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.QrStorage.QrStorage.__init__" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="6ebdd13cc2ca9de7dfac0033a4d41a2d">symbolchain.QrStorage.QrStorage.__init__</a> 
+	<a id="450fe5a9b8840b1d71ee641d1b5b28ae">QrStorage.__init__</a> 
 </dt>
-<dd>
-        <p>Creates storage for a directory.</p>
-	</dd>
+<dd>        <p>Creates storage for a directory.</p>
+</dd>
 </dl>
 
 
@@ -7448,18 +7450,19 @@
 
 
 <h3 id="symbolchain.QrStorage.QrStorage.load" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+	<a id=QrStorage.load></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.QrStorage.QrStorage.load" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="39e5eefe54155114745eec5bcd1eb72e">symbolchain.QrStorage.QrStorage.load</a> 
+	<a id="eefcde8a2fbec34068952697848d28b7">QrStorage.load</a> 
 </dt>
-<dd>
-        <p>Loads a buffer.</p>
-	</dd>
+<dd>        <p>Loads a buffer.</p>
+</dd>
 </dl>
 
 
@@ -7471,18 +7474,19 @@
 
 
 <h3 id="symbolchain.QrStorage.QrStorage.save" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span></code>
+	<a id=QrStorage.save></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.QrStorage.QrStorage.save" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="b93f53654003e2aba65d78b57da7647e">symbolchain.QrStorage.QrStorage.save</a> 
+	<a id="d54da795109bb19a0760ffb1750f8a67">QrStorage.save</a> 
 </dt>
-<dd>
-        <p>Saves a buffer.</p>
-	</dd>
+<dd>        <p>Saves a buffer.</p>
+</dd>
 </dl>
 
 
@@ -7547,7 +7551,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7563,8 +7567,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

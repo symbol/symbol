@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="hashlocktransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Hash<wbr>Lock<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#hashlocktransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="86553ce3afef0b6eb2cc4a661cb5ea3e">HashLockTransactionV1Descriptor</a> 
+	<a id="f3a9bcc24559b2ffcb4c0d09dfc2cd98">HashLockTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for HashLockTransactionV1Descriptor.</dd>
 </p>
@@ -8050,7 +8071,7 @@ If the lock expires before the aggregate is signed by all cosignatories (**48h b
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="5cd766ea7e1a9aeb29a415ee5616bbd5">HashLockTransactionV1Descriptor.toMap</a> 
+	<a id="c48347fab155943f0078949f076cd55b">HashLockTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8099,7 +8120,7 @@ If the lock expires before the aggregate is signed by all cosignatories (**48h b
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8115,8 +8136,8 @@ If the lock expires before the aggregate is signed by all cosignatories (**48h b
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

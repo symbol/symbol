@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="accountaddressrestrictiontransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Account<wbr>Address<wbr>Restriction<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#accountaddressrestrictiontransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="f80ed9ffc4cb367ec78ea3043918643d">AccountAddressRestrictionTransactionV1Descriptor</a> 
+	<a id="a5f36d48afda5d622bb3c06cb214e487">AccountAddressRestrictionTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for AccountAddressRestrictionTransactionV1Descriptor.</dd>
 </p>
@@ -8038,7 +8059,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="b0077a687feded8b972e7361c80ea5f8">AccountAddressRestrictionTransactionV1Descriptor.toMap</a> 
+	<a id="ce48004f2bd2bf09d54721ad91c0c230">AccountAddressRestrictionTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8087,7 +8108,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8103,8 +8124,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

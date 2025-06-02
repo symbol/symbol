@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="namespaceregistrationtransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Namespace<wbr>Registration<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#namespaceregistrationtransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="b7c1256964079f87850eeecd807ac428">NamespaceRegistrationTransactionV1Descriptor</a> 
+	<a id="886e595d871a545301318f82ee98b625">NamespaceRegistrationTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for NamespaceRegistrationTransactionV1Descriptor.</dd>
 </p>
@@ -8055,7 +8076,7 @@ Namespaces help keep assets organized.</p>
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="f38fa27a39a626e493d6fc67f56a0575">NamespaceRegistrationTransactionV1Descriptor.toMap</a> 
+	<a id="da42bc8faeb2533039831a57e487e91c">NamespaceRegistrationTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8104,7 +8125,7 @@ Namespaces help keep assets organized.</p>
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8120,8 +8141,8 @@ Namespaces help keep assets organized.</p>
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

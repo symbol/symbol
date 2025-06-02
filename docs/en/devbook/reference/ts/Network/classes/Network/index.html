@@ -7903,6 +7903,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8090,7 +8111,7 @@
 <h1 id="networktaddress-tnetworktimestamp"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Network&lt;TAddress, TNetwork<wbr>Timestamp&gt;<a class="headerlink" href="#networktaddress-tnetworktimestamp" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="d3f5be175abaf8083bd58887fda59545">Network&lt;TAddress, TNetworkTimestamp&gt;</a> 
+	<a id="90afb2803d46adb55d4c277d976aab2b">Network&lt;TAddress, TNetworkTimestamp&gt;</a> 
 </dt>
 <dd>Represents a network.</dd>
 </p>
@@ -8212,7 +8233,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="37773d1a42a8650351739a1b4940163c">Network&lt;TAddress, TNetworkTimestamp&gt;.fromDatetime</a> 
+	<a id="29eff3b4d69f6366c81a3d428b5645f8">Network&lt;TAddress, TNetworkTimestamp&gt;.fromDatetime</a> 
 </dt>
 <dd>Converts a datetime to a network timestamp.</dd>
 </p>
@@ -8243,7 +8264,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="4cb1c261f24705dc6e0f7042fbb5e8d4">Network&lt;TAddress, TNetworkTimestamp&gt;.isValidAddress</a> 
+	<a id="ae99b1b908a006b968b725b01565f884">Network&lt;TAddress, TNetworkTimestamp&gt;.isValidAddress</a> 
 </dt>
 <dd>Checks if an address is valid and belongs to this network.</dd>
 </p>
@@ -8274,7 +8295,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="b4b01f85c2c039f0f5d2713fd60fe7dd">Network&lt;TAddress, TNetworkTimestamp&gt;.isValidAddressString</a> 
+	<a id="43f8b81c1b2ee6ce6d9455bc657a9202">Network&lt;TAddress, TNetworkTimestamp&gt;.isValidAddressString</a> 
 </dt>
 <dd>Checks if an address string is valid and belongs to this network.</dd>
 </p>
@@ -8305,7 +8326,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="d97cbf2c2a486bb9c73c38a2082abd3a">Network&lt;TAddress, TNetworkTimestamp&gt;.publicKeyToAddress</a> 
+	<a id="b6904a286150dc373a3c17e456c5d896">Network&lt;TAddress, TNetworkTimestamp&gt;.publicKeyToAddress</a> 
 </dt>
 <dd>Converts a public key to an address.</dd>
 </p>
@@ -8336,7 +8357,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="9c3644f7c6a02f036a79ef6434fad7d1">Network&lt;TAddress, TNetworkTimestamp&gt;.toDatetime</a> 
+	<a id="ff72759a2a0bd539fc7864d258792e95">Network&lt;TAddress, TNetworkTimestamp&gt;.toDatetime</a> 
 </dt>
 <dd>Converts a network timestamp to a datetime.</dd>
 </p>
@@ -8367,7 +8388,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="161c57e1ca424373bcedad44dc100345">Network&lt;TAddress, TNetworkTimestamp&gt;.toString</a> 
+	<a id="655a88a686653b976393dc5ac2b9fc35">Network&lt;TAddress, TNetworkTimestamp&gt;.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -8416,7 +8437,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8432,8 +8453,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7412,7 +7412,7 @@
 <h1 id="mosaicmetadatatransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Mosaic<wbr>Metadata<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#mosaicmetadatatransactionv1descriptor" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="7255d672d858a5c9a8ad2752e7e30a31">MosaicMetadataTransactionV1Descriptor</a> 
+	<a id="4535cdb44ec729e2c801b8ceb0b43d44">MosaicMetadataTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for MosaicMetadataTransactionV1Descriptor.</dd>
 </p>
@@ -7509,7 +7509,7 @@ Compare to AccountMetadataTransaction and NamespaceMetadataTransaction.</p>
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="bd9c7c4236e5fdead0712d0a29751cb3">MosaicMetadataTransactionV1Descriptor.toMap</a> 
+	<a id="642009113ff9ae25b3c1197c4840fbcb">MosaicMetadataTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -7558,7 +7558,7 @@ Compare to AccountMetadataTransaction and NamespaceMetadataTransaction.</p>
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7574,8 +7574,8 @@ Compare to AccountMetadataTransaction and NamespaceMetadataTransaction.</p>
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

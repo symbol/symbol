@@ -7887,6 +7887,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8056,7 +8077,7 @@
 <h1 id="importanceheight"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Importance<wbr>Height<a class="headerlink" href="#importanceheight" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="ee6abd82e0f9931f4fccb497b4f95969">ImportanceHeight</a> 
+	<a id="8415f52f15f3c78f9c5e0503c3f987d7">ImportanceHeight</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -8142,7 +8163,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="551aef74a52c09f5e453a034a0362077">ImportanceHeight.serialize</a> 
+	<a id="0df3d81703cdfb48419e0dd2fb9d9ff9">ImportanceHeight.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -8158,7 +8179,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="99268f6e6952cf0e930b1f9edf81aa2d">ImportanceHeight.toString</a> 
+	<a id="e0c0658ca6e06a2250813effaa1e6577">ImportanceHeight.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -8251,7 +8272,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8267,8 +8288,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

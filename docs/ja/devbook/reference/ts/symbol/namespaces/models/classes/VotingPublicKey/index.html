@@ -7532,7 +7532,7 @@
 <h1 id="votingpublickey"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Voting<wbr>Public<wbr>Key<a class="headerlink" href="#votingpublickey" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="ec9f8083e9023df73d580bf2eb9401e9">VotingPublicKey</a> 
+	<a id="d4abb3eb6267750f59ce145e342f5d8b">VotingPublicKey</a> 
 </dt>
 <dd>Represents a fixed size byte array.</dd>
 </p>
@@ -7618,7 +7618,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="c380cbb9276a9df969da96fbadbe50c8">VotingPublicKey.serialize</a> 
+	<a id="7ec393e255e6267044c21f7a0ac63201">VotingPublicKey.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7634,7 +7634,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="ed481287a40f4821c81f09c499320f06">VotingPublicKey.toString</a> 
+	<a id="0bcdedac1ce159376d02cb8bfbae5eed">VotingPublicKey.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -7706,7 +7706,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7722,8 +7722,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

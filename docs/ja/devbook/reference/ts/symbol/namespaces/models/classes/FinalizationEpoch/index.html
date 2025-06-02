@@ -7502,7 +7502,7 @@
 <h1 id="finalizationepoch"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Finalization<wbr>Epoch<a class="headerlink" href="#finalizationepoch" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="93583ebb869887f78d5a167364afd5a8">FinalizationEpoch</a> 
+	<a id="96c9621a39118228d9a7415db752d796">FinalizationEpoch</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -7588,7 +7588,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="58acc723e682f6fa89c5e333a83ebdd6">FinalizationEpoch.serialize</a> 
+	<a id="edf1bbf764ace1a5c180a5863f6e2099">FinalizationEpoch.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7604,7 +7604,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="8fc90428fa44818ce555208d5b828082">FinalizationEpoch.toString</a> 
+	<a id="a39d53df46611828095f164146f2f93f">FinalizationEpoch.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -7697,7 +7697,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7713,8 +7713,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

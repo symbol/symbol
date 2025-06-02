@@ -7392,7 +7392,7 @@
 <h1 id="votingkeysgenerator"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Voting<wbr>Keys<wbr>Generator<a class="headerlink" href="#votingkeysgenerator" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="4729d647bb8c4f3586f0704e826cdfc1">VotingKeysGenerator</a> 
+	<a id="162e35216136f3c33f0483641a4ad675">VotingKeysGenerator</a> 
 </dt>
 <dd>Generates symbol voting keys.</dd>
 </p>
@@ -7432,7 +7432,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="b381fa34f184bef13acfb6bdc42cf6d9">VotingKeysGenerator.generate</a> 
+	<a id="ba5e6f1ed8daee9f7ae6ebef45e71438">VotingKeysGenerator.generate</a> 
 </dt>
 <dd>Generates voting keys for specified epochs.</dd>
 </p>
@@ -7503,7 +7503,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7519,8 +7519,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

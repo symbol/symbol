@@ -7808,6 +7808,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7917,12 +7938,13 @@
 
 <h1 id="importing-an-existing-account">Importing an Existing Account<a class="headerlink" href="#importing-an-existing-account" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This page explains how to add an existing <a class="mkdocs-ezglossary-link"
-	id="045a324f83c53de3eff056eae2bf3201"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="cdc9790796255812e1a50c10575f1545"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> to your profile by importing its private key.<br />
 Imported accounts are not derived from the profile’s <a class="mkdocs-ezglossary-link"
-	id="e88c10da81aebe19d76717b14e4a8dcf"
+	id="6e58719af8e255c7aed0a692b2aee949"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
 	href="../../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrase</a>, so they must be backed up separately.</p>
@@ -7969,13 +7991,17 @@ In the <strong>Select the Type of Account</strong> dropdown, choose <strong>"I w
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Imported accounts are not recoverable from your <a class="mkdocs-ezglossary-link"
-	id="be8862375a4b64134b0b82fbc0848b60"
+	id="e88c10da81aebe19d76717b14e4a8dcf"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
 	href="../../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrase</a>.</p>
 <p>Be sure to back up your profile now so their private keys are included in the <a class="mkdocs-ezglossary-link"
 	id="051d7da59c18f13ec2562f8b6ab0f1de"
-	title="A printable document containing information to restore a wallet profile and all its accounts."
+	title="A printable document containing information to restore a wallet profile and all its accounts.
+The information is intended to be printed on paper and may include QR codes, private keys,
+mnemonic phrases, or all of them.
+Paper wallets are less convenient than digital backups because the information must be entered manually.
+However, they are more secure because they are not stored or accessed online."
 	name="_:Paper Wallet"
 	href="../../../userbook/wallet/export-profile/#85d0cb74b3b1811657842c75358f55d6">paper wallet</a>.</p>
 </div>
@@ -8070,7 +8096,7 @@ In the <strong>Select the Type of Account</strong> dropdown, choose <strong>"I w
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8086,8 +8112,8 @@ In the <strong>Select the Type of Account</strong> dropdown, choose <strong>"I w
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

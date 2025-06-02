@@ -7412,7 +7412,7 @@
 <h1 id="secretprooftransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Secret<wbr>Proof<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#secretprooftransactionv1descriptor" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="8e91a5d0c57d0f549109e5e38627be92">SecretProofTransactionV1Descriptor</a> 
+	<a id="e776cb910515a031416dc6761d3c9da7">SecretProofTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for SecretProofTransactionV1Descriptor.</dd>
 </p>
@@ -7500,7 +7500,7 @@ The transaction must prove knowing the <em>proof</em> that unlocks the mosaics.<
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="22ea1f1e79292d58d6e751bdc703785c">SecretProofTransactionV1Descriptor.toMap</a> 
+	<a id="afa7aea7efad2a894020eb9fc4f8dda5">SecretProofTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -7549,7 +7549,7 @@ The transaction must prove knowing the <em>proof</em> that unlocks the mosaics.<
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7565,8 +7565,8 @@ The transaction must prove knowing the <em>proof</em> that unlocks the mosaics.<
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

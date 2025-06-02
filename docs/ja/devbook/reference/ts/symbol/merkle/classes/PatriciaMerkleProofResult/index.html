@@ -7364,7 +7364,7 @@
 <h1 id="patriciamerkleproofresult"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Patricia<wbr>Merkle<wbr>Proof<wbr>Result<a class="headerlink" href="#patriciamerkleproofresult" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="116e1cfa44d268705e16eeee4d93a818">PatriciaMerkleProofResult</a> 
+	<a id="274d70536dac1779877d58ad155bbafc">PatriciaMerkleProofResult</a> 
 </dt>
 <dd>Possible results of a patricia merkle proof.</dd>
 </p>
@@ -7477,7 +7477,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7493,8 +7493,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

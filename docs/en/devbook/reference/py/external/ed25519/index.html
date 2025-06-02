@@ -7862,6 +7862,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8049,20 +8070,21 @@ arithmetic, so we cannot handle secrets without risking their disclosure.</p>
 
 
 <h2 id="symbolchain.external.ed25519.checkvalid_hash" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">checkvalid_hash</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">pk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+	<a id=ed25519.checkvalid_hash></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">checkvalid_hash</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">pk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.checkvalid_hash" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="bc6011b80b0151fde6673026c5ed8ea4">symbolchain.external.ed25519.checkvalid_hash</a> 
+	<a id="dc7a80241e20f2cfa24f8634a85e811d">ed25519.checkvalid_hash</a> 
 </dt>
-<dd>
-        <p>Not safe to use when any argument is secret.</p>
+<dd>        <p>Not safe to use when any argument is secret.</p>
 <p>See module docstring.  This function should be used only for
 verifying public signatures of public messages.</p>
-	</dd>
+</dd>
 </dl>
 
 
@@ -8074,19 +8096,20 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.derive_shared_secret_unsafe" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">derive_shared_secret_unsafe</span><span class="p">(</span><span class="n">pk</span><span class="p">,</span> <span class="n">sk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+	<a id=ed25519.derive_shared_secret_unsafe></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">derive_shared_secret_unsafe</span><span class="p">(</span><span class="n">pk</span><span class="p">,</span> <span class="n">sk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.derive_shared_secret_unsafe" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="18cf6d2d6d0fcad7d90b5e1e791ae53c">symbolchain.external.ed25519.derive_shared_secret_unsafe</a> 
+	<a id="5bde9ac4ca376d44a8b21fbdb32a09a7">ed25519.derive_shared_secret_unsafe</a> 
 </dt>
-<dd>
-        <p>Not safe to use with secret keys or secret data.</p>
+<dd>        <p>Not safe to use with secret keys or secret data.</p>
 <p>See module docstring.  This function should be used for testing only.</p>
-	</dd>
+</dd>
 </dl>
 
 
@@ -8098,18 +8121,19 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.inv" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">inv</span><span class="p">(</span><span class="n">z</span><span class="p">)</span></code>
+	<a id=ed25519.inv></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">inv</span><span class="p">(</span><span class="n">z</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.inv" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="409ca8a204c6b7e43845ca53b92b46fe">symbolchain.external.ed25519.inv</a> 
+	<a id="11dcd43726a391d337a6227bd85f2b9b">ed25519.inv</a> 
 </dt>
-<dd>
-        <p>$= z^{-1} \mod q$, for z != 0</p>
-	</dd>
+<dd>        <p>$= z^{-1} \mod q$, for z != 0</p>
+</dd>
 </dl>
 
 
@@ -8121,18 +8145,19 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.iscanonical" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">iscanonical</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></code>
+	<a id=ed25519.iscanonical></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">iscanonical</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.iscanonical" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="c73fb0d653daa45b8e810a83886276c3">symbolchain.external.ed25519.iscanonical</a> 
+	<a id="39fef1ddab2c6e9d60e9726ab3460ff2">ed25519.iscanonical</a> 
 </dt>
-<dd>
-        <p>public key s is canonical if y coordinate is smaller than prime <code>q</code>.</p>
-	</dd>
+<dd>        <p>public key s is canonical if y coordinate is smaller than prime <code>q</code>.</p>
+</dd>
 </dl>
 
 
@@ -8144,18 +8169,19 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.isinmainsubgroup" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">isinmainsubgroup</span><span class="p">(</span><span class="n">P</span><span class="p">)</span></code>
+	<a id=ed25519.isinmainsubgroup></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">isinmainsubgroup</span><span class="p">(</span><span class="n">P</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.isinmainsubgroup" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="49762d0bc34d503a4ed4022887ea614d">symbolchain.external.ed25519.isinmainsubgroup</a> 
+	<a id="debd5dc8528a0994d611bce521a2cc6b">ed25519.isinmainsubgroup</a> 
 </dt>
-<dd>
-        <p>checks if point P is in main subgroup.</p>
-	</dd>
+<dd>        <p>checks if point P is in main subgroup.</p>
+</dd>
 </dl>
 
 
@@ -8167,18 +8193,19 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.pow2" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">pow2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span></code>
+	<a id=ed25519.pow2></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">pow2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.pow2" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="1843126c5b474b23f16f0b3a4cf7178f">symbolchain.external.ed25519.pow2</a> 
+	<a id="0630c43cbb4e6b503ac8ac0205c2909f">ed25519.pow2</a> 
 </dt>
-<dd>
-        <p>== pow(x, 2**p, q)</p>
-	</dd>
+<dd>        <p>== pow(x, 2**p, q)</p>
+</dd>
 </dl>
 
 
@@ -8190,19 +8217,20 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.publickey_hash_unsafe" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">publickey_hash_unsafe</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+	<a id=ed25519.publickey_hash_unsafe></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">publickey_hash_unsafe</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.publickey_hash_unsafe" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="a5077f34c1ea49fa3447cbe74c5e2aef">symbolchain.external.ed25519.publickey_hash_unsafe</a> 
+	<a id="13db694c43fd8df2ccf34abdb205d5cb">ed25519.publickey_hash_unsafe</a> 
 </dt>
-<dd>
-        <p>Not safe to use with secret keys or secret data.</p>
+<dd>        <p>Not safe to use with secret keys or secret data.</p>
 <p>See module docstring.  This function should be used for testing only.</p>
-	</dd>
+</dd>
 </dl>
 
 
@@ -8214,18 +8242,19 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.scalarmult_B" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">scalarmult_B</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></code>
+	<a id=ed25519.scalarmult_B></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">scalarmult_B</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.scalarmult_B" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="67d025ea7457c0821868859254300bcc">symbolchain.external.ed25519.scalarmult_B</a> 
+	<a id="500ece7359dc680a38f4e9901efe909c">ed25519.scalarmult_B</a> 
 </dt>
-<dd>
-        <p>Implements scalarmult(B, e) more efficiently.</p>
-	</dd>
+<dd>        <p>Implements scalarmult(B, e) more efficiently.</p>
+</dd>
 </dl>
 
 
@@ -8237,19 +8266,20 @@ verifying public signatures of public messages.</p>
 
 
 <h2 id="symbolchain.external.ed25519.signature_hash_unsafe" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">signature_hash_unsafe</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">sk</span><span class="p">,</span> <span class="n">pk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+	<a id=ed25519.signature_hash_unsafe></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">signature_hash_unsafe</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">sk</span><span class="p">,</span> <span class="n">pk</span><span class="p">,</span> <span class="n">hashobj</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.external.ed25519.signature_hash_unsafe" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="f63e19257143eb302e5d5a46b6a4adba">symbolchain.external.ed25519.signature_hash_unsafe</a> 
+	<a id="5866226d402a5f5ae11308c39db6de49">ed25519.signature_hash_unsafe</a> 
 </dt>
-<dd>
-        <p>Not safe to use with secret keys or secret data.</p>
+<dd>        <p>Not safe to use with secret keys or secret data.</p>
 <p>See module docstring.  This function should be used for testing only.</p>
-	</dd>
+</dd>
 </dl>
 
 
@@ -8305,7 +8335,7 @@ verifying public signatures of public messages.</p>
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8321,8 +8351,8 @@ verifying public signatures of public messages.</p>
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

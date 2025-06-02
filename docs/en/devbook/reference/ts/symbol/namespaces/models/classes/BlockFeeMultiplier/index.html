@@ -7887,6 +7887,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8056,7 +8077,7 @@
 <h1 id="blockfeemultiplier"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Block<wbr>Fee<wbr>Multiplier<a class="headerlink" href="#blockfeemultiplier" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="f2326da310b6aacdcd52a33db075a263">BlockFeeMultiplier</a> 
+	<a id="04d34fa7301d88dc7902c33fb0617917">BlockFeeMultiplier</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -8142,7 +8163,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="6adb2acf3159fae32628236ca789ec33">BlockFeeMultiplier.serialize</a> 
+	<a id="b0fb3a8bc0b1fac317c4c4649e67d697">BlockFeeMultiplier.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -8158,7 +8179,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="d22ac4cfe53b4baacb1d3ea91a12a0b2">BlockFeeMultiplier.toString</a> 
+	<a id="f92c214d15f827c68334323f42c88388">BlockFeeMultiplier.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -8251,7 +8272,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8267,8 +8288,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

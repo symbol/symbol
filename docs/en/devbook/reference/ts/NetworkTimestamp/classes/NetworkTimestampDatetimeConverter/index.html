@@ -7849,6 +7849,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7982,7 +8003,7 @@
 <h1 id="networktimestampdatetimeconverter"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Network<wbr>Timestamp<wbr>Datetime<wbr>Converter<a class="headerlink" href="#networktimestampdatetimeconverter" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="a092b71fe93d34f19e938c6b8c7de3a4">NetworkTimestampDatetimeConverter</a> 
+	<a id="170a1c5d14952bfd8b4fd71f2f703b4e">NetworkTimestampDatetimeConverter</a> 
 </dt>
 <dd>Provides utilities for converting between network timestamps and datetimes.</dd>
 </p>
@@ -8044,7 +8065,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="e0385fc858eab17d19f3119382043d8b">NetworkTimestampDatetimeConverter.toDatetime</a> 
+	<a id="bae800a29c03f873ff356bf262f62b52">NetworkTimestampDatetimeConverter.toDatetime</a> 
 </dt>
 <dd>Converts a network timestamp to a datetime.</dd>
 </p>
@@ -8075,7 +8096,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="3b507e7fe23ce71a6df6977897c9cb60">NetworkTimestampDatetimeConverter.toDifference</a> 
+	<a id="86570e1a67474c9b4b90611587fe5538">NetworkTimestampDatetimeConverter.toDifference</a> 
 </dt>
 <dd>Subtracts the network epoch from the reference date.</dd>
 </p>
@@ -8141,7 +8162,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8157,8 +8178,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

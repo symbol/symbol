@@ -7548,7 +7548,7 @@
 <h1 id="symboltransactionfactory"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Symbol<wbr>Transaction<wbr>Factory<a class="headerlink" href="#symboltransactionfactory" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="02c58f3b76663505359d5ad671e38a7c">SymbolTransactionFactory</a> 
+	<a id="3d8920ef16b9d48eb6e2f07a538a552f">SymbolTransactionFactory</a> 
 </dt>
 <dd>Factory for creating Symbol transactions.</dd>
 </p>
@@ -7606,7 +7606,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="4ea84838cf1612d0ffd01b985c348979">SymbolTransactionFactory.create</a> 
+	<a id="b3fa75b1b3e9d9a94bb6c68eae6cfc92">SymbolTransactionFactory.create</a> 
 </dt>
 <dd>Creates a transaction from a transaction descriptor.</dd>
 </p>
@@ -7642,7 +7642,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="2508f5fc94f7a2756ff3d3dfcb301f8e">SymbolTransactionFactory.createEmbedded</a> 
+	<a id="e0f733fe0a5ca0651d6fcc43df6555da">SymbolTransactionFactory.createEmbedded</a> 
 </dt>
 <dd>Creates an embedded transaction from a transaction descriptor.</dd>
 </p>
@@ -7678,7 +7678,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="716413636eb3a4f9635cb4e44fadb419">SymbolTransactionFactory.attachSignature</a> 
+	<a id="4ec21570b1daf089d83abed052e51442">SymbolTransactionFactory.attachSignature</a> 
 </dt>
 <dd>Attaches a signature to a transaction.</dd>
 </p>
@@ -7714,7 +7714,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="67e1e349ce76aacbf57f22fd659a2a0c">SymbolTransactionFactory.deserialize</a> 
+	<a id="54de59e176eb0ada0dab666fee08e10c">SymbolTransactionFactory.deserialize</a> 
 </dt>
 <dd>Deserializes a transaction from a binary payload.</dd>
 </p>
@@ -7745,7 +7745,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="c3ee14734a0b029d81b40584d84d6d62">SymbolTransactionFactory.deserializeEmbedded</a> 
+	<a id="8b5b9a79ace35f8f238a1ef5fa07f35e">SymbolTransactionFactory.deserializeEmbedded</a> 
 </dt>
 <dd>Deserializes an embedded transaction from a binary payload.</dd>
 </p>
@@ -7776,7 +7776,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="e830c9669b969d926b68f04886db4a85">SymbolTransactionFactory.lookupTransactionName</a> 
+	<a id="44865d3db8d4d83e9995f92019d6e5b8">SymbolTransactionFactory.lookupTransactionName</a> 
 </dt>
 <dd>Looks up the friendly name for the specified transaction.</dd>
 </p>
@@ -7847,7 +7847,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7863,8 +7863,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

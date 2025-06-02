@@ -103,7 +103,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-transfer-transaction-using-typed-descriptors" class="md-skip">
+        <a href="#creating-transactions-using-typed-descriptors-in-javascript" class="md-skip">
           Skip to content
         </a>
       
@@ -1043,6 +1043,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Typed Descriptors
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1052,6 +1063,60 @@
   
 
       </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creation-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creation Process
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creation Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-the-descriptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating the Descriptor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-the-transaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating the Transaction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -7749,6 +7814,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7792,6 +7878,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creation-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creation Process
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creation Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-the-descriptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating the Descriptor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-the-transaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating the Transaction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -7821,25 +7948,147 @@
 	
 
 
-<h1 id="creating-a-transfer-transaction-using-typed-descriptors">Creating a Transfer Transaction Using Typed Descriptors<a class="headerlink" href="#creating-a-transfer-transaction-using-typed-descriptors" title="Anchor link to this section for reference">⚓︎</a></h1>
-<p><code><a class="mkdocs-ezglossary-link"
-	id="3eafff78c8fa3985f41155e3d6d24c8e"
-	title="Creates a transaction from a (typed) transaction descriptor."
-	name="TS:SymbolFacade.createTransactionFromTypedDescriptor"
-	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#createtransactionfromtypeddescriptor">SymbolFacade.createTransactionFromTypedDescriptor</a></code> is a typed alternative to
-<code><a class="mkdocs-ezglossary-link"
-	id="ffc677c6cded7090ffe5529a4c605de0"
+<h1 id="creating-transactions-using-typed-descriptors-in-javascript">Creating Transactions Using Typed Descriptors in JavaScript<a class="headerlink" href="#creating-transactions-using-typed-descriptors-in-javascript" title="Anchor link to this section for reference">⚓︎</a></h1>
+<p>Transactions are a fundamental part of the Symbol blockchain, because most interactions with the network happen
+through them.</p>
+<p>All JavaScript examples throughout the tutorials use the <code><a class="mkdocs-ezglossary-link"
+	id="98f1bc2f36f23009a3ea860ff3d27cdc"
 	title="Creates a transaction from a transaction descriptor."
-	name="TS:SymbolTransactionFactory.create"
-	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code>.
-It uses structured, type-safe parameters, making it easier to construct transactions correctly and reduce the
-chance of mistakes.</p>
-<p>For example, the snippet above could use the <a href="TS:{{ descriptor }}">{{ descriptor }}</a> to define the transaction in a type-safe way.</p>
-<hr />
-<p><strong>Caution</strong>:
-The <code>deadline</code> parameter of the typed version is relative to the local system time, not the network time.
-This removes the need to fetch the network time, but can lead to drift if the system clock is inaccurate.</p>
-<p>Applications should periodically synchronize with the network time to ensure deadlines are calculated correctly.</p>
+	name="js:SymbolTransactionFactory.create"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code> method
+to create transactions, due to its compact syntax.
+However, this method is not type-safe: it accepts a generic object and depends on it having the correct fields.</p>
+<p>This page shows how to use <code><a class="mkdocs-ezglossary-link"
+	id="28938f47835f5ab142724b8881e0c1b6"
+	title="Creates a transaction from a (typed) transaction descriptor."
+	name="js:SymbolFacade.createTransactionFromTypedDescriptor"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#createtransactionfromtypeddescriptor">SymbolFacade.createTransactionFromTypedDescriptor</a></code> instead.
+This alternative accepts well-defined parameters, offering better type safety and improved IDE support.</p>
+<p>The code presented here is the same as in the <a href="../transfer/">Creating a Transfer Transaction</a> tutorial,
+with the only difference being the transaction creation step.
+For brevity, only that section is shown here.
+The rest of the process, including signing and announcing the transaction, remains unchanged.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:1"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">JavaScript</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">    </span><span class="c1">// Build the transaction</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">typedDescriptor</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="w">        </span><span class="ow">new</span><span class="w"> </span><span class="nx">descriptors</span><span class="p">.</span><span class="nx">TransferTransactionV1Descriptor</span><span class="p">(</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="w">            </span><span class="nx">facade</span><span class="p">.</span><span class="nx">network</span><span class="p">.</span><span class="nx">publicKeyToAddress</span><span class="p">(</span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">),</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="w">            </span><span class="p">[</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="w">                </span><span class="ow">new</span><span class="w"> </span><span class="nx">descriptors</span><span class="p">.</span><span class="nx">UnresolvedMosaicDescriptor</span><span class="p">(</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="w">                    </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">UnresolvedMosaicId</span><span class="p">(</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="w">                        </span><span class="nx">generateMosaicAliasId</span><span class="p">(</span><span class="s1">&#39;symbol.xym&#39;</span><span class="p">)),</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="w">                    </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span><span class="mf">1</span><span class="nx">_000_000n</span><span class="p">)</span><span class="w"> </span><span class="c1">// 1 XYM</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="w">                </span><span class="p">)</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="w">            </span><span class="p">]</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="w">        </span><span class="p">);</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">transaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">createTransactionFromTypedDescriptor</span><span class="p">(</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="w">        </span><span class="nx">typedDescriptor</span><span class="p">,</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="p">);</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="w">    </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span><span class="nx">feeMult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+<p><a class="source-link" href="https://github.com/symbol/symbol/raw/refs/heads/mkdocs/content-templates/mkdocs/overrides/devbook/transactions/transfer.typed.mjs">Download the full tutorial code.</a></p>
+</div>
+</div>
+</div>
+<h2 id="creation-process">Creation Process<a class="headerlink" href="#creation-process" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Transactions are created in a type-safe manner in two steps: creating a transaction descriptor and creating the transaction itself.</p>
+<h3 id="creating-the-descriptor">Creating the Descriptor<a class="headerlink" href="#creating-the-descriptor" title="Anchor link to this section for reference">⚓︎</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:1"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">JavaScript</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-41">41</a></span>
+<span class="normal"><a href="#__codelineno-1-42">42</a></span>
+<span class="normal"><a href="#__codelineno-1-43">43</a></span>
+<span class="normal"><a href="#__codelineno-1-44">44</a></span>
+<span class="normal"><a href="#__codelineno-1-45">45</a></span>
+<span class="normal"><a href="#__codelineno-1-46">46</a></span>
+<span class="normal"><a href="#__codelineno-1-47">47</a></span>
+<span class="normal"><a href="#__codelineno-1-48">48</a></span>
+<span class="normal"><a href="#__codelineno-1-49">49</a></span>
+<span class="normal"><a href="#__codelineno-1-50">50</a></span>
+<span class="normal"><a href="#__codelineno-1-51">51</a></span>
+<span class="normal"><a href="#__codelineno-1-52">52</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41"></a><span class="w">    </span><span class="c1">// Build the transaction</span>
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">typedDescriptor</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43"></a><span class="w">        </span><span class="ow">new</span><span class="w"> </span><span class="nx">descriptors</span><span class="p">.</span><span class="nx">TransferTransactionV1Descriptor</span><span class="p">(</span>
+</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44"></a><span class="w">            </span><span class="nx">facade</span><span class="p">.</span><span class="nx">network</span><span class="p">.</span><span class="nx">publicKeyToAddress</span><span class="p">(</span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">),</span>
+</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45"></a><span class="w">            </span><span class="p">[</span>
+</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46"></a><span class="w">                </span><span class="ow">new</span><span class="w"> </span><span class="nx">descriptors</span><span class="p">.</span><span class="nx">UnresolvedMosaicDescriptor</span><span class="p">(</span>
+</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47"></a><span class="w">                    </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">UnresolvedMosaicId</span><span class="p">(</span>
+</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48"></a><span class="w">                        </span><span class="nx">generateMosaicAliasId</span><span class="p">(</span><span class="s1">&#39;symbol.xym&#39;</span><span class="p">)),</span>
+</span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49"></a><span class="w">                    </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span><span class="mf">1</span><span class="nx">_000_000n</span><span class="p">)</span><span class="w"> </span><span class="c1">// 1 XYM</span>
+</span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50"></a><span class="w">                </span><span class="p">)</span>
+</span><span id="__span-1-51"><a id="__codelineno-1-51" name="__codelineno-1-51"></a><span class="w">            </span><span class="p">]</span>
+</span><span id="__span-1-52"><a id="__codelineno-1-52" name="__codelineno-1-52"></a><span class="w">        </span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>Typed descriptors are what provide type safety when building transactions in JavaScript,
+because of their constructors with structured parameters.</p>
+<p>See for example the <code><a class="mkdocs-ezglossary-link"
+	id="eff50673a6ac113b596283ceddcb4512"
+	title="Type safe descriptor used to generate a descriptor map for TransferTransactionV1Descriptor."
+	name="js:TransferTransactionV1Descriptor"
+	href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/#transfertransactionv1descriptor">TransferTransactionV1Descriptor</a></code> used in the code.</p>
+<p>Whenever one such descriptor is available, tutorials will link to both the relevant reference page and this guide.</p>
+<h3 id="creating-the-transaction">Creating the Transaction<a class="headerlink" href="#creating-the-transaction" title="Anchor link to this section for reference">⚓︎</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:1"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">JavaScript</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-53">53</a></span>
+<span class="normal"><a href="#__codelineno-2-54">54</a></span>
+<span class="normal"><a href="#__codelineno-2-55">55</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-53"><a id="__codelineno-2-53" name="__codelineno-2-53"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">transaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">createTransactionFromTypedDescriptor</span><span class="p">(</span>
+</span><span id="__span-2-54"><a id="__codelineno-2-54" name="__codelineno-2-54"></a><span class="w">        </span><span class="nx">typedDescriptor</span><span class="p">,</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="p">);</span>
+</span><span id="__span-2-55"><a id="__codelineno-2-55" name="__codelineno-2-55"></a><span class="w">    </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span><span class="nx">feeMult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>Once the descriptor is ready, creating the transaction is straightforward: it simply involves passing the descriptor to the
+<code><a class="mkdocs-ezglossary-link"
+	id="18a8a3ce190db222a49d8bf370417c48"
+	title="Creates a transaction from a (typed) transaction descriptor."
+	name="js:SymbolFacade.createTransactionFromTypedDescriptor"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#createtransactionfromtypeddescriptor">SymbolFacade.createTransactionFromTypedDescriptor</a></code> method and provide the desired fees and deadline.</p>
+<p>Note that, as in the <a href="../transfer/#building-the-transaction">Creating a Transfer Transaction</a> tutorial,
+the transaction's fee must be calculated after construction because it depends on the transaction's size.</p>
+<div class="admonition warning">
+<p class="admonition-title">Deadlines are provided differently in the typed and untyped versions</p>
+<p>Deadlines passed to <code><a class="mkdocs-ezglossary-link"
+	id="76f52a746c1e5df04c9c9099135e1644"
+	title="Creates a transaction from a transaction descriptor."
+	name="js:SymbolTransactionFactory.create"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code> are specified in milliseconds and are relative to the <em>network time</em>.
+In contrast, deadlines passed to <code><a class="mkdocs-ezglossary-link"
+	id="66d9883c3609a89fc31dc66d155a7fd6"
+	title="Creates a transaction from a (typed) transaction descriptor."
+	name="js:SymbolFacade.createTransactionFromTypedDescriptor"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#createtransactionfromtypeddescriptor">SymbolFacade.createTransactionFromTypedDescriptor</a></code> are specified in seconds
+and are relative to the <em>system time</em>, that is, the local clock of the machine running the code.</p>
+<p>This approach is convenient because it removes the need to fetch the current network time: for example,
+to make a transaction expire in two hours, you only need to provide a deadline of <code class="highlight"><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span></code> seconds as in the code above.</p>
+<p>However, if the system clock is not properly synchronized with the network time, transactions may expire earlier
+than expected, or be rejected entirely if the provided deadline exceeds the network's maximum allowed offset of 2 hours.</p>
+<p><strong>Therefore, applications using the type-safe method should periodically check the network time to ensure the
+system clock is properly synchronized.</strong></p>
+</div>
+<p>Once the transaction has been created, you can use it normally.
+There is no difference between transactions created using the typed and untyped methods.</p>
 
 
 
@@ -7862,7 +8111,7 @@ This removes the need to fetch the network time, but can lead to drift if the sy
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 13, 2025</span>
   </span>
 
     
@@ -7925,7 +8174,7 @@ This removes the need to fetch the network time, but can lead to drift if the sy
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7941,8 +8190,8 @@ This removes the need to fetch the network time, but can lead to drift if the sy
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

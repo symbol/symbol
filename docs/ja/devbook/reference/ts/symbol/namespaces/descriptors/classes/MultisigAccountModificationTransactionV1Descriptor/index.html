@@ -7412,7 +7412,7 @@
 <h1 id="multisigaccountmodificationtransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Multisig<wbr>Account<wbr>Modification<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#multisigaccountmodificationtransactionv1descriptor" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="5c84f5896b19ee88f99ed3792cc5a507">MultisigAccountModificationTransactionV1Descriptor</a> 
+	<a id="cdfcd3c9ea821095d84f86ff08280776">MultisigAccountModificationTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for MultisigAccountModificationTransactionV1Descriptor.</dd>
 </p>
@@ -7495,7 +7495,7 @@ This transaction allows you to: - Transform a regular account into a multisig ac
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="a5ad4fc39a37548a6b99f79f70f9f6a7">MultisigAccountModificationTransactionV1Descriptor.toMap</a> 
+	<a id="bb89c7c50b33d481e9c0069842d70341">MultisigAccountModificationTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -7544,7 +7544,7 @@ This transaction allows you to: - Transform a regular account into a multisig ac
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7560,8 +7560,8 @@ This transaction allows you to: - Transform a regular account into a multisig ac
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

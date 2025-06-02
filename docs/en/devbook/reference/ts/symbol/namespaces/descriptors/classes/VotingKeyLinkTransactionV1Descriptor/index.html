@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="votingkeylinktransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Voting<wbr>Key<wbr>Link<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#votingkeylinktransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="2622c170860101799e99425a6c690f19">VotingKeyLinkTransactionV1Descriptor</a> 
+	<a id="1c2ce6d977a6a9d3969778e96dfea655">VotingKeyLinkTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for VotingKeyLinkTransactionV1Descriptor.</dd>
 </p>
@@ -8060,7 +8081,7 @@ See more details in <a href="/guides/network/running-a-symbol-node-manually.html
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="8df10924aa16c2d6d2ef9ed6bca1f53b">VotingKeyLinkTransactionV1Descriptor.toMap</a> 
+	<a id="ff42e85cdda8bf3fdf264ae0a85614bd">VotingKeyLinkTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8109,7 +8130,7 @@ See more details in <a href="/guides/network/running-a-symbol-node-manually.html
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8125,8 +8146,8 @@ See more details in <a href="/guides/network/running-a-symbol-node-manually.html
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

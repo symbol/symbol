@@ -7532,7 +7532,7 @@
 <h1 id="unresolvedaddress"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Unresolved<wbr>Address<a class="headerlink" href="#unresolvedaddress" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="f515d63b55c7196768bf91a5fa5950c1">UnresolvedAddress</a> 
+	<a id="a4306b24bc1ae0981582a7b7337515a5">UnresolvedAddress</a> 
 </dt>
 <dd>Represents a fixed size byte array.</dd>
 </p>
@@ -7618,7 +7618,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="e4dba4a50532324ab471b7081b25f494">UnresolvedAddress.serialize</a> 
+	<a id="c52eea13e89c164a5185d4f8b3b9a924">UnresolvedAddress.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7634,7 +7634,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="4d7b96cbe3442974196d836cc6ef15ab">UnresolvedAddress.toString</a> 
+	<a id="cb67ded999cfb12245cd7ddef9590b7d">UnresolvedAddress.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -7706,7 +7706,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7722,8 +7722,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7446,7 +7446,7 @@
 <h1 id="basevalue"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Base<wbr>Value<a class="headerlink" href="#basevalue" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="903873683e32e4c044d665ae82ede6ea">BaseValue</a> 
+	<a id="6a8e84fcdafdbee3e6cab8bbe1985071">BaseValue</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -7539,7 +7539,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="8b04f5bd41fe8bea65cc22e7bfc78364">BaseValue.toJson</a> 
+	<a id="66764e0d488c217666c1be0b58164971">BaseValue.toJson</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7553,7 +7553,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="2b2de5a68d797de2b2040f7fe045a2e3">BaseValue.toString</a> 
+	<a id="5c0ffb6a4061042cf48021a0590d496e">BaseValue.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -7602,7 +7602,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7618,8 +7618,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

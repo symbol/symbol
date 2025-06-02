@@ -7840,6 +7840,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7964,7 +7985,7 @@
 <h1 id="networklocator"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Network<wbr>Locator<a class="headerlink" href="#networklocator" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="ff0a5d0f658a79c050c29be630d7a1c4">NetworkLocator</a> 
+	<a id="4f92e89c4e7c3b094c4bcba9b8522b1a">NetworkLocator</a> 
 </dt>
 <dd>Provides utility functions for finding a network.</dd>
 </p>
@@ -7981,7 +8002,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="dd077b9695a2bd15a4cd8954ba12948a">NetworkLocator.findByIdentifier</a> 
+	<a id="d13ff99f1f5f56610e0a517c41c6617b">NetworkLocator.findByIdentifier</a> 
 </dt>
 <dd>Finds a network with a specified identifier within a list of networks.</dd>
 </p>
@@ -8032,7 +8053,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="40c873370a3dfe70c230667656706ef9">NetworkLocator.findByName</a> 
+	<a id="733b2ef6f03372ee5cb2edd260469b1c">NetworkLocator.findByName</a> 
 </dt>
 <dd>Finds a network with a specified name within a list of networks.</dd>
 </p>
@@ -8118,7 +8139,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8134,8 +8155,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

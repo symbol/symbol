@@ -7817,6 +7817,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7942,19 +7963,21 @@ If you have a backup of a previous profile and want to restore it, follow the <a
 	<a id="7f4ec0a39352d650ffbbd726163d6212">Profile</a> 
 </dt>
 <dd>A password-protected container that stores multiple <a class="mkdocs-ezglossary-link"
-	id="b9a7f365d1a0ebe5596454f8f22bf70c"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="bf9ccf9dd3bbd90d00d1b073fed411dc"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> on a given device,
 similar to how profiles work in a browser or operating system.</dd>
 
 </dl>
 <p>The Symbol Desktop Wallet is an <a class="mkdocs-ezglossary-link"
-	id="a98c7d31d63c18d90ba0e385a176e716"
-	title="A Hierarchical Deterministic (HD) wallet derive a series of accounts from a single seed, which allows handling a group of accounts using a single seed instead of multiple key pairs."
+	id="972463e9bb2fb81f590c23707435a7a4"
+	title="A Hierarchical Deterministic (HD) wallet derives a series of accounts from a single seed,
+which is more convenient than having to manage multiple key pairs."
 	name="_:HD Wallet"
 	href="../../../textbook/accounts/#abf5d486eea9467288f1b0c72e1bb6eb">HD Wallet</a>, which means it can generate multiple accounts from a single <a class="mkdocs-ezglossary-link"
-	id="c3b44d7bbc1babf1d703f221a32e6613"
+	id="90f0891644259364dc4643f919cbde06"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
 	href="../../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrase</a>.<br />
@@ -8129,7 +8152,7 @@ You can create more accounts later, and they will be derived from the same seed.
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8145,8 +8168,8 @@ You can create more accounts later, and they will be derived from the same seed.
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

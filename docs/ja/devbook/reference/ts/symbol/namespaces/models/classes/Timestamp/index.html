@@ -7502,7 +7502,7 @@
 <h1 id="timestamp"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Timestamp<a class="headerlink" href="#timestamp" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="4fda94abc5b88265cedc24d25770b6ae">Timestamp</a> 
+	<a id="a862751620854dcc282d33dd03803ad4">Timestamp</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -7588,7 +7588,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="be99e655283c3d0f9b61f07d9ce95f91">Timestamp.serialize</a> 
+	<a id="e991b06740e4ea5de50e2baedc491a46">Timestamp.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7604,7 +7604,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="90949444241fd8417aaad5b6f29b0570">Timestamp.toString</a> 
+	<a id="103ffd190e3f49240068ef769b19ea3c">Timestamp.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -7697,7 +7697,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7713,8 +7713,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

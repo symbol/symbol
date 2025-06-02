@@ -7808,6 +7808,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7917,12 +7938,14 @@
 
 <h1 id="deleting-an-account-from-a-profile">Deleting an Account from a Profile<a class="headerlink" href="#deleting-an-account-from-a-profile" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This page explains how to delete an existing <a class="mkdocs-ezglossary-link"
-	id="bf9ccf9dd3bbd90d00d1b073fed411dc"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="2a291e5452d1d8578c19a114d2c022f7"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> from a <a class="mkdocs-ezglossary-link"
 	id="f7cf007ccdf41a0550dcc2d62da00896"
-	title="A password-protected container that stores multiple accounts on a given device,"
+	title="A password-protected container that stores multiple accounts on a given device,
+similar to how profiles work in a browser or operating system."
 	name="_:Profile"
 	href="../../../userbook/wallet/create-profile/#7f4ec0a39352d650ffbbd726163d6212">profile</a> in the Symbol Desktop Wallet.</p>
 <p>This action removes the account from the profile, but it does not remove the account from the blockchain.
@@ -8066,7 +8089,7 @@ Enter your profile password to authorize the deletion, and click <strong>Confirm
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8082,8 +8105,8 @@ Enter your profile password to authorize the deletion, and click <strong>Confirm
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

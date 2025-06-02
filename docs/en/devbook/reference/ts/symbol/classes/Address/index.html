@@ -7885,6 +7885,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8054,7 +8075,7 @@
 <h1 id="address"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Address<a class="headerlink" href="#address" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="137201004d42aad85a77cdf9386a0572">Address</a> 
+	<a id="3e0d85d475f4412ce8563a7d983b6d8f">Address</a> 
 </dt>
 <dd>Represents a Symbol address.</dd>
 </p>
@@ -8137,7 +8158,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="446aac016c34e274967be9cfcf2dc782">Address.toJson</a> 
+	<a id="223fd83474d91b2d93610253f4eb5d64">Address.toJson</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -8155,7 +8176,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="0bf7f43d0201e66f01ab1a36eab71c6e">Address.toNamespaceId</a> 
+	<a id="78e14f64722bb87ad4384c0f84c3fd2c">Address.toNamespaceId</a> 
 </dt>
 <dd>Attempts to convert this address into a namespace id.</dd>
 </p>
@@ -8170,7 +8191,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="931df38dd8aa16628a004fe9dba4e9ac">Address.toString</a> 
+	<a id="4696f8cd117aac3eed07e0d4799079a1">Address.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -8186,7 +8207,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="42d1ade81ad4ed037497ac38d5cbb6f7">Address.fromDecodedAddressHexString</a> 
+	<a id="3571285041139311760e78a16c0a584c">Address.fromDecodedAddressHexString</a> 
 </dt>
 <dd>Creates an address from a decoded address hex string (typically from REST).</dd>
 </p>
@@ -8217,7 +8238,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="94061465fb322e7be12982754eaae03e">Address.fromNamespaceId</a> 
+	<a id="9589267fb510b8cda6c6148920e53d27">Address.fromNamespaceId</a> 
 </dt>
 <dd>Creates an address from a namespace id.</dd>
 </p>
@@ -8288,7 +8309,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8304,8 +8325,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

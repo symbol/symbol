@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="aggregatebondedtransactionv2descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Aggregate<wbr>Bonded<wbr>Transaction<wbr>V2Descriptor<a class="headerlink" href="#aggregatebondedtransactionv2descriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="58c820ac367672e1a9a6dfb0fc1d3063">AggregateBondedTransactionV2Descriptor</a> 
+	<a id="7eb527e66e22cc4aea08adedcf6b8691">AggregateBondedTransactionV2Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for AggregateBondedTransactionV2Descriptor.</dd>
 </p>
@@ -8041,7 +8062,7 @@ To prevent spam attacks, before trying to announce this transaction a HashLockTr
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="52a5224ad3afa2210894f3b0c7de3a55">AggregateBondedTransactionV2Descriptor.toMap</a> 
+	<a id="c0d115db3344234b7f2797e9d85f2283">AggregateBondedTransactionV2Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8090,7 +8111,7 @@ To prevent spam attacks, before trying to announce this transaction a HashLockTr
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8106,8 +8127,8 @@ To prevent spam attacks, before trying to announce this transaction a HashLockTr
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

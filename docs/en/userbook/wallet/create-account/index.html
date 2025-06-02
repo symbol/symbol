@@ -7808,6 +7808,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7917,12 +7938,14 @@
 
 <h1 id="creating-a-new-account">Creating a New Account<a class="headerlink" href="#creating-a-new-account" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This page explains how to add a new <a class="mkdocs-ezglossary-link"
-	id="ade964b26f2fca50919eaa8b4151ff79"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	id="b9a7f365d1a0ebe5596454f8f22bf70c"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> to an existing <a class="mkdocs-ezglossary-link"
 	id="beaf33b6fd0f74c1c416dacb63d35f02"
-	title="A password-protected container that stores multiple accounts on a given device,"
+	title="A password-protected container that stores multiple accounts on a given device,
+similar to how profiles work in a browser or operating system."
 	name="_:Profile"
 	href="../../../userbook/wallet/create-profile/#7f4ec0a39352d650ffbbd726163d6212">profile</a> in the Symbol Desktop Wallet.<br />
 You can manage multiple accounts within the same profile, all protected by a single password.</p>
@@ -7974,7 +7997,11 @@ and must have their private keys backed up separately to avoid losing access.</p
 <p><a href="../export-profile/">Exporting a profile</a> will back up both seed accounts and imported accounts in a
 single <a class="mkdocs-ezglossary-link"
 	id="96ad6a823555eb1519f76082e7c79c27"
-	title="A printable document containing information to restore a wallet profile and all its accounts."
+	title="A printable document containing information to restore a wallet profile and all its accounts.
+The information is intended to be printed on paper and may include QR codes, private keys,
+mnemonic phrases, or all of them.
+Paper wallets are less convenient than digital backups because the information must be entered manually.
+However, they are more secure because they are not stored or accessed online."
 	name="_:Paper Wallet"
 	href="../../../userbook/wallet/export-profile/#85d0cb74b3b1811657842c75358f55d6">paper wallet</a>.</p>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -8068,7 +8095,7 @@ single <a class="mkdocs-ezglossary-link"
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8084,8 +8111,8 @@ single <a class="mkdocs-ezglossary-link"
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7902,6 +7902,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8086,7 +8107,7 @@
 <h1 id="proofgamma"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Proof<wbr>Gamma<a class="headerlink" href="#proofgamma" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="a72dcfc993b9f5bf9ce964ec781df11f">ProofGamma</a> 
+	<a id="9f30eaaec387ff7ffd5a511379ba61df">ProofGamma</a> 
 </dt>
 <dd>Represents a fixed size byte array.</dd>
 </p>
@@ -8172,7 +8193,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="e9102ca983995d534fe5709634ef4455">ProofGamma.serialize</a> 
+	<a id="a588ed786ced5604ae206f12f1b44e70">ProofGamma.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -8188,7 +8209,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="f47227aa33ded1d315c88fd313f4f6c0">ProofGamma.toString</a> 
+	<a id="399a7c3e3b9f4d8555dc726cdd739894">ProofGamma.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -8260,7 +8281,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8276,8 +8297,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

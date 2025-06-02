@@ -7514,7 +7514,7 @@
 <h1 id="default"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> default<a class="headerlink" href="#default" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="76f8561ea2e5fdd1efebeed6d4171fce">default</a> 
+	<a id="7bc863885e4d5926b91c378171c10f9c">default</a> 
 </dt>
 <dd>Encrypts and encodes messages between two parties.</dd>
 </p>
@@ -7558,7 +7558,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="6b0f6a6c531226b29d24a3027693bc67">default.encode</a> 
+	<a id="d950e2dcdcbd9ec3482d1a7e68e9d88f">default.encode</a> 
 </dt>
 <dd>Encodes message to recipient using recommended format.</dd>
 </p>
@@ -7630,7 +7630,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="cd53f53b2737caf1a6c7337aa59cb589">default.encodePersistentHarvestingDelegation</a> 
+	<a id="15fa62fc7bd52492b29e027118f67446">default.encodePersistentHarvestingDelegation</a> 
 </dt>
 <dd>Encodes persistent harvesting delegation to node.</dd>
 </p>
@@ -7671,7 +7671,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="73328fc2dcff05f74b7c847a3faaf645">default.tryDecode</a> 
+	<a id="1c648a2201eb6e9202ecfc6989987630">default.tryDecode</a> 
 </dt>
 <dd>Tries to decode encoded message.</dd>
 </p>
@@ -7775,7 +7775,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7791,8 +7791,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

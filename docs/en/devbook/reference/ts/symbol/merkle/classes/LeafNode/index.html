@@ -7875,6 +7875,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8032,7 +8053,7 @@
 <h1 id="leafnode"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Leaf<wbr>Node<a class="headerlink" href="#leafnode" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="359101990b604f4b0f62b325a1b08359">LeafNode</a> 
+	<a id="7a40fa4dfc6427cadb00cb373bcf7c2a">LeafNode</a> 
 </dt>
 <dd>Leaf node in a compact Patricia tree.</dd>
 </p>
@@ -8114,7 +8135,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="80f41787a4cbd90d26b99ad274127b30">LeafNode.calculateHash</a> 
+	<a id="fff84414e22e4554f67e1ae933667da8">LeafNode.calculateHash</a> 
 </dt>
 <dd>Calculates node hash.</dd>
 </p>
@@ -8165,7 +8186,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8181,8 +8202,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

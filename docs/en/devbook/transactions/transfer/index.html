@@ -7877,6 +7877,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8061,15 +8082,16 @@ They allow sending <a class="mkdocs-ezglossary-link"
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> or any other type of mosaic from one <a class="mkdocs-ezglossary-link"
 	id="a29e24f3fd0d5f9b6fb1dc6009e09ee2"
-	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored."
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
-	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> to another.</p>
+	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> to another, optionally including a message.</p>
 <p>This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status
 until it is confirmed.<br />
 Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
 up-to-date values.</p>
-<p>You should have completed the <a href="/symbol/en/devbook/start/hello-world">Hello World</a> tutorial to understand how to run the
-tutorials.</p>
+<p>If you have not done so already, start with the <a href="../../start/hello-world/">Hello World</a> tutorial to make sure your
+development environment is set up correctly.</p>
 <h2 id="full-code">Full Code<a class="headerlink" href="#full-code" title="Anchor link to this section for reference">⚓︎</a></h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
@@ -8601,7 +8623,7 @@ Nemesis block, which you can retrieve from the network properties:</p>
 <p>If a transaction's deadline is earlier than the current network time or more than two hours in the future,
 the transaction will be rejected.
 To avoid this, you need to know the current network time before constructing the transaction, using the
-<a href="/symbol/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime"><code>/node/time</code></a> endpoint.</p>
+<a href="/symbol/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.</p>
 <p>However, applications do not need to query the network time before every transaction.
 It can be fetched once and then adjusted using the local system clock when needed.
 This provides a good balance between accuracy and performance.</p>
@@ -8656,8 +8678,7 @@ If it is too high, the sender wastes funds.
 In addition, each node may enforce a minimum fee threshold for incoming transactions.</p>
 <p>The optimal fee depends on the current state of the network,
 particularly the number of transactions being submitted and the fees they are offering.
-To support fee estimation, Symbol provides the
-<a href="/symbol/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees"><code>/network/fees/transaction</code></a>
+To support fee estimation, Symbol provides the <a href="/symbol/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>
 endpoint that returns a <em>recommended fee multiplier</em> based on recent transaction activity.</p>
 <p>The final fee is calculated by multiplying the recommended multiplier by the transaction's size in bytes.
 This ensures that larger transactions pay proportionally more while smaller ones remain cost-effective.</p>
@@ -8728,9 +8749,9 @@ multiplier (<code>minFeeMultiplier</code>), and stores it for later use once the
 </span></code></pre></div></td></tr></table></div>
 <blockquote>
 <p>Use a <code><a class="mkdocs-ezglossary-link"
-	id="a94bc4fa2f3fee592f691f3be7952ab5"
+	id="d3cd4977c7b6372d5c0f7de258fd7282"
 	title="Type safe descriptor used to generate a descriptor map for TransferTransactionV1Descriptor."
-	name="TS:TransferTransactionV1Descriptor"
+	name="js:TransferTransactionV1Descriptor"
 	href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/#transfertransactionv1descriptor">TransferTransactionV1Descriptor</a></code> to create this transaction in a type-safe way.<br />
 See the <a href="/symbol/en/devbook/transactions/typed-descriptors">Typed Descriptors</a> tutorial for details.</p>
 </blockquote>
@@ -8769,7 +8790,12 @@ For XYM, the divisibility is 6, so 1 XYM must be expressed as <code>1_000_000</c
 </ul>
 <p>Note that the fee field is not set in the descriptor.
 Instead, the fee is calculated after the transaction is built, using the previously obtained multiplier and the
-transaction's size in bytes.</p>
+transaction's size in bytes, which is only known once the descriptor has been constructed.</p>
+<div class="admonition info">
+<p class="admonition-title">Including a message in the transaction</p>
+<p>Transactions can optionally include a free-form message.
+A later tutorial explains how to do this.</p>
+</div>
 <h3 id="signing-and-serializing">Signing and Serializing<a class="headerlink" href="#signing-and-serializing" title="Anchor link to this section for reference">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_6_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
@@ -8805,22 +8831,29 @@ transaction's size in bytes.</p>
 </div>
 <p>Once the transaction is created, it must be signed with the signing account's private key.
 Signing ensures the transaction is authentic and authorized by the sender.</p>
-<p><code><a class="mkdocs-ezglossary-link"
-	id="d5517315ee4204353bbbc2019e6a669c"
-	title=""
-	name="Python:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction"
-	href="../../../devbook/reference/py/facade/SymbolFacade/#symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction">symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction</a></code> returns a <a class="mkdocs-ezglossary-link"
+<p><span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+	id="c934839ec12b6472f245f831647f8ad5"
+	title="Signs a Symbol transaction."
+	name="py:SymbolFacade.sign_transaction"
+	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.sign_transaction">SymbolFacade.sign_transaction</a></code></label><input type="radio" name="rGroup999" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	id="92d170e255e8b97425752cd33f4f04f5"
+	title="Signs a Symbol transaction."
+	name="js:SymbolFacade.signTransaction"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#signtransaction">SymbolFacade.signTransaction</a></code></label></span> returns a <a class="mkdocs-ezglossary-link"
 	id="64b4fcf3d431629d050cb1ccd24990e0"
 	title="A digital attachment to a document that certifies that the document is approved by a given account."
 	name="_:Signature"
-	href="../../../textbook/cryptography/#64c803c8046a084f159cb3fa471c7450">signature</a> encoded as a
-hexadecimal string.</p>
-<p><code><a class="mkdocs-ezglossary-link"
-	id="920768bd9c1738005bd5ea0da831e055"
-	title=""
-	name="Python:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature"
-	href="../../../devbook/reference/py/symbol/TransactionFactory/#symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature">symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature</a></code> adds the signature to the
-transaction and serializes it into a JSON payload ready to be submitted directly to a node for announcement.</p>
+	href="../../../textbook/cryptography/#64c803c8046a084f159cb3fa471c7450">signature</a> encoded as a hexadecimal string.</p>
+<p><span markdown class="dylink"><input type="radio" name="rGroup1000" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+	id="b67493d4567437d4b6d0e6344cec8647"
+	title="Attaches a signature to a transaction."
+	name="py:TransactionFactory.attach_signature"
+	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.attach_signature">TransactionFactory.attach_signature</a></code></label><input type="radio" name="rGroup1000" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	id="70184e9587146d63cf0cdf3a973fc21a"
+	title="Attaches a signature to a transaction."
+	name="js:SymbolTransactionFactory.attachSignature"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#attachsignature">SymbolTransactionFactory.attachSignature</a></code></label></span> adds the signature to the transaction and serializes it into a JSON payload
+ready to be submitted directly to a node for announcement.</p>
 <h3 id="announcing-the-transaction">Announcing the Transaction<a class="headerlink" href="#announcing-the-transaction" title="Anchor link to this section for reference">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_7_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
@@ -8870,9 +8903,7 @@ transaction and serializes it into a JSON payload ready to be submitted directly
 </div>
 </div>
 </div>
-<p>Announcing a transaction is a simple <code>PUT</code> request to the
-<a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction"><code>/transactions</code></a> endpoint
-of any Symbol API node.
+<p>Announcing a transaction is a simple request to the <a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> endpoint of any Symbol API node.
 As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.</p>
 <p>However, this response does <strong>not</strong> indicate that the transaction is valid or accepted by the network.
 Validation, fee checks, and other rules are applied asynchronously after the transaction is received.</p>
@@ -9032,9 +9063,7 @@ This provides a simpler and more responsive solution without the overhead of rep
 <p>In addition, the logic for checking transaction status is reusable.
 It can be moved into a utility function or module, since it is needed after announcing every transaction.</p>
 </div>
-<p>The snippet above repeatedly queries the
-<a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus"><code>/transactionStatus</code></a>
-endpoint using the hash of the submitted transaction.
+<p>The snippet above repeatedly queries the <a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint using the hash of the submitted transaction.
 The response may take one of several forms:</p>
 <ul>
 <li>An HTTP error, indicating that the node has not yet started processing the transaction.</li>
@@ -9083,45 +9112,69 @@ depending on how quickly the node begins processing the transaction.</p>
 <a href="https://testnet.symbol.fyi/">Symbol Testnet Explorer</a> and search for the transaction hash.<br />
 The hash is printed in the line that says <code>Waiting for confirmation from /transactionStatus/...</code>.<br />
 You should see the transaction move through the confirmation process in real time.</p>
-<p>Alternatively, you can search for the <code>signer_public_key</code> to view the transaction in the history of the signer account.</p>
+<p>Alternatively, you can search for the <code>signerPublicKey</code> to view the transaction in the history of the signer account.</p>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>This tutorial showed how to:</p>
-<ul>
-<li>
-<p><strong>Create a transaction</strong> using the
-    <code><a class="mkdocs-ezglossary-link"
-	id="1fa827243d9bd1a08b8ba966a11eb884"
-	title=""
-	name="Python:symbolchain.symbol.TransactionFactory.TransactionFactory.create"
-	href="../../../devbook/reference/py/symbol/TransactionFactory/#symbolchain.symbol.TransactionFactory.TransactionFactory.create">TransactionFactory.create</a></code> method,
-    and providing deadline and fee information obtained from the
-    <a href="/symbol/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime"><code>/node/time</code></a> and
-    <a href="/symbol/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees"><code>/network/fees/transaction</code></a>
-    endpoints.</p>
-</li>
-<li>
-<p><strong>Sign the transaction</strong> using the
-    <code><a class="mkdocs-ezglossary-link"
-	id="2b8540b912c59043e1acff628a5431e2"
-	title=""
-	name="Python:symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction"
-	href="../../../devbook/reference/py/facade/SymbolFacade/#symbolchain.facade.SymbolFacade.SymbolFacade.sign_transaction">SymbolFacade.sign_transaction</a></code> and
-    <code><a class="mkdocs-ezglossary-link"
-	id="6f34ef17377193803fe73a50c62685ea"
-	title=""
-	name="Python:symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature"
-	href="../../../devbook/reference/py/symbol/TransactionFactory/#symbolchain.symbol.TransactionFactory.TransactionFactory.attach_signature">TransactionFactory.attach_signature</a></code> methods.</p>
-</li>
-<li>
-<p><strong>Announce the transaction</strong> using the
-    <a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction"><code>/transactions</code></a> endpoint.</p>
-</li>
-<li>
-<p><strong>Confirm the transaction</strong> by polling the
-    <a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus"><code>/transactionStatus</code></a>
-    endpoint.</p>
-</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Related documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#fetching-network-time">Obtain deadline information</a></td>
+<td><a href="/symbol/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+</tr>
+<tr>
+<td><a href="#fetching-recommended-fees">Obtain fee information</a></td>
+<td><a href="/symbol/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+</tr>
+<tr>
+<td><a href="#creating-a-transfer-transaction">Create a transaction</a></td>
+<td><span markdown class="dylink"><input type="radio" name="rGroup1001" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+	id="705ea278161b1958d88336f10b555689"
+	title="Creates a transaction from a transaction descriptor.
+When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
+When unset, descriptor arrays will be presumed to be already sorted."
+	name="py:TransactionFactory.create"
+	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create">TransactionFactory.create</a></code></label><input type="radio" name="rGroup1001" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	id="fdc91a0c023cf443166de6b726629c6b"
+	title="Creates a transaction from a transaction descriptor."
+	name="js:SymbolTransactionFactory.create"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span></td>
+</tr>
+<tr>
+<td><a href="#signing-and-serializing">Sign the transaction</a></td>
+<td><span markdown class="dylink"><input type="radio" name="rGroup1002" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+	id="4ec62c250e080625f83e65f5564eb05e"
+	title="Signs a Symbol transaction."
+	name="py:SymbolFacade.sign_transaction"
+	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.sign_transaction">SymbolFacade.sign_transaction</a></code></label><input type="radio" name="rGroup1002" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	id="41d55e4d03cc6d50e5202b663acf021a"
+	title="Signs a Symbol transaction."
+	name="js:SymbolFacade.signTransaction"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#signtransaction">SymbolFacade.signTransaction</a></code></label></span><br/><span markdown class="dylink"><input type="radio" name="rGroup1003" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+	id="8d0b55f11c97a9bdf7ec3be609b054e7"
+	title="Attaches a signature to a transaction."
+	name="py:TransactionFactory.attach_signature"
+	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.attach_signature">TransactionFactory.attach_signature</a></code></label><input type="radio" name="rGroup1003" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	id="f8002f5da7a24aa72996fdae4249c4a8"
+	title="Attaches a signature to a transaction."
+	name="js:SymbolTransactionFactory.attachSignature"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#attachsignature">SymbolTransactionFactory.attachSignature</a></code></label></span></td>
+</tr>
+<tr>
+<td><a href="#announcing-the-transaction">Announce the transaction</a></td>
+<td><a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
+</tr>
+<tr>
+<td><a href="#waiting-for-confirmation">Wait for confirmation</a></td>
+<td><a href="/symbol/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+</tr>
+</tbody>
+</table>
 <p>Other transaction types follow the same general process.</p>
 
 
@@ -9145,7 +9198,7 @@ You should see the transaction move through the confirmation process in real tim
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 15, 2025</span>
   </span>
 
     
@@ -9208,7 +9261,7 @@ You should see the transaction move through the confirmation process in real tim
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -9224,8 +9277,8 @@ You should see the transaction move through the confirmation process in real tim
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

@@ -7412,7 +7412,7 @@
 <h1 id="secretlocktransactionv1descriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Secret<wbr>Lock<wbr>Transaction<wbr>V1Descriptor<a class="headerlink" href="#secretlocktransactionv1descriptor" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="b310d516ecffd31125890315a40349d2">SecretLockTransactionV1Descriptor</a> 
+	<a id="3b5d2baf85284080615a5e22a2d0d4b9">SecretLockTransactionV1Descriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for SecretLockTransactionV1Descriptor.</dd>
 </p>
@@ -7514,7 +7514,7 @@ The default expiration date is <strong>365 days</strong> after announcement (See
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="319ebbd822f6fc1b80b66edefc6773d5">SecretLockTransactionV1Descriptor.toMap</a> 
+	<a id="9cca9b51b8dba5414630e6f811f670e3">SecretLockTransactionV1Descriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -7563,7 +7563,7 @@ The default expiration date is <strong>365 days</strong> after announcement (See
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7579,8 +7579,8 @@ The default expiration date is <strong>365 days</strong> after announcement (See
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

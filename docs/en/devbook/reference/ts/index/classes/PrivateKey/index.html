@@ -7867,6 +7867,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -8018,7 +8039,7 @@
 <h1 id="privatekey"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Private<wbr>Key<a class="headerlink" href="#privatekey" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="80e33a190fe177058d437a8e41df79e0">PrivateKey</a> 
+	<a id="2ff86f0647c0bbbee7a8122d1d05a2ee">PrivateKey</a> 
 </dt>
 <dd>Represents a private key.</dd>
 </p>
@@ -8094,7 +8115,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="7fb645c6e8bbed9b6ec4bcb282404a15">PrivateKey.toJson</a> 
+	<a id="9f640e54387a645c31934b9c8ed3d54c">PrivateKey.toJson</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -8110,7 +8131,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="b2fda8c9535b2f216de3338bb0963bec">PrivateKey.toString</a> 
+	<a id="29ade904925e1161ef44e72fbad21f97">PrivateKey.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -8126,7 +8147,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="34d2749422691ba2c7d0a5d3762c9dab">PrivateKey.random</a> 
+	<a id="dfb922538a6c92b0aece3165145bd112">PrivateKey.random</a> 
 </dt>
 <dd>Creates a random private key.</dd>
 </p>
@@ -8175,7 +8196,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8191,8 +8212,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

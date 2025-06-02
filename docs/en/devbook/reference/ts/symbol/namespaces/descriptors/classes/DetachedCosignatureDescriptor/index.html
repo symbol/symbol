@@ -7842,6 +7842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7966,7 +7987,7 @@
 <h1 id="detachedcosignaturedescriptor"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Detached<wbr>Cosignature<wbr>Descriptor<a class="headerlink" href="#detachedcosignaturedescriptor" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="9c87207ddc9d1cafabbd094a8a2757f3">DetachedCosignatureDescriptor</a> 
+	<a id="eab48a053eda2d4fd0cce0632ccebe7f">DetachedCosignatureDescriptor</a> 
 </dt>
 <dd>Type safe descriptor used to generate a descriptor map for DetachedCosignatureDescriptor.</dd>
 </p>
@@ -8052,7 +8073,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="7bc813645c831f1da7cfb3c12a765515">DetachedCosignatureDescriptor.toMap</a> 
+	<a id="20a192767df67ff76a78ffa0caa481bd">DetachedCosignatureDescriptor.toMap</a> 
 </dt>
 <dd>Builds a representation of this descriptor that can be passed to a factory function.</dd>
 </p>
@@ -8101,7 +8122,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8117,8 +8138,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

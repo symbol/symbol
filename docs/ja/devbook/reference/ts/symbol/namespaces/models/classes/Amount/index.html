@@ -7502,7 +7502,7 @@
 <h1 id="amount"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Amount<a class="headerlink" href="#amount" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="34f50d048399141887c4592fd3c71adc">Amount</a> 
+	<a id="7c25f8dcb5c3a9eab992e314b9de2c33">Amount</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -7588,7 +7588,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="1edf9dec3b5140a96ffd0cc33f6bc085">Amount.serialize</a> 
+	<a id="5a36aca8b5769a3f0d01978365e71070">Amount.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7604,7 +7604,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="e513a51a787c10b882b4ece9f4b11ec7">Amount.toString</a> 
+	<a id="95f9f0a5e7122fe898cec61debfce01e">Amount.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -7697,7 +7697,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7713,8 +7713,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

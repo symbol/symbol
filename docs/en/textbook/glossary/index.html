@@ -11,7 +11,7 @@
         <link rel="canonical" href="http://symbol.github.io/symbol/en/textbook/glossary/">
       
       
-        <link rel="prev" href="../accounts/">
+        <link rel="prev" href="../transactions/">
       
       
       
@@ -7730,6 +7730,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -7971,6 +7992,29 @@ This is important in case of <a class="mkdocs-ezglossary-link"
 	href="../../textbook/glossary/#522f44bf51a6b4a0e0b82678080223a6">DeFi</a> markets, where gains can be made from frontrunning.</dd>
 
 <dt>
+	<a id="324d411bac898bada46a58da52673ca1">Hardware wallet</a> 
+</dt>
+<dd>A device designed to store <a class="mkdocs-ezglossary-link"
+	id="b21315aa7d6f6627360d48c5bad0a72f"
+	title="A pair formed by a very long, secret random number (the private key) and a
+public number derived from it (the public key)."
+	name="_:Key Pair"
+	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a> and produce signatures with them.
+The keys are stored in an encrypted memory and never leave the device, so hardware wallets are deemed one of
+the most secure ways to access an account.
+They typically only provide signing functionality, so they must be paired with a software <a class="mkdocs-ezglossary-link"
+	id="2299625b245b71f85b182a731dbdb739"
+	title="An application used to manage Symbol accounts, initiate transactions and sign them."
+	name="_:Wallet"
+	href="../../textbook/accounts/#6dcb4862772a4786031897c88dd72ca4">wallet</a> or
+application that creates the <a class="mkdocs-ezglossary-link"
+	id="dd2ccd011d66e69e0e17108c25bad036"
+	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
+like moving funds from one account to another, or registering a new currency, for example."
+	name="_:Transaction"
+	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a> and announces them.</dd>
+
+<dt>
 	<a id="9f289c2daa647af1fec8728f4b1844db">HTLC</a> 
 </dt>
 <dd>Hashed Time-Lock Contract.</dd>
@@ -8010,7 +8054,8 @@ This is important in case of <a class="mkdocs-ezglossary-link"
 <dd>Miner-Extractable Value, or Maximal-Extractable Value, is the process of reorganizing transactions inside a block
 by miners, to gain <em>something</em>. Uses <a class="mkdocs-ezglossary-link"
 	id="d2c04ea31611042b6bd60d9700becce8"
-	title="To broadcast transactionA with slightly higher gas (or fees) than an already pending transactionB so that transactionA gets mined right before transactionB in the same block."
+	title="To broadcast transactionA with slightly higher gas (or fees) than an already pending transactionB so that transactionA gets mined right before transactionB in the same block.
+This is important in case of DeFi markets, where gains can be made from frontrunning."
 	name="_:Frontrunning"
 	href="../../textbook/glossary/#3455a9f142c3d27320a3f727b5e1162a">Frontrunning</a>, <a class="mkdocs-ezglossary-link"
 	id="744654dbe4071d0d367b469ff5371c1b"
@@ -8018,7 +8063,9 @@ by miners, to gain <em>something</em>. Uses <a class="mkdocs-ezglossary-link"
 	name="_:Backrunning"
 	href="../../textbook/glossary/#47ebe342cf3b83edbd2ed7d32299f75a">Backrunning</a>, or <a class="mkdocs-ezglossary-link"
 	id="06e723bab9af9a7b14621f48b522f1e7"
-	title="A type of MEV technique that is popular in DeFi."
+	title="A type of MEV technique that is popular in DeFi.
+To make a sandwich, you find a pending transaction in the network and then try to surround it by placing one order
+just before the transaction (frontrunning) and one order just after it (backrunning)."
 	name="_:Sandwich"
 	href="../../textbook/glossary/#d9d145670d761e3dc33aaddaa142f704">Sandwich</a>.</dd>
 
@@ -8068,7 +8115,8 @@ First launched on March 31, 2015.</dd>
 <dd>Proof of Importance.
 The consensus protocol used by <a class="mkdocs-ezglossary-link"
 	id="9eaeef7c28ddd15befd07bf291664bf0"
-	title="The first version of NEM's blockchain node that operates the public mainnet with the native currency XEM."
+	title="The first version of NEM's blockchain node that operates the public mainnet with the native currency XEM.
+First launched on March 31, 2015."
 	name="_:NIS1"
 	href="../../textbook/glossary/#c685286be4ab81b20d2ed2cce97c1cc6">NIS1</a>. Similar to <a class="mkdocs-ezglossary-link"
 	id="1f2fe4de64a32a07b781a1a34f31a1c5"
@@ -8112,7 +8160,8 @@ The chance that accounts will have to harvest a block is calculated through thei
 </dt>
 <dd>A type of <a class="mkdocs-ezglossary-link"
 	id="74b7354c4d3e61a75375c004bd9da76d"
-	title="Miner-Extractable Value, or Maximal-Extractable Value, is the process of reorganizing transactions inside a block"
+	title="Miner-Extractable Value, or Maximal-Extractable Value, is the process of reorganizing transactions inside a block
+by miners, to gain something. Uses Frontrunning, Backrunning, or Sandwich."
 	name="_:MEV"
 	href="../../textbook/glossary/#3e4ecdfe3ea2f0e310464d35c0bcae42">MEV</a> technique that is popular in <a class="mkdocs-ezglossary-link"
 	id="bfcd2f2bfe799324240aae276b160628"
@@ -8122,7 +8171,8 @@ The chance that accounts will have to harvest a block is calculated through thei
 To make a sandwich, you find a pending transaction in the network and then try to surround it by placing one order
 <em>just</em> before the transaction (<a class="mkdocs-ezglossary-link"
 	id="d2c04ea31611042b6bd60d9700becce8"
-	title="To broadcast transactionA with slightly higher gas (or fees) than an already pending transactionB so that transactionA gets mined right before transactionB in the same block."
+	title="To broadcast transactionA with slightly higher gas (or fees) than an already pending transactionB so that transactionA gets mined right before transactionB in the same block.
+This is important in case of DeFi markets, where gains can be made from frontrunning."
 	name="_:Frontrunning"
 	href="../../textbook/glossary/#3455a9f142c3d27320a3f727b5e1162a">Frontrunning</a>) and one order just after it (<a class="mkdocs-ezglossary-link"
 	id="744654dbe4071d0d367b469ff5371c1b"
@@ -8197,7 +8247,8 @@ a conventional physical machine.</dd>
 </dt>
 <dd>The native currency of the <a class="mkdocs-ezglossary-link"
 	id="2a201e3759b4a802ebc25936cfd35e5b"
-	title="The first version of NEM's blockchain node that operates the public mainnet with the native currency XEM."
+	title="The first version of NEM's blockchain node that operates the public mainnet with the native currency XEM.
+First launched on March 31, 2015."
 	name="_:NIS1"
 	href="../../textbook/glossary/#c685286be4ab81b20d2ed2cce97c1cc6">NIS1</a> blockchain.</dd>
 
@@ -8229,7 +8280,7 @@ a conventional physical machine.</dd>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 30, 2025</span>
   </span>
 
     
@@ -8292,7 +8343,7 @@ a conventional physical machine.</dd>
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8308,8 +8359,8 @@ a conventional physical machine.</dd>
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

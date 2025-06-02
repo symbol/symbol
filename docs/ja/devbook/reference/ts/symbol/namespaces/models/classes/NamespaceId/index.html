@@ -7502,7 +7502,7 @@
 <h1 id="namespaceid"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Namespace<wbr>Id<a class="headerlink" href="#namespaceid" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="93173d922c0bc75f61095d68063b70bb">NamespaceId</a> 
+	<a id="63fd91edad9ab662b557b3b143b74a5a">NamespaceId</a> 
 </dt>
 <dd>Represents a base integer.</dd>
 </p>
@@ -7588,7 +7588,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="10c3d51feaa1eb43996ddc197edb51cb">NamespaceId.serialize</a> 
+	<a id="19b54f2adac90c4eaf87de5754e77dae">NamespaceId.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7604,7 +7604,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="2f473d2cf4338e32d7d0c90622869f9d">NamespaceId.toString</a> 
+	<a id="7792ca630bab5cc42f9a25a180b17e0d">NamespaceId.toString</a> 
 </dt>
 <dd>Converts base value to string.</dd>
 </p>
@@ -7697,7 +7697,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7713,8 +7713,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

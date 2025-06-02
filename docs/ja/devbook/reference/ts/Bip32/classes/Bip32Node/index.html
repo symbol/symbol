@@ -7428,7 +7428,7 @@
 <h1 id="bip32node"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Bip32Node<a class="headerlink" href="#bip32node" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="957d0ed168cca32629f8dcbe9cd5bb83">Bip32Node</a> 
+	<a id="b1de2fbed3b2f0b16e5e90e28413def2">Bip32Node</a> 
 </dt>
 <dd>Representation of a BIP32 node.</dd>
 </p>
@@ -7490,7 +7490,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="4097214211dc4d2fdca3bb287ab49811">Bip32Node.deriveOne</a> 
+	<a id="8d2648e4e5d2746562c3df67876483db">Bip32Node.deriveOne</a> 
 </dt>
 <dd>Derives a direct child node with specified identifier.</dd>
 </p>
@@ -7521,7 +7521,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="9305a6e40d685b1a2a797d8dfbc02876">Bip32Node.derivePath</a> 
+	<a id="fa0ccb2c0fbe232e75f21e47630e13b6">Bip32Node.derivePath</a> 
 </dt>
 <dd>Derives a descendent node with specified path.</dd>
 </p>
@@ -7587,7 +7587,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7603,8 +7603,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

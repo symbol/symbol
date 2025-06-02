@@ -7368,7 +7368,9 @@
 
 
 <h2 id="symbolchain.BaseValue.BaseValue" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>BaseValue</code>
+	<a id=BaseValue></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>BaseValue</code>
+
 
 
 <a href="#symbolchain.BaseValue.BaseValue" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -7379,11 +7381,10 @@
               Bases: <code><span title="symbolchain.Ordered.Ordered">Ordered</span></code></p>
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="2ca5343fb36b7a0298f098366939b537">symbolchain.BaseValue.BaseValue</a> 
+	<a id="76cda535710fe7a85c28e25271564716">BaseValue</a> 
 </dt>
-<dd>
-        <p>Represents a base int.</p>
-	</dd>
+<dd>        <p>Represents a base int.</p>
+</dd>
 </dl>
 
 
@@ -7409,18 +7410,19 @@
 
 
 <h3 id="symbolchain.BaseValue.BaseValue.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+	<a id=BaseValue.__init__></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
 
 <a href="#symbolchain.BaseValue.BaseValue.__init__" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="ce3852471341711c2a552afe4bf5dff2">symbolchain.BaseValue.BaseValue.__init__</a> 
+	<a id="160568b2c6f044cf879ee9763748c0a5">BaseValue.__init__</a> 
 </dt>
-<dd>
-        <p>Creates a base value.</p>
-	</dd>
+<dd>        <p>Creates a base value.</p>
+</dd>
 </dl>
 
 
@@ -7432,18 +7434,19 @@
 
 
 <h3 id="symbolchain.BaseValue.BaseValue.to_json" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">to_json</span><span class="p">()</span></code>
+	<a id=BaseValue.to_json></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">to_json</span><span class="p">()</span></code>
+
 
 <a href="#symbolchain.BaseValue.BaseValue.to_json" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 
 
     <div class="doc doc-contents ">
 	<dl class="automatic-reference-term"><dt>
-	<a id="2c1e4f24f1eec3062a501194df4406c7">symbolchain.BaseValue.BaseValue.to_json</a> 
+	<a id="2b6385776eeb3aa5fea5bceb197322ad">BaseValue.to_json</a> 
 </dt>
-<dd>
-        <p>Returns representation of this object that can be stored in JSON.</p>
-	</dd>
+<dd>        <p>Returns representation of this object that can be stored in JSON.</p>
+</dd>
 </dl>
 
 
@@ -7508,7 +7511,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7524,8 +7527,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

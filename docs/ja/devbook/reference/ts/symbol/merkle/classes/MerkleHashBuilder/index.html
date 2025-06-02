@@ -7412,7 +7412,7 @@
 <h1 id="merklehashbuilder"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Merkle<wbr>Hash<wbr>Builder<a class="headerlink" href="#merklehashbuilder" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="facd6dfc0a9d2ba644f03890015d7b2d">MerkleHashBuilder</a> 
+	<a id="1ba2a686ee720511d42a6a0938e05630">MerkleHashBuilder</a> 
 </dt>
 <dd>Builder for creating a merkle hash.</dd>
 </p>
@@ -7429,7 +7429,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="da8abf6addf5c127b9349f7d534b6de1">MerkleHashBuilder.final</a> 
+	<a id="a2615b34c2481290c11862e097f0c546">MerkleHashBuilder.final</a> 
 </dt>
 <dd>Calculates the merkle hash.</dd>
 </p>
@@ -7443,7 +7443,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="4ad0d1cd5b18cbad176674ed6419e7d0">MerkleHashBuilder.update</a> 
+	<a id="ef187283c590d6387fbda73f1bc53a20">MerkleHashBuilder.update</a> 
 </dt>
 <dd>Adds a hash to the merkle hash.</dd>
 </p>
@@ -7508,7 +7508,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7524,8 +7524,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

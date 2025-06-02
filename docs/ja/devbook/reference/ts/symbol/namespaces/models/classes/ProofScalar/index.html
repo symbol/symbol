@@ -7532,7 +7532,7 @@
 <h1 id="proofscalar"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Proof<wbr>Scalar<a class="headerlink" href="#proofscalar" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="293e0b11c38394950074154620d10b46">ProofScalar</a> 
+	<a id="f9e330e80bc3bbcb64a78f29c90dff3f">ProofScalar</a> 
 </dt>
 <dd>Represents a fixed size byte array.</dd>
 </p>
@@ -7618,7 +7618,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="ad320f0591ab8252bb1124b4a6f65d07">ProofScalar.serialize</a> 
+	<a id="db990816b7b21e102e4eddf64fbf3e4d">ProofScalar.serialize</a> 
 </dt>
 <dd>Returns representation of this object that can be stored in JSON.</dd>
 </p>
@@ -7634,7 +7634,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="dca75cad7879b88dc5c46cf5ff413119">ProofScalar.toString</a> 
+	<a id="0da43efa1aa25a6a9c2d66e0347684c4">ProofScalar.toString</a> 
 </dt>
 <dd>Returns string representation of this object.</dd>
 </p>
@@ -7706,7 +7706,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7722,8 +7722,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

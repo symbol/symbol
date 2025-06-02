@@ -7428,7 +7428,7 @@
 <h1 id="bip32"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Bip32<a class="headerlink" href="#bip32" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="b95931afddde066f3ba65b93ce542d89">Bip32</a> 
+	<a id="27abed6ff7dd3a10031a8bb696ad6ba2">Bip32</a> 
 </dt>
 <dd>Factory of BIP32 root nodes.</dd>
 </p>
@@ -7468,7 +7468,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="439b6e07035755562f39a78607764708">Bip32.fromMnemonic</a> 
+	<a id="6a0e962e6212ed44b6798763ca63d680">Bip32.fromMnemonic</a> 
 </dt>
 <dd>Creates a BIP32 root node from a BIP39 mnemonic and password.</dd>
 </p>
@@ -7504,7 +7504,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="a8659912138c91afce07c9c84e2706fb">Bip32.fromSeed</a> 
+	<a id="000e5543728479d44e4084e2b69320e8">Bip32.fromSeed</a> 
 </dt>
 <dd>Creates a BIP32 root node from a seed.</dd>
 </p>
@@ -7535,7 +7535,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="2366d49d5e1d1c014d65a06687647ee3">Bip32.random</a> 
+	<a id="1ff6c65f32906b3bf8a5bf098131e10f">Bip32.random</a> 
 </dt>
 <dd>Creates a random BIP32 mnemonic.</dd>
 </p>
@@ -7601,7 +7601,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7617,8 +7617,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

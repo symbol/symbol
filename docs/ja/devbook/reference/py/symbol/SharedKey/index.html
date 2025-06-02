@@ -7352,7 +7352,9 @@
 
 
 <h2 id="symbolchain.symbol.SharedKey.SharedKey" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>SharedKey</code>
+	<a id=SharedKey></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>SharedKey</code>
+
 
 
 <a href="#symbolchain.symbol.SharedKey.SharedKey" class="headerlink" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -7363,10 +7365,9 @@
               Bases: <code><span title="symbolchain.SharedKey.SharedKey">SharedKey</span></code></p>
 
 	<dl class="automatic-reference-term"><dt>
-	<a id="3b2a870a8fa08780915622cf85c138b9">symbolchain.symbol.SharedKey.SharedKey</a> 
+	<a id="47d95b8cca04214ee971633f134c2641">SharedKey</a> 
 </dt>
-<dd>	</dd>
-</dl>
+<dd></dd></dl>
 
 
 
@@ -7391,7 +7392,9 @@
 
 
 <h3 id="symbolchain.symbol.SharedKey.SharedKey.derive_shared_key" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">derive_shared_key</span><span class="p">(</span><span class="n">key_pair</span><span class="p">,</span> <span class="n">other_public_key</span><span class="p">)</span></code>
+	<a id=SharedKey.derive_shared_key></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">derive_shared_key</span><span class="p">(</span><span class="n">key_pair</span><span class="p">,</span> <span class="n">other_public_key</span><span class="p">)</span></code>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -7401,12 +7404,9 @@
 
 
     <div class="doc doc-contents ">
-	<dl class="automatic-reference-term"><dt>
-	<a id="00bc7854a55a86a4e85320f441ace46e">symbolchain.symbol.SharedKey.SharedKey.derive_shared_key</a> 
-</dt>
-<dd>
+	<dl class="automatic-reference-term"><dt>py:SharedKey.derive_shared_key</dt><dd>
         <p>Derives shared encryption key from private key and public key.</p>
-	</dd>
+</dd>
 </dl>
 
 
@@ -7471,7 +7471,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -7487,8 +7487,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})

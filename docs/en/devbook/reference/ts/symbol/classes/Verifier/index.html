@@ -7840,6 +7840,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../../../textbook/transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../../../textbook/glossary/" class="md-nav__link">
         
   
@@ -7964,7 +7985,7 @@
 <h1 id="verifier"><code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> Verifier<a class="headerlink" href="#verifier" title="Anchor link to this section for reference">⚓︎</a></h1>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="a0eeaaf7a18bde14f9acc4e85a310727">Verifier</a> 
+	<a id="243d279351797730dcaf6e7d3dbe4e58">Verifier</a> 
 </dt>
 <dd>Verifies signatures signed by a single key pair.</dd>
 </p>
@@ -8016,7 +8037,7 @@
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <p><dt>
-	<a id="1de909f1a6cf7a9cafafec2dc5b9b0c1">Verifier.verify</a> 
+	<a id="17a828853934b1e45964168654b9483e">Verifier.verify</a> 
 </dt>
 <dd>Verifies a message signature.</dd>
 </p>
@@ -8087,7 +8108,7 @@
 				for (var tab of tabs)
 					for (var label of labels)
 						if (label.htmlFor === tab) {
-							var input = document.getElementById(label.htmlFor)
+							var input = set.querySelector(`#${label.htmlFor}`)
 							input.checked = true
 							continue main2
 						}
@@ -8103,8 +8124,8 @@
 								dylink_options = document.getElementsByClassName("dylink-option");
 								for (var dylink_option of dylink_options) {
 										if (dylink_option.htmlFor === tab_name) {
-												radio = document.getElementById(dylink_option.htmlFor);
-												radio.checked = true;
+												document.querySelectorAll(`#${dylink_option.htmlFor}`).forEach(
+													radio => radio.checked = true);
 										}
 								}
 						})
