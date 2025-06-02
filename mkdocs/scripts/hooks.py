@@ -106,9 +106,9 @@ def page_markdown_dylinks(content, page, config, files):
 	def method_formatter(m):
 		nonlocal rgroup_id
 		r = '<span markdown class="dylink">'
-		class_name = m.group(1)
-		method_name = m.group(2)
 		for ndx, l in enumerate(langs):
+			class_name = m.group(1)
+			method_name = m.group(2)
 			if l == 'py':
 				if class_name in class_remaps:
 					class_name = class_remaps[class_name]
