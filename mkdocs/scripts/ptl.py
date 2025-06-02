@@ -3,8 +3,12 @@
 # Takes a hierarchy of tasks with statuses, and calculates the completion
 # percentage of each task. Useful to generate plots.
 #
-# Download the task list database from Notion as a CSV file called filtered.csv,
-# then run this script.
+# 1. Download the task list database from Notion as a CSV file called all.csv,
+# 2. Import to Google sheet called `Task list progress`, on tab Raw.
+# 3. Export tab Filtered to filtered.csv
+#    Fields must be: Name, Status, Label, ID, Parent ID
+# 4. Run this script
+# 5. Copy stdout to the `Task list chart.ods` to generate plot.
 
 import math
 import pandas as pd
@@ -25,7 +29,7 @@ def iterate_count(id):
 
 def iterate_print(id, indent):
 	if id in ch:
-		print("->" * indent, names[id], ",", percentage[id])
+		print("--" * (indent - 1) + ("->" if indent > 0 else ""), names[id], ",", percentage[id])
 		for c in ch[id]:
 			iterate_print(c, indent + 1)
 
