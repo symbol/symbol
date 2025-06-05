@@ -6,7 +6,7 @@ The Symbol Improvement Proposals (SIPs) repository is the place where community 
 
 To submit a new proposal, use the following template:
 
-- [SIP Template](SIPs/template.md)
+- [SIP Template](template.md)
 
 ## 🗂️ Active SIPs
 
