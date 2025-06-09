@@ -78,7 +78,7 @@ Maintainer->>GitHub: Update SIP status
 - **Final**: Deployed to mainnet.
 
 
-## Citation
+## Citations
 
 - [Bitcoin Improvement Proposals (BIPs)](https://github.com/bitcoin/bips)
 - [Ethereum Improvement Proposals (EIPs)](https://github.com/ethereum/EIPs)
