@@ -51,7 +51,7 @@ Maintainer->>GitHub: Update SIP status
 
 1. Proposer comes up with an idea and discusses it in a public channel (Discord, Twitter, etc).
 
-2. When the idea is mature, the proposer requests a SIP number from a relevant maintainer.
+2. When the proposer considers the idea to be mature enough, they requests a SIP number from a relevant maintainer.
 
 3. The maintainer assigns a SIP number and creates the corresponding GitHub issue.
 
