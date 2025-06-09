@@ -1,12 +1,12 @@
 ---
-sip: 1
-title: SIP Process and Guidelines
-author: Team TSS
-discussions-to: N/A
-status: Draft
-category: Informational
-created: 2018-Jun-4
-maintainer: Team TSS
+Sip: 1
+Title: SIP Process and Guidelines
+Author: Team TSS
+Discussions-to: N/A
+Status: Draft
+Category: Informational
+Created: 2025-Jun-4
+Maintainer: Team TSS
 ---
 
 # SIP-1: SIP Process and Guidelines
@@ -15,11 +15,11 @@ maintainer: Team TSS
 
 This document establishes the Symbol Improvement Proposal (SIP) process. It defines how proposals are created, reviewed, and accepted, and includes roles, categories, status flows, and templates to guide authors, maintainers, and the broader community.
 
-## Current
+## Current Situation
 
 Currently, there is no standardized process for proposing changes to Symbol. As a result, community members often find it difficult to contribute ideas or understand how proposals are reviewed and adopted.
 
-## Suggested
+## Proposed Changes
 
 - Establish a standardized SIP process and markdown template.
 - Define clear roles and responsibilities for authors and maintainers.
@@ -41,12 +41,12 @@ participant Discord/Twitter
 participant Maintainer
 participant GitHub
 
-Proposer->>Discord/Twitter: Discuss idea with the community
-Proposer->>Maintainer: Request SIP number
-Maintainer->>GitHub: Create SIP issue
-Proposer->>GitHub: Submit SIP PR
-Maintainer->>GitHub: Review PR and provide feedback
-Maintainer->>GitHub: Update SIP status
+Proposer->>Discord/Twitter: 1. Discuss idea with the community
+Proposer->>Maintainer: 2. Request SIP number
+Maintainer->>GitHub: 3. Create SIP issue
+Proposer->>GitHub: 4. Submit SIP PR
+Maintainer->>GitHub: 5. Review PR and provide feedback
+Maintainer->>GitHub: 6. Update SIP status
 ```
 
 1. Proposer comes up with an idea and discusses it in a public channel (Discord, Twitter, etc).
@@ -57,14 +57,16 @@ Maintainer->>GitHub: Update SIP status
 
 4. The proposer writes the SIP and submits a pull request.
 
-5. The maintainer reviews the submission, provides feedback, and updates the SIP status as needed.
+5. The maintainer reviews the submission and provides feedback.
+
+6. The maintainer updates the SIP status as needed.
 
 ### SIP Categories
 - **Core**: Protocol-level changes requiring forks.
 - **Networking**: Node configuration or networking behavior.
 - **Interface**: API (e.g., REST) or SDK-level changes.
 - **Library**: Updates to client libraries (npm, Python, etc.).
-- **Application**: Application behavior or integration patterns.
+- **Application**: Application related changes (Explorer, wallet, etc.).
 - **Informational**: Non-binding proposals or documentation guidelines.
 
 ### SIP Statuses

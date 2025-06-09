@@ -1,13 +1,13 @@
----
-sip: [Number of the SIP assigned by maintainer]
-title: [short title name]
-author: [name of the author]
-discussions-to: [link to the discussion, e.g., GitHub issue]
-status: [Draft | Review | Accepted | Rejected | Withdrawn | Implemented | Staging | Final]
-category: [Core | Networking | Interface | Library | Application | Informational]
-created: [YYYY-MM-DD]
-maintainer: [name of the maintainer, if different from author]
----
+| Field              | Description                                                                             |
+|--------------------|-----------------------------------------------------------------------------------------|
+| **Sip**            | Number of the SIP assigned by maintainer                                                |
+| **Title**          | Short title name                                                                        |
+| **Author**         | Name of the authors                                                                     |
+| **Discussions-to** | Link to the discussion, e.g., GitHub issue                                              |
+| **Status**         | Draft \| Review \| Accepted \| Rejected \| Withdrawn \| Implemented \| Staging \| Final |
+| **Category**       | Core \| Networking \| Interface \| Library \| Application \| Informational              |
+| **Created**        | YYYY-MM-DD                                                                              |
+| **Maintainer**     | Name of the maintainer, if different from author                                        |
 
 # SIP-X: [Short Title Here]
 
@@ -15,17 +15,17 @@ maintainer: [name of the maintainer, if different from author]
 
 Short summary of the proposal.
 
-## Current
+## Current Situation
 
 Describe the current situation or behavior that needs improvement.
 
-## Suggested
+## Proposed Changes
 
-Describe the proposed change.
+Describe the proposed changes.
 
 ## Rationale
 
-Explain why the change is needed and beneficial.
+Explain why the changes are needed and beneficial.
 
 ## Implementation
 
@@ -35,6 +35,6 @@ Outline how to carry out the suggestion.
 
 Describe the expected effects and compatibility.
 
-## Citation (Optional)
+## Citations (Optional)
 
 List any references or external sources.
