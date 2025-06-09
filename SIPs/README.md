@@ -8,8 +8,8 @@ To submit a new proposal, use the following template:
 
 - [SIP Template](template.md)
 
-## 🗂️ Active SIPs
+## 🗂️ SIPs
 
-| Number | Category      | Title                       | Author    | Status |
-|--------|---------------|-----------------------------|-----------|--------|
+| Number        | Category      | Title                      | Author   | Status |
+|---------------|---------------|----------------------------|----------|--------|
 | [1](sip-1.md) | Informational | SIP Process and Guidelines | Team TSS | Draft  |
