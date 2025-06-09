@@ -1,6 +1,6 @@
 # Symbol Improvement Proposals (SIPs)
 
-The Symbol Improvement Proposals (SIPs) repository is the place where community members can propose, discuss, and document changes or enhancements to the Symbol.
+The Symbol Improvement Proposals (SIPs) repository is the place where community members can propose, discuss, and document changes or enhancements to the Symbol project.
 
 ## 📄 SIP Template
 
