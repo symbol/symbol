@@ -49,7 +49,7 @@ Maintainer->>GitHub: Review PR and provide feedback
 Maintainer->>GitHub: Update SIP status
 ```
 
-1. Proposer come with idea discuss the idea in discord / twitter.The proposer discusses their idea in public channels (Discord, Twitter, etc).
+1. Proposer comes up with an idea and discusses it in a public channel (Discord, Twitter, etc).
 
 2. When the idea is mature, the proposer requests a SIP number from a relevant maintainer.
 
