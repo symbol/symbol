@@ -69,15 +69,36 @@ Maintainer->>GitHub: 6. Update SIP status
 - **Application**: Application related changes (Explorer, wallet, etc.).
 - **Informational**: Non-binding proposals or documentation guidelines.
 
+### SIP Statuses Workflow
+
+```mermaid
+stateDiagram-v2
+
+[*] --> Draft
+
+Draft --> Review: Proposer marks as ready
+Review --> Accepted: Maintainer approves
+Review --> Rejected: Maintainer declines
+Review --> Withdrawn: Proposer withdraws
+
+Accepted --> Implemented: Maintainer updates status
+Implemented --> Staging: Maintainer deploys to testnet and updates status
+Staging --> Final: Maintainer deploys to mainnet and updates status
+
+Withdrawn --> [*]
+Rejected --> [*]
+Final --> [*]
+```
+
 ### SIP Statuses
-- **Draft**: Initial version under development.
-- **Review**: Open for review by maintainers and the community.
-- **Accepted**: Approved and planned for implementation.
-- **Rejected**: Declined by maintainers or community consensus.
-- **Withdrawn**: The author has withdrawn the proposal.
-- **Implemented**: Implemented in code.
-- **Staging**: Deployed to testnet.
-- **Final**: Deployed to mainnet.
+- **Draft**: Initial version under development. The proposer is still working on the proposal and nobody else is expected to contribute. The proposer will change the status to Review when ready.
+- **Review**: Open for review by maintainers and the community. Anybody can contribute. A maintainer will change the status to Accepted or Rejected when a decision is made. The proposer can also set the status to Withdrawn at any point.
+- **Accepted**: Approved by the maintainers and planned for future implementation.
+- **Rejected**: Declined by maintainers or community consensus. The proposal will not be pursued further.
+- **Withdrawn**: The proposer has withdrawn the proposal. It's no longer under consideration.
+- **Implemented**: The proposal has been fully implemented in code and is ready for deployment in testnet environment. The maintainer will update the status to Implemented.
+- **Staging**: The proposal has been deployed to testnet for live testing. The maintainer will update the status to Staging.
+- **Final**: The proposal has been successfully deployed to mainnet. The maintainer will update the status to Final.
 
 
 ## Citations
