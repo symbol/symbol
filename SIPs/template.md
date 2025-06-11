@@ -1,6 +1,6 @@
 | Field              | Description                                                                             |
 |--------------------|-----------------------------------------------------------------------------------------|
-| **Sip**            | Number of the SIP assigned by maintainer                                                |
+| **SIP**            | Number of the SIP assigned by maintainer                                                |
 | **Title**          | Short title name                                                                        |
 | **Author**         | Name of the authors                                                                     |
 | **Discussions-to** | Link to the discussion, e.g., GitHub issue                                              |
