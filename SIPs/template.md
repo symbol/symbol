@@ -35,6 +35,6 @@ Outline how to carry out the suggestion.
 
 Describe the expected effects and compatibility.
 
-## Citations (Optional)
+## References (Optional)
 
 List any references or external sources.

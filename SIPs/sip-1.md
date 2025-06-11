@@ -101,7 +101,7 @@ Final --> [*]
 - **Final**: The proposal has been successfully deployed to mainnet. The maintainer will update the status to Final.
 
 
-## Citations
+## References
 
 - [Bitcoin Improvement Proposals (BIPs)](https://github.com/bitcoin/bips)
 - [Ethereum Improvement Proposals (EIPs)](https://github.com/ethereum/EIPs)
