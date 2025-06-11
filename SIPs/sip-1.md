@@ -1,5 +1,5 @@
 ---
-Sip: 1
+SIP: 1
 Title: SIP Process and Guidelines
 Author: Team TSS
 Discussions-to: N/A
