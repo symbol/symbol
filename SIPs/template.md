@@ -2,12 +2,14 @@
 |--------------------|-----------------------------------------------------------------------------------------|
 | **SIP**            | Number of the SIP assigned by maintainer                                                |
 | **Title**          | Short title name                                                                        |
-| **Author**         | Name of the authors                                                                     |
+| **Author**         | List of author names with optional contact info (Email, Twitter or Discord)             |
 | **Discussions-to** | Link to the discussion, e.g., GitHub issue                                              |
 | **Status**         | Draft \| Review \| Accepted \| Rejected \| Withdrawn \| Implemented \| Staging \| Final |
 | **Category**       | Core \| Networking \| Interface \| Library \| Application \| Informational              |
 | **Created**        | YYYY-MM-DD                                                                              |
-| **Maintainer**     | Name of the maintainer, if different from author                                        |
+| **Maintainer**     | List of maintainers with optional contact info (Email, Twitter or Discord)              |
+
+> **Note:** All fields are required.
 
 # SIP-X: [Short Title Here]
 
