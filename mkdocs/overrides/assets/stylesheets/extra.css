@@ -526,8 +526,18 @@ code.doc-symbol-interface::after {
 	stroke: var(--md-primary-fg-color--light);
 }
 
-/* Tables customization */
+/* General tables customization */
 .md-typeset table:not([class]) th {
 	color: var(--md-primary-fg-color--light);
 	background: var(--md-accent-fg-color--transparent);
+}
+
+/* Tables with subsections */
+.md-typeset .subsections table td:not(:has(strong)):first-child {
+	padding-left: 2rem;
+	border-style: hidden;
+}
+
+.md-typeset .subsections table td:not(:has(strong)):first-child+td {
+	border-style: hidden;
 }
