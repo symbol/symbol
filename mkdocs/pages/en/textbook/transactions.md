@@ -4,14 +4,14 @@ Transaction
 :   A transaction represents an action or group of actions to perform on the Symbol blockchain,
     like moving funds from one <account:> to another, or registering a new currency, for example.
 
-These actions are expressed in a signed message which needs to be announced to the network.
+These actions are expressed in a signed message, which is then announced to the network.
 Nodes in the network then validate it and, if it is accepted, the transaction gets included in a block and
 changes the state of the blockchain.
 
 ## Fundamental Transaction Types
 
-Symbol supports two core transaction types: basic and aggregate, with the latter further divided into
-complete and bonded variants.
+Symbol supports two core transaction types: basic and aggregate.
+Aggregate transactions are further divided into complete and bonded variants.
 
 ```dot
 digraph "Fundamental Transaction Types" {
@@ -37,15 +37,15 @@ Basic Transaction
 :   A basic <transaction:> represents a single action, initiated by a single account,
     requiring only that account's <signature:>.
 
-Transferring funds out of an account or registering a new namespace are basic transactions, for example.
+Examples include transferring funds from an account or registering a new namespace.
 
 ### Aggregate Transactions
 
 Aggregate Transaction
-:   Aggregate transactions group multiple basic transactions together and execute them atomically:
-    either all of the <embedded transactions:> are accepted or none is.
+:   Aggregate transactions group multiple basic transactions and execute them atomically:
+    all <embedded transactions:> are accepted or none are.
 
-They are initiated by a single account, but require signatures from every involved account.
+They are initiated by a single account, but might require signatures from other involved accounts.
 
 Cosignature
 :   When a transaction requires multiple signatures, they are called cosignatures.
@@ -56,15 +56,10 @@ between multiple accounts, without requiring trust between them.
 !!! tip "Aggregate Transaction Example"
 
     Accounts A and B want to exchange assets, so two transfer transactions are required.
-    But they do not trust each other, so neither wants to be the first one to announce their transaction, and risk
-    the other party not fulfilling their part.
+    But they do not trust each other, so neither wants to be the first to announce their transaction and
+    risk the other party failing to fulfill their part.
 
-    By wrapping both transactions in an aggregate:
-
-    * Both parties can review the whole exchange before signing it.
-    * They can be sure that both transactions will be executed, or none of them will be.
-    * They can be sure that none of the transactions will be modified after the signature.
-    * It does not matter who announces the aggregate transaction.
+    A solution which does not require trust in each other is to wrap both transactions in an aggregate:
 
     ```dot
     digraph {
@@ -93,6 +88,12 @@ between multiple accounts, without requiring trust between them.
     }
     ```
 
+    * Both parties can review the whole exchange before signing it.
+    * No transaction will be processed until both parties have signed the aggregate.
+    * They can be sure that both transactions will be executed, or none of them will be.
+    * They can be sure that none of the transactions will be modified after the signature.
+    * It does not matter which party announces the aggregate transaction.
+
 Depending on whether an aggregate transaction has all the required signatures when it is announced to the network,
 two different transaction types are considered: complete and bonded.
 
@@ -102,7 +103,7 @@ Complete Aggregate Transaction
 :   An <aggregate transaction:> submitted to the network with all required <cosignatures:> already attached.
     Nodes can therefore proceed to validation and include the transaction in a block immediately.
 
-This transaction type requires that cosignatures are collected off-chain.
+This transaction type requires that cosignatures are collected off-chain in advance.
 
 ### Bonded Aggregate Transactions
 
@@ -110,9 +111,11 @@ Bonded Aggregate Transaction
 :   An <aggregate transaction:> submitted to the network without all required <cosignatures:>.
     The network temporarily holds the transaction while waiting for the additional cosignatures.
 
-Using this type of transaction, all involved parties interact exclusively on-chain.
+    Also called partial transactions.
 
-Specific transaction types exist so the required accounts can submit the missing cosignatures.
+With this transaction type, all involved parties interact exclusively on-chain.
+
+The required accounts can submit the missing cosignatures to any node on the network using a specific API.
 
 Once the network receives all required cosignatures, the aggregate transaction continues processing.
 
@@ -127,7 +130,7 @@ Embedded Transaction
 
 Embedded transactions behave exactly like basic transactions, except for:
 
-* They are not signed individually.
+* They are not individually signed.
     Instead, the whole aggregate transaction is signed by every required account, and all the signatures are
     attached.
 
@@ -135,12 +138,20 @@ Embedded transactions behave exactly like basic transactions, except for:
     from that account is required.
 
 * They do not provide fee or deadline information.
-    Again, this is provided by the enclosing aggregate transaction.
+    This information is instead provided by the enclosing aggregate transaction.
 
 * Not all transaction types are allowed as embedded transactions.
     As an important example, aggregate transactions cannot be embedded within other aggregate transactions.
 
+!!! info
+    The Symbol main and test networks currently enforce the following limits:
+
+    * A maximum of **100 embedded transactions** per aggregate.
+    * A maximum of **25 cosignatures** per aggregate.
+
 ## Transaction Lifecycle
+
+Transactions follow the same general process as in other blockchains:
 
 ```dot
 digraph "Transaction Lifecycle" {
@@ -150,15 +161,15 @@ digraph "Transaction Lifecycle" {
     ranksep=0.3;
 
     // Main vertical flow
-    Creation     [label="Transaction is created and signed", URL="#1-creation-and-signature"];
-    Announcement [label="Transaction is announced", URL="#2-announcement"];
-    Validation   [label="Is it
+    Creation     [label="1. Transaction is created and signed", URL="#1-creation-and-signature"];
+    Announcement [label="2. Transaction is announced to a node", URL="#2-announcement"];
+    Validation   [label="3. Is it
 valid?", shape=diamond, style="", URL="#3-validation"];
-    Propagation  [label="Propagate to other nodes", URL="#4-propagation"];
-    Consensus    [label="Is there
+    Propagation  [label="4. Propagate to other nodes", URL="#4-propagation"];
+    Consensus    [label="5. Is there
 consensus?", shape=diamond, style="", URL="#5-consensus"];
-    Confirmation [label="Transaction is included in a new block", URL="#6-confirmation"];
-    Finalization [label="The block becomes immutable", URL="#7-finalization"];
+    Confirmation [label="6. Transaction is included in a new block", URL="#6-confirmation"];
+    Finalization [label="7. The block becomes immutable", URL="#7-finalization"];
 
     // Rejection branches
     Rejection1   [label="Rejected" style="rounded,dashed"];
@@ -182,7 +193,10 @@ consensus?", shape=diamond, style="", URL="#5-consensus"];
 }
 ```
 
-All transactions follow the same general lifecycle.
+<Bonded aggregate transactions:> differ slightly from the normal flow.
+Aggregate transactions missing cosignatures are temporarily stored in a _partial transactions cache_ on each node,
+and halt processing after step 2.
+When enough cosignatures have been collected these transactions become complete and resume processing from step 3.
 
 ### 1. Creation and signature
 
@@ -190,8 +204,8 @@ A software client, typically an app, creates the transaction and fills in all it
 For example, a transfer transaction requires the source <account:>, destination account, and amount.
 
 This step also involves collecting all required signatures.
-For a transfer transaction, only the source account's signature is required, but more complex transactions might
-require multiple signatures.
+For a transfer transaction, only the source account's signature is required.
+More complex transactions, such as <aggregate transactions:>, may require multiple signatures.
 
 Each signature is typically provided by a <wallet:>.
 Signatures prove that all required parties have authorized the transaction, since only the holder of an account's
@@ -199,17 +213,19 @@ Signatures prove that all required parties have authorized the transaction, sinc
 
 ### 2. Announcement
 
-The application connects to one of the API nodes in the network and submits the transaction.
+The client application submits the transaction to a connected API node on the network.
 
 ### 3. Validation
 
 The node checks that the transaction is well-formed and includes all required, valid signatures.
+For <bonded aggregate transactions:>, signature checks are delayed until all signatures are received.
+
 Some transaction types require additional semantic checks.
 For example, a transfer transaction verifies that the source account has enough funds.
 
 For the complete list of checks see [Validation Details](#validation-details) below.
 
-If any of these checks fail, the transaction is rejected and the process stops.
+If any of these checks fail, the transaction is rejected and not propagated further.
 If all checks pass, the process continues.
 
 ### 4. Propagation
@@ -225,11 +241,11 @@ This process ensures that a broad portion of the network knows about the transac
 ### 5. Consensus
 
 Each node has an importance score based on its staked funds and other factors.
-This score is used as a weight when evaluating the node's vote on a transaction's validity.
+This score is used as a weight in the node's vote during the consensus process.
 
 The consensus algorithm collects votes from nodes until a predefined threshold is reached.
 If the threshold is reached, the transaction is confirmed.
-If not, it remains in this stage until it eventually expires and is rejected.
+If not, the transaction remains in this stage until its deadline expires, at which point it is rejected.
 
 ### 6. Confirmation
 
@@ -240,10 +256,10 @@ transactions reverted.
 This can occur when a large number of previously disconnected nodes rejoin the network and override decisions made
 on transactions confirmed during the disconnection.
 
-A common solution is to wait for several additional blocks after a transaction is confirmed.
+A common solution is for applications to wait for several additional blocks after a transaction is confirmed.
 Each new block adds another layer of confirmation, increasing confidence that the transaction will not be reverted.
 
-On Symbol, however, an additional mechanism guarantees that confirmed transactions cannot be reverted.
+On Symbol, however, an additional mechanism provides final guarantees that confirmed transactions cannot be reverted.
 
 ### 7. Finalization
 
@@ -257,39 +273,74 @@ By waiting for finalization, applications can be certain the transactions they s
 
 All transaction types in Symbol share a set of common attributes:
 
-| Attribute             | Description                                                                               |
-| --------------------- | ----------------------------------------------------------------------------------------- |
-| **Signer public key** | Identifies the account initiating the transaction.                                        |
-| **Signature**         | A cryptographic proof that the signer authorized the transaction.                         |
-| **Deadline**          | A network timestamp after which the transaction expires.                                  |
-| **Max fee**           | The maximum fee the signer is willing to pay to have the transaction included in a block. |
-| **Type**              | Transaction type, which determines which additional attributes, if any, are present.      |
+| Attribute             | Description                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------- |
+| **Signer public key** | Public key of the account that created and signed the transaction.                    |
+| **Signature**         | Cryptographic proof that the signer authorized the transaction and its content.       |
+| **Deadline**          | Timestamp indicating when the transaction expires if not confirmed.                   |
+| **Max fee**           | Maximum fee the signer is willing to pay to have the transaction included in a block. |
+| **Type**              | Transaction type, which determines which additional attributes, if any, are present.  |
 
 ## Validation Details
 
-All nodes in the network independently perform the following checks before accepting a transaction:
+Before a transaction is included in a block, each node independently validates it using the following checks:
 
-* **Signature verification**: Ensures the signer approves the transaction, and the data has not been tampered with.
-* **Fee sufficiency**: Verifies that the provided fee meets the node's minimum requirement and that
-    the signer has sufficient funds.
-* **Deadline check**: Rejects transactions whose deadline has already passed.
-* **Semantic checks**: Validates that the transaction is logically correct based on its type.
-    For example, in a transfer transaction, the sender must own enough of the specified mosaics to cover both
-    the transferred amount and the associated fee.
+| **Check**           | **Description**                                                                                     |
+| ------------------- | --------------------------------------------------------------------------------------------------- |
+| **Signature check** | Verifies the signature is valid and matches the signer's public key and the transaction's contents. |
+| **Fee check**       | Confirms the max fee meets the node's minimum threshold and that the signer has sufficient balance. |
+| **Deadline check**  | Discards the transaction if its deadline has already passed.                                        |
+| **Semantic checks** | Validates that the transaction is logically correct based on its type. Example: a transfer transaction fails if the sender lacks sufficient funds. |
 
-Invalid transactions are discarded and not propagated further through the network.
+Transactions that fail any of these checks are rejected and not propagated further.
 
-## Types of Transactions
+## Supported Transaction Types
 
-Symbol supports multiple transaction types, each tailored to a specific kind of operation.
-These are built on top of the common structure and include additional fields as needed.
+Symbol supports a wide range of transaction types, each tailored to a specific kind of operation.
+All transaction types share the same [common structure](#common-transaction-structure) and follow the same processing
+and validation steps, but differ in purpose and required fields.
 
-Examples include:
+<div class="subsections" markdown>
 
-* **Transfer transactions**: Used to send mosaics and messages between accounts.
-* **Aggregate transactions**: Combine multiple transactions into one, enabling atomic execution.
-* **Namespace registrations**: Reserve human-readable names on the blockchain.
+| **Transaction Type**                | **Description**                                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Transfer Transactions**           |                                                                                                   |
+| `Transfer`                          | Send mosaics and optional messages between two accounts.                                          |
+| **<Aggregate Transactions:>**       |                                                                                                   |
+| `Aggregate Complete`                | Send transactions in batches to different accounts.                                               |
+| `Aggregate Bonded`                  | Propose an arrangement of transactions between different accounts.                                |
+| `Hash Lock`                         | Lock a deposit needed to announce a <bonded aggregate transaction:>.                              |
+| [**Finalization**](#7-finalization) |                                                                                                   |
+| `Voting Key Link`                   | Link an account with a <BLS:> public key required for finalization voting.                        |
+| **Harvesting**                      |                                                                                                   |
+| `Account Key Link`                  | This transaction is required for all accounts wanting to activate remote or delegated harvesting. |
+| `Node Key Link`                     | This transaction is required for all accounts willing to activate delegated harvesting.           |
+| `Vrf Key Link`                      | Link an account with a VRF public key required for harvesting.                                    |
+| **Locks**                           |                                                                                                   |
+| `Secret Lock`                       | Start a token swap between different chains.                                                      |
+| `Secret Proof`                      | Conclude a token swap between different chains.                                                   |
+| **Metadata**                        |                                                                                                   |
+| `Account Metadata`                  | Associate a key-value state (metadata) to an account.                                             |
+| `Mosaic Metadata`                   | Associate a key-value state (metadata) to a mosaic.                                               |
+| `Namespace Metadata`                | Associate a key-value state (metadata) to a namespace.                                            |
+| **Mosaics**                         |                                                                                                   |
+| `Mosaic Definition`                 | Create a new  mosaic.                                                                             |
+| `Mosaic Supply Change`              | Change the total supply of a mosaic.                                                              |
+| `Mosaic Supply Revocation`          | Revoke mosaic.                                                                                    |
+| **Multisig**                        |                                                                                                   |
+| `Multisig Account Modification`     | Create or modify a multi-signature account.                                                       |
+| **Namespaces**                      |                                                                                                   |
+| `Namespace Registration`            | Register (or renew a registration for) a namespace.                                               |
+| `Address Alias`                     | Attach or detach a namespace (alias) to an account address.                                       |
+| `Mosaic Alias`                      | Attach or detach a namespace to a Mosaic.                                                         |
+| **Restrictions**                    |                                                                                                   |
+| `Account Address Restriction`       | Allow or block incoming and outgoing transactions for a given a set of addresses.                 |
+| `Account Mosaic Restriction`        | Allow or block incoming transactions containing a given set of mosaics.                           |
+| `Account Operation Restriction`     | Allow or block outgoing transactions depending on their transaction type.                         |
+| `Mosaic Address Restriction`        | Set address specific rules to transfer a restrictable mosaic.                                     |
+| `Mosaic Global Restriction`         | Set global rules to transfer a restrictable mosaic.                                               |
 
-All transaction types inherit the same processing flow and validation steps, but vary in intent and data structure.
+</div>
 
-More transaction types can be added via plugins.
+More transaction types can be introduced via plugins.
+However, all nodes must support the same plugin set to maintain consensus across the network.
