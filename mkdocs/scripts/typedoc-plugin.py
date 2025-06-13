@@ -18,7 +18,7 @@ log: logging.Logger = logging.getLogger("mkdocs")
 def on_files(files, config):
 	plugin_config = config["extra"]["symbol"]["ts-sdk"]
 	# Check if the Typedoc generation is enabled
-	if not plugin_config["enabled"]:
+	if plugin_config["disabled"]:
 		return files
 
 	# Path to the typedoc.json options file
