@@ -146,7 +146,7 @@ extra:
       output_dir: devbook/reference/ts
       tsconfig: ../sdk/javascript/tsconfig/check-bindings.json
       options: ../sdk/javascript/docs/typedoc.json
-      enabled: false
+      disabled: !ENV [SYMBOL_DOCS_DISABLE_TS, false]
     class-remaps:
       SymbolTransactionFactory: TransactionFactory
 copyright: >
