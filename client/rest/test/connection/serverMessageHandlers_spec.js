@@ -183,7 +183,7 @@ describe('server message handlers', () => {
 					version: 1,
 					network: 152,
 					type: 17229,
-					fee: '18370164183782063840',
+					maxFee: '18370164183782063840',
 					deadline: '8207562320463688160',
 					sourceAddress: '989059321905F681BCF47EA33BBF5E6F8298B5440854FDED',
 					mosaicId: '95442763262823',

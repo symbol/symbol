@@ -68,12 +68,12 @@
     "url": "~0.11.3",
     "webpack": "~5.99.5",
     "webpack-cli": "~6.0.1",
-    "yargs": "~17.7.2"
+    "yargs": "~18.0.0"
   },
   "dependencies": {
     "@noble/hashes": "~1.8.0",
     "@types/node": "^22.10.5",
-    "bitcore-mnemonic": "~10.9.0",
+    "bitcore-mnemonic": "~11.0.0",
     "ripemd160": "~2.0.2"
   },
   "files": [
