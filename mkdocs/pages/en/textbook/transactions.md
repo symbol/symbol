@@ -305,8 +305,8 @@ and validation steps, but differ in purpose and required fields.
 | **Transaction Type**                | **Description**                                                                                   |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------- |
 | **Transfer Transactions**           |                                                                                                   |
-| `Transfer`                          | Send mosaics and optional messages between two accounts.                                          |
-| **<Aggregate Transactions:>**       |                                                                                                   |
+| `Transfer`                          | Send <mosaics:> and optional messages between two <accounts:>.                                    |
+| **[Aggregate Transactions](default:aggregate transaction)** |                                                                           |
 | `Aggregate Complete`                | Send transactions in batches to different accounts.                                               |
 | `Aggregate Bonded`                  | Propose an arrangement of transactions between different accounts.                                |
 | `Hash Lock`                         | Lock a deposit needed to announce a <bonded aggregate transaction:>.                              |
@@ -323,7 +323,7 @@ and validation steps, but differ in purpose and required fields.
 | `Account Metadata`                  | Associate a key-value state (metadata) to an account.                                             |
 | `Mosaic Metadata`                   | Associate a key-value state (metadata) to a mosaic.                                               |
 | `Namespace Metadata`                | Associate a key-value state (metadata) to a namespace.                                            |
-| **Mosaics**                         |                                                                                                   |
+| **[Mosaics](default:mosaic)**       |                                                                                                   |
 | `Mosaic Definition`                 | Create a new  mosaic.                                                                             |
 | `Mosaic Supply Change`              | Change the total supply of a mosaic.                                                              |
 | `Mosaic Supply Revocation`          | Revoke mosaic.                                                                                    |
@@ -332,7 +332,7 @@ and validation steps, but differ in purpose and required fields.
 | **Namespaces**                      |                                                                                                   |
 | `Namespace Registration`            | Register (or renew a registration for) a namespace.                                               |
 | `Address Alias`                     | Attach or detach a namespace (alias) to an account address.                                       |
-| `Mosaic Alias`                      | Attach or detach a namespace to a Mosaic.                                                         |
+| `Mosaic Alias`                      | Attach or detach a namespace to a mosaic.                                                         |
 | **Restrictions**                    |                                                                                                   |
 | `Account Address Restriction`       | Allow or block incoming and outgoing transactions for a given a set of addresses.                 |
 | `Account Mosaic Restriction`        | Allow or block incoming transactions containing a given set of mosaics.                           |

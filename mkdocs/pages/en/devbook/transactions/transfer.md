@@ -5,7 +5,7 @@ title: Transfer
 # Creating a Transfer Transaction
 
 Transfer transactions are the most basic type of Symbol transaction.
-They allow sending <XYM:> or any other type of mosaic from one <account:> to another, optionally including a message.
+They allow sending <XYM:> or any other type of <mosaic:> from one <account:> to another, optionally including a message.
 
 This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status
 until it is confirmed.  
@@ -124,15 +124,15 @@ The snippet includes the following fields:
     which is useful for demonstration but not terribly practical.
 
 * **Mosaics**: This is an array, because a transfer transaction can send multiple mosaics at once.
-    Each entry includes a mosaic ID and an absolute amount.
+    Each entry includes a <mosaic ID:> and an amount.
 
     In the example, the mosaic ID for <XYM:> is obtained using its alias, `symbol.xym`, which is easier to remember
     than the full hexadecimal ID.
 
-    Absolute amounts depend on the mosaic's divisibility.
+    Amounts are expressed in atomic units, which depend on the mosaic's <divisibility:>.
     For XYM, the divisibility is 6, so 1 XYM must be expressed as `1_000_000`.
 
-Note that the fee field is not set in the descriptor.
+Note that the `fee` field is not set in the descriptor.
 Instead, the fee is calculated after the transaction is built, using the previously obtained multiplier and the
 transaction's size in bytes, which is only known once the descriptor has been constructed.
 

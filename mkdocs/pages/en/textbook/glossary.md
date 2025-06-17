@@ -120,8 +120,6 @@ NEM
 
 NFT
 :   A non-fungible <token:>, a way to represent individual entities as a blockchain-based asset.
-    Coins are fungible, because they are all worth the same and can therefore be interchanged.
-    Paintings are non-fungible, because each one is unique and therefore non-interchangeable.
 
 NIS1
 :   The first version of <NEM:>'s blockchain node that operates the public mainnet with the native currency <XEM:>.
@@ -172,7 +170,7 @@ TLS
 :   Security protocol used to encrypting communication between peers on a network.
 
 Token
-:   A representation of a digital asset.
+:   A representation of a digital asset. On Symbol they are called <mosaics:>.
 
 TPS
 :   Transactions Per Second.
