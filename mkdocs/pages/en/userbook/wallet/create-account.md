@@ -69,4 +69,4 @@ single <paper wallet:>.
 You can now:
 
 * Share the new account’s address to receive funds.
-* Use the account to send transactions or interact with Symbol features like mosaics and namespaces.
+* Use the account to send <transactions:> or interact with Symbol features like <mosaics:> and namespaces.

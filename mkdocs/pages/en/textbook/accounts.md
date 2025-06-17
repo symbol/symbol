@@ -27,7 +27,7 @@ Restriction
 Account restrictions can be of three types:
 
 * **Address restrictions**: Block or allow transactions from specific <addresses:>.
-* **Mosaic restrictions**: Block or allow transactions involving certain mosaics.
+* **Mosaic restrictions**: Block or allow transactions involving certain <mosaics:>.
 * **Operation restrictions**: Block or allow specific transaction types (e.g. transfers, metadata updates).
 
 Restrictions help prevent spam, misconfiguration, and unauthorized access.
@@ -97,7 +97,7 @@ Symbol uses the [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.me
 ## Metadata
 
 Metadata
-:   Structured data attached an <account:> or to other blockchain entities like mosaics and namespaces.
+:   Structured data attached an <account:> or to other blockchain entities like <mosaics:> and namespaces.
 
 Metadata on Symbol consists of key–value pairs and is stored on-chain.
 
