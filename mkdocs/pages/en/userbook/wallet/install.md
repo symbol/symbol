@@ -7,7 +7,7 @@ title: Installing the Wallet
 ## What Is It
 
 The Symbol Desktop Wallet is a graphical application used to interact with the Symbol blockchain.
-It allows users to manage multiple <account:|accounts>, send and receive transactions, sign <Multisignature Account:|multisig> operations, view metadata, and more.
+It allows users to manage multiple <accounts:>, send and receive transactions, sign <Multisignature Account:|multisig> operations, view metadata, and more.
 
 There are two versions of the wallet:
 
