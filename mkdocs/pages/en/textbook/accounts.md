@@ -1,7 +1,7 @@
 # Accounts
 
 Account
-:   A secure place where digital assets like cryptocurrencies or <NFT:|NFTs> can be stored.
+:   A secure place where digital assets like cryptocurrencies or <NFTs:> can be stored.
     It functions similarly to a safe deposit box in traditional banking.
 
 In the case of blockchain, accounts are secured by a <key pair:>: assets can only be **transferred out** of an account
