@@ -1,7 +1,7 @@
 # Deleting a Profile
 
 This page explains how to permanently delete a <profile:> from the Symbol Desktop Wallet.  
-This action removes access to all <account:|accounts> managed by that profile on this device.
+This action removes access to all <accounts:> managed by that profile on this device.
 
 !!! note
     You are only deleting **your access** to the accounts.  

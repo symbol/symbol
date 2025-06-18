@@ -10,7 +10,7 @@ If you have a backup of a previous profile and want to restore it, follow the [I
 ## What Is a Profile
 
 Profile
-:   A password-protected container that stores multiple <account:|accounts> on a given device,
+:   A password-protected container that stores multiple <accounts:> on a given device,
     similar to how profiles work in a browser or operating system.
 
 The Symbol Desktop Wallet is an <HD Wallet:>, which means it can generate multiple accounts from a single <mnemonic phrase:>.  
