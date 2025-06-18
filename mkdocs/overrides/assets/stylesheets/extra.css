@@ -501,7 +501,10 @@ code.doc-symbol-interface::after {
 	fill: var(--md-default-fg-color--light);
 }
 
-.graphviz .edge path,
+.graphviz .edge path {
+	stroke: var(--md-primary-fg-color--light);
+}
+
 .graphviz .edge polygon {
 	stroke: var(--md-primary-fg-color--light);
 	fill: var(--md-primary-fg-color--light);
