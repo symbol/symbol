@@ -9,7 +9,7 @@ Paper Wallet
 :   A printable document containing information to restore a wallet profile and all its accounts.
 
     The information is intended to be printed on paper and may include QR codes, <key pair:|private keys>,
-    <mnemonic phrase:|mnemonic phrases>, or all of them.
+    <mnemonic phrases:>, or all of them.
 
     Paper wallets are less convenient than digital backups because the information must be entered manually.  
     However, they are more secure because they are not stored or accessed online.
