@@ -66,7 +66,7 @@ If a duration is provided, the maximum allowed value in Symbol is 10 years (3650
     Mosaic duration cannot be extended after creation.
     Before creating an expiring mosaic, consider whether your use case truly requires it to expire.
 
-    This behavior is different from that of namespaces, which can be renewed.
+    This behavior is different from that of <namespaces:>, which can be renewed.
 
 ### Transferability
 
@@ -111,7 +111,7 @@ Mosaic ID
 For example, **XYM**, the native network currency on Symbol, has the mosaic ID `0x6BED913FA20223F8` on mainnet.
 
 To make mosaics easier to reference, especially in user interfaces,
-a human-readable _namespace_ can be linked to the mosaic.
+a human-readable <namespace:> can be linked to the mosaic.
 This works like an internet domain name: instead of referencing the raw mosaic ID,
 users can refer to the mosaic by name, such as `symbol.xym`.
 
