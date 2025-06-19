@@ -37,7 +37,7 @@ Basic Transaction
 :   A basic <transaction:> represents a single action, initiated by a single account,
     requiring only that account's <signature:>.
 
-Examples include transferring funds from an account or registering a new namespace.
+Examples include transferring funds from an account or registering a new <namespace:>.
 
 ### Aggregate Transactions
 
@@ -329,7 +329,7 @@ and validation steps, but differ in purpose and required fields.
 | `Mosaic Supply Revocation`          | Revoke mosaic.                                                                                    |
 | **Multisig**                        |                                                                                                   |
 | `Multisig Account Modification`     | Create or modify a multi-signature account.                                                       |
-| **Namespaces**                      |                                                                                                   |
+| **[Namespaces](default:namespace)** |                                                                                                   |
 | `Namespace Registration`            | Register (or renew a registration for) a namespace.                                               |
 | `Address Alias`                     | Attach or detach a namespace (alias) to an account address.                                       |
 | `Mosaic Alias`                      | Attach or detach a namespace to a mosaic.                                                         |
