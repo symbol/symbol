@@ -55,7 +55,7 @@ between multiple accounts, without requiring trust between them.
 
 !!! tip "Aggregate Transaction Example"
 
-    Accounts A and B want to exchange assets, so two transfer transactions are required.
+    Accounts A and B want to exchange assets, so two <transfer transactions:> are required.
     But they do not trust each other, so neither wants to be the first to announce their transaction and
     risk the other party failing to fulfill their part.
 
@@ -304,7 +304,7 @@ and validation steps, but differ in purpose and required fields.
 
 | **Transaction Type**                | **Description**                                                                                   |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Transfer Transactions**           |                                                                                                   |
+| **[Transfer Transactions](default:transfer transaction)** |                                                                             |
 | `Transfer`                          | Send <mosaics:> and optional messages between two <accounts:>.                                    |
 | **[Aggregate Transactions](default:aggregate transaction)** |                                                                           |
 | `Aggregate Complete`                | Send transactions in batches to different accounts.                                               |
