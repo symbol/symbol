@@ -97,7 +97,7 @@ Symbol uses the [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.me
 ## Metadata
 
 Metadata
-:   Structured data attached an <account:> or to other blockchain entities like <mosaics:> and namespaces.
+:   Structured data attached an <account:> or to other blockchain entities like <mosaics:> and <namespaces:>.
 
 Metadata on Symbol consists of key–value pairs and is stored on-chain.
 
