@@ -39,7 +39,7 @@ a transfer transaction contains the following attributes:
 | ------------------------------- | ------------------------------------------------------ |
 | **Recipient's address**         | Address or namespace alias identifying the recipient.  |
 | **List of transferred mosaics** | Zero or more mosaics to transfer.                      |
-| **Optional message**            | Plaintext or encrypted message, up to 1023 characters. |
+| **Optional message**            | Plaintext or encrypted message, up to 1024 characters. |
 
 ### Recipient's Address
 
@@ -51,11 +51,11 @@ The recipient can be specified as an <address:> or a <namespace:> alias.
     This behavior is normal and supported,
     but care must be taken to ensure the recipient controls the destination address,
     because if no one has the <key pair:|private key> corresponding to it,
-    the transferred mosaics will most probably be permanently locked.
+    the transferred mosaics will be permanently locked.
 
 ### List of Transferred Mosaics
 
-This list includes the <mosaic ID:> and number of units for each transferred mosaic.
+This list includes the <mosaic ID:> (or <namespace:> alias) and number of units for each transferred mosaic.
 
 Naturally, the sender must own enough units of each mosaic, or the transaction will be rejected.
 
@@ -63,10 +63,7 @@ The list may also be empty, allowing messages to be sent without transferring an
 
 ### Optional Message
 
-A message of up to 1023 characters may be included in the transaction.
-
-It can be either plaintext (unencrypted) or encrypted with the recipient's public key,
-so that only the recipient can decrypt it.
+A message of up to 1024 characters may be included in the transaction.
 
 The Symbol protocol does not define a standard encoding for messages.
 It is up to the sender and recipient to agree on a format or encoding scheme (e.g., UTF-8, JSON, hex).
@@ -74,10 +71,16 @@ By convention, most wallets and applications assume UTF-8 encoding.
 
 !!! note "Encryption Convention"
 
-    Likewise, the Symbol protocol does not define a standard for encryption.
-    This feature is supported by the [Symbol Desktop Wallet](../userbook/wallet/install.md),
-    the [Symbol Explorer](https://symbol.fyi), and many other applications through the following **convention**:
+    In order to support encryption, applications built on top of Symbol developed a _convention_ in which
+    the first byte of the message indicates whether the rest is encrypted or not:
 
-    * If the first byte in the message is `0x00`, the following bytes contain an unencrypted message.
+    * If the first byte is `0x00`, the following bytes contain an unencrypted message.
     * If the first byte is `0x01`, the following bytes contain a message encrypted using
-        Bouncy Castle's AES block cipher in [CBC mode](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC).
+        Bouncy Castle's AES block cipher in [CBC mode](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC)
+        and the recipient's public key, so that only the recipient can decrypt it.
+
+    Note that this prefix byte reduces the maximum message length to 1023 bytes.
+
+    This convention is supported by the [Symbol Desktop Wallet](../userbook/wallet/install.md),
+    the [Symbol Explorer](https://symbol.fyi), and many other applications,
+    but it is not part of the Symbol protocol itself.
