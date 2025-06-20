@@ -35,11 +35,11 @@ enabling both asset transfers and simple communication.
 Besides the [common transaction structure](./transactions.md#common-transaction-structure),
 a transfer transaction contains the following attributes:
 
-| Attribute                       | Description                                            |
-| ------------------------------- | ------------------------------------------------------ |
-| **Recipient's address**         | Address or namespace alias identifying the recipient.  |
-| **List of transferred mosaics** | Zero or more mosaics to transfer.                      |
-| **Optional message**            | Plaintext or encrypted message, up to 1024 characters. |
+| Attribute                       | Description                                           |
+| ------------------------------- | ----------------------------------------------------- |
+| **Recipient's address**         | Address or namespace alias identifying the recipient. |
+| **List of transferred mosaics** | Zero or more mosaics to transfer.                     |
+| **Optional message**            | Plaintext or encrypted message, up to 1024 bytes.     |
 
 ### Recipient's Address
 
@@ -63,7 +63,7 @@ The list may also be empty, allowing messages to be sent without transferring an
 
 ### Optional Message
 
-A message of up to 1024 characters may be included in the transaction.
+A message of up to 1024 bytes may be included in the transaction.
 
 The Symbol protocol does not define a standard encoding for messages.
 It is up to the sender and recipient to agree on a format or encoding scheme (e.g., UTF-8, JSON, hex).
