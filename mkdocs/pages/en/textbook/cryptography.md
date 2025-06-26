@@ -2,6 +2,22 @@
 
 These are the basic cryptography concepts that underpin all of Symbol's technology.
 
+## Hashes
+
+Hash
+:   A cryptographic hash is a fixed-size string of characters produced by a mathematical function
+    (called a _hash function_) that maps input data of any size to a unique output.
+
+Several such functions exist, such as [SHA‑512](https://en.wikipedia.org/wiki/SHA-2) or
+[RIPEMD‑160](https://en.wikipedia.org/wiki/RIPEMD), but they all share the same essential properties:
+
+* **Determinism**: The same input always produces the same hash.
+* **Collision resistance**: It is extremely difficult to find two different inputs that produce the same hash.
+* **Irreversibility**: The original input cannot be reconstructed from the hash.
+
+These properties are critical for ensuring data integrity, verify authenticity,
+and linking <blocks:> together in a blockchain.
+
 ## Keys
 
 Key Pair
@@ -83,7 +99,7 @@ On Symbol, addresses are obtained from public keys by:
 1. Generating a 24-byte **raw address** by joining:
 
     * A network ID byte: `N` for Symbol's main network, or `T` for Symbol's test network.
-    * A 160-bit (20-byte) [RIPEMD‑160](https://en.wikipedia.org/wiki/RIPEMD) hash of the public key.
+    * A 160-bit (20-byte) [RIPEMD‑160](https://en.wikipedia.org/wiki/RIPEMD) <hash:> of the public key.
     * A 3-byte checksum to detect mistyped addresses.
 
     Example: `0x78,0xD0,0x44,0xED,0xC3,0xDC,0x8B,0x86...`
