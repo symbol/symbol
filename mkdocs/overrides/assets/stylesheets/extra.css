@@ -539,6 +539,7 @@ code.doc-symbol-interface::after {
 .md-typeset .subsections table td:not(:has(strong)):first-child {
 	padding-left: 2rem;
 	border-style: hidden;
+	white-space: nowrap;
 }
 
 .md-typeset .subsections table td:not(:has(strong)):first-child+td {

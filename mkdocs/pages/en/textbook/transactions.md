@@ -230,10 +230,14 @@ If all checks pass, the process continues.
 
 ### 4. Propagation
 
-Once the node considers the transaction to be valid, it is broadcast to the peer nodes in the network.
+Once the node considers the transaction to be valid, it is broadcast to the peer nodes in the network,
+and added to every node's  _unconfirmed pool_.
 
-Each receiving node performs the same validation:
-it checks the transaction's structure, signatures, and any conditions specific to its type.
+Unconfirmed pool
+:   A list of transactions pending validation, shared by all nodes in the network.
+
+Nodes pick up transactions from this pool and perform the same validation:
+they checks the transaction's structure, signatures, and any conditions specific to its type.
 If the transaction passes validation, it is further propagated to other peers.
 
 This process ensures that a broad portion of the network knows about the transaction and accepts it as valid.
@@ -245,16 +249,15 @@ This score is used as a weight in the node's vote during the consensus process.
 
 The consensus algorithm collects votes from nodes until a predefined threshold is reached.
 If the threshold is reached, the transaction is confirmed.
-If not, the transaction remains in this stage until its deadline expires, at which point it is rejected.
+If not, the transaction remains in the <unconfirmed pool:> until its deadline expires, at which point it is rejected.
 
 ### 6. Confirmation
 
-Once enough positive weighted votes are collected, the transaction is added to a block and considered confirmed.
+Once enough positive weighted votes are collected, the transaction is added to a <block:> and the block
+propagated to all other nodes.
 
-However, due to the distributed nature of the blockchain, blocks can occasionally be rolled back and confirmed
-transactions reverted.
-This can occur when a large number of previously disconnected nodes rejoin the network and override decisions made
-on transactions confirmed during the disconnection.
+However, due to the distributed nature of the blockchain, blocks can occasionally be <rollback:|rolled back> and
+confirmed transactions reverted.
 
 A common solution is for applications to wait for several additional blocks after a transaction is confirmed.
 Each new block adds another layer of confirmation, increasing confidence that the transaction will not be reverted.
@@ -263,11 +266,10 @@ On Symbol, however, an additional mechanism provides final guarantees that confi
 
 ### 7. Finalization
 
-Finalization is the process that makes blocks, and the transactions they contain, irreversible.
+<Finalization:> runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.
 
-It runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.
-
-By waiting for finalization, applications can be certain the transactions they submitted will not be reverted.
+By waiting for finalization, applications can be certain the transactions they submitted will not be reverted
+by <rollbacks:>.
 
 ## Common Transaction Structure
 
