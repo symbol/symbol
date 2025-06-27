@@ -41,7 +41,7 @@ Symbol uses key pairs in different places, for different purposes:
 
 * A **VRF Key** heightens the security of harvesting nodes.
 
-* A **Voting Key** is required for nodes participating in the finalization process.
+* A **Voting Key** is required for nodes participating in the <finalization:> process.
 
 * A **Transport Key** is used by nodes for secure transport over [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security).
 

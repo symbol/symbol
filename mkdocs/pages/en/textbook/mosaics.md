@@ -116,4 +116,4 @@ This works like an internet domain name: instead of referencing the raw mosaic I
 users can refer to the mosaic by name, such as `symbol.xym`.
 
 Namespaces are optional and can be reassigned or expire independently of the mosaic itself.
-See the documentation about namespaces for more information.
+See the documentation about <namespaces:> for more information.

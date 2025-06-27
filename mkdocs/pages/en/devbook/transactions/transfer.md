@@ -36,7 +36,7 @@ Deadlines are expressed in absolute network time, so the first step is to fetch 
 
 ??? info "What is the network time?"
     Symbol defines time as the number of seconds elapsed since the creation of its first block,
-    known as the Nemesis block (or Genesis block, for the rest of blockchains).
+    known as the <Nemesis block:> (or Genesis block, for the rest of blockchains).
 
     All transaction deadlines and timestamps are calculated relative to this origin.
 
