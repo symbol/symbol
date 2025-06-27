@@ -121,8 +121,8 @@ Multisig accounts are configured by:
 
     This is known as an **M-of-N** multisig, and can be configured differently depending on the type of operation to authorize:
 
-    * **Approval threshold**: number of required signatures to approve a regular transaction.
-    * **Removal threshold**: number of required signatures to remove cosignatories from the multisig.
+    * **Approval threshold**: Number of required signatures to approve a regular transaction.
+    * **Removal threshold**: Number of required signatures to remove cosignatories from the multisig.
 
 Example use cases:
 
