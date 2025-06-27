@@ -4,7 +4,7 @@ Namespace
 :   A human-readable text string that can be used in place of an <address:> or a <Mosaic ID:>.
 
 Namespaces make it easier to reference assets and accounts without relying on long, unreadable identifiers.
-They improve usability in wallets and block explorers by allowing meaningful names like `symbol.xym` or
+They improve usability in wallets and block explorers by allowing meaningful _aliases_ like `symbol.xym` or
 `my_company.main_account` to stand in for raw mosaic IDs or account addresses,
 making interactions clearer and less error-prone.
 
@@ -39,7 +39,7 @@ Once registered, a name cannot be changed.
 When a root namespace is created, it is leased for a fixed period, between 30 days and 5 years.
 During this time, the creator can perform operations such as:
 
-* Linking the namespace to a <mosaic:> or an <account:>, turning it into an _alias_ that is easier to reference.
+* Linking the namespace to a <mosaic:> or an <account:>, turning it into an alias that is easier to reference.
 * Creating subnamespaces under the root namespace.
 * Renewing the root namespace to extend its duration.
     Subnamespaces do not need to be renewed, as they have the same duration as their root namespace.
@@ -130,7 +130,7 @@ but it is of limited practical use unless linked.
     This feature offers flexibility, but should be used sparingly, as it can be confusing to users, especially when
     viewing historical transactions.
 
-    To help with this, every time a transaction using an alias is added to a block, a _resolution statement receipt_
+    To help with this, every time a transaction using an alias is added to a block, a _resolution statement <receipt:>_
     is recorded to indicate what the alias referred to at the time of the transaction.
 
     This allows wallets and block explorers to display the correct address or mosaic ID,

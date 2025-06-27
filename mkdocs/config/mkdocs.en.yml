@@ -86,4 +86,5 @@ nav:
       - textbook/transfer_transactions.md
       - textbook/mosaics.md
       - textbook/namespaces.md
+      - textbook/blocks.md
       - textbook/glossary.md
