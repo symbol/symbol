@@ -143,9 +143,6 @@ PoS+
 PoW
 :   Proof of Work. A consensus protocol, used, for example, by Bitcoin.
 
-Rollback
-:   The act of undoing a blockchain block that was previously confirmed, and reverting all its transactions.
-
 Rug Pull
 :   A malicious maneuver where cryptocurrency developers abandon a project and run off with the funds.
 
@@ -162,6 +159,11 @@ Sharding
 
 SXDH
 :   Symmetric External [Diffie-Hellman](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
+
+Sybil Attack
+:   An attack in which a single adversary creates many fake identities or accounts to gain disproportionate influence
+    over a network or consensus process.
+    Common countermeasures include <PoW:> or <PoS:>, which tie influence to scarce resources.
 
 TLC
 :   Tender Loving Care.
