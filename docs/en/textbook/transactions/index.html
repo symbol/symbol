@@ -14,7 +14,7 @@
         <link rel="prev" href="../accounts/">
       
       
-        <link rel="next" href="../mosaics/">
+        <link rel="next" href="../transfer_transactions/">
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
@@ -7963,6 +7963,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../transfer_transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transfer Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mosaics/" class="md-nav__link">
         
   
@@ -7989,6 +8010,27 @@
   
   <span class="md-ellipsis">
     Namespaces
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blocks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Blocks
   </span>
   
 
@@ -8289,7 +8331,11 @@ requiring only that account's <a class="mkdocs-ezglossary-link"
 	href="../../textbook/cryptography/#64c803c8046a084f159cb3fa471c7450">signature</a>.</dd>
 
 </dl>
-<p>Examples include transferring funds from an account or registering a new namespace.</p>
+<p>Examples include transferring funds from an account or registering a new <a class="mkdocs-ezglossary-link"
+	id="eab0d628ecafb9ac2e0dfd197a48fd89"
+	title="A human-readable text string that can be used in place of an address or a Mosaic ID."
+	name="_:Namespace"
+	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">namespace</a>.</p>
 <h3 id="aggregate-transactions">Aggregate Transactions<a class="headerlink" href="#aggregate-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <dl>
 <dt>
@@ -8315,7 +8361,11 @@ all <a class="mkdocs-ezglossary-link"
 between multiple accounts, without requiring trust between them.</p>
 <div class="admonition tip">
 <p class="admonition-title">Aggregate Transaction Example</p>
-<p>Accounts A and B want to exchange assets, so two transfer transactions are required.
+<p>Accounts A and B want to exchange assets, so two <a class="mkdocs-ezglossary-link"
+	id="3613d40b3a0ecc8393156a4fef770b96"
+	title="A transaction that allows sending mosaics and optional messages from one account to another."
+	name="_:Transfer Transaction"
+	href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">Transfer transactions</a> are required.
 But they do not trust each other, so neither wants to be the first to announce their transaction and
 risk the other party failing to fulfill their part.</p>
 <p>A solution which does not require trust in each other is to wrap both transactions in an aggregate:</p>
@@ -8467,9 +8517,17 @@ For example, a transfer transaction verifies that the source account has enough 
 <p>If any of these checks fail, the transaction is rejected and not propagated further.
 If all checks pass, the process continues.</p>
 <h3 id="4-propagation">4. Propagation<a class="headerlink" href="#4-propagation" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>Once the node considers the transaction to be valid, it is broadcast to the peer nodes in the network.</p>
-<p>Each receiving node performs the same validation:
-it checks the transaction's structure, signatures, and any conditions specific to its type.
+<p>Once the node considers the transaction to be valid, it is broadcast to the peer nodes in the network,
+and added to every node's  <em>unconfirmed pool</em>.</p>
+<dl>
+<dt>
+	<a id="90027de0459d0c0423628636c2148dc4">Unconfirmed pool</a> 
+</dt>
+<dd>A list of transactions pending validation, shared by all nodes in the network.</dd>
+
+</dl>
+<p>Nodes pick up transactions from this pool and perform the same validation:
+they checks the transaction's structure, signatures, and any conditions specific to its type.
 If the transaction passes validation, it is further propagated to other peers.</p>
 <p>This process ensures that a broad portion of the network knows about the transaction and accepts it as valid.</p>
 <h3 id="5-consensus">5. Consensus<a class="headerlink" href="#5-consensus" title="Anchor link to this section for reference">⚓︎</a></h3>
@@ -8477,20 +8535,42 @@ If the transaction passes validation, it is further propagated to other peers.</
 This score is used as a weight in the node's vote during the consensus process.</p>
 <p>The consensus algorithm collects votes from nodes until a predefined threshold is reached.
 If the threshold is reached, the transaction is confirmed.
-If not, the transaction remains in this stage until its deadline expires, at which point it is rejected.</p>
+If not, the transaction remains in the <a class="mkdocs-ezglossary-link"
+	id="e23e29d325adb0aa3786dbf3ddb23bda"
+	title="A list of transactions pending validation, shared by all nodes in the network."
+	name="_:Unconfirmed pool"
+	href="../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a> until its deadline expires, at which point it is rejected.</p>
 <h3 id="6-confirmation">6. Confirmation<a class="headerlink" href="#6-confirmation" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>Once enough positive weighted votes are collected, the transaction is added to a block and considered confirmed.</p>
-<p>However, due to the distributed nature of the blockchain, blocks can occasionally be rolled back and confirmed
-transactions reverted.
-This can occur when a large number of previously disconnected nodes rejoin the network and override decisions made
-on transactions confirmed during the disconnection.</p>
+<p>Once enough positive weighted votes are collected, the transaction is added to a <a class="mkdocs-ezglossary-link"
+	id="d3215f07de8793a79770896557d1b42a"
+	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
+	name="_:Block"
+	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">block</a> and the block
+propagated to all other nodes.</p>
+<p>However, due to the distributed nature of the blockchain, blocks can occasionally be <a class="mkdocs-ezglossary-link"
+	id="3043a48efcba823763eb106f49f36e52"
+	title="The process of discarding one or more recently added blocks when the network switches to a better chain,
+typically after a fork is resolved."
+	name="_:Rollback"
+	href="../../textbook/blocks/#fa68d384bf5dbf284e2a6a02fb2ef92d">rolled back</a> and
+confirmed transactions reverted.</p>
 <p>A common solution is for applications to wait for several additional blocks after a transaction is confirmed.
 Each new block adds another layer of confirmation, increasing confidence that the transaction will not be reverted.</p>
 <p>On Symbol, however, an additional mechanism provides final guarantees that confirmed transactions cannot be reverted.</p>
 <h3 id="7-finalization">7. Finalization<a class="headerlink" href="#7-finalization" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>Finalization is the process that makes blocks, and the transactions they contain, irreversible.</p>
-<p>It runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.</p>
-<p>By waiting for finalization, applications can be certain the transactions they submitted will not be reverted.</p>
+<p><a class="mkdocs-ezglossary-link"
+	id="0f0b38d9840b18bdf281b5122741cb81"
+	title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
+rollbacks."
+	name="_:Finalization"
+	href="../../textbook/blocks/#8fe31d7fd591e1fd0d06f55c2ea53850">finalization</a> runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.</p>
+<p>By waiting for finalization, applications can be certain the transactions they submitted will not be reverted
+by <a class="mkdocs-ezglossary-link"
+	id="c9a6dd0dbf7d58c7f633842a84af6f96"
+	title="The process of discarding one or more recently added blocks when the network switches to a better chain,
+typically after a fork is resolved."
+	name="_:Rollback"
+	href="../../textbook/blocks/#fa68d384bf5dbf284e2a6a02fb2ef92d">rollbacks</a>.</p>
 <h2 id="common-transaction-structure">Common Transaction Structure<a class="headerlink" href="#common-transaction-structure" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>All transaction types in Symbol share a set of common attributes:</p>
 <table>
@@ -8566,13 +8646,17 @@ and validation steps, but differ in purpose and required fields.</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>Transfer Transactions</strong></td>
+<td><strong><a class="mkdocs-ezglossary-link"
+	id="7fb427ced44571a90d36c315ce348921"
+	title="A transaction that allows sending mosaics and optional messages from one account to another."
+	name="_:Transfer Transaction"
+	href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">Transfer Transactions</a></strong></td>
 <td></td>
 </tr>
 <tr>
 <td><code>Transfer</code></td>
 <td>Send <a class="mkdocs-ezglossary-link"
-	id="004c6b63d35176aa39a8e19d3898bd14"
+	id="bed37825615796f46d5c49d21f0e7091"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8668,7 +8752,7 @@ Also called partial transactions."
 </tr>
 <tr>
 <td><strong><a class="mkdocs-ezglossary-link"
-	id="c090b494a1a5a29d8172252c262843bb"
+	id="c980f9a3362792417a56354c7f2dce5f"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8696,7 +8780,11 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <td>Create or modify a multi-signature account.</td>
 </tr>
 <tr>
-<td><strong>Namespaces</strong></td>
+<td><strong><a class="mkdocs-ezglossary-link"
+	id="04ebaa4a9d11d2409496f33a956d9e5b"
+	title="A human-readable text string that can be used in place of an address or a Mosaic ID."
+	name="_:Namespace"
+	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">Namespaces</a></strong></td>
 <td></td>
 </tr>
 <tr>
@@ -8762,7 +8850,7 @@ However, all nodes must support the same plugin set to maintain consensus across
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 17, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 27, 2025</span>
   </span>
 
     

@@ -14,7 +14,7 @@
         <link rel="prev" href="../mosaics/">
       
       
-        <link rel="next" href="../glossary/">
+        <link rel="next" href="../blocks/">
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
@@ -7756,6 +7756,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../transfer_transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transfer Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mosaics/" class="md-nav__link">
         
   
@@ -7906,6 +7927,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blocks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Blocks
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -8082,7 +8124,7 @@
 	<a id="2f0cefc8ad477caf4f66272797ede73d">Namespace</a> 
 </dt>
 <dd>A human-readable text string that can be used in place of an <a class="mkdocs-ezglossary-link"
-	id="d995b9ad196aeed098cf141cbf0d6c74"
+	id="a9a19d67e03bdee77d1c7912f5d1a50c"
 	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
 letters and numbers. It's typically a synonym for account."
 	name="_:Address"
@@ -8094,7 +8136,7 @@ letters and numbers. It's typically a synonym for account."
 
 </dl>
 <p>Namespaces make it easier to reference assets and accounts without relying on long, unreadable identifiers.
-They improve usability in wallets and block explorers by allowing meaningful names like <code>symbol.xym</code> or
+They improve usability in wallets and block explorers by allowing meaningful <em>aliases</em> like <code>symbol.xym</code> or
 <code>my_company.main_account</code> to stand in for raw mosaic IDs or account addresses,
 making interactions clearer and less error-prone.</p>
 <p>Because namespaces are a limited resource, they are leased for a fixed period rather than owned permanently,
@@ -8120,7 +8162,7 @@ Any additional parts are <em>subnamespaces</em>, which must be registered separa
 During this time, the creator can perform operations such as:</p>
 <ul>
 <li>Linking the namespace to a <a class="mkdocs-ezglossary-link"
-	id="012a11006f14348f14aa11dbebd3cf69"
+	id="e878a8ccbbaef5681d618ce3757e9fca"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8129,7 +8171,7 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
-	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>, turning it into an <em>alias</em> that is easier to reference.</li>
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>, turning it into an alias that is easier to reference.</li>
 <li>Creating subnamespaces under the root namespace.</li>
 <li>Renewing the root namespace to extend its duration.
     Subnamespaces do not need to be renewed, as they have the same duration as their root namespace.</li>
@@ -8185,7 +8227,7 @@ Once the grace period ends, the namespace is fully expired and becomes available
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Unlike <a class="mkdocs-ezglossary-link"
-	id="7d1b2232fae0965abc759523b3176537"
+	id="ecdc771e3b5f7c48495cddc05143d20e"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8194,7 +8236,7 @@ This allows them to remain active indefinitely, as long as the creator continues
 </div>
 <h2 id="lease-fee">Lease Fee<a class="headerlink" href="#lease-fee" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Registering a namespace requires paying a lease fee in the network currency (<a class="mkdocs-ezglossary-link"
-	id="ed6c4cbffc3d76f92e1a0379d03a2fa5"
+	id="16867305ca8bbd8a57f2a527b6ac0d5b"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>).
@@ -8214,7 +8256,7 @@ However, this transaction fee is typically negligible compared to the lease fee.
 </div>
 <h2 id="linking">Linking<a class="headerlink" href="#linking" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Namespaces can be linked to either a <a class="mkdocs-ezglossary-link"
-	id="bd2b939bc5cc6d947272dd371f4c478a"
+	id="e0e372928e426fc1eb28a07bd6616356"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8255,7 +8297,12 @@ but it is of limited practical use unless linked.</p>
 <p>Links can be changed or removed at any time by the namespace owner.</p>
 <p>This feature offers flexibility, but should be used sparingly, as it can be confusing to users, especially when
 viewing historical transactions.</p>
-<p>To help with this, every time a transaction using an alias is added to a block, a <em>resolution statement receipt</em>
+<p>To help with this, every time a transaction using an alias is added to a block, a <em>resolution statement <a class="mkdocs-ezglossary-link"
+	id="02564422119d1734681c746158ba3b5d"
+	title="Receipts capture state changes that occurred in a block but were not directly caused by the transactions included in
+that block."
+	name="_:Receipt"
+	href="../../textbook/blocks/#71823b0f7470d87f4d75cd3a803a6fee">receipt</a></em>
 is recorded to indicate what the alias referred to at the time of the transaction.</p>
 <p>This allows wallets and block explorers to display the correct address or mosaic ID,
 even if the alias has since changed or been removed.</p>
@@ -8349,7 +8396,7 @@ approve transactions."
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 27, 2025</span>
   </span>
 
     

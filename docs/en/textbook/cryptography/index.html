@@ -7741,6 +7741,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#hashes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hashes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#keys" class="md-nav__link">
     <span class="md-ellipsis">
       Keys
@@ -7834,6 +7843,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../transfer_transactions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transfer Transactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mosaics/" class="md-nav__link">
         
   
@@ -7860,6 +7890,27 @@
   
   <span class="md-ellipsis">
     Namespaces
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blocks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Blocks
   </span>
   
 
@@ -7924,6 +7975,15 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#hashes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hashes
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#keys" class="md-nav__link">
@@ -7994,6 +8054,28 @@
 
 <h1 id="basic-cryptography">Basic Cryptography<a class="headerlink" href="#basic-cryptography" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>These are the basic cryptography concepts that underpin all of Symbol's technology.</p>
+<h2 id="hashes">Hashes<a class="headerlink" href="#hashes" title="Anchor link to this section for reference">⚓︎</a></h2>
+<dl>
+<dt>
+	<a id="3890164a26bb4fc4d63840afc9a2d7b7">Hash</a> 
+</dt>
+<dd>A cryptographic hash is a fixed-size string of characters produced by a mathematical function
+(called a <em>hash function</em>) that maps input data of any size to a unique output.</dd>
+
+</dl>
+<p>Several such functions exist, such as <a href="https://en.wikipedia.org/wiki/SHA-2">SHA‑512</a> or
+<a href="https://en.wikipedia.org/wiki/RIPEMD">RIPEMD‑160</a>, but they all share the same essential properties:</p>
+<ul>
+<li><strong>Determinism</strong>: The same input always produces the same hash.</li>
+<li><strong>Collision resistance</strong>: It is extremely difficult to find two different inputs that produce the same hash.</li>
+<li><strong>Irreversibility</strong>: The original input cannot be reconstructed from the hash.</li>
+</ul>
+<p>These properties are critical for ensuring data integrity, verify authenticity,
+and linking <a class="mkdocs-ezglossary-link"
+	id="3908ccf1426505e0c5f147317935509b"
+	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
+	name="_:Block"
+	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">blocks</a> together in a blockchain.</p>
 <h2 id="keys">Keys<a class="headerlink" href="#keys" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
@@ -8026,7 +8108,12 @@ It functions similarly to a safe deposit box in traditional banking."
 <p>A <strong>VRF Key</strong> heightens the security of harvesting nodes.</p>
 </li>
 <li>
-<p>A <strong>Voting Key</strong> is required for nodes participating in the finalization process.</p>
+<p>A <strong>Voting Key</strong> is required for nodes participating in the <a class="mkdocs-ezglossary-link"
+	id="0f0b38d9840b18bdf281b5122741cb81"
+	title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
+rollbacks."
+	name="_:Finalization"
+	href="../../textbook/blocks/#8fe31d7fd591e1fd0d06f55c2ea53850">finalization</a> process.</p>
 </li>
 <li>
 <p>A <strong>Transport Key</strong> is used by nodes for secure transport over <a href="https://en.wikipedia.org/wiki/Transport_Layer_Security">TLS</a>.</p>
@@ -8138,7 +8225,12 @@ Addresses, on the other hand, only require 39 characters, reaching a compromise 
 <p>Generating a 24-byte <strong>raw address</strong> by joining:</p>
 <ul>
 <li>A network ID byte: <code>N</code> for Symbol's main network, or <code>T</code> for Symbol's test network.</li>
-<li>A 160-bit (20-byte) <a href="https://en.wikipedia.org/wiki/RIPEMD">RIPEMD‑160</a> hash of the public key.</li>
+<li>A 160-bit (20-byte) <a href="https://en.wikipedia.org/wiki/RIPEMD">RIPEMD‑160</a> <a class="mkdocs-ezglossary-link"
+	id="8f805f17a32d9043b28daaae8b33c480"
+	title="A cryptographic hash is a fixed-size string of characters produced by a mathematical function
+(called a hash function) that maps input data of any size to a unique output."
+	name="_:Hash"
+	href="../../textbook/cryptography/#3890164a26bb4fc4d63840afc9a2d7b7">Hash</a> of the public key.</li>
 <li>A 3-byte checksum to detect mistyped addresses.</li>
 </ul>
 <p>Example: <code>0x78,0xD0,0x44,0xED,0xC3,0xDC,0x8B,0x86...</code></p>
@@ -8160,7 +8252,7 @@ Addresses, on the other hand, only require 39 characters, reaching a compromise 
 </div>
 <h2 id="vanity-addresses">Vanity addresses<a class="headerlink" href="#vanity-addresses" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>While keys, and therefore <a class="mkdocs-ezglossary-link"
-	id="177fdef01d2027087e3484ff8a1ae0d2"
+	id="32d1876bf923e7cb0a27c7b9889b74a6"
 	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
 letters and numbers. It's typically a synonym for account."
 	name="_:Address"
@@ -8195,7 +8287,7 @@ The process usually requires substantial time and computation depending on the c
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 27, 2025</span>
   </span>
 
     
