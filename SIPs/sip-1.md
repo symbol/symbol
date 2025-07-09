@@ -1,13 +1,13 @@
----
-SIP: 1
-Title: SIP Process and Guidelines
-Author: Team TSS
-Discussions-to: N/A
-Status: Draft
-Category: Informational
-Created: 2025-Jun-4
-Maintainer: Team TSS
----
+| Field              |Description                 |
+|--------------------|----------------------------|
+| **SIP**            | 1                          |
+| **Title**          | SIP Process and Guidelines |
+| **Author**         | Team TSS                   |
+| **Discussions-to** | N.A                        |
+| **Status**         | Draft                      |
+| **Category**       | Informational              |
+| **Created**        | 2025-Jun-4                 |
+| **Maintainer**     | Team TSS                   |
 
 # SIP-1: SIP Process and Guidelines
 
