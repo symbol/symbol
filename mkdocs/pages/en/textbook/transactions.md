@@ -193,7 +193,7 @@ consensus?", shape=diamond, style="", URL="#5-consensus"];
 }
 ```
 
-<Bonded aggregate transactions:> differ slightly from the normal flow.
+<Bonded aggregate transactions:|Bonded aggregate transactions> differ slightly from the normal flow.
 Aggregate transactions missing cosignatures are temporarily stored in a _partial transactions cache_ on each node,
 and halt processing after step 2.
 When enough cosignatures have been collected these transactions become complete and resume processing from step 3.
