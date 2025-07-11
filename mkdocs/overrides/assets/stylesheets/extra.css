@@ -545,3 +545,10 @@ code.doc-symbol-interface::after {
 .md-typeset .subsections table td:not(:has(strong)):first-child+td {
 	border-style: hidden;
 }
+
+/* Font for book title in nav bar */
+.md-nav--lifted>.md-nav__list>.md-nav__item>[for] {
+	font-size: 1rem;
+	font-family: Aldrich, sans-serif;
+	font-weight: normal;
+}
