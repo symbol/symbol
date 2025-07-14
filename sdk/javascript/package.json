@@ -66,14 +66,14 @@
     "typedoc": "^0.28.0",
     "typescript": "~5.8.2",
     "url": "~0.11.3",
-    "webpack": "~5.99.5",
+    "webpack": "~5.100.1",
     "webpack-cli": "~6.0.1",
     "yargs": "~18.0.0"
   },
   "dependencies": {
     "@noble/hashes": "~1.8.0",
     "@types/node": "^24.0.7",
-    "bitcore-mnemonic": "~11.0.0",
+    "bitcore-mnemonic": "~11.1.4",
     "ripemd160": "~2.0.2"
   },
   "files": [
