@@ -32,7 +32,7 @@ but applications will probably want to use more fine-grained control.
 
 Transactions on Symbol must include a deadline, which defines how long the network should attempt to confirm the
 transaction before discarding it.
-Deadlines are expressed in absolute network time, so the first step is to fetch the current network time from a node.
+Deadlines are expressed in absolute network time, so the first step is to fetch the current network time from a <node:>.
 
 ??? info "What is the network time?"
     Symbol defines time as the number of seconds elapsed since the creation of its first block,
@@ -157,7 +157,7 @@ ready to be submitted directly to a node for announcement.
 
 {{ tutorial.code_snippet(['py:63:73', 'js:61:69']) }}
 
-Announcing a transaction is a simple request to the <put:/transactions> endpoint of any Symbol API node.
+Announcing a transaction is a simple request to the <put:/transactions> endpoint of any Symbol <API node:>.
 As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.
 
 However, this response does **not** indicate that the transaction is valid or accepted by the network.
