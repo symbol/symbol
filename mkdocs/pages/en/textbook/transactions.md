@@ -5,7 +5,7 @@ Transaction
     like moving funds from one <account:> to another, or registering a new currency, for example.
 
 These actions are expressed in a signed message, which is then announced to the network.
-Nodes in the network then validate it and, if it is accepted, the transaction gets included in a block and
+<Nodes:|Nodes> in the network then validate it and, if it is accepted, the transaction gets included in a block and
 changes the state of the blockchain.
 
 ## Fundamental Transaction Types
@@ -115,7 +115,7 @@ Bonded Aggregate Transaction
 
 With this transaction type, all involved parties interact exclusively on-chain.
 
-The required accounts can submit the missing cosignatures to any node on the network using a specific API.
+The required accounts can submit the missing cosignatures to any <API node:> on the network using a specific API.
 
 Once the network receives all required cosignatures, the aggregate transaction continues processing.
 
@@ -230,7 +230,7 @@ If all checks pass, the process continues.
 
 ### 4. Propagation
 
-Once the node considers the transaction to be valid, it is broadcast to the peer nodes in the network,
+Once the node considers the transaction to be valid, it is broadcast to the <peer nodes:> in the network,
 and added to every node's  _unconfirmed pool_.
 
 Unconfirmed pool
@@ -266,7 +266,7 @@ On Symbol, however, an additional mechanism provides final guarantees that confi
 
 ### 7. Finalization
 
-<Finalization:> runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.
+<Finalization:|Finalization> runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.
 
 By waiting for finalization, applications can be certain the transactions they submitted will not be reverted
 by <rollbacks:>.
