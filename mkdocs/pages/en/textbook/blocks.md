@@ -57,7 +57,7 @@ Rollback
 :   The process of discarding one or more recently added blocks when the network switches to a better chain,
     typically after a fork is resolved.
 
-In a decentralized network like Symbol, nodes may temporarily become out of sync.
+In a decentralized network like Symbol, <nodes:> may temporarily become out of sync.
 This can happen due to latency, connectivity issues, or changes in network topology.
 During such _network partitions_, disconnected groups of nodes may temporarily disagree on the most recent blocks.
 
@@ -87,7 +87,7 @@ Finalization
 Once a block is finalized, it is guaranteed to remain in the chain and will never be rolled back, even in the event of
 a network partition or fork.
 
-This process is driven by all eligible nodes with the _voting node_ role, which use a separate consensus algorithm to
+This process is driven by all eligible <voting nodes:>, which use a separate consensus algorithm to
 periodically agree on the most recent block that can be safely finalized.
 The result is a _finalization point_: a checkpoint in the blockchain that all nodes agree to build upon.
 

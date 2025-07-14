@@ -3,7 +3,7 @@
 This tutorial shows how to verify that your Symbol SDK installation is working correctly by writing a minimal program that:
 
 * Retrieves the network name and launch date using the SDK.
-* Connects to a node and prints the current blockchain height.
+* Connects to a <node:> and prints the current blockchain height.
 
 No accounts, keys, or transactions are required, just a basic SDK call and a REST request.
 
@@ -33,7 +33,7 @@ the network's launch date.
 
 {{ tutorial.code_snippet(['py:13:27', 'js:12:28']) }}
 
-Interaction with the Symbol blockchain happens through API nodes, which expose a REST interface for
+Interaction with the Symbol blockchain happens through <API nodes:>, which expose a REST interface for
 querying network state and submitting transactions.
 Not all nodes provide this interface, so it is important to connect to one labeled as **API Node**.
 
