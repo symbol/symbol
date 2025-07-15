@@ -68,6 +68,10 @@ Catapult
 :   The core engine that verifies <transactions:> and <blocks:>, runs the consensus algorithm, creates new blocks,
     and propagates the changes through the network.
 
+!!! image inline end ""
+
+    ![Catapult](site:/assets/images/catapult.png){.off-glb .invertible}
+
 It communicates directly with other nodes in [the peer-to-peer fashion described below](#peer-to-peer-communication).
 For performance reasons, it keeps separate [blocks database](#blocks-database) and
 [blockchain state database](#state-database).

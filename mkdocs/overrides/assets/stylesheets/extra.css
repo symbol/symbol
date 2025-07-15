@@ -385,6 +385,20 @@ code.doc-symbol-interface::after {
 	font-size: inherit;
 }
 
+/* Custom borderless admonition, just to help position images. Use with: */
+/* !!! image inline end "" */
+.md-typeset .admonition.image,
+.md-typeset details.image {
+	border: 0;
+	box-shadow: none;
+	background-color: transparent;
+}
+
+/* Invert black images so they are visible in dark mode. */
+[data-md-color-scheme=slate] img.invertible {
+	filter: invert(1) brightness(0.8);
+}
+
 /* GLightBox images and descriptions */
 .md-typeset a.glightbox img {
 	transition: box-shadow 0.25s;
