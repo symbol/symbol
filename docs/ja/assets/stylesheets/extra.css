@@ -385,6 +385,20 @@ code.doc-symbol-interface::after {
 	font-size: inherit;
 }
 
+/* Custom borderless admonition, just to help position images. Use with: */
+/* !!! image inline end "" */
+.md-typeset .admonition.image,
+.md-typeset details.image {
+	border: 0;
+	box-shadow: none;
+	background-color: transparent;
+}
+
+/* Invert black images so they are visible in dark mode. */
+[data-md-color-scheme=slate] img.invertible {
+	filter: invert(1) brightness(0.8);
+}
+
 /* GLightBox images and descriptions */
 .md-typeset a.glightbox img {
 	transition: box-shadow 0.25s;
@@ -510,9 +524,9 @@ code.doc-symbol-interface::after {
 	fill: var(--md-primary-fg-color--light);
 }
 
-.graphviz .node path,
-.graphviz .node polygon,
-.graphviz .node ellipse {
+.graphviz .node path:not([fill="transparent"]),
+.graphviz .node polygon:not([fill="transparent"]),
+.graphviz .node ellipse:not([fill="transparent"]) {
 	stroke: var(--md-primary-fg-color--light);
 	fill: var(--md-accent-fg-color--transparent);
 	transition: fill 0.25s;
@@ -520,7 +534,8 @@ code.doc-symbol-interface::after {
 
 .graphviz .node:hover a path,
 .graphviz .node:hover a polygon,
-.graphviz .node:hover a ellipse {
+.graphviz .node:hover a ellipse,
+.graphviz .edge:hover a text {
 	fill: var(--md-primary-fg-color--light);
 	transition: fill 0.25s;
 }
@@ -544,4 +559,11 @@ code.doc-symbol-interface::after {
 
 .md-typeset .subsections table td:not(:has(strong)):first-child+td {
 	border-style: hidden;
+}
+
+/* Font for book title in nav bar */
+.md-nav--lifted>.md-nav__list>.md-nav__item>[for] {
+	font-size: 1rem;
+	font-family: Aldrich, sans-serif;
+	font-weight: normal;
 }
