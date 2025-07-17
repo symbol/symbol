@@ -591,3 +591,8 @@ code.doc-symbol-interface::after {
 	font-family: Aldrich, sans-serif;
 	font-weight: normal;
 }
+
+.operation-item {
+	list-style-type: "⟹";
+	padding-left: 0.5rem;
+}
