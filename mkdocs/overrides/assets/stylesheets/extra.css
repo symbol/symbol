@@ -569,6 +569,11 @@ code.doc-symbol-interface::after {
 	background: var(--md-accent-fg-color--transparent);
 }
 
+.centered .md-typeset__table {
+	display: table;
+	margin: 0 auto;
+}
+
 /* Tables with subsections */
 .md-typeset .subsections table td:not(:has(strong)):first-child {
 	padding-left: 2rem;
