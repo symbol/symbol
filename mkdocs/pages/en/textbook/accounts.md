@@ -19,20 +19,8 @@ On a blockchain, accounts can authorize transactions, configure permissions, and
 
     Once activated, an account can be emptied of assets, but it cannot be deleted from the blockchain.
 
-## Restrictions
-
-Restriction
-:   Rule that filters what types of transactions are allowed to or from an account.
-
-Account restrictions can be of three types:
-
-* **Address restrictions**: Block or allow transactions from specific <addresses:>.
-* **Mosaic restrictions**: Block or allow transactions involving certain <mosaics:>.
-* **Operation restrictions**: Block or allow specific transaction types (e.g. transfers, metadata updates).
-
-Restrictions help prevent spam, misconfiguration, and unauthorized access.
-They are configured using dedicated transaction types and can only be modified by the account owner or cosignatories
-in the case of <multisignature accounts:>.
+An account's security can be enhanced by using <account restrictions:>, which limit the addresses it can interact with,
+the mosaics it can receive, or the operations it can perform.
 
 ## Mnemonics
 

@@ -118,7 +118,7 @@ However, the same object can be linked by multiple namespaces.
 * **When linking to a mosaic**: Only the creator of the mosaic can establish the link.
     This prevents unauthorized aliasing of third-party assets.
 
-* **When linking to an account**: The account must not [restrict](./accounts.md#restrictions) the linking transaction.
+* **When linking to an account**: The linking transaction must not be blocked by an <account operation restriction:>.
     This allows the account owner to control unauthorized aliasing.
 
 Linking is optional, and a namespace can exist without pointing to any object,

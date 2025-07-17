@@ -95,7 +95,7 @@ digraph "Transferability" {
 Allows the creator to define rules that limit what accounts can hold or transfer the mosaic.
 This is useful for compliance, whitelisting, or access control scenarios.
 
-See the documentation about mosaic restrictions for more information.
+See the documentation about <mosaic restrictions:> for more information.
 
 ### Revocability
 
