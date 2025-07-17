@@ -329,18 +329,18 @@ and validation steps, but differ in purpose and required fields.
 | `Mosaic Definition`                 | Create a new  mosaic.                                                                             |
 | `Mosaic Supply Change`              | Change the total supply of a mosaic.                                                              |
 | `Mosaic Supply Revocation`          | Revoke mosaic.                                                                                    |
-| **Multisig**                        |                                                                                                   |
+| **[Multisig](default:multisignature account)** |                                                                                        |
 | `Multisig Account Modification`     | Create or modify a multi-signature account.                                                       |
 | **[Namespaces](default:namespace)** |                                                                                                   |
 | `Namespace Registration`            | Register (or renew a registration for) a namespace.                                               |
 | `Address Alias`                     | Attach or detach a namespace (alias) to an account address.                                       |
 | `Mosaic Alias`                      | Attach or detach a namespace to a mosaic.                                                         |
-| **Restrictions**                    |                                                                                                   |
+| **[Restrictions](default:restrictions)** |                                                                                              |
 | `Account Address Restriction`       | Allow or block incoming and outgoing transactions for a given a set of addresses.                 |
 | `Account Mosaic Restriction`        | Allow or block incoming transactions containing a given set of mosaics.                           |
 | `Account Operation Restriction`     | Allow or block outgoing transactions depending on their transaction type.                         |
-| `Mosaic Address Restriction`        | Set address specific rules to transfer a restrictable mosaic.                                     |
 | `Mosaic Global Restriction`         | Set global rules to transfer a restrictable mosaic.                                               |
+| `Mosaic Address Restriction`        | Set address-specific rules to transfer a restrictable mosaic.                                     |
 
 </div>
 
