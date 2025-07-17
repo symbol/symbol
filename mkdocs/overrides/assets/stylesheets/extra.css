@@ -21,6 +21,8 @@
 	--textbook-color--dark: rgb(40 25 59);
 	--textbook-color--light: #9756d5;
 	--textbook-color--transparent: #7000DF20;
+	--example-admonition-color: #4CAF50;
+	--example-admonition-color--transparent: #4CAF5020;
 }
 
 [data-md-color-scheme=slate][data-md-color-primary=indigo] {
@@ -383,6 +385,23 @@ code.doc-symbol-interface::after {
 .md-typeset .admonition,
 .md-typeset details {
 	font-size: inherit;
+}
+
+/* Different color for the Example admonition, because the default is too close
+	to the textbook's purple. */
+.md-typeset .admonition.example,
+.md-typeset details.example {
+	border-color: var(--example-admonition-color);
+}
+
+.md-typeset .example>.admonition-title,
+.md-typeset .example>summary {
+	background-color: var(--example-admonition-color--transparent);
+}
+
+.md-typeset .example>.admonition-title::before,
+.md-typeset .example>summary::before {
+	background-color: var(--example-admonition-color);
 }
 
 /* Custom borderless admonition, just to help position images. Use with: */
