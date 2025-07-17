@@ -8068,6 +8068,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../restrictions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Restrictions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../glossary/" class="md-nav__link">
         
   
@@ -8320,7 +8341,7 @@
 </dt>
 <dd>A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one <a class="mkdocs-ezglossary-link"
-	id="bf9ccf9dd3bbd90d00d1b073fed411dc"
+	id="2a291e5452d1d8578c19a114d2c022f7"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8345,7 +8366,7 @@ Aggregate transactions are further divided into complete and bonded variants.</p
 	<a id="bcea03960e60020401e81c2a1de149b0">Basic Transaction</a> 
 </dt>
 <dd>A basic <a class="mkdocs-ezglossary-link"
-	id="4e3112a264187f80026bf59933185136"
+	id="eaf21db69d84cd9938e1a1f789e839fe"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"
@@ -8388,10 +8409,10 @@ between multiple accounts, without requiring trust between them.</p>
 <div class="admonition tip">
 <p class="admonition-title">Aggregate Transaction Example</p>
 <p>Accounts A and B want to exchange assets, so two <a class="mkdocs-ezglossary-link"
-	id="3613d40b3a0ecc8393156a4fef770b96"
+	id="9b58d570e39bc1a61f66bdc04692bf0e"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
-	href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">Transfer transactions</a> are required.
+	href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transactions</a> are required.
 But they do not trust each other, so neither wants to be the first to announce their transaction and
 risk the other party failing to fulfill their part.</p>
 <p>A solution which does not require trust in each other is to wrap both transactions in an aggregate:</p>
@@ -8506,7 +8527,7 @@ When enough cosignatures have been collected these transactions become complete 
 <h3 id="1-creation-and-signature">1. Creation and signature<a class="headerlink" href="#1-creation-and-signature" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>A software client, typically an app, creates the transaction and fills in all its parameters.
 For example, a transfer transaction requires the source <a class="mkdocs-ezglossary-link"
-	id="2a291e5452d1d8578c19a114d2c022f7"
+	id="045a324f83c53de3eff056eae2bf3201"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8514,7 +8535,7 @@ It functions similarly to a safe deposit box in traditional banking."
 <p>This step also involves collecting all required signatures.
 For a transfer transaction, only the source account's signature is required.
 More complex transactions, such as <a class="mkdocs-ezglossary-link"
-	id="41cfb71d04e71c167cfabd385b14c485"
+	id="4e63f141844d0fb0ed420f8a654bb4d4"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
@@ -8692,12 +8713,12 @@ and validation steps, but differ in purpose and required fields.</p>
 <tr>
 <td><code>Transfer</code></td>
 <td>Send <a class="mkdocs-ezglossary-link"
-	id="bed37825615796f46d5c49d21f0e7091"
+	id="108fd3857078b868c47c79af76270eb8"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaics</a> and optional messages between two <a class="mkdocs-ezglossary-link"
-	id="d07455e842a3666b8496e82fad49ee99"
+	id="65560db5342399e4d110bcfc1d3706c2"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8788,7 +8809,7 @@ Also called partial transactions."
 </tr>
 <tr>
 <td><strong><a class="mkdocs-ezglossary-link"
-	id="c980f9a3362792417a56354c7f2dce5f"
+	id="d8347943fdb165980d0c1be789a90259"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8808,7 +8829,12 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <td>Revoke mosaic.</td>
 </tr>
 <tr>
-<td><strong>Multisig</strong></td>
+<td><strong><a class="mkdocs-ezglossary-link"
+	id="78c0ea9154b0aa2cbde3aae3423c648a"
+	title="An account (called multisig) requiring signature from multiple parties (called cosignatories) to
+approve transactions."
+	name="_:Multisignature Account"
+	href="../../textbook/accounts/#acdd6609b712640449e6fc8c54e718ec">Multisig</a></strong></td>
 <td></td>
 </tr>
 <tr>
@@ -8836,7 +8862,12 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <td>Attach or detach a namespace to a mosaic.</td>
 </tr>
 <tr>
-<td><strong>Restrictions</strong></td>
+<td><strong><a class="mkdocs-ezglossary-link"
+	id="a38341260084482fa5502e9736246f52"
+	title="An advanced feature, also referred to as a rule, that allows fine-grained control over how specific
+accounts or mosaics can be used."
+	name="_:Restriction"
+	href="../../textbook/restrictions/#a0a0b2390a7807b40a0c6b786d824d14">Restrictions</a></strong></td>
 <td></td>
 </tr>
 <tr>
@@ -8852,12 +8883,12 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <td>Allow or block outgoing transactions depending on their transaction type.</td>
 </tr>
 <tr>
-<td><code>Mosaic Address Restriction</code></td>
-<td>Set address specific rules to transfer a restrictable mosaic.</td>
-</tr>
-<tr>
 <td><code>Mosaic Global Restriction</code></td>
 <td>Set global rules to transfer a restrictable mosaic.</td>
+</tr>
+<tr>
+<td><code>Mosaic Address Restriction</code></td>
+<td>Set address-specific rules to transfer a restrictable mosaic.</td>
 </tr>
 </tbody>
 </table>
@@ -8886,7 +8917,7 @@ However, all nodes must support the same plugin set to maintain consensus across
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 17, 2025</span>
   </span>
 
     
