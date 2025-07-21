@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 # install build dependencies for node-hid
 RUN apt-get update && apt-get install -y \
@@ -18,4 +18,3 @@ RUN mkdir -p /etc/apt/keyrings \
 	| tee /etc/apt/sources.list.d/nodesource.list \
 	&& apt-get update \
 	&& apt-get install -y nodejs
-
