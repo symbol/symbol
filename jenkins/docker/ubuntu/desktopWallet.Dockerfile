@@ -3,11 +3,12 @@ FROM ubuntu:22.04
 # install build dependencies for node-hid
 RUN apt-get update && apt-get install -y \
 	build-essential \
-	python3 \
-	libusb-1.0-0-dev \
-	pkg-config \
 	curl \
-	gnupg
+	git \
+    gnupg \
+    libusb-1.0-0-dev \
+	pkg-config \
+    python3
 
 # nodejs
 ENV NODE_OPTIONS="--dns-result-order=ipv4first"
@@ -18,3 +19,8 @@ RUN mkdir -p /etc/apt/keyrings \
 	| tee /etc/apt/sources.list.d/nodesource.list \
 	&& apt-get update \
 	&& apt-get install -y nodejs
+
+# add ubuntu user (used by jenkins)
+RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
+USER ubuntu
+WORKDIR /home/ubuntu
