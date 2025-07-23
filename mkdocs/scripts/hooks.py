@@ -1,3 +1,5 @@
+import sys
+import os
 import logging
 import mkdocs.plugins
 from mkdocs.structure import files
@@ -149,3 +151,11 @@ def on_page_markdown(content, page, config, files):
 	content = page_markdown_dylinks(content, page, config, files)
 	content = page_markdown_rest(content, page, config, files)
 	return content
+
+def on_startup(*args, **kwargs):
+	"""
+	Add the mkdocs folder to PYTHONPATH, so custom modules like the CATS lexer are found.
+	"""
+	project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+	if project_root not in sys.path:
+		sys.path.insert(0, project_root)
