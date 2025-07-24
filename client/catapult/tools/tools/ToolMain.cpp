@@ -184,7 +184,16 @@ namespace catapult { namespace tools {
 
 		// 2. parse all options
 		ParsedOptions options;
-		ParseOptions(options, tool, argc, argv);
+		try {
+			ParseOptions(options, tool, argc, argv);
+		} catch (const std::exception& e) {
+			std::cout << "Error parsing command line options: " << e.what() << "\nTry using [-h|--help] option.\n" << std::endl;
+			return -1;
+		} catch (...) {
+			std::cout << UNHANDLED_EXCEPTION_MESSAGE("parsing command line options") << "\nTry using [-h|--help] option.\n" << std::endl;
+			return -1;
+		}
+		
 
 		// 3. bypass the tool if help was requested
 		if (options.IsHelpRequest)
