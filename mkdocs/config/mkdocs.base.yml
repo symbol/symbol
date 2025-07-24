@@ -138,7 +138,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/symbol
     - icon: fontawesome/brands/discord
-      link: https://discord.com/invite/xymcity
+      link: https://discord.gg/J38KwW5ZuG
   symbol:
     branch: mkdocs/content-templates
     java-sdk:
