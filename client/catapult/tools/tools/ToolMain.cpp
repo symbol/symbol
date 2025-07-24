@@ -193,7 +193,6 @@ namespace catapult { namespace tools {
 			std::cout << UNHANDLED_EXCEPTION_MESSAGE("parsing command line options") << "\nTry using [-h|--help] option.\n" << std::endl;
 			return -1;
 		}
-		
 
 		// 3. bypass the tool if help was requested
 		if (options.IsHelpRequest)
