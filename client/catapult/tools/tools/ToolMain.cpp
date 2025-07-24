@@ -187,10 +187,10 @@ namespace catapult { namespace tools {
 		try {
 			ParseOptions(options, tool, argc, argv);
 		} catch (const std::exception& e) {
-			std::cout << "Error parsing command line options: " << e.what() << "\nTry using [-h|--help] option.\n" << std::endl;
+			std::cout << "Error parsing command line options: " << e.what() << "\nTry using [-h|--help] option." << std::endl;
 			return -1;
 		} catch (...) {
-			std::cout << UNHANDLED_EXCEPTION_MESSAGE("parsing command line options") << "\nTry using [-h|--help] option.\n" << std::endl;
+			std::cout << UNHANDLED_EXCEPTION_MESSAGE("parsing command line options") << "\nTry using [-h|--help] option." << std::endl;
 			return -1;
 		}
 
