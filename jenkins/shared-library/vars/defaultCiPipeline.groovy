@@ -195,8 +195,12 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinsfileParams.packageId}", 'build', {
-								buildCode(env.BUILD_SCRIPT_FILEPATH)
+							script {
+								runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinsfileParams.packageId}", 'build', {
+									githubHelper.executeGitAuthenticatedCommand {
+										buildCode(env.BUILD_SCRIPT_FILEPATH)
+									}
+								}
 							}
 						}
 					}

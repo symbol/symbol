@@ -107,13 +107,14 @@ void withGitHubToken(Closure closure) {
 	withCredentials([usernamePassword(credentialsId: helper.resolveGitHubCredentialsId(),
 			usernameVariable: 'GITHUB_USER',
 			passwordVariable: 'GITHUB_TOKEN')]) {
+		env.GITHUB_ACCESS_TOKEN = env.GITHUB_TOKEN
 		closure()
 	}
 }
 
 void executeGitAuthenticatedCommand(Closure command) {
 	withGitHubToken {
-		final String ownerName = helper.resolveOrganizationName()
+		final String ownerName = helper.resolveOrganizationName().toLowerCase()
 		final String replaceUrl = 'https://$GITHUB_USER:$GITHUB_TOKEN@github.com/' +
 			"${ownerName}/.insteadOf https://github.com/${ownerName}/"
 
