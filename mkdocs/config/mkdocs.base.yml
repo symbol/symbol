@@ -100,6 +100,12 @@ markdown_extensions:
     permalink: ⚓︎
     toc_depth: 3
   mkdocs_graphviz: {}
+  pymdownx.arithmatex:
+    generic: true
+extra_javascript:
+  - assets/javascripts/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
 theme:
   name: material
   custom_dir: ../overrides
@@ -154,3 +160,4 @@ copyright: >
   Copyright &copy; 2025 The Symbol Syndicate
 extra_css:
   - assets/stylesheets/extra.css
+  - https://unpkg.com/katex@0/dist/katex.min.css
