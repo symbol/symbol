@@ -6,8 +6,10 @@ Node
 
 Nodes form the backbone of the blockchain, ensuring the network remains functional as long as enough nodes are active.
 
-To help offset the operational cost of running a computer continuously, the <account:> linked to the node
-receives a <XYM:> reward whenever the node harvests a block.
+To participate in block creation, each node must be associated with a harvester <account:>,
+which signs any blocks the node produces.
+To help offset operational costs, the <XYM:> rewards from <harvesting:> can be directed
+to one or more accounts chosen by the node operator.
 
 Symbol nodes consist of multiple software components, which can be enabled and configured independently.
 This flexibility allows for a variety of setups with different hardware requirements.
@@ -175,20 +177,20 @@ A voting node can be either a peer or an API node, that is, it may or may not ex
 ### Dual Nodes
 
 Dual Node
-:   An API node with harvesting enabled is sometimes referred to as a _dual node_.
+:   An API node with <harvesting:> enabled is sometimes referred to as a _dual node_.
 
 ### Light API Nodes
 
-Light API Nodes
+Light API Node
 :   A node is called a _light API node_ when <Catapult:>'s limited HTTP API is made publicly accessible.
 
 This API can only answer basic queries about the node and the network, and requires significantly fewer resources than
 a full <API node:>.
 
-Exposing this interface enables delegated harvesting on the node,
+Exposing this interface enables <delegated harvesting:> on the node,
 since it allows clients to retrieve the node's public key, which would otherwise be inaccessible.
 
-The only available API endpoints are:
+The only available API endpoints on light API nodes are:
 
 * <get:/chain/info>
 * <get:/node/info>
@@ -264,3 +266,7 @@ based solely on its direct experience.
 
     By balancing reputation-based stability with deliberate connection turnover,
     the protocol avoids network fragmentation and promotes long-term decentralization.
+
+Finally, note that this reputation score is an internal metric used by nodes to decide which other nodes to connect to.
+When <harvesting:>, accounts may delegate their balance to any node they choose, based on reputation factors
+that may or may not be related to the score described in this page.

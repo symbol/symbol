@@ -58,6 +58,13 @@ DeFi
 DEX
 :   Decentralized Exchange, as opposed to traditional Centralized Exchanges (<CEX:>).
 
+DoS
+:   Denial of Service. An attack in which a single source floods a server or network with excessive requests,
+    overwhelming its resources and rendering it unable to respond to legitimate traffic.
+
+    The most common variant is the DDoS (Distributed Denial of Service) attack that involves multiple sources,
+    often using compromised devices without the owners' knowledge.
+
 DTC
 :   Direct To Consumer, i.e. mass market.
 
@@ -95,6 +102,12 @@ HTLC
 
 ICO
 :   Initial Coin Offering.
+
+Inflation
+:   A small amount of <XYM:> that is freshly minted with each new <block:> to reward the <node:> that creates it.
+    Inflation began 48 hours after network launch in March 2021, starting at approximately 200 XYM per block.
+    The reward decreases gradually over time following a slow curve, reaching 1 XYM per block after 30 years,
+    and disappearing entirely after 105 years.
 
 IP
 :   Intellectual Property.
@@ -138,7 +151,7 @@ PoS
 PoS+
 :   Proof-of-Stake Plus. Symbol's consensus mechanism.
     It is a modified <PoS:> algorithm which considers users' activity in the network in addition to their network stakes.
-    The chance that accounts will have to harvest a block is calculated through their importance scores.
+    The chance that accounts will have to <harvesting:|harvest> a block is calculated through their <importance:> score.
 
 PoW
 :   Proof of Work. A consensus protocol, used, for example, by Bitcoin.
