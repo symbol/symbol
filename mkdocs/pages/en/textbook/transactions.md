@@ -209,7 +209,7 @@ More complex transactions, such as <aggregate transactions:>, may require multip
 
 Each signature is typically provided by a <wallet:>.
 Signatures prove that all required parties have authorized the transaction, since only the holder of an account's
-<key pair:|private key> can produce a valid signature.
+<private key:> can produce a valid signature.
 
 ### 2. Announcement
 

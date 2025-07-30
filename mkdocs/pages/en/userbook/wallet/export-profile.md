@@ -8,7 +8,7 @@ The Symbol Desktop Wallet exports profiles as paper wallets:
 Paper Wallet
 :   A printable document containing information to restore a wallet profile and all its accounts.
 
-    The information is intended to be printed on paper and may include QR codes, <key pair:|private keys>,
+    The information is intended to be printed on paper and may include QR codes, <private keys:>,
     <mnemonic phrases:>, or all of them.
 
     Paper wallets are less convenient than digital backups because the information must be entered manually.  
@@ -59,7 +59,7 @@ You can use this phrase to restore all accounts derived from it.
 {{ tutorial.step_begin("screenshots/export-profile-6.jpg") }}
 This image shows an example of a paper wallet containing an individual account.
 
-The account may have been generated from a mnemonic phrase or imported directly from a <key pair:|private key>.
+The account may have been generated from a mnemonic phrase or imported directly from a <private key:>.
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}

@@ -25,9 +25,9 @@ the mosaics it can receive, or the operations it can perform.
 ## Mnemonics
 
 Mnemonic Phrase
-:   A human-readable representation of a <key pair:|private key>, typically shown as a list of 12 or 24 random words.
+:   A human-readable representation of a <private key:>, typically shown as a list of 12 or 24 random words.
 
-It is also called just Mnemonic, and often used when creating or restoring accounts in <HD Wallets:>.
+It is also called just mnemonic, and often used when creating or restoring accounts in <HD Wallets:>.
 
 Symbol uses the [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) standard that requires
 24 English words.
@@ -42,7 +42,7 @@ Symbol uses the [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.me
 Wallet
 :   An application used to manage Symbol accounts, initiate transactions and sign them.
 
-It stores <key pair:|private keys> or <Mnemonic Phrases:>, and uses them to signs transactions.
+It stores <private keys:> or <mnemonic phrases:>, and uses them to signs transactions.
 More broadly, wallets provide tools for exploring and interacting with the blockchain.
 
 Wallets can be:
@@ -66,7 +66,7 @@ Wallets can be:
 
 Most wallets allow managing multiple accounts, QR code scanning (for signing and requesting transaction signatures),
 metadata entry, and <multisignature account:|multisig> configuration.
-Accounts can be also imported or exported using either <key pair:|private keys> or <mnemonic phrases:>.
+Accounts can be also imported or exported using either <private keys:> or <mnemonic phrases:>.
 
 ## HD Wallets
 

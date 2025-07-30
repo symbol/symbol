@@ -84,7 +84,7 @@ Frontrunning
     This is important in case of <DeFi:> markets, where gains can be made from frontrunning.
 
 Hardware wallet
-:   A device designed to store <key pair:|private keys> and produce signatures with them.
+:   A device designed to store <private keys:> and produce signatures with them.
     The keys are stored in an encrypted memory and never leave the device, so hardware wallets are deemed one of
     the most secure ways to access an account.
     They typically only provide signing functionality, so they must be paired with a software <wallet:> or
