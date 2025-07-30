@@ -64,6 +64,8 @@
     
       <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
     
+      <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -7969,6 +7971,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../harvesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Harvesting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cats/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CATS DSL
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../glossary/" class="md-nav__link">
         
   
@@ -8109,8 +8153,9 @@ It functions similarly to a safe deposit box in traditional banking.</dd>
 </dl>
 <p>In the case of blockchain, accounts are secured by a <a class="mkdocs-ezglossary-link"
 	id="d2d32d73933a5e585c5181b865d1abc2"
-	title="A pair formed by a very long, secret random number (the private key) and a
-public number derived from it (the public key)."
+	title="A matched set consisting of a private key and its corresponding public key.
+The private key is kept secret by the owner, while the public key is distributed openly.
+Together, they enable secure cryptographic operations such as digital signatures and encryption."
 	name="_:Key Pair"
 	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">key pair</a>: assets can only be <strong>transferred out</strong> of an account
 by using its private key, but the public key can be shared freely in order to <strong>receive</strong> assets.</p>
@@ -8141,14 +8186,16 @@ the mosaics it can receive, or the operations it can perform.</p>
 	<a id="caca6bf16f8acd51395d644299eb6351">Mnemonic Phrase</a> 
 </dt>
 <dd>A human-readable representation of a <a class="mkdocs-ezglossary-link"
-	id="fc38fd151163c753a557fe5fce58c990"
-	title="A pair formed by a very long, secret random number (the private key) and a
-public number derived from it (the public key)."
-	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private key</a>, typically shown as a list of 12 or 24 random words.</dd>
+	id="d78a9a1efee9847498b37e37c16a2539"
+	title="A very long, secret number.
+The actual value of the private key is meaningless, and it is meant to be kept secret.
+It should be impossible to guess by unauthorized parties, and, although it is commonly randomly-generated,
+it is extremely unlikely that the same number is generated twice by chance."
+	name="_:Private Key"
+	href="../../textbook/cryptography/#890b9584bd9860118fc3d58c24a6dbd9">private key</a>, typically shown as a list of 12 or 24 random words.</dd>
 
 </dl>
-<p>It is also called just Mnemonic, and often used when creating or restoring accounts in <a class="mkdocs-ezglossary-link"
+<p>It is also called just mnemonic, and often used when creating or restoring accounts in <a class="mkdocs-ezglossary-link"
 	id="24acc3b55e011d01b15647f3ea6c454a"
 	title="A Hierarchical Deterministic (HD) wallet derives a series of accounts from a single seed,
 which is more convenient than having to manage multiple key pairs."
@@ -8170,15 +8217,17 @@ Never share it, and avoid storing it unencrypted in digital form.</p>
 
 </dl>
 <p>It stores <a class="mkdocs-ezglossary-link"
-	id="4440146771f9c65a3fe559182234a5da"
-	title="A pair formed by a very long, secret random number (the private key) and a
-public number derived from it (the public key)."
-	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a> or <a class="mkdocs-ezglossary-link"
+	id="13b0a48808ddc91a4771fbb5993c8f0c"
+	title="A very long, secret number.
+The actual value of the private key is meaningless, and it is meant to be kept secret.
+It should be impossible to guess by unauthorized parties, and, although it is commonly randomly-generated,
+it is extremely unlikely that the same number is generated twice by chance."
+	name="_:Private Key"
+	href="../../textbook/cryptography/#890b9584bd9860118fc3d58c24a6dbd9">private keys</a> or <a class="mkdocs-ezglossary-link"
 	id="e670f24252f14a225873ab2d2da1334c"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
-	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">Mnemonic Phrases</a>, and uses them to signs transactions.
+	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrases</a>, and uses them to signs transactions.
 More broadly, wallets provide tools for exploring and interacting with the blockchain.</p>
 <p>Wallets can be:</p>
 <ul>
@@ -8205,15 +8254,17 @@ approve transactions."
 	name="_:Multisignature Account"
 	href="../../textbook/accounts/#acdd6609b712640449e6fc8c54e718ec">multisig</a> configuration.
 Accounts can be also imported or exported using either <a class="mkdocs-ezglossary-link"
-	id="9359b46fd1407668b1291b190b6aa446"
-	title="A pair formed by a very long, secret random number (the private key) and a
-public number derived from it (the public key)."
-	name="_:Key Pair"
-	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">private keys</a> or <a class="mkdocs-ezglossary-link"
-	id="e670f24252f14a225873ab2d2da1334c"
+	id="5058c6a34669016593f71056b826e09a"
+	title="A very long, secret number.
+The actual value of the private key is meaningless, and it is meant to be kept secret.
+It should be impossible to guess by unauthorized parties, and, although it is commonly randomly-generated,
+it is extremely unlikely that the same number is generated twice by chance."
+	name="_:Private Key"
+	href="../../textbook/cryptography/#890b9584bd9860118fc3d58c24a6dbd9">private keys</a> or <a class="mkdocs-ezglossary-link"
+	id="51c18e20be6181b410533c80a58185b7"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
-	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">Mnemonic Phrases</a>.</p>
+	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrases</a>.</p>
 <h2 id="hd-wallets">HD Wallets<a class="headerlink" href="#hd-wallets" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
@@ -8231,8 +8282,9 @@ It functions similarly to a safe deposit box in traditional banking."
 	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> from a single seed,
 which is more convenient than having to manage multiple <a class="mkdocs-ezglossary-link"
 	id="6813b0eb0fa68e6d67c17cd31a1b75dd"
-	title="A pair formed by a very long, secret random number (the private key) and a
-public number derived from it (the public key)."
+	title="A matched set consisting of a private key and its corresponding public key.
+The private key is kept secret by the owner, while the public key is distributed openly.
+Together, they enable secure cryptographic operations such as digital signatures and encryption."
 	name="_:Key Pair"
 	href="../../textbook/cryptography/#d2ea30f34aa8993ee9cbd363be7ecb50">key pairs</a>.</dd>
 
@@ -8368,7 +8420,7 @@ and set the receiver account as the only cosignatory.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 17, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 30, 2025</span>
   </span>
 
     
@@ -8556,7 +8608,7 @@ and set the receiver account as the only cosignatory.</p>
       
       
     
-    <a href="https://discord.com/invite/xymcity" target="_blank" rel="noopener" title="discord.com" class="md-social__link">
+    <a href="https://discord.gg/J38KwW5ZuG" target="_blank" rel="noopener" title="discord.gg" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485 485 0 0 0 404.081 32.03a1.82 1.82 0 0 0-1.923.91 338 338 0 0 0-14.9 30.6 447.9 447.9 0 0 0-134.426 0 310 310 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.7 483.7 0 0 0-119.688 37.107 1.7 1.7 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.02 2.02 0 0 0 .765 1.375 487.7 487.7 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348 348 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321 321 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251 251 0 0 0 9.109-7.137 1.82 1.82 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.81 1.81 0 0 1 1.924.233 235 235 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.4 301.4 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391 391 0 0 0 30.014 48.815 1.86 1.86 0 0 0 2.063.7A486 486 0 0 0 610.7 405.729a1.88 1.88 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541M222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241m195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241"/></svg>
     </a>
   
@@ -8633,6 +8685,12 @@ and set the receiver account as the only cosignatory.</p>
     
     
       <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+        <script src="../../assets/javascripts/katex.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/contrib/auto-render.min.js"></script>
       
     
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
