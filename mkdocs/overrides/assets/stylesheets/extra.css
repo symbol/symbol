@@ -292,8 +292,10 @@ aside.md-source-file {
 /* Tooltips */
 .md-tooltip__inner,
 [role=tooltip]>.md-tooltip2__inner {
-	font-size: 0.6rem;
+	font-size: 0.75rem;
+	font-weight: normal;
 	background-color: var(--md-default-bg-color--light);
+	border-radius: 4px;
 }
 
 /* Search box */
