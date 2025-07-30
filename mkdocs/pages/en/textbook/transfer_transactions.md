@@ -50,7 +50,7 @@ The recipient can be specified as an <address:> or a <namespace:> alias.
 
     This behavior is normal and supported,
     but care must be taken to ensure the recipient controls the destination address,
-    because if no one has the <key pair:|private key> corresponding to it,
+    because if no one has the <private key:> corresponding to it,
     the transferred mosaics will be permanently locked.
 
 ### List of Transferred Mosaics
