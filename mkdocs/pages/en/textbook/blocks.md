@@ -47,7 +47,7 @@ All other blocks are linked back to it directly or indirectly.
 This block is commonly called the _genesis block_ in other blockchain protocols.
 In Symbol, the name _nemesis_ is a playful reference to its predecessor, NEM.
 
-All blocks that follow are created through a process called _harvesting_, Symbol's equivalent of mining in other
+All blocks that follow are created through a process called <harvesting:>, Symbol's equivalent of mining in other
 blockchains.
 Harvesters validate transactions and add them to the chain, receiving transaction fees as a reward.
 
