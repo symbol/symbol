@@ -314,10 +314,10 @@ and validation steps, but differ in purpose and required fields.
 | `Hash Lock`                         | Lock a deposit needed to announce a <bonded aggregate transaction:>.                              |
 | [**Finalization**](#7-finalization) |                                                                                                   |
 | `Voting Key Link`                   | Link an account with a <BLS:> public key required for finalization voting.                        |
-| **Harvesting**                      |                                                                                                   |
+| **[Harvesting](default:harvesting)** |                                                                                                  |
 | `Account Key Link`                  | This transaction is required for all accounts wanting to activate remote or delegated harvesting. |
 | `Node Key Link`                     | This transaction is required for all accounts willing to activate delegated harvesting.           |
-| `Vrf Key Link`                      | Link an account with a VRF public key required for harvesting.                                    |
+| `VRF Key Link`                      | Link an account with a VRF public key required for harvesting.                                    |
 | **Locks**                           |                                                                                                   |
 | `Secret Lock`                       | Start a token swap between different chains.                                                      |
 | `Secret Proof`                      | Conclude a token swap between different chains.                                                   |
