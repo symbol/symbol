@@ -20,30 +20,40 @@ and linking <blocks:> together in a blockchain.
 
 ## Keys
 
+Private Key
+:   A very long, secret number.
+    The actual value of the private key is meaningless, and it is meant to be kept secret.
+    It should be impossible to guess by unauthorized parties, and, although it is commonly randomly-generated,
+    it is extremely unlikely that the same number is generated twice by chance.
+
+Public Key
+:   A very long number that serves as the public identifier of a <private key:> and can be disseminated widely.
+    It can be used to prove that the private key is known without revealing it.
+
+    Although mathematically derived from the private key, the reverse operation is practically impossible with
+    current technology.
+
 Key Pair
-:   A pair formed by a very long, secret random number (the private key) and a
-    public number derived from it (the public key).
-
-The actual value of the **private key** is meaningless, and it is meant to be kept secret.
-It should be impossible to guess by unauthorized parties, and it is extremely unlikely that the same number is
-generated twice by chance.
-
-The **public key** serves as the public identifier of the key pair and can be disseminated widely.
-It can be used to prove that the private key is known without revealing it.
-
-The public key can be derived from the private key, **but not the other way around**.
+:   A matched set consisting of a <private key:> and its corresponding <public key:>.
+    The private key is kept secret by the owner, while the public key is distributed openly.
+    Together, they enable secure cryptographic operations such as digital signatures and encryption.
 
 Symbol uses key pairs in different places, for different purposes:
 
-* A **Main Key** is associated with every <account:>, identifying its owner.
+Main Key
+:   <Key pair:|Key pair> associated with every <account:>, identifying its owner.
 
-* A **Remote Key** is associated with every remote-harvesting account.
+Remote Key
+:   <Key pair:|Key pair> associated with every <remote harvesting:> account.
 
-* A **VRF Key** heightens the security of harvesting nodes.
+VRF Key
+:   <Key pair:|Key pair> used by <harvesting:> nodes to make their output unpredictable.
 
-* A **Voting Key** is required for nodes participating in the <finalization:> process.
+Voting Key
+:   <Key pair:|Key pair> required for nodes participating in the <finalization:> process.
 
-* A **Transport Key** is used by nodes for secure transport over [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security).
+Transport Key
+:   <Key pair:|Key pair> used by nodes for secure transport over [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security).
 
 ??? warning "Key Security"
 
@@ -68,7 +78,7 @@ using the [twisted Edwards curve](https://en.wikipedia.org/wiki/Twisted_Edwards_
 Signature
 :   A digital attachment to a document that certifies that the document is approved by a given <account:>.
 
-The signature is obtained by processing the document with the <key pair:|private key> of the account,
+The signature is obtained by processing the document with the <private key:> of the account,
 so that anybody can use the associated public key to verify that the signature matches the document,
 but only the owner of the private key can produce an identical signature.
 
@@ -85,7 +95,7 @@ Signatures on Symbol are 512-bit (64-byte) long and are generated using the [Ed2
 ## Addresses
 
 Address
-:   A convenient, shorter form of a <key pair:|public key>, that simplifies sharing it by requiring only
+:   A convenient, shorter form of a <public key:>, that simplifies sharing it by requiring only
     letters and numbers. It's typically a synonym for <account:>.
 
 Keys, both public and private, are binary data which is hard to print and share, whereas addresses are made up of
@@ -122,7 +132,8 @@ On Symbol, addresses are obtained from public keys by:
 
 ## Vanity addresses
 
-While keys, and therefore <addresses:> too, are normally generated randomly, it is possible to create **vanity addresses** that include specific patterns or prefixes.
+While keys, and therefore <addresses:> too, are normally generated randomly, it is possible to create **vanity addresses**
+that include specific patterns or prefixes.
 
 This involves generating <key pairs:> repeatedly until one produces an address that meets the desired criteria.
 The process usually requires substantial time and computation depending on the complexity of the pattern.

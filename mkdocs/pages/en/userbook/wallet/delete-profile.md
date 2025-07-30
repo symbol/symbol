@@ -6,7 +6,7 @@ This action removes access to all <accounts:> managed by that profile on this de
 !!! note
     You are only deleting **your access** to the accounts.  
     The accounts themselves, along with any assets they contain, remain on the blockchain.  
-    If the <key pair:|private keys> to those accounts have been copied elsewhere, the assets can still be accessed from another device or wallet.
+    If the <private keys:> to those accounts have been copied elsewhere, the assets can still be accessed from another device or wallet.
 
 If you only want to switch to a different profile, you do not need to delete the current one.  
 The wallet supports multiple profiles. You can simply log out and log into another profile, or create a new one.
