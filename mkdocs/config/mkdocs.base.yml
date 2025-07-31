@@ -146,7 +146,7 @@ extra:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/J38KwW5ZuG
   symbol:
-    branch: mkdocs/content-templates
+    branch: new-docs
     java-sdk:
       include-prefixes: [classorg, interfaceorg]
     ts-sdk:
