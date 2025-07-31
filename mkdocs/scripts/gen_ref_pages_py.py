@@ -24,6 +24,8 @@ for path in paths:
 
 	with mkdocs_gen_files.open(full_doc_path, "w") as fd:
 		identifier = ".".join(parts)
+		print(f'# :simple-python: {parts[-1]}', file=fd)
+		print('', file=fd)
 		print("::: " + identifier, file=fd)
 
 with mkdocs_gen_files.open("devbook/reference/py/links.md", "w") as nav_file:

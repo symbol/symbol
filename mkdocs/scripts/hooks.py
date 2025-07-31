@@ -57,7 +57,7 @@ def page_markdown_js_typedoc(content, page, config, files):
 		symbol_name_wbr = re.sub(r'([a-z])([A-Z])', r'\1<wbr>\2', symbol_name)
 		if m.group(1) not in dict:
 			return f'# {m.group(1)}: {symbol_name_wbr}'
-		return f'# <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_wbr}'
+		return f'# :simple-javascript: <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_wbr}'
 
 	# Add object type icon at the header
 	content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, 1)

@@ -9,7 +9,7 @@ for f in mkdocs_gen_files.editor.FilesEditor.current().files:
 	if not f.src_uri.startswith("devbook/reference/ts/"):
 		continue
 	path = Path(f.src_uri.removeprefix("devbook/reference/ts/"))
-	if path.stem == "README":
+	if path.stem == "README" or path.stem == ".meta":
 		continue
 	if "nem" in path.parts:
 		continue
