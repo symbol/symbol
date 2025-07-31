@@ -159,3 +159,33 @@ def on_startup(*args, **kwargs):
 	project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 	if project_root not in sys.path:
 		sys.path.insert(0, project_root)
+
+def on_nav(nav, config, files):
+	"""
+	Counts the total number of pages on the site, after autogeneration, and stores it for later use.
+	"""
+	def count_pages(items):
+		count = 0
+		for item in items:
+			if hasattr(item, 'children') and item.children:
+				count += count_pages(item.children)
+			else:
+				count += 1
+		return count
+
+	num_pages = count_pages(nav)
+	config['extra']['symbol']['page_count'] = num_pages
+	log.info(f"Custom hook: Counted {num_pages} pages")
+
+def on_env(env, config, files):
+	"""
+	Render strings in the config that are actually Jinja templates.
+	"""
+	from jinja2 import Template
+
+	raw_html = config['extra']['symbol']['not_found']
+	tmpl = env.from_string(raw_html)
+	config['extra']['symbol']['not_found'] = tmpl.render(config=config)
+
+	return env
+
