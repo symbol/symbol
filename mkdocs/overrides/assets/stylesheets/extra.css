@@ -226,6 +226,14 @@
 	opacity: 1;
 }
 
+/* Language logo in the header for sections that have it */
+.md-header__topic svg {
+	height: 1.5rem;
+	vertical-align: middle;
+	fill: var(--md-primary-bg-color);
+	margin-right: 0.5rem;
+}
+
 /* Separator for source file facts at page bottom */
 aside.md-source-file {
 	border-top: 1px solid var(--md-primary-fg-color);
