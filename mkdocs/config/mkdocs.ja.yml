@@ -1,7 +1,7 @@
 INHERIT: ./mkdocs.base.yml
 
 site_name: Symbolドキュメント WIP ⚠
-site_url: http://symbol.github.io/symbol/ja
+site_url: http://docs.symboltest.net/ja
 docs_dir: ../pages/ja
 site_dir: ../../docs/ja
 edit_uri: blob/new-docs/mkdocs/pages/ja
@@ -46,11 +46,6 @@ extra:
       当社では、お客様の繰り返しのアクセスや好みを認識するため、
       また、当社のドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
       お客様の同意により、当社はドキュメントの改善に協力することになります。
-  symbol:
-    not_found: |
-      <h1>404: ページが見つかりません</h1>
-      <p><b>このサイトには {{ config.extra.symbol.page_count }} 件のページがあります。</b></p>
-      <p>それらをすべて外して、魔法使いを混乱させるとはお見事です。</p>
 nav:
   - index.md
   - ユーザーマニュアル:

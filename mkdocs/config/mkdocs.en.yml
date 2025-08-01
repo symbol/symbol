@@ -1,7 +1,7 @@
 INHERIT: ./mkdocs.base.yml
 
 site_name: Symbol Docs WIP 🚧
-site_url: http://symbol.github.io/symbol/en
+site_url: http://docs.symboltest.net/en
 docs_dir: ../pages/en
 site_dir: ../../docs/en
 edit_uri: blob/new-docs/mkdocs/pages/en
@@ -49,11 +49,6 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better.
-  symbol:
-    not_found: |
-      <h1>404: Page Not Found</h1>
-      <p><b>There are {{ config.extra.symbol.page_count }} pages on this site.</b></p>
-      <p>Congratulations on missing all of them and confusing the wizard.</p>
 nav:
   - index.md
   - User Manual:

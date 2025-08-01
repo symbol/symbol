@@ -176,16 +176,3 @@ def on_nav(nav, config, files):
 	num_pages = count_pages(nav)
 	config['extra']['symbol']['page_count'] = num_pages
 	log.info(f"Custom hook: Counted {num_pages} pages")
-
-def on_env(env, config, files):
-	"""
-	Render strings in the config that are actually Jinja templates.
-	"""
-	from jinja2 import Template
-
-	raw_html = config['extra']['symbol']['not_found']
-	tmpl = env.from_string(raw_html)
-	config['extra']['symbol']['not_found'] = tmpl.render(config=config)
-
-	return env
-
