@@ -4,20 +4,16 @@
 		<meta charset="utf-8">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<script>
-			var userLang = navigator.language || navigator.userLanguage;
-			var urls = {
-				'en': 'en',
-				'ja': 'ja',
-			};
-			var defaultUrl = 'en';
+			const userLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+			const supported = ['en', 'ja'];
+			const lang = supported.includes(userLang.slice(0, 2)) ? userLang.slice(0, 2) : 'en';
 
-			var url = urls[userLang] ?? defaultUrl;
-			window.location.href = url + window.location.pathname;
+			window.location.pathname = lang + '/404/';
 		</script>
 	</head>
 	<body>
 		Redirecting to your language...
 		<br/>
-		Use these links if redirection does not work: <a href="en/404.html">English</a> <a href="ja/404.html">日本語</a>
+		Use these links if redirection does not work: <a href="en/404/">English</a> <a href="ja/404/">日本語</a>
 	</body>
 </html>
