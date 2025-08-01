@@ -1,7 +1,7 @@
 INHERIT: ./mkdocs.base.yml
 
 site_name: Symbolドキュメント WIP ⚠
-site_url: http://docs.symboltest.net/ja
+site_url: https://docs.symboltest.net/ja
 docs_dir: ../pages/ja
 site_dir: ../../docs/ja
 edit_uri: blob/new-docs/mkdocs/pages/ja

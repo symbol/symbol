@@ -128,17 +128,17 @@ theme:
     - search.highlight  # Highlight searched term
     - search.share  # Add share button for deep-linking to search results
 extra:
-  homepage: https://symbol.github.io/symbol
+  homepage: https://docs.symboltest.net
   alternate:
     - name: English
-      link: /symbol/en/
+      link: /en/
       lang: en
     - name: 日本語
-      link: /symbol/ja/
+      link: /ja/
       lang: ja
   social:
     - icon: fontawesome/solid/house
-      link: https://symbol.github.io/symbol
+      link: https://docs.symboltest.net
     - icon: fontawesome/brands/x-twitter
       link: https://x.com/SymbolSyndicate
     - icon: fontawesome/brands/github
