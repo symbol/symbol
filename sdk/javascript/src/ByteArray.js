@@ -25,7 +25,7 @@ export default class ByteArray {
 
 		/**
 		 * Underlying bytes.
-		 * @type {Uint8Array}
+		 * @type {Uint8Array<ArrayBuffer>}
 		 */
 		this.bytes = new Uint8Array(rawBytes);
 	}

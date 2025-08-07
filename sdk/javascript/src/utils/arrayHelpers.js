@@ -115,7 +115,7 @@ const readArrayCount = (bufferInput, FactoryClass, count, accessor = undefined) 
 
 /**
  * Reads array of variable size objects.
- * @param {Uint8Array} bufferInput Buffer input.
+ * @param {Uint8Array<ArrayBuffer>} bufferInput Buffer input.
  * @param {{deserialize: Function}} FactoryClass Factory used to deserialize objects.
  * @param {number} alignment Alignment used to make sure each object is at boundary.
  * @param {boolean} skipLastElementPadding \c true if last element is not aligned/padded.

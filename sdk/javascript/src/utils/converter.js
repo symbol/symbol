@@ -54,7 +54,7 @@ const toByte = (char1, char2) => {
 };
 
 /**
- * Determines whether or not a string is a hex string.
+ * Determines whether a string is a hex string.
  * @param {string} input String to test.
  * @returns {boolean} \c true if the input is a hex string, \c false otherwise.
  */
@@ -71,9 +71,9 @@ const isHexString = input => {
 };
 
 /**
- * Converts a hex string to a uint8 array.
+ * Converts a hex string to an uint8 array.
  * @param {string} input Hex encoded string.
- * @returns {Uint8Array} Uint8 array corresponding to the input.
+ * @returns {Uint8Array<ArrayBuffer>} Uint8 array corresponding to the input.
  */
 const hexToUint8 = input => {
 	if (0 !== input.length % 2)
