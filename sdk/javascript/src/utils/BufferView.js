@@ -4,12 +4,12 @@
 export default class BufferView {
 	/**
 	 * Creates buffer view around a buffer.
-	 * @param {Uint8Array} buffer Initial buffer view.
+	 * @param {Uint8Array<ArrayBuffer>} buffer Initial buffer view.
 	 */
 	constructor(buffer) {
 		/**
 		 * Underlying buffer view.
-		 * @type {Uint8Array}
+		 * @type {Uint8Array<ArrayBuffer>}
 		 */
 		this.buffer = buffer;
 	}
@@ -25,7 +25,7 @@ export default class BufferView {
 	/**
 	 * Returns new limited view.
 	 * @param {number} size Length in bytes.
-	 * @returns {Uint8Array} View limited to specified size.
+	 * @returns {Uint8Array<ArrayBuffer>} View limited to specified size.
 	 */
 	window(size) {
 		if (size > this.buffer.length)

@@ -4,14 +4,20 @@ export default () => {
 	const sampleAddress = 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C';
 	const textEncoder = new TextEncoder();
 
+	const encodeString = s => {
+		const addressBuffer = new Uint8Array(new ArrayBuffer(s.length * 2));
+		new TextEncoder().encodeInto(s, addressBuffer);
+		return addressBuffer;
+	};
+
 	// HACK: until fixed
 	const levy = new nem.MosaicLevy();
 	levy.transferFeeType = nem.MosaicTransferFeeType.ABSOLUTE;
 	levy.recipientAddress.bytes = (new Address(sampleAddress)).bytes;
 	levy.mosaicId = new nem.MosaicId();
 	levy.mosaicId.namespaceId = new nem.NamespaceId();
-	levy.mosaicId.namespaceId.name = textEncoder.encode('lieutenant');
-	levy.mosaicId.name = textEncoder.encode('colonel');
+	levy.mosaicId.namespaceId.name = encodeString('lieutenant');
+	levy.mosaicId.name = encodeString('colonel');
 	levy.fee = new nem.Amount(632_0000n);
 
 	return [
