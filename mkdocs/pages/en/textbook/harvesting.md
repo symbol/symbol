@@ -243,3 +243,10 @@ the higher the value, the greater the chance to harvest a block and earn rewards
 
     The details about how these scores are combined to produce the importance score can be found in
     [the Symbol whitepaper](site:/assets/pdfs/SymbolWhitepaper.pdf), section 14.1.
+
+!!! note
+
+    Importance scores are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
+    two scores is used when calculating harvesting probabilities.
+    Therefore, when you first fund an account, it will require 12 hours to have a probability greater than zero to
+    start harvesting.
