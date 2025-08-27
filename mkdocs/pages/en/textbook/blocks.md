@@ -67,8 +67,8 @@ This leads to a _fork_, where two or more competing chains share a common histor
 During a fork, for example, queries to different nodes might return different balances for the same account,
 depending on whether those nodes have seen all the transactions that affect it.
 
-When connectivity is restored, Symbol resolves forks using a deterministic rule: the chain with the highest _chain
-score_, based on cumulative difficulty, is considered the correct one.
+When connectivity is restored, Symbol resolves forks using a deterministic rule: the chain with the highest
+<chain score:>, based on cumulative difficulty, is considered the correct one.
 Nodes that find themselves on the lower-scoring fork _roll back_ any blocks that are no longer part of the
 main chain and switch to the better one.
 
