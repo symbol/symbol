@@ -109,7 +109,7 @@ Each block in the Symbol blockchain contains a combination of metadata and trans
 | **Height**              | The block's position in the chain, starting from 1 for the <nemesis block:>.<br/>Each new block has a height one greater than its predecessor.        |
 | **Timestamp**           | Milliseconds elapsed since <nemesis block:>, strictly increasing for each block.<br/>Average time between blocks is kept close to 30s.                |
 | **Previous block hash** | <Hash:> of the previous block. If its contents were tampered with, this hash would change, breaking the chain and invalidating all subsequent blocks. |
-| **State hashes**        | <Hashes:> summarizing the block's transaction list, generated receipts, and the resulting state after processing.                                     |
+| **State hashes**        | [Hashes](default:Hash) summarizing the block's transaction list, generated receipts, and the resulting state after processing.                        |
 | **Fee multiplier**      | A multiplier set by the block harvester that determines how fees are calculated for each transaction in the block, based on their size in bytes.      |
 | **Transactions**        | A list of valid transactions included in the block. Each transaction is independently verified before being accepted into the block.                  |
 | **Receipts**            | A set of records automatically generated during block processing to reflect internal changes not captured by transactions themselves.                 |
