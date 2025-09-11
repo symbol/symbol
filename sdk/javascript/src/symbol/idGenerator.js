@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { Address } from './Network.js';
 /* eslint-enable no-unused-vars */
-import { sha3_256 } from '@noble/hashes/sha3';
+import { sha3_256 } from '@noble/hashes/sha3.js';
 
 const NAMESPACE_FLAG = 1n << 63n;
 

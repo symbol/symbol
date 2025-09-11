@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { sha3_256 } from '@noble/hashes/sha3';
+import { sha3_256 } from '@noble/hashes/sha3.js';
 import { utils } from 'symbol-sdk';
 
 export default class MerkleTree {

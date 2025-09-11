@@ -5,7 +5,7 @@ import { Network as BasicNetwork } from '../Network.js';
 import { NetworkTimestamp as BasicNetworkTimestamp, NetworkTimestampDatetimeConverter } from '../NetworkTimestamp.js';
 import base32 from '../utils/base32.js';
 import { hexToUint8 } from '../utils/converter.js';
-import { sha3_256 } from '@noble/hashes/sha3';
+import { sha3_256 } from '@noble/hashes/sha3.js';
 
 /**
  * Represents a Symbol network timestamp with millisecond resolution.

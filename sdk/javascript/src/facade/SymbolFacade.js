@@ -24,7 +24,7 @@ import { deriveSharedKey } from '../symbol/SharedKey.js';
 import TransactionFactory from '../symbol/TransactionFactory.js';
 import { MerkleHashBuilder } from '../symbol/merkle.js';
 import * as sc from '../symbol/models.js';
-import { sha3_256 } from '@noble/hashes/sha3';
+import { sha3_256 } from '@noble/hashes/sha3.js';
 
 const TRANSACTION_HEADER_SIZE = [
 	4, // size

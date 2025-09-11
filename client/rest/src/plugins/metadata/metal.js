@@ -1,4 +1,4 @@
-import { sha3_256 } from '@noble/hashes/sha3';
+import { sha3_256 } from '@noble/hashes/sha3.js';
 import bs58 from 'bs58';
 import { utils } from 'symbol-sdk';
 

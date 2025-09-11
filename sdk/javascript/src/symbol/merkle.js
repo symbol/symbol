@@ -1,7 +1,7 @@
 import { Hash256 } from '../CryptoTypes.js';
 import { deepCompare } from '../utils/arrayHelpers.js';
 import { uint8ToHex } from '../utils/converter.js';
-import { sha3_256 } from '@noble/hashes/sha3';
+import { sha3_256 } from '@noble/hashes/sha3.js';
 
 // region MerkleHashBuilder
 

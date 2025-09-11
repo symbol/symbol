@@ -8,7 +8,7 @@ import {
 } from './CryptoTypes.js';
 import tweetnacl from './impl/external/tweetnacl-nacl-fast-symbol.js';
 import { hkdf } from '@noble/hashes/hkdf';
-import { sha256 } from '@noble/hashes/sha256';
+import { sha256 } from '@noble/hashes/sha256.js';
 
 // order matches order of exported methods
 const tweetnacl_lowlevel = (/** @type {any} */ (tweetnacl)).lowlevel;

@@ -8,7 +8,7 @@ import {
 	SharedKey256
 } from '../CryptoTypes.js';
 import { deriveSharedKeyFactory, deriveSharedSecretFactory } from '../SharedKey.js';
-import { keccak_256, keccak_512 } from '@noble/hashes/sha3';
+import { keccak_256, keccak_512 } from '@noble/hashes/sha3.js';
 
 const deriveSharedSecretImpl = deriveSharedSecretFactory(keccak_512);
 const deriveSharedKeyImpl = deriveSharedKeyFactory('nem-nis1', keccak_512);

@@ -25,7 +25,7 @@ import TransactionFactory from '../nem/TransactionFactory.js';
 /* eslint-disable no-unused-vars */
 import * as nc from '../nem/models.js';
 /* eslint-enable no-unused-vars */
-import { keccak_256 } from '@noble/hashes/sha3';
+import { keccak_256 } from '@noble/hashes/sha3.js';
 
 // region NemPublicAccount / NemAccount
 

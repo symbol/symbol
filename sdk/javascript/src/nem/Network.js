@@ -2,7 +2,7 @@ import ByteArray from '../ByteArray.js';
 import { Network as BasicNetwork } from '../Network.js';
 import { NetworkTimestamp as BasicNetworkTimestamp, NetworkTimestampDatetimeConverter } from '../NetworkTimestamp.js';
 import base32 from '../utils/base32.js';
-import { keccak_256 } from '@noble/hashes/sha3';
+import { keccak_256 } from '@noble/hashes/sha3.js';
 
 /**
  * Represents a NEM network timestamp with second resolution.
