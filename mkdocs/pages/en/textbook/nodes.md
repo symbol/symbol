@@ -2,7 +2,7 @@
 
 Node
 :   A computer running the Symbol software which shares information with other nodes,
-    validates incoming <transactions:>, and participates in consensus and block creation.
+    validates incoming <transactions:>, and participates in <consensus:> and block creation.
 
 Nodes form the backbone of the blockchain, ensuring the network remains functional as long as enough nodes are active.
 
@@ -67,7 +67,7 @@ digraph SymbolNode {
 ### :octicons-terminal-24: Catapult
 
 Catapult
-:   The core engine that verifies <transactions:> and <blocks:>, runs the consensus algorithm, creates new blocks,
+:   The core engine that verifies <transactions:> and <blocks:>, runs the <consensus:> algorithm, creates new blocks,
     and propagates the changes through the network.
 
 !!! image inline end ""
@@ -145,8 +145,8 @@ Each role places different demands on hardware, based on the enabled components.
 ### Peer Nodes
 
 Peer Node
-:   A peer node participates in the network's consensus process by validating incoming transactions and blocks,
-    and relaying them to neighboring nodes.
+:   A peer node creates new blocks and participates in the network's consensus process by
+    validating incoming transactions and blocks, and relaying them to neighboring nodes.
 
 Peer nodes maintain the network's integrity by independently verifying the data they receive before propagating it.
 

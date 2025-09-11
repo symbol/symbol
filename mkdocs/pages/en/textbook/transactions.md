@@ -48,7 +48,7 @@ Aggregate Transaction
 They are initiated by a single account, but might require signatures from other involved accounts.
 
 Cosignature
-:   When a transaction requires multiple signatures, they are called cosignatures.
+:   When a transaction requires multiple signatures, they are called _cosignatures_.
 
 Aggregate transactions provide a great deal of flexibility to Symbol, because they enable coordinated behavior
 between multiple accounts, without requiring trust between them.
@@ -103,7 +103,7 @@ Complete Aggregate Transaction
 :   An <aggregate transaction:> submitted to the network with all required <cosignatures:> already attached.
     Nodes can therefore proceed to validation and include the transaction in a block immediately.
 
-This transaction type requires that cosignatures are collected off-chain in advance.
+This transaction type requires that cosignatures from all accounts are collected off-chain in advance.
 
 ### Bonded Aggregate Transactions
 
@@ -111,7 +111,7 @@ Bonded Aggregate Transaction
 :   An <aggregate transaction:> submitted to the network without all required <cosignatures:>.
     The network temporarily holds the transaction while waiting for the additional cosignatures.
 
-    Also called partial transactions.
+    Also called _partial transactions_.
 
 With this transaction type, all involved parties interact exclusively on-chain.
 
@@ -126,7 +126,7 @@ If all cosignatures are collected before the transaction expires, the bond is re
 ### Embedded Transactions
 
 Embedded Transaction
-:   When basic transactions are included in an aggregate transaction they are called embedded transactions.
+:   When basic transactions are included in an aggregate transaction they are called _embedded transactions_.
 
 Embedded transactions behave exactly like basic transactions, except for:
 
@@ -166,9 +166,8 @@ digraph "Transaction Lifecycle" {
     Validation   [label="3. Is it
 valid?", shape=diamond, style="", URL="#3-validation"];
     Propagation  [label="4. Propagate to other nodes", URL="#4-propagation"];
-    Consensus    [label="5. Is there
-consensus?", shape=diamond, style="", URL="#5-consensus"];
-    Confirmation [label="6. Transaction is included in a new block", URL="#6-confirmation"];
+    Harvesting   [label="5. Inclusion in a block", URL="#5-harvesting"];
+    Confirmation [label="6. Confirmed?", shape=diamond, style="", URL="#6-confirmation"];
     Finalization [label="7. The block becomes immutable", URL="#7-finalization"];
 
     // Rejection branches
@@ -179,17 +178,17 @@ consensus?", shape=diamond, style="", URL="#5-consensus"];
     Creation ->     Announcement;
     Announcement -> Validation;
     Validation ->   Propagation [label="   Yes", labelfloat=true];
-    Propagation ->  Consensus;
-    Consensus ->    Confirmation [label="   Yes", labelfloat=true];
+    Propagation ->  Harvesting;
+    Harvesting ->   Confirmation [label="   Yes", labelfloat=true];
     Confirmation -> Finalization;
 
     // Rejection branches to the right
     Validation ->   Rejection1 [label=No, style=dashed, minlen=2];
-    Consensus ->    Rejection2 [label=No, style=dashed, minlen=2];
+    Confirmation ->   Rejection2 [label=No, style=dashed, minlen=2];
 
     // Position rejection nodes on the same rank as their source
     { rank = same; Validation; Rejection1 }
-    { rank = same; Consensus; Rejection2 }
+    { rank = same; Confirmation; Rejection2 }
 }
 ```
 
@@ -213,7 +212,7 @@ Signatures prove that all required parties have authorized the transaction, sinc
 
 ### 2. Announcement
 
-The client application submits the transaction to a connected API node on the network.
+The client application submits the transaction to a connected <API node:> on the network.
 
 ### 3. Validation
 
@@ -231,7 +230,7 @@ If all checks pass, the process continues.
 ### 4. Propagation
 
 Once the node considers the transaction to be valid, it is broadcast to the <peer nodes:> in the network,
-and added to every node's  _unconfirmed pool_.
+and added to every node's _unconfirmed pool_.
 
 Unconfirmed pool
 :   A list of transactions pending validation, shared by all nodes in the network.
@@ -240,27 +239,29 @@ Nodes pick up transactions from this pool and perform the same validation:
 they checks the transaction's structure, signatures, and any conditions specific to its type.
 If the transaction passes validation, it is further propagated to other peers.
 
-This process ensures that a broad portion of the network knows about the transaction and accepts it as valid.
+This process ensures that a broad portion of the network knows about the transaction.
 
-### 5. Consensus
+### 5. Harvesting
 
-Each node has an importance score based on its staked funds and other factors.
-This score is used as a weight in the node's vote during the consensus process.
-
-The consensus algorithm collects votes from nodes until a predefined threshold is reached.
-If the threshold is reached, the transaction is confirmed.
-If not, the transaction remains in the <unconfirmed pool:> until its deadline expires, at which point it is rejected.
+Once in the unconfirmed pool, the transaction will eventually be picked up by the <harvesting:> process and
+included in a block.
+At that moment, the transactions becomes _confirmed_.
 
 ### 6. Confirmation
 
-Once enough positive weighted votes are collected, the transaction is added to a <block:> and the block
-propagated to all other nodes.
+Newly created blocks are propagated to other nodes, that validate them and either accept or reject them.
+The <consensus:> mechanism ensures that all nodes on the network ultimately agree on the same blocks.
 
-However, due to the distributed nature of the blockchain, blocks can occasionally be <rollback:|rolled back> and
-confirmed transactions reverted.
+Occasionally, a block already accepted by a node is later rejected by the majority of the network and must be
+<rollback:|rolled back>.
+In this case, the blocks's transactions are reverted and returned to the unconfirmed pool.
 
-A common solution is for applications to wait for several additional blocks after a transaction is confirmed.
-Each new block adds another layer of confirmation, increasing confidence that the transaction will not be reverted.
+If a transaction's deadline expires while it is still in the unconfirmed pool, it is rejected.
+This may happen, for example, if the transaction fee offered is too low to be included by any harvester.
+
+To reduce the risk of relying on transactions that might be reverted, applications typically wait for several
+additional blocks after a transaction is confirmed.
+Each new block adds another layer of confirmation, increasing confidence that the transaction will remain permanent.
 
 On Symbol, however, an additional mechanism provides final guarantees that confirmed transactions cannot be reverted.
 
