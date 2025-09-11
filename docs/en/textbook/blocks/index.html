@@ -7741,6 +7741,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../consensus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Consensus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../transactions/" class="md-nav__link">
         
   
@@ -7882,27 +7903,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rollbacks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rollbacks
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#finalization" class="md-nav__link">
-    <span class="md-ellipsis">
-      Finalization
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#block-structure" class="md-nav__link">
     <span class="md-ellipsis">
       Block Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      Block Score
     </span>
   </a>
   
@@ -8109,27 +8121,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rollbacks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rollbacks
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#finalization" class="md-nav__link">
-    <span class="md-ellipsis">
-      Finalization
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#block-structure" class="md-nav__link">
     <span class="md-ellipsis">
       Block Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      Block Score
     </span>
   </a>
   
@@ -8269,78 +8272,6 @@ It plays a similar role to mining in PoW or staking in PoS."
 	href="../../textbook/harvesting/#4da2a5a68444f540bbf5e10a08b085e4">harvesting</a>, Symbol's equivalent of mining in other
 blockchains.
 Harvesters validate transactions and add them to the chain, receiving transaction fees as a reward.</p>
-<h2 id="rollbacks">Rollbacks<a class="headerlink" href="#rollbacks" title="Anchor link to this section for reference">⚓︎</a></h2>
-<dl>
-<dt>
-	<a id="fa68d384bf5dbf284e2a6a02fb2ef92d">Rollback</a> 
-</dt>
-<dd>The process of discarding one or more recently added blocks when the network switches to a better chain,
-typically after a fork is resolved.</dd>
-
-</dl>
-<p>In a decentralized network like Symbol, <a class="mkdocs-ezglossary-link"
-	id="6db5e68a28dc53fadec1657f64511027"
-	title="A computer running the Symbol software which shares information with other nodes,
-validates incoming transactions, and participates in consensus and block creation."
-	name="_:Node"
-	href="../../textbook/nodes/#bc6d0fc1a92ae07d7739daed957574ab">nodes</a> may temporarily become out of sync.
-This can happen due to latency, connectivity issues, or changes in network topology.
-During such <em>network partitions</em>, disconnected groups of nodes may temporarily disagree on the most recent blocks.</p>
-<p>As a result, more than one version of the blockchain may exist for a short time.
-This leads to a <em>fork</em>, where two or more competing chains share a common history but differ in their latest blocks.</p>
-<p>During a fork, for example, queries to different nodes might return different balances for the same account,
-depending on whether those nodes have seen all the transactions that affect it.</p>
-<p>When connectivity is restored, Symbol resolves forks using a deterministic rule: the chain with the highest <em>chain
-score</em>, based on cumulative difficulty, is considered the correct one.
-Nodes that find themselves on the lower-scoring fork <em>roll back</em> any blocks that are no longer part of the
-main chain and switch to the better one.</p>
-<p>Any transactions in the discarded blocks return to the <a class="mkdocs-ezglossary-link"
-	id="e5da1c62b540828e62e316038ed976a4"
-	title="A list of transactions pending validation, shared by all nodes in the network."
-	name="_:Unconfirmed pool"
-	href="../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a> and must be re-verified before they can be
-included in a block again.</p>
-<p>Rollbacks are usually shallow and rare, affecting only the most recent blocks.
-However, to completely remove this risk, Symbol uses <em>finalization</em>.</p>
-<h2 id="finalization">Finalization<a class="headerlink" href="#finalization" title="Anchor link to this section for reference">⚓︎</a></h2>
-<dl>
-<dt>
-	<a id="8fe31d7fd591e1fd0d06f55c2ea53850">Finalization</a> 
-</dt>
-<dd>The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
-<a class="mkdocs-ezglossary-link"
-	id="dbc1bb9bbf8b7b9716009a2613684543"
-	title="The process of discarding one or more recently added blocks when the network switches to a better chain,
-typically after a fork is resolved."
-	name="_:Rollback"
-	href="../../textbook/blocks/#fa68d384bf5dbf284e2a6a02fb2ef92d">rollbacks</a>.</dd>
-
-</dl>
-<p>Once a block is finalized, it is guaranteed to remain in the chain and will never be rolled back, even in the event of
-a network partition or fork.</p>
-<p>This process is driven by all eligible <a class="mkdocs-ezglossary-link"
-	id="6330cd1e84682d8c5938f2952d1407b6"
-	title="Voting nodes contribute to the finalization process, which makes blocks immutable."
-	name="_:Voting Node"
-	href="../../textbook/nodes/#bca21766fb7e31db1e4e938bb9762d65">voting nodes</a>, which use a separate consensus algorithm to
-periodically agree on the most recent block that can be safely finalized.
-The result is a <em>finalization point</em>: a checkpoint in the blockchain that all nodes agree to build upon.</p>
-<p>Finalization gives applications a reliable foundation to work from.
-For example, a wallet can consider a transaction to be fully confirmed once it is included in a finalized block.</p>
-<p>Votes from voting nodes are weighted by account balance to prevent <a class="mkdocs-ezglossary-link"
-	id="319c67ad19a53ef98a35858b8a6f5626"
-	title="An attack in which a single adversary creates many fake identities or accounts to gain disproportionate influence
-over a network or consensus process.
-Common countermeasures include PoW or PoS, which tie influence to scarce resources."
-	name="_:Sybil Attack"
-	href="../../textbook/glossary/#5b2b4c0eecb2f226e7004cbed3761df4">Sybil attacks</a>,
-and only accounts holding at least 10'000 <a class="mkdocs-ezglossary-link"
-	id="eb502b2ab67b3677d8c5637b6fa6ba45"
-	title="The native currency of the Symbol blockchain."
-	name="_:XYM"
-	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> are eligible to participate.</p>
-<p>In the absence of network partitions, blocks are typically finalized within 10 to 20 minutes,
-depending on how long ago the last finalization point occurred.</p>
 <h2 id="block-structure">Block Structure<a class="headerlink" href="#block-structure" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Each block in the Symbol blockchain contains a combination of metadata and transaction data, including:</p>
 <table>
@@ -8383,11 +8314,11 @@ network creators."
 <tr>
 <td><strong>State hashes</strong></td>
 <td><a class="mkdocs-ezglossary-link"
-	id="96fb88bc086e11db4b311e09617d61e7"
+	id="7a0a369c3c8548450a0a0cd91aac623d"
 	title="A cryptographic hash is a fixed-size string of characters produced by a mathematical function
 (called a hash function) that maps input data of any size to a unique output."
 	name="_:Hash"
-	href="../../textbook/cryptography/#3890164a26bb4fc4d63840afc9a2d7b7">hashes</a> summarizing the block's transaction list, generated receipts, and the resulting state after processing.</td>
+	href="../../textbook/cryptography/#3890164a26bb4fc4d63840afc9a2d7b7">Hashes</a> summarizing the block's transaction list, generated receipts, and the resulting state after processing.</td>
 </tr>
 <tr>
 <td><strong>Fee multiplier</strong></td>
@@ -8403,6 +8334,44 @@ network creators."
 </tr>
 </tbody>
 </table>
+<h2 id="block-score">Block Score<a class="headerlink" href="#block-score" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>The following quantity is defined for each block, to aid in the <a class="mkdocs-ezglossary-link"
+	id="bf39efe6ab0fbca628b3dd4503ef76e1"
+	title="The process by which all nodes in the network agree on the current state of the blockchain."
+	name="_:Consensus"
+	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> process.</p>
+<dl>
+<dt>
+	<a id="a84b6b80eada4dbf2668ad3c1bf64ae6">Block Score</a> 
+</dt>
+<dd>A numerical value assigned to each block that reflects how hard it was to <a class="mkdocs-ezglossary-link"
+	id="86406056e1d553ee2b468a046dee21a1"
+	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
+It plays a similar role to mining in PoW or staking in PoS."
+	name="_:Harvesting"
+	href="../../textbook/harvesting/#4da2a5a68444f540bbf5e10a08b085e4">harvest</a>.
+Higher scores indicate higher difficulty and are therefore preferred when resolving <a class="mkdocs-ezglossary-link"
+	id="6f72c6d0b969c62dbdd32524bf5f2b2f"
+	title="State where two or more competing chains share a common history but differ in their latest blocks."
+	name="_:Fork"
+	href="../../textbook/consensus/#8c7c90a90d192d38075db29ab8522c89">forks</a>.</dd>
+
+</dl>
+<div class="arithmatex">\[
+\textit{block score} = difficulty − \textit{time elapsed since last block}
+\]</div>
+<dl>
+<dt>
+	<a id="0553309ce8bcadb30fe7cb30f8c6fd90">Chain Score</a> 
+</dt>
+<dd>Sum of the <a class="mkdocs-ezglossary-link"
+	id="72f36314a7473a346aaba830769dc2b6"
+	title="A numerical value assigned to each block that reflects how hard it was to harvest.
+Higher scores indicate higher difficulty and are therefore preferred when resolving forks."
+	name="_:Block Score"
+	href="../../textbook/blocks/#a84b6b80eada4dbf2668ad3c1bf64ae6">block scores</a> of all blocks produced in a given period of time.</dd>
+
+</dl>
 <h2 id="receipts">Receipts<a class="headerlink" href="#receipts" title="Anchor link to this section for reference">⚓︎</a></h2>
 <dl>
 <dt>
@@ -8635,7 +8604,7 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2025</span>
   </span>
 
     

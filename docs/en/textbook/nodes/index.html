@@ -7741,6 +7741,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../consensus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Consensus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../transactions/" class="md-nav__link">
         
   
@@ -8383,16 +8404,20 @@
 </dt>
 <dd>A computer running the Symbol software which shares information with other nodes,
 validates incoming <a class="mkdocs-ezglossary-link"
-	id="4e9a23a5f319c96704c3535a57965a67"
+	id="3c2ba206d9c0c21103bec3c17201ef1f"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"
-	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a>, and participates in consensus and block creation.</dd>
+	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a>, and participates in <a class="mkdocs-ezglossary-link"
+	id="d7f017e9ee49a4015682e18eabb192cb"
+	title="The process by which all nodes in the network agree on the current state of the blockchain."
+	name="_:Consensus"
+	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> and block creation.</dd>
 
 </dl>
 <p>Nodes form the backbone of the blockchain, ensuring the network remains functional as long as enough nodes are active.</p>
 <p>To participate in block creation, each node must be associated with a harvester <a class="mkdocs-ezglossary-link"
-	id="b9a7f365d1a0ebe5596454f8f22bf70c"
+	id="bf9ccf9dd3bbd90d00d1b073fed411dc"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8403,7 +8428,7 @@ To help offset operational costs, the <a class="mkdocs-ezglossary-link"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> rewards from <a class="mkdocs-ezglossary-link"
-	id="5be3711b8d09d1db471cd3f715bad873"
+	id="39a986542f0e5c510730b7e629dc0975"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8420,15 +8445,19 @@ This flexibility allows for a variety of setups with different hardware requirem
 	<a id="c53a6691931d99b2f80316bf4e589065">Catapult</a> 
 </dt>
 <dd>The core engine that verifies <a class="mkdocs-ezglossary-link"
-	id="3c2ba206d9c0c21103bec3c17201ef1f"
+	id="0b1f116b4a7cb55915b4e936693e5e8d"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"
 	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a> and <a class="mkdocs-ezglossary-link"
-	id="60eafbeb556df0b0f15dd68d6b4fbc7d"
+	id="747ef85bcd59708db0c9f80af8403bec"
 	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
 	name="_:Block"
-	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">blocks</a>, runs the consensus algorithm, creates new blocks,
+	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">blocks</a>, runs the <a class="mkdocs-ezglossary-link"
+	id="06d7eea3c4c4af4455ed2b99eb1a44af"
+	title="The process by which all nodes in the network agree on the current state of the blockchain."
+	name="_:Consensus"
+	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> algorithm, creates new blocks,
 and propagates the changes through the network.</dd>
 
 </dl>
@@ -8445,7 +8474,7 @@ network configuration, and time.</p>
 This includes account balances, active mosaics, and namespaces, for example.</p>
 <h3 id="blocks-database"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 1.25c2.487 0 4.773.402 6.466 1.079.844.337 1.577.758 2.112 1.264.536.507.922 1.151.922 1.907v12.987l-.026.013h.026c0 .756-.386 1.4-.922 1.907-.535.506-1.268.927-2.112 1.264-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079c-.844-.337-1.577-.758-2.112-1.264C2.886 19.9 2.5 19.256 2.5 18.5h.026l-.026-.013V5.5c0-.756.386-1.4.922-1.907.535-.506 1.268-.927 2.112-1.264C7.226 1.652 9.513 1.25 12 1.25M4 14.371v4.116l-.013.013H4c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971s4.434-.381 5.909-.971c.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817h.013L20 18.487v-4.116a8 8 0 0 1-1.534.8c-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079a8 8 0 0 1-1.534-.8M20 12V7.871a8 8 0 0 1-1.534.8C16.773 9.348 14.487 9.75 12 9.75s-4.774-.402-6.466-1.079A8 8 0 0 1 4 7.871V12c0 .21.104.487.453.817.35.332.899.666 1.638.961 1.475.59 3.564.972 5.909.972s4.434-.382 5.909-.972c.74-.295 1.287-.629 1.638-.96.35-.33.453-.607.453-.818M4 5.5c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971s4.434-.381 5.909-.971c.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817 0-.211-.103-.487-.453-.817-.351-.332-.898-.666-1.638-.962-1.475-.589-3.564-.971-5.909-.971s-4.434.381-5.909.971c-.739.296-1.288.63-1.638.962C4.104 5.013 4 5.29 4 5.5"/></svg></span> Blocks Database<a class="headerlink" href="#blocks-database" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>All <a class="mkdocs-ezglossary-link"
-	id="747ef85bcd59708db0c9f80af8403bec"
+	id="db1c576e6cac348ce5d9eb079b26ca4e"
 	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
 	name="_:Block"
 	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">blocks</a> are stored as plain files on disk, along with <a class="mkdocs-ezglossary-link"
@@ -8517,8 +8546,8 @@ which is optimized for handling the potentially complex queries received by the 
 <dt>
 	<a id="ea3e7b8d3634b072c99f860c5bb799e2">Peer Node</a> 
 </dt>
-<dd>A peer node participates in the network's consensus process by validating incoming transactions and blocks,
-and relaying them to neighboring nodes.</dd>
+<dd>A peer node creates new blocks and participates in the network's consensus process by
+validating incoming transactions and blocks, and relaying them to neighboring nodes.</dd>
 
 </dl>
 <p>Peer nodes maintain the network's integrity by independently verifying the data they receive before propagating it.</p>
@@ -8559,7 +8588,7 @@ ready for processing.</p>
 	title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
 rollbacks."
 	name="_:Finalization"
-	href="../../textbook/blocks/#8fe31d7fd591e1fd0d06f55c2ea53850">finalization</a> process, which makes blocks immutable.</dd>
+	href="../../textbook/consensus/#8fe31d7fd591e1fd0d06f55c2ea53850">finalization</a> process, which makes blocks immutable.</dd>
 
 </dl>
 <p>A voting node can be either a peer or an API node, that is, it may or may not expose an API.</p>
@@ -8569,7 +8598,7 @@ rollbacks."
 	<a id="fbfe55f0953b8334a15449722b865350">Dual Node</a> 
 </dt>
 <dd>An API node with <a class="mkdocs-ezglossary-link"
-	id="39a986542f0e5c510730b7e629dc0975"
+	id="a279ebdc37449ac16a444b8ca96fb859"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8654,7 +8683,7 @@ the protocol avoids network fragmentation and promotes long-term decentralizatio
 </div>
 <p>Finally, note that this reputation score is an internal metric used by nodes to decide which other nodes to connect to.
 When <a class="mkdocs-ezglossary-link"
-	id="a279ebdc37449ac16a444b8ca96fb859"
+	id="19270e0a0d18473131b7dbc78dce11e2"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8682,7 +8711,7 @@ that may or may not be related to the score described in this page.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2025</span>
   </span>
 
     

@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://docs.symboltest.net/en/textbook/transactions/">
       
       
-        <link rel="prev" href="../accounts/">
+        <link rel="prev" href="../consensus/">
       
       
         <link rel="next" href="../transfer_transactions/">
@@ -7738,6 +7738,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../consensus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Consensus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -7895,9 +7916,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-consensus" class="md-nav__link">
+  <a href="#5-harvesting" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Consensus
+      5. Harvesting
     </span>
   </a>
   
@@ -8293,9 +8314,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-consensus" class="md-nav__link">
+  <a href="#5-harvesting" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Consensus
+      5. Harvesting
     </span>
   </a>
   
@@ -8389,7 +8410,7 @@
 </dt>
 <dd>A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one <a class="mkdocs-ezglossary-link"
-	id="2a291e5452d1d8578c19a114d2c022f7"
+	id="045a324f83c53de3eff056eae2bf3201"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8449,7 +8470,7 @@ all <a class="mkdocs-ezglossary-link"
 <dt>
 	<a id="d14dfb1cfc7b4e3ae407fa46774259d2">Cosignature</a> 
 </dt>
-<dd>When a transaction requires multiple signatures, they are called cosignatures.</dd>
+<dd>When a transaction requires multiple signatures, they are called <em>cosignatures</em>.</dd>
 
 </dl>
 <p>Aggregate transactions provide a great deal of flexibility to Symbol, because they enable coordinated behavior
@@ -8493,7 +8514,7 @@ all embedded transactions are accepted or none are."
 Nodes can therefore proceed to validation and include the transaction in a block immediately.</dd>
 
 </dl>
-<p>This transaction type requires that cosignatures are collected off-chain in advance.</p>
+<p>This transaction type requires that cosignatures from all accounts are collected off-chain in advance.</p>
 <h3 id="bonded-aggregate-transactions">Bonded Aggregate Transactions<a class="headerlink" href="#bonded-aggregate-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <dl>
 <dt>
@@ -8510,7 +8531,7 @@ all embedded transactions are accepted or none are."
 	name="_:Cosignature"
 	href="../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a>.
 The network temporarily holds the transaction while waiting for the additional cosignatures.</p>
-<p>Also called partial transactions.</p>
+<p>Also called <em>partial transactions</em>.</p>
 </dd>
 
 </dl>
@@ -8530,7 +8551,7 @@ If all cosignatures are collected before the transaction expires, the bond is re
 <dt>
 	<a id="0010b0d59ce3bbeed299dd79c16ed261">Embedded Transaction</a> 
 </dt>
-<dd>When basic transactions are included in an aggregate transaction they are called embedded transactions.</dd>
+<dd>When basic transactions are included in an aggregate transaction they are called <em>embedded transactions</em>.</dd>
 
 </dl>
 <p>Embedded transactions behave exactly like basic transactions, except for:</p>
@@ -8561,7 +8582,7 @@ from that account is required.</p>
 </div>
 <h2 id="transaction-lifecycle">Transaction Lifecycle<a class="headerlink" href="#transaction-lifecycle" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Transactions follow the same general process as in other blockchains:</p>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="381pt" height="462pt" viewBox="0.00 0.00 381.00 462.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 458)"><title>Transaction Lifecycle</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-458 377,-458 377,4 -4,4"/><!-- Creation --><g id="node1" class="node"><title>Creation</title><g id="a_node1"><a xlink:href="#1-creation-and-signature" xlink:title="1. Transaction is created and signed"><path fill="none" stroke="#789abc" d="M238,-454C238,-454 26,-454 26,-454 20,-454 14,-448 14,-442 14,-442 14,-430 14,-430 14,-424 20,-418 26,-418 26,-418 238,-418 238,-418 244,-418 250,-424 250,-430 250,-430 250,-442 250,-442 250,-448 244,-454 238,-454"/><text text-anchor="middle" x="132" y="-432.9" font-family="Times,serif" font-size="12.00" fill="#789abc">1. Transaction is created and signed</text></a></g></g><!-- Announcement --><g id="node2" class="node"><title>Announcement</title><g id="a_node2"><a xlink:href="#2-announcement" xlink:title="2. Transaction is announced to a node"><path fill="none" stroke="#789abc" d="M244,-395C244,-395 20,-395 20,-395 14,-395 8,-389 8,-383 8,-383 8,-371 8,-371 8,-365 14,-359 20,-359 20,-359 244,-359 244,-359 250,-359 256,-365 256,-371 256,-371 256,-383 256,-383 256,-389 250,-395 244,-395"/><text text-anchor="middle" x="132" y="-373.9" font-family="Times,serif" font-size="12.00" fill="#789abc">2. Transaction is announced to a node</text></a></g></g><!-- Creation&#45;&gt;Announcement --><g id="edge1" class="edge"><title>Creation&#45;&gt;Announcement</title><path fill="none" stroke="#789abc" d="M132,-417.9C132,-413.95 132,-409.66 132,-405.4"/><polygon fill="#789abc" stroke="#789abc" points="135.5,-405.09 132,-395.09 128.5,-405.09 135.5,-405.09"/></g><!-- Validation --><g id="node3" class="node"><title>Validation</title><g id="a_node3"><a xlink:href="#3-validation" xlink:title="3. Is it&#10;valid?"><polygon fill="none" stroke="#789abc" points="132,-336 78,-302 132,-268 186,-302 132,-336"/><text text-anchor="middle" x="132" y="-305.4" font-family="Times,serif" font-size="12.00" fill="#789abc">3. Is it</text><text text-anchor="middle" x="132" y="-292.4" font-family="Times,serif" font-size="12.00" fill="#789abc">valid?</text></a></g></g><!-- Announcement&#45;&gt;Validation --><g id="edge2" class="edge"><title>Announcement&#45;&gt;Validation</title><path fill="none" stroke="#789abc" d="M132,-358.7C132,-354.91 132,-350.72 132,-346.41"/><polygon fill="#789abc" stroke="#789abc" points="135.5,-346.22 132,-336.22 128.5,-346.22 135.5,-346.22"/></g><!-- Propagation --><g id="node4" class="node"><title>Propagation</title><g id="a_node4"><a xlink:href="#4-propagation" xlink:title="4. Propagate to other nodes"><path fill="none" stroke="#789abc" d="M212.5,-245C212.5,-245 51.5,-245 51.5,-245 45.5,-245 39.5,-239 39.5,-233 39.5,-233 39.5,-221 39.5,-221 39.5,-215 45.5,-209 51.5,-209 51.5,-209 212.5,-209 212.5,-209 218.5,-209 224.5,-215 224.5,-221 224.5,-221 224.5,-233 224.5,-233 224.5,-239 218.5,-245 212.5,-245"/><text text-anchor="middle" x="132" y="-223.9" font-family="Times,serif" font-size="12.00" fill="#789abc">4. Propagate to other nodes</text></a></g></g><!-- Validation&#45;&gt;Propagation --><g id="edge3" class="edge"><title>Validation&#45;&gt;Propagation</title><path fill="none" stroke="#789abc" d="M132,-267.92C132,-263.75 132,-259.52 132,-255.45"/><polygon fill="#789abc" stroke="#789abc" points="135.5,-255.21 132,-245.21 128.5,-255.21 135.5,-255.21"/><text text-anchor="middle" x="147.5" y="-253.4" font-family="Times,serif" font-size="12.00" fill="#789abc"> &#160;&#160;Yes</text></g><!-- Rejection1 --><g id="node8" class="node"><title>Rejection1</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M330,-320C330,-320 286,-320 286,-320 280,-320 274,-314 274,-308 274,-308 274,-296 274,-296 274,-290 280,-284 286,-284 286,-284 330,-284 330,-284 336,-284 342,-290 342,-296 342,-296 342,-308 342,-308 342,-314 336,-320 330,-320"/><text text-anchor="middle" x="308" y="-298.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Rejected</text></g><!-- Validation&#45;&gt;Rejection1 --><g id="edge7" class="edge"><title>Validation&#45;&gt;Rejection1</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M186.24,-302C211.14,-302 240.29,-302 263.82,-302"/><polygon fill="#789abc" stroke="#789abc" points="263.87,-305.5 273.87,-302 263.87,-298.5 263.87,-305.5"/><text text-anchor="middle" x="230" y="-308.4" font-family="Times,serif" font-size="12.00" fill="#789abc">No</text></g><!-- Consensus --><g id="node5" class="node"><title>Consensus</title><g id="a_node5"><a xlink:href="#5-consensus" xlink:title="5. Is there&#10;consensus?"><polygon fill="none" stroke="#789abc" points="132,-186 47,-152 132,-118 217,-152 132,-186"/><text text-anchor="middle" x="132" y="-155.4" font-family="Times,serif" font-size="12.00" fill="#789abc">5. Is there</text><text text-anchor="middle" x="132" y="-142.4" font-family="Times,serif" font-size="12.00" fill="#789abc">consensus?</text></a></g></g><!-- Propagation&#45;&gt;Consensus --><g id="edge4" class="edge"><title>Propagation&#45;&gt;Consensus</title><path fill="none" stroke="#789abc" d="M132,-208.7C132,-204.91 132,-200.72 132,-196.41"/><polygon fill="#789abc" stroke="#789abc" points="135.5,-196.22 132,-186.22 128.5,-196.22 135.5,-196.22"/></g><!-- Confirmation --><g id="node6" class="node"><title>Confirmation</title><g id="a_node6"><a xlink:href="#6-confirmation" xlink:title="6. Transaction is included in a new block"><path fill="none" stroke="#789abc" d="M252,-95C252,-95 12,-95 12,-95 6,-95 0,-89 0,-83 0,-83 0,-71 0,-71 0,-65 6,-59 12,-59 12,-59 252,-59 252,-59 258,-59 264,-65 264,-71 264,-71 264,-83 264,-83 264,-89 258,-95 252,-95"/><text text-anchor="middle" x="132" y="-73.9" font-family="Times,serif" font-size="12.00" fill="#789abc">6. Transaction is included in a new block</text></a></g></g><!-- Consensus&#45;&gt;Confirmation --><g id="edge5" class="edge"><title>Consensus&#45;&gt;Confirmation</title><path fill="none" stroke="#789abc" d="M132,-117.92C132,-113.75 132,-109.52 132,-105.45"/><polygon fill="#789abc" stroke="#789abc" points="135.5,-105.21 132,-95.21 128.5,-105.21 135.5,-105.21"/><text text-anchor="middle" x="147.5" y="-103.4" font-family="Times,serif" font-size="12.00" fill="#789abc"> &#160;&#160;Yes</text></g><!-- Rejection2 --><g id="node9" class="node"><title>Rejection2</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M361,-170C361,-170 317,-170 317,-170 311,-170 305,-164 305,-158 305,-158 305,-146 305,-146 305,-140 311,-134 317,-134 317,-134 361,-134 361,-134 367,-134 373,-140 373,-146 373,-146 373,-158 373,-158 373,-164 367,-170 361,-170"/><text text-anchor="middle" x="339" y="-148.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Rejected</text></g><!-- Consensus&#45;&gt;Rejection2 --><g id="edge8" class="edge"><title>Consensus&#45;&gt;Rejection2</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M217.09,-152C243.66,-152 271.9,-152 294.51,-152"/><polygon fill="#789abc" stroke="#789abc" points="294.79,-155.5 304.79,-152 294.79,-148.5 294.79,-155.5"/><text text-anchor="middle" x="261" y="-158.4" font-family="Times,serif" font-size="12.00" fill="#789abc">No</text></g><!-- Finalization --><g id="node7" class="node"><title>Finalization</title><g id="a_node7"><a xlink:href="#7-finalization" xlink:title="7. The block becomes immutable"><path fill="none" stroke="#789abc" d="M227.5,-36C227.5,-36 36.5,-36 36.5,-36 30.5,-36 24.5,-30 24.5,-24 24.5,-24 24.5,-12 24.5,-12 24.5,-6 30.5,0 36.5,0 36.5,0 227.5,0 227.5,0 233.5,0 239.5,-6 239.5,-12 239.5,-12 239.5,-24 239.5,-24 239.5,-30 233.5,-36 227.5,-36"/><text text-anchor="middle" x="132" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">7. The block becomes immutable</text></a></g></g><!-- Confirmation&#45;&gt;Finalization --><g id="edge6" class="edge"><title>Confirmation&#45;&gt;Finalization</title><path fill="none" stroke="#789abc" d="M132,-58.9C132,-54.95 132,-50.66 132,-46.4"/><polygon fill="#789abc" stroke="#789abc" points="135.5,-46.09 132,-36.09 128.5,-46.09 135.5,-46.09"/></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="376pt" height="430pt" viewBox="0.00 0.00 376.00 430.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 426)"><title>Transaction Lifecycle</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-426 372,-426 372,4 -4,4"/><!-- Creation --><g id="node1" class="node"><title>Creation</title><g id="a_node1"><a xlink:href="#1-creation-and-signature" xlink:title="1. Transaction is created and signed"><path fill="none" stroke="#789abc" d="M230,-422C230,-422 18,-422 18,-422 12,-422 6,-416 6,-410 6,-410 6,-398 6,-398 6,-392 12,-386 18,-386 18,-386 230,-386 230,-386 236,-386 242,-392 242,-398 242,-398 242,-410 242,-410 242,-416 236,-422 230,-422"/><text text-anchor="middle" x="124" y="-400.9" font-family="Times,serif" font-size="12.00" fill="#789abc">1. Transaction is created and signed</text></a></g></g><!-- Announcement --><g id="node2" class="node"><title>Announcement</title><g id="a_node2"><a xlink:href="#2-announcement" xlink:title="2. Transaction is announced to a node"><path fill="none" stroke="#789abc" d="M236,-363C236,-363 12,-363 12,-363 6,-363 0,-357 0,-351 0,-351 0,-339 0,-339 0,-333 6,-327 12,-327 12,-327 236,-327 236,-327 242,-327 248,-333 248,-339 248,-339 248,-351 248,-351 248,-357 242,-363 236,-363"/><text text-anchor="middle" x="124" y="-341.9" font-family="Times,serif" font-size="12.00" fill="#789abc">2. Transaction is announced to a node</text></a></g></g><!-- Creation&#45;&gt;Announcement --><g id="edge1" class="edge"><title>Creation&#45;&gt;Announcement</title><path fill="none" stroke="#789abc" d="M124,-385.9C124,-381.95 124,-377.66 124,-373.4"/><polygon fill="#789abc" stroke="#789abc" points="127.5,-373.09 124,-363.09 120.5,-373.09 127.5,-373.09"/></g><!-- Validation --><g id="node3" class="node"><title>Validation</title><g id="a_node3"><a xlink:href="#3-validation" xlink:title="3. Is it&#10;valid?"><polygon fill="none" stroke="#789abc" points="124,-304 70,-270 124,-236 178,-270 124,-304"/><text text-anchor="middle" x="124" y="-273.4" font-family="Times,serif" font-size="12.00" fill="#789abc">3. Is it</text><text text-anchor="middle" x="124" y="-260.4" font-family="Times,serif" font-size="12.00" fill="#789abc">valid?</text></a></g></g><!-- Announcement&#45;&gt;Validation --><g id="edge2" class="edge"><title>Announcement&#45;&gt;Validation</title><path fill="none" stroke="#789abc" d="M124,-326.7C124,-322.91 124,-318.72 124,-314.41"/><polygon fill="#789abc" stroke="#789abc" points="127.5,-314.22 124,-304.22 120.5,-314.22 127.5,-314.22"/></g><!-- Propagation --><g id="node4" class="node"><title>Propagation</title><g id="a_node4"><a xlink:href="#4-propagation" xlink:title="4. Propagate to other nodes"><path fill="none" stroke="#789abc" d="M204.5,-213C204.5,-213 43.5,-213 43.5,-213 37.5,-213 31.5,-207 31.5,-201 31.5,-201 31.5,-189 31.5,-189 31.5,-183 37.5,-177 43.5,-177 43.5,-177 204.5,-177 204.5,-177 210.5,-177 216.5,-183 216.5,-189 216.5,-189 216.5,-201 216.5,-201 216.5,-207 210.5,-213 204.5,-213"/><text text-anchor="middle" x="124" y="-191.9" font-family="Times,serif" font-size="12.00" fill="#789abc">4. Propagate to other nodes</text></a></g></g><!-- Validation&#45;&gt;Propagation --><g id="edge3" class="edge"><title>Validation&#45;&gt;Propagation</title><path fill="none" stroke="#789abc" d="M124,-235.92C124,-231.75 124,-227.52 124,-223.45"/><polygon fill="#789abc" stroke="#789abc" points="127.5,-223.21 124,-213.21 120.5,-223.21 127.5,-223.21"/><text text-anchor="middle" x="139.5" y="-221.4" font-family="Times,serif" font-size="12.00" fill="#789abc"> &#160;&#160;Yes</text></g><!-- Rejection1 --><g id="node8" class="node"><title>Rejection1</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M322,-288C322,-288 278,-288 278,-288 272,-288 266,-282 266,-276 266,-276 266,-264 266,-264 266,-258 272,-252 278,-252 278,-252 322,-252 322,-252 328,-252 334,-258 334,-264 334,-264 334,-276 334,-276 334,-282 328,-288 322,-288"/><text text-anchor="middle" x="300" y="-266.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Rejected</text></g><!-- Validation&#45;&gt;Rejection1 --><g id="edge7" class="edge"><title>Validation&#45;&gt;Rejection1</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M178.24,-270C203.14,-270 232.29,-270 255.82,-270"/><polygon fill="#789abc" stroke="#789abc" points="255.87,-273.5 265.87,-270 255.87,-266.5 255.87,-273.5"/><text text-anchor="middle" x="222" y="-276.4" font-family="Times,serif" font-size="12.00" fill="#789abc">No</text></g><!-- Harvesting --><g id="node5" class="node"><title>Harvesting</title><g id="a_node5"><a xlink:href="#5-harvesting" xlink:title="5. Inclusion in a block"><path fill="none" stroke="#789abc" d="M186.5,-154C186.5,-154 61.5,-154 61.5,-154 55.5,-154 49.5,-148 49.5,-142 49.5,-142 49.5,-130 49.5,-130 49.5,-124 55.5,-118 61.5,-118 61.5,-118 186.5,-118 186.5,-118 192.5,-118 198.5,-124 198.5,-130 198.5,-130 198.5,-142 198.5,-142 198.5,-148 192.5,-154 186.5,-154"/><text text-anchor="middle" x="124" y="-132.9" font-family="Times,serif" font-size="12.00" fill="#789abc">5. Inclusion in a block</text></a></g></g><!-- Propagation&#45;&gt;Harvesting --><g id="edge4" class="edge"><title>Propagation&#45;&gt;Harvesting</title><path fill="none" stroke="#789abc" d="M124,-176.9C124,-172.95 124,-168.66 124,-164.4"/><polygon fill="#789abc" stroke="#789abc" points="127.5,-164.09 124,-154.09 120.5,-164.09 127.5,-164.09"/></g><!-- Confirmation --><g id="node6" class="node"><title>Confirmation</title><g id="a_node6"><a xlink:href="#6-confirmation" xlink:title="6. Confirmed?"><polygon fill="none" stroke="#789abc" points="124,-95 35.4,-77 124,-59 212.6,-77 124,-95"/><text text-anchor="middle" x="124" y="-73.9" font-family="Times,serif" font-size="12.00" fill="#789abc">6. Confirmed?</text></a></g></g><!-- Harvesting&#45;&gt;Confirmation --><g id="edge5" class="edge"><title>Harvesting&#45;&gt;Confirmation</title><path fill="none" stroke="#789abc" d="M124,-117.9C124,-113.95 124,-109.66 124,-105.4"/><polygon fill="#789abc" stroke="#789abc" points="127.5,-105.09 124,-95.09 120.5,-105.09 127.5,-105.09"/><text text-anchor="middle" x="139.5" y="-103.4" font-family="Times,serif" font-size="12.00" fill="#789abc"> &#160;&#160;Yes</text></g><!-- Finalization --><g id="node7" class="node"><title>Finalization</title><g id="a_node7"><a xlink:href="#7-finalization" xlink:title="7. The block becomes immutable"><path fill="none" stroke="#789abc" d="M219.5,-36C219.5,-36 28.5,-36 28.5,-36 22.5,-36 16.5,-30 16.5,-24 16.5,-24 16.5,-12 16.5,-12 16.5,-6 22.5,0 28.5,0 28.5,0 219.5,0 219.5,0 225.5,0 231.5,-6 231.5,-12 231.5,-12 231.5,-24 231.5,-24 231.5,-30 225.5,-36 219.5,-36"/><text text-anchor="middle" x="124" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">7. The block becomes immutable</text></a></g></g><!-- Confirmation&#45;&gt;Finalization --><g id="edge6" class="edge"><title>Confirmation&#45;&gt;Finalization</title><path fill="none" stroke="#789abc" d="M124,-58.9C124,-54.95 124,-50.66 124,-46.4"/><polygon fill="#789abc" stroke="#789abc" points="127.5,-46.09 124,-36.09 120.5,-46.09 127.5,-46.09"/></g><!-- Rejection2 --><g id="node9" class="node"><title>Rejection2</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M356,-95C356,-95 312,-95 312,-95 306,-95 300,-89 300,-83 300,-83 300,-71 300,-71 300,-65 306,-59 312,-59 312,-59 356,-59 356,-59 362,-59 368,-65 368,-71 368,-71 368,-83 368,-83 368,-89 362,-95 356,-95"/><text text-anchor="middle" x="334" y="-73.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Rejected</text></g><!-- Confirmation&#45;&gt;Rejection2 --><g id="edge8" class="edge"><title>Confirmation&#45;&gt;Rejection2</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M212.75,-77C239.33,-77 267.33,-77 289.72,-77"/><polygon fill="#789abc" stroke="#789abc" points="289.9,-80.5 299.9,-77 289.9,-73.5 289.9,-80.5"/><text text-anchor="middle" x="256.4" y="-83.4" font-family="Times,serif" font-size="12.00" fill="#789abc">No</text></g></g></svg></p>
 <p><a class="mkdocs-ezglossary-link"
 	id="01a13215f8270a2293d84b95e1f9ae95"
 	title="An aggregate transaction submitted to the network without all required cosignatures.
@@ -8575,7 +8596,7 @@ When enough cosignatures have been collected these transactions become complete 
 <h3 id="1-creation-and-signature">1. Creation and signature<a class="headerlink" href="#1-creation-and-signature" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>A software client, typically an app, creates the transaction and fills in all its parameters.
 For example, a transfer transaction requires the source <a class="mkdocs-ezglossary-link"
-	id="045a324f83c53de3eff056eae2bf3201"
+	id="cdc9790796255812e1a50c10575f1545"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8603,7 +8624,12 @@ it is extremely unlikely that the same number is generated twice by chance."
 	name="_:Private Key"
 	href="../../textbook/cryptography/#890b9584bd9860118fc3d58c24a6dbd9">private key</a> can produce a valid signature.</p>
 <h3 id="2-announcement">2. Announcement<a class="headerlink" href="#2-announcement" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>The client application submits the transaction to a connected API node on the network.</p>
+<p>The client application submits the transaction to a connected <a class="mkdocs-ezglossary-link"
+	id="5e14ce28733bd9b9a3b24308c25e7b55"
+	title="An API node exposes a public REST interface that allows external clients
+such as wallets, explorers, and applications to interact with the network."
+	name="_:API Node"
+	href="../../textbook/nodes/#52919a63c48ac18339a08eaf4dc703a9">API node</a> on the network.</p>
 <h3 id="3-validation">3. Validation<a class="headerlink" href="#3-validation" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>The node checks that the transaction is well-formed and includes all required, valid signatures.
 For <a class="mkdocs-ezglossary-link"
@@ -8621,11 +8647,11 @@ If all checks pass, the process continues.</p>
 <h3 id="4-propagation">4. Propagation<a class="headerlink" href="#4-propagation" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Once the node considers the transaction to be valid, it is broadcast to the <a class="mkdocs-ezglossary-link"
 	id="55eb0e69797c0581875b524d68614910"
-	title="A peer node participates in the network's consensus process by validating incoming transactions and blocks,
-and relaying them to neighboring nodes."
+	title="A peer node creates new blocks and participates in the network's consensus process by
+validating incoming transactions and blocks, and relaying them to neighboring nodes."
 	name="_:Peer Node"
 	href="../../textbook/nodes/#ea3e7b8d3634b072c99f860c5bb799e2">peer nodes</a> in the network,
-and added to every node's  <em>unconfirmed pool</em>.</p>
+and added to every node's <em>unconfirmed pool</em>.</p>
 <dl>
 <dt>
 	<a id="90027de0459d0c0423628636c2148dc4">Unconfirmed pool</a> 
@@ -8636,33 +8662,36 @@ and added to every node's  <em>unconfirmed pool</em>.</p>
 <p>Nodes pick up transactions from this pool and perform the same validation:
 they checks the transaction's structure, signatures, and any conditions specific to its type.
 If the transaction passes validation, it is further propagated to other peers.</p>
-<p>This process ensures that a broad portion of the network knows about the transaction and accepts it as valid.</p>
-<h3 id="5-consensus">5. Consensus<a class="headerlink" href="#5-consensus" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>Each node has an importance score based on its staked funds and other factors.
-This score is used as a weight in the node's vote during the consensus process.</p>
-<p>The consensus algorithm collects votes from nodes until a predefined threshold is reached.
-If the threshold is reached, the transaction is confirmed.
-If not, the transaction remains in the <a class="mkdocs-ezglossary-link"
-	id="6624a08d9d70e13589eff5d3d957f62c"
-	title="A list of transactions pending validation, shared by all nodes in the network."
-	name="_:Unconfirmed pool"
-	href="../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a> until its deadline expires, at which point it is rejected.</p>
+<p>This process ensures that a broad portion of the network knows about the transaction.</p>
+<h3 id="5-harvesting">5. Harvesting<a class="headerlink" href="#5-harvesting" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Once in the unconfirmed pool, the transaction will eventually be picked up by the <a class="mkdocs-ezglossary-link"
+	id="f9d6b6aacc9cd22f974e38d5af48b57d"
+	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
+It plays a similar role to mining in PoW or staking in PoS."
+	name="_:Harvesting"
+	href="../../textbook/harvesting/#4da2a5a68444f540bbf5e10a08b085e4">harvesting</a> process and
+included in a block.
+At that moment, the transactions becomes <em>confirmed</em>.</p>
 <h3 id="6-confirmation">6. Confirmation<a class="headerlink" href="#6-confirmation" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>Once enough positive weighted votes are collected, the transaction is added to a <a class="mkdocs-ezglossary-link"
-	id="9437209c3a574643ed3dc1b6d5da3402"
-	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
-	name="_:Block"
-	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">block</a> and the block
-propagated to all other nodes.</p>
-<p>However, due to the distributed nature of the blockchain, blocks can occasionally be <a class="mkdocs-ezglossary-link"
+<p>Newly created blocks are propagated to other nodes, that validate them and either accept or reject them.
+The <a class="mkdocs-ezglossary-link"
+	id="c9a8570c265cc65816882fd6e100f607"
+	title="The process by which all nodes in the network agree on the current state of the blockchain."
+	name="_:Consensus"
+	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> mechanism ensures that all nodes on the network ultimately agree on the same blocks.</p>
+<p>Occasionally, a block already accepted by a node is later rejected by the majority of the network and must be
+<a class="mkdocs-ezglossary-link"
 	id="3043a48efcba823763eb106f49f36e52"
-	title="The process of discarding one or more recently added blocks when the network switches to a better chain,
+	title="The process of discarding one or more recently added blocks when a node switches to a better chain,
 typically after a fork is resolved."
 	name="_:Rollback"
-	href="../../textbook/blocks/#fa68d384bf5dbf284e2a6a02fb2ef92d">rolled back</a> and
-confirmed transactions reverted.</p>
-<p>A common solution is for applications to wait for several additional blocks after a transaction is confirmed.
-Each new block adds another layer of confirmation, increasing confidence that the transaction will not be reverted.</p>
+	href="../../textbook/consensus/#fa68d384bf5dbf284e2a6a02fb2ef92d">rolled back</a>.
+In this case, the blocks's transactions are reverted and returned to the unconfirmed pool.</p>
+<p>If a transaction's deadline expires while it is still in the unconfirmed pool, it is rejected.
+This may happen, for example, if the transaction fee offered is too low to be included by any harvester.</p>
+<p>To reduce the risk of relying on transactions that might be reverted, applications typically wait for several
+additional blocks after a transaction is confirmed.
+Each new block adds another layer of confirmation, increasing confidence that the transaction will remain permanent.</p>
 <p>On Symbol, however, an additional mechanism provides final guarantees that confirmed transactions cannot be reverted.</p>
 <h3 id="7-finalization">7. Finalization<a class="headerlink" href="#7-finalization" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p><a class="mkdocs-ezglossary-link"
@@ -8670,14 +8699,14 @@ Each new block adds another layer of confirmation, increasing confidence that th
 	title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
 rollbacks."
 	name="_:Finalization"
-	href="../../textbook/blocks/#8fe31d7fd591e1fd0d06f55c2ea53850">Finalization</a> runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.</p>
+	href="../../textbook/consensus/#8fe31d7fd591e1fd0d06f55c2ea53850">Finalization</a> runs in parallel with consensus, finalizing blocks in batches after they have been added to the blockchain.</p>
 <p>By waiting for finalization, applications can be certain the transactions they submitted will not be reverted
 by <a class="mkdocs-ezglossary-link"
 	id="c9a6dd0dbf7d58c7f633842a84af6f96"
-	title="The process of discarding one or more recently added blocks when the network switches to a better chain,
+	title="The process of discarding one or more recently added blocks when a node switches to a better chain,
 typically after a fork is resolved."
 	name="_:Rollback"
-	href="../../textbook/blocks/#fa68d384bf5dbf284e2a6a02fb2ef92d">rollbacks</a>.</p>
+	href="../../textbook/consensus/#fa68d384bf5dbf284e2a6a02fb2ef92d">rollbacks</a>.</p>
 <h2 id="common-transaction-structure">Common Transaction Structure<a class="headerlink" href="#common-transaction-structure" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>All transaction types in Symbol share a set of common attributes:</p>
 <table>
@@ -8815,7 +8844,7 @@ Also called partial transactions."
 </tr>
 <tr>
 <td><strong><a class="mkdocs-ezglossary-link"
-	id="19270e0a0d18473131b7dbc78dce11e2"
+	id="8539340d04cd1ac49edb9500f8fc7913"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8972,7 +9001,7 @@ However, all nodes must support the same plugin set to maintain consensus across
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2025</span>
   </span>
 
     

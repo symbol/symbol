@@ -7741,6 +7741,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../consensus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Consensus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../transactions/" class="md-nav__link">
         
   
@@ -8196,7 +8217,7 @@
 	<a id="4da2a5a68444f540bbf5e10a08b085e4">Harvesting</a> 
 </dt>
 <dd>The process by which Symbol adds new <a class="mkdocs-ezglossary-link"
-	id="e63596de4e64530ff4ad36bf3053404c"
+	id="60eafbeb556df0b0f15dd68d6b4fbc7d"
 	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
 	name="_:Block"
 	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">blocks</a> to the chain and distributes rewards to participating <a class="mkdocs-ezglossary-link"
@@ -8216,34 +8237,34 @@ It plays a similar role to <strong>mining</strong> in <a class="mkdocs-ezglossar
 	href="../../textbook/glossary/#e5d4f2fb24e10b69397928b659b7a138">PoS</a>.</dd>
 
 </dl>
-<p>Harvesting <a class="mkdocs-ezglossary-link"
-	id="855f7b55dc0efd2f83191067d0ede0ee"
+<p>Each new block is created by a single, random <a class="mkdocs-ezglossary-link"
+	id="b0c292014679f553d5ffa78fbd29fa8f"
 	title="A computer running the Symbol software which shares information with other nodes,
 validates incoming transactions, and participates in consensus and block creation."
 	name="_:Node"
-	href="../../textbook/nodes/#bc6d0fc1a92ae07d7739daed957574ab">nodes</a> are associated with a <em>harvester account</em> which signs the blocks they produce.</p>
-<p>Each new block is harvested by a single, randomly selected node.
-The fees from the included <a class="mkdocs-ezglossary-link"
-	id="2a28cab2273e8c5870e3f6eddd1e9bb1"
+	href="../../textbook/nodes/#bc6d0fc1a92ae07d7739daed957574ab">node</a> and signed by one of the node's <em>harvester accounts</em>.
+This account can either be the node's main account or any of its <a class="mkdocs-ezglossary-link"
+	id="682254a9c625bad24978126d5534adbe"
+	title="An account that delegates harvesting to a third-party node while retaining its importance
+and receiving a share of the harvested rewards.
+Also called a delegated harvester."
+	name="_:Delegator"
+	href="../../textbook/harvesting/#ac03dc805ce5fe4e0b6294aa6998149c">delegators</a>.</p>
+<p>The fees from the <a class="mkdocs-ezglossary-link"
+	id="a3a915c2025fc15264c843f746953ac4"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"
-	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a>, along with a portion of <a class="mkdocs-ezglossary-link"
+	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a> included in the block, along with a portion of <a class="mkdocs-ezglossary-link"
 	id="f90848b7a5ed15566427e00ba1c7d248"
 	title="A small amount of XYM that is freshly minted with each new block to reward the node that creates it.
 Inflation began 48 hours after network launch in March 2021, starting at approximately 200 XYM per block.
 The reward decreases gradually over time following a slow curve, reaching 1 XYM per block after 30 years,
 and disappearing entirely after 105 years."
 	name="_:Inflation"
-	href="../../textbook/glossary/#ede25d998efc290884d16b2b5840ee65">inflation</a>, are distributed to the node's
-<a class="mkdocs-ezglossary-link"
-	id="682254a9c625bad24978126d5534adbe"
-	title="An account that delegates harvesting to a third-party node while retaining its importance
-and receiving a share of the harvested rewards.
-Also called a delegated harvester."
-	name="_:Delegator"
-	href="../../textbook/harvesting/#ac03dc805ce5fe4e0b6294aa6998149c">delegators</a> and to other accounts designated by the node operator,
-which may or may not include the harvester account itself.</p>
+	href="../../textbook/glossary/#ede25d998efc290884d16b2b5840ee65">inflation</a>,
+are distributed to the harvester account and to other accounts designated by the node operator,
+which may or may not include the node's main account.</p>
 <p>Unlike mining in <a class="mkdocs-ezglossary-link"
 	id="9d5bcdd158921faaaf300d1a75bac30c"
 	title="Proof of Work. A consensus protocol, used, for example, by Bitcoin."
@@ -8253,7 +8274,8 @@ Participation is open to any account holding at least 10,000 <a class="mkdocs-ez
 	id="d73085973416e9e7d17293766f5bf6b6"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
-	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> and connected to a node, either directly or through delegation.
+	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> and connected to a node,
+either directly or through delegation.
 This balance contributes to the account's <a class="mkdocs-ezglossary-link"
 	id="d2f24a98113523290592ca70838a462e"
 	title="A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
@@ -8263,71 +8285,86 @@ This score determines harvesting eligibility and vote weight in consensus."
 	href="../../textbook/harvesting/#76ca9920588d90f42b544215c87ec7d4">importance</a> score, which determines how often it can harvest a block.</p>
 <h2 id="harvesting-process">Harvesting Process<a class="headerlink" href="#harvesting-process" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Symbol does not use an explicit selection process to determine which node will harvest the next block.
-Instead, every node independently attempts to produce a new block.</p>
-<p>To do this, each node calculates its own <em>target</em> value, based primarily on the node's <a class="mkdocs-ezglossary-link"
+Instead, every node independently attempts to produce a new block using its main account and
+each of the linked <a class="mkdocs-ezglossary-link"
+	id="a0084f4110739f840f52d940a5e3edfb"
+	title="An account that delegates harvesting to a third-party node while retaining its importance
+and receiving a share of the harvested rewards.
+Also called a delegated harvester."
+	name="_:Delegator"
+	href="../../textbook/harvesting/#ac03dc805ce5fe4e0b6294aa6998149c">delegator</a> accounts.</p>
+<p>To do this, a <em>target</em> value is calculated based primarily on each account's <a class="mkdocs-ezglossary-link"
 	id="85c390e454931b1cf49494f52f4a1652"
 	title="A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
 and its participation in harvesting new blocks.
 This score determines harvesting eligibility and vote weight in consensus."
 	name="_:Importance"
 	href="../../textbook/harvesting/#76ca9920588d90f42b544215c87ec7d4">importance</a>.
-The higher the node's importance, the higher its target will be.</p>
+The higher the importance, the higher its target will be.</p>
 <p>The node then assembles a candidate block by collecting transactions from the <a class="mkdocs-ezglossary-link"
 	id="e23e29d325adb0aa3786dbf3ddb23bda"
 	title="A list of transactions pending validation, shared by all nodes in the network."
 	name="_:Unconfirmed pool"
 	href="../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a>
-and assigning the harvesting rewards to the selected harvester and the configured beneficiary.
+and assigning the harvesting rewards to the configured beneficiaries.
 Once the block is assembled, the node <a class="mkdocs-ezglossary-link"
 	id="96f2807cf46571b886deb4342c676cb2"
 	title="A cryptographic hash is a fixed-size string of characters produced by a mathematical function
 (called a hash function) that maps input data of any size to a unique output."
 	name="_:Hash"
 	href="../../textbook/cryptography/#3890164a26bb4fc4d63840afc9a2d7b7">hashes</a> it and generates a random number called the <em>hit</em>.</p>
-<p>If the <em>hit</em> is lower than the <em>target</em>, the node considers the block valid and announces it to the rest of the network.
+<p>If the <em>hit</em> is lower than the <em>target</em>, the block is valid and is announced to the rest of the network.
 Other nodes then verify the block, ensuring:</p>
 <ul>
 <li>The transactions are valid.</li>
 <li>The target and hit values were correctly calculated.</li>
 <li>The hit is indeed lower than the target.</li>
 </ul>
-<p>If any of these checks fail, the block is ignored.
-The announcing node will remain on an isolated fork until it adopts the valid blocks produced by the network.</p>
-<p>If the block is valid, it is accepted by other nodes and becomes the next block in the chain.
+<p>If any of these checks fail, other nodes simply ignore the new block.
+The <a class="mkdocs-ezglossary-link"
+	id="480d976fd10adec633a88b72928db5c1"
+	title="The process by which all nodes in the network agree on the current state of the blockchain."
+	name="_:Consensus"
+	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> mechanism makes sure that the node eventually adopts a block that the rest of the network agrees on.</p>
+<p>If the block is valid, it is accepted by other nodes that include it in their copies of the chain.
 This process is repeated at the next block height.</p>
 <div class="admonition info">
 <p class="admonition-title">Simultaneous Block Creation</p>
-<p>No special care is taken to prevent multiple nodes from generating blocks at the same time.
-When this happens, the network may split temporarily as different nodes adopt different blocks for the same height.</p>
-<p>These forks are resolved naturally using the usual fork resolution mechanisms:
-nodes compare the <a class="mkdocs-ezglossary-link"
-	id="45e6cea45dd4e9291dc9d0510c470221"
-	title="Sum of the block scores of all blocks produced in a given period of time."
-	name="_:Chain Score"
-	href="../../textbook/harvesting/#0553309ce8bcadb30fe7cb30f8c6fd90">chain score</a> of competing chains and adopt the one with the highest score,
-allowing the network to re-converge.</p>
+<p>Note that no special measures are in place to prevent multiple nodes from generating blocks at the same height.
+When this occurs, the network may temporarily <a class="mkdocs-ezglossary-link"
+	id="ee2867a637ff3989b6202019c68724ef"
+	title="State where two or more competing chains share a common history but differ in their latest blocks."
+	name="_:Fork"
+	href="../../textbook/consensus/#8c7c90a90d192d38075db29ab8522c89">fork</a> as different nodes adopt different blocks for the same
+position in the chain.</p>
+<p>The <a class="mkdocs-ezglossary-link"
+	id="50fd7d278c6d3ab3ee9607aa1853eca0"
+	title="The process by which all nodes in the network agree on the current state of the blockchain."
+	name="_:Consensus"
+	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> mechanism resolves these conflicts as nodes become aware of the competing blocks.</p>
 </div>
 <details class="abstract">
 <summary>Target and Hit Calculation</summary>
 <ul>
 <li>
-<p>The <strong>target</strong> is calculated independently by each node and reflects its likelihood of harvesting the next block.
+<p>The <strong>target</strong> is calculated independently by each node and reflects its likelihood of harvesting the next block
+    using a specific account.
     It depends on three factors:</p>
 <ul>
-<li>The node's <a class="mkdocs-ezglossary-link"
+<li>The account's <a class="mkdocs-ezglossary-link"
 	id="6f74e7c2d361234dd747557a03a8d349"
 	title="A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
 and its participation in harvesting new blocks.
 This score determines harvesting eligibility and vote weight in consensus."
 	name="_:Importance"
-	href="../../textbook/harvesting/#76ca9920588d90f42b544215c87ec7d4">importance</a> score: more active or better-funded nodes will harvest more often.</li>
+	href="../../textbook/harvesting/#76ca9920588d90f42b544215c87ec7d4">importance</a> score: more active or better-funded accounts will harvest more often.</li>
 <li>The network-wide <strong>difficulty</strong>, which adjusts dynamically based on recent block production times,
     to maintain a constant rate.</li>
 <li>The <strong>time</strong> elapsed since the last block: longer delays increase the chance of a new block being produced.</li>
 </ul>
 </li>
 <li>
-<p>The <strong>hit</strong> is a random number derived from the new block's content and the node's <a class="mkdocs-ezglossary-link"
+<p>The <strong>hit</strong> is a random number derived from the new block's content and the account's <a class="mkdocs-ezglossary-link"
 	id="ad88a5be2500fce2a1ca49a1e8d377b8"
 	title="Key pair used by harvesting nodes to make their output unpredictable."
 	name="_:VRF Key"
@@ -8347,29 +8384,6 @@ often using compromised devices without the owners' knowledge."
 <p>For the block to be valid, the node's target must be <strong>greater than</strong> its hit.
 A higher importance or a longer delay increases the target, making the condition easier to satisfy.</p>
 </details>
-<dl>
-<dt>
-	<a id="a84b6b80eada4dbf2668ad3c1bf64ae6">Block Score</a> 
-</dt>
-<dd>A numerical value assigned to each block that reflects how hard it was to harvest.
-Lower scores indicate higher difficulty and are therefore preferred in fork resolution.</dd>
-
-</dl>
-<div class="arithmatex">\[
-\textit{block score} = difficulty − \textit{time elapsed since last block}
-\]</div>
-<dl>
-<dt>
-	<a id="0553309ce8bcadb30fe7cb30f8c6fd90">Chain Score</a> 
-</dt>
-<dd>Sum of the <a class="mkdocs-ezglossary-link"
-	id="72f36314a7473a346aaba830769dc2b6"
-	title="A numerical value assigned to each block that reflects how hard it was to harvest.
-Lower scores indicate higher difficulty and are therefore preferred in fork resolution."
-	name="_:Block Score"
-	href="../../textbook/harvesting/#a84b6b80eada4dbf2668ad3c1bf64ae6">block scores</a> of all blocks produced in a given period of time.</dd>
-
-</dl>
 <h2 id="harvesting-methods">Harvesting Methods<a class="headerlink" href="#harvesting-methods" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Node owners can participate in harvesting by enabling <a href="#local-harvesting">local</a> or <a href="#remote-harvesting">remote</a> harvesting,
 depending on their preferred balance between simplicity and security.
@@ -8381,7 +8395,7 @@ Accounts that do not operate a node but meet the balance requirements can still 
 	<a id="5fba655c1c99e3ec0970be9fc61ee673">Local Harvesting</a> 
 </dt>
 <dd>A type of <a class="mkdocs-ezglossary-link"
-	id="34c6b7cad2c878aa425f7e6196ac893c"
+	id="964088dd06a05c6c78196e92bba772c2"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8420,7 +8434,7 @@ Most operators instead prefer remote harvesting.</p>
 	<a id="751db2f93ebac437a7c2ffb37e7a3d54">Remote Harvesting</a> 
 </dt>
 <dd>A type of <a class="mkdocs-ezglossary-link"
-	id="964088dd06a05c6c78196e92bba772c2"
+	id="b71091773a18abb28999cfe997e7de7d"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8446,7 +8460,8 @@ The actual value of the private key is meaningless, and it is meant to be kept s
 It should be impossible to guess by unauthorized parties, and, although it is commonly randomly-generated,
 it is extremely unlikely that the same number is generated twice by chance."
 	name="_:Private Key"
-	href="../../textbook/cryptography/#890b9584bd9860118fc3d58c24a6dbd9">private key</a> is stored in the node's configuration files, it is designed to be expendable.</p>
+	href="../../textbook/cryptography/#890b9584bd9860118fc3d58c24a6dbd9">private key</a> is stored in the node's configuration files, hosted on a permanently-online machine,
+it is designed to be expendable.</p>
 <p>The main account still determines the node's importance and receives all block rewards.
 However, its key remains offline, safe from compromise.
 For simplicity, the main account is still called the harvester account, even though blocks are signed by the proxy.</p>
@@ -8458,7 +8473,7 @@ and makes remote harvesting the preferred option for most operators.</p>
 	<a id="252148c4daf33af1a7e32bc8f8a36292">Delegated Harvesting</a> 
 </dt>
 <dd>A form of <a class="mkdocs-ezglossary-link"
-	id="b71091773a18abb28999cfe997e7de7d"
+	id="a35dcdc87705014090f45bfaa85a43b2"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8523,7 +8538,7 @@ it is extremely unlikely that the same number is generated twice by chance."
 These rewards consist of:</p>
 <ul>
 <li>The fees paid by the <a class="mkdocs-ezglossary-link"
-	id="a3a915c2025fc15264c843f746953ac4"
+	id="4e9a23a5f319c96704c3535a57965a67"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"
@@ -8538,7 +8553,7 @@ and disappearing entirely after 105 years."
 	href="../../textbook/glossary/#ede25d998efc290884d16b2b5840ee65">inflation</a>.</li>
 </ul>
 <p>The total reward is divided among the following parties:</p>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="366pt" height="295pt" viewBox="0.00 0.00 365.50 295.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 291)"><title>RewardDistribution</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-291 361.5,-291 361.5,4 -4,4"/><!-- BlockRewards --><g id="node1" class="node"><title>BlockRewards</title><polygon fill="none" stroke="#789abc" points="147.5,-287 7.5,-287 7.5,-249 147.5,-249 147.5,-287"/><text text-anchor="middle" x="77.5" y="-271.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Block Rewards</text><text text-anchor="middle" x="77.5" y="-256.8" font-family="Times,serif" font-size="14.00" fill="#789abc">(Fees + Inflation)</text></g><!-- T1 --><g id="node5" class="node"><title>T1</title><ellipse fill="#789abc" stroke="#789abc" cx="77.5" cy="-194" rx="0" ry="0"/></g><!-- BlockRewards&#45;&gt;T1 --><g id="edge1" class="edge"><title>BlockRewards&#45;&gt;T1:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M77.5,-249C77.5,-220.08 77.5,-168.85 77.5,-193"/></g><!-- Harvester --><g id="node2" class="node"><title>Harvester</title><g id="a_node2"><a xlink:href="#harvester" xlink:title="Selected Harvester"><polygon fill="none" stroke="#789abc" points="155,-36 0,-36 0,0 155,0 155,-36"/><text text-anchor="middle" x="77.5" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Selected Harvester</text></a></g></g><!-- Sink --><g id="node3" class="node"><title>Sink</title><g id="a_node3"><a xlink:href="#sink" xlink:title="Network sink account"><polygon fill="none" stroke="#789abc" points="357.5,-212 185.5,-212 185.5,-176 357.5,-176 357.5,-212"/><text text-anchor="middle" x="271.5" y="-190.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Network sink account</text></a></g></g><!-- Beneficiary --><g id="node4" class="node"><title>Beneficiary</title><g id="a_node4"><a xlink:href="#beneficiary" xlink:title="Node&#45;designated\nbeneficiary account"><polygon fill="none" stroke="#789abc" points="340,-125 185,-125 185,-87 340,-87 340,-125"/><text text-anchor="middle" x="262.5" y="-109.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Node&#45;designated</text><text text-anchor="middle" x="262.5" y="-94.8" font-family="Times,serif" font-size="14.00" fill="#789abc">beneficiary account</text></a></g></g><!-- T1&#45;&gt;Sink --><g id="edge3" class="edge"><title>T1&#45;&gt;Sink</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M77.64,-194C80.55,-194 128.09,-194 175.36,-194"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="175.42,-197.5 185.42,-194 175.42,-190.5 175.42,-197.5"/><text text-anchor="middle" x="131.5" y="-200.8" font-family="Times,serif" font-size="14.00" fill="#789abc">5%</text></g><!-- T2 --><g id="node6" class="node"><title>T2</title><ellipse fill="#789abc" stroke="#789abc" cx="77.5" cy="-106" rx="0" ry="0"/></g><!-- T1&#45;&gt;T2 --><g id="edge2" class="edge"><title>T1&#45;&gt;T2:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M77.5,-192.91C77.5,-189.07 77.5,-66.5 77.5,-105"/><text text-anchor="middle" x="96" y="-146.8" font-family="Times,serif" font-size="14.00" fill="#789abc"> 95%</text></g><!-- T2&#45;&gt;Harvester --><g id="edge4" class="edge"><title>T2&#45;&gt;Harvester</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M77.5,-104.94C77.5,-103.33 77.5,-71.11 77.5,-46.59"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="81,-46.33 77.5,-36.33 74,-46.33 81,-46.33"/><text text-anchor="middle" x="116" y="-57.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Remaining</text></g><!-- T2&#45;&gt;Beneficiary --><g id="edge5" class="edge"><title>T2&#45;&gt;Beneficiary</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M77.63,-106C80.49,-106 128.42,-106 174.76,-106"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="174.91,-109.5 184.91,-106 174.91,-102.5 174.91,-109.5"/><text text-anchor="middle" x="131.25" y="-112.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Up to 25%</text></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="358pt" height="295pt" viewBox="0.00 0.00 358.00 295.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 291)"><title>RewardDistribution</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-291 354,-291 354,4 -4,4"/><!-- BlockRewards --><g id="node1" class="node"><title>BlockRewards</title><polygon fill="none" stroke="#789abc" points="140,-287 0,-287 0,-249 140,-249 140,-287"/><text text-anchor="middle" x="70" y="-271.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Block Rewards</text><text text-anchor="middle" x="70" y="-256.8" font-family="Times,serif" font-size="14.00" fill="#789abc">(Fees + Inflation)</text></g><!-- T1 --><g id="node5" class="node"><title>T1</title><ellipse fill="#789abc" stroke="#789abc" cx="70" cy="-194" rx="0" ry="0"/></g><!-- BlockRewards&#45;&gt;T1 --><g id="edge1" class="edge"><title>BlockRewards&#45;&gt;T1:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M70,-249C70,-220.08 70,-168.85 70,-193"/></g><!-- Harvester --><g id="node2" class="node"><title>Harvester</title><g id="a_node2"><a xlink:href="#harvester" xlink:title="Harvester"><polygon fill="none" stroke="#789abc" points="114.5,-36 25.5,-36 25.5,0 114.5,0 114.5,-36"/><text text-anchor="middle" x="70" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Harvester</text></a></g></g><!-- Sink --><g id="node3" class="node"><title>Sink</title><g id="a_node3"><a xlink:href="#sink" xlink:title="Network sink account"><polygon fill="none" stroke="#789abc" points="350,-212 178,-212 178,-176 350,-176 350,-212"/><text text-anchor="middle" x="264" y="-190.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Network sink account</text></a></g></g><!-- Beneficiary --><g id="node4" class="node"><title>Beneficiary</title><g id="a_node4"><a xlink:href="#beneficiary" xlink:title="Node&#45;designated\nbeneficiary account"><polygon fill="none" stroke="#789abc" points="332.5,-125 177.5,-125 177.5,-87 332.5,-87 332.5,-125"/><text text-anchor="middle" x="255" y="-109.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Node&#45;designated</text><text text-anchor="middle" x="255" y="-94.8" font-family="Times,serif" font-size="14.00" fill="#789abc">beneficiary account</text></a></g></g><!-- T1&#45;&gt;Sink --><g id="edge3" class="edge"><title>T1&#45;&gt;Sink</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M70.14,-194C73.05,-194 120.59,-194 167.86,-194"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="167.92,-197.5 177.92,-194 167.92,-190.5 167.92,-197.5"/><text text-anchor="middle" x="124" y="-200.8" font-family="Times,serif" font-size="14.00" fill="#789abc">5%</text></g><!-- T2 --><g id="node6" class="node"><title>T2</title><ellipse fill="#789abc" stroke="#789abc" cx="70" cy="-106" rx="0" ry="0"/></g><!-- T1&#45;&gt;T2 --><g id="edge2" class="edge"><title>T1&#45;&gt;T2:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M70,-192.91C70,-189.07 70,-66.5 70,-105"/><text text-anchor="middle" x="88.5" y="-146.8" font-family="Times,serif" font-size="14.00" fill="#789abc"> 95%</text></g><!-- T2&#45;&gt;Harvester --><g id="edge4" class="edge"><title>T2&#45;&gt;Harvester</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M70,-104.94C70,-103.33 70,-71.11 70,-46.59"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="73.5,-46.33 70,-36.33 66.5,-46.33 73.5,-46.33"/><text text-anchor="middle" x="108.5" y="-57.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Remaining</text></g><!-- T2&#45;&gt;Beneficiary --><g id="edge5" class="edge"><title>T2&#45;&gt;Beneficiary</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M70.13,-106C72.99,-106 120.92,-106 167.26,-106"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="167.41,-109.5 177.41,-106 167.41,-102.5 167.41,-109.5"/><text text-anchor="middle" x="123.75" y="-112.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Up to 25%</text></g></g></svg></p>
 <ul>
 <li>
 <p id="sink"><strong>The network sink account</strong>:</p>
@@ -8554,14 +8569,8 @@ The node owner choses both the account and the percentage (up to 25%).</p>
 for example, by sharing it with their delegators.</p>
 </li>
 <li>
-<p id="harvester"><strong>The selected harvester</strong>:</p>
-<p>The account that was selected to harvest the block, based on its <a class="mkdocs-ezglossary-link"
-	id="2a94f843fc7e5feb7597599c0078ec48"
-	title="A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
-and its participation in harvesting new blocks.
-This score determines harvesting eligibility and vote weight in consensus."
-	name="_:Importance"
-	href="../../textbook/harvesting/#76ca9920588d90f42b544215c87ec7d4">importance</a>.
+<p id="harvester"><strong>The harvester</strong>:</p>
+<p>The account that created the block.
 It can be the node's <a class="mkdocs-ezglossary-link"
 	id="f5412b5061dcaabb6642a10377b90fc5"
 	title="A type of harvesting that delegates block signing to a separate proxy account,
@@ -8620,7 +8629,7 @@ Also called a delegated harvester."
 </dt>
 <dd>A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
 and its participation in <a class="mkdocs-ezglossary-link"
-	id="a35dcdc87705014090f45bfaa85a43b2"
+	id="5be3711b8d09d1db471cd3f715bad873"
 	title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
@@ -8661,6 +8670,13 @@ and its <em>node score</em>.</p>
 <p>The details about how these scores are combined to produce the importance score can be found in
 <a href="/en/assets/pdfs/SymbolWhitepaper.pdf">the Symbol whitepaper</a>, section 14.1.</p>
 </details>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Importance scores are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
+two scores is used when calculating harvesting probabilities.
+Therefore, when you first fund an account, it will require 12 hours to have a probability greater than zero to
+start harvesting.</p>
+</div>
 
 
 
@@ -8683,7 +8699,7 @@ and its <em>node score</em>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2025</span>
   </span>
 
     

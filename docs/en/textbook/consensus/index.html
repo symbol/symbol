@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://docs.symboltest.net/en/textbook/consensus/">
       
       
+        <link rel="prev" href="../accounts/">
+      
+      
+        <link rel="next" href="../transactions/">
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
@@ -331,10 +335,12 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../intro/" class="md-tabs__link">
           
   
@@ -7626,23 +7632,28 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -7653,7 +7664,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Textbook
@@ -7718,6 +7729,96 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Consensus
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Consensus
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conflicts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conflicts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conflict-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conflict Resolution
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Finalization
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -7962,6 +8063,41 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conflicts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conflicts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conflict-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conflict Resolution
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Finalization
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -7992,23 +8128,140 @@
 
 
 <h1 id="consensus">Consensus<a class="headerlink" href="#consensus" title="Anchor link to this section for reference">⚓︎</a></h1>
-<p>WTF is consensus? We already described importance in Harvesting. Is it used anywhere else?</p>
 <dl>
 <dt>
-	<a id="9f16fc94696afc5a54b99f8a6977c626">Network split</a> 
+	<a id="92c744def3f7fe5c0703c81afb16f4f8">Consensus</a> 
 </dt>
-<dd></dd>
-<dt>Block (or chain) score</dt>
-<dd>Already in Harvesting   </dd>
-
-<dt>
-	<a id="aaad8fa10840466d31b938afa01e5612">Importance (here or in Harvesting?)</a> 
-</dt>
-<dd></dd>
-<dt>Fork Resolution</dt>
-<dd></dd>
+<dd>The process by which all <a class="mkdocs-ezglossary-link"
+	id="6db5e68a28dc53fadec1657f64511027"
+	title="A computer running the Symbol software which shares information with other nodes,
+validates incoming transactions, and participates in consensus and block creation."
+	name="_:Node"
+	href="../../textbook/nodes/#bc6d0fc1a92ae07d7739daed957574ab">nodes</a> in the network agree on the current state of the blockchain.</dd>
 
 </dl>
+<p>With consensus, the network preserves a single, consistent timeline of <a class="mkdocs-ezglossary-link"
+	id="3908ccf1426505e0c5f147317935509b"
+	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
+	name="_:Block"
+	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">blocks</a> and their <a class="mkdocs-ezglossary-link"
+	id="c12bacfa7a06785ea4720b206eacbaf9"
+	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
+like moving funds from one account to another, or registering a new currency, for example."
+	name="_:Transaction"
+	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a>,
+and therefore the balance and data associated with every <a class="mkdocs-ezglossary-link"
+	id="8b8d6e3a9d0c478738f19ba3ce7923d3"
+	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
+It functions similarly to a safe deposit box in traditional banking."
+	name="_:Account"
+	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a>.</p>
+<p>Consensus provides two forms of agreement:</p>
+<ul>
+<li>
+<p><strong>Sealing agreement</strong>:
+    each block correctly links to its predecessor, ensuring the immutability of the chain's history.</p>
+</li>
+<li>
+<p><strong>Content agreement</strong>:
+    all transactions in a block comply with the network's rules.
+    For example, transferring tokens from an account requires a valid signature from its private key
+    and a sufficient balance.</p>
+</li>
+</ul>
+<p>Blocks that violate either form of agreement are <em>invalid</em> and ignored by well-behaved nodes.
+Such blocks are not propagated through the network.</p>
+<h2 id="conflicts">Conflicts<a class="headerlink" href="#conflicts" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>In a decentralized network like Symbol, though, <a class="mkdocs-ezglossary-link"
+	id="855f7b55dc0efd2f83191067d0ede0ee"
+	title="A computer running the Symbol software which shares information with other nodes,
+validates incoming transactions, and participates in consensus and block creation."
+	name="_:Node"
+	href="../../textbook/nodes/#bc6d0fc1a92ae07d7739daed957574ab">nodes</a> may temporarily become disconnected.
+This can happen due to latency, connectivity issues, or changes in network topology.</p>
+<p>During <em>network partitions</em>, disconnected groups of nodes may temporarily disagree on the most recent blocks,
+even though they might all be valid.</p>
+<p>As a result, more than one version of the blockchain may exist for a short time, a situation known as a <em>fork</em>.</p>
+<dl>
+<dt>
+	<a id="8c7c90a90d192d38075db29ab8522c89">Fork</a> 
+</dt>
+<dd>State where two or more competing chains share a common history but differ in their latest blocks.</dd>
+
+</dl>
+<p>During a fork, for example, queries to different nodes might return different balances for the same account,
+depending on whether the queried nodes have seen all the transactions that affect that account.</p>
+<p>When connectivity is restored, nodes might encounter competing blocks for the same height, resulting in a conflict.</p>
+<p>Forks might also occur naturally when two nodes produce a new block at the same time.</p>
+<h2 id="conflict-resolution">Conflict Resolution<a class="headerlink" href="#conflict-resolution" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>When a node becomes aware of a fork, Symbol resolves it using a deterministic rule:
+the chain with the highest <a class="mkdocs-ezglossary-link"
+	id="45e6cea45dd4e9291dc9d0510c470221"
+	title="Sum of the block scores of all blocks produced in a given period of time."
+	name="_:Chain Score"
+	href="../../textbook/blocks/#0553309ce8bcadb30fe7cb30f8c6fd90">chain score</a>, based on cumulative difficulty, is considered the correct one.</p>
+<p>Nodes on the lower-scoring fork need to <em>roll back</em> any blocks that are no longer part of the
+main chain and switch to the better one.</p>
+<dl>
+<dt>
+	<a id="fa68d384bf5dbf284e2a6a02fb2ef92d">Rollback</a> 
+</dt>
+<dd>The process of discarding one or more recently added blocks when a node switches to a better chain,
+typically after a fork is resolved.</dd>
+
+</dl>
+<p>Any transactions in the discarded blocks that are not already present in the main chain
+return to the <a class="mkdocs-ezglossary-link"
+	id="e5da1c62b540828e62e316038ed976a4"
+	title="A list of transactions pending validation, shared by all nodes in the network."
+	name="_:Unconfirmed pool"
+	href="../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a> and must be re-verified before they can be included in a block again.</p>
+<p>Rollbacks on Symbol are usually shallow and rare, affecting only the most recent blocks.
+However, to completely remove this risk, Symbol uses <em>finalization</em>.</p>
+<h2 id="finalization">Finalization<a class="headerlink" href="#finalization" title="Anchor link to this section for reference">⚓︎</a></h2>
+<dl>
+<dt>
+	<a id="8fe31d7fd591e1fd0d06f55c2ea53850">Finalization</a> 
+</dt>
+<dd>The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
+<a class="mkdocs-ezglossary-link"
+	id="dbc1bb9bbf8b7b9716009a2613684543"
+	title="The process of discarding one or more recently added blocks when a node switches to a better chain,
+typically after a fork is resolved."
+	name="_:Rollback"
+	href="../../textbook/consensus/#fa68d384bf5dbf284e2a6a02fb2ef92d">rollbacks</a>.</dd>
+
+</dl>
+<p>Once a block is finalized, it is guaranteed to remain in the chain and will never be rolled back, even in the event of
+a network partition or a <a class="mkdocs-ezglossary-link"
+	id="3583f5f75c652325bfdf462514b5d0cf"
+	title="State where two or more competing chains share a common history but differ in their latest blocks."
+	name="_:Fork"
+	href="../../textbook/consensus/#8c7c90a90d192d38075db29ab8522c89">fork</a>.</p>
+<p>Finalization is carried out by eligible <a class="mkdocs-ezglossary-link"
+	id="6330cd1e84682d8c5938f2952d1407b6"
+	title="Voting nodes contribute to the finalization process, which makes blocks immutable."
+	name="_:Voting Node"
+	href="../../textbook/nodes/#bca21766fb7e31db1e4e938bb9762d65">voting nodes</a>, which periodically cast votes weighted by their importance.
+These votes determine the highest block that can be finalized, and by implication all preceding blocks as well.
+Any block that receives at least two-thirds of the weighted votes is considered finalized.</p>
+<p>The result is a <em>finalization point</em>: a checkpoint in the blockchain that all nodes agree to build upon.</p>
+<p>Finalization gives applications a reliable foundation to work from.
+For example, a wallet can consider a transaction to be fully confirmed once it is included in a finalized block.</p>
+<p>Votes are weighted by account balance to prevent <a class="mkdocs-ezglossary-link"
+	id="319c67ad19a53ef98a35858b8a6f5626"
+	title="An attack in which a single adversary creates many fake identities or accounts to gain disproportionate influence
+over a network or consensus process.
+Common countermeasures include PoW or PoS, which tie influence to scarce resources."
+	name="_:Sybil Attack"
+	href="../../textbook/glossary/#5b2b4c0eecb2f226e7004cbed3761df4">Sybil attacks</a>,
+and only accounts holding at least 10'000 <a class="mkdocs-ezglossary-link"
+	id="eb502b2ab67b3677d8c5637b6fa6ba45"
+	title="The native currency of the Symbol blockchain."
+	name="_:XYM"
+	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> are eligible to participate.</p>
+<p>In the absence of network partitions, blocks are typically finalized within 10 to 20 minutes,
+depending on how long ago the last finalization point occurred.</p>
 
 
 
@@ -8031,7 +8284,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">August 25, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2025</span>
   </span>
 
     
@@ -8041,7 +8294,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">August 25, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2025</span>
   </span>
 
     
@@ -8051,11 +8304,12 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
       
     </span>
     <nav>
       
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
     </nav>
   </span>
 
