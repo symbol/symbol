@@ -10,7 +10,7 @@ by using its private key, but the public key can be shared freely in order to **
 Public keys are commonly shared as an <address:> for convenience, so the terms "account" and "address" are used as synonyms.
 
 Besides managing digital assets, accounts also represent the ownership of a private key, and act as a form of digital identity.
-On a blockchain, accounts can authorize transactions, configure permissions, and participate in consensus mechanisms.
+On a blockchain, accounts can authorize transactions, configure permissions, and participate in <consensus:> mechanisms.
 
 !!! note "Account Lifecycle"
 
