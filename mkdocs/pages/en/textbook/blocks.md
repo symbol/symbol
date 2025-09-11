@@ -51,55 +51,6 @@ All blocks that follow are created through a process called <harvesting:>, Symbo
 blockchains.
 Harvesters validate transactions and add them to the chain, receiving transaction fees as a reward.
 
-## Rollbacks
-
-Rollback
-:   The process of discarding one or more recently added blocks when the network switches to a better chain,
-    typically after a fork is resolved.
-
-In a decentralized network like Symbol, <nodes:> may temporarily become out of sync.
-This can happen due to latency, connectivity issues, or changes in network topology.
-During such _network partitions_, disconnected groups of nodes may temporarily disagree on the most recent blocks.
-
-As a result, more than one version of the blockchain may exist for a short time.
-This leads to a _fork_, where two or more competing chains share a common history but differ in their latest blocks.
-
-During a fork, for example, queries to different nodes might return different balances for the same account,
-depending on whether those nodes have seen all the transactions that affect it.
-
-When connectivity is restored, Symbol resolves forks using a deterministic rule: the chain with the highest
-<chain score:>, based on cumulative difficulty, is considered the correct one.
-Nodes that find themselves on the lower-scoring fork _roll back_ any blocks that are no longer part of the
-main chain and switch to the better one.
-
-Any transactions in the discarded blocks return to the <unconfirmed pool:> and must be re-verified before they can be
-included in a block again.
-
-Rollbacks are usually shallow and rare, affecting only the most recent blocks.
-However, to completely remove this risk, Symbol uses _finalization_.
-
-## Finalization
-
-Finalization
-:   The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
-    <rollbacks:>.
-
-Once a block is finalized, it is guaranteed to remain in the chain and will never be rolled back, even in the event of
-a network partition or fork.
-
-This process is driven by all eligible <voting nodes:>, which use a separate consensus algorithm to
-periodically agree on the most recent block that can be safely finalized.
-The result is a _finalization point_: a checkpoint in the blockchain that all nodes agree to build upon.
-
-Finalization gives applications a reliable foundation to work from.
-For example, a wallet can consider a transaction to be fully confirmed once it is included in a finalized block.
-
-Votes from voting nodes are weighted by account balance to prevent <Sybil attacks:>,
-and only accounts holding at least 10'000 <XYM:> are eligible to participate.
-
-In the absence of network partitions, blocks are typically finalized within 10 to 20 minutes,
-depending on how long ago the last finalization point occurred.
-
 ## Block Structure
 
 Each block in the Symbol blockchain contains a combination of metadata and transaction data, including:
@@ -113,6 +64,21 @@ Each block in the Symbol blockchain contains a combination of metadata and trans
 | **Fee multiplier**      | A multiplier set by the block harvester that determines how fees are calculated for each transaction in the block, based on their size in bytes.      |
 | **Transactions**        | A list of valid transactions included in the block. Each transaction is independently verified before being accepted into the block.                  |
 | **Receipts**            | A set of records automatically generated during block processing to reflect internal changes not captured by transactions themselves.                 |
+
+## Block Score
+
+The following quantity is defined for each block, to aid in the <consensus:> process.
+
+Block Score
+:   A numerical value assigned to each block that reflects how hard it was to <harvesting:|harvest>.
+    Higher scores indicate higher difficulty and are therefore preferred when resolving <forks:>.
+
+$$
+\textit{block score} = difficulty − \textit{time elapsed since last block}
+$$
+
+Chain Score
+:   Sum of the <block scores:> of all blocks produced in a given period of time.
 
 ## Receipts
 
