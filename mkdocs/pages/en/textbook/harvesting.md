@@ -4,61 +4,63 @@ Harvesting
 :   The process by which Symbol adds new <blocks:> to the chain and distributes rewards to participating <accounts:>.
     It plays a similar role to **mining** in <PoW:> or **staking** in <PoS:>.
 
-Harvesting <nodes:> are associated with a _harvester account_ which signs the blocks they produce.
+Each new block is created by a single, random <node:> and signed by one of the node's _harvester accounts_.
+This account can either be the node's main account or any of its <delegators:>.
 
-Each new block is harvested by a single, randomly selected node.
-The fees from the included <transactions:>, along with a portion of <inflation:>, are distributed to the node's
-<delegators:> and to other accounts designated by the node operator,
-which may or may not include the harvester account itself.
+The fees from the <transactions:> included in the block, along with a portion of <inflation:>,
+are distributed to the harvester account and to other accounts designated by the node operator,
+which may or may not include the node's main account.
 
 Unlike mining in <PoW:>, harvesting does not require specialized hardware.
-Participation is open to any account holding at least 10,000 <XYM:> and connected to a node, either directly or through delegation.
+Participation is open to any account holding at least 10,000 <XYM:> and connected to a node,
+either directly or through delegation.
 This balance contributes to the account's <importance:> score, which determines how often it can harvest a block.
 
 ## Harvesting Process
 
 Symbol does not use an explicit selection process to determine which node will harvest the next block.
-Instead, every node independently attempts to produce a new block.
+Instead, every node independently attempts to produce a new block using its main account and
+each of the linked <delegator:> accounts.
 
-To do this, each node calculates its own _target_ value, based primarily on the node's <importance:>.
-The higher the node's importance, the higher its target will be.
+To do this, a _target_ value is calculated based primarily on each account's <importance:>.
+The higher the importance, the higher its target will be.
 
 The node then assembles a candidate block by collecting transactions from the <unconfirmed pool:>
-and assigning the harvesting rewards to the selected harvester and the configured beneficiary.
+and assigning the harvesting rewards to the configured beneficiaries.
 Once the block is assembled, the node <hashes:> it and generates a random number called the _hit_.
 
-If the _hit_ is lower than the _target_, the node considers the block valid and announces it to the rest of the network.
+If the _hit_ is lower than the _target_, the block is valid and is announced to the rest of the network.
 Other nodes then verify the block, ensuring:
 
 * The transactions are valid.
 * The target and hit values were correctly calculated.
 * The hit is indeed lower than the target.
 
-If any of these checks fail, the block is ignored.
-The announcing node will remain on an isolated fork until it adopts the valid blocks produced by the network.
+If any of these checks fail, other nodes simply ignore the new block.
+The <consensus:> mechanism makes sure that the node eventually adopts a block that the rest of the network agrees on.
 
-If the block is valid, it is accepted by other nodes and becomes the next block in the chain.
+If the block is valid, it is accepted by other nodes that include it in their copies of the chain.
 This process is repeated at the next block height.
 
 !!! info "Simultaneous Block Creation"
-    No special care is taken to prevent multiple nodes from generating blocks at the same time.
-    When this happens, the network may split temporarily as different nodes adopt different blocks for the same height.
+    Note that no special measures are in place to prevent multiple nodes from generating blocks at the same height.
+    When this occurs, the network may temporarily <fork:> as different nodes adopt different blocks for the same
+    position in the chain.
 
-    These forks are resolved naturally using the usual fork resolution mechanisms:
-    nodes compare the <chain score:> of competing chains and adopt the one with the highest score,
-    allowing the network to re-converge.
+    The <consensus:> mechanism resolves these conflicts as nodes become aware of the competing blocks.
 
 ??? abstract "Target and Hit Calculation"
 
-    * The **target** is calculated independently by each node and reflects its likelihood of harvesting the next block.
+    * The **target** is calculated independently by each node and reflects its likelihood of harvesting the next block
+        using a specific account.
         It depends on three factors:
 
-        * The node's <importance:> score: more active or better-funded nodes will harvest more often.
+        * The account's <importance:> score: more active or better-funded accounts will harvest more often.
         * The network-wide **difficulty**, which adjusts dynamically based on recent block production times,
             to maintain a constant rate.
         * The **time** elapsed since the last block: longer delays increase the chance of a new block being produced.
 
-    * The **hit** is a random number derived from the new block's content and the node's <VRF key:>,
+    * The **hit** is a random number derived from the new block's content and the account's <VRF key:>,
         making it unpredictable.
 
         Without the VRF key, an attacker could predict which node is next in line and attempt to censor it,
@@ -66,17 +68,6 @@ This process is repeated at the next block height.
 
     For the block to be valid, the node's target must be **greater than** its hit.
     A higher importance or a longer delay increases the target, making the condition easier to satisfy.
-
-Block Score
-:   A numerical value assigned to each block that reflects how hard it was to harvest.
-    Lower scores indicate higher difficulty and are therefore preferred in fork resolution.
-
-$$
-\textit{block score} = difficulty − \textit{time elapsed since last block}
-$$
-
-Chain Score
-:   Sum of the <block scores:> of all blocks produced in a given period of time.
 
 ## Harvesting Methods
 
@@ -106,7 +97,8 @@ Remote Harvesting
     while the node's <importance:> score and rewards remain tied to the operator's <main key:>.
 
 The proxy account holds no funds and exists only to sign blocks on behalf of the main account.
-Because its <private key:> is stored in the node's configuration files, it is designed to be expendable.
+Because its <private key:> is stored in the node's configuration files, hosted on a permanently-online machine,
+it is designed to be expendable.
 
 The main account still determines the node's importance and receives all block rewards.
 However, its key remains offline, safe from compromise.
@@ -160,7 +152,7 @@ digraph RewardDistribution {
     edge [penwidth=1.5]
 
     BlockRewards [label="Block Rewards\n(Fees + Inflation)"]
-    Harvester [label="Selected Harvester" URL="#harvester"]
+    Harvester [label="Harvester" URL="#harvester"]
     Sink [label="Network sink account" URL="#sink"]
     Beneficiary [label="Node-designated\nbeneficiary account" URL="#beneficiary"]
 
@@ -194,10 +186,10 @@ digraph RewardDistribution {
     Node owners may retain this portion for themselves or redistribute it through their own reward programs,
     for example, by sharing it with their delegators.
 
-* **The selected harvester**:
+* **The harvester**:
     {id="harvester"}
 
-    The account that was selected to harvest the block, based on its <importance:>.
+    The account that created the block.
     It can be the node's <remote harvesting:> account, or any of its <delegators:>.
 
 !!! example
