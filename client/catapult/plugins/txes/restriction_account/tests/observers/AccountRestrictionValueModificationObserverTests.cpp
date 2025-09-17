@@ -23,6 +23,7 @@
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
+#include <algorithm>
 
 namespace catapult { namespace observers {
 

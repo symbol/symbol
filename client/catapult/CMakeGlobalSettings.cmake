@@ -276,7 +276,7 @@ function(catapult_set_test_compiler_options)
 		# disable dangling reference for tests - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165#c9
 		if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER "13")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-				-Wno-dangling-else -Wno-dangling-reference"
+				-Wno-dangling-else -Wno-dangling-reference -Wno-free-nonheap-object"
 				PARENT_SCOPE)
 		else()
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
