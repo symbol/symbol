@@ -37,29 +37,31 @@ The Symbol community regularly generates valuable ideas, but many contributors a
 ```mermaid
 sequenceDiagram
 participant Proposer
-participant Discord/Twitter
+participant Community(Discord/Twitter)
 participant Maintainer
 participant GitHub
 
-Proposer->>Discord/Twitter: 1. Discuss idea with the community
-Proposer->>Maintainer: 2. Request SIP number
-Maintainer->>GitHub: 3. Create SIP issue
-Proposer->>GitHub: 4. Submit SIP PR
-Maintainer->>GitHub: 5. Review PR and provide feedback
-Maintainer->>GitHub: 6. Update SIP status
+Proposer->>Community(Discord/Twitter): 1. shares ideas (optional)
+Proposer->>GitHub: 2. Submit SIP PR
+Maintainer->>GitHub: 3. Discussion & Feedback
+Community(Discord/Twitter)->>GitHub: 3. Discussion & Feedback
+
+Proposer->>GitHub: 4. Update SIP status to Review if ready
+Maintainer->>GitHub: 5. Review (Approve or Reject)
+Maintainer->>GitHub: 6. Assign SIP number and merge
 ```
 
-1. Proposer comes up with an idea and discusses it in a public channel (Discord, Twitter, etc).
+1. The proposer shares idea and gathers feedback from the community (egDiscord, Twitter, etc.). This step is optional but recommended.
 
-2. When the proposer considers the idea to be mature enough, they requests a SIP number from a relevant maintainer.
+2. The proposer creates a draft SIP using the provided template and submits a pull request to the SIPs repository.
 
-3. The maintainer assigns a SIP number and creates the corresponding GitHub issue.
+3. The maintainer and community discuss the proposal within the pull request, providing feedback and suggestions.
 
-4. The proposer writes the SIP and submits a pull request.
+4. When the proposer believes the SIP is ready for formal review, they can update the SIP status to "Review".
 
-5. The maintainer reviews the submission and provides feedback.
+5. Once a maintainer approves the proposal, they change the status to "Accepted". If not approved, the status is changed to "Rejected".
 
-6. The maintainer updates the SIP status as needed.
+6. The maintainer assigns the final SIP number when the SIP is merged into the main branch.
 
 ### SIP Categories
 - **Core**: Protocol-level changes requiring forks.
