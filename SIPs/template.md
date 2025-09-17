@@ -1,6 +1,6 @@
 | Field              | Description                                                                             |
 |--------------------|-----------------------------------------------------------------------------------------|
-| **SIP**            | Number of the SIP assigned by maintainer                                                |
+| **SIP**            | Defaults to `SIP-XXXX`. The maintainer assigns the official number upon acceptance.     |
 | **Title**          | Short title name                                                                        |
 | **Author**         | List of author names with optional contact info (Email, Twitter or Discord)             |
 | **Discussions-to** | Link to the discussion, e.g., GitHub issue                                              |
@@ -11,7 +11,7 @@
 
 > **Note:** All fields are required.
 
-# SIP-X: [Short Title Here]
+# SIP-XXXX: [Short Title Here]
 
 ## Abstract
 
