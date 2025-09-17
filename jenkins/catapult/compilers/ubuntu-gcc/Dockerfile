@@ -1,5 +1,5 @@
-# use Ubuntu 24.10 to get gcc 14.2 which has latest fixes.
-FROM ubuntu:24.10
+# use Ubuntu 25.10 to get gcc 14/15 with latest verion.
+FROM ubuntu:25.10
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -14,7 +14,7 @@ RUN apt-get update >/dev/null && \
 	>/dev/null 
 	
 # Use the latest gcc version.
-ARG COMPILER_VERSION=14
+ARG COMPILER_VERSION=15
 RUN apt-get update >/dev/null && \
 	apt-get install -y \
 	gcc-${COMPILER_VERSION} g++-${COMPILER_VERSION} >/dev/null && \
