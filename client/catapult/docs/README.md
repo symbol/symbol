@@ -85,10 +85,10 @@ race:global_logger::get()
 
 * [How to create a new network](RUNNETWORKLIN.md)
 
-* [Network configuration](https://symbol.github.io/guides/network/configuring-network-properties.html)
+* [Network configuration](https://docs.symbol.dev/guides/network/configuring-network-properties.html)
 
 ## Running a peer node
 
 * [How to create a node and connect to an existing network](RUNPEERLIN.md)
 
-* [Node configuration](https://symbol.github.io/guides/network/configuring-node-properties.html)
+* [Node configuration](https://docs.symbol.dev/guides/network/configuring-node-properties.html)

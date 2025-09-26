@@ -119,7 +119,7 @@ Replace at least one address in each list with an address from ``nemesis.address
 ## Edit the network properties
 
 The file ``resources/config-network.properties`` defines the network configuration.
-Learn more about each network property in [this guide](https://symbol.github.io/guides/network/configuring-network-properties.html#properties).
+Learn more about each network property in [this guide](https://docs.symbol.dev/guides/network/configuring-network-properties.html#properties).
 
 Edit the properties file to match the nemesis block with the desired network configuration. Important properties to check are:
 
@@ -137,7 +137,7 @@ Edit the properties file to match the nemesis block with the desired network con
 
 ## Append the VRF Keys to the nemesis block
 
-The process of creating new blocks is called [harvesting](https://symbol.github.io/concepts/harvesting.html).
+The process of creating new blocks is called [harvesting](https://docs.symbol.dev/concepts/harvesting.html).
 Each node of the network can host zero or more harvester accounts to create new blocks and get rewarded.
 
 In order to be an eligible harvester, the account must:
