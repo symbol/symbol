@@ -52,8 +52,9 @@ namespace catapult { namespace plugins {
 		});
 
 		auto v2ForkHeight = manager.config().ForkHeights.StrictAggregateTransactionHash;
-		manager.addStatefulValidatorHook([v2ForkHeight](auto& builder) {
-			builder.add(validators::CreateAggregateTransactionVersionValidator(v2ForkHeight));
+		auto v3ForkHeight = manager.config().ForkHeights.UniqueAggregateTransactionHash;
+		manager.addStatefulValidatorHook([v2ForkHeight, v3ForkHeight](auto& builder) {
+			builder.add(validators::CreateAggregateTransactionVersionValidator(v2ForkHeight, v3ForkHeight));
 		});
 	}
 }}

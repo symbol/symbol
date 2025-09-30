@@ -34,11 +34,15 @@ const TRANSACTION_HEADER_SIZE = [
 	4 // reserved2
 ].reduce((x, y) => x + y);
 
-const AGGREGATE_HASHED_SIZE = [
+const PRE_V3_AGGREGATE_HASHED_SIZE = [
 	4, // version, network, type
 	8, // maxFee
 	8, // deadline
 	Hash256.SIZE // transactionsHash
+].reduce((x, y) => x + y);
+
+const AGGREGATE_HASHED_SIZE = PRE_V3_AGGREGATE_HASHED_SIZE + [
+	4 // payloadSize
 ].reduce((x, y) => x + y);
 
 const isAggregateTransaction = transactionBuffer => {
@@ -50,9 +54,11 @@ const isAggregateTransaction = transactionBuffer => {
 
 const transactionDataBuffer = transactionBuffer => {
 	const dataBufferStart = TRANSACTION_HEADER_SIZE;
-	const dataBufferEnd = isAggregateTransaction(transactionBuffer)
-		? TRANSACTION_HEADER_SIZE + AGGREGATE_HASHED_SIZE
-		: transactionBuffer.length;
+	let dataBufferEnd = transactionBuffer.length;
+	if (isAggregateTransaction(transactionBuffer)) {
+		const version = transactionBuffer[TRANSACTION_HEADER_SIZE];
+		dataBufferEnd = TRANSACTION_HEADER_SIZE + (3 <= version ? AGGREGATE_HASHED_SIZE : PRE_V3_AGGREGATE_HASHED_SIZE);
+	}
 
 	return transactionBuffer.subarray(dataBufferStart, dataBufferEnd);
 };

@@ -252,7 +252,7 @@ describe('Symbol rosetta account routes', () => {
 		const createAggregateTransactionJson = signerPublicKey => {
 			const facade = new SymbolFacade('testnet');
 			const aggregateTransaction = facade.transactionFactory.create({
-				type: 'aggregate_complete_transaction_v2',
+				type: 'aggregate_complete_transaction_v3',
 				signerPublicKey,
 				fee: 25n,
 				deadline: 12345n

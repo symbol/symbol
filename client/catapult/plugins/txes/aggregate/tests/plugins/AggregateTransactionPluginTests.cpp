@@ -146,7 +146,7 @@ namespace catapult { namespace plugins {
 
 		// Assert:
 		EXPECT_EQ(1u, attributes.MinVersion);
-		EXPECT_EQ(2u, attributes.MaxVersion);
+		EXPECT_EQ(3u, attributes.MaxVersion);
 
 		// - zero denotes default lifetime should be used
 		EXPECT_EQ(utils::TimeSpan(), attributes.MaxLifetime);
@@ -162,7 +162,7 @@ namespace catapult { namespace plugins {
 
 		// Assert:
 		EXPECT_EQ(1u, attributes.MinVersion);
-		EXPECT_EQ(2u, attributes.MaxVersion);
+		EXPECT_EQ(3u, attributes.MaxVersion);
 
 		EXPECT_EQ(utils::TimeSpan::FromMinutes(1234), attributes.MaxLifetime);
 	}
@@ -590,14 +590,19 @@ namespace catapult { namespace plugins {
 	// region dataBuffer
 
 	namespace {
-		void AssertCanExtractDataBufferFromAggregate(uint8_t numTransactions, uint8_t numCosignatures) {
+		void AssertCanExtractDataBufferFromAggregate(
+				uint8_t numTransactions,
+				uint8_t numCosignatures,
+				uint8_t version,
+				size_t expectedFooterSize) {
 			// Arrange:
 			auto registry = mocks::CreateDefaultTransactionRegistry();
 			auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 			auto wrapper = CreateAggregateTransaction(numTransactions, numCosignatures);
+			wrapper.pTransaction->Version = version;
 
 			const auto* pAggregateDataStart = test::AsVoidPointer(&wrapper.pTransaction->Version);
-			auto aggregateDataSize = sizeof(AggregateTransaction) - VerifiableEntity::Header_Size - AggregateTransaction::Footer_Size;
+			auto aggregateDataSize = sizeof(AggregateTransaction) - VerifiableEntity::Header_Size - expectedFooterSize;
 
 			// Act:
 			auto buffer = pPlugin->dataBuffer(*wrapper.pTransaction);
@@ -606,14 +611,21 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(pAggregateDataStart, buffer.pData);
 			ASSERT_EQ(aggregateDataSize, buffer.Size);
 		}
+
+		void AssertCanExtractDataBufferFromAggregateAllVersions(uint8_t numTransactions, uint8_t numCosignatures) {
+			AssertCanExtractDataBufferFromAggregate(numTransactions, numCosignatures, 1, AggregateTransaction::Pre_V3_Footer_Size);
+			AssertCanExtractDataBufferFromAggregate(numTransactions, numCosignatures, 2, AggregateTransaction::Pre_V3_Footer_Size);
+			AssertCanExtractDataBufferFromAggregate(numTransactions, numCosignatures, 3, AggregateTransaction::Footer_Size);
+			AssertCanExtractDataBufferFromAggregate(numTransactions, numCosignatures, 4, AggregateTransaction::Footer_Size);
+		}
 	}
 
 	TEST(TEST_CLASS, CanExtractDataBufferFromEmptyAggregate) {
-		AssertCanExtractDataBufferFromAggregate(0, 0);
+		AssertCanExtractDataBufferFromAggregateAllVersions(0, 0);
 	}
 
 	TEST(TEST_CLASS, CanExtractDataBufferFromAggregate) {
-		AssertCanExtractDataBufferFromAggregate(2, 3);
+		AssertCanExtractDataBufferFromAggregateAllVersions(2, 3);
 	}
 
 	// endregion

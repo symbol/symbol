@@ -66,6 +66,7 @@ const toStringInternal = code => {
 	case 0x80410007: return 'Failure_Aggregate_Transactions_Hash_Mismatch';
 	case 0x80410008: return 'Failure_Aggregate_V1_Prohibited';
 	case 0x80410009: return 'Failure_Aggregate_V2_Prohibited';
+	case 0x8041000A: return 'Failure_Aggregate_V3_Prohibited';
 	case 0x80480001: return 'Failure_LockHash_Invalid_Mosaic_Id';
 	case 0x80480002: return 'Failure_LockHash_Invalid_Mosaic_Amount';
 	case 0x80480003: return 'Failure_LockHash_Hash_Already_Exists';

@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.9] - 23-Sept-2025
+
+### Changed
+- update catapult dependencies, including:
+  - cppzmq to 4.11.0
+  - RocksDB to 10.5.1
+  - OpenSSL to 3.5.2
+
+### Fixed
+- (BREAKING FORK) fix aggregate transaction hash bug where the aggregate transaction hashes was not unique in certain circumstances
+
 ## [1.0.3.8] - 19-Feb-2025
 
 ### Changed
@@ -505,6 +516,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.3.9]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.8...client%2Fcatapult%2Fv1.0.3.9
 [1.0.3.8]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.7...client%2Fcatapult%2Fv1.0.3.8
 [1.0.3.7]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.6...client%2Fcatapult%2Fv1.0.3.7
 [1.0.3.6]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.5...client%2Fcatapult%2Fv1.0.3.6

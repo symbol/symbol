@@ -29,14 +29,15 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AggregateTransactionVersionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AggregateTransactionVersion, Height(123))
+	DEFINE_COMMON_VALIDATOR_TESTS(AggregateTransactionVersion, Height(123), Height(234))
 
 	namespace {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				model::EntityType entityType,
 				uint8_t version,
-				Height forkHeight,
+				Height forkHeight1,
+				Height forkHeight2,
 				Height height) {
 			// Arrange:
 			cache::CatapultCache cache({});
@@ -44,7 +45,7 @@ namespace catapult { namespace validators {
 			auto validatorContext = test::CreateValidatorContext(height, cacheView.toReadOnly());
 
 			model::EntityNotification notification(static_cast<model::NetworkIdentifier>(0), entityType, version, 0, 0);
-			auto pValidator = CreateAggregateTransactionVersionValidator(forkHeight);
+			auto pValidator = CreateAggregateTransactionVersionValidator(forkHeight1, forkHeight2);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
@@ -54,27 +55,47 @@ namespace catapult { namespace validators {
 		}
 
 		void AssertNeverProhibited(model::EntityType entityType, uint8_t version) {
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(50));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(99));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(100));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(101));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(150));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(50));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(99));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(100));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(101));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(150));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(199));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(200));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(201));
 		}
 
-		void AssertProhibitedBeforeFork(model::EntityType entityType, uint8_t version) {
-			AssertValidationResult(Failure_Aggregate_V2_Prohibited, entityType, version, Height(100), Height(50));
-			AssertValidationResult(Failure_Aggregate_V2_Prohibited, entityType, version, Height(100), Height(99));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(100));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(101));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(150));
+		void AssertVersionOneProhibition(model::EntityType entityType, uint8_t version) {
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(50));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(99));
+			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(200), Height(100));
+			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(200), Height(101));
+			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(200), Height(150));
+			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(200), Height(199));
+			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(200), Height(200));
+			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(200), Height(201));
 		}
 
-		void AssertProhibitedAtAndAfterFork(model::EntityType entityType, uint8_t version) {
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(50));
-			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(99));
-			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(100));
-			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(101));
-			AssertValidationResult(Failure_Aggregate_V1_Prohibited, entityType, version, Height(100), Height(150));
+		void AssertVersionTwoProhibition(model::EntityType entityType, uint8_t version) {
+			AssertValidationResult(Failure_Aggregate_V2_Prohibited, entityType, version, Height(100), Height(200), Height(50));
+			AssertValidationResult(Failure_Aggregate_V2_Prohibited, entityType, version, Height(100), Height(200), Height(99));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(100));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(101));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(150));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(199));
+			AssertValidationResult(Failure_Aggregate_V2_Prohibited, entityType, version, Height(100), Height(200), Height(200));
+			AssertValidationResult(Failure_Aggregate_V2_Prohibited, entityType, version, Height(100), Height(200), Height(201));
+		}
+
+		void AssertVersionThreeProhibition(model::EntityType entityType, uint8_t version) {
+			AssertValidationResult(Failure_Aggregate_V3_Prohibited, entityType, version, Height(100), Height(200), Height(50));
+			AssertValidationResult(Failure_Aggregate_V3_Prohibited, entityType, version, Height(100), Height(200), Height(99));
+			AssertValidationResult(Failure_Aggregate_V3_Prohibited, entityType, version, Height(100), Height(200), Height(100));
+			AssertValidationResult(Failure_Aggregate_V3_Prohibited, entityType, version, Height(100), Height(200), Height(101));
+			AssertValidationResult(Failure_Aggregate_V3_Prohibited, entityType, version, Height(100), Height(200), Height(150));
+			AssertValidationResult(Failure_Aggregate_V3_Prohibited, entityType, version, Height(100), Height(200), Height(199));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(200));
+			AssertValidationResult(ValidationResult::Success, entityType, version, Height(100), Height(200), Height(201));
 		}
 	}
 
@@ -82,19 +103,27 @@ namespace catapult { namespace validators {
 		AssertNeverProhibited(mocks::MockTransaction::Entity_Type, 1);
 	}
 
-	TEST(TEST_CLASS, AggregateCompleteV2IsProhibitedBeforeFork) {
-		AssertProhibitedBeforeFork(model::Entity_Type_Aggregate_Complete, 2);
+	TEST(TEST_CLASS, AggregateCompleteV1IsAllowedBeforeFirstFork) {
+		AssertVersionOneProhibition(model::Entity_Type_Aggregate_Complete, 1);
 	}
 
-	TEST(TEST_CLASS, AggregateBondedV2IsProhibitedBeforeFork) {
-		AssertProhibitedBeforeFork(model::Entity_Type_Aggregate_Bonded, 2);
+	TEST(TEST_CLASS, AggregateBondedV1IsAllowedBeforeFirstFork) {
+		AssertVersionOneProhibition(model::Entity_Type_Aggregate_Bonded, 1);
 	}
 
-	TEST(TEST_CLASS, AggregateCompleteV1IsProhibitedAtAndAfterFork) {
-		AssertProhibitedAtAndAfterFork(model::Entity_Type_Aggregate_Complete, 1);
+	TEST(TEST_CLASS, AggregateCompleteV2IsAllowedBetweenForks) {
+		AssertVersionTwoProhibition(model::Entity_Type_Aggregate_Complete, 2);
 	}
 
-	TEST(TEST_CLASS, AggregateBondedV1IsProhibitedAtAndAfterFork) {
-		AssertProhibitedAtAndAfterFork(model::Entity_Type_Aggregate_Bonded, 1);
+	TEST(TEST_CLASS, AggregateBondedV2IsAllowedBetweenForks) {
+		AssertVersionTwoProhibition(model::Entity_Type_Aggregate_Bonded, 2);
+	}
+
+	TEST(TEST_CLASS, AggregateCompleteV3IsAllowedAtAndAfterSecondFork) {
+		AssertVersionThreeProhibition(model::Entity_Type_Aggregate_Complete, 3);
+	}
+
+	TEST(TEST_CLASS, AggregateBondedV3IsAllowedAtAndAfterSecondFork) {
+		AssertVersionThreeProhibition(model::Entity_Type_Aggregate_Bonded, 3);
 	}
 }}

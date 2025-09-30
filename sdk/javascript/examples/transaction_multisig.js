@@ -50,7 +50,7 @@ import { KeyPair, SymbolFacade, models } from '../src/symbol/index.js';
 			];
 
 			const aggregateTransaction = this.facade.transactionFactory.create({
-				type: 'aggregate_complete_transaction_v2',
+				type: 'aggregate_complete_transaction_v3',
 				signerPublicKey: this.multisigkeyPair.publicKey,
 				fee: 625n,
 				deadline: 12345n,

@@ -217,7 +217,7 @@ export class AggregateCompleteTransactionV1Descriptor {
 /**
  * Type safe descriptor used to generate a descriptor map for AggregateCompleteTransactionV2Descriptor.
  *
- * Send transactions in batches to different accounts (V2, latest).
+ * Send transactions in batches to different accounts (V2, deprecated).
  * Use this transaction when all required signatures are available when the transaction is created.
  */
 export class AggregateCompleteTransactionV2Descriptor {
@@ -233,6 +233,44 @@ export class AggregateCompleteTransactionV2Descriptor {
 	constructor(transactionsHash, transactions = undefined, cosignatures = undefined) {
 		this.rawDescriptor = {
 			type: 'aggregate_complete_transaction_v2',
+			transactionsHash
+		};
+
+		if (transactions)
+			this.rawDescriptor.transactions = transactions;
+
+		if (cosignatures)
+			this.rawDescriptor.cosignatures = cosignatures;
+	}
+
+	/**
+	 * Builds a representation of this descriptor that can be passed to a factory function.
+	 * @returns {object} Descriptor that can be passed to a factory function.
+	 */
+	toMap() {
+		return this.rawDescriptor;
+	}
+}
+
+/**
+ * Type safe descriptor used to generate a descriptor map for AggregateCompleteTransactionV3Descriptor.
+ *
+ * Send transactions in batches to different accounts (V3, latest).
+ * Use this transaction when all required signatures are available when the transaction is created.
+ */
+export class AggregateCompleteTransactionV3Descriptor {
+	/**
+	 * Creates a descriptor for AggregateCompleteTransactionV3.
+	 * @param {Hash256} transactionsHash Hash of the aggregate's transaction.
+	 * @param {models.EmbeddedTransaction[]|undefined} transactions Embedded transaction data.
+	Transactions are variable-sized and the total payload size is in bytes.
+	Embedded transactions cannot be aggregates.
+	 * @param {models.Cosignature[]|undefined} cosignatures Cosignatures data.
+	Fills up remaining body space after transactions.
+	 */
+	constructor(transactionsHash, transactions = undefined, cosignatures = undefined) {
+		this.rawDescriptor = {
+			type: 'aggregate_complete_transaction_v3',
 			transactionsHash
 		};
 
@@ -295,7 +333,7 @@ export class AggregateBondedTransactionV1Descriptor {
 /**
  * Type safe descriptor used to generate a descriptor map for AggregateBondedTransactionV2Descriptor.
  *
- * Propose an arrangement of transactions between different accounts (V2, latest).
+ * Propose an arrangement of transactions between different accounts (V2, deprecated).
  * Use this transaction when not all required signatures are available when the transaction is created.
  * Missing signatures must be provided using a Cosignature or DetachedCosignature.
  * To prevent spam attacks, before trying to announce this transaction a HashLockTransaction must be successfully announced and confirmed.
@@ -313,6 +351,46 @@ export class AggregateBondedTransactionV2Descriptor {
 	constructor(transactionsHash, transactions = undefined, cosignatures = undefined) {
 		this.rawDescriptor = {
 			type: 'aggregate_bonded_transaction_v2',
+			transactionsHash
+		};
+
+		if (transactions)
+			this.rawDescriptor.transactions = transactions;
+
+		if (cosignatures)
+			this.rawDescriptor.cosignatures = cosignatures;
+	}
+
+	/**
+	 * Builds a representation of this descriptor that can be passed to a factory function.
+	 * @returns {object} Descriptor that can be passed to a factory function.
+	 */
+	toMap() {
+		return this.rawDescriptor;
+	}
+}
+
+/**
+ * Type safe descriptor used to generate a descriptor map for AggregateBondedTransactionV3Descriptor.
+ *
+ * Propose an arrangement of transactions between different accounts (V3, latest).
+ * Use this transaction when not all required signatures are available when the transaction is created.
+ * Missing signatures must be provided using a Cosignature or DetachedCosignature.
+ * To prevent spam attacks, before trying to announce this transaction a HashLockTransaction must be successfully announced and confirmed.
+ */
+export class AggregateBondedTransactionV3Descriptor {
+	/**
+	 * Creates a descriptor for AggregateBondedTransactionV3.
+	 * @param {Hash256} transactionsHash Hash of the aggregate's transaction.
+	 * @param {models.EmbeddedTransaction[]|undefined} transactions Embedded transaction data.
+	Transactions are variable-sized and the total payload size is in bytes.
+	Embedded transactions cannot be aggregates.
+	 * @param {models.Cosignature[]|undefined} cosignatures Cosignatures data.
+	Fills up remaining body space after transactions.
+	 */
+	constructor(transactionsHash, transactions = undefined, cosignatures = undefined) {
+		this.rawDescriptor = {
+			type: 'aggregate_bonded_transaction_v3',
 			transactionsHash
 		};
 

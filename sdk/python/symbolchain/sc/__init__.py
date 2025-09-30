@@ -4249,6 +4249,114 @@ class AggregateCompleteTransactionV2(Transaction):
 		return result
 
 
+class AggregateCompleteTransactionV3(Transaction):
+	TRANSACTION_VERSION: int = 3
+	TRANSACTION_TYPE: TransactionType = TransactionType.AGGREGATE_COMPLETE
+	TYPE_HINTS = {
+		**Transaction.TYPE_HINTS,
+		'transactions_hash': 'pod:Hash256',
+		'transactions': 'array[EmbeddedTransaction]',
+		'cosignatures': 'array[Cosignature]'
+	}
+
+	def __init__(self):
+		super().__init__()
+		self._version = AggregateCompleteTransactionV3.TRANSACTION_VERSION
+		self._type_ = AggregateCompleteTransactionV3.TRANSACTION_TYPE
+		self._transactions_hash = Hash256()
+		self._transactions = []
+		self._cosignatures = []
+		self._aggregate_transaction_header_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
+
+	@property
+	def transactions_hash(self) -> Hash256:
+		return self._transactions_hash
+
+	@property
+	def transactions(self) -> List[EmbeddedTransaction]:
+		return self._transactions
+
+	@property
+	def cosignatures(self) -> List[Cosignature]:
+		return self._cosignatures
+
+	@transactions_hash.setter
+	def transactions_hash(self, value: Hash256):
+		self._transactions_hash = value
+
+	@transactions.setter
+	def transactions(self, value: List[EmbeddedTransaction]):
+		self._transactions = value
+
+	@cosignatures.setter
+	def cosignatures(self, value: List[Cosignature]):
+		self._cosignatures = value
+
+	@property
+	def size(self) -> int:
+		size = 0
+		size += super().size
+		size += self.transactions_hash.size
+		size += 4
+		size += 4
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False)
+		size += ArrayHelpers.size(self.cosignatures)
+		return size
+
+	@classmethod
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AggregateCompleteTransactionV3:
+		buffer = memoryview(payload)
+		instance = AggregateCompleteTransactionV3()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
+		transactions_hash = Hash256.deserialize(buffer)
+		buffer = buffer[transactions_hash.size:]
+		payload_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, skip_last_element_padding=False)
+		buffer = buffer[payload_size:]
+		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
+		buffer = buffer[ArrayHelpers.size(cosignatures):]
+
+		# pylint: disable=protected-access
+		instance._transactions_hash = transactions_hash
+		instance._transactions = transactions
+		instance._cosignatures = cosignatures
+		return instance
+
+	def serialize(self) -> bytes:
+		buffer = bytearray()
+		super()._serialize(buffer)
+		buffer += self._transactions_hash.serialize()
+		buffer += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=False)
+		buffer += ArrayHelpers.write_array(self._cosignatures)
+		return buffer
+
+	def __str__(self) -> str:
+		result = '('
+		result += super().__str__()
+		result += f'transactions_hash: {self._transactions_hash.__str__()}, '
+		result += f'transactions: {list(map(str, self._transactions))}, '
+		result += f'cosignatures: {list(map(str, self._cosignatures))}, '
+		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['transactions_hash'] = self._transactions_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		result['cosignatures'] = [e.to_json() for e in self._cosignatures]
+		return result
+
+
 class AggregateBondedTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.AGGREGATE_BONDED
@@ -4418,6 +4526,114 @@ class AggregateBondedTransactionV2(Transaction):
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AggregateBondedTransactionV2:
 		buffer = memoryview(payload)
 		instance = AggregateBondedTransactionV2()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
+		transactions_hash = Hash256.deserialize(buffer)
+		buffer = buffer[transactions_hash.size:]
+		payload_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, skip_last_element_padding=False)
+		buffer = buffer[payload_size:]
+		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
+		buffer = buffer[ArrayHelpers.size(cosignatures):]
+
+		# pylint: disable=protected-access
+		instance._transactions_hash = transactions_hash
+		instance._transactions = transactions
+		instance._cosignatures = cosignatures
+		return instance
+
+	def serialize(self) -> bytes:
+		buffer = bytearray()
+		super()._serialize(buffer)
+		buffer += self._transactions_hash.serialize()
+		buffer += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=False)
+		buffer += ArrayHelpers.write_array(self._cosignatures)
+		return buffer
+
+	def __str__(self) -> str:
+		result = '('
+		result += super().__str__()
+		result += f'transactions_hash: {self._transactions_hash.__str__()}, '
+		result += f'transactions: {list(map(str, self._transactions))}, '
+		result += f'cosignatures: {list(map(str, self._cosignatures))}, '
+		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['transactions_hash'] = self._transactions_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		result['cosignatures'] = [e.to_json() for e in self._cosignatures]
+		return result
+
+
+class AggregateBondedTransactionV3(Transaction):
+	TRANSACTION_VERSION: int = 3
+	TRANSACTION_TYPE: TransactionType = TransactionType.AGGREGATE_BONDED
+	TYPE_HINTS = {
+		**Transaction.TYPE_HINTS,
+		'transactions_hash': 'pod:Hash256',
+		'transactions': 'array[EmbeddedTransaction]',
+		'cosignatures': 'array[Cosignature]'
+	}
+
+	def __init__(self):
+		super().__init__()
+		self._version = AggregateBondedTransactionV3.TRANSACTION_VERSION
+		self._type_ = AggregateBondedTransactionV3.TRANSACTION_TYPE
+		self._transactions_hash = Hash256()
+		self._transactions = []
+		self._cosignatures = []
+		self._aggregate_transaction_header_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
+
+	@property
+	def transactions_hash(self) -> Hash256:
+		return self._transactions_hash
+
+	@property
+	def transactions(self) -> List[EmbeddedTransaction]:
+		return self._transactions
+
+	@property
+	def cosignatures(self) -> List[Cosignature]:
+		return self._cosignatures
+
+	@transactions_hash.setter
+	def transactions_hash(self, value: Hash256):
+		self._transactions_hash = value
+
+	@transactions.setter
+	def transactions(self, value: List[EmbeddedTransaction]):
+		self._transactions = value
+
+	@cosignatures.setter
+	def cosignatures(self, value: List[Cosignature]):
+		self._cosignatures = value
+
+	@property
+	def size(self) -> int:
+		size = 0
+		size += super().size
+		size += self.transactions_hash.size
+		size += 4
+		size += 4
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False)
+		size += ArrayHelpers.size(self.cosignatures)
+		return size
+
+	@classmethod
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AggregateBondedTransactionV3:
+		buffer = memoryview(payload)
+		instance = AggregateBondedTransactionV3()
 		(window_start, window_end) = Transaction._deserialize(buffer, instance)
 		buffer = buffer[window_start:window_end]
 		transactions_hash = Hash256.deserialize(buffer)
@@ -9553,8 +9769,10 @@ class TransactionFactory:
 			(NodeKeyLinkTransactionV1.TRANSACTION_TYPE, NodeKeyLinkTransactionV1.TRANSACTION_VERSION): NodeKeyLinkTransactionV1,
 			(AggregateCompleteTransactionV1.TRANSACTION_TYPE, AggregateCompleteTransactionV1.TRANSACTION_VERSION): AggregateCompleteTransactionV1,
 			(AggregateCompleteTransactionV2.TRANSACTION_TYPE, AggregateCompleteTransactionV2.TRANSACTION_VERSION): AggregateCompleteTransactionV2,
+			(AggregateCompleteTransactionV3.TRANSACTION_TYPE, AggregateCompleteTransactionV3.TRANSACTION_VERSION): AggregateCompleteTransactionV3,
 			(AggregateBondedTransactionV1.TRANSACTION_TYPE, AggregateBondedTransactionV1.TRANSACTION_VERSION): AggregateBondedTransactionV1,
 			(AggregateBondedTransactionV2.TRANSACTION_TYPE, AggregateBondedTransactionV2.TRANSACTION_VERSION): AggregateBondedTransactionV2,
+			(AggregateBondedTransactionV3.TRANSACTION_TYPE, AggregateBondedTransactionV3.TRANSACTION_VERSION): AggregateBondedTransactionV3,
 			(VotingKeyLinkTransactionV1.TRANSACTION_TYPE, VotingKeyLinkTransactionV1.TRANSACTION_VERSION): VotingKeyLinkTransactionV1,
 			(VrfKeyLinkTransactionV1.TRANSACTION_TYPE, VrfKeyLinkTransactionV1.TRANSACTION_VERSION): VrfKeyLinkTransactionV1,
 			(HashLockTransactionV1.TRANSACTION_TYPE, HashLockTransactionV1.TRANSACTION_VERSION): HashLockTransactionV1,
@@ -9588,8 +9806,10 @@ class TransactionFactory:
 			'node_key_link_transaction_v1': NodeKeyLinkTransactionV1,
 			'aggregate_complete_transaction_v1': AggregateCompleteTransactionV1,
 			'aggregate_complete_transaction_v2': AggregateCompleteTransactionV2,
+			'aggregate_complete_transaction_v3': AggregateCompleteTransactionV3,
 			'aggregate_bonded_transaction_v1': AggregateBondedTransactionV1,
 			'aggregate_bonded_transaction_v2': AggregateBondedTransactionV2,
+			'aggregate_bonded_transaction_v3': AggregateBondedTransactionV3,
 			'voting_key_link_transaction_v1': VotingKeyLinkTransactionV1,
 			'vrf_key_link_transaction_v1': VrfKeyLinkTransactionV1,
 			'hash_lock_transaction_v1': HashLockTransactionV1,

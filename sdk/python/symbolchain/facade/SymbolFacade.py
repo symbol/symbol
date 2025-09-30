@@ -19,11 +19,15 @@ TRANSACTION_HEADER_SIZE = sum(field[1] for field in [
 	('reserved2', 4)
 ])
 
-AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
+PRE_V3_AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
 	('version_network_type', 4),
 	('max_fee', 8),
 	('deadline', 8),
 	('transactions_hash', Hash256.SIZE)
+])
+
+AGGREGATE_HASHED_SIZE = PRE_V3_AGGREGATE_HASHED_SIZE + sum(field[1] for field in [
+	('payload_size', 4)
 ])
 
 
@@ -181,6 +185,7 @@ class SymbolFacade:
 		data_buffer_start = TRANSACTION_HEADER_SIZE
 		data_buffer_end = len(transaction_buffer)
 		if SymbolFacade._is_aggregate_transaction(transaction_buffer):
-			data_buffer_end = TRANSACTION_HEADER_SIZE + AGGREGATE_HASHED_SIZE
+			version = transaction_buffer[TRANSACTION_HEADER_SIZE]
+			data_buffer_end = TRANSACTION_HEADER_SIZE + (AGGREGATE_HASHED_SIZE if version >= 3 else PRE_V3_AGGREGATE_HASHED_SIZE)
 
 		return transaction_buffer[data_buffer_start:data_buffer_end]

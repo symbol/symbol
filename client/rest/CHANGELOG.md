@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.5.1] - 23-Sept-2025
+
+### Added
+- add support for aggregate transaction v3.
+
+### Fixed
+- WebSocket transaction is missing the maxFee property, which was getting dropped.
+
 ## [v2.5.0] - 19-Feb-2025
 
 ### Added
@@ -363,6 +371,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 - Initial code release.
 
+[2.5.1]: https://github.com/symbol/symbol/compare/rest%2Fv2.5.0...rest%2Fv2.5.1
 [2.5.0]: https://github.com/symbol/symbol/compare/rest%2Fv2.4.4...rest%2Fv2.5.0
 [2.4.4]: https://github.com/symbol/symbol/compare/rest%2Fv2.4.3...rest%2Fv2.4.4
 [2.4.3]: https://github.com/symbol/symbol/releases/tag/rest%2Fv2.4.3

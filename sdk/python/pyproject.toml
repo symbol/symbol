@@ -1,6 +1,6 @@
 [tool.poetry]
 name = 'symbol-sdk-python'
-version = '3.2.3'
+version = '3.3.0'
 description = 'Symbol SDK'
 authors = ['Symbol Contributors <contributors@symbol.dev>']
 maintainers = ['Symbol Contributors <contributors@symbol.dev>']
@@ -14,7 +14,7 @@ repository = 'https://github.com/symbol/symbol/tree/main/sdk/python'
 
 keywords = ['symbol', 'sdk', 'Symbol SDK']
 
-classifiers = ['Programming Language :: Python :: 3.9', 'Programming Language :: Python :: 3.10', 'Programming Language :: Python :: 3.11']
+classifiers = ['Programming Language :: Python :: 3.10', 'Programming Language :: Python :: 3.11', 'Programming Language :: Python :: 3.12', 'Programming Language :: Python :: 3.13']
 
 [tool.poetry.dependencies]
-python = "^3.9.2"
+python = "^3.10"

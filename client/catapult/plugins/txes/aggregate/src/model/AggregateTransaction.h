@@ -33,10 +33,13 @@ namespace catapult { namespace model {
 	/// Binary layout for an aggregate transaction header.
 	struct AggregateTransactionHeader : public Transaction {
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Aggregate_Complete, 2)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Aggregate_Complete, 3)
+
+		/// Size of the footer that can be skipped when signing/verifying (prior to V3).
+		static constexpr size_t Pre_V3_Footer_Size = 2 * sizeof(uint32_t);
 
 		/// Size of the footer that can be skipped when signing/verifying.
-		static constexpr size_t Footer_Size = 2 * sizeof(uint32_t);
+		static constexpr size_t Footer_Size = sizeof(uint32_t);
 
 	public:
 		/// Aggregate hash of an aggregate's transactions.

@@ -21,6 +21,7 @@
 
 #include "src/extensions/TransactionExtensions.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "catapult/model/EntityHasher.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
@@ -203,6 +204,46 @@ namespace catapult { namespace extensions {
 
 		// Act + Assert:
 		EXPECT_FALSE(extensions2.verify(*pEntity));
+	}
+
+	// endregion
+
+	// region conditional aggregate data buffers
+
+	namespace {
+		Hash256 CalculateAggregateTransactionHash(
+				const GenerationHashSeed& generationHashSeed,
+				const model::Transaction& transaction,
+				size_t footerSize) {
+			// this mimics TransactionExtensions::hash as a way to implicitly check the version-dependent aggregate data size
+			const auto* pData = reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size;
+			auto size = sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - footerSize;
+			return model::CalculateHash(transaction, generationHashSeed, { pData, size });
+		}
+
+		void AssertAggregateTransactionHash(uint8_t version, size_t footerSize) {
+			// Arrange:
+			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+			TransactionExtensions extensions(generationHashSeed);
+
+			auto pEntity = test::GenerateRandomTransactionWithSize(sizeof(model::AggregateTransaction) + 3 * sizeof(model::Cosignature));
+			pEntity->Type = model::Entity_Type_Aggregate_Complete;
+			pEntity->Version = version;
+
+			// Act:
+			auto hash = extensions.hash(*pEntity);
+
+			// Assert:
+			auto expectedHash = CalculateAggregateTransactionHash(generationHashSeed, *pEntity, footerSize);
+			EXPECT_EQ(expectedHash, hash) << "version " << static_cast<uint16_t>(version);
+		}
+	}
+
+	TEST(TEST_CLASS, ConditionalAggregateDataBufferIsRespected) {
+		AssertAggregateTransactionHash(1, model::AggregateTransaction::Pre_V3_Footer_Size);
+		AssertAggregateTransactionHash(2, model::AggregateTransaction::Pre_V3_Footer_Size);
+		AssertAggregateTransactionHash(3, model::AggregateTransaction::Footer_Size);
+		AssertAggregateTransactionHash(4, model::AggregateTransaction::Footer_Size);
 	}
 
 	// endregion

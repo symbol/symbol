@@ -47,7 +47,7 @@ def clone_descriptor(descriptor):
 # region symbol helper
 
 class SymbolHelper:
-	AGGREGATE_SCHEMA_NAME = 'AggregateBondedTransactionV2'
+	AGGREGATE_SCHEMA_NAME = 'AggregateBondedTransactionV3'
 	Signature = sc.Signature
 
 	def __init__(self, network_name):
@@ -60,7 +60,7 @@ class SymbolHelper:
 
 		# drop suffix for easier processing
 		descriptor_type = descriptor['type']
-		if descriptor_type.endswith('_v1') or descriptor_type.endswith('_v2'):
+		if any(descriptor_type.endswith(f'_v{version}') for version in (1, 2, 3)):
 			descriptor_type = descriptor_type[:-3]
 
 		if descriptor_type.endswith('_block'):
@@ -109,7 +109,7 @@ class SymbolHelper:
 
 	def create_aggregate_from_single(self, test_name, single_descriptor):
 		return self.create_aggregate(test_name, {
-			'aggregate': {'type': 'aggregate_bonded_transaction_v2'},
+			'aggregate': {'type': 'aggregate_bonded_transaction_v3'},
 			'embedded': [single_descriptor]
 		})
 

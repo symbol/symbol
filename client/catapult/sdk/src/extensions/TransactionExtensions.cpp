@@ -31,10 +31,14 @@ namespace catapult { namespace extensions {
 			return model::Entity_Type_Aggregate_Bonded == entityType || model::Entity_Type_Aggregate_Complete == entityType;
 		}
 
+		constexpr size_t AggregateFooterSize(uint8_t version) {
+			return 3 <= version ? model::AggregateTransaction::Footer_Size : model::AggregateTransaction::Pre_V3_Footer_Size;
+		}
+
 		RawBuffer TransactionDataBuffer(const model::Transaction& transaction) {
 			const auto* pData = reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size;
 			size_t size = IsAggregateType(transaction.Type)
-					? sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - model::AggregateTransaction::Footer_Size
+					? sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - AggregateFooterSize(transaction.Version)
 					: transaction.Size - model::Transaction::Header_Size;
 			return { pData, size };
 		}

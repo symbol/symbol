@@ -517,7 +517,7 @@ async def create_account_metadata_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -585,7 +585,7 @@ async def create_account_metadata_modify(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -876,7 +876,7 @@ async def create_namespace_metadata_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -945,7 +945,7 @@ async def create_namespace_metadata_modify(facade, signer_key_pair):  # pylint: 
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -1297,7 +1297,7 @@ async def create_mosaic_atomic_swap(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -1381,7 +1381,7 @@ async def create_mosaic_metadata_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -1454,7 +1454,7 @@ async def create_mosaic_metadata_cosigned_1(facade, signer_key_pair):
 		'signer_public_key': authority_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -1533,7 +1533,7 @@ async def create_mosaic_metadata_cosigned_2(facade, signer_key_pair):
 		'signer_public_key': authority_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -2368,7 +2368,7 @@ async def create_multisig_account_modification_new_account(facade, signer_key_pa
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -2452,7 +2452,7 @@ async def create_multisig_account_modification_modify_account(facade, signer_key
 		'signer_public_key': cosignatory_key_pairs[0].public_key,  # signer of the aggregate is one of the two cosignatories
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction_v2',
+		'type': 'aggregate_complete_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -2594,7 +2594,7 @@ async def create_multisig_account_modification_new_account_bonded(facade, signer
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_bonded_transaction_v2',
+		'type': 'aggregate_bonded_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -3050,7 +3050,7 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_bonded_transaction_v2',
+		'type': 'aggregate_bonded_transaction_v3',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})

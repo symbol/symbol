@@ -39,11 +39,21 @@ struct AggregateCompleteTransactionV1
 	inline Transaction
 	inline AggregateTransactionBody
 
-# Send transactions in batches to different accounts (V2, latest).
+# Send transactions in batches to different accounts (V2, deprecated).
 #
 # Use this transaction when all required signatures are available when the transaction is created.
 struct AggregateCompleteTransactionV2
 	TRANSACTION_VERSION = make_const(uint8, 2)
+	TRANSACTION_TYPE = make_const(TransactionType, AGGREGATE_COMPLETE)
+
+	inline Transaction
+	inline AggregateTransactionBody
+
+# Send transactions in batches to different accounts (V3, latest).
+#
+# Use this transaction when all required signatures are available when the transaction is created.
+struct AggregateCompleteTransactionV3
+	TRANSACTION_VERSION = make_const(uint8, 3)
 	TRANSACTION_TYPE = make_const(TransactionType, AGGREGATE_COMPLETE)
 
 	inline Transaction
@@ -64,7 +74,7 @@ struct AggregateBondedTransactionV1
 	inline Transaction
 	inline AggregateTransactionBody
 
-# Propose an arrangement of transactions between different accounts (V2, latest).
+# Propose an arrangement of transactions between different accounts (V2, deprecated).
 #
 # Use this transaction when not all required signatures are available when the transaction is created.
 #
@@ -78,3 +88,19 @@ struct AggregateBondedTransactionV2
 
 	inline Transaction
 	inline AggregateTransactionBody
+
+# Propose an arrangement of transactions between different accounts (V3, latest).
+#
+# Use this transaction when not all required signatures are available when the transaction is created.
+#
+# Missing signatures must be provided using a Cosignature or DetachedCosignature.
+#
+# To prevent spam attacks, before trying to announce this transaction a HashLockTransaction must be
+# successfully announced and confirmed.
+struct AggregateBondedTransactionV3
+	TRANSACTION_VERSION = make_const(uint8, 3)
+	TRANSACTION_TYPE = make_const(TransactionType, AGGREGATE_BONDED)
+
+	inline Transaction
+	inline AggregateTransactionBody
+

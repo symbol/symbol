@@ -1,6 +1,6 @@
 # Running a Peer Node on Ubuntu 18.04 (LTS)
 
-These instructions summarize the minimum number of steps to run a [peer node](https://symbol.github.io/concepts/node.html#id1) and connect it to an existing network using the catapult-client build.
+These instructions summarize the minimum number of steps to run a [peer node](https://docs.symbol.dev/concepts/node.html#id1) and connect it to an existing network using the catapult-client build.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ If you have not launched a network yet, move directly to ["Edit the node propert
 ## Edit the node properties
 
 The file ``resources/config-node.properties`` defines the node configuration.
-Learn more about each network property in [this guide](https://symbol.github.io/guides/network/configuring-node-properties.html#properties).
+Learn more about each node property in [this guide](https://docs.symbol.dev/guides/network/configuring-node-properties.html#node-properties).
 
 Open ``resources/config-node.properties`` and search for the ``[localnode]`` section.
 Then, edit the properties with the node details. You will need at least these properties:
@@ -59,7 +59,7 @@ roles = IPv4,Peer
 
 ## Enable harvesting
 
-This step enables [harvesting](https://symbol.github.io/concepts/harvesting.html), which allows the node to produce new blocks.
+This step enables [harvesting](https://docs.symbol.dev/concepts/harvesting.html), which allows the node to produce new blocks.
 
 > **NOTE:**
 > At least one node of the network must have harvesting enabled to produce new blocks. If you don't want to enable harvesting, move directly to [Add other peer nodes](#add-other-peer-nodes).
@@ -83,7 +83,7 @@ This step enables [harvesting](https://symbol.github.io/concepts/harvesting.html
     ...
     ```
 
-   * Replace ``<HARVESTER_SIGNING_PRIVATE_KEY>`` with the private key of an [eligible account](https://symbol.github.io/concepts/harvesting.html#eligibility-criteria).
+   * Replace ``<HARVESTER_SIGNING_PRIVATE_KEY>`` with the private key of an [eligible account](https://docs.symbol.dev/concepts/harvesting.html#eligibility-criteria).
 
    * Replace ``<HARVESTER_VRF_PRIVATE_KEY>`` with the private key linked to the harvester account to randomize the block production. The link could be defined in the [nemesis block](RUNNETWORKLIN.md#append-the-vrf-keys-to-the-nemesis-block) or at a later point by announcing a **VRFKeyLinkTransaction** with the [CLI](https://github.com/nemtech/symbol-cli/blob/gh-pages/0.20.3.md#vrfkeylink) or [SDKs](https://github.com/nemtech/symbol-sdk-typescript-javascript).
 

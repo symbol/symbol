@@ -31,19 +31,30 @@ namespace catapult { namespace validators {
 		constexpr bool IsAggregate(model::EntityType entityType) {
 			return model::Entity_Type_Aggregate_Bonded == entityType || model::Entity_Type_Aggregate_Complete == entityType;
 		}
+
+		constexpr ValidationResult MapVersionToProhibitedResult(uint8_t version) {
+			if (3 == version)
+				return Failure_Aggregate_V3_Prohibited;
+
+			return 2 == version ? Failure_Aggregate_V2_Prohibited : Failure_Aggregate_V1_Prohibited;
+		}
 	}
 
-	DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, Notification)(Height v2ForkHeight) {
-		return MAKE_STATEFUL_VALIDATOR(AggregateTransactionVersion, ([v2ForkHeight](
+	DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, Notification)(Height v2ForkHeight, Height v3ForkHeight) {
+		return MAKE_STATEFUL_VALIDATOR(AggregateTransactionVersion, ([v2ForkHeight, v3ForkHeight](
 				const Notification& notification,
 				const ValidatorContext& context) {
 			if (!IsAggregate(notification.EntityType))
 				return ValidationResult::Success;
 
-			if (context.Height < v2ForkHeight)
-				return 1 == notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V2_Prohibited;
-			else
-				return 2 <= notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V1_Prohibited;
+			auto version = notification.EntityVersion;
+			if (context.Height >= v3ForkHeight)
+				return 3 == version ? ValidationResult::Success : MapVersionToProhibitedResult(version);
+
+			if (context.Height >= v2ForkHeight)
+				return 2 == version ? ValidationResult::Success : MapVersionToProhibitedResult(version);
+
+			return 1 == version ? ValidationResult::Success : MapVersionToProhibitedResult(version);
 		}));
 	}
 }}

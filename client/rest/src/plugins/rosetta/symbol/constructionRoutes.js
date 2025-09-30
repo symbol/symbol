@@ -188,7 +188,7 @@ export default {
 			}
 
 			const aggregateTransaction = facade.transactionFactory.create({
-				type: 'aggregate_complete_transaction_v2',
+				type: 'aggregate_complete_transaction_v3',
 				signerPublicKey: aggregateSignerPublicKey,
 				deadline: new NetworkTimestamp(typedRequest.metadata.networkTime).addHours(1).timestamp,
 				transactionsHash: facade.static.hashEmbeddedTransactions(embeddedTransactions),

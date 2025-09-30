@@ -1,3 +1,4 @@
+import hashlib
 import unittest
 from collections import namedtuple
 from datetime import datetime, timezone
@@ -456,6 +457,45 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	def test_can_verify_signed_aggregate_transaction_signing_payload(self):
 		self._assert_can_verify_transaction(self._create_real_aggregate, self._sign_transaction_signing_payload)
+
+	# endregion
+
+	# region conditional aggregate data buffers
+
+	@staticmethod
+	def _calculate_expected_transaction_hash(network, transaction, aggregate_data_size):
+		# this mimics SymbolFacade.hash_transaction as a way to implicitly check the version-dependent aggregate data size
+		hasher = hashlib.sha3_256()
+		hasher.update(transaction.signature.bytes)
+		hasher.update(transaction.signer_public_key.bytes)
+		hasher.update(network.generation_hash_seed.bytes)
+
+		serialized_transaction = transaction.serialize()
+		hasher.update(serialized_transaction[108:108 + aggregate_data_size])  # 108 is TRANSACTION_HEADER_SIZE
+		return Hash256(hasher.digest())
+
+	def _assert_aggregate_transaction_hash(self, version, aggregate_data_size):
+		# Arrange:
+		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+
+		transaction = self._create_real_aggregate(facade)
+		transaction.version = version
+		signature = facade.sign_transaction(SymbolFacade.KeyPair(private_key), transaction)
+		facade.transaction_factory.attach_signature(transaction, signature)
+
+		# Act:
+		hash_value = facade.hash_transaction(transaction)
+
+		# Assert:
+		expected_hash = self._calculate_expected_transaction_hash(facade.network, transaction, aggregate_data_size)
+		self.assertEqual(expected_hash, hash_value)
+
+	def test_conditional_aggregate_data_buffer_is_respected(self):
+		self._assert_aggregate_transaction_hash(1, 52)
+		self._assert_aggregate_transaction_hash(2, 52)
+		self._assert_aggregate_transaction_hash(3, 56)
+		self._assert_aggregate_transaction_hash(4, 56)
 
 	# endregion
 

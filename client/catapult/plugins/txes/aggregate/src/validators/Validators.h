@@ -45,7 +45,8 @@ namespace catapult { namespace validators {
 			const std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>>& knownCorruptedHashes);
 
 	/// Validator that applies to entity notifications and validates that:
-	/// - aggregate transactions with version 2+ are rejected before \a v2ForkHeight
+	/// - aggregate transactions with version 3+ are rejected before \a v3ForkHeight
+	/// - aggregate transactions with version 2 are rejected before \a v2ForkHeight and at or after \a v3ForkHeight
 	/// - aggregate transactions with version 1 are rejected at and after \a v2ForkHeight
-	DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, model::EntityNotification)(Height v2ForkHeight);
+	DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, model::EntityNotification)(Height v2ForkHeight, Height v3ForkHeight);
 }}

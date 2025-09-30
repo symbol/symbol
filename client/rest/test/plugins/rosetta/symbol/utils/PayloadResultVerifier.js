@@ -44,7 +44,7 @@ export default class PayloadResultVerifier {
 	buildAggregate(signerPublicKey, deadline, cosignatureCount = 0) {
 		const merkleHash = this.facade.static.hashEmbeddedTransactions(this.embeddedTransactions);
 		this.aggregateTransaction = this.facade.transactionFactory.create({
-			type: 'aggregate_complete_transaction_v2',
+			type: 'aggregate_complete_transaction_v3',
 			signerPublicKey,
 			deadline,
 			transactionsHash: merkleHash,

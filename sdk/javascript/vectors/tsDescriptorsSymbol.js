@@ -293,6 +293,13 @@ const createTypedTransactionDescriptor = descriptor => {
 			cosignatures
 		);
 	}
+	if ('aggregate_bonded_transaction_v3' === descriptor.type) {
+		return new descriptors.AggregateBondedTransactionV3Descriptor(
+			new Hash256(descriptor.transactionsHash),
+			transactions,
+			cosignatures
+		);
+	}
 	if ('aggregate_complete_transaction_v1' === descriptor.type) {
 		return new descriptors.AggregateCompleteTransactionV1Descriptor(
 			new Hash256(descriptor.transactionsHash),
@@ -302,6 +309,13 @@ const createTypedTransactionDescriptor = descriptor => {
 	}
 	if ('aggregate_complete_transaction_v2' === descriptor.type) {
 		return new descriptors.AggregateCompleteTransactionV2Descriptor(
+			new Hash256(descriptor.transactionsHash),
+			transactions,
+			cosignatures
+		);
+	}
+	if ('aggregate_complete_transaction_v3' === descriptor.type) {
+		return new descriptors.AggregateCompleteTransactionV3Descriptor(
 			new Hash256(descriptor.transactionsHash),
 			transactions,
 			cosignatures

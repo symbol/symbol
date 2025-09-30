@@ -5,6 +5,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.3.0] - 23-Sept-2025
+
+### Added
+- add TypeScript 5.9 support
+- add support for aggregate transaction v3.
+
 ## [3.2.3] - 04-Dec-2024
 
 ### Added
@@ -130,6 +136,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.3.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.3...sdk%2Fjavascript%2Fv3.3.0
 [3.2.3]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.2...sdk%2Fjavascript%2Fv3.2.3
 [3.2.2]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.1...sdk%2Fjavascript%2Fv3.2.2
 [3.2.1]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.0...sdk%2Fjavascript%2Fv3.2.1

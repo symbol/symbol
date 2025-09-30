@@ -51,7 +51,7 @@ import { fileURLToPath } from 'url';
 	const merkleHash = facade.static.hashEmbeddedTransactions(embeddedTransactions);
 
 	const aggregateTransaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v2',
+		type: 'aggregate_complete_transaction_v3',
 		signerPublicKey: keyPair.publicKey,
 		fee: 0n,
 		deadline: 1n,

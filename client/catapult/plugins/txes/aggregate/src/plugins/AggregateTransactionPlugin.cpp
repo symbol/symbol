@@ -142,9 +142,10 @@ namespace catapult { namespace plugins {
 				const auto& aggregate = CastToDerivedType(transaction);
 
 				auto headerSize = VerifiableEntity::Header_Size;
+				auto footerSize = 3 <= transaction.Version ? AggregateTransaction::Footer_Size : AggregateTransaction::Pre_V3_Footer_Size;
 				return {
 					reinterpret_cast<const uint8_t*>(&aggregate) + headerSize,
-					sizeof(AggregateTransaction) - headerSize - AggregateTransaction::Footer_Size
+					sizeof(AggregateTransaction) - headerSize - footerSize
 				};
 			}
 

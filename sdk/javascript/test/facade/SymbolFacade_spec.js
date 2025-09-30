@@ -9,6 +9,7 @@ import TransactionFactory from '../../src/symbol/TransactionFactory.js';
 /* eslint-enable no-unused-vars */
 import * as sc from '../../src/symbol/models.js';
 import * as descriptors from '../../src/symbol/models_ts.js';
+import { sha3_256 } from '@noble/hashes/sha3.js';
 import { expect } from 'chai';
 import crypto from 'crypto';
 
@@ -556,6 +557,47 @@ describe('Symbol Facade', () => {
 
 	it('can verify signed aggregate transaction signing payload', () => {
 		assertCanVerifySignedTransactionSigningPayload(createRealAggregate);
+	});
+
+	// endregion
+
+	// region conditional aggregate data buffers
+
+	it('respects conditional aggregate data buffer', () => {
+		const calculateExpectedTransactionHash = (network, transaction, aggregateDataSize) => {
+			// this mimics SymbolFacade.hashTransaction as a way to implicitly check the version-dependent aggregate data size
+			const hasher = sha3_256.create();
+			hasher.update(transaction.signature.bytes);
+			hasher.update(transaction.signerPublicKey.bytes);
+			hasher.update(network.generationHashSeed.bytes);
+
+			const serializedTransaction = transaction.serialize();
+			hasher.update(serializedTransaction.subarray(108, 108 + aggregateDataSize)); // 108 is TRANSACTION_HEADER_SIZE
+			return new Hash256(hasher.digest());
+		};
+
+		const assertAggregateTransactionHash = (version, aggregateDataSize) => {
+			// Arrange:
+			const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
+			const facade = new SymbolFacade('testnet');
+
+			const transaction = createRealAggregate(facade);
+			transaction.version = version;
+			const signature = facade.signTransaction(new SymbolFacade.KeyPair(privateKey), transaction);
+			attachSignature(facade, transaction, signature);
+
+			// Act:
+			const hashValue = facade.hashTransaction(transaction);
+
+			// Assert:
+			const expectedHash = calculateExpectedTransactionHash(facade.network, transaction, aggregateDataSize);
+			expect(hashValue).to.deep.equal(expectedHash);
+		};
+
+		assertAggregateTransactionHash(1, 52);
+		assertAggregateTransactionHash(2, 52);
+		assertAggregateTransactionHash(3, 56);
+		assertAggregateTransactionHash(4, 56);
 	});
 
 	// endregion

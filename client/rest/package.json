@@ -1,6 +1,6 @@
 {
   "name": "symbol-api-rest",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "type": "module",
   "description": "Symbol API REST",
   "main": "src/index.js",
@@ -23,7 +23,7 @@
     "chai": "^6.0.1",
     "eslint": "^8.50.0",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-plugin-jsdoc": "^54.1.0",
+    "eslint-plugin-jsdoc": "^60.1.0",
     "minimist": "^1.2.8",
     "mocha": "^11.0.1",
     "sinon": "^21.0.0",
@@ -40,7 +40,7 @@
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
-    "symbol-sdk": "^3.2.2",
+    "symbol-sdk": "^3.3.0",
     "winston": "^3.10.0",
     "ws": "^8.14.2",
     "zeromq": "^5.3.1"

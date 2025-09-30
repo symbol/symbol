@@ -150,6 +150,9 @@ namespace catapult { namespace model {
 			/// Heights at which secret lock expiration should be forced (and locked value created).
 			/// \note This is required to allow mainnet to sync from scratch due to a (since fixed) bug.
 			std::unordered_set<Height, utils::BaseValueHasher<Height>> ForceSecretLockExpirations;
+
+			/// Height of fork at which aggregate transaction hash is calculated uniquely.
+			Height UniqueAggregateTransactionHash;
 		};
 
 		/// Fork heights.
