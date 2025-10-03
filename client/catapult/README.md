@@ -57,7 +57,7 @@ At the time of writing, the main public network has not been launched. Follow th
 
 ### Private Test Network
 
-With Symbol, businesses can launch and extend private networks by developing custom plugins and extensions at the protocol level. The package [Symbol Bootstrap] contains the necessary setup scripts to deploy a network for testing and development purposes with just one command.
+With Symbol, businesses can launch and extend private networks by developing custom plugins and extensions at the protocol level. The package [Shoestring] contains the necessary setup scripts to deploy a network for testing and development purposes with just one command.
 
 To run a private test net, follow [this guide](https://docs.symbol.dev/guides/network/creating-a-private-test-net.html#creating-a-private-test-net).
 
@@ -84,6 +84,6 @@ Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed u
 [issues]: https://github.com/symbol/symbol/issues
 [discord]: https://discord.gg/NMA9YQ55td
 [catapult-client]: https://github.com/symbol/symbol/tree/dev/client/catapult
-[Symbol Bootstrap]: https://github.com/symbol/symbol-bootstrap
+[Shoestring]: https://github.com/symbol/product/tree/dev/tools/shoestring
 [nem]: https://nem.io
 [technical reference]: https://symbol.github.io/symbol-technicalref/main.pdf
