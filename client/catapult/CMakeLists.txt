@@ -47,7 +47,7 @@ endfunction()
 
 ### setup boost
 message("--- locating boost dependencies ---")
-find_package(Boost 1.83.0 EXACT COMPONENTS ${CATAPULT_BOOST_COMPONENTS} REQUIRED)
+find_package(Boost 1.88.0 EXACT COMPONENTS ${CATAPULT_BOOST_COMPONENTS} REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 message("boost     ver: ${Boost_VERSION}")
@@ -58,7 +58,7 @@ message("boost    libs: ${Boost_LIBRARIES}")
 if(ENABLE_TESTS)
 	message("--- locating gtest dependencies ---")
 
-	find_package(GTest 1.16.0 EXACT REQUIRED)
+	find_package(GTest 1.17.0 EXACT REQUIRED)
 	message("GTest   found: ${GTest_FOUND}")
 	message("GTest     inc: ${GTest_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")
@@ -74,7 +74,7 @@ endif()
 ### setup openssl
 message("--- locating openssl dependencies ---")
 
-find_package(OpenSSL 3.5.2 EXACT REQUIRED)
+find_package(OpenSSL 3.6.0 EXACT REQUIRED)
 message("OpenSSL   ver: ${OPENSSL_VERSION}")
 message("OpenSSL  root: ${OPENSSL_ROOT_DIR}")
 message("OpenSSL   inc: ${OPENSSL_INCLUDE_DIR}")

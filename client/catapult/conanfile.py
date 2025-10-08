@@ -9,8 +9,8 @@ class CatapultConan(ConanFile):
 	settings = "os", "compiler", "build_type", "arch"  # pylint: disable=invalid-name
 
 	def requirements(self):
-		self.requires("boost/1.83.0", run=True)
-		self.requires("openssl/3.5.2", run=True)
+		self.requires("boost/1.88.0", run=True)
+		self.requires("openssl/3.6.0", run=True)
 		self.requires("cppzmq/4.11.0@nemtech/stable", run=True)
 		self.requires("mongo-c-driver/1.30.3@nemtech/stable", run=True)
 		self.requires("mongo-cxx-driver/4.0.0@nemtech/stable", run=True)
@@ -18,7 +18,7 @@ class CatapultConan(ConanFile):
 
 	def build_requirements(self):
 		# pylint: disable=not-callable
-		self.test_requires("gtest/1.16.0")
+		self.test_requires("gtest/1.17.0")
 		self.test_requires("benchmark/1.9.4@nemtech/stable")
 
 	def layout(self):
