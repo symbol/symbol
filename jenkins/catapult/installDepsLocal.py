@@ -103,6 +103,9 @@ class Builder:
 		if 'mongodb' == organization:
 			cmake_options += [f'-DOPENSSL_ROOT_DIR={self.target_directory / "openssl"}']
 
+		if 'zeromq' == organization:
+			cmake_options += ['-DCMAKE_POLICY_VERSION_MINIMUM=3.5']
+
 		additional_cmake_options = get_dependency_flags(f'{organization}_{project}')
 		if additional_cmake_options:
 			cmake_options += additional_cmake_options
@@ -129,9 +132,8 @@ class Builder:
 		self.process_manager.dispatch_subprocess(['nmake', 'install_sw', 'install_ssldirs'])
 
 	def build_openssl_unix(self):
-		compiler = 'linux-x86_64-clang' if self.is_clang else ''
 		openssl_destinations = [f'--{key}={self.target_directory / "openssl"}' for key in ('prefix', 'openssldir', 'libdir')]
-		self.process_manager.dispatch_subprocess(['perl', './Configure', compiler] + openssl_destinations)
+		self.process_manager.dispatch_subprocess(['perl', './Configure'] + openssl_destinations)
 		self.process_manager.dispatch_subprocess(['make'])
 		self.process_manager.dispatch_subprocess(['make', 'install_sw', 'install_ssldirs'])
 
