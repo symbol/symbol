@@ -177,7 +177,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
 
-    # fix -Wpoison-system-directories: error: include location '/usr/local/include' is "unsafe for cross-compilation"
+	# fix -Wpoison-system-directories: error: include location '/usr/local/include' is "unsafe for cross-compilation"
 	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		find_program(XCODE_SELECT xcode-select)
 		if (XCODE_SELECT)
