@@ -12,6 +12,8 @@ until it is confirmed.
 Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
 up-to-date values.
 
+## Prerequisites
+
 If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
 development environment is set up correctly.
 
