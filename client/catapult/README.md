@@ -9,7 +9,7 @@ Symbol-based networks rely on nodes to provide a trustless, high-performance, an
 
 These nodes are deployed using [catapult-client] software, a C++ rewrite of the previous Java-written [NEM] distributed ledger that has been running since 2015.
 
-Learn more about the protocol by reading the [whitepaper] and the  [developer documentation].
+Learn more about the protocol by reading the [whitepaper][technical reference] and the  [developer documentation].
 
 ## Package Organization
 
@@ -57,7 +57,7 @@ At the time of writing, the main public network has not been launched. Follow th
 
 ### Private Test Network
 
-With Symbol, businesses can launch and extend private networks by developing custom plugins and extensions at the protocol level. The package [Service Bootstrap] contains the necessary setup scripts to deploy a network for testing and development purposes with just one command.
+With Symbol, businesses can launch and extend private networks by developing custom plugins and extensions at the protocol level. The package [Shoestring] contains the necessary setup scripts to deploy a network for testing and development purposes with just one command.
 
 To run a private test net, follow [this guide](https://docs.symbol.dev/guides/network/creating-a-private-test-net.html#creating-a-private-test-net).
 
@@ -73,7 +73,7 @@ Before contributing please [read this](CONTRIBUTING.md).
 
 - [Symbol Developer Documentation][developer documentation]
 - [Symbol Technical Reference][technical reference]
-- Join the community [slack group (#help)][slack]
+- Join the community [Discord server][discord]
 - If you found a bug, [open a new issue][issues]
 
 ## License
@@ -84,7 +84,6 @@ Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed u
 [issues]: https://github.com/symbol/symbol/issues
 [discord]: https://discord.gg/NMA9YQ55td
 [catapult-client]: https://github.com/symbol/symbol/tree/dev/client/catapult
-[symbol-rest]: https://github.com/symbol/symbol/tree/dev/client/rest
-[Service Bootstrap]: https://github.com/symbol/symbol-bootstrap
+[Shoestring]: https://github.com/symbol/product/tree/dev/tools/shoestring
 [nem]: https://nem.io
 [technical reference]: https://symbol.github.io/symbol-technicalref/main.pdf
