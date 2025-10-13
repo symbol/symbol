@@ -9,8 +9,8 @@ facade = SymbolFacade("testnet")
 
 # Set up the signing key pair
 private_key = os.environ.get(
-    "PRIVATE_KEY",
-    "0000000000000000000000000000000000000000000000000000000000000000",
+	"PRIVATE_KEY",
+	"0000000000000000000000000000000000000000000000000000000000000000",
 )
 key_pair = KeyPair(PrivateKey(private_key))
 
@@ -21,13 +21,13 @@ recipient_address = "TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"
 
 # Create a transaction
 transaction = facade.transaction_factory.create(
-    {
-        "type": "transfer_transaction_v1",
-        "signer_public_key": key_pair.public_key,
-        "deadline": deadline,
-        "recipient_address": recipient_address,
-        "mosaics": [{"mosaic_id": 0x6BED913FA20223F8, "amount": 1_000_000}],
-    }
+	{
+		"type": "transfer_transaction_v1",
+		"signer_public_key": key_pair.public_key,
+		"deadline": deadline,
+		"recipient_address": recipient_address,
+		"mosaics": [{"mosaic_id": 0x6BED913FA20223F8, "amount": 1_000_000}],
+	}
 )
 
 # Sign the transaction
