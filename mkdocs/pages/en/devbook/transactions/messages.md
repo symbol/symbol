@@ -36,22 +36,23 @@ In a real application, you typically have the recipient's address rather than th
 
 To attach a plain text message to a transfer transaction, encode the message as bytes and include it in the `message` field.
 
-The transaction follows the same structure as a basic transfer transaction, with the addition of the message field:
+The transaction follows the same structure as a [basic transfer transaction](transfer.md), with the addition of the message field:
 
 * **Message format:** Plain text messages are encoded directly as UTF-8 bytes.
 * **Maximum size:** Messages cannot exceed 1,024 bytes. The network will reject transactions with larger messages.
+
+    !!! tip "Handling larger data"
+
+        For applications requiring more than 1,024 bytes of data, consider storing the data off-chain and including a hash or reference in the message field. This approach maintains data integrity verification while keeping transaction sizes manageable.
+
 * **Network visibility:** Plain text messages are publicly visible on the blockchain. Anyone can read them by querying the transaction.
 
-!!! tip "Handling larger data"
-
-	For applications requiring more than 1,024 bytes of data, consider storing the data off-chain and including a hash or reference in the message field. This approach maintains data integrity verification while keeping transaction sizes manageable.
 
 This example sends 1 XYM along with the message `"Hello, Symbol!"` to demonstrate that messages can be combined with mosaic transfers.
 
 !!! info "Messages without mosaics"
 
 	You can send a message without transferring any mosaics by providing an empty mosaics array.
-	This is useful for purely informational messages or data anchoring use cases.
 
 ### Sending an Encrypted Message
 

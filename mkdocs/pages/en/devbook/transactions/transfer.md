@@ -141,7 +141,7 @@ transaction's size in bytes, which is only known once the descriptor has been co
 !!! info "Including a message in the transaction"
 
     Transactions can optionally include a free-form message.
-    A later tutorial explains how to do this.
+    [This tutorial](messages.md) explains how to do this.
 
 ### Signing and Serializing
 
