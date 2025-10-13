@@ -60,7 +60,7 @@ In a real application, you would obtain this hash immediately after signing a tr
 
 ### The Monitoring Function
 
-{{ tutorial.code_snippet(['py:15:70', 'js:11:74']) }}
+{{ tutorial.code_snippet(['py:15:70', 'js:11:77']) }}
 
 The `wait_for_transaction_confirmation` function is the core of this tutorial.
 It monitors a transaction until it is confirmed or fails.
@@ -72,7 +72,7 @@ Let's break down how this function works:
 
 #### Querying the Status Endpoint
 
-{{ tutorial.code_snippet(['py:31:48', 'js:25:43']) }}
+{{ tutorial.code_snippet(['py:31:48', 'js:25:47']) }}
 
 On each attempt, the function queries the <get:/transactionStatus/{hash}> endpoint, which returns real-time information about the transaction's current state.
 
@@ -91,14 +91,14 @@ The function displays all these fields on each polling attempt so you can see ho
 
 #### Checking for Confirmation
 
-{{ tutorial.code_snippet(['py:50:52', 'js:45:47']) }}
+{{ tutorial.code_snippet(['py:50:52', 'js:49:53']) }}
 
 After parsing the response, the function checks the `group` field.
 If it is `confirmed`, the transaction was successfully included in a <block:> through <harvesting:>, and the function returns successfully.
 
 #### Checking for Failure
 
-{{ tutorial.code_snippet(['py:55:57', 'js:51:53']) }}
+{{ tutorial.code_snippet(['py:55:57', 'js:55:59']) }}
 
 If the transaction status group is `failed`, the function raises an error with the status code.
 
@@ -108,7 +108,7 @@ See [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusE
 
 #### Handling Unknown Status
 
-{{ tutorial.code_snippet(['py:59:63', 'js:55:56']) }}
+{{ tutorial.code_snippet(['py:59:63', 'js:61:67']) }}
 
 If the endpoint returns HTTP 404, the transaction status is not yet available.
 This can happen immediately after announcing a transaction, before the <node:> processes it, or if the hash is invalid.
@@ -117,14 +117,14 @@ The function handles this case by logging the attempt and continuing to poll.
 
 #### Waiting Between Attempts
 
-{{ tutorial.code_snippet(['py:66:67', 'js:67:68']) }}
+{{ tutorial.code_snippet(['py:66:67', 'js:69:72']) }}
 
 Between polling attempts, the function waits for a configurable delay (default: 2 seconds).
 This prevents overwhelming the <node:> with requests and allows time for network processing.
 
 #### Handling Timeouts
 
-{{ tutorial.code_snippet(['py:69:70', 'js:72:73']) }}
+{{ tutorial.code_snippet(['py:69:70', 'js:75:76']) }}
 
 If the transaction doesn't confirm after all attempts, the function raises a `RuntimeError`.
 

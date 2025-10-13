@@ -26,39 +26,42 @@ try {
 				// Query the transaction status endpoint
 				const statusResponse = await fetch(`${NODE_URL}${statusPath}`);
 				
-				if (statusResponse.ok) {
-					const statusJSON = await statusResponse.json();
+				if (!statusResponse.ok) {
+					const error = new Error(`HTTP ${statusResponse.status}: ${statusResponse.statusText}`);
+					error.status = statusResponse.status;
+					throw error;
+				}
+				
+				const statusJSON = await statusResponse.json();
+				
+				// Parse the response
+				const statusGroup = statusJSON.group;
+				const statusCode = statusJSON.code;
+				const statusHash = statusJSON.hash;
+				const statusDeadline = statusJSON.deadline;
+				
+				console.log(`  Attempt ${attempt}:`);
+				console.log(`    Status: ${statusGroup}`);
+				console.log(`    Code: ${statusCode}`);
+				console.log(`    Hash: ${statusHash}`);
+				console.log(`    Deadline: ${statusDeadline}`);
+				
+				// Check if the transaction has been confirmed
+				if (statusGroup === 'confirmed') {
+					console.log(`\nTransaction confirmed!`);
+					return true;
+				}
+				
+				// Check if the transaction failed
+				if (statusGroup === 'failed') {
+					console.log(`\nTransaction failed with code: ${statusCode}`);
+					throw new Error(`Transaction failed: ${statusCode}`);
+				}
 					
-					// Parse the response
-					const statusGroup = statusJSON.group;
-					const statusCode = statusJSON.code;
-					const statusHash = statusJSON.hash;
-					const statusDeadline = statusJSON.deadline;
-					
-					console.log(`  Attempt ${attempt}:`);
-					console.log(`    Status: ${statusGroup}`);
-					console.log(`    Code: ${statusCode}`);
-					console.log(`    Hash: ${statusHash}`);
-					console.log(`    Deadline: ${statusDeadline}`);
-					
-					// Check if the transaction has been confirmed
-					if (statusGroup === 'confirmed') {
-						console.log(`\nTransaction confirmed!`);
-						return true;
-					}
-					
-					// Check if the transaction failed
-					if (statusGroup === 'failed') {
-						console.log(`\nTransaction failed with code: ${statusCode}`);
-						throw new Error(`Transaction failed: ${statusCode}`);
-					}
-				} else if (statusResponse.status === 404) {
+			} catch (error) {
+				if (error.status === 404) {
 					console.log(`  Attempt ${attempt}: Transaction status not yet available`);
 				} else {
-					throw new Error(`HTTP ${statusResponse.status}: ${statusResponse.statusText}`);
-				}
-			} catch (error) {
-				if (attempt === maxAttempts) {
 					throw error;
 				}
 			}
