@@ -331,6 +331,7 @@ aside.md-source-file {
 .md-content dl:not(.automatic-reference-term) {
 	border: 1px solid var(--md-primary-fg-color);
 	border-radius: 4px;
+	overflow: hidden;
 }
 
 .md-content dt {
