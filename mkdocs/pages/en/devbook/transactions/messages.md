@@ -77,10 +77,10 @@ Encrypted messages provide confidentiality by encrypting the message content usi
 sender's private key and the recipient's public key.
 Both the sender and recipient can decrypt the message using their own private key and the other party's public key.
 
-The encryption process uses the <dy:MessageEncoder> class:
+The encryption process uses the <py:MessageEncoder> class:
 
 1. **Create a MessageEncoder** with the sender's key pair.
-2. **Encode the message** using the recipient's public key and the message bytes.
+2. **Encode the message** using the recipient's public key and the message bytes with <py:MessageEncoder.encode>.
 3. **Attach the encrypted payload** to the transaction's `message` field.
 
 By convention, encrypted messages begin with a `0x01` byte to indicate encryption, followed by the encrypted content.
@@ -104,7 +104,7 @@ This reduces the effective message size to 1,023 bytes.
 
 {{ tutorial.code_snippet(['py:164:183', 'js:140:160']) }}
 
-To decrypt a message, create a <dy:MessageEncoder> with your key pair and use the <dy:MessageEncoder.tryDecode> method
+To decrypt a message, create a <py:MessageEncoder> with your key pair and call <py:MessageEncoder.try_decode> method
 with the other party's public key and the encrypted payload.
 
 In this example, the sender decrypts using their own key pair and the recipient's public key to verify the encryption.
@@ -143,7 +143,7 @@ This tutorial showed how to:
 
 | Step                                                           | Related documentation                     |
 | -------------------------------------------------------------- | ----------------------------------------- |
-| [Send a plain text message](#sending-a-plain-text-message)     | <dy:TransferTransaction> (`messsage` field) |
-| [Send an encrypted message](#sending-an-encrypted-message)     | <dy:MessageEncoder.encode>                |
-| [Decrypt a received message](#decrypting-a-received-message)   | <dy:MessageEncoder.tryDecode>             |
+| [Send a plain text message](#sending-a-plain-text-message)     | <dy:SymbolTransactionFactory.create>  (`message`field) |
+| [Send an encrypted message](#sending-an-encrypted-message)     | <py:MessageEncoder.encode>|
+| [Decrypt a received message](#decrypting-a-received-message)   | <py:MessageEncoder.try_decode>|
 
