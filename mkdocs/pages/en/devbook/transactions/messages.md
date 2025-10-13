@@ -13,6 +13,8 @@ This tutorial shows how to send both plain and encrypted messages, and demonstra
 
 If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your development environment is set up correctly.
 
+Additionally, we recommend you check the [Transfer transaction](transfer.md) tutorial to understand how fee calculation, network time, and transaction confirmation works.
+
 ## Full Code
 
 {% import 'tutorial.jinja2' as tutorial with context %}
