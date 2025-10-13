@@ -162,6 +162,5 @@ try {
 } catch (error) {
 	console.error(
 		`Error: ${error.message} | Cause: ${error.cause?.code ?? 'unknown'}`
-    );
+	);
 }
-
