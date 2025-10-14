@@ -11,7 +11,7 @@ confirmation or failure.
 
 This tutorial shows how to monitor a transaction's status as it moves from unconfirmed to confirmed.
 
-!!! important "Confirmed transactions can still be reversed"
+!!! note "Confirmed transactions can still be reversed"
     A confirmed transaction has been included in a block but is not yet irreversible.
 	The final state is <finalization:>, which occurs only after the block is finalized by the network.
 	Until then, <rollbacks:> are still possible.
@@ -23,47 +23,32 @@ development environment is set up correctly.
 
 ## Full Code
 
+This tutorial uses polling to check the transaction status.
+Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
+WebSockets provide a more responsive solution without the overhead of repeated API calls.
+
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/transactions/monitoring-status', ['py', 'js']) }}
-
-!!! note "Polling vs WebSockets"
-    This tutorial uses polling to check the transaction status.
-    Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
-
-    A production-grade application should use WebSockets to receive status change notifications directly from the <node:>.
-    This provides a more responsive solution without the overhead of repeated API calls.
 
 ## Code Explanation
 
 ### Finding the Transaction Hash
 
-{{ tutorial.code_snippet(['py:13:16', 'js:9:10']) }}
+{{ tutorial.code_snippet(['py:13:16', 'js:7:8']) }}
 
 To monitor a transaction, you need its hash, which is generated after signing.
 The hash uniquely identifies the transaction on the Symbol network.
 
 This tutorial uses a sample transaction hash to demonstrate the monitoring.
-In a real application, you would obtain this hash immediately after signing a transaction and use it to track its
-status.
+You can provide your own hash by setting the `TRANSACTION_HASH` environment variable when running the code.
 
-??? example "Example: Getting the transaction hash"
+In a real application, you would obtain this hash immediately after signing a transaction (see the
+[Transfer tutorial](./transfer.md) for an example) and use it to track its status.
 
-    === "Python"
-        ```python
-        --8<-- 'devbook/transactions/getting-transaction-hash.py'
-        ```
+### Querying the Status Endpoint
 
-    === "JavaScript"
-        ```javascript
-        --8<-- 'devbook/transactions/getting-transaction-hash.mjs'
-        ```
-
-The [Transfer](./transfer.md) tutorial shows how to obtain a transaction's hash after signing it.
-
-### The Monitoring Function
-
-{{ tutorial.code_snippet(['py:21:82', 'js:14:98']) }}
+{{ tutorial.code_snippet(['py:21:56', 'js:12:55']) }}
 
 The `wait_for_transaction_confirmation` function is the core of this tutorial.
 It monitors a transaction until it is confirmed or fails.
@@ -72,23 +57,20 @@ It uses a `for` loop to check the transaction status up to 60 times by default (
 between attempts).
 This loop structure ensures that monitoring will eventually stop, even if the transaction never confirms.
 
-Let's break down how this function works:
-
-#### Querying the Status Endpoint
-
-{{ tutorial.code_snippet(['py:35:56', 'js:28:57']) }}
-
 On each attempt, the function queries the <get:/transactionStatus/{hash}> endpoint, which returns information
 about the transaction's current state.
 
 The response includes:
 
 * **Group:** The transaction's current status group. Possible values:
-    * `unconfirmed`: The transaction is in the unconfirmed pool waiting to be included in a block.
-    * `confirmed`: The transaction has been included in a block.
-    * `failed`: The transaction failed validation and was rejected.
-    * `partial`: For <bonded aggregate transaction:|bonded aggregate transactions> waiting
-		for <cosignature:|cosignatures>.
+
+    | Group         | Meaning                                                                          |
+    | ------------- | -------------------------------------------------------------------------------- |
+    | `unconfirmed` | The transaction is in the <unconfirmed pool:> waiting to be included in a block. |
+    | `confirmed`   | The transaction has been included in a block.                                    |
+    | `failed`      | The transaction failed validation and has been rejected.                         |
+    | `partial`     | For <bonded aggregate transactions:> waiting for <cosignatures:>.                |
+
 * **Code:** A status code providing more details (for example, `Success` or specific error codes).
 	See the [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) schema for all possible values.
 * **Hash:** The transaction hash being monitored.
@@ -97,17 +79,17 @@ The response includes:
 The function displays all these fields on each polling attempt so you can see how the transaction progresses through
 states.
 
-#### Checking for Confirmation
+### Checking for Confirmation
 
-{{ tutorial.code_snippet(['py:58:61', 'js:59:63']) }}
+{{ tutorial.code_snippet(['py:58:61', 'js:57:61']) }}
 
 After parsing the response, the function checks the `group` field.
 If it is `confirmed`, the transaction was successfully included in a <block:> through <harvesting:>, and the function
 returns successfully.
 
-#### Checking for Failure
+### Checking for Failure
 
-{{ tutorial.code_snippet(['py:63:66', 'js:65:71']) }}
+{{ tutorial.code_snippet(['py:63:66', 'js:63:69']) }}
 
 If the transaction status group is `failed`, the function raises an error with the status code.
 
@@ -116,25 +98,25 @@ Failed transactions are rejected during validation and will not be included in a
 
 See [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) for all possible codes.
 
-#### Handling Unknown Status
+### Handling Unknown Status
 
-{{ tutorial.code_snippet(['py:68:75', 'js:73:82']) }}
+{{ tutorial.code_snippet(['py:68:75', 'js:71:80']) }}
 
 If the endpoint returns HTTP 404, the transaction status is not yet available.
-This can happen immediately after announcing a transaction, before the <node:> processes it, or if the hash is invalid.
+This can happen immediately after announcing a transaction, before the <node:> processes it, or if the hash is invalid. The function handles this case by logging the attempt and continuing to poll.
 
-The function handles this case by logging the attempt and continuing to poll.
+For any other error (such as connectivity issues or failed transactions), the function re-raises the exception immediately.
 
-#### Waiting Between Attempts
+### Waiting Between Attempts
 
-{{ tutorial.code_snippet(['py:77:79', 'js:84:89']) }}
+{{ tutorial.code_snippet(['py:77:79', 'js:82:87']) }}
 
 Between polling attempts, the function waits for a configurable delay (default: 2 seconds).
 This prevents overwhelming the <node:> with requests and allows time for network processing.
 
-#### Handling Timeouts
+### Handling Timeouts
 
-{{ tutorial.code_snippet(['py:81:82', 'js:92:97']) }}
+{{ tutorial.code_snippet(['py:81:82', 'js:90:95']) }}
 
 If the transaction is not confirmed after the specified attempts, the function raises a `RuntimeError` explaining the problem.
 
@@ -176,10 +158,13 @@ This tutorial showed how to:
 
 | Step                                                                           | Related documentation                   |
 | ------------------------------------------------------------------------------ | --------------------------------------- |
-| [Set up the transaction hash](#setting-up-the-transaction-hash)                | <dy:SymbolFacade.signTransaction><br><dy:SymbolTransactionFactory.attachSignature> |
-| [Query the status endpoint](#querying-the-status-endpoint)                     | <get:/transactionStatus/{hash}> |
-| [Check for confirmation and failure](#checking-for-confirmation)               | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
-| [Query block height](#output)                                                  | <get:/transactions/confirmed/{transactionId}> |
+| [Find the transaction hash](#finding-the-transaction-hash)                     |                                         |
+| [Query the status endpoint](#querying-the-status-endpoint)                     | <get:/transactionStatus/{hash}>         |
+| [Check for confirmation](#checking-for-confirmation)                           | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [Check for failure](#checking-for-failure)                                     | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [Handle unknown status](#handling-unknown-status)                              |                                         |
+| [Wait between attempts](#waiting-between-attempts)                             |                                         |
+| [Handle timeouts](#handling-timeouts)                                          |                                         |
 
 ## Next steps
 
@@ -187,6 +172,6 @@ For production applications, consider these improvements:
 
 * **Wait for finalization:** Verify that the block containing the transaction has been finalized
 	using <get:/finalization/proof/height/{height}> to ensure it is truly irreversible.
-* **Query multiple nodes:** Check status and finalization across several <node:|nodes> for greater reliability and
+* **Query multiple nodes:** Check status and finalization across several <nodes:> for greater reliability and
 	protection against single-node issues.
 * **Use WebSockets:** Replace polling with WebSocket subscriptions for real-time updates without repeated API calls.

@@ -5,11 +5,11 @@ import urllib.request
 
 # Configuration
 NODE_URL = os.environ.get(
-	"NODE_URL", "http://ngl-dual-101.testnet.symboldev.network:3000"
+	"NODE_URL", "https://001-sai-dual.symboltest.net:3001"
 )
+print(f'Using node {NODE_URL}')
 
 # Transaction hash to monitor
-# In a real application, you would get this hash after announcing a transaction
 transaction_hash = os.environ.get(
 	"TRANSACTION_HASH",
 	"2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA",
@@ -65,8 +65,8 @@ def wait_for_transaction_confirmation(
 					print(f"\nTransaction failed with code: {status_code}")
 					raise RuntimeError(f"Transaction failed: {status_code}")
 
-		except urllib.error.HTTPError as e:
-			if e.code == 404:
+		except Exception as e:
+			if hasattr(e, 'code') and e.code == 404:
 				print(
 					f"  Attempt {attempt}: Transaction status not "
 					"yet available"
