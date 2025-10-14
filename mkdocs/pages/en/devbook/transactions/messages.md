@@ -96,7 +96,7 @@ This reduces the effective message size to 1,023 bytes.
     * `0x00` - Unencrypted message
     * `0x01` - Encrypted message (using Bouncy Castle's AES block cipher in CBC mode)
 
-	The SDK's `MessageEncoder` handles this convention, allowing both sender and recipient to decrypt messages using
+    The SDK's `MessageEncoder` handles this convention, allowing both sender and recipient to decrypt messages using
     each other's public keys.
 
     See [Transfer Transactions](../../textbook/transfer_transactions.md#optional-message) in the textbook for details.
@@ -131,7 +131,7 @@ The output shown below corresponds to a typical run of the program.
 --8<-- 'devbook/transactions/messages.log'
 ```
 
-You can view the transactions on the [Symbol Testnet Explorer](https://testnet.symbol.fyi/)by searching for the
+You can view the transactions on the [Symbol Testnet Explorer](https://testnet.symbol.fyi/) by searching for the
 transaction hashes printed in the output.
 
 When you view an encrypted message transaction in the explorer, the message field will appear as hexadecimal data
@@ -144,7 +144,8 @@ This tutorial showed how to:
 
 | Step                                                           | Related documentation                     |
 | -------------------------------------------------------------- | ----------------------------------------- |
+| [Set up accounts](#setting-up-accounts)                        |                                           |
 | [Send a plain text message](#sending-a-plain-text-message)     | <dy:SymbolTransactionFactory.create>  (`message`field) |
-| [Send an encrypted message](#sending-an-encrypted-message)     | <py:MessageEncoder.encode>|
-| [Decrypt a received message](#decrypting-a-received-message)   | <py:MessageEncoder.try_decode>|
+| [Send an encrypted message](#sending-an-encrypted-message)     | <py:MessageEncoder.encode>                |
+| [Decrypt a received message](#decrypting-a-received-message)   | <py:MessageEncoder.try_decode>            |
 
