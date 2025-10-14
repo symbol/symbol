@@ -13,8 +13,9 @@ from symbolchain.sc import Amount
 
 # Configuration
 NODE_URL = os.environ.get(
-	"NODE_URL", "http://ngl-dual-101.testnet.symboldev.network:3000"
+	"NODE_URL", "https://001-sai-dual.symboltest.net:3001"
 )
+print(f"Using node {NODE_URL}")
 
 # Set up sender and recipient accounts
 facade = SymbolFacade("testnet")
@@ -35,7 +36,9 @@ recipient_public_key_string = os.environ.get(
 )
 
 recipient_public_key = PublicKey(recipient_public_key_string)
-recipient_address = facade.network.public_key_to_address(recipient_public_key)
+recipient_address = facade.network.public_key_to_address(
+	recipient_public_key
+)
 print(f"Sender address: {sender_address}")
 print(f"Recipient address: {recipient_address}\n")
 

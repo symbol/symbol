@@ -16,7 +16,7 @@ This tutorial shows how to send both plain and encrypted messages, and demonstra
 If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
 development environment is set up correctly.
 
-Additionally, we recommend you check the [Transfer transaction](transfer.md) tutorial to understand how fee
+Additionally, check the [Transfer transaction](transfer.md) tutorial to understand how fee
 calculation, network time, and transaction confirmation works.
 
 ## Full Code
@@ -29,19 +29,21 @@ calculation, network time, and transaction confirmation works.
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:14:40', 'js:10:30']) }}
+{{ tutorial.code_snippet(['py:14:42', 'js:10:32']) }}
 
 The tutorial uses two accounts: a sender and a recipient.
-The sender is loaded from the environment variable `PRIVATE_KEY`, while the recipient's public key is loaded from the
-environment variable `RECIPIENT_PUBLIC_KEY` (both use test keys by default).
+The code reads the sender's private key from the `PRIVATE_KEY` environment variable and the recipient's public key from
+the `RECIPIENT_PUBLIC_KEY` environment variable.
+Both variables default to test keys if not set.
 
 In a real application, you typically have the recipient's address rather than their public key.
 To encrypt messages, you need to obtain their public key by querying the network using the <get:/accounts/{accountId}>
-endpoint. The public key is only available for accounts that have previously sent transactions.
+endpoint.
+The public key is only available for accounts that have previously sent transactions.
 
 ### Sending a Plain Text Message
 
-{{ tutorial.code_snippet(['py:43:106', 'js:33:88']) }}
+{{ tutorial.code_snippet(['py:45:109', 'js:34:90']) }}
 
 To attach a plain text message to a transfer transaction, encode the message as bytes and include it in the `message`
 field.
@@ -61,7 +63,6 @@ message field:
 * **Network visibility:** Plain text messages are publicly visible on the blockchain.
     Anyone can read them by querying the transaction.
 
-
 This example sends 1 XYM along with the message `"Hello, Symbol!"` to demonstrate that messages can be combined with
 mosaic transfers.
 
@@ -71,7 +72,7 @@ mosaic transfers.
 
 ### Sending an Encrypted Message
 
-{{ tutorial.code_snippet(['py:108:162', 'js:90:138']) }}
+{{ tutorial.code_snippet(['py:111:165', 'js:92:140']) }}
 
 Encrypted messages provide confidentiality by encrypting the message content using a shared secret derived from the
 sender's private key and the recipient's public key.
@@ -102,7 +103,7 @@ This reduces the effective message size to 1,023 bytes.
 
 ### Decrypting a Received Message
 
-{{ tutorial.code_snippet(['py:164:183', 'js:140:160']) }}
+{{ tutorial.code_snippet(['py:167:186', 'js:142:162']) }}
 
 To decrypt a message, create a <py:MessageEncoder> with your key pair and call <py:MessageEncoder.try_decode> method
 with the other party's public key and the encrypted payload.

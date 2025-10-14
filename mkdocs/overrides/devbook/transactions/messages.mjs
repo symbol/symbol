@@ -10,6 +10,7 @@ import {
 // Configuration
 const NODE_URL = process.env.NODE_URL ||
 	'https://001-sai-dual.symboltest.net:3001';
+console.log('Using node', NODE_URL);
 
 // Set up sender and recipient accounts
 const facade = new SymbolFacade('testnet');
@@ -25,7 +26,8 @@ const recipientPublicKeyString = process.env.RECIPIENT_PUBLIC_KEY ||
 	'D04AB232742BB4AB3A1368BD4615E4E6D0224AB71A016BAF8520A332C9778737';
 
 const recipientPublicKey = new PublicKey(recipientPublicKeyString);
-const recipientAddress = facade.network.publicKeyToAddress(recipientPublicKey);
+const recipientAddress = facade.network.publicKeyToAddress(
+	recipientPublicKey);
 console.log('Sender address:', senderAddress.toString());
 console.log('Recipient address:', recipientAddress.toString(), '\n');
 
