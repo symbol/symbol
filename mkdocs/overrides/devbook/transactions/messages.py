@@ -42,151 +42,147 @@ recipient_address = facade.network.public_key_to_address(
 print(f"Sender address: {sender_address}")
 print(f"Recipient address: {recipient_address}\n")
 
-try:
-	# ===== PLAIN TEXT MESSAGE =====
-	print("=== Sending Plain Text Message ===")
+# ===== PLAIN TEXT MESSAGE =====
+print("=== Sending Plain Text Message ===")
 
-	# Fetch current network time
-	time_path = "/node/time"
-	print(f"Fetching current network time from {time_path}")
-	with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
-		response_json = json.loads(response.read().decode())
-		timestamp = NetworkTimestamp(int(
-            response_json['communicationTimestamps']['receiveTimestamp'])
-		)
-		print(f"  Network time: {timestamp.timestamp} ms since nemesis")
-
-	# Fetch recommended fees
-	fee_path = "/network/fees/transaction"
-	print(f"Fetching recommended fees from {fee_path}")
-	with urllib.request.urlopen(f"{NODE_URL}{fee_path}") as response:
-		response_json = json.loads(response.read().decode())
-		median_mult = response_json["medianFeeMultiplier"]
-		minimum_mult = response_json["minFeeMultiplier"]
-		fee_mult = max(median_mult, minimum_mult)
-		print(f"  Fee multiplier: {fee_mult}")
-
-	# Create a plain text message
-	plain_message = "Hello, Symbol!".encode("utf-8")
-	print(f"Plain message: {plain_message.decode('utf-8')}")
-
-	# Build transfer transaction with plain message
-	transaction = facade.transaction_factory.create(
-		{
-			"type": "transfer_transaction_v1",
-			"signer_public_key": sender_key_pair.public_key,
-			"deadline": timestamp.add_hours(2).timestamp,
-			"recipient_address": recipient_address,
-			"mosaics": [
-				{
-					"mosaic_id": generate_mosaic_alias_id("symbol.xym"),
-					"amount": 1_000_000,  # 1 XYM
-				}
-			],
-			"message": plain_message,
-		}
+# Fetch current network time
+time_path = "/node/time"
+print(f"Fetching current network time from {time_path}")
+with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
+	response_json = json.loads(response.read().decode())
+	timestamp = NetworkTimestamp(int(
+		response_json['communicationTimestamps']['receiveTimestamp'])
 	)
-	transaction.fee = Amount(fee_mult * transaction.size)
+	print(f"  Network time: {timestamp.timestamp} ms since nemesis")
 
-	# Sign and announce the transaction
-	signature = facade.sign_transaction(sender_key_pair, transaction)
-	json_payload = facade.transaction_factory.attach_signature(
-		transaction, signature
-	)
-	transaction_hash = facade.hash_transaction(transaction)
-	print(f"Transaction hash: {transaction_hash}")
+# Fetch recommended fees
+fee_path = "/network/fees/transaction"
+print(f"Fetching recommended fees from {fee_path}")
+with urllib.request.urlopen(f"{NODE_URL}{fee_path}") as response:
+	response_json = json.loads(response.read().decode())
+	median_mult = response_json["medianFeeMultiplier"]
+	minimum_mult = response_json["minFeeMultiplier"]
+	fee_mult = max(median_mult, minimum_mult)
+	print(f"  Fee multiplier: {fee_mult}")
 
-	announce_request = urllib.request.Request(
-		f"{NODE_URL}/transactions",
-		data=json_payload.encode("utf-8"),
-		headers={"Content-Type": "application/json"},
-		method="PUT",
-	)
-	with urllib.request.urlopen(announce_request) as response:
-		print(f"Plain message transaction announced\n")
+# Create a plain text message
+plain_message = "Hello, Symbol!".encode("utf-8")
+print(f"Plain message: {plain_message.decode('utf-8')}")
 
-	# Wait a moment before sending the next transaction
-	time.sleep(2)
+# Build transfer transaction with plain message
+transaction = facade.transaction_factory.create(
+	{
+		"type": "transfer_transaction_v1",
+		"signer_public_key": sender_key_pair.public_key,
+		"deadline": timestamp.add_hours(2).timestamp,
+		"recipient_address": recipient_address,
+		"mosaics": [
+			{
+				"mosaic_id": generate_mosaic_alias_id("symbol.xym"),
+				"amount": 1_000_000,  # 1 XYM
+			}
+		],
+		"message": plain_message,
+	}
+)
+transaction.fee = Amount(fee_mult * transaction.size)
 
-	# ===== ENCRYPTED MESSAGE =====
-	print("=== Sending Encrypted Message ===")
+# Sign and announce the transaction
+signature = facade.sign_transaction(sender_key_pair, transaction)
+json_payload = facade.transaction_factory.attach_signature(
+	transaction, signature
+)
+transaction_hash = facade.hash_transaction(transaction)
+print(f"Transaction hash: {transaction_hash}")
 
-	# Fetch updated network time
-	with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
-		response_json = json.loads(response.read().decode())
-		timestamp = NetworkTimestamp(int(
-            response_json['communicationTimestamps']['receiveTimestamp'])
-		)
+announce_request = urllib.request.Request(
+	f"{NODE_URL}/transactions",
+	data=json_payload.encode("utf-8"),
+	headers={"Content-Type": "application/json"},
+	method="PUT",
+)
+with urllib.request.urlopen(announce_request) as response:
+	print(f"Plain message transaction announced\n")
 
-	# Create a message encoder with sender's key pair
-	message_encoder = MessageEncoder(sender_key_pair)
+# Wait a moment before sending the next transaction
+time.sleep(2)
 
-	# Encrypt the message using recipient's public key
-	secret_message = "This is a secret message!".encode("utf-8")
-	encrypted_payload = message_encoder.encode(
-		recipient_public_key, secret_message
-	)
-	print(f"Original message: {secret_message.decode('utf-8')}")
-	print(
-		"Encrypted payload: "
-		+ hexlify(encrypted_payload).decode("utf-8")
+# ===== ENCRYPTED MESSAGE =====
+print("=== Sending Encrypted Message ===")
+
+# Fetch updated network time
+with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
+	response_json = json.loads(response.read().decode())
+	timestamp = NetworkTimestamp(int(
+		response_json['communicationTimestamps']['receiveTimestamp'])
 	)
 
-	# Build transfer transaction with encrypted message
-	transaction = facade.transaction_factory.create(
-		{
-			"type": "transfer_transaction_v1",
-			"signer_public_key": sender_key_pair.public_key,
-			"deadline": timestamp.add_hours(2).timestamp,
-			"recipient_address": recipient_address,
-			"mosaics": [
-				{
-					"mosaic_id": generate_mosaic_alias_id("symbol.xym"),
-					"amount": 1_000_000,  # 1 XYM
-				}
-			],
-			"message": encrypted_payload,
-		}
-	)
-	transaction.fee = Amount(fee_mult * transaction.size)
+# Create a message encoder with sender's key pair
+message_encoder = MessageEncoder(sender_key_pair)
 
-	# Sign and announce the transaction
-	signature = facade.sign_transaction(sender_key_pair, transaction)
-	json_payload = facade.transaction_factory.attach_signature(
-		transaction, signature
-	)
-	transaction_hash = facade.hash_transaction(transaction)
-	print(f"Transaction hash: {transaction_hash}")
+# Encrypt the message using recipient's public key
+secret_message = "This is a secret message!".encode("utf-8")
+encrypted_payload = message_encoder.encode(
+	recipient_public_key, secret_message
+)
+print(f"Original message: {secret_message.decode('utf-8')}")
+print(
+	"Encrypted payload: "
+	+ hexlify(encrypted_payload).decode("utf-8")
+)
 
-	announce_request = urllib.request.Request(
-		f"{NODE_URL}/transactions",
-		data=json_payload.encode("utf-8"),
-		headers={"Content-Type": "application/json"},
-		method="PUT",
-	)
-	with urllib.request.urlopen(announce_request) as response:
-		print(f"Encrypted message transaction announced\n")
+# Build transfer transaction with encrypted message
+transaction = facade.transaction_factory.create(
+	{
+		"type": "transfer_transaction_v1",
+		"signer_public_key": sender_key_pair.public_key,
+		"deadline": timestamp.add_hours(2).timestamp,
+		"recipient_address": recipient_address,
+		"mosaics": [
+			{
+				"mosaic_id": generate_mosaic_alias_id("symbol.xym"),
+				"amount": 1_000_000,  # 1 XYM
+			}
+		],
+		"message": encrypted_payload,
+	}
+)
+transaction.fee = Amount(fee_mult * transaction.size)
 
-	# ===== DECRYPTING MESSAGE =====
-	print("=== Decrypting Message ===")
+# Sign and announce the transaction
+signature = facade.sign_transaction(sender_key_pair, transaction)
+json_payload = facade.transaction_factory.attach_signature(
+	transaction, signature
+)
+transaction_hash = facade.hash_transaction(transaction)
+print(f"Transaction hash: {transaction_hash}")
 
-	# Sender can decrypt using recipient's public key
-	(is_decoded, decrypted_message) = message_encoder.try_decode(
-		recipient_public_key, encrypted_payload
-	)
-	if is_decoded:
-		message_text = decrypted_message.decode("utf-8")
-		print(f"Sender verified encrypted message: {message_text}")
-	else:
-		print(f"Sender failed to decrypt message")
+announce_request = urllib.request.Request(
+	f"{NODE_URL}/transactions",
+	data=json_payload.encode("utf-8"),
+	headers={"Content-Type": "application/json"},
+	method="PUT",
+)
+with urllib.request.urlopen(announce_request) as response:
+	print(f"Encrypted message transaction announced\n")
 
-	# The recipient would decrypt using their private key:
-	# recipient_encoder = MessageEncoder(recipient_key_pair)
-	# (is_decoded, msg) = recipient_encoder.try_decode(
-	#	sender_key_pair.public_key, encrypted_payload
-	# )
+# ===== DECRYPTING MESSAGE =====
+print("=== Decrypting Message ===")
 
-	print("\nBoth transactions have been sent successfully!")
+# Sender can decrypt using recipient's public key
+(is_decoded, decrypted_message) = message_encoder.try_decode(
+	recipient_public_key, encrypted_payload
+)
+if is_decoded:
+	message_text = decrypted_message.decode("utf-8")
+	print(f"Sender verified encrypted message: {message_text}")
+else:
+	print(f"Sender failed to decrypt message")
 
-except urllib.error.URLError as e:
-	print(e.reason)
+# The recipient would decrypt using their private key:
+# recipient_encoder = MessageEncoder(recipient_key_pair)
+# (is_decoded, msg) = recipient_encoder.try_decode(
+#	sender_key_pair.public_key, encrypted_payload
+# )
+
+print("\nBoth transactions have been sent successfully!")
