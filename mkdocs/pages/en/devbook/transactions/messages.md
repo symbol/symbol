@@ -29,7 +29,7 @@ calculation, network time, and transaction confirmation works.
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:14:42', 'js:10:32']) }}
+{{ tutorial.code_snippet(['py:14:43', 'js:10:32']) }}
 
 The tutorial uses two accounts: a sender and a recipient.
 The code reads the sender's private key from the `PRIVATE_KEY` environment variable and the recipient's public key from
@@ -43,7 +43,7 @@ The public key is only available for accounts that have previously sent transact
 
 ### Sending a Plain Text Message
 
-{{ tutorial.code_snippet(['py:45:109', 'js:34:90']) }}
+{{ tutorial.code_snippet(['py:45:108', 'js:34:91']) }}
 
 To attach a plain text message to a transfer transaction, encode the message as bytes and include it in the `message`
 field.
@@ -72,7 +72,7 @@ mosaic transfers.
 
 ### Sending an Encrypted Message
 
-{{ tutorial.code_snippet(['py:111:165', 'js:92:140']) }}
+{{ tutorial.code_snippet(['py:110:167', 'js:93:142']) }}
 
 Encrypted messages provide confidentiality by encrypting the message content using a shared secret derived from the
 sender's private key and the recipient's public key.
@@ -103,7 +103,7 @@ This reduces the effective message size to 1,023 bytes.
 
 ### Decrypting a Received Message
 
-{{ tutorial.code_snippet(['py:167:186', 'js:142:162']) }}
+{{ tutorial.code_snippet(['py:169:188', 'js:144:164']) }}
 
 To decrypt a message, create a <py:MessageEncoder> with your key pair and call <py:MessageEncoder.try_decode> method
 with the other party's public key and the encrypted payload.

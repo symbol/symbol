@@ -42,7 +42,8 @@ try {
 	const timeJSON = await timeResponse.json();
 	let timestamp = new NetworkTimestamp(
 		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp, 'ms since nemesis');
+	console.log('  Network time:', timestamp.timestamp,
+		'ms since nemesis');
 
 	// Fetch recommended fees
 	const feePath = '/network/fees/transaction';
@@ -56,7 +57,8 @@ try {
 
 	// Create a plain text message
 	const plainMessage = new TextEncoder().encode('Hello, Symbol!');
-	console.log('Plain message:', new TextDecoder().decode(plainMessage));
+	console.log('Plain message:',
+		new TextDecoder().decode(plainMessage));
 
 	// Build transfer transaction with plain message
 	let transaction = facade.transactionFactory.create({
@@ -107,7 +109,8 @@ try {
 	const encryptedPayload = messageEncoder.encode(
 		recipientPublicKey, secretMessage
 	);
-	console.log('Original message:', new TextDecoder().decode(secretMessage));
+	console.log('Original message:',
+		new TextDecoder().decode(secretMessage));
 	const hex = Buffer.from(encryptedPayload).toString('hex');
 	console.log('Encrypted payload:', hex);
 

@@ -51,8 +51,8 @@ try:
 	print(f"Fetching current network time from {time_path}")
 	with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
 		response_json = json.loads(response.read().decode())
-		timestamp = NetworkTimestamp(
-			int(response_json["communicationTimestamps"]["receiveTimestamp"])
+		timestamp = NetworkTimestamp(int(
+            response_json['communicationTimestamps']['receiveTimestamp'])
 		)
 		print(f"  Network time: {timestamp.timestamp} ms since nemesis")
 
@@ -114,8 +114,8 @@ try:
 	# Fetch updated network time
 	with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
 		response_json = json.loads(response.read().decode())
-		timestamp = NetworkTimestamp(
-			int(response_json["communicationTimestamps"]["receiveTimestamp"])
+		timestamp = NetworkTimestamp(int(
+            response_json['communicationTimestamps']['receiveTimestamp'])
 		)
 
 	# Create a message encoder with sender's key pair
@@ -127,7 +127,10 @@ try:
 		recipient_public_key, secret_message
 	)
 	print(f"Original message: {secret_message.decode('utf-8')}")
-	print(f"Encrypted payload: {hexlify(encrypted_payload).decode('utf-8')}")
+	print(
+		"Encrypted payload: "
+		+ hexlify(encrypted_payload).decode("utf-8")
+	)
 
 	# Build transfer transaction with encrypted message
 	transaction = facade.transaction_factory.create(
