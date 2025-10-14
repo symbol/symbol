@@ -14,7 +14,7 @@ This tutorial shows how to monitor a transaction's status as it moves from uncon
 !!! important "Confirmed transactions can still be reversed"
     A confirmed transaction has been included in a block but is not yet irreversible.
 	The final state is <finalization:>, which occurs only after the block is finalized by the network.
-	Until then, <rollback:|rollbacks> are still possible.
+	Until then, <rollbacks:> are still possible.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ development environment is set up correctly.
 {{ tutorial.code_full('devbook/transactions/monitoring-status', ['py', 'js']) }}
 
 !!! note "Polling vs WebSockets"
-    This tutorial uses polling to check transaction status.
+    This tutorial uses polling to check the transaction status.
     Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
 
     A production-grade application should use WebSockets to receive status change notifications directly from the <node:>.
@@ -36,16 +36,16 @@ development environment is set up correctly.
 
 ## Code Explanation
 
-### Setting Up the Transaction Hash
+### Finding the Transaction Hash
 
 {{ tutorial.code_snippet(['py:13:16', 'js:9:10']) }}
 
 To monitor a transaction, you need its hash, which is generated after signing.
 The hash uniquely identifies the transaction on the Symbol network.
 
-For this tutorial, we use a sample transaction hash to demonstrate the monitoring.
+This tutorial uses a sample transaction hash to demonstrate the monitoring.
 In a real application, you would obtain this hash immediately after signing a transaction and use it to track its
-status:
+status.
 
 ??? example "Example: Getting the transaction hash"
 
@@ -59,7 +59,7 @@ status:
         --8<-- 'devbook/transactions/getting-transaction-hash.mjs'
         ```
 
-    See the [Transfer](transfer.md) tutorial for a complete example of creating, signing, and announcing transactions.
+The [Transfer](./transfer.md) tutorial shows how to obtain a transaction's hash after signing it.
 
 ### The Monitoring Function
 
@@ -78,7 +78,7 @@ Let's break down how this function works:
 
 {{ tutorial.code_snippet(['py:35:56', 'js:28:57']) }}
 
-On each attempt, the function queries the <get:/transactionStatus/{hash}> endpoint, which returns real-time information
+On each attempt, the function queries the <get:/transactionStatus/{hash}> endpoint, which returns information
 about the transaction's current state.
 
 The response includes:
@@ -136,7 +136,7 @@ This prevents overwhelming the <node:> with requests and allows time for network
 
 {{ tutorial.code_snippet(['py:81:82', 'js:92:97']) }}
 
-If the transaction doesn't confirm after all attempts, the function raises a `RuntimeError`.
+If the transaction is not confirmed after the specified attempts, the function raises a `RuntimeError` explaining the problem.
 
 This ensures that the calling code is aware that the transaction didn't complete in the expected timeframe and can
 take appropriate action, such as:
