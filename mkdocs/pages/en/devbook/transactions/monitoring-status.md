@@ -13,8 +13,8 @@ This tutorial shows how to monitor a transaction's status as it moves from uncon
 
 !!! note "Confirmed transactions can still be reversed"
     A confirmed transaction has been included in a block but is not yet irreversible.
-	The final state is <finalization:>, which occurs only after the block is finalized by the network.
-	Until then, <rollbacks:> are still possible.
+    The final state is <finalization:>, which occurs only after the block is finalized by the network.
+    Until then, <rollbacks:> are still possible.
 
 ## Prerequisites
 
@@ -72,7 +72,7 @@ The response includes:
     | `partial`     | For <bonded aggregate transactions:> waiting for <cosignatures:>.                |
 
 * **Code:** A status code providing more details (for example, `Success` or specific error codes).
-	See the [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) schema for all possible values.
+    See the [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) schema for all possible values.
 * **Hash:** The transaction hash being monitored.
 * **Deadline:** The transaction's deadline in network time.
 
@@ -171,7 +171,7 @@ This tutorial showed how to:
 For production applications, consider these improvements:
 
 * **Wait for finalization:** Verify that the block containing the transaction has been finalized
-	using <get:/finalization/proof/height/{height}> to ensure it is truly irreversible.
+    using <get:/finalization/proof/height/{height}> to ensure it is truly irreversible.
 * **Query multiple nodes:** Check status and finalization across several <nodes:> for greater reliability and
-	protection against single-node issues.
+    protection against single-node issues.
 * **Use WebSockets:** Replace polling with WebSocket subscriptions for real-time updates without repeated API calls.
