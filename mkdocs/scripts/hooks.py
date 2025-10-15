@@ -49,10 +49,14 @@ def page_markdown_js_typedoc(content, page, config, files):
 		return content
 
 	symbol_name = ''
+	parent_name = page.parent.title if page.parent else ''
 	def symbol_type_repl(m):
 		dict = {"Class":"class", "Function":"method"}
 		nonlocal symbol_name
 		symbol_name = m.group(2)
+		if symbol_name == "default":
+			nonlocal parent_name
+			symbol_name = parent_name
 		# Insert manual word breaks in camel-case titles, in case they are very long
 		symbol_name_wbr = re.sub(r'([a-z])([A-Z])', r'\1<wbr>\2', symbol_name)
 		if m.group(1) not in dict:
