@@ -48,7 +48,7 @@ In a real application, you would obtain this hash immediately after signing a tr
 
 ### Querying the Status Endpoint
 
-{{ tutorial.code_snippet(['py:21:56', 'js:12:55']) }}
+{{ tutorial.code_snippet(['py:21:57', 'js:12:55']) }}
 
 The `wait_for_transaction_confirmation` function is the core of this tutorial.
 It monitors a transaction until it is confirmed or fails.
@@ -81,7 +81,7 @@ states.
 
 ### Checking for Confirmation
 
-{{ tutorial.code_snippet(['py:58:61', 'js:57:61']) }}
+{{ tutorial.code_snippet(['py:59:62', 'js:57:61']) }}
 
 After parsing the response, the function checks the `group` field.
 If it is `confirmed`, the transaction was successfully included in a <block:> through <harvesting:>, and the function
@@ -89,7 +89,7 @@ returns successfully.
 
 ### Checking for Failure
 
-{{ tutorial.code_snippet(['py:63:66', 'js:63:69']) }}
+{{ tutorial.code_snippet(['py:64:71', 'js:63:69']) }}
 
 If the transaction status group is `failed`, the function raises an error with the status code.
 
@@ -100,7 +100,7 @@ See [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusE
 
 ### Handling Unknown Status
 
-{{ tutorial.code_snippet(['py:68:75', 'js:71:80']) }}
+{{ tutorial.code_snippet(['py:73:80', 'js:71:80']) }}
 
 If the endpoint returns HTTP 404, the transaction status is not yet available.
 This can happen immediately after announcing a transaction, before the <node:> processes it, or if the hash is invalid.
@@ -110,16 +110,17 @@ For any other error (such as connectivity issues or failed transactions), the fu
 
 ### Waiting Between Attempts
 
-{{ tutorial.code_snippet(['py:77:79', 'js:82:87']) }}
+{{ tutorial.code_snippet(['py:82:84', 'js:82:87']) }}
 
 Between polling attempts, the function waits for a configurable delay (default: 2 seconds).
 This prevents overwhelming the <node:> with requests and allows time for network processing.
 
 ### Handling Timeouts
 
-{{ tutorial.code_snippet(['py:81:82', 'js:90:95']) }}
+{{ tutorial.code_snippet(['py:86:89', 'js:90:95']) }}
 
-If the transaction is not confirmed after the specified attempts, the function raises a `RuntimeError` explaining the problem.
+If the transaction is not confirmed after the specified number of attempts, the function raises a `RuntimeError`
+explaining the problem.
 
 This ensures that the calling code is aware that the transaction didn't complete in the expected timeframe and can
 take appropriate action, such as:
@@ -157,15 +158,11 @@ To see the transaction from the network's perspective, visit the
 
 This tutorial showed how to:
 
-| Step                                                                           | Related documentation                   |
-| ------------------------------------------------------------------------------ | --------------------------------------- |
-| [Find the transaction hash](#finding-the-transaction-hash)                     |                                         |
-| [Query the status endpoint](#querying-the-status-endpoint)                     | <get:/transactionStatus/{hash}>         |
-| [Check for confirmation](#checking-for-confirmation)                           | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
-| [Check for failure](#checking-for-failure)                                     | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
-| [Handle unknown status](#handling-unknown-status)                              |                                         |
-| [Wait between attempts](#waiting-between-attempts)                             |                                         |
-| [Handle timeouts](#handling-timeouts)                                          |                                         |
+| Step                                                       | Related documentation                                                            |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [Query the status endpoint](#querying-the-status-endpoint) | <get:/transactionStatus/{hash}>                                                  |
+| [Check for confirmation](#checking-for-confirmation)       | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [Check for failure](#checking-for-failure)                 | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
 
 ## Next steps
 

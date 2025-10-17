@@ -22,7 +22,8 @@ def wait_for_transaction_confirmation(
 	transaction_hash, max_attempts=60, wait_seconds=2
 ):
 	"""
-	Poll the transaction status endpoint until the transaction is confirmed.
+	Poll the transaction status endpoint until the transaction
+	is confirmed.
 
 	Args:
 		transaction_hash: The hash of the transaction to monitor
@@ -62,8 +63,12 @@ def wait_for_transaction_confirmation(
 
 				# Check if the transaction failed
 				if status_group == "failed":
-					print(f"\nTransaction failed with code: {status_code}")
-					raise RuntimeError(f"Transaction failed: {status_code}")
+					print(
+						f"\nTransaction failed with code: {status_code}"
+					)
+					raise RuntimeError(
+						f"Transaction failed: {status_code}"
+					)
 
 		except Exception as e:
 			if hasattr(e, 'code') and e.code == 404:
@@ -79,7 +84,9 @@ def wait_for_transaction_confirmation(
 			time.sleep(wait_seconds)
 
 	print(f"\nTransaction not confirmed after {max_attempts} attempts")
-	raise RuntimeError(f"Transaction {transaction_hash} not confirmed in time")
+	raise RuntimeError(
+		f"Transaction {transaction_hash} not confirmed in time"
+	)
 
 
 # Monitor the transaction until it's confirmed
