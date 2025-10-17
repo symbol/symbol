@@ -97,4 +97,3 @@ async function waitForTransactionConfirmation(
 
 // Monitor the transaction until it's confirmed
 await waitForTransactionConfirmation(transactionHash);
-
