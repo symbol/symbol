@@ -9,15 +9,15 @@ transaction.
 Messages can be sent as plain text or encrypted using the recipient's public key, ensuring only the intended recipient
 can read them.
 
-This tutorial shows how to send both plain and encrypted messages, and demonstrates how to decrypt received messages.
+This tutorial shows how to send both plain and encrypted messages and how to decode received messages.
 
 ## Prerequisites
 
 If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
 development environment is set up correctly.
 
-Additionally, check the [Transfer transaction](transfer.md) tutorial to understand how fee
-calculation, network time, and transaction confirmation works.
+Additionally, check the [Transfer transaction](./transfer.md) tutorial to understand how fee
+calculation, network time, and transaction confirmation work.
 
 ## Full Code
 
@@ -29,92 +29,103 @@ calculation, network time, and transaction confirmation works.
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:14:43', 'js:10:32']) }}
+{{ tutorial.code_snippet(['py:48:74', 'js:44:62']) }}
 
-The tutorial uses two accounts: a sender and a recipient.
-The code reads the sender's private key from the `PRIVATE_KEY` environment variable and the recipient's public key from
-the `RECIPIENT_PUBLIC_KEY` environment variable.
-Both variables default to test keys if not set.
+To send a message, you need the sender's <private key:> and the recipient's <address:>.
+To encrypt a message, you additionally need the recipient's <public key:>.
 
-In a real application, you typically have the recipient's address rather than their public key.
-To encrypt messages, you need to obtain their public key by querying the network using the <get:/accounts/{accountId}>
-endpoint.
-The public key is only available for accounts that have previously sent transactions.
+This tutorial uses two accounts (sender and recipient) to demonstrate both sending and receiving plain and encrypted
+messages.
+The snippet reads their private keys from the `SENDER_PRIVATE_KEY` and `RECIPIENT_PRIVATE_KEY` environment variables,
+which default to test keys if not set.
+The recipient's public key and address are derived from their private key.
+
+!!! note "Retrieving public keys"
+
+    When only the address is known, you can retrieve the public key from the network using the
+    <get:/accounts/{accountId}> endpoint.
+    An account's public key becomes available only after it has broadcast at least one transaction.
 
 ### Sending a Plain Text Message
 
-{{ tutorial.code_snippet(['py:45:108', 'js:34:91']) }}
+{{ tutorial.code_snippet(['py:99:113', 'js:87:100']) }}
 
-To attach a plain text message to a transfer transaction, encode the message as bytes and include it in the `message`
-field.
+You can also combine mosaic transfers with messages by including both the `mosaics` and `message` fields in the
+ transaction descriptor.
 
-The transaction follows the same structure as a [basic transfer transaction](transfer.md), with the addition of the
-message field:
+See the [Creating a Transfer Transaction](./transfer.md) tutorial for details on fetching network time, calculating
+ fees, and announcing transactions.
 
-* **Message format:** Plain text messages are encoded directly as UTF-8 bytes.
-* **Maximum size:** Messages cannot exceed 1,024 bytes. The network will reject transactions with larger messages.
+**Message constraints:**
 
-    !!! tip "Handling larger data"
+* **Maximum size:** 1,024 bytes (the network rejects larger messages).
+* **Encoding:** UTF-8 by convention, though the protocol doesn't enforce a standard.
+* **Privacy:** All messages are publicly visible on the blockchain unless encrypted.
 
-        For applications requiring more than 1,024 bytes of data, consider storing the data off-chain and including a
-        hash or reference in the message field.
-        This approach maintains data integrity verification while keeping transaction sizes manageable.
+!!! tip "Handling larger data"
 
-* **Network visibility:** Plain text messages are publicly visible on the blockchain.
-    Anyone can read them by querying the transaction.
+    For applications requiring more than 1,024 bytes of data, common approaches include:
 
-This example sends 1 XYM along with the message `"Hello, Symbol!"` to demonstrate that messages can be combined with
-mosaic transfers.
+    * **On-chain storage:** Split the data across multiple transactions within an <aggregate transaction:>, allowing
+        you to keep everything on the blockchain.
+    * **Off-chain storage:** Store the data off-chain and include a hash and a reference in the message field.
+        The hash verifies data integrity while the reference enables retrieval.
 
-!!! info "Messages without mosaics"
+### Receiving a Plain Text Message
 
-    You can send a message without transferring any mosaics by providing an empty mosaics array.
+{{ tutorial.code_snippet(['py:138:151', 'js:120:130']) }}
+
+After announcing the transaction, the `wait_for_confirmation` helper function polls the
+`/transactions/confirmed/{hash}` endpoint until the transaction is confirmed.
+
+The confirmed transaction contains the message as hex-encoded bytes.
+To retrieve the original message, it converts the hex string to bytes and decodes it as UTF-8.
 
 ### Sending an Encrypted Message
 
-{{ tutorial.code_snippet(['py:110:167', 'js:93:142']) }}
+{{ tutorial.code_snippet(['py:154:180', 'js:133:157']) }}
 
-Encrypted messages provide confidentiality by encrypting the message content using a shared secret derived from the
+Encrypted messages provide confidentiality by protecting the message content using a shared secret derived from the
 sender's private key and the recipient's public key.
 Both the sender and recipient can decrypt the message using their own private key and the other party's public key.
 
-The encryption process uses the <py:MessageEncoder> class:
+The <dy:MessageEncoder> class handles message encryption:
 
-1. **Create a MessageEncoder** with the sender's key pair.
-2. **Encode the message** using the recipient's public key and the message bytes with <py:MessageEncoder.encode>.
-3. **Attach the encrypted payload** to the transaction's `message` field.
+1. A <dy:MessageEncoder> is created with the sender's key pair.
+2. The message is encoded using the recipient's public key and the message bytes with <dy:MessageEncoder.encode>.
+3. The encrypted payload is attached to the transaction's `message` field.
 
-By convention, encrypted messages begin with a `0x01` byte to indicate encryption, followed by the encrypted content.
-This reduces the effective message size to 1,023 bytes.
+The transaction is then signed and announced following the same process as in
+[Creating a Transfer Transaction](./transfer.md).
 
-!!! info "Message encryption is a convention, not a protocol feature"
+!!! note "Message encryption is a convention"
 
-    The Symbol protocol treats the message field as a byte array (max 1,024 bytes) without validating its content.
+    The Symbol protocol does not define a standard for message encryption.
+    Sender and recipient must agree in advance on whether messages are encrypted.
+    The <dy:MessageEncoder> class implements a widely adopted convention used by most wallets and applications.
 
-    By convention, applications use a prefix byte to indicate message encoding:
+    For more details, see [Optional Messages](../../textbook/transfer_transactions.md#optional-message) in the
+    Textbook.
 
-    * `0x00` - Unencrypted message
-    * `0x01` - Encrypted message (using Bouncy Castle's AES block cipher in CBC mode)
+### Receiving an Encrypted Message
 
-    The SDK's `MessageEncoder` handles this convention, allowing both sender and recipient to decrypt messages using
-    each other's public keys.
+{{ tutorial.code_snippet(['py:205:231', 'js:178:201']) }}
 
-    See [Transfer Transactions](../../textbook/transfer_transactions.md#optional-message) in the textbook for details.
+After announcing the encrypted message transaction, the `wait_for_confirmation` helper function polls for confirmation.
 
-### Decrypting a Received Message
-
-{{ tutorial.code_snippet(['py:169:188', 'js:144:164']) }}
-
-To decrypt a message, create a <py:MessageEncoder> with your key pair and call <py:MessageEncoder.try_decode> method
-with the other party's public key and the encrypted payload.
-
-In this example, the sender decrypts using their own key pair and the recipient's public key to verify the encryption.
-The recipient would decrypt using their own key pair and the sender's public key (available in the transaction's
-`signerPublicKey` field).
+To decrypt the message from the confirmed transaction, a <dy:MessageEncoder> is created with the recipient's key pair,
+then <dy:MessageEncoder.tryDecode> is called with the sender's public key (obtained from the transaction's
+`signerPublicKey` field) and the encrypted payload.
 
 The method returns a tuple `(is_decoded, message)` indicating whether decryption was successful.
 
-If decryption succeeds, the message contains the original plaintext bytes, which you can decode as UTF-8.
+If decryption succeeds, the message contains the original plaintext bytes, which are decoded as UTF-8.
+
+!!! note "Decryption works both ways"
+
+    Because the encryption uses a shared secret derived from both key pairs, the sender can also decrypt the message
+    using their own private key and the recipient's public key.
+    This allows both parties to verify the message content after it has been published on the blockchain.
 
 If decryption fails, possible causes include:
 
@@ -134,18 +145,15 @@ The output shown below corresponds to a typical run of the program.
 You can view the transactions on the [Symbol Testnet Explorer](https://testnet.symbol.fyi/) by searching for the
 transaction hashes printed in the output.
 
-When you view an encrypted message transaction in the explorer, the message field will appear as hexadecimal data
-beginning with `01`.
-The explorer cannot decrypt the message because it doesn't have access to the private keys.
+The explorer cannot decrypt encrypted messages because it doesn't have access to the private keys.
 
 ## Conclusion
 
 This tutorial showed how to:
 
-| Step                                                           | Related documentation                     |
-| -------------------------------------------------------------- | ----------------------------------------- |
-| [Set up accounts](#setting-up-accounts)                        |                                           |
-| [Send a plain text message](#sending-a-plain-text-message)     | <dy:SymbolTransactionFactory.create>  (`message`field) |
-| [Send an encrypted message](#sending-an-encrypted-message)     | <py:MessageEncoder.encode>                |
-| [Decrypt a received message](#decrypting-a-received-message)   | <py:MessageEncoder.try_decode>            |
+| Step                                                           | Related documentation                       |
+| -------------------------------------------------------------- | ------------------------------------------- |
+| [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory> |
+| [Convert text into UTF-8 bytes](#sending-a-plain-text-message) | `TextEncoder`                               |
+| [Encrypt and decrypt a message](#sending-an-encrypted-message) | <dy:MessageEncoder>                         |
 

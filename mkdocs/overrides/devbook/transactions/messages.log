@@ -4,12 +4,17 @@ Recipient address: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
 
 === Sending Plain Text Message ===
 Fetching current network time from /node/time
-  Network time: 93047688268n ms since nemesis
+  Network time: 93047688268 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Plain message: Hello, Symbol!
 Transaction hash: F30D4F2D20CDF46EC2A5D3D05E3A1059A18BD6D66C661A3DD66A7946612E857A
 Plain message transaction announced
+
+=== Receiving Plain Text Message ===
+Polling for Plain message transaction confirmation...
+  Plain message transaction confirmed!
+Received plain message: Hello, Symbol!
 
 === Sending Encrypted Message ===
 Original message: This is a secret message!
@@ -17,7 +22,7 @@ Encrypted payload: 01c1cc6085863447340555ba03d319e9b5e64c1619ff9fb6ed20a9e823f12
 Transaction hash: 8E4582520E9BD1C4AC1E758BE49BFDF8719F9563676289D81A00E5532C8FA86D
 Encrypted message transaction announced
 
-=== Decrypting Message ===
-Sender verified encrypted message: This is a secret message!
-
-Both transactions have been sent successfully!
+=== Receiving Encrypted Message ===
+Polling for Encrypted message transaction confirmation...
+  Encrypted message transaction confirmed!
+Recipient decrypted message: This is a secret message!
