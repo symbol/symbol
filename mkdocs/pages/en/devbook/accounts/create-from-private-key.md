@@ -4,8 +4,8 @@ title: Create from Private Keys
 
 # Creating Accounts from Private Keys
 
-This tutorial shows how to create <accounts:> for the Symbol blockchain in two ways: generating a new random account and
-creating an account from an existing private key.
+This tutorial shows how to create <accounts:> for the Symbol blockchain in two ways: generating a new random account
+and creating an account from an existing private key.
 
 ## Prerequisites
 
