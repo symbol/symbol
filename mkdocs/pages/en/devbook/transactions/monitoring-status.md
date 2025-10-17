@@ -43,7 +43,7 @@ The hash uniquely identifies the transaction on the Symbol network.
 This tutorial uses a sample transaction hash to demonstrate the monitoring.
 You can provide your own hash by setting the `TRANSACTION_HASH` environment variable when running the code.
 
-In a real application, you would obtain this hash immediately after signing a transaction (see the
+In practice, you would obtain this hash immediately after signing a transaction (see the
 [Transfer tutorial](./transfer.md) for an example) and use it to track its status.
 
 ### Querying the Status Endpoint
