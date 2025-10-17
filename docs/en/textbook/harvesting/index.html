@@ -14,7 +14,7 @@
         <link rel="prev" href="../restrictions/">
       
       
-        <link rel="next" href="../cats/">
+        <link rel="next" href="../catapult/">
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
@@ -829,7 +829,7 @@
         
   
   <span class="md-ellipsis">
-    Introduction
+    Welcome
   </span>
   
 
@@ -8041,6 +8041,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../catapult/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catapult
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../cats/" class="md-nav__link">
         
   
@@ -8217,7 +8238,7 @@
 	<a id="4da2a5a68444f540bbf5e10a08b085e4">Harvesting</a> 
 </dt>
 <dd>The process by which Symbol adds new <a class="mkdocs-ezglossary-link"
-	id="60eafbeb556df0b0f15dd68d6b4fbc7d"
+	id="747ef85bcd59708db0c9f80af8403bec"
 	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
 	name="_:Block"
 	href="../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">blocks</a> to the chain and distributes rewards to participating <a class="mkdocs-ezglossary-link"
@@ -8238,7 +8259,7 @@ It plays a similar role to <strong>mining</strong> in <a class="mkdocs-ezglossar
 
 </dl>
 <p>Each new block is created by a single, random <a class="mkdocs-ezglossary-link"
-	id="b0c292014679f553d5ffa78fbd29fa8f"
+	id="991c890a863930d51cabdc35c6142e6c"
 	title="A computer running the Symbol software which shares information with other nodes,
 validates incoming transactions, and participates in consensus and block creation."
 	name="_:Node"
@@ -8251,7 +8272,7 @@ Also called a delegated harvester."
 	name="_:Delegator"
 	href="../../textbook/harvesting/#ac03dc805ce5fe4e0b6294aa6998149c">delegators</a>.</p>
 <p>The fees from the <a class="mkdocs-ezglossary-link"
-	id="a3a915c2025fc15264c843f746953ac4"
+	id="4e9a23a5f319c96704c3535a57965a67"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"
@@ -8322,7 +8343,7 @@ Other nodes then verify the block, ensuring:</p>
 </ul>
 <p>If any of these checks fail, other nodes simply ignore the new block.
 The <a class="mkdocs-ezglossary-link"
-	id="480d976fd10adec633a88b72928db5c1"
+	id="d7f017e9ee49a4015682e18eabb192cb"
 	title="The process by which all nodes in the network agree on the current state of the blockchain."
 	name="_:Consensus"
 	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> mechanism makes sure that the node eventually adopts a block that the rest of the network agrees on.</p>
@@ -8332,13 +8353,13 @@ This process is repeated at the next block height.</p>
 <p class="admonition-title">Simultaneous Block Creation</p>
 <p>Note that no special measures are in place to prevent multiple nodes from generating blocks at the same height.
 When this occurs, the network may temporarily <a class="mkdocs-ezglossary-link"
-	id="ee2867a637ff3989b6202019c68724ef"
+	id="f94db0b823dd5d3c2bdbeb4f0f4b3d60"
 	title="State where two or more competing chains share a common history but differ in their latest blocks."
 	name="_:Fork"
 	href="../../textbook/consensus/#8c7c90a90d192d38075db29ab8522c89">fork</a> as different nodes adopt different blocks for the same
 position in the chain.</p>
 <p>The <a class="mkdocs-ezglossary-link"
-	id="50fd7d278c6d3ab3ee9607aa1853eca0"
+	id="06d7eea3c4c4af4455ed2b99eb1a44af"
 	title="The process by which all nodes in the network agree on the current state of the blockchain."
 	name="_:Consensus"
 	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> mechanism resolves these conflicts as nodes become aware of the competing blocks.</p>
@@ -8518,7 +8539,7 @@ This arrangement benefits both parties: the account earns rewards without runnin
 and the node increases its block production (and collected fees) without relying solely on its own importance.</p>
 <p>Delegated harvesting uses the same proxy-based setup as remote harvesting.
 The delegator signs a <a class="mkdocs-ezglossary-link"
-	id="7fb427ced44571a90d36c315ce348921"
+	id="e2406182c6b55735f5e3b44dc6e99955"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
 	href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transaction</a> with an encrypted message that requests the node to
@@ -8538,7 +8559,7 @@ it is extremely unlikely that the same number is generated twice by chance."
 These rewards consist of:</p>
 <ul>
 <li>The fees paid by the <a class="mkdocs-ezglossary-link"
-	id="4e9a23a5f319c96704c3535a57965a67"
+	id="3c2ba206d9c0c21103bec3c17201ef1f"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"

@@ -331,6 +331,7 @@ aside.md-source-file {
 .md-content dl:not(.automatic-reference-term) {
 	border: 1px solid var(--md-primary-fg-color);
 	border-radius: 4px;
+	overflow: hidden;
 }
 
 .md-content dt {
@@ -602,7 +603,30 @@ code.doc-symbol-interface::after {
 	font-weight: normal;
 }
 
+/* Lists representing operations */
 .operation-item {
 	list-style-type: "⟹";
 	padding-left: 0.5rem;
+}
+
+/* Lists that use big icons instead of bullets */
+.md-typeset .icon-list>ul {
+	list-style: none;
+	margin-left: 0;
+}
+
+.md-typeset .icon-list>ul>li {
+	padding-left: 3em;
+	margin-bottom: 1rem;
+	position: relative;
+}
+
+.md-typeset .icon-list>ul>li>p:first-child>.twemoji {
+	position: absolute;
+	left: 0px;
+	height: 2em;
+}
+
+.md-typeset .icon-list>ul>li>p:first-child>.twemoji>svg {
+	width: 2em;
 }
