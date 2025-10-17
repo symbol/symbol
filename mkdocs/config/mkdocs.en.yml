@@ -70,6 +70,8 @@ nav:
           - devbook/start/setup.md
           - devbook/start/hello-world.md
       - Tutorials:
+          - Accounts:
+              - devbook/accounts/create-from-private-key.md
           - Transactions:
               - devbook/transactions/transfer.md
               - devbook/transactions/typed-descriptors.md
