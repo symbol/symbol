@@ -8,7 +8,7 @@ title: Transfer
 They allow sending <XYM:> or any other type of <mosaic:> from one <account:> to another, optionally including a message.
 
 This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status
-until it is confirmed.  
+until it is confirmed.
 Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
 up-to-date values.
 
@@ -174,8 +174,7 @@ as shown in the next step.
     This step uses polling to check whether the transaction has been confirmed.
     Polling is used here for illustration purposes, but it is not the recommended approach for real applications.
 
-    A production-grade application should use WebSockets to receive confirmation events directly from the node.
-    This provides a simpler and more responsive solution without the overhead of repeated API calls.
+    WebSockets provide a more responsive solution without the overhead of repeated API calls.
 
     In addition, the logic for checking transaction status is reusable.
     It can be moved into a utility function or module, since it is needed after announcing every transaction.
@@ -208,8 +207,8 @@ and the initial `unknown` status may or may not appear,
 depending on how quickly the node begins processing the transaction.
 
 To see the transaction from the network's perspective, you can visit the
-[Symbol Testnet Explorer](https://testnet.symbol.fyi/) and search for the transaction hash.  
-The hash is printed in the line that says `Waiting for confirmation from /transactionStatus/...`.  
+[Symbol Testnet Explorer](https://testnet.symbol.fyi/) and search for the transaction hash.
+The hash is printed in the line that says `Waiting for confirmation from /transactionStatus/...`.
 You should see the transaction move through the confirmation process in real time.
 
 Alternatively, you can search for the `signerPublicKey` to view the transaction in the history of the signer account.
