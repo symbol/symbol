@@ -153,7 +153,7 @@ This tutorial showed how to:
 
 | Step                                                           | Related documentation                       |
 | -------------------------------------------------------------- | ------------------------------------------- |
-| [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory> |
 | [Convert text into UTF-8 bytes](#sending-a-plain-text-message) | `TextEncoder`                               |
 | [Encrypt and decrypt a message](#sending-an-encrypted-message) | <dy:MessageEncoder>                         |
+| [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory> |
 
