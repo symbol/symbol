@@ -30,24 +30,23 @@ The private key is the secret that controls the account and must be kept secure.
 The process involves three steps:
 
 1. **Generate a random private key:** <dy:PrivateKey.random> creates a cryptographically secure random private key
-   using the underlying cryptographic library.
+    using the underlying cryptographic library.
 
-   !!! warning "Store your private key securely"
+    !!! warning "Store your private key securely"
+        The private key gives full control over the account and any assets it holds.
+        If you lose the private key, you lose access to the account permanently.
+        If someone else obtains the private key, they can control the account.
 
-       The private key gives full control over the account and any assets it holds.
-       If you lose the private key, you lose access to the account permanently.
-       If someone else obtains the private key, they can control the account.
+        Never share your private key with anyone, and always store it in a secure location.
 
-       Never share your private key with anyone, and always store it in a secure location.
-
-2. **Create a key pair:** The facade's `KeyPair` constructor takes the private key and mathematically derives the
-   corresponding <public key:>.
-   While the private key must remain secret, the public key can be safely shared with anyone.
+2. **Create a key pair:** The facade's <dy:KeyPair> constructor takes the private key and mathematically derives the
+    corresponding <public key:>.
+    While the private key must remain secret, the public key can be safely shared with anyone.
 
 3. **Derive the address:** The network's address derivation method converts the public key into an <address:>,
-   which is a shorter, human-readable, network-specific identifier for the account.
+    which is a shorter, human-readable, network-specific identifier for the account.
 
-### Creating an Account From a Private Key
+### Creating an Account from a Private Key
 
 {{ tutorial.code_snippet(['py:28:46', 'js:27:44']) }}
 
