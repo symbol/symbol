@@ -1,6 +1,6 @@
 cryptography~=46.0.1
 mnemonic~=0.20
-Pillow~=11.3.0
+Pillow~=12.0.0
 pynacl~=1.6.0
 PyYAML~=6.0.1
 pyzbar~=0.1.9
