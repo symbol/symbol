@@ -119,6 +119,13 @@ pipeline {
 						}
 					}
 				}
+				stage('postgres-python') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('postgres-python')
+						}
+					}
+				}
 
 				stage('python') {
 					steps {
