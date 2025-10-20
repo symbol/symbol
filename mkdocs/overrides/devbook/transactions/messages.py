@@ -15,10 +15,10 @@ from symbolchain.sc import Amount
 NODE_URL = os.environ.get(
 	"NODE_URL", "https://001-sai-dual.symboltest.net:3001"
 )
-
+print(f"Using node {NODE_URL}")
 
 # Helper function to poll for confirmed transaction
-def wait_for_confirmation(hash_value, label):
+def retrieve_confirmed_transaction(hash_value, label):
 	print(f"Polling for {label} confirmation...")
 	confirmed = False
 	attempts = 0
@@ -41,9 +41,6 @@ def wait_for_confirmation(hash_value, label):
 		raise Exception(
 			f"{label} not confirmed after {max_attempts} attempts"
 		)
-
-
-print(f"Using node {NODE_URL}")
 
 # Set up sender and recipient accounts
 facade = SymbolFacade("testnet")
@@ -73,9 +70,6 @@ recipient_address = facade.network.public_key_to_address(
 print(f"Sender address: {sender_address}")
 print(f"Recipient address: {recipient_address}\n")
 
-# ===== PLAIN TEXT MESSAGE =====
-print("=== Sending Plain Text Message ===")
-
 # Fetch current network time
 time_path = "/node/time"
 print(f"Fetching current network time from {time_path}")
@@ -95,6 +89,9 @@ with urllib.request.urlopen(f"{NODE_URL}{fee_path}") as response:
 	minimum_mult = response_json["minFeeMultiplier"]
 	fee_mult = max(median_mult, minimum_mult)
 	print(f"  Fee multiplier: {fee_mult}")
+
+# ===== PLAIN TEXT MESSAGE =====
+print("==> Sending Plain Text Message")
 
 # Create a plain text message
 plain_message = "Hello, Symbol!".encode("utf-8")
@@ -135,10 +132,10 @@ with urllib.request.urlopen(plain_announce_request) as response:
 	print(f"Plain message transaction announced\n")
 
 # ===== RECEIVING PLAIN TEXT MESSAGE =====
-print("=== Receiving Plain Text Message ===")
+print("<== Receiving Plain Text Message")
 
 # Wait for confirmation
-plain_tx_data = wait_for_confirmation(
+plain_tx_data = retrieve_confirmed_transaction(
 	plain_transaction_hash, "Plain message transaction"
 )
 
@@ -151,7 +148,7 @@ print(
 )
 
 # ===== ENCRYPTED MESSAGE =====
-print("=== Sending Encrypted Message ===")
+print("==> Sending Encrypted Message")
 
 # Create a message encoder with sender's key pair
 sender_message_encoder = MessageEncoder(sender_key_pair)
@@ -202,10 +199,10 @@ with urllib.request.urlopen(encrypted_announce_request) as response:
 	print(f"Encrypted message transaction announced\n")
 
 # ===== RECEIVING ENCRYPTED MESSAGE =====
-print("=== Receiving Encrypted Message ===")
+print("<== Receiving Encrypted Message")
 
 # Wait for confirmation
-encrypted_tx_data = wait_for_confirmation(
+encrypted_tx_data = retrieve_confirmed_transaction(
 	encrypted_transaction_hash, "Encrypted message transaction"
 )
 
@@ -229,4 +226,3 @@ if is_decoded:
 	print(f"Recipient decrypted message: {message_text}")
 else:
 	print(f"Recipient failed to decrypt message")
-

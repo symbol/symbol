@@ -27,9 +27,13 @@ calculation, network time, and transaction confirmation work.
 
 ## Code Explanation
 
+This tutorial focuses on the message-specific aspects of transfer transactions.
+The parts about fetching network time, calculating fees, and announcing transactions have been explained in the
+[Transfer Transaction](./transfer.md) tutorial and are skipped here for brevity.
+
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:48:74', 'js:44:62']) }}
+{{ tutorial.code_snippet(['py:45:71', 'js:43:61']) }}
 
 To send a message, you need the sender's <private key:> and the recipient's <address:>.
 To encrypt a message, you additionally need the recipient's <public key:>.
@@ -48,13 +52,13 @@ The recipient's public key and address are derived from their private key.
 
 ### Sending a Plain Text Message
 
-{{ tutorial.code_snippet(['py:99:113', 'js:87:100']) }}
+{{ tutorial.code_snippet(['py:94:110', 'js:84:99']) }}
 
-You can also combine mosaic transfers with messages by including both the `mosaics` and `message` fields in the
- transaction descriptor.
+You can combine mosaic transfers with messages by including both the `mosaics` and `message` fields in the transaction
+descriptor.
 
-See the [Creating a Transfer Transaction](./transfer.md) tutorial for details on fetching network time, calculating
- fees, and announcing transactions.
+The transaction is then signed and announced following the same process as in
+[Creating a Transfer Transaction](./transfer.md).
 
 **Message constraints:**
 
@@ -73,17 +77,17 @@ See the [Creating a Transfer Transaction](./transfer.md) tutorial for details on
 
 ### Receiving a Plain Text Message
 
-{{ tutorial.code_snippet(['py:138:151', 'js:120:130']) }}
+{{ tutorial.code_snippet(['py:135:148', 'js:119:129']) }}
 
-After announcing the transaction, the `wait_for_confirmation` helper function polls the
-`/transactions/confirmed/{hash}` endpoint until the transaction is confirmed.
+After announcing the transaction, the `retrieve_confirmed_transaction` helper function polls the
+<get:/transactions/confirmed/{transactionId}>  endpoint until the transaction is confirmed.
 
 The confirmed transaction contains the message as hex-encoded bytes.
 To retrieve the original message, it converts the hex string to bytes and decodes it as UTF-8.
 
 ### Sending an Encrypted Message
 
-{{ tutorial.code_snippet(['py:154:180', 'js:133:157']) }}
+{{ tutorial.code_snippet(['py:151:177', 'js:132:156']) }}
 
 Encrypted messages provide confidentiality by protecting the message content using a shared secret derived from the
 sender's private key and the recipient's public key.
@@ -101,7 +105,7 @@ The transaction is then signed and announced following the same process as in
 !!! note "Message encryption is a convention"
 
     The Symbol protocol does not define a standard for message encryption.
-    Sender and recipient must agree in advance on whether messages are encrypted.
+    Sender and recipient must agree in advance on whether messages are encrypted and the cipher used.
     The <dy:MessageEncoder> class implements a widely adopted convention used by most wallets and applications.
 
     For more details, see [Optional Messages](../../textbook/transfer_transactions.md#optional-message) in the
@@ -109,17 +113,17 @@ The transaction is then signed and announced following the same process as in
 
 ### Receiving an Encrypted Message
 
-{{ tutorial.code_snippet(['py:205:231', 'js:178:201']) }}
+{{ tutorial.code_snippet(['py:202:228', 'js:177:200']) }}
 
-After announcing the encrypted message transaction, the `wait_for_confirmation` helper function polls for confirmation.
+After announcing the encrypted message transaction, the `retrieve_confirmed_transaction` helper function polls for
+confirmation.
 
 To decrypt the message from the confirmed transaction, a <dy:MessageEncoder> is created with the recipient's key pair,
 then <dy:MessageEncoder.tryDecode> is called with the sender's public key (obtained from the transaction's
 `signerPublicKey` field) and the encrypted payload.
 
-The method returns a tuple `(is_decoded, message)` indicating whether decryption was successful.
-
-If decryption succeeds, the message contains the original plaintext bytes, which are decoded as UTF-8.
+The method returns a tuple `(is_decoded, message)` indicating whether decryption was successful, and, if so, contains
+the original plaintext bytes, which still need to be decoded.
 
 !!! note "Decryption works both ways"
 
@@ -153,7 +157,6 @@ This tutorial showed how to:
 
 | Step                                                           | Related documentation                       |
 | -------------------------------------------------------------- | ------------------------------------------- |
-| [Convert text into UTF-8 bytes](#sending-a-plain-text-message) | `TextEncoder`                               |
+| [Convert text into UTF-8 bytes](#sending-a-plain-text-message) | `TextEncoder` (JS) and `str.encode`/`bytes.decode` (Python) <br> System methods, not part of the Symbol SDK |
 | [Encrypt and decrypt a message](#sending-an-encrypted-message) | <dy:MessageEncoder>                         |
 | [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory> |
-

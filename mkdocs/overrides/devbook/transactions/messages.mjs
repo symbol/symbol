@@ -9,9 +9,10 @@ import {
 // Configuration
 const NODE_URL = process.env.NODE_URL ||
 	'https://001-sai-dual.symboltest.net:3001';
+console.log('Using node', NODE_URL);
 
 // Helper function to poll for confirmed transaction
-async function waitForConfirmation(hash, label) {
+async function retrieveConfirmedTransaction(hash, label) {
 	console.log(`Polling for ${label} confirmation...`);
 	let confirmed = false;
 	let attempts = 0;
@@ -39,8 +40,6 @@ async function waitForConfirmation(hash, label) {
 	}
 }
 
-console.log('Using node', NODE_URL);
-
 // Set up sender and recipient accounts
 const facade = new SymbolFacade('testnet');
 
@@ -61,9 +60,6 @@ const recipientAddress = facade.network.publicKeyToAddress(
 console.log('Sender address:', senderAddress.toString());
 console.log('Recipient address:', recipientAddress.toString(), '\n');
 
-// ===== PLAIN TEXT MESSAGE =====
-console.log('=== Sending Plain Text Message ===');
-
 // Fetch current network time
 const timePath = '/node/time';
 console.log('Fetching current network time from', timePath);
@@ -83,6 +79,9 @@ const medianMult = feeJSON.medianFeeMultiplier;
 const minimumMult = feeJSON.minFeeMultiplier;
 const feeMult = Math.max(medianMult, minimumMult);
 console.log('  Fee multiplier:', feeMult);
+
+// ===== PLAIN TEXT MESSAGE =====
+console.log('==> Sending Plain Text Message');
 
 // Create a plain text message
 const plainMessage = new TextEncoder().encode('Hello, Symbol!');
@@ -117,10 +116,10 @@ await fetch(`${NODE_URL}/transactions`, {
 console.log('Plain message transaction announced\n');
 
 // ===== RECEIVING PLAIN TEXT MESSAGE =====
-console.log('=== Receiving Plain Text Message ===');
+console.log('<== Receiving Plain Text Message');
 
 // Wait for confirmation
-const plainTxData = await waitForConfirmation(
+const plainTxData = await retrieveConfirmedTransaction(
 	plainTransactionHash, 'Plain message transaction');
 
 // Decode plain message from confirmed transaction
@@ -130,7 +129,7 @@ console.log('Received plain message:',
 	new TextDecoder().decode(receivedPlainMessage), '\n');
 
 // ===== ENCRYPTED MESSAGE =====
-console.log('=== Sending Encrypted Message ===');
+console.log('==> Sending Encrypted Message');
 
 // Create a message encoder with sender's key pair
 const senderMessageEncoder = new MessageEncoder(senderKeyPair);
@@ -175,10 +174,10 @@ await fetch(`${NODE_URL}/transactions`, {
 console.log('Encrypted message transaction announced\n');
 
 // ===== RECEIVING ENCRYPTED MESSAGE =====
-console.log('=== Receiving Encrypted Message ===');
+console.log('<== Receiving Encrypted Message');
 
 // Wait for confirmation
-const encryptedTxData = await waitForConfirmation(
+const encryptedTxData = await retrieveConfirmedTransaction(
 	encryptedTransactionHash, 'Encrypted message transaction');
 
 // Decode encrypted message using recipient's private key
