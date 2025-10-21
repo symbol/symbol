@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://docs.symboltest.net/en/devbook/transactions/transfer/">
       
       
-        <link rel="prev" href="../../start/hello-world/">
+        <link rel="prev" href="../../accounts/create-from-private-key/">
       
       
         <link rel="next" href="../typed-descriptors/">
@@ -976,6 +976,73 @@
                 
   
   
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Accounts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Accounts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../accounts/create-from-private-key/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Create from Private Keys
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -991,10 +1058,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_3_2" id="__nav_3_3_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1005,8 +1072,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_3_1">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             Transactions
           </label>
@@ -1065,6 +1132,15 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#full-code" class="md-nav__link">
@@ -1183,6 +1259,48 @@
   
   <span class="md-ellipsis">
     Typed Descriptors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messages/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Messages
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring-status/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transaction Status
   </span>
   
 
@@ -8164,6 +8282,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#full-code" class="md-nav__link">
     <span class="md-ellipsis">
       Full Code
@@ -8292,7 +8419,7 @@
 
 <h1 id="creating-a-transfer-transaction">Creating a Transfer Transaction<a class="headerlink" href="#creating-a-transfer-transaction" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p><a class="mkdocs-ezglossary-link"
-	id="3613d40b3a0ecc8393156a4fef770b96"
+	id="42f278c21a19f864412c31686e7590f1"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
 	href="../../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">Transfer transactions</a> are the most basic type of Symbol transaction.
@@ -8312,9 +8439,10 @@ It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">account</a> to another, optionally including a message.</p>
 <p>This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status
-until it is confirmed.<br />
+until it is confirmed.
 Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
 up-to-date values.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>If you have not done so already, start with the <a href="../../start/hello-world/">Hello World</a> tutorial to make sure your
 development environment is set up correctly.</p>
 <h2 id="full-code">Full Code<a class="headerlink" href="#full-code" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -8813,7 +8941,7 @@ but applications will probably want to use more fine-grained control.</p>
 <p>Transactions on Symbol must include a deadline, which defines how long the network should attempt to confirm the
 transaction before discarding it.
 Deadlines are expressed in absolute network time, so the first step is to fetch the current network time from a <a class="mkdocs-ezglossary-link"
-	id="3664580921bf4a83f9707adacca78109"
+	id="b0c292014679f553d5ffa78fbd29fa8f"
 	title="A computer running the Symbol software which shares information with other nodes,
 validates incoming transactions, and participates in consensus and block creation."
 	name="_:Node"
@@ -9040,7 +9168,7 @@ transaction's size in bytes, which is only known once the descriptor has been co
 <div class="admonition info">
 <p class="admonition-title">Including a message in the transaction</p>
 <p>Transactions can optionally include a free-form message.
-A later tutorial explains how to do this.</p>
+The <a href="../messages/">Sending Messages with Transfer Transactions</a> explains how to do this.</p>
 </div>
 <h3 id="signing-and-serializing">Signing and Serializing<a class="headerlink" href="#signing-and-serializing" title="Anchor link to this section for reference">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_6_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
@@ -9086,7 +9214,7 @@ Signing ensures the transaction is authentic and authorized by the sender.</p>
 	title="Signs a Symbol transaction."
 	name="js:SymbolFacade.signTransaction"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#signtransaction">SymbolFacade.signTransaction</a></code></label></span> returns a <a class="mkdocs-ezglossary-link"
-	id="64b4fcf3d431629d050cb1ccd24990e0"
+	id="5eb7c7fefcee2df55153bdcaeebdb6a7"
 	title="A digital attachment to a document that certifies that the document is approved by a given account."
 	name="_:Signature"
 	href="../../../textbook/cryptography/#64c803c8046a084f159cb3fa471c7450">signature</a> encoded as a hexadecimal string.</p>
@@ -9309,8 +9437,7 @@ as shown in the next step.</p>
 <p class="admonition-title">Note</p>
 <p>This step uses polling to check whether the transaction has been confirmed.
 Polling is used here for illustration purposes, but it is not the recommended approach for real applications.</p>
-<p>A production-grade application should use WebSockets to receive confirmation events directly from the node.
-This provides a simpler and more responsive solution without the overhead of repeated API calls.</p>
+<p>WebSockets provide a more responsive solution without the overhead of repeated API calls.</p>
 <p>In addition, the logic for checking transaction status is reusable.
 It can be moved into a utility function or module, since it is needed after announcing every transaction.</p>
 </div>
@@ -9360,8 +9487,8 @@ This gives the node some time to begin processing the transaction after it is an
 and the initial <code>unknown</code> status may or may not appear,
 depending on how quickly the node begins processing the transaction.</p>
 <p>To see the transaction from the network's perspective, you can visit the
-<a href="https://testnet.symbol.fyi/">Symbol Testnet Explorer</a> and search for the transaction hash.<br />
-The hash is printed in the line that says <code>Waiting for confirmation from /transactionStatus/...</code>.<br />
+<a href="https://testnet.symbol.fyi/">Symbol Testnet Explorer</a> and search for the transaction hash.
+The hash is printed in the line that says <code>Waiting for confirmation from /transactionStatus/...</code>.
 You should see the transaction move through the confirmation process in real time.</p>
 <p>Alternatively, you can search for the <code>signerPublicKey</code> to view the transaction in the history of the signer account.</p>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -9449,7 +9576,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">October 21, 2025</span>
   </span>
 
     
@@ -9469,12 +9596,13 @@ When unset, descriptor arrays will be presumed to be already sorted."
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:zero4862@pm.me">zero</a>
     </nav>
   </span>
 
