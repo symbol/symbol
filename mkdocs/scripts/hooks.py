@@ -104,7 +104,10 @@ def page_markdown_dylinks(content, page, config, files):
 		nonlocal rgroup_id
 		r = '<span markdown class="dylink">'
 		for ndx, l in enumerate(langs):
-			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{m.group(1)}></label>'
+			class_name = m.group(1)
+			if l == 'py' and class_name in class_remaps:
+				class_name = class_remaps[class_name]
+			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}></label>'
 		r += '</span>'
 		rgroup_id += 1
 		return r
