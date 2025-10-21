@@ -57,4 +57,4 @@ You have access to the Symbol SDK and successfully reached a Symbol API node.
 
 That's all you need to start your Symbol adventure.
 
-Why not try [sending a transaction next](../transactions/transfer.md)?
+Why not try [creating an account next](../accounts/create-from-private-key.md)?
