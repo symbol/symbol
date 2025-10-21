@@ -82,7 +82,7 @@ The transaction is then signed and announced following the same process as in
 After announcing the transaction, the `retrieve_confirmed_transaction` helper function polls the
 <get:/transactions/confirmed/{transactionId}>  endpoint until the transaction is confirmed.
 
-The confirmed transaction contains the message as hex-encoded bytes.
+The confirmed transaction contains the message as a hex string.
 To retrieve the original message, it converts the hex string to bytes and decodes it as UTF-8.
 
 ### Sending an Encrypted Message
