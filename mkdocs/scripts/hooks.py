@@ -72,6 +72,14 @@ def page_markdown_js_typedoc(content, page, config, files):
 		r'^(.*?)\n\n([^#].*?)\n\n',
 		rf'\1\n\n<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\n\n', content, 1)
 
+	# Add glossary definition to accessors
+	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
+	m = re.search(r'\n## Accessors\n', content)
+	if m:
+		content = content[:m.start()] + re.sub(
+			r"(\n### )([^\n]*?)(\n\n#### Get Signature\n\n```.*?```\n\n)([^#].*?)(\n\n#####)",
+			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
+
 	# Add glossary definition to methods
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
 	m = re.search(r'\n## Methods\n', content)
