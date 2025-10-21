@@ -88,7 +88,7 @@ with urllib.request.urlopen(f"{NODE_URL}{fee_path}") as response:
 	median_mult = response_json["medianFeeMultiplier"]
 	minimum_mult = response_json["minFeeMultiplier"]
 	fee_mult = max(median_mult, minimum_mult)
-	print(f"  Fee multiplier: {fee_mult}")
+	print(f"  Fee multiplier: {fee_mult}\n")
 
 # ===== PLAIN TEXT MESSAGE =====
 print("==> Sending Plain Text Message")
