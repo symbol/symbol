@@ -12,6 +12,8 @@ until it is confirmed.
 Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
 up-to-date values.
 
+## Prerequisites
+
 If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
 development environment is set up correctly.
 
@@ -139,7 +141,7 @@ transaction's size in bytes, which is only known once the descriptor has been co
 !!! info "Including a message in the transaction"
 
     Transactions can optionally include a free-form message.
-    A later tutorial explains how to do this.
+    The [Sending Messages with Transfer Transactions](./messages.md) explains how to do this.
 
 ### Signing and Serializing
 
