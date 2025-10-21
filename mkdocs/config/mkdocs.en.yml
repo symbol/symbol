@@ -73,6 +73,7 @@ nav:
           - Transactions:
               - devbook/transactions/transfer.md
               - devbook/transactions/typed-descriptors.md
+              - devbook/transactions/messages.md
               - devbook/transactions/monitoring-status.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
