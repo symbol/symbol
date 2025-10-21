@@ -78,7 +78,7 @@ const feeJSON = await feeResponse.json();
 const medianMult = feeJSON.medianFeeMultiplier;
 const minimumMult = feeJSON.minFeeMultiplier;
 const feeMult = Math.max(medianMult, minimumMult);
-console.log('  Fee multiplier:', feeMult);
+console.log('  Fee multiplier:', feeMult, '\n');
 
 // ===== PLAIN TEXT MESSAGE =====
 console.log('==> Sending Plain Text Message');
