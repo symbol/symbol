@@ -1,0 +1,30 @@
+import os
+from symbolchain.CryptoTypes import PrivateKey
+from symbolchain.facade.SymbolFacade import SymbolFacade
+
+# Initialize the facade for the testnet network
+facade = SymbolFacade('testnet')
+
+# Use an existing private key if provided,
+# Otherwise generate a random one.
+private_key_string = os.environ.get('PRIVATE_KEY')
+if private_key_string:
+	print("Loading account from environment variable...")
+	private_key = PrivateKey(private_key_string)
+else:
+	print("Generating random account...")
+	private_key = PrivateKey.random()
+
+# Create a key pair from the private key
+key_pair = facade.KeyPair(private_key)
+
+# Derive the public key from the private key
+public_key = key_pair.public_key
+
+# Derive the address from the public key
+address = facade.network.public_key_to_address(public_key)
+
+# Output the account details
+print(f'Address: {address}')
+print(f'Public key: {public_key}')
+print(f'Private key: {private_key}')
