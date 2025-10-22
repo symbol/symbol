@@ -72,6 +72,7 @@ nav:
       - Tutorials:
           - Accounts:
               - devbook/accounts/create-from-private-key.md
+              - devbook/accounts/query-balance.md
           - Transactions:
               - devbook/transactions/transfer.md
               - devbook/transactions/typed-descriptors.md
