@@ -4,13 +4,15 @@ title: Query Account Balance
 
 # Querying an Account Balance
 
-Accounts on Symbol can hold <mosaics:> (fungible tokens), including the native currency <XYM:>.
+<Accounts:|Accounts> on Symbol can hold <mosaics:> (fungible tokens), including the native currency <XYM:>.
 
-This tutorial shows how to query an account's mosaic balances and format them with decimal places and friendly names.
+This tutorial shows how to query an account's mosaic balances and display them with the appropriate number of
+decimal places.
+If the <mosaic ID:> has a linked <namespace:>, it is also retrieved and displayed as the mosaic's friendly name.
 
 ## Prerequisites
 
-This tutorial uses the Symbol REST API without requiring an SDK.
+This tutorial uses the [Symbol REST API](../reference/rest/symbol.md) without requiring an SDK.
 You only need a way to make HTTP requests.
 
 ## Full Code
@@ -19,15 +21,15 @@ You only need a way to make HTTP requests.
 
 {{ tutorial.code_full('devbook/accounts/query-balance', ['py', 'js']) }}
 
-The snippet uses the `NODE_URL` environment variable to configure the Symbol API node.
-If no value is provided, it defaults to `https://001-sai-dual.symboltest.net:3001`.
+The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
+If no value is provided, a default one is used.
 
-It defines the following functions:
+The tutorial defines the following functions:
 
-* `get_account_info()`: Fetches account state by address or public key.
-* `get_mosaic_names()`: Fetches namespace aliases for mosaics.
-* `get_mosaics_info()`: Fetches properties for multiple mosaics in a single request.
-* `format_amount()`: Formats amounts with decimal places.
+* `get_account_info()`: Fetches <account:> state by address or public key.
+* `get_mosaic_names()`: Fetches <namespace:> aliases for mosaics.
+* `get_mosaics_info()`: Fetches properties for multiple <mosaics:> in a single request.
+* `format_amount()`: Formats amounts with the appropriate number of decimal places, according to their <divisibility:>.
 
 ## Code Explanation
 
@@ -43,7 +45,7 @@ You can query an account using either its <address:> or its <public key:>.
 
 {{ tutorial.code_snippet(['py:26:50', 'js:19:42']) }}
 
-Mosaics are identified by 64-bit numeric IDs, which can be hard to read and remember.
+Mosaics are identified by 64-bit numeric <Mosaic ID:|IDs>, which can be hard to read and remember.
 To improve usability, mosaics can be linked to human-readable <namespace:> aliases.
 
 The <post:/namespaces/mosaic/names> endpoint accepts multiple mosaic IDs and returns any namespace names that are
@@ -72,7 +74,7 @@ and returns detailed information about each mosaic, including its divisibility.
 
 {{ tutorial.code_snippet(['py:80:95', 'js:69:86']) }}
 
-This utility function converts atomic amounts into human-friendly representations:
+This utility function converts _atomic_ amounts into human-friendly representations:
 
 * **Atomic amount:** The raw value stored on the blockchain, expressed as an integer.
 * **Formatted amount:** The display format with decimal places determined by the mosaic's divisibility.

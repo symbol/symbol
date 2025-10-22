@@ -31,8 +31,8 @@ WebSockets provide a more responsive solution without the overhead of repeated A
 
 {{ tutorial.code_full('devbook/transactions/monitoring-status', ['py', 'js']) }}
 
-The snippet uses the `NODE_URL` environment variable to configure the Symbol API node.
-If no value is provided, it defaults to `https://001-sai-dual.symboltest.net:3001`.
+The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
+If no value is provided, a default one is used.
 
 ## Code Explanation
 
