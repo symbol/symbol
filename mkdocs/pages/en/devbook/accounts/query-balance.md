@@ -35,7 +35,7 @@ The tutorial defines the following functions:
 
 ### Fetching Account Information
 
-{{ tutorial.code_snippet(['py:10:23', 'js:6:17']) }}
+{{ tutorial.code_snippet(['py:10:33', 'js:6:32']) }}
 
 The <get:/accounts/{accountId}> endpoint retrieves the state of an account, including all the mosaics it holds.
 
@@ -43,7 +43,7 @@ You can query an account using either its <address:> or its <public key:>.
 
 ### Fetching Mosaic Names
 
-{{ tutorial.code_snippet(['py:26:50', 'js:19:42']) }}
+{{ tutorial.code_snippet(['py:36:60', 'js:34:57']) }}
 
 Mosaics are identified by 64-bit numeric <Mosaic ID:|IDs>, which can be hard to read and remember.
 To improve usability, mosaics can be linked to human-readable <namespace:> aliases.
@@ -57,7 +57,7 @@ When this happens, the code displays all aliases separated by commas.
 
 ### Fetching Mosaic Properties
 
-{{ tutorial.code_snippet(['py:53:77', 'js:44:67']) }}
+{{ tutorial.code_snippet(['py:63:87', 'js:59:82']) }}
 
 To format mosaic balances correctly, the snippet fetches their properties from the network.
 The key property required is <divisibility:>, which defines how many decimal places a mosaic supports.
@@ -68,7 +68,7 @@ and returns detailed information about each mosaic, including its divisibility.
 
 ### Formatting Amounts
 
-{{ tutorial.code_snippet(['py:80:95', 'js:69:86']) }}
+{{ tutorial.code_snippet(['py:90:105', 'js:84:101']) }}
 
 This utility function converts _atomic_ amounts into human-friendly representations:
 
@@ -81,7 +81,7 @@ The fractional part is then zero-padded to ensure it always displays the correct
 
 ### Putting It All Together
 
-{{ tutorial.code_snippet(['py:98:141', 'js:88:134']) }}
+{{ tutorial.code_snippet(['py:108:150', 'js:103:148']) }}
 
 The main code reads the `ADDRESS` environment variable to determine which account to query.
 If no value is provided, it uses a default sample address.

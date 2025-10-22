@@ -18,7 +18,7 @@ This tutorial shows how to monitor a transaction's status as it moves from uncon
 
 ## Prerequisites
 
-This tutorial uses the Symbol REST API without requiring an SDK.
+This tutorial uses the [Symbol REST API](../reference/rest/symbol.md) without requiring an SDK.
 You only need a way to make HTTP requests.
 
 ## Full Code

@@ -18,9 +18,19 @@ def get_account_info(account_identifier):
 		Dictionary containing the account information
 	"""
 	account_path = f'/accounts/{account_identifier}'
-	with urllib.request.urlopen(f'{NODE_URL}{account_path}') as response:
-		account_info = json.loads(response.read().decode())
-		return account_info['account']
+	try:
+		with urllib.request.urlopen(
+				f'{NODE_URL}{account_path}') as response:
+			account_info = json.loads(response.read().decode())
+			return account_info['account']
+	except urllib.error.HTTPError as e:
+		if e.status == 404:
+			print(f'Address does not exist: {e}')
+		elif e.status == 409:
+			print(f'Address is not properly formatted: {e}')
+		else:
+			print(f'Unexpected error: {e}')
+		raise SystemExit(1)
 
 
 def get_mosaic_names(mosaic_ids):

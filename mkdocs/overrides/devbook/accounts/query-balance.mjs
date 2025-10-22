@@ -12,6 +12,21 @@ console.log('Using node', NODE_URL);
 async function getAccountInfo(accountIdentifier) {
 	const accountPath = `/accounts/${accountIdentifier}`;
 	const accountResponse = await fetch(`${NODE_URL}${accountPath}`);
+	if (!accountResponse.ok) {
+		if (accountResponse.status === 404) {
+			console.error(
+				'Address does not exist:', accountResponse.statusText);
+		} else if (accountResponse.status === 409) {
+			console.error(
+				'Address is not properly formatted:',
+				accountResponse.statusText);
+		}
+		else {
+			console.error(
+				'Unexpected error:', accountResponse.statusText);
+		}
+		process.exit(1);
+	}
 	const accountInfo = await accountResponse.json();
 	return accountInfo.account;
 }
