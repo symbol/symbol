@@ -18,8 +18,8 @@ This tutorial shows how to monitor a transaction's status as it moves from uncon
 
 ## Prerequisites
 
-If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
-development environment is set up correctly.
+This tutorial uses the [Symbol REST API](../reference/rest/symbol.md) without requiring an SDK.
+You only need a way to make HTTP requests.
 
 ## Full Code
 
@@ -30,6 +30,9 @@ WebSockets provide a more responsive solution without the overhead of repeated A
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/transactions/monitoring-status', ['py', 'js']) }}
+
+The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
+If no value is provided, a default one is used.
 
 ## Code Explanation
 
@@ -72,7 +75,8 @@ The response includes:
     | `partial`     | For <bonded aggregate transactions:> waiting for <cosignatures:>.                |
 
 * **Code:** A status code providing more details (for example, `Success` or specific error codes).
-    See the [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) schema for all possible values.
+    See the [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) schema for all possible
+    values.
 * **Hash:** The transaction hash being monitored.
 * **Deadline:** The transaction's deadline in network time.
 
