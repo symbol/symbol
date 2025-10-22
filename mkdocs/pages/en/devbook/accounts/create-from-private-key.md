@@ -26,7 +26,7 @@ development environment is set up correctly.
 
 The <dy:SymbolFacade> provides access to Symbol’s cryptographic operations and network utilities.
 It is initialized with a network name (`testnet` or `mainnet`) to ensure that network-specific values,
-such as <address:>, are generated correctly.
+such as <addresses:>, are generated correctly.
 
 ### Defining a Private Key
 
