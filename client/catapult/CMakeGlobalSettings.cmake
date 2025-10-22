@@ -176,6 +176,17 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		-Wno-switch-default")
 
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
+
+	# fix -Wpoison-system-directories: error: include location '/usr/local/include' is "unsafe for cross-compilation"
+	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		find_program(XCODE_SELECT xcode-select)
+		if (XCODE_SELECT)
+			execute_process(COMMAND xcode-select --print-path OUTPUT_VARIABLE XCODE_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
+			set(CMAKE_OSX_SYSROOT "${XCODE_PATH}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")
+		else()
+			message(WARNING "xcode-select not found, cannot automatically set CMAKE_OSX_SYSROOT.")
+		endif()
+	endif()
 endif()
 
 if(NOT MSVC)
