@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://docs.symboltest.net/en/devbook/transactions/transfer/">
       
       
-        <link rel="prev" href="../../accounts/create-from-private-key/">
+        <link rel="prev" href="../../accounts/query-balance/">
       
       
         <link rel="next" href="../typed-descriptors/">
@@ -1026,6 +1026,48 @@
   
   <span class="md-ellipsis">
     Create from Private Keys
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../accounts/create-from-mnemonic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Create from Mnemonic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../accounts/query-balance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Query Account Balance
   </span>
   
 
@@ -8428,7 +8470,7 @@
 	name="_:Transfer Transaction"
 	href="../../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">Transfer transactions</a> are the most basic type of Symbol transaction.
 They allow sending <a class="mkdocs-ezglossary-link"
-	id="4b78eff92b8ad23763c1c466113b2133"
+	id="2a9f06a950c70b338c34c29e92731c4a"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> or any other type of <a class="mkdocs-ezglossary-link"
@@ -8437,7 +8479,7 @@ They allow sending <a class="mkdocs-ezglossary-link"
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaic</a> from one <a class="mkdocs-ezglossary-link"
-	id="a29e24f3fd0d5f9b6fb1dc6009e09ee2"
+	id="398c57727cbe064080385d822c9e4b77"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -9146,18 +9188,18 @@ The snippet includes the following fields:</p>
 <li>
 <p><strong>Mosaics</strong>: This is an array, because a transfer transaction can send multiple mosaics at once.
     Each entry includes a <a class="mkdocs-ezglossary-link"
-	id="c0e636e75086fda0c5c691a61231eceb"
+	id="bf18ccf41affeeae1d4e37779bf9dbdb"
 	title="A 64-bit number that uniquely identifies a mosaic on the network."
 	name="_:Mosaic ID"
 	href="../../../textbook/mosaics/#c6c004d488787b86bce66101a200320a">mosaic ID</a> and an amount.</p>
 <p>In the example, the mosaic ID for <a class="mkdocs-ezglossary-link"
-	id="2a9f06a950c70b338c34c29e92731c4a"
+	id="ed6c4cbffc3d76f92e1a0379d03a2fa5"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> is obtained using its alias, <code>symbol.xym</code>, which is easier to remember
 than the full hexadecimal ID.</p>
 <p>Amounts are expressed in atomic units, which depend on the mosaic's <a class="mkdocs-ezglossary-link"
-	id="34428f994f916d235b2dfd94451b765e"
+	id="b25367d24cbaccd621486eb60ccaf500"
 	title="This property defines how many decimal places a mosaic quantity can have.
 A mosaic with divisibility 0 is indivisible: it can only be transferred in whole units.
 Higher values allow fractional units."

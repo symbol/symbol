@@ -1028,6 +1028,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/accounts/create-from-mnemonic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Create from Mnemonic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/accounts/query-balance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Query Account Balance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -8389,7 +8431,7 @@ network creators.</dd>
 <p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="460pt" height="44pt" viewBox="0.00 0.00 460.00 44.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)"><title>Blockchain</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-40 456,-40 456,4 -4,4"/><!-- Nemesis --><g id="node1" class="node"><title>Nemesis</title><polygon fill="none" stroke="#789abc" points="68,-36 0,-36 0,0 68,0 68,-36"/><text text-anchor="middle" x="34" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Nemesis</text></g><!-- B2 --><g id="node2" class="node"><title>B2</title><polygon fill="none" stroke="#789abc" points="166,-36 104,-36 104,0 166,0 166,-36"/><text text-anchor="middle" x="135" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Block 2</text></g><!-- Nemesis&#45;&gt;B2 --><g id="edge1" class="edge"><title>Nemesis&#45;&gt;B2</title><path fill="none" stroke="#789abc" d="M68.24,-18C76.39,-18 85.2,-18 93.64,-18"/><polygon fill="#789abc" stroke="#789abc" points="93.68,-21.5 103.68,-18 93.68,-14.5 93.68,-21.5"/></g><!-- B3 --><g id="node3" class="node"><title>B3</title><polygon fill="none" stroke="#789abc" points="264,-36 202,-36 202,0 264,0 264,-36"/><text text-anchor="middle" x="233" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Block 3</text></g><!-- B2&#45;&gt;B3 --><g id="edge2" class="edge"><title>B2&#45;&gt;B3</title><path fill="none" stroke="#789abc" d="M166.11,-18C174.24,-18 183.17,-18 191.76,-18"/><polygon fill="#789abc" stroke="#789abc" points="192,-21.5 202,-18 192,-14.5 192,-21.5"/></g><!-- B4 --><g id="node4" class="node"><title>B4</title><polygon fill="none" stroke="#789abc" points="362,-36 300,-36 300,0 362,0 362,-36"/><text text-anchor="middle" x="331" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Block 4</text></g><!-- B3&#45;&gt;B4 --><g id="edge3" class="edge"><title>B3&#45;&gt;B4</title><path fill="none" stroke="#789abc" d="M264.11,-18C272.24,-18 281.17,-18 289.76,-18"/><polygon fill="#789abc" stroke="#789abc" points="290,-21.5 300,-18 290,-14.5 290,-21.5"/></g><!-- B5 --><g id="node5" class="node"><title>B5</title><text text-anchor="middle" x="425" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">...</text></g><!-- B4&#45;&gt;B5 --><g id="edge4" class="edge"><title>B4&#45;&gt;B5</title><path fill="none" stroke="#789abc" d="M362.12,-18C370.32,-18 379.28,-18 387.78,-18"/><polygon fill="#789abc" stroke="#789abc" points="387.83,-21.5 397.83,-18 387.83,-14.5 387.83,-21.5"/></g></g></svg></p>
 <p>It defines the initial state of the blockchain.
 This includes the initial distribution of mosaics, such as <a class="mkdocs-ezglossary-link"
-	id="ed6c4cbffc3d76f92e1a0379d03a2fa5"
+	id="eb502b2ab67b3677d8c5637b6fa6ba45"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>, to specific accounts, the creation of namespaces,
@@ -8544,12 +8586,12 @@ transaction itself.</p>
 	name="_:Namespace"
 	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">namespaces</a> were resolved during transaction execution.</p>
 <p>In Symbol, namespaces allow users to refer to <a class="mkdocs-ezglossary-link"
-	id="5d2ab585e28c8b42fb9a4d136b694a41"
+	id="7d1b2232fae0965abc759523b3176537"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaics</a> and <a class="mkdocs-ezglossary-link"
-	id="a68112f1aae0a39a32c2ef9447d4c79b"
+	id="32d1876bf923e7cb0a27c7b9889b74a6"
 	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
 letters and numbers. It's typically a synonym for account."
 	name="_:Address"
@@ -8561,13 +8603,13 @@ transaction was confirmed.</p>
 <p>There are two types of resolution statements:</p>
 <ul>
 <li><strong>Address resolution</strong>: Resolves a namespace to an account <a class="mkdocs-ezglossary-link"
-	id="b325ba749eba5bcc890789ca78811326"
+	id="6ca23f337583a6080f276593667d29b5"
 	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
 letters and numbers. It's typically a synonym for account."
 	name="_:Address"
 	href="../../textbook/cryptography/#1d724e052438d54ca474b7ddbf21c36d">address</a>.</li>
 <li><strong>Mosaic resolution</strong>: Resolves a namespace to a <a class="mkdocs-ezglossary-link"
-	id="bf18ccf41affeeae1d4e37779bf9dbdb"
+	id="d790f0be99cbdbb33632bf583e89e284"
 	title="A 64-bit number that uniquely identifies a mosaic on the network."
 	name="_:Mosaic ID"
 	href="../../textbook/mosaics/#c6c004d488787b86bce66101a200320a">mosaic ID</a>.</li>
@@ -8595,7 +8637,7 @@ verifiability.</p>
 <tr>
 <td><code>Inflation</code></td>
 <td>The amount of native currency <a class="mkdocs-ezglossary-link"
-	id="091c76dc49b0cb30e541448ce975e6e7"
+	id="004c6b63d35176aa39a8e19d3898bd14"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8608,11 +8650,11 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <tr>
 <td><code>Address Alias Resolution</code></td>
 <td>The unresolved and resolved <a class="mkdocs-ezglossary-link"
-	id="90d4b0722c831adaa42eb34c2963bb56"
+	id="d4d525b4d477f614667b59a28dad5f91"
 	title="A human-readable text string that can be used in place of an address or a Mosaic ID."
 	name="_:Namespace"
 	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">namespace</a>. Recorded when a transaction uses an <a class="mkdocs-ezglossary-link"
-	id="6ca23f337583a6080f276593667d29b5"
+	id="9df626224b4c709c9a3cfeac4fea76e7"
 	title="A convenient, shorter form of a public key, that simplifies sharing it by requiring only
 letters and numbers. It's typically a synonym for account."
 	name="_:Address"
@@ -8621,7 +8663,7 @@ letters and numbers. It's typically a synonym for account."
 <tr>
 <td><code>Mosaic Alias Resolution</code></td>
 <td>The unresolved and resolved <a class="mkdocs-ezglossary-link"
-	id="eca7cc5e6851416954d3e43cc4c892a9"
+	id="80507ea86b84ff6df87546163d623e53"
 	title="A human-readable text string that can be used in place of an address or a Mosaic ID."
 	name="_:Namespace"
 	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">namespace</a>. Recorded when a transaction uses a <a class="mkdocs-ezglossary-link"
@@ -8660,7 +8702,7 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <tr>
 <td><code>Namespace Expired</code></td>
 <td>The identifier of the <a class="mkdocs-ezglossary-link"
-	id="2d63f346f5b315d41b3149b5ee4256fd"
+	id="7410f584b508663ea5ac5f0549c72dcd"
 	title="A human-readable text string that can be used in place of an address or a Mosaic ID."
 	name="_:Namespace"
 	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">namespace</a> expiring in this block. Recorded when the namespace's lifetime elapses.</td>
@@ -8668,7 +8710,7 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <tr>
 <td><code>Namespace Deleted</code></td>
 <td>The identifier of the <a class="mkdocs-ezglossary-link"
-	id="d4d525b4d477f614667b59a28dad5f91"
+	id="eab0d628ecafb9ac2e0dfd197a48fd89"
 	title="A human-readable text string that can be used in place of an address or a Mosaic ID."
 	name="_:Namespace"
 	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">namespace</a> deleted in this block. Recorded when the grace period of an expired namespace ends.</td>
@@ -8676,7 +8718,7 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 <tr>
 <td><code>Namespace Rental Fee</code></td>
 <td>The sender, recipient, and cost of extending a <a class="mkdocs-ezglossary-link"
-	id="80507ea86b84ff6df87546163d623e53"
+	id="04ebaa4a9d11d2409496f33a956d9e5b"
 	title="A human-readable text string that can be used in place of an address or a Mosaic ID."
 	name="_:Namespace"
 	href="../../textbook/namespaces/#2f0cefc8ad477caf4f66272797ede73d">namespace</a>. Recorded at registration or renewal.</td>
