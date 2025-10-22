@@ -62,10 +62,6 @@ When this happens, the code displays all aliases separated by commas.
 To format mosaic balances correctly, the snippet fetches their properties from the network.
 The key property required is <divisibility:>, which defines how many decimal places a mosaic supports.
 
-For example, a mosaic with divisibility 6 stores amounts as integers representing millionths of a unit,
-so an atomic value of `1_000_000` equals `1.000000` when formatted.
-A mosaic with divisibility 0 represents indivisible units (whole numbers only).
-
 You can retrieve mosaic properties using the <get:/mosaics/{mosaicId}> endpoint for individual mosaics.
 The option used in this snippet is the <post:/mosaics> endpoint, which accepts multiple mosaic IDs in a single request
 and returns detailed information about each mosaic, including its divisibility.
@@ -88,7 +84,7 @@ The fractional part is then zero-padded to ensure it always displays the correct
 {{ tutorial.code_snippet(['py:98:141', 'js:88:134']) }}
 
 The main code reads the `ADDRESS` environment variable to determine which account to query.
-If no value is provided, it uses a predefined sample address.
+If no value is provided, it uses a default sample address.
 
 It orchestrates the helper functions to:
 

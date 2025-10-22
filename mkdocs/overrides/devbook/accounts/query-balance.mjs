@@ -102,16 +102,16 @@ if (accountMosaics.length === 0) {
 
 	// Fetch mosaic properties and names for all mosaics
 	const mosaicIds = accountMosaics.map(m => BigInt(`0x${m.id}`));
-	const mosaicsInfo = await getMosaicsInfo(mosaicIds);
 	const mosaicNames = await getMosaicNames(mosaicIds);
+	const mosaicsInfo = await getMosaicsInfo(mosaicIds);
 
 	for (const mosaicEntry of accountMosaics) {
 		const mosaicId = BigInt(`0x${mosaicEntry.id}`);
 		const balance = BigInt(mosaicEntry.amount);
 
 		// Get mosaic properties
-		const mosaicInfo = mosaicsInfo.get(mosaicId);
-		const divisibility = mosaicInfo.divisibility;
+		const info = mosaicsInfo.get(mosaicId);
+		const divisibility = info.divisibility;
 
 		// Format and display the balance
 		const formattedBalance = formatAmount(balance, divisibility);

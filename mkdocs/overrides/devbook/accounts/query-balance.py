@@ -112,16 +112,16 @@ else:
 
 # Fetch mosaic properties and names for all mosaics
 mosaic_ids = [int(m['id'], 16) for m in account_mosaics]
-mosaics_info = get_mosaics_info(mosaic_ids)
 mosaic_names = get_mosaic_names(mosaic_ids)
+mosaics_info = get_mosaics_info(mosaic_ids)
 
 for mosaic_entry in account_mosaics:
 	mosaic_id = int(mosaic_entry['id'], 16)
 	balance = int(mosaic_entry['amount'])
 
 	# Get mosaic properties
-	mosaic_info = mosaics_info[mosaic_id]
-	divisibility = mosaic_info['divisibility']
+	info = mosaics_info[mosaic_id]
+	divisibility = info['divisibility']
 
 	# Format and display the balance
 	formatted_balance = format_amount(balance, divisibility)
