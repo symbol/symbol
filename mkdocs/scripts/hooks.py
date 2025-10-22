@@ -135,8 +135,8 @@ def page_markdown_dylinks(content, page, config, files):
 		rgroup_id += 1
 		return r
 
-	content = re.sub(r'<dy:([A-Za-z]*)>', class_formatter, content)
-	content = re.sub(r'<dy:([A-Za-z]*)\.([A-Za-z_]*)>', method_formatter, content)
+	content = re.sub(r'<dy:([A-Za-z0-9]*)>', class_formatter, content)
+	content = re.sub(r'<dy:([A-Za-z0-9]*)\.([A-Za-z0-9_]*)>', method_formatter, content)
 
 	return content
 
