@@ -9,12 +9,12 @@ const facade = new SymbolFacade('testnet');
 const bip32 = new Bip32(facade.constructor.BIP32_CURVE_NAME);
 let mnemonic = process.env.MNEMONIC;
 if (mnemonic) {
-	console.log('Loading mnemonic from environment variable...');
+	console.log('Loading mnemonic phrase from environment variable...');
 } else {
-	console.log('Generating random mnemonic...');
+	console.log('Generating random mnemonic phrase...');
 	mnemonic = bip32.random();
 }
-console.log('Mnemonic:', mnemonic);
+console.log('Mnemonic phrase:', mnemonic);
 
 // Load password from environment variable or use default
 const password = process.env.PASSWORD || 'correcthorsebatterystaple';

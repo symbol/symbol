@@ -4,7 +4,8 @@ title: Create from Mnemonic
 
 # Creating Accounts from Mnemonics
 
-This tutorial shows how to create <accounts:> for the Symbol blockchain using a <mnemonic phrase:>.
+This tutorial shows how to create <accounts:> for the Symbol blockchain using a <mnemonic phrase:>,
+also known simply as _mnemonic_.
 
 This approach is commonly used by <HD wallets:> to manage multiple accounts from a single seed.
 
@@ -27,7 +28,7 @@ development environment is set up correctly.
 
 The <dy:SymbolFacade> provides access to Symbol's cryptographic operations and network utilities.
 It is initialized with a network name (`testnet` or `mainnet`) to ensure that network-specific values,
-such as <address:>, are generated correctly.
+such as <addresses:>, are generated correctly.
 
 ### Defining a Mnemonic
 
@@ -39,10 +40,10 @@ Otherwise, a new random mnemonic is generated using <dy:Bip32.random>.
 
 Symbol uses the [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) standard, which represents
 mnemonics as 24 English words selected from a standardized word list.
-These words encode entropy that serves as the foundation for deriving private keys.
+These words encode the entropy (randomness) used to create all derived private keys.
 
-!!! warning "Store your mnemonic securely"
-    The mnemonic can be used to regenerate all derived accounts and private keys.
+!!! warning "Store your mnemonic phrase securely"
+    The mnemonic phrase can be used to regenerate all derived accounts and private keys.
     Anyone with access to it can control your accounts, and losing it means losing access permanently.
 
     Never share your mnemonic with anyone, and always store it in a secure location.
@@ -56,30 +57,32 @@ which serves as the starting point for deriving child accounts.
 
 The password (sometimes called a "25th word") is an optional string that extends the mnemonic seed.
 It can be left empty or set to any value.
-When used, it adds another layer of security. Different passwords with the same mnemonic produce completely different
-accounts.
+When used, it adds another layer of security.
+Different passwords with the same mnemonic produce completely different accounts.
 
 !!! note "Password security"
     The password is part of the account derivation.
     Both the mnemonic and password are required to regenerate the accounts.
-    If you lose or forget either one, you lose access to all derived accounts.
+    If you lose either one, you lose access to all derived accounts.
 
 In this example, the password is loaded from the `PASSWORD` environment variable.
-If not set, the snippet defaults to `correcthorsebatterystaple` for demonstration purposes only.
+If not set, the snippet uses a default one.
 
 ### Deriving the Child Account
 
 {{ tutorial.code_snippet(['py:25:27', 'js:26:28']) }}
 
-The root node can derive multiple child accounts using a hierarchical path.
+The root node can generate multiple accounts, each with its own unique keys and address.
 This allows a single mnemonic to manage many accounts while keeping them cryptographically isolated.
 
-<dy:SymbolFacade.bip32Path> generates the derivation path for a specific account index.
-In this example, the account at index `0` is derived, but you can derive additional accounts by using different
-indices (e.g., `1`, `2`, `3`).
+Deriving an account requires specifying an account index.
+<dy:SymbolFacade.bip32Path> generates the derivation path
+(a standardized string that specifies which account to derive) for that index,
+and <dy:Bip32Node.derivePath> follows that path to create the account.
 
-<dy:Bip32Node.derivePath> follows the specified path from the root node to produce a child node that represents
-the account.
+In this example, the account at index `0` is derived.
+Additional accounts can be derived by using different indices (e.g., `1`, `2`, `3`, ...).
+Each index produces a completely different account.
 
 ### Creating the Account
 
@@ -109,10 +112,8 @@ If the same mnemonic and password are provided, the same account is always deriv
 
 This tutorial showed how to:
 
-| Step                                                       | Related documentation                    |
-| ---------------------------------------------------------- | ---------------------------------------- |
-| [Define a mnemonic](#defining-a-mnemonic)                  | <dy:Bip32.random>                        |
-| [Derive a root node](#deriving-the-root-node)              | <dy:Bip32.fromMnemonic>                  |
-| [Derive a child account](#deriving-the-child-account)      | <dy:Bip32Node.derivePath>                |
-| [Get the key pair](#creating-the-key-pair-and-address)     | <dy:SymbolFacade.bip32NodeToKeyPair>     |
-| [Get the address](#creating-the-key-pair-and-address)      | <dy:network.publicKeyToAddress>          |
+| Step                                                         | Related documentation                                                                           |
+| -----------------------------------------------------------  | ----------------------------------------------------------------------------------------------- |
+| [Create a random mnemonic](#defining-a-mnemonic)             | <dy:Bip32.random>                                                                               |
+| [Derive an account from a mnemonic](#deriving-the-root-node) | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, and <dy:Bip32Node.derivePath>             |
+| [Get the key pair of the account](#creating-the-account)     | <dy:SymbolFacade.bip32NodeToKeyPair>, <dy:network.publicKeyToAddress>                           |
