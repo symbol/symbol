@@ -50,6 +50,8 @@ nav:
   - index.md
   - ユーザーマニュアル:
       - userbook/intro.md
+      - Symbol デスクトップウォレット:
+          - userbook/wallet/install.md
   - 開発者マニュアル:
       - devbook/intro.md
       - リファレンスガイド:
@@ -59,4 +61,17 @@ nav:
           - Symbol REST API: devbook/reference/rest/symbol.md
   - 教科書:
       - textbook/intro.md
+      - textbook/cryptography.md
+      - textbook/accounts.md
+      - textbook/consensus.md
+      - textbook/transactions.md
+      - textbook/transfer_transactions.md
+      - textbook/mosaics.md
+      - textbook/namespaces.md
+      - textbook/blocks.md
+      - textbook/nodes.md
+      - textbook/restrictions.md
+      - textbook/harvesting.md
+      - textbook/catapult.md
+      - textbook/cats.md
       - textbook/glossary.md
