@@ -7,6 +7,10 @@ This tutorial shows how to verify that your Symbol SDK installation is working c
 
 No accounts, keys, or transactions are required, just a basic SDK call and a REST request.
 
+## Prerequisites
+
+If you have not done so already, start with [Setting Up a Development Environment](../start/setup.md).
+
 ## Full Code
 
 {% import 'tutorial.jinja2' as tutorial with context %}
@@ -18,7 +22,7 @@ No accounts, keys, or transactions are required, just a basic SDK call and a RES
 {{ tutorial.code_snippet(['py:7:11', 'js:6:10']) }}
 
 The <dy:SymbolFacade> class is the main entry point to the Symbol SDK.
-It provides most of the methods you will need when working with Symbol:
+It provides most of the methods you will need when working witfh Symbol:
 from building and signing transactions to retrieving network-related information.
 
 To create a facade, simply specify the name of the network you want to work with, either `mainnet` or `testnet`.

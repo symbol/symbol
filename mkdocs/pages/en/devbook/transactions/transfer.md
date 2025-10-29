@@ -14,8 +14,14 @@ up-to-date values.
 
 ## Prerequisites
 
-If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
-development environment is set up correctly.
+Before you start, make sure to:
+
+- Set up your development environment.
+  See [Setting Up a Development Environment](../start/setup.md).
+- Create an <account:> to send the transfer transaction.
+  See [Creating an Account from a Private Key](../accounts/create-from-private-key.md).
+- Obtain <XYM:> to pay for the transaction fee and transfer amount.
+  See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 ## Full Code
 

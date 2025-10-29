@@ -9,8 +9,7 @@ or by generating a new random account.
 
 ## Prerequisites
 
-If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
-development environment is set up correctly.
+If you have not done so already, start with [Setting Up a Development Environment](../start/setup.md).
 
 ## Full Code
 
@@ -78,6 +77,9 @@ This tutorial showed how to:
 | [Get the public key](#creating-the-account)                   | <dy:KeyPair.publicKey>                   |
 | [Get the address](#creating-the-account)                      | <dy:network.publicKeyToAddress>          |
 
-## Next steps
+## Next Steps
 
-Once you have created an account, you can use it to [send transactions](../transactions/transfer.md).
+Once you have created an account, you will need funds to send transactions.
+
+The Symbol testnet provides a faucet that distributes free XYM for testing.
+See [Getting Testnet Funds from the Faucet](./testnet-faucet.md) to get started.
