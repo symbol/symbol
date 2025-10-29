@@ -56,8 +56,8 @@ The maximum amount per request is 10,000 XYM.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("../../images/faucet-claim.png") }}
-Click **Claim** to submit your request. If the request is successful, the faucet will transfer specified amount of XYM
-to your address.
+Click **Claim** to submit your request.
+If the request is successful, the faucet will transfer the specified amount of XYM to your address.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("../../images/faucet-view-explorer.png") }}
