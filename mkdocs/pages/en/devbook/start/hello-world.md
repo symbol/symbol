@@ -22,7 +22,7 @@ If you have not done so already, start with [Setting Up a Development Environmen
 {{ tutorial.code_snippet(['py:7:11', 'js:6:10']) }}
 
 The <dy:SymbolFacade> class is the main entry point to the Symbol SDK.
-It provides most of the methods you will need when working witfh Symbol:
+It provides most of the methods you will need when working with Symbol:
 from building and signing transactions to retrieving network-related information.
 
 To create a facade, simply specify the name of the network you want to work with, either `mainnet` or `testnet`.

@@ -116,10 +116,3 @@ This tutorial showed how to:
 | [Create a random mnemonic](#defining-a-mnemonic)             | <dy:Bip32.random>                                                                               |
 | [Derive an account from a mnemonic](#deriving-the-root-node) | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, and <dy:Bip32Node.derivePath>             |
 | [Get the key pair of the account](#creating-the-account)     | <dy:SymbolFacade.bip32NodeToKeyPair>, <dy:network.publicKeyToAddress>                           |
-
-## Next Steps
-
-Once you have created an account, you will need funds to send transactions.
-
-The Symbol testnet provides a faucet that distributes free XYM for testing.
-See [Getting Testnet Funds from the Faucet](./testnet-faucet.md) to get started.
