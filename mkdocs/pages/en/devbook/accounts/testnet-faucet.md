@@ -11,16 +11,17 @@ This guide explains how to claim testnet funds using the web-based faucet.
     Testnet XYM has no real-world value.
     It exists only to let you experiment with Symbol features without using real currency.
 
-    If you need mainnet XYM, see available
-    [exchanges](https://coinmarketcap.com/currencies/symbol/#Markets).
+    If you need mainnet XYM, you will need to buy it through an
+    [exchange](https://coinmarketcap.com/currencies/symbol/#Markets).
 
 ## Prerequisites
 
 Before you start, make sure to:
 
-- Create a testnet <account:> to receive funds.
-  See [Creating an Account from a Private Key](../accounts/create-from-private-key.md).
-- Have an X account to verify your identity with the faucet.
+- Create a testnet <account:> to receive funds, either
+  [from code](../accounts/create-from-private-key.md) or
+  [by using a wallet](../../userbook/wallet/create-account.md).
+- Have an 𝕏 account to verify your identity with the faucet.
 
 ## How to Claim Testnet Funds
 
@@ -30,15 +31,18 @@ Before you start, make sure to:
 
 {{ tutorial.step_begin("../../images/faucet-open.png") }}
 Open your web browser and navigate to the Symbol testnet faucet at
-**<https://testnet.symbol.tools/>**.
+[testnet.symbol.tools](https://testnet.symbol.tools).
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("../../images/faucet-sign-in.png") }}
-Click **Sign in with Twitter** (now X) and follow the authentication flow.
+Click **Sign in with Twitter** (now 𝕏) and follow the authentication flow.
+
+This step limits the amount of test funds to 10,000 XYM per account,
+to help prevent abuse of the faucet.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("../../images/faucet-authorize.png") }}
-After signing in, X will ask you to authorize the faucet application to access
+After signing in, 𝕏 will ask you to authorize the faucet application to access
 your account information.
 
 Review the permissions and click **Authorize app** to continue.
@@ -46,8 +50,9 @@ Once authorized, you will be redirected again to the faucet.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("../../images/faucet-address.png") }}
-Enter your testnet address in **Your Testnet Address** field.
-The address should start with `T` for testnet accounts.
+Enter the address where you want to receive the funds in the **Your Testnet Address** field.
+
+Make sure the address starts with `T`, meaning it's a testnet account.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("../../images/faucet-xym.png") }}
