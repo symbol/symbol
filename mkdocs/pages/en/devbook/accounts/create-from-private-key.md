@@ -79,7 +79,7 @@ This tutorial showed how to:
 
 ## Next Steps
 
-Once you have created an account, you will need funds to send transactions.
+Now that you have an account, you can:
 
-The Symbol testnet provides a faucet that distributes free XYM for testing.
-See [Getting Testnet Funds from the Faucet](./testnet-faucet.md) to get started.
+- [Get testnet funds from the faucet](./testnet-faucet.md)
+- [Send your first transaction](../transactions/transfer.md)

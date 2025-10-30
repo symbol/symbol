@@ -18,8 +18,9 @@ Before you start, make sure to:
 
 - Set up your development environment.
   See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:> to send the transfer transaction.
-  See [Creating an Account from a Private Key](../accounts/create-from-private-key.md).
+- Create an <account:> to send the transfer transaction, either
+  [from code](../accounts/create-from-private-key.md) or
+  [by using a wallet](../../userbook/wallet/create-account.md).
 - Obtain <XYM:> to pay for the transaction fee and transfer amount.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
