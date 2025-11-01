@@ -7,6 +7,10 @@ This tutorial shows how to verify that your Symbol SDK installation is working c
 
 No accounts, keys, or transactions are required, just a basic SDK call and a REST request.
 
+## Prerequisites
+
+If you have not done so already, start with [Setting Up a Development Environment](../start/setup.md).
+
 ## Full Code
 
 {% import 'tutorial.jinja2' as tutorial with context %}
