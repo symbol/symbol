@@ -11,8 +11,7 @@ This approach is commonly used by <HD wallets:> to manage multiple accounts from
 
 ## Prerequisites
 
-If you have not done so already, start with the [Hello World](../start/hello-world.md) tutorial to make sure your
-development environment is set up correctly.
+If you have not done so already, start with [Setting Up a Development Environment](../start/setup.md).
 
 ## Full Code
 
