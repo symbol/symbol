@@ -6,7 +6,7 @@ ubuntu-lts:
   nodejs: 22
 ubuntu-base:
   image: ubuntu:22.04
-  python: 3.10
+  python: '3.10'
   nodejs: 20
 ubuntu-latest:
   image: ubuntu:24.04
