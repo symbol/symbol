@@ -1,0 +1,91 @@
+Using node https://001-sai-dual.symboltest.net:3001
+Account A: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Account B: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
+Fetching current network time from /node/time
+  Network time: 95291933043 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Built aggregate bonded transaction:
+{
+  "signature": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 3,
+  "network": 152,
+  "type": 16961,
+  "fee": "46400",
+  "deadline": "95299133043",
+  "transactions_hash": "C2F8137E86FA6CD2B5A6E0CBBEA5485DCC427C5F1C9AC98F7A35E84CF0A28877",
+  "transactions": [
+    {
+      "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+      "version": 1,
+      "network": 152,
+      "type": 16724,
+      "recipient_address": "98AD8BAAB80B1DC684542EC175259711AB2C41D2FE4DA9AD",
+      "mosaics": [
+        {
+          "mosaic_id": "16666583871264174062",
+          "amount": "10000000"
+        }
+      ],
+      "message": ""
+    },
+    {
+      "signer_public_key": "D04AB232742BB4AB3A1368BD4615E4E6D0224AB71A016BAF8520A332C9778737",
+      "version": 1,
+      "network": 152,
+      "type": 16724,
+      "recipient_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+      "mosaics": [
+        {
+          "mosaic_id": "7859648582932718274",
+          "amount": "1"
+        }
+      ],
+      "message": ""
+    }
+  ],
+  "cosignatures": []
+}
+Bonded transaction hash: 98ECF6357EC0CA996E997EA6B4C67B0CBD3AE115D42E2B8FFAFF0B2C6D8D8F6C
+Creating hash lock transaction...
+Hash lock transaction hash: 384B048E7A663D1A6D678D5FA74F1B3456378EF5C8F8AA60E5AD28FBD5BC3AFE
+Announcing hash lock to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for hash lock confirmation...
+  Hash lock confirmed
+Announcing bonded transaction to /transactions/partial
+  Response: {"message":"packet 256 was pushed to the network via /transactions/partial"}
+Waiting for bonded transaction to reach partial status...
+  Transaction is partial, ready for cosignatures
+Submitting Account B's cosignature...
+  Cosignature from Account B: {"message":"packet 257 was pushed to the network via /transactions/cosignature"}
+Waiting for bonded transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Transaction confirmed in 26 seconds
