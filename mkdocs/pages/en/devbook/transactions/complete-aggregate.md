@@ -4,7 +4,6 @@ title: Complete Aggregate
 
 # Creating a Complete Aggregate Transaction
 
-
 This tutorial shows how to create an asset swap using <complete aggregate transactions:>.
 
 In this example, Account A sends 10 <XYM:> to Account B, while Account B simultaneously sends 1 custom <mosaic:> back

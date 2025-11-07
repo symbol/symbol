@@ -175,5 +175,3 @@ try {
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }
-
-
