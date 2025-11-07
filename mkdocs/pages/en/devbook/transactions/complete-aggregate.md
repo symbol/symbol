@@ -90,7 +90,6 @@ environment variables, which default to test keys if not set.
 The addresses for both accounts are derived from their public keys using the facade's network
 configuration.
 
-
 ### Fetching Network Time and Fees
 
 {{ tutorial.code_snippet(['py:38:56', 'js:31:49']) }}
@@ -147,12 +146,11 @@ space reserved for <cosignatures:> (104 bytes each).
 
 ### Collecting Signatures
 
-{{ tutorial.code_snippet(['py:98:134', 'js:100:136']) }}
+{{ tutorial.code_snippet(['py:98:134', 'js:100:140']) }}
 
 With the aggregate built, both accounts must sign it off-chain before announcement.
 
 The snippet shows this process in distinct sections showing what happens on each machine:
-
 
 1. **Account A (Initiator)** signs the transaction using <dy:SymbolFacade.signTransaction> and attaches the
 signature using <dy:SymbolTransactionFactory.attachSignature> to create a shareable payload.
@@ -177,7 +175,7 @@ then rebuilds the payload.
 
 ### Announcing the Transaction
 
-{{ tutorial.code_snippet(['py:136:149', 'js:138:150']) }}
+{{ tutorial.code_snippet(['py:136:149', 'js:142:154']) }}
 
 Once all signatures are collected, the transaction is announced to a <node:> using the
 <put:/transactions> endpoint.
@@ -187,7 +185,7 @@ If validation passes, the transaction is added to the <unconfirmed pool:> and br
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:151:171', 'js:152:174']) }}
+{{ tutorial.code_snippet(['py:151:171', 'js:156:180']) }}
 
 After announcement, the transaction status is monitored using <get:/transactionStatus/{hash}>.
 

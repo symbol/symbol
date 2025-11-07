@@ -99,12 +99,14 @@ try {
 
 	// --- ACCOUNT A (Initiator) ---
 	console.log('[Account A] Signing the aggregate...');
-	const signatureA = facade.signTransaction(accountAKeyPair, transaction);
+	const signatureA = facade.signTransaction(
+		accountAKeyPair, transaction);
 	const transactionPayload = facade.transactionFactory.static
 		.attachSignature(transaction, signatureA);
 	const payloadFormatted = JSON.stringify(
 		JSON.parse(transactionPayload), null, 2);
-	console.log('[Account A] Payload ready to share:\n', payloadFormatted);
+	console.log('[Account A] Payload ready to share:\n',
+		payloadFormatted);
 
 	// --- OFF-CHAIN COORDINATION ---
 	// Account A sends the payload to Account B
@@ -113,13 +115,15 @@ try {
 
 	// --- ACCOUNT B (Cosignatory) ---
 	console.log('[Account B] Received payload');
+	const payloadHex = JSON.parse(sharedPayload).payload;
 	const receivedTransaction = facade.transactionFactory.static
-		.deserialize(Buffer.from(JSON.parse(sharedPayload).payload, 'hex'));
+		.deserialize(Buffer.from(payloadHex, 'hex'));
 
 	console.log('[Account B] Cosigning...');
 	const cosignatureB = facade.cosignTransaction(
 		accountBKeyPair, receivedTransaction);
-	console.log('[Account B] Cosignature created:', cosignatureB.toString());
+	console.log('[Account B] Cosignature created:',
+		cosignatureB.toString());
 
 	// --- OFF-CHAIN COORDINATION ---
 	// Account B sends the cosignature back to Account A
@@ -156,11 +160,13 @@ try {
 	for (let attempt = 0; attempt < 60; attempt++) {
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		try {
-			const statusResponse = await fetch(`${NODE_URL}${statusPath}`);
+			const statusResponse = await fetch(
+				`${NODE_URL}${statusPath}`);
 			const status = await statusResponse.json();
 			console.log('  Transaction status:', status.group);
 			if (status.group === 'confirmed') {
-				console.log('Transaction confirmed in', attempt, 'seconds');
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
 				break;
 			}
 			if (status.group === 'failed') {
