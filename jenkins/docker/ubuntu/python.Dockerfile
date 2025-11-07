@@ -1,4 +1,4 @@
-ARG FROM_IMAGE='ubuntu:22.04'
+ARG FROM_IMAGE='ubuntu:24.04'
 
 FROM ${FROM_IMAGE}
 
