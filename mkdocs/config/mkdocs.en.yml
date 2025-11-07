@@ -80,6 +80,7 @@ nav:
               - devbook/transactions/typed-descriptors.md
               - devbook/transactions/messages.md
               - devbook/transactions/monitoring-status.md
+              - devbook/transactions/complete-aggregate.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
