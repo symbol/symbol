@@ -3,7 +3,7 @@ fedora-lts:
 ubuntu-lts:
   image: ubuntu:24.04
   python: 3.12
-  nodejs: 22
+  nodejs: 20
 ubuntu-base:
   image: ubuntu:22.04
   python: '3.10'
