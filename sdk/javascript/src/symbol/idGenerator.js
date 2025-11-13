@@ -2,6 +2,7 @@
 import { Address } from './Network.js';
 /* eslint-enable no-unused-vars */
 import { sha3_256 } from '@noble/hashes/sha3.js';
+import { utf8ToBytes } from '@noble/hashes/utils.js';
 
 const NAMESPACE_FLAG = 1n << 63n;
 
@@ -49,7 +50,7 @@ const generateNamespaceId = (name, parentNamespaceId = 0n) => {
 	const hasher = sha3_256.create();
 	hasher.update(uint32ToBytes(Number(parentNamespaceId & 0xFFFFFFFFn)));
 	hasher.update(uint32ToBytes(Number((parentNamespaceId >> 32n) & 0xFFFFFFFFn)));
-	hasher.update(name);
+	hasher.update(utf8ToBytes(name));
 	const digest = new Uint8Array(hasher.digest());
 
 	const result = digestToBigInt(digest);

@@ -9,6 +9,7 @@ import {
 import tweetnacl from './impl/external/tweetnacl-nacl-fast-symbol.js';
 import { hkdf } from '@noble/hashes/hkdf.js';
 import { sha256 } from '@noble/hashes/sha2.js';
+import { utf8ToBytes } from '@noble/hashes/utils.js';
 
 // order matches order of exported methods
 const tweetnacl_lowlevel = (/** @type {any} */ (tweetnacl)).lowlevel;
@@ -87,7 +88,7 @@ const deriveSharedKeyFactory = (info, hasher) => {
 	const deriveSharedSecret = deriveSharedSecretFactory(hasher);
 	return (privateKeyBytes, otherPublicKey) => {
 		const sharedSecret = deriveSharedSecret(privateKeyBytes, otherPublicKey);
-		return new SharedKey256(hkdf(sha256, sharedSecret, undefined, info, 32));
+		return new SharedKey256(hkdf(sha256, sharedSecret, undefined, utf8ToBytes(info), 32));
 	};
 };
 
