@@ -34,7 +34,7 @@
     "bs58": "^6.0.0",
     "ini": "^6.0.0",
     "long": "^5.2.3",
-    "mongodb": "^6.3.0",
+    "mongodb": "^7.0.0",
     "node-cache": "^5.1.2",
     "restify": "^11.1.0",
     "restify-errors": "^8.0.2",
