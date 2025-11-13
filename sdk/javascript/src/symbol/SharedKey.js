@@ -3,7 +3,7 @@ import { KeyPair } from './KeyPair.js';
 import { PublicKey, SharedKey256 } from '../CryptoTypes.js';
 /* eslint-enable no-unused-vars */
 import { deriveSharedKeyFactory } from '../SharedKey.js';
-import { sha512 } from '@noble/hashes/sha512.js';
+import { sha512 } from '@noble/hashes/sha2.js';
 
 const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', sha512);
 
