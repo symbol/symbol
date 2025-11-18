@@ -2,8 +2,8 @@
 
 import tweetnacl from './external/tweetnacl-nacl-fast-symbol.js';
 import { deepCompare } from '../utils/arrayHelpers.js';
+import { sha512 } from '@noble/hashes/sha2.js';
 import { keccak_512 } from '@noble/hashes/sha3.js';
-import { sha512 } from '@noble/hashes/sha512.js';
 
 const getHasher = hashMode => ('Keccak' === hashMode ? keccak_512 : sha512);
 

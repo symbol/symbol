@@ -1,4 +1,5 @@
 import { sha3_256 } from '@noble/hashes/sha3.js';
+import { utf8ToBytes } from '@noble/hashes/utils.js';
 
 /**
  * Generates a metadata key from a string.
@@ -6,7 +7,7 @@ import { sha3_256 } from '@noble/hashes/sha3.js';
  * @returns {bigint} Metadata key.
  */
 const metadataGenerateKey = seed => {
-	const hashResult = sha3_256(seed);
+	const hashResult = sha3_256(utf8ToBytes(seed));
 
 	const keyBytes = hashResult.subarray(0, 8);
 	keyBytes[7] |= 0x80; // set high bit to match SDK V2 implementation

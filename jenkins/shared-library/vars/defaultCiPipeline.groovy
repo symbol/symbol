@@ -122,7 +122,10 @@ void call(Closure body) {
 										jenkinsfileParams.isPublicGitHubRepo = githubHelper.isGitHubRepositoryPublic(ownerName, gitHubRepositoryName)
 									}
 
-									configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams), jenkinsfileParams.isPublicGitHubRepo)
+									// Only configure private artifact repository for private release
+									if (!helper.isPublicBuild(env.BUILD_CONFIGURATION)) {
+										configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams), jenkinsfileParams.isPublicGitHubRepo)
+									}
 								}
 							}
 						}

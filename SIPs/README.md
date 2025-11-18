@@ -12,4 +12,4 @@ To submit a new proposal, use the following template:
 
 | Number        | Category      | Title                      | Author   | Status |
 |---------------|---------------|----------------------------|----------|--------|
-| [1](sip-1.md) | Informational | SIP Process and Guidelines | Team TSS | Draft  |
+| [1](sip-1.md) | Informational | SIP Process and Guidelines | Team TSS | Final  |

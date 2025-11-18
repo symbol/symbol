@@ -4,7 +4,7 @@
 | **Title**          | SIP Process and Guidelines |
 | **Author**         | Team TSS                   |
 | **Discussions-to** | N.A                        |
-| **Status**         | Draft                      |
+| **Status**         | Final                      |
 | **Category**       | Informational              |
 | **Created**        | 2025-Jun-4                 |
 | **Maintainer**     | Team TSS                   |
