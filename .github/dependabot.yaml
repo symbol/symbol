@@ -1,6 +1,24 @@
 version: 2
 updates:
 
+  - package-ecosystem: cargo
+    schedule:
+      interval: weekly
+      day: sunday
+    labels: [dependencies]
+    commit-message:
+      prefix: '[dependency]'
+    target-branch: dev
+    directory: /sdk/javascript/wasm
+    versioning-strategy: auto
+    groups:
+      cargo-dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
   - package-ecosystem: github-actions
     schedule:
       interval: weekly
@@ -11,12 +29,32 @@ updates:
     target-branch: dev
     directory: /
     groups:
-      actions-dependencies:
+      github-actions-dependencies:
         patterns:
           - '*'
         update-types:
           - minor
           - patch
+
+  - package-ecosystem: npm
+    schedule:
+      interval: weekly
+      day: sunday
+    labels: [dependencies]
+    commit-message:
+      prefix: '[dependency]'
+    target-branch: dev
+    versioning-strategy: increase-if-necessary
+    groups:
+      npm-dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+    directories:
+      - /client/rest
+      - /sdk/javascript
 
   - package-ecosystem: pip
     schedule:
@@ -42,41 +80,3 @@ updates:
       - /linters/python
       - /sdk/javascript/generator
       - /sdk/python
-
-  - package-ecosystem: npm
-    schedule:
-      interval: weekly
-      day: sunday
-    labels: [dependencies]
-    commit-message:
-      prefix: '[dependency]'
-    target-branch: dev
-    versioning-strategy: increase-if-necessary
-    groups:
-      npm-dependencies:
-        patterns:
-          - '*'
-        update-types:
-          - minor
-          - patch
-    directories:
-      - /client/rest
-      - /sdk/javascript
-
-  - package-ecosystem: cargo
-    schedule:
-      interval: weekly
-      day: sunday
-    labels: [dependencies]
-    commit-message:
-      prefix: '[dependency]'
-    target-branch: dev
-    directory: /sdk/javascript/wasm
-    versioning-strategy: auto
-    groups:
-      wasm-dependencies:
-        patterns:
-          - '*'
-        update-types:
-          - minor
-          - patch
