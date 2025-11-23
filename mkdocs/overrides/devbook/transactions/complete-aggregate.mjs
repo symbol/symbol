@@ -9,23 +9,25 @@ import {
 const NODE_URL = 'https://001-sai-dual.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-// Account A (initiates the aggregate and sends XYM)
+// Account A (initiates the aggregate tx and sends XYM to Account B)
 const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY || (
 	'0000000000000000000000000000000000000000000000000000000000000000');
 const accountAKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(ACCOUNT_A_PRIVATE_KEY));
 
-// Account B (sends custom mosaic back to Account A)
+// Account B (sends custom mosaic to Account A)
 const ACCOUNT_B_PRIVATE_KEY = process.env.ACCOUNT_B_PRIVATE_KEY || (
 	'1111111111111111111111111111111111111111111111111111111111111111');
 const accountBKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(ACCOUNT_B_PRIVATE_KEY));
 
 const facade = new SymbolFacade('testnet');
-console.log('Account A:', facade.network.publicKeyToAddress(
-	accountAKeyPair.publicKey).toString());
-console.log('Account B:', facade.network.publicKeyToAddress(
-	accountBKeyPair.publicKey).toString());
+const accountAAddress = facade.network.publicKeyToAddress(
+	accountAKeyPair.publicKey);
+const accountBAddress = facade.network.publicKeyToAddress(
+	accountBKeyPair.publicKey);
+console.log('Account A:', accountAAddress.toString());
+console.log('Account B:', accountBAddress.toString());
 
 try {
 	// Fetch current network time
@@ -48,35 +50,30 @@ try {
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
 
-	const accountAAddress = facade.network.publicKeyToAddress(
-		accountAKeyPair.publicKey);
-	const accountBAddress = facade.network.publicKeyToAddress(
-		accountBKeyPair.publicKey);
-
-	// Account A sends 10 XYM to Account B
+	// Embedded tx 1: Account A transfers 10 XYM to Account B
 	const embeddedTransaction1 = facade.transactionFactory
 		.createEmbedded({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: accountAKeyPair.publicKey.toString(),
-		recipientAddress: accountBAddress.toString(),
-		mosaics: [{
-			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 10_000_000n  // 10 XYM (divisibility = 6)
-		}]
-	});
+			type: 'transfer_transaction_v1',
+			signerPublicKey: accountAKeyPair.publicKey.toString(),
+			recipientAddress: accountBAddress.toString(),
+			mosaics: [{
+				mosaicId: generateMosaicAliasId('symbol.xym'),
+				amount: 10_000_000n  // 10 XYM (divisibility = 6)
+			}]
+		});
 
-	// Account B sends 1 custom token to Account A
+	// Embedded tx 2: Account B transfers 1 custom mosaic to Account A
 	const customMosaicId = 0x6D1314BE751B62C2n;
 	const embeddedTransaction2 = facade.transactionFactory
 		.createEmbedded({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: accountBKeyPair.publicKey.toString(),
-		recipientAddress: accountAAddress.toString(),
-		mosaics: [{
-			mosaicId: customMosaicId,
-			amount: 1n  // 1 custom mosaic (divisibility = 0)
-		}]
-	});
+			type: 'transfer_transaction_v1',
+			signerPublicKey: accountBKeyPair.publicKey.toString(),
+			recipientAddress: accountAAddress.toString(),
+			mosaics: [{
+				mosaicId: customMosaicId,
+				amount: 1n  // 1 custom mosaic (divisibility = 0)
+			}]
+		});
 
 	// Build the aggregate transaction
 	const embeddedTransactions = [
@@ -89,12 +86,12 @@ try {
 			embeddedTransactions),
 		transactions: embeddedTransactions
 	});
-	// Reserve space for one cosignature (104 bytes each)
+	// Reserve space for one cosignature (104 bytes)
 	// and calculate fee for the final transaction size
 	transaction.fee = new models.Amount(
 		feeMult * (transaction.size + 104)
 	);
-	console.log('Built aggregate transaction:');
+	console.log('Built aggregate transaction without signatures:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
 	// --- ACCOUNT A (Initiator) ---
@@ -111,10 +108,9 @@ try {
 	// --- OFF-CHAIN COORDINATION ---
 	// Account A sends the payload to Account B
 	const sharedPayload = transactionPayload;
-	console.log('[Sharing] Payload sent to Account B...');
+	console.log('[Account A] ==> Payload sent to Account B (offchain)');
 
 	// --- ACCOUNT B (Cosignatory) ---
-	console.log('[Account B] Received payload');
 	const payloadHex = JSON.parse(sharedPayload).payload;
 	const receivedTransaction = facade.transactionFactory.static
 		.deserialize(Buffer.from(payloadHex, 'hex'));
@@ -122,16 +118,18 @@ try {
 	console.log('[Account B] Cosigning...');
 	const cosignatureB = facade.cosignTransaction(
 		accountBKeyPair, receivedTransaction);
+	const cosignatureFormatted = JSON.stringify(
+		cosignatureB.toJson(), null, 2);
 	console.log('[Account B] Cosignature created:',
-		cosignatureB.toString());
+		cosignatureFormatted);
 
 	// --- OFF-CHAIN COORDINATION ---
 	// Account B sends the cosignature back to Account A
 	const sharedCosignature = cosignatureB;
-	console.log('[Sharing] Cosignature sent back to Account A...');
+	console.log('[Account B] <== Cosignature sent back to Account A',
+		'(offchain)');
 
 	// --- ACCOUNT A (Initiator) ---
-	console.log('[Account A] Received cosignature');
 	// Add cosignature to the transaction and rebuild payload
 	transaction.cosignatures.push(sharedCosignature);
 	const transactionPayloadFinal = facade.transactionFactory.static

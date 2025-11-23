@@ -12,14 +12,14 @@ from symbolchain.symbol.Network import NetworkTimestamp
 NODE_URL = 'https://001-sai-dual.symboltest.net:3001'
 print(f'Using node {NODE_URL}')
 
-# Account A (initiates the aggregate and sends XYM)
+# Account A (initiates the aggregate tx and sends XYM to Account B)
 ACCOUNT_A_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 account_a_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(ACCOUNT_A_PRIVATE_KEY))
 
-# Account B (sends custom mosaic back to Account A)
+# Account B (sends custom mosaic to Account A)
 ACCOUNT_B_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_B_PRIVATE_KEY',
 	'1111111111111111111111111111111111111111111111111111111111111111')
@@ -55,7 +55,7 @@ try:
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
 
-	# Account A sends 10 XYM to Account B
+	# Embedded tx 1: Account A transfers 10 XYM to Account B
 	embedded_transaction_1 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': account_a_key_pair.public_key,
@@ -66,7 +66,7 @@ try:
 		}]
 	})
 
-	# Account B sends 1 custom mosaic to Account A
+	## Embedded tx 2: Account B transfers 1 custom mosaic to Account A
 	custom_mosaic_id = 0x6D1314BE751B62C2
 	embedded_transaction_2 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
@@ -89,10 +89,10 @@ try:
 			embedded_transactions),
 		'transactions': embedded_transactions
 	})
-	# Reserve space for one cosignature (104 bytes each)
+	# Reserve space for one cosignature (104 bytes)
 	# and calculate fee for the final transaction size
 	transaction.fee = Amount(fee_mult * (transaction.size + 104))
-	print('Built aggregate transaction:')
+	print('Built aggregate transaction without signatures:')
 	print(json.dumps(transaction.to_json(), indent=2))
 
 	# --- ACCOUNT A (Initiator) ---
@@ -107,25 +107,24 @@ try:
 	# --- OFF-CHAIN COORDINATION ---
 	# Account A sends the payload to Account B
 	shared_payload = transaction_payload
-	print('[Sharing] Payload sent to Account B...')
+	print('[Account A] ==> Payload sent to Account B (offchain)')
 
 	# --- ACCOUNT B (Cosignatory) ---
-	print('[Account B] Received payload')
 	received_transaction = facade.transaction_factory.deserialize(
 		bytes.fromhex(json.loads(shared_payload)['payload']))
 
 	print('[Account B] Cosigning...')
 	cosignature_b = facade.cosign_transaction(
 		account_b_key_pair, received_transaction)
-	print(f'[Account B] Cosignature created: {cosignature_b}')
+	cosignature_formatted = json.dumps(cosignature_b.to_json(), indent=2)
+	print(f'[Account B] Cosignature created: {cosignature_formatted}')
 
 	# --- OFF-CHAIN COORDINATION ---
 	# Account B sends the cosignature back to Account A
 	shared_cosignature = cosignature_b
-	print('[Sharing] Cosignature sent back to Account A...')
+	print('[Account B] <== Cosignature sent back to Account A (offchain)')
 
 	# --- ACCOUNT A (Initiator) ---
-	print('[Account A] Received cosignature')
 	# Add cosignature to the transaction and rebuild payload
 	transaction.cosignatures.append(shared_cosignature)
 	transaction_payload = facade.transaction_factory.attach_signature(
