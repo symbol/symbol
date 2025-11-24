@@ -3,7 +3,7 @@ import os
 import time
 import urllib.request
 
-from symbolchain.CryptoTypes import PrivateKey
+from symbolchain.CryptoTypes import Hash256, PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
@@ -12,14 +12,65 @@ from symbolchain.symbol.Network import NetworkTimestamp
 NODE_URL = 'https://001-sai-dual.symboltest.net:3001'
 print(f'Using node {NODE_URL}')
 
-# Account A (initiates the aggregate and sends XYM)
+# Helper function to announce transaction
+def announce_transaction(payload, endpoint, label):
+	print(f'Announcing {label} to {endpoint}')
+	request = urllib.request.Request(
+		f'{NODE_URL}{endpoint}',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(request) as response:
+		print(f'  Response: {response.read().decode()}')
+
+# Helper function to wait for transaction status
+def wait_for_status(hash_value, expected_status, label):
+	print(
+		f'Waiting for {label} to reach {expected_status} status from '
+		f'/transactionStatus/{hash_value}'
+	)
+
+	status_path = f'/transactionStatus/{hash_value}'
+	for attempt in range(60):
+		time.sleep(1)
+		try:
+			with urllib.request.urlopen(
+				f'{NODE_URL}{status_path}'
+			) as response:
+				status = json.loads(response.read().decode())
+				if status['group'] == expected_status:
+					if expected_status == 'confirmed':
+						print(f'  Transaction status: {status["group"]}')
+						print(
+							f'{label} confirmation in ' +
+							f'{attempt + 1} seconds')
+					elif expected_status == 'partial':
+						print(
+							'  Transaction is partial, '
+							'ready for cosignatures'
+						)
+					return attempt + 1
+				if status['group'] == 'failed':
+					print(f'  Transaction status: {status["group"]}')
+					print(f'{label} failed: {status["code"]}')
+					return attempt + 1
+				if expected_status == 'confirmed':
+					print(f'  Transaction status: {status["group"]}')
+		except urllib.error.HTTPError as e:
+			print(f'  Transaction status: unknown | Cause: ({e.msg})')
+	else:
+		print(f'{label} took too long.')
+	return 60
+
+# Account A (initiates the aggregate tx and sends XYM to Account B)
 ACCOUNT_A_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 account_a_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(ACCOUNT_A_PRIVATE_KEY))
 
-# Account B (sends custom mosaic back to Account A)
+# Account B (sends custom mosaic to Account A)
 ACCOUNT_B_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_B_PRIVATE_KEY',
 	'1111111111111111111111111111111111111111111111111111111111111111')
@@ -55,7 +106,7 @@ try:
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
 
-	# Account A sends 10 XYM to Account B
+	# Embedded tx 1: Account A transfers 10 XYM to Account B
 	embedded_transaction_1 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': account_a_key_pair.public_key,
@@ -66,7 +117,7 @@ try:
 		}]
 	})
 
-	# Account B sends 1 custom mosaic to Account A
+	# Embedded tx 2: Account B transfers 1 custom mosaic to Account A
 	custom_mosaic_id = 0x6D1314BE751B62C2
 	embedded_transaction_2 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
@@ -78,7 +129,7 @@ try:
 		}]
 	})
 
-	# Build the aggregate bonded transaction
+	# Build the bonded aggregate transaction
 	embedded_transactions = [
 		embedded_transaction_1, embedded_transaction_2]
 	bonded_transaction = facade.transaction_factory.create({
@@ -89,20 +140,22 @@ try:
 			embedded_transactions),
 		'transactions': embedded_transactions
 	})
-	# Reserve space for one cosignature (104 bytes each)
+	# Reserve space for one cosignature (104 bytes)
 	# and calculate fee for the final transaction size
 	bonded_transaction.fee = Amount(
 		fee_mult * (bonded_transaction.size + 104))
-	print('Built aggregate bonded transaction:')
+	print('Built aggregate without signatures:')
 	print(json.dumps(bonded_transaction.to_json(), indent=2))
 
-	# Sign the bonded transaction
+	# --- ACCOUNT A (Initiator) ---
+	# Sign the bonded aggregate transaction
+	print('[Account A] Signing the bonded aggregate...')
 	bonded_signature = facade.sign_transaction(
 		account_a_key_pair, bonded_transaction)
 	bonded_json_payload = facade.transaction_factory.attach_signature(
 		bonded_transaction, bonded_signature)
 	bonded_hash = facade.hash_transaction(bonded_transaction)
-	print(f'Bonded transaction hash: {bonded_hash}')
+	print(f'Bonded aggregate transaction hash: {bonded_hash}')
 
 	# Create hash lock transaction
 	print('Creating hash lock transaction...')
@@ -120,6 +173,7 @@ try:
 	hash_lock.fee = Amount(fee_mult * hash_lock.size)
 
 	# Sign and announce hash lock
+	print('[Account A] Signing the hash lock...')
 	hash_lock_signature = facade.sign_transaction(
 		account_a_key_pair, hash_lock)
 	hash_lock_payload = facade.transaction_factory.attach_signature(
@@ -127,69 +181,64 @@ try:
 	hash_lock_hash = facade.hash_transaction(hash_lock)
 	print(f'Hash lock transaction hash: {hash_lock_hash}')
 
-	announce_path = '/transactions'
-	print(f'Announcing hash lock to {announce_path}')
-	announce_request = urllib.request.Request(
-		f'{NODE_URL}{announce_path}',
-		data=hash_lock_payload.encode(),
-		headers={'Content-Type': 'application/json'},
-		method='PUT'
+	# Announce hash lock and wait for confirmation
+	announce_transaction(hash_lock_payload, '/transactions', 'Hash lock')
+	wait_for_status(hash_lock_hash, 'confirmed', 'Hash lock')
+
+	# Announce bonded aggregate and wait for partial status
+	announce_transaction(
+		bonded_json_payload, '/transactions/partial',
+		'Bonded aggregate transaction'
 	)
-	with urllib.request.urlopen(announce_request) as response:
-		print(f'  Response: {response.read().decode()}')
-
-	# Wait for hash lock confirmation
-	print(f'Waiting for hash lock confirmation...')
-	status_path = f'/transactionStatus/{hash_lock_hash}'
-	for attempt in range(60):
-		time.sleep(1)
-		try:
-			with urllib.request.urlopen(
-				f'{NODE_URL}{status_path}'
-			) as response:
-				status = json.loads(response.read().decode())
-				if status['group'] == 'confirmed':
-					print(f'  Hash lock confirmed')
-					break
-		except urllib.error.HTTPError as e:
-			print(f'  Hash lock status: unknown | Cause: ({e.msg})')
-
-	# Announce bonded transaction
-	partial_path = '/transactions/partial'
-	print(f'Announcing bonded transaction to {partial_path}')
-	partial_request = urllib.request.Request(
-		f'{NODE_URL}{partial_path}',
-		data=bonded_json_payload.encode(),
-		headers={'Content-Type': 'application/json'},
-		method='PUT'
+	wait_for_status(
+		bonded_hash, 'partial',
+		'Bonded aggregate transaction'
 	)
-	with urllib.request.urlopen(partial_request) as response:
-		print(f'  Response: {response.read().decode()}')
 
-	# Wait for transaction to reach partial status
-	print('Waiting for bonded transaction to reach partial status...')
-	status_path = f'/transactionStatus/{bonded_hash}'
-	for attempt in range(60):
-		time.sleep(1)
-		try:
-			with urllib.request.urlopen(
-				f'{NODE_URL}{status_path}'
-			) as response:
-				status = json.loads(response.read().decode())
-				if status['group'] == 'partial':
-					print(
-						'  Transaction is partial, '
-						'ready for cosignatures'
-					)
-					break
-		except urllib.error.HTTPError as e:
-			print(f'  Transaction status: unknown | Cause: ({e.msg})')
+	# --- ACCOUNT B (Cosigner) ---
+	# Retrieves partial transactions waiting for signature
+	partial_path = f'/transactions/partial?address={account_b_address}'
+	print(
+		'[Account B] Checking for partial transactions from '
+		'/transactions/partial'
+	)
+	with urllib.request.urlopen(f'{NODE_URL}{partial_path}') as response:
+		partial_txs = json.loads(response.read().decode())
+		if not partial_txs['data']:
+			raise Exception('No partial transactions found')
 
-	# Submit Account B's cosignature
-	print('Submitting Account B\'s cosignature...')
+	print(f'Found {len(partial_txs["data"])} partial transaction(s)')
+
+	# Find the transaction matching our expected hash
+	partial_tx_hash = None
+	for tx in partial_txs['data']:
+		if tx['meta']['hash'] == str(bonded_hash):
+			partial_tx_hash = tx['meta']['hash']
+			print(f'Found matching transaction: {partial_tx_hash}')
+			break
+
+	if not partial_tx_hash:
+		raise Exception(
+			f'Expected transaction {bonded_hash} not found in '
+			f'partial transactions')
+
+	# Fetch full transaction details using the hash
+	detail_path = f'/transactions/partial/{partial_tx_hash}'
+	with urllib.request.urlopen(f'{NODE_URL}{detail_path}') as response:
+		partial_tx_json = json.loads(response.read().decode())
+
+	# Verify transaction content before cosigning
+	tx_data = partial_tx_json['transaction']
+	print(
+		f'[Account B] Verifying transaction: '
+		f'{len(tx_data["transactions"])} embedded transactions'
+	)
+
+	# Submit Account B's cosignature using the transaction hash
 	cosignature_path = '/transactions/cosignature'
-	cosignature = facade.cosign_transaction(
-		account_b_key_pair, bonded_transaction, True)
+	print('[Account B] Cosigning the bonded aggregate...')
+	cosignature = facade.cosign_transaction_hash(
+		account_b_key_pair, Hash256(partial_tx_hash), True)
 	cosignature_payload = json.dumps({
 		'version': str(cosignature.version),
 		'signerPublicKey': str(cosignature.signer_public_key),
@@ -197,35 +246,16 @@ try:
 		'parentHash': str(cosignature.parent_hash)
 	})
 
-	cosig_request = urllib.request.Request(
-		f'{NODE_URL}{cosignature_path}',
-		data=cosignature_payload.encode(),
-		headers={'Content-Type': 'application/json'},
-		method='PUT'
+	# Announce cosignature
+	announce_transaction(
+		cosignature_payload, cosignature_path, 'cosignature'
 	)
-	with urllib.request.urlopen(cosig_request) as response:
-		print(f'  Cosignature from Account B: {response.read().decode()}')
 
 	# Wait for final confirmation
-	print(f'Waiting for bonded transaction confirmation...')
-	for attempt in range(60):
-		time.sleep(1)
-		try:
-			with urllib.request.urlopen(
-				f'{NODE_URL}{status_path}'
-			) as response:
-				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status["group"]}')
-				if status['group'] == 'confirmed':
-					print(f'Transaction confirmed in {attempt} seconds')
-					break
-				if status['group'] == 'failed':
-					print(f'Transaction failed: {status["code"]}')
-					break
-		except urllib.error.HTTPError as e:
-			print(f'  Transaction status: unknown | Cause: ({e.msg})')
-	else:
-		print('Confirmation took too long.')
+	wait_for_status(
+		Hash256(partial_tx_hash), 'confirmed',
+		'Bonded aggregate transaction'
+	)
 
 except Exception as e:
 	print(e)
