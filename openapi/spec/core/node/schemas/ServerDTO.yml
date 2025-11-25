@@ -8,9 +8,5 @@ properties:
     type: string
     example: 1.0.14
     description: catapult-rest component version.
-  sdkVersion:
-    type: string
-    example: 0.7.14
-    description: catapult-sdk component version.
   deployment:
     $ref: "./DeploymentDTO.yml"

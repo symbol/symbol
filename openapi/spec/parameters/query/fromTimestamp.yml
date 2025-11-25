@@ -1,0 +1,6 @@
+name: fromTimestamp
+in: query
+description: |
+  Only blocks with timestamp greater or equal than this one are returned.
+schema:
+  $ref: "../../schemas/Timestamp.yml"

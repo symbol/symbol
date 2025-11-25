@@ -1,0 +1,46 @@
+type: object
+properties:
+  totalVotingBalanceCalculationFix:
+    type: string
+    description: |
+      The block height from which Symbol correctly calculates the total voting balance for finalization by including only the stake of accounts with 
+      active voting keys registered for the current finalization epoch. 
+      More: https://hackmd.io/@syndicate/postmortem-140921.
+    example: 528'000
+  treasuryReissuance:
+    type: string
+    description: | 
+      The block height of the Cyprus hard fork that implemented treasury reissuance according to the governance decision. 
+      More: https://hackmd.io/@syndicate/governance.
+    example: 689'761
+  strictAggregateTransactionHash:
+    type: string
+    description: |
+      The block height from which nodes enforce strict validation of aggregate transaction hashes. 
+      Hashes must be computed from unpadded embedded transactions using the correct Merkle tree algorithm; legacy/buggy hash formats are rejected.
+      More: https://hackmd.io/@syndicate/postmortem-251022.
+    example: 1'690'500
+  skipSecretLockUniquenessChecks:
+    type: string
+    description: |
+      Comma-separated list of block heights at which secret-lock uniqueness checks must be skipped during synchronization to reproduce historical (incorrect) chain behavior.
+      More: https://thesymbolsyndicate.notion.site/april-2024-secret-locks-e3afb825d2ac4a029f88f74dfe6f02d8?pvs=74.
+    example: 3'191'538
+  skipSecretLockExpirations:
+    type: string
+    description: |
+      Comma-separated list of block heights at which secret-lock expiration processing must be skipped during synchronization to reproduce historical (incorrect) chain behavior.
+      More: https://thesymbolsyndicate.notion.site/april-2024-secret-locks-e3afb825d2ac4a029f88f74dfe6f02d8?pvs=74.
+    example: 3'197'860, 3'197'866
+  forceSecretLockExpirations:
+    type: string
+    description: |
+      Comma-separated list of block heights at which secret-lock expiration processing must be forcibly executed during synchronization to reproduce historical (incorrect) chain behavior.
+      More: https://thesymbolsyndicate.notion.site/april-2024-secret-locks-e3afb825d2ac4a029f88f74dfe6f02d8?pvs=74.
+    example: 3'197'458, 3'197'781
+  uniqueAggregateTransactionHash:
+    type: string
+    description: |
+      The block height from which Aggregate V3 transactions become mandatory and payloadSize is included in the aggregate transaction hash calculation, ensuring unique transaction hashes.
+      More: https://thesymbolsyndicate.notion.site/post-mortem-october-25.
+    example: 4'759'100

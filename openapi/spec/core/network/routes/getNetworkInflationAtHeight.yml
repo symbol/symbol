@@ -1,0 +1,17 @@
+tags:
+  - Network routes
+summary: Returns the inflation distribution data at specific height
+description: |
+  Retrieves network inflation parameters at a given block height.
+operationId: getNetworkInflationAtHeight
+parameters:
+  - $ref: "../../../parameters/path/height.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NetworkInflationDTO.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

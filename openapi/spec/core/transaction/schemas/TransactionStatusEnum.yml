@@ -19,7 +19,6 @@ enum:
   - Failure_Core_Address_Collision
   - Failure_Core_Importance_Block_Mismatch
   - Failure_Core_Unexpected_Block_Type
-  - Failure_Core_Block_Explicit_Transactions_Hash_Mismatch
   - Failure_Core_Invalid_Link_Action
   - Failure_Core_Link_Already_Exists
   - Failure_Core_Inconsistent_Unlink_Data
@@ -41,6 +40,9 @@ enum:
   - Failure_Aggregate_Ineligible_Cosignatories
   - Failure_Aggregate_Missing_Cosignatures
   - Failure_Aggregate_Transactions_Hash_Mismatch
+  - Failure_Aggregate_V1_Prohibited
+  - Failure_Aggregate_V2_Prohibited
+  - Failure_Aggregate_V3_Prohibited
   - Failure_LockHash_Invalid_Mosaic_Id
   - Failure_LockHash_Invalid_Mosaic_Amount
   - Failure_LockHash_Hash_Already_Exists
@@ -149,7 +151,6 @@ enum:
   - Failure_Consumer_Empty_Input
   - Failure_Consumer_Block_Transactions_Hash_Mismatch
   - Neutral_Consumer_Hash_In_Recency_Cache
-  - Failure_Consumer_Remote_Chain_Too_Many_Blocks
   - Failure_Consumer_Remote_Chain_Improper_Link
   - Failure_Consumer_Remote_Chain_Duplicate_Transactions
   - Failure_Consumer_Remote_Chain_Unlinked
@@ -183,7 +184,6 @@ description: |
   * Failure_Core_Address_Collision - Validation failed because an address collision is detected.
   * Failure_Core_Importance_Block_Mismatch - Validation failed because the block does not match the schema of an importance block.
   * Failure_Core_Unexpected_Block_Type - Validation failed because the block type is unexpected.
-  * Failure_Core_Block_Explicit_Transactions_Hash_Mismatch - Validation failed because a block did not have the expected transactions hash at a specified height.
   * Failure_Core_Invalid_Link_Action - Validation failed because link action is invalid.
   * Failure_Core_Link_Already_Exists - Validation failed because main account is already linked to another account.
   * Failure_Core_Inconsistent_Unlink_Data - Validation failed because unlink data is not consistent with existing account link.
@@ -205,6 +205,9 @@ description: |
   * Failure_Aggregate_Ineligible_Cosignatories - Validation failed because at least one cosignatory is ineligible.
   * Failure_Aggregate_Missing_Cosignatures - Validation failed because at least one required cosignature is missing.
   * Failure_Aggregate_Transactions_Hash_Mismatch - Validation failed because the aggregate transactions hash does not match the calculated value.
+  * Failure_Aggregate_V1_Prohibited - Validation failed because aggregate transaction with version 1 is not allowed.
+  * Failure_Aggregate_V2_Prohibited - Validation failed because aggregate transaction with version 2 is not allowed.
+  * Failure_Aggregate_V3_Prohibited - Validation failed because aggregate transaction with version 3 is not allowed.
   * Failure_LockHash_Invalid_Mosaic_Id - Validation failed because lock does not allow the specified mosaic.
   * Failure_LockHash_Invalid_Mosaic_Amount - Validation failed because lock does not allow the specified amount.
   * Failure_LockHash_Hash_Already_Exists - Validation failed because hash is already present in cache.
@@ -313,7 +316,6 @@ description: |
   * Failure_Consumer_Empty_Input - Validation failed because the consumer input is empty.
   * Failure_Consumer_Block_Transactions_Hash_Mismatch - Validation failed because the block transactions hash does not match the calculated value.
   * Neutral_Consumer_Hash_In_Recency_Cache - Validation failed because an entity hash is present in the recency cache.
-  * Failure_Consumer_Remote_Chain_Too_Many_Blocks - Validation failed because the chain part has too many blocks.
   * Failure_Consumer_Remote_Chain_Improper_Link - Validation failed because the chain is internally improperly linked.
   * Failure_Consumer_Remote_Chain_Duplicate_Transactions - Validation failed because the chain part contains duplicate transactions.
   * Failure_Consumer_Remote_Chain_Unlinked - Validation failed because the chain part does not link to the current chain.
