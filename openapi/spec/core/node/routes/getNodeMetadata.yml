@@ -1,0 +1,12 @@
+tags:
+  - Node routes
+summary: Retrieve node metadata
+description: Gets the node metadata information that has been set by node operator.
+operationId: getNodeMetadata
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NodeMetadataDTO.yml"
