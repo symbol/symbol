@@ -84,7 +84,7 @@ transactions are announced and confirmed.
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.
 
-## Account A: Initiator workflow
+## Account A: Initiator Workflow
 
 ### Setting Up Accounts
 
@@ -219,7 +219,7 @@ The <node:> validates the transaction, checks that a valid hash lock exists, and
 The `wait_for_status` helper monitors the transaction until it reaches this state, at which point it can collect
 cosignatures.
 
-## Account B: Cosigner workflow
+## Account B: Cosigner Workflow
 
 ### Recovering the Transaction
 
