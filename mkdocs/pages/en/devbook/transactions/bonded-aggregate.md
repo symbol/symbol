@@ -38,35 +38,42 @@ digraph {
 
 !!! note "Two types of aggregate transactions"
 
-    <Aggregate transactions:> group multiple <transactions:> in single operation, and require <signatures:> from all
+    <Aggregate transactions:> group multiple <transactions:> in a single operation, and require <signatures:> from all
     involved accounts.
 
     A _bonded aggregate transaction_ collects signatures on-chain after being announced.
-    This works well when off-chain coordination is impractical:
+    This works well when off-chain coordination is impractical. For example:
 
     * **No shared infrastructure:** Parties cannot coordinate through a common system, so the blockchain serves
       as the common interface.
     * **Asynchronous workflows:** Cosigners are not available at the same time or cannot coordinate in real-time.
 
     To prevent spam, bonded aggregates require a *hash lock* (a deposit of 10 XYM).
-    The network returns this deposit when all cosignatures arrive and the transaction reaches confirmation.
+    The network returns this deposit when all <cosignatures:> arrive and the transaction reaches confirmation.
 
     If parties can communicate off-chain to exchange signatures, <complete aggregate transactions:> don't require this
     deposit.
 
 ## Prerequisites
 
-Before you start, make sure to:
+Before you start, make sure to set up your development environment.
+See [Setting Up a Development Environment](../start/setup.md).
 
-* Set up your development environment.
-  See [Setting Up a Development Environment](../start/setup.md).
-* Create an <account:> (Account A) to initiate the aggregate transaction, either
+You also need two <accounts:> with <XYM:> and one custom <mosaic:> to complete the swap.
+Although pre-funded accounts are provided for convenience, they are not maintained and may run out of funds.
+
+To use your own accounts, complete the following steps:
+
+* Create an account (Account A) to initiate the aggregate transaction, either
   [from code](../accounts/create-from-private-key.md) or
   [by using a wallet](../../userbook/wallet/create-account.md).
 * Create a second account (Account B) to participate in the swap.
-* Obtain <XYM:> for Account A to pay for the transaction fee, transfer amounts, and the hash lock deposit.
+* Obtain XYM for Account A to pay for the transaction fee, transfer amounts, and the hash lock deposit.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
-* Create a <mosaic:> owned by Account B for the swap.
+* Create a mosaic owned by Account B for the swap.
+
+Additionally, review the [Transfer transaction](./transfer.md) tutorial to understand how
+transactions are announced and confirmed.
 
 ## Full Code
 
@@ -77,11 +84,11 @@ Before you start, make sure to:
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.
 
-## Code Explanation
+## Account A: Initiator workflow
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:66:86', 'js:71:89']) }}
+{{ tutorial.code_snippet(['py:62:82', 'js:76:94']) }}
 
 This example includes both private keys in one script to demonstrate the complete workflow, but in practice
 each party would sign on their own machine without sharing private keys.
@@ -95,7 +102,7 @@ configuration.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:89:107', 'js:92:110']) }}
+{{ tutorial.code_snippet(['py:85:103', 'js:97:115']) }}
 
 To prepare an aggregate, first retrieve the current network time from <get:/node/time> and the recommended fee
 multiplier from <get:/network/fees/transaction>, following the same steps described in the
@@ -103,7 +110,7 @@ multiplier from <get:/network/fees/transaction>, following the same steps descri
 
 ### Creating Embedded Transactions
 
-{{ tutorial.code_snippet(['py:109:130', 'js:112:135']) }}
+{{ tutorial.code_snippet(['py:105:126', 'js:117:140']) }}
 
 The <embedded transactions:> define the operations to execute atomically.
 Each embedded transaction specifies:
@@ -134,7 +141,7 @@ The example creates two <transfer transactions:> for the swap:
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:132:148', 'js:137:154']) }}
+{{ tutorial.code_snippet(['py:128:144', 'js:142:159']) }}
 
 Once the embedded transactions are prepared, create the bonded aggregate transaction that wraps them:
 
@@ -164,11 +171,11 @@ Once the embedded transactions are prepared, create the bonded aggregate transac
 * **Transactions:** The array of embedded transactions to execute.
 
 The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus
-space reserved for one <cosignature:> (104 bytes).
+space reserved for one cosignature (104 bytes).
 
 ### Signing the Bonded Transaction
 
-{{ tutorial.code_snippet(['py:150:158', 'js:156:165']) }}
+{{ tutorial.code_snippet(['py:146:154', 'js:161:170']) }}
 
 Account A signs the bonded transaction, producing the main signature and finalizing the transaction hash.
 
@@ -176,11 +183,11 @@ This hash is required for the next step: creating a hash lock transaction.
 
 ### Creating the Hash Lock
 
-{{ tutorial.code_snippet(['py:160:186', 'js:167:196']) }}
+{{ tutorial.code_snippet(['py:156:182', 'js:172:201']) }}
 
 Before announcing a bonded aggregate, a hash lock transaction must be created and confirmed.
 The hash lock serves as a deposit to prevent spam and ensure network resources are not exhausted by unfinished
-<partial transactions:>.
+<bonded aggregate transaction:|partial transactions>.
 
 The hash lock transaction specifies:
 
@@ -203,7 +210,7 @@ Then, the `wait_for_status` helper function polls the transaction status until c
 
 ### Announcing the Bonded Transaction
 
-{{ tutorial.code_snippet(['py:188:196', 'js:198:204']) }}
+{{ tutorial.code_snippet(['py:184:192', 'js:203:210']) }}
 
 Once the hash lock is confirmed, the bonded aggregate is announced to <put:/transactions/partial> using the
 `announce_transaction` helper.
@@ -212,33 +219,57 @@ The <node:> validates the transaction, checks that a valid hash lock exists, and
 The `wait_for_status` helper monitors the transaction until it reaches this state, at which point it can collect
 cosignatures.
 
-### Submitting Cosignatures
+## Account B: Cosigner workflow
 
-{{ tutorial.code_snippet(['py:198:252', 'js:206:267']) }}
+### Recovering the Transaction
 
-Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable true on-chain
+{{ tutorial.code_snippet(['py:194:219', 'js:212:243']) }}
+
+Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable on-chain
 coordination.
-Account B discovers and retrieves the partial transaction directly from the blockchain.
 
-First, Account B polls <get:/transactions/partial> with the `address` parameter to find transactions waiting for their
+First, Account B polls <get:/transactions/partial> with the `address` parameter to find transactions waiting for its
 signature.
 This returns a list of partial transactions involving Account B.
+
+This example looks for a specific transaction hash because both accounts run in the same script.
+In practice, Account B would discover pending transactions by polling and decide which ones to cosign based on
+their content.
+
+### Verifying the Transaction
+
+{{ tutorial.code_snippet(['py:221:231', 'js:245:256']) }}
 
 Once a transaction is found, Account B uses its hash to fetch the full details (including embedded transactions) from
 <get:/transactions/partial/{transactionId}>.
 
-After verifying the transaction content, Account B cosigns it using <dy:SymbolFacade.cosignTransactionHash> with the
-transaction hash and the `detached` parameter set to `true` (Python) or passed as the third argument (JavaScript).
+Before cosigning, Account B should verify that the embedded transactions match the expected operations.
+This example simply logs the number of embedded transactions, but it could also check amounts,
+recipients, and mosaics to ensure the swap terms are correct.
 
 !!! warning "Verify before cosigning"
 
     Always inspect transaction content before cosigning.
     Cosignatures are binding and cannot be undone.
 
-The resulting detached cosignature includes a `parent_hash` field identifying the bonded transaction, along
-with Account B's signature.
+### Cosigning the Transaction
 
-The cosignature is submitted using the `announce_transaction` helper function to <put:/transactions/cosignature>.
+{{ tutorial.code_snippet(['py:233:248', 'js:257:273']) }}
+
+Account B cosigns the transaction using <dy:SymbolFacade.cosignTransactionHash> with the transaction hash and the
+`detached` parameter set to `true`.
+
+A detached cosignature is a standalone object that can be submitted independently to the network.
+This is required for bonded aggregates because the cosigner submits directly to the node.
+
+The resulting detached cosignature payload includes:
+
+* **Version:** The cosignature format version.
+* **Signer pubic key:** Account B's public key, identifying who cosigned.
+* **Signature:** The cryptographic signature computed from the transaction hash and Account B's private key.
+* **Parent hash:** The hash of the bonded transaction being cosigned.
+
+The cosignature payload is submitted using the `announce_transaction` helper function to <put:/transactions/cosignature>.
 The network validates the cosignature and attaches it to the partial transaction.
 
 Once enough cosignatures are collected to satisfy all embedded transactions,
@@ -246,10 +277,9 @@ the network automatically processes the bonded aggregate and includes it in a bl
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:254:258', 'js:269:272']) }}
+{{ tutorial.code_snippet(['py:250:254', 'js:275:279']) }}
 
-After the cosignature is submitted, the `wait_for_status` helper function polls
-<get:/transactionStatus/{hash}> until the transaction is confirmed or fails.
+The `wait_for_status` helper function polls <get:/transactionStatus/{hash}> until the transaction is confirmed or fails.
 
 If all required cosignatures are collected before the deadline, the transaction confirms, both transfers execute,
 and the hash lock deposit is returned to Account A.
@@ -260,26 +290,25 @@ If the deadline expires or any cosignature is invalid, the transaction fails and
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="14 18 48 51 55 63 66 68 70 72"
+```text linenums="1" hl_lines="14 18 48 51 54 63 67 71 73"
 --8<-- 'devbook/transactions/bonded-aggregate.log'
 ```
 
 Key points in the output:
 
-* `"type": 16961`: Indicates this is an `aggregate_bonded_transaction_v3`.
-* `"transactions"`: Contains the two embedded transfers that will execute atomically.
-* `"cosignatures": []`: Initially empty. Cosignatures are submitted on-chain after announcement.
-* `Bonded transaction hash`: The hash of the bonded aggregate, required for creating the hash lock and
+* **Line 14** (`"type": 16961`): Indicates this is an `aggregate_bonded_transaction_v3`.
+* **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
+* **Line 48** (`"cosignatures": []`): Initially empty. Cosignatures are submitted on-chain after announcement.
+* **Line 51** (`Bonded aggregate transaction hash:`): The hash of the bonded aggregate, required for creating the hash lock and
   announcing the transaction.
-* `Announcing Hash lock to /transactions`: A hash lock must be announced and confirmed before the bonded aggregate.
-* `Announcing Bonded aggregate transaction to /transactions/partial`: Bonded aggregates use a different endpoint than
+* **Line 54** (`Announcing Hash lock to /transactions`): A hash lock must be announced and confirmed before the bonded aggregate.
+* **Line 63** (`Announcing Bonded aggregate transaction to /transactions/partial`): Bonded aggregates use a different endpoint than
   regular transactions.
-* `Transaction is partial, ready for cosignatures`: The bonded aggregate is now waiting for cosignatures to be
+* **Line 67** (`Bonded aggregate transaction partial in 1 seconds`): The bonded aggregate is now waiting for cosignatures to be
   submitted on-chain.
-* `Found 1 partial transaction(s)`: Account B discovers partial transactions waiting for signature.
-* `Verifying transaction: 2 embedded transactions`: Account B inspects the transaction content before cosigning to
+* **Line 71** (`[Account B] Verifying transaction: 2 embedded transactions`): Account B inspects the transaction content before cosigning to
   ensure they agree with all operations.
-* `Announcing cosignature to /transactions/cosignature`: The cosignature is submitted to the network.
+* **Line 73** (`Announcing cosignature to /transactions/cosignature`): The cosignature is submitted to the network.
 
 The aggregate transaction is treated as a single atomic unit by the network.
 The swap executes completely: Account A receives the custom mosaic and Account B receives the XYM,
@@ -289,11 +318,14 @@ or the entire transaction fails and no assets are transferred.
 
 This tutorial showed how to:
 
-| Step                                                                   | Related documentation                                                               |
-| -----------------------------------------------------------------------| ------------------------------------------------------------------------------------|
-| [Create embedded transactions](#creating-embedded-transactions)        | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [Build the aggregate](#building-the-aggregate-transaction)             | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [Create hash lock](#creating-the-hash-lock)                            | <dy:SymbolFacade.signTransaction><br/><put:/transactions>                           |
-| [Announce bonded transaction](#announcing-the-bonded-transaction)      | <put:/transactions/partial>                                                         |
-| [Retrieve partial transactions](#submitting-cosignatures)              | <get:/transactions/partial><br/><get:/transactions/partial/{transactionId}>         |
-| [Submit cosignatures](#submitting-cosignatures)                        | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature>         |
+| Step                                                                        | Related documentation                                                               |
+| ----------------------------------------------------------------------------| ------------------------------------------------------------------------------------|
+| [Create embedded transactions](#creating-embedded-transactions)             | <dy:SymbolTransactionFactory.createEmbedded>                                        |
+| [Build the aggregate](#building-the-aggregate-transaction)                  | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [Sign the bonded transaction](#signing-the-bonded-transaction)              | <dy:SymbolFacade.signTransaction>                                                   |
+| [Create hash lock](#creating-the-hash-lock)                                 | <dy:SymbolTransactionFactory.create><br/><put:/transactions>                        |
+| [Announce bonded transaction](#announcing-the-bonded-transaction)           | <put:/transactions/partial>                                                         |
+| [Recover the transaction](#recovering-the-transaction)                      | <get:/transactions/partial>                                                         |
+| [Verify the transaction](#verifying-the-transaction)                        | <get:/transactions/partial/{transactionId}>                                         |
+| [Cosign the transaction](#cosigning-the-transaction)                        | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature>         |
+| [Wait for confirmation](#waiting-for-confirmation)                          | <get:/transactionStatus/{hash}>                                                     |

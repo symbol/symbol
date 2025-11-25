@@ -9,7 +9,8 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = 'https://001-sai-dual.symboltest.net:3001'
+NODE_URL = os.environ.get(
+	'NODE_URL', 'https://001-sai-dual.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 # Helper function to announce transaction
@@ -26,42 +27,37 @@ def announce_transaction(payload, endpoint, label):
 
 # Helper function to wait for transaction status
 def wait_for_status(hash_value, expected_status, label):
-	print(
-		f'Waiting for {label} to reach {expected_status} status from '
-		f'/transactionStatus/{hash_value}'
-	)
+	print(f'Waiting for {label} to reach {expected_status} status...')
+	attempts = 0
+	max_attempts = 60
 
-	status_path = f'/transactionStatus/{hash_value}'
-	for attempt in range(60):
-		time.sleep(1)
+	while attempts < max_attempts:
 		try:
-			with urllib.request.urlopen(
-				f'{NODE_URL}{status_path}'
-			) as response:
+			url = f'{NODE_URL}/transactionStatus/{hash_value}'
+			with urllib.request.urlopen(url) as response:
 				status = json.loads(response.read().decode())
-				if status['group'] == expected_status:
-					if expected_status == 'confirmed':
-						print(f'  Transaction status: {status["group"]}')
-						print(
-							f'{label} confirmation in ' +
-							f'{attempt + 1} seconds')
-					elif expected_status == 'partial':
-						print(
-							'  Transaction is partial, '
-							'ready for cosignatures'
-						)
-					return attempt + 1
+
+				print(f'  Transaction status: {status["group"]}')
+
 				if status['group'] == 'failed':
-					print(f'  Transaction status: {status["group"]}')
-					print(f'{label} failed: {status["code"]}')
-					return attempt + 1
-				if expected_status == 'confirmed':
-					print(f'  Transaction status: {status["group"]}')
+					raise Exception(f'{label} failed: {status["code"]}')
+
+				if status['group'] == expected_status:
+					print(f'{label} {expected_status} ' +
+					f'in {attempts} seconds')
+					return
+
 		except urllib.error.HTTPError as e:
-			print(f'  Transaction status: unknown | Cause: ({e.msg})')
-	else:
-		print(f'{label} took too long.')
-	return 60
+			if e.code != 404:
+				raise
+			# Transaction status not yet available
+
+		attempts += 1
+		time.sleep(1)
+
+	raise Exception(
+		f'{label} not {expected_status} after {max_attempts} attempts'
+	)
 
 # Account A (initiates the aggregate tx and sends XYM to Account B)
 ACCOUNT_A_PRIVATE_KEY = os.getenv(
@@ -172,7 +168,7 @@ try:
 	})
 	hash_lock.fee = Amount(fee_mult * hash_lock.size)
 
-	# Sign and announce hash lock
+	# Sign hash lock
 	print('[Account A] Signing the hash lock...')
 	hash_lock_signature = facade.sign_transaction(
 		account_a_key_pair, hash_lock)

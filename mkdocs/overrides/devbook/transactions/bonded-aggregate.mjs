@@ -6,7 +6,8 @@ import {
 	SymbolFacade
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = 'https://001-sai-dual.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://001-sai-dual.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to announce transaction
@@ -23,49 +24,53 @@ async function announceTransaction(payload, endpoint, label) {
 // Helper function to wait for transaction status
 async function waitForStatus(hash, expectedStatus, label) {
 	console.log(
-		`Waiting for ${label} to reach ${expectedStatus} status from ` +
-		`/transactionStatus/${hash}`
-	);
+		`Waiting for ${label} to reach ${expectedStatus} status...`);
+	let attempts = 0;
+	const maxAttempts = 60;
 
-	const statusPath = `/transactionStatus/${hash}`;
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	while (attempts < maxAttempts) {
 		try {
-			const statusResponse = await fetch(
-				`${NODE_URL}${statusPath}`);
-			if (statusResponse.ok) {
-				const status = await statusResponse.json();
-				if (status.group === expectedStatus) {
-					if (expectedStatus === 'confirmed') {
-					console.log('  Transaction status:', status.group);
-					console.log(
-						`${label} confirmation in ${attempt + 1} ` +
-						`seconds`
-					);
-				} else if (expectedStatus === 'partial') {
-					console.log(
-						'  Transaction is partial, ' +
-						'ready for cosignatures'
-					);
-					}
-					return attempt + 1;
-				}
-				if (status.group === 'failed') {
-					console.log('  Transaction status:', status.group);
-					console.log(`${label} failed:`, status.code);
-					return attempt + 1;
-				}
-				if (expectedStatus === 'confirmed') {
-					console.log('  Transaction status:', status.group);
-				}
+			const url = `${NODE_URL}/transactionStatus/${hash}`;
+			const response = await fetch(url);
+
+			if (!response.ok) {
+				const error = new Error(
+					`HTTP ${response.status}: ${response.statusText}`);
+				error.status = response.status;
+				throw error;
 			}
-		} catch (e) {
-			console.log('  Transaction status: unknown | Cause:',
-				e.message);
+
+			const status = await response.json();
+
+			console.log('  Transaction status:', status.group);
+
+			if (status.group === 'failed') {
+				throw new Error(`${label} failed: ${status.code}`);
+			}
+
+			if (status.group === expectedStatus) {
+				console.log(
+					`${label} ${expectedStatus} ` +
+					`in ${attempts} seconds`
+				);
+				return;
+			}
+
+		} catch (error) {
+			if (error.status === 404) {
+				// Transaction status not yet available
+			} else {
+				throw error;
+			}
 		}
+
+		attempts++;
+		await new Promise(resolve => setTimeout(resolve, 1000));
 	}
-	console.log(`${label} took too long.`);
-	return 60;
+
+	throw new Error(
+		`${label} not ${expectedStatus} after ${maxAttempts} attempts`
+	);
 }
 
 // Account A (initiates the aggregate tx and sends XYM to Account B)
@@ -179,7 +184,7 @@ try {
 	});
 	hashLock.fee = new models.Amount(feeMult * hashLock.size);
 
-	// Sign and announce hash lock
+	// Sign hash lock
 	console.log('[Account A] Signing the hash lock...');
 	const hashLockSignature = facade.signTransaction(
 		accountAKeyPair, hashLock);

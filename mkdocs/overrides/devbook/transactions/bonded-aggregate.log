@@ -2,7 +2,7 @@ Using node https://001-sai-dual.symboltest.net:3001
 Account A: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
 Account B: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
 Fetching current network time from /node/time
-  Network time: 96738973497 ms since nemesis
+  Network time: 96832305406 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Built aggregate without signatures:
@@ -13,7 +13,7 @@ Built aggregate without signatures:
   "network": 152,
   "type": 16961,
   "fee": "46400",
-  "deadline": "96746173497",
+  "deadline": "96839505406",
   "transactions_hash": "C2F8137E86FA6CD2B5A6E0CBBEA5485DCC427C5F1C9AC98F7A35E84CF0A28877",
   "transactions": [
     {
@@ -48,32 +48,33 @@ Built aggregate without signatures:
   "cosignatures": []
 }
 [Account A] Signing the bonded aggregate...
-Bonded aggregate transaction hash: 79D9D4F18AAEA8AB97F05E13353B99C3FF4E2FE1D364A6F52B2E22A48427C423
+Bonded aggregate transaction hash: D0B8BB51550EF8136D355D1F24EE4FF6E58AA669CB097FB4F11649E13EE6E5BF
 Creating hash lock transaction...
 [Account A] Signing the hash lock...
-Hash lock transaction hash: D313D8A058AFE09534A5BB6A60ECABFFFD423DB85829DA073886EFA00BAE19CC
+Hash lock transaction hash: B7CE01EBF16DA44C7EB1565D4619F08409B9FEB0CACDA298D4F09C0A0C99D343
 Announcing Hash lock to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for Hash lock to reach confirmed status from /transactionStatus/D313D8A058AFE09534A5BB6A60ECABFFFD423DB85829DA073886EFA00BAE19CC
+Waiting for Hash lock to reach confirmed status...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: confirmed
-Hash lock confirmation in 22 seconds
+Hash lock confirmed in 16 seconds
 Announcing Bonded aggregate transaction to /transactions/partial
   Response: {"message":"packet 256 was pushed to the network via /transactions/partial"}
-Waiting for Bonded aggregate transaction to reach partial status from /transactionStatus/79D9D4F18AAEA8AB97F05E13353B99C3FF4E2FE1D364A6F52B2E22A48427C423
-  Transaction is partial, ready for cosignatures
+Waiting for Bonded aggregate transaction to reach partial status...
+  Transaction status: partial
+Bonded aggregate transaction partial in 1 seconds
 [Account B] Checking for partial transactions from /transactions/partial
 Found 1 partial transaction(s)
-Found matching transaction: 79D9D4F18AAEA8AB97F05E13353B99C3FF4E2FE1D364A6F52B2E22A48427C423
+Found matching transaction: D0B8BB51550EF8136D355D1F24EE4FF6E58AA669CB097FB4F11649E13EE6E5BF
 [Account B] Verifying transaction: 2 embedded transactions
 [Account B] Cosigning the bonded aggregate...
 Announcing cosignature to /transactions/cosignature
   Response: {"message":"packet 257 was pushed to the network via /transactions/cosignature"}
-Waiting for Bonded aggregate transaction to reach confirmed status from /transactionStatus/79D9D4F18AAEA8AB97F05E13353B99C3FF4E2FE1D364A6F52B2E22A48427C423
+Waiting for Bonded aggregate transaction to reach confirmed status...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: confirmed
-Bonded aggregate transaction confirmation in 20 seconds
+Bonded aggregate transaction confirmed in 28 seconds
