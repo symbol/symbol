@@ -1,0 +1,13 @@
+type: object
+required:
+  - startHeight
+  - rewardAmount
+properties:
+  startHeight:
+    $ref: "../../../schemas/Height.yml"
+    description: Block height at which this reward amount becomes active.
+    example: 10
+  rewardAmount:
+    type: string
+    description: Amount of inflationary rewards available from this block height.
+    example: 20500000

@@ -11,6 +11,8 @@ externalDocs:
 servers:
   - url: http://localhost:3000
     description: Local development
+  - url: https://reference.symboltest.net:3001
+    description: Testnet node
 components:
   parameters:
     "$ref": "./parameters/_index.yml"

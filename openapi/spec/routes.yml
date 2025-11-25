@@ -48,10 +48,15 @@
 /network/fees/transaction:
   get:
     $ref: "./core/network/routes/getTransactionFees.yml"
-
 /network/properties:
   get:
     $ref: "./core/network/routes/getNetworkProperties.yml"
+/network/inflation:
+  get:
+    $ref: "./core/network/routes/getNetworkInflation.yml"
+/network/inflation/at/{height}:
+  get:
+    $ref: "./core/network/routes/getNetworkInflationAtHeight.yml"
 
 # Core - Node
 /node/health:
@@ -75,6 +80,9 @@
 /node/unlockedaccount:
   get:
     $ref: "./core/node/routes/getUnlockedAccount.yml"
+/node/metadata:
+  get:
+    $ref: "./core/node/routes/getNodeMetadata.yml"
 
 # Core - Transaction
 /transactions:

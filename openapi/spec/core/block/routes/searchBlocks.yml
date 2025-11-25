@@ -11,6 +11,8 @@ parameters:
   - $ref: "../../../parameters/query/offset.yml"
   - $ref: "../../../parameters/query/order.yml"
   - $ref: "../../../parameters/query/orderByBlock.yml"
+  - $ref: "../../../parameters/query/fromTimestamp.yml"
+  - $ref: "../../../parameters/query/toTimestamp.yml"
 responses:
   "200":
     description: success
