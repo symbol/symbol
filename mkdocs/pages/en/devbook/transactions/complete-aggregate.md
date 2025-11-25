@@ -41,33 +41,37 @@ single atomic transaction.
 
 !!! note "Two types of aggregate transactions"
 
-    <Aggregate transactions:> group multiple <transactions:> in single operation, and require <signatures:> from all
+    <Aggregate transactions:> group multiple <transactions:> in a single operation, and require <signatures:> from all
     involved accounts.
 
     A _complete aggregate transaction_ collects all signatures before being announced.
-    This works well in two scenarios:
+    This procedure works well, for example, in the following scenarios:
 
     * **Multi-party coordination:** When parties can communicate off-chain to exchange transaction payloads and
-      cosignatures.
+      <cosignatures:>.
     * **Single-account batching:** When one account wants to execute multiple transactions atomically.
       No cosignatures are needed in this case.
 
     If off-chain coordination is impractical, use <bonded aggregate transactions:> instead,
-    which allow <cosignatures:> to be added on-chain.
+    which allow cosignatures to be added on-chain.
 
 ## Prerequisites
 
-Before you start, make sure to:
+Before you start, make sure to set up your development environment.
+See [Setting Up a Development Environment](../start/setup.md).
 
-* Set up your development environment.
-  See [Setting Up a Development Environment](../start/setup.md).
-* Create an <account:> (Account A) to initiate the aggregate transaction, either
+You also need two <accounts:> with <XYM:> and one custom <mosaic:> to complete the swap.
+Although pre-funded accounts are provided for convenience, they are not maintained and may run out of funds.
+
+To use your own accounts, complete the following steps:
+
+* Create an account (Account A) to initiate the aggregate transaction, either
   [from code](../accounts/create-from-private-key.md) or
   [by using a wallet](../../userbook/wallet/create-account.md).
 * Create a second account (Account B) to participate in the swap.
-* Obtain <XYM:> for Account A to pay for the transaction fee and transfer amounts.
+* Obtain XYM for Account A to pay for the transaction fee, transfer amounts, and the hash lock deposit.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
-* Create a <mosaic:> owned by Account B for the swap.
+* Create a mosaic owned by Account B for the swap.
 
 Additionally, review the [Transfer transaction](./transfer.md) tutorial to understand how
 transactions are announced and confirmed.
@@ -85,7 +89,7 @@ but applications will probably want to use more fine-grained control.
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:15:36', 'js:12:30']) }}
+{{ tutorial.code_snippet(['py:16:37', 'js:13:31']) }}
 
 This example includes both private keys in one script to demonstrate the complete workflow, but in practice
 each party would sign on their own machine without sharing private keys.
@@ -99,7 +103,7 @@ configuration.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:38:56', 'js:33:51']) }}
+{{ tutorial.code_snippet(['py:39:57', 'js:34:52']) }}
 
 To prepare an aggregate, first retrieve the current network time from <get:/node/time> and the recommended fee
 multiplier from <get:/network/fees/transaction>, following the same steps described in the
@@ -107,7 +111,7 @@ multiplier from <get:/network/fees/transaction>, following the same steps descri
 
 ### Creating Embedded Transactions
 
-{{ tutorial.code_snippet(['py:58:79', 'js:53:76']) }}
+{{ tutorial.code_snippet(['py:59:80', 'js:54:77']) }}
 
 The <embedded transactions:> define the operations to execute atomically.
 Each embedded transaction specifies:
@@ -138,7 +142,7 @@ The example creates two <transfer transactions:> for the swap:
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:81:96', 'js:78:95']) }}
+{{ tutorial.code_snippet(['py:82:97', 'js:79:96']) }}
 
 Once the embedded transactions are prepared, create the complete aggregate transaction that wraps them:
 
@@ -168,11 +172,11 @@ Once the embedded transactions are prepared, create the complete aggregate trans
 * **Transactions:** The array of embedded transactions to execute.
 
 The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus
-space reserved for one <cosignature:> (104 bytes).
+space reserved for one cosignature (104 bytes).
 
 ### Collecting Signatures
 
-{{ tutorial.code_snippet(['py:98:133', 'js:97:138']) }}
+{{ tutorial.code_snippet(['py:99:134', 'js:98:139']) }}
 
 With the aggregate transaction built, both accounts must sign it off-chain before it can be announced.
 
@@ -203,14 +207,12 @@ The snippet above separates the process by machine:
     cosignatures are **not** required. The aggregate can be announced immediately after signing, and the fee
     calculation does not need to reserve space for cosignatures.
 
-    See [Embedded Transactions](../../textbook/transactions.md#embedded-transactions) for more details.
-
 ### Announcing the Transaction
 
 Now that the transaction is ready to be announced, it follows the same process as regular, non-aggregate transactions,
 as shown in the [Transfer Transaction](./transfer.md#announcing-the-transaction) tutorial.
 
-{{ tutorial.code_snippet(['py:135:148', 'js:140:152']) }}
+{{ tutorial.code_snippet(['py:136:149', 'js:141:153']) }}
 
 Once all signatures are collected, the transaction is announced to a <node:> using the
 <put:/transactions> endpoint.
@@ -220,7 +222,7 @@ If validation passes, the transaction is added to the <unconfirmed pool:> and br
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:150:170', 'js:154:178']) }}
+{{ tutorial.code_snippet(['py:151:171', 'js:155:179']) }}
 
 After announcement, the transaction status is monitored using <get:/transactionStatus/{hash}>.
 
@@ -237,15 +239,15 @@ The output shown below corresponds to a typical run of the program.
 
 Key points in the output:
 
-* `"signature": "0000..."`: Shows all zeros initially because the transaction hasn't been signed yet.
-* `"type": 16705`: Indicates this is an `aggregate_complete_transaction_v3`.
-* `"transactions"`: Contains the two embedded transfers that will execute atomically.
-* `"cosignatures": []`: Initially empty. Account B's cosignature is added before announcement.
-  Note how Account A's signature is only needed once, even though it appears as signer in both the aggregate and the 
+* **Line 10** (`"signature": "0000..."`): Shows all zeros initially because the transaction hasn't been signed yet.
+* **Line 14** (`"type": 16705`): Indicates this is an `aggregate_complete_transaction_v3`.
+* **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
+* **Line 48** (`"cosignatures": []`): Initially empty. Account B's cosignature is added before announcement.
+  Note how Account A's signature is only needed once, even though it appears as signer in both the aggregate and the
   first embedded transaction.
-* `"payload": "8010..."`: The transaction payload computed from the aggregate transaction and its embedded transactions.
-* `"signature": "7037..."`: Account B's cosignature for the aggregate transaction.
-* `Waiting for confirmation ...`: The hash shown in the confirmation check can be used to search for the transaction
+* **Line 53** (`"payload": "6801..."`): The transaction payload computed from the aggregate transaction and its embedded transactions.
+* **Line 60** (`"signature": "7037..."`): Account B's cosignature for the aggregate transaction.
+* **Line 66** (`Waiting for confirmation ...`): The hash shown in the confirmation check can be used to search for the transaction
   in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 The aggregate transaction is treated as a single atomic unit by the network.

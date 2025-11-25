@@ -6,7 +6,8 @@ import {
 	SymbolFacade
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = 'https://001-sai-dual.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://001-sai-dual.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Account A (initiates the aggregate tx and sends XYM to Account B)

@@ -9,7 +9,8 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = 'https://001-sai-dual.symboltest.net:3001'
+NODE_URL = os.environ.get(
+	'NODE_URL', 'https://001-sai-dual.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 # Account A (initiates the aggregate tx and sends XYM to Account B)
