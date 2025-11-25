@@ -48,7 +48,7 @@ Aggregate Transaction
 They are initiated by a single account, but might require signatures from other involved accounts.
 
 Cosignature
-:   When a transaction requires multiple signatures, they are called _cosignatures_.
+:   When a transaction requires signatures from multiple accounts, they are called _cosignatures_.
 
 Aggregate transactions provide a great deal of flexibility to Symbol, because they enable coordinated behavior
 between multiple accounts, without requiring trust between them.
