@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.4] - 25-Nov-2025
+
+Milestone: Symbol Mainnet
+
+- fix: Changed documentation URL.
+- fix: Changed redoc standalone library URL.
+- fix: Added missing inflation and metadata endpoints.
+- fix: Added fromTimestamp and toTimestamp params to search blocks endpoint.
+- fix: Added forkHeights, treasuryReissuanceTransactionSignatures and corruptAggregateTransactionHashes properties to network properties endpoint.
+- fix: Updated catapult client status codes.
+
 ## [1.0.3] - 10-Nov-2021
 
 Milestone: Symbol Mainnet
