@@ -121,6 +121,9 @@ KYC
 LATAM
 :   Latin America (Central and South America).
 
+mainnet
+:   Symbol's Main Network, where transactions with real value happen, as opposed to the <testnet:>.
+
 MEV
 :   Miner-Extractable Value, or Maximal-Extractable Value, is the process of reorganizing transactions inside a block
     by miners, to gain *something*. Uses <Frontrunning:>, <Backrunning:>, or <Sandwich:>.
@@ -135,7 +138,7 @@ NFT
 :   A non-fungible <token:>, a way to represent individual entities as a blockchain-based asset.
 
 NIS1
-:   The first version of <NEM:>'s blockchain node that operates the public mainnet with the native currency <XEM:>.
+:   The first version of <NEM:>'s blockchain node that operates the public <mainnet:> with the native currency <XEM:>.
     First launched on March 31, 2015.
 
 PoC
@@ -177,6 +180,11 @@ Sybil Attack
 :   An attack in which a single adversary creates many fake identities or accounts to gain disproportionate influence
     over a network or consensus process.
     Common countermeasures include <PoW:> or <PoS:>, which tie influence to scarce resources.
+
+testnet
+:   Symbol's Test Network, intended for development. Test <XYM:> can be freely obtained from a
+    [faucet](../devbook/accounts/testnet-faucet.md), so transactions on this network do not have real value,
+    as opposed to transactions on the <mainnet:>.
 
 TLC
 :   Tender Loving Care.

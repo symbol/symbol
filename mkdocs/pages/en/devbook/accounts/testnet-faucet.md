@@ -4,14 +4,14 @@ title: Fund via Faucet
 
 # Getting Testnet Funds from the Faucet
 
-The Symbol testnet provides a faucet that distributes free <XYM:> to developer <accounts:> for testing purposes.
+The Symbol <testnet:> provides a faucet that distributes free <XYM:> to developer <accounts:> for testing purposes.
 This guide explains how to claim testnet funds using the web-based faucet.
 
 !!! note
     Testnet XYM has no real-world value.
     It exists only to let you experiment with Symbol features without using real currency.
 
-    If you need mainnet XYM, you will need to buy it through an
+    If you need <mainnet:> XYM, you will need to buy it through an
     [exchange](https://coinmarketcap.com/currencies/symbol/#Markets).
 
 ## Prerequisites

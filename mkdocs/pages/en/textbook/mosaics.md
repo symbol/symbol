@@ -108,7 +108,7 @@ This feature can be used to reclaim tokens or enforce contractual terms.
 Mosaic ID
 :   A 64-bit number that uniquely identifies a mosaic on the network.
 
-For example, **XYM**, the native network currency on Symbol, has the mosaic ID `0x6BED913FA20223F8` on mainnet.
+For example, **XYM**, the native network currency on Symbol, has the mosaic ID `0x6BED913FA20223F8` on <mainnet:>.
 
 To make mosaics easier to reference, especially in user interfaces,
 a human-readable <namespace:> can be linked to the mosaic.
