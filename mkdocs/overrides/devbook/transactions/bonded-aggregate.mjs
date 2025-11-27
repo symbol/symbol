@@ -225,25 +225,20 @@ try {
 
 	console.log(`Found ${partialTxs.data.length} partial transaction(s)`);
 
-	// Find the transaction matching our expected hash
-	let partialTxHash = null;
-	for (const tx of partialTxs.data) {
-		if (tx.meta.hash === bondedHash) {
-			partialTxHash = tx.meta.hash;
-			console.log(`Found matching transaction: ${partialTxHash}`);
-			break;
-		}
-	}
-
-	if (!partialTxHash) {
+	// Find the transaction matching the expected hash
+	const found = partialTxs.data.some(
+		tx => tx.meta.hash === bondedHash
+	);
+	if (!found) {
 		throw new Error(
 			`Expected transaction ${bondedHash} not found in ` +
 			`partial transactions`
 		);
 	}
+	console.log(`Found matching transaction: ${bondedHash}`);
 
 	// Fetch full transaction details using the hash
-	const detailPath = `/transactions/partial/${partialTxHash}`;
+	const detailPath = `/transactions/partial/${bondedHash}`;
 	const detailResponse = await fetch(`${NODE_URL}${detailPath}`);
 	const partialTxJson = await detailResponse.json();
 
@@ -258,7 +253,7 @@ try {
 	const cosignaturePath = '/transactions/cosignature';
 	console.log('[Account B] Cosigning the bonded aggregate...');
 	const cosignature = SymbolFacade.cosignTransactionHash(
-		accountBKeyPair, new Hash256(partialTxHash), true
+		accountBKeyPair, new Hash256(bondedHash), true
 	);
 	const cosignaturePayload = JSON.stringify({
 		version: cosignature.version.toString(),
@@ -274,7 +269,7 @@ try {
 
 	// Wait for final confirmation
 	await waitForStatus(
-		new Hash256(partialTxHash), 'confirmed',
+		new Hash256(bondedHash), 'confirmed',
 		'Bonded aggregate transaction'
 	);
 } catch (e) {

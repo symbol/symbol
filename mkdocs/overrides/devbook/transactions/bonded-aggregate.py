@@ -205,21 +205,19 @@ try:
 
 	print(f'Found {len(partial_txs["data"])} partial transaction(s)')
 
-	# Find the transaction matching our expected hash
-	partial_tx_hash = None
-	for tx in partial_txs['data']:
-		if tx['meta']['hash'] == str(bonded_hash):
-			partial_tx_hash = tx['meta']['hash']
-			print(f'Found matching transaction: {partial_tx_hash}')
-			break
-
-	if not partial_tx_hash:
+	# Find the transaction matching the expected hash
+	found = any(
+		tx['meta']['hash'] == str(bonded_hash)
+		for tx in partial_txs['data']
+	)
+	if not found:
 		raise Exception(
 			f'Expected transaction {bonded_hash} not found in '
 			f'partial transactions')
+	print(f'Found matching transaction: {bonded_hash}')
 
 	# Fetch full transaction details using the hash
-	detail_path = f'/transactions/partial/{partial_tx_hash}'
+	detail_path = f'/transactions/partial/{bonded_hash}'
 	with urllib.request.urlopen(f'{NODE_URL}{detail_path}') as response:
 		partial_tx_json = json.loads(response.read().decode())
 
@@ -234,7 +232,7 @@ try:
 	cosignature_path = '/transactions/cosignature'
 	print('[Account B] Cosigning the bonded aggregate...')
 	cosignature = facade.cosign_transaction_hash(
-		account_b_key_pair, Hash256(partial_tx_hash), True)
+		account_b_key_pair, bonded_hash, True)
 	cosignature_payload = json.dumps({
 		'version': str(cosignature.version),
 		'signerPublicKey': str(cosignature.signer_public_key),
@@ -249,7 +247,7 @@ try:
 
 	# Wait for final confirmation
 	wait_for_status(
-		Hash256(partial_tx_hash), 'confirmed',
+		bonded_hash, 'confirmed',
 		'Bonded aggregate transaction'
 	)
 

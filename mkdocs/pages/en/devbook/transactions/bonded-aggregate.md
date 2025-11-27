@@ -223,7 +223,7 @@ cosignatures.
 
 ### Recovering the Transaction
 
-{{ tutorial.code_snippet(['py:194:219', 'js:212:243']) }}
+{{ tutorial.code_snippet(['py:194:217', 'js:212:238']) }}
 
 Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable on-chain
 coordination.
@@ -238,7 +238,7 @@ their content.
 
 ### Verifying the Transaction
 
-{{ tutorial.code_snippet(['py:221:231', 'js:245:256']) }}
+{{ tutorial.code_snippet(['py:219:229', 'js:240:250']) }}
 
 Once a transaction is found, Account B uses its hash to fetch the full details (including embedded transactions) from
 <get:/transactions/partial/{transactionId}>.
@@ -254,7 +254,7 @@ recipients, and mosaics to ensure the swap terms are correct.
 
 ### Cosigning the Transaction
 
-{{ tutorial.code_snippet(['py:233:248', 'js:257:273']) }}
+{{ tutorial.code_snippet(['py:231:246', 'js:252:268']) }}
 
 Account B cosigns the transaction using <dy:SymbolFacade.cosignTransactionHash> with the transaction hash and the
 `detached` parameter set to `true`.
@@ -265,7 +265,7 @@ This is required for bonded aggregates because the cosigner submits directly to 
 The resulting detached cosignature payload includes:
 
 * **Version:** The cosignature format version.
-* **Signer pubic key:** Account B's public key, identifying who cosigned.
+* **Signer public key:** Account B's public key, identifying who cosigned.
 * **Signature:** The cryptographic signature computed from the transaction hash and Account B's private key.
 * **Parent hash:** The hash of the bonded transaction being cosigned.
 
@@ -277,7 +277,7 @@ the network automatically processes the bonded aggregate and includes it in a bl
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:250:254', 'js:275:279']) }}
+{{ tutorial.code_snippet(['py:248:252', 'js:270:274']) }}
 
 The `wait_for_status` helper function polls <get:/transactionStatus/{hash}> until the transaction is confirmed or fails.
 
