@@ -111,7 +111,7 @@ This layered approach enables Symbol to maintain a consistent protocol across th
 individual nodes to specialize, optimize, or integrate with external systems.
 
 !!! note "Symbol network configuration"
-    The public Symbol network (mainnet) is one particular deployment of Catapult.
+    The public Symbol network (<mainnet:>) is one particular deployment of Catapult.
     Its configuration files, including network parameters and plugin definitions,
     are available in the [symbol/networks](https://github.com/symbol/networks/tree/mainnet/resources) repository.
 
