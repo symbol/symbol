@@ -1221,6 +1221,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/transactions/complete-aggregate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Complete Aggregate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -4530,6 +4551,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV3Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
         
   
@@ -4556,6 +4598,27 @@
   
   <span class="md-ellipsis">
     AggregateCompleteTransactionV2Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV3Descriptor
   </span>
   
 
@@ -5311,6 +5374,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV3
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
         
   
@@ -5337,6 +5421,27 @@
   
   <span class="md-ellipsis">
     AggregateCompleteTransactionV2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV3
   </span>
   
 
@@ -8656,7 +8761,7 @@ requiring only that account's <a class="mkdocs-ezglossary-link"
 </dt>
 <dd>Aggregate transactions group multiple basic transactions and execute them atomically:
 all <a class="mkdocs-ezglossary-link"
-	id="1a69ad48467efc338a0b0f263a775584"
+	id="91fe19348f9604e16a656870b610aa2c"
 	title="When basic transactions are included in an aggregate transaction they are called embedded transactions."
 	name="_:Embedded Transaction"
 	href="../../textbook/transactions/#0010b0d59ce3bbeed299dd79c16ed261">embedded transactions</a> are accepted or none are.</dd>
@@ -8667,7 +8772,7 @@ all <a class="mkdocs-ezglossary-link"
 <dt>
 	<a id="d14dfb1cfc7b4e3ae407fa46774259d2">Cosignature</a> 
 </dt>
-<dd>When a transaction requires multiple signatures, they are called <em>cosignatures</em>.</dd>
+<dd>When a transaction requires signatures from multiple accounts, they are called <em>cosignatures</em>.</dd>
 
 </dl>
 <p>Aggregate transactions provide a great deal of flexibility to Symbol, because they enable coordinated behavior
@@ -8675,7 +8780,7 @@ between multiple accounts, without requiring trust between them.</p>
 <div class="admonition tip">
 <p class="admonition-title">Aggregate Transaction Example</p>
 <p>Accounts A and B want to exchange assets, so two <a class="mkdocs-ezglossary-link"
-	id="9b58d570e39bc1a61f66bdc04692bf0e"
+	id="716a0b3ea5ce8e6d07186199be7dba64"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
 	href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transactions</a> are required.
@@ -8704,8 +8809,8 @@ two different transaction types are considered: complete and bonded.</p>
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
 	href="../../textbook/transactions/#f4cd3e5143da74ac79f397be4a500b5c">aggregate transaction</a> submitted to the network with all required <a class="mkdocs-ezglossary-link"
-	id="761f12af7ecd1516d37cabf103732d83"
-	title="When a transaction requires multiple signatures, they are called cosignatures."
+	id="1f4228581a9ea93e7af0410a26532137"
+	title="When a transaction requires signatures from multiple accounts, they are called cosignatures."
 	name="_:Cosignature"
 	href="../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a> already attached.
 Nodes can therefore proceed to validation and include the transaction in a block immediately.</dd>
@@ -8723,8 +8828,8 @@ Nodes can therefore proceed to validation and include the transaction in a block
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
 	href="../../textbook/transactions/#f4cd3e5143da74ac79f397be4a500b5c">aggregate transaction</a> submitted to the network without all required <a class="mkdocs-ezglossary-link"
-	id="1f4228581a9ea93e7af0410a26532137"
-	title="When a transaction requires multiple signatures, they are called cosignatures."
+	id="286216aa72be56150121e9eb21051719"
+	title="When a transaction requires signatures from multiple accounts, they are called cosignatures."
 	name="_:Cosignature"
 	href="../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a>.
 The network temporarily holds the transaction while waiting for the additional cosignatures.</p>
@@ -8830,7 +8935,7 @@ such as wallets, explorers, and applications to interact with the network."
 <h3 id="3-validation">3. Validation<a class="headerlink" href="#3-validation" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>The node checks that the transaction is well-formed and includes all required, valid signatures.
 For <a class="mkdocs-ezglossary-link"
-	id="4aeb1caaa2c1e79a99812968d6f3397f"
+	id="395393186f0c9ce331e1ff908e42e5b4"
 	title="An aggregate transaction submitted to the network without all required cosignatures.
 The network temporarily holds the transaction while waiting for the additional cosignatures.
 Also called partial transactions."
@@ -8994,7 +9099,7 @@ and validation steps, but differ in purpose and required fields.</p>
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaics</a> and optional messages between two <a class="mkdocs-ezglossary-link"
-	id="344556f7ce2e0cf0a189a68bc5d69aa2"
+	id="059ce9f14104b9c1d7ad8f70ef5dd156"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -9090,7 +9195,7 @@ It plays a similar role to mining in PoW or staking in PoS."
 </tr>
 <tr>
 <td><strong><a class="mkdocs-ezglossary-link"
-	id="d8347943fdb165980d0c1be789a90259"
+	id="b0fc630dae1f654eca017ffd5095fa3f"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -9198,7 +9303,7 @@ However, all nodes must support the same plugin set to maintain consensus across
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2025</span>
   </span>
 
     

@@ -46,7 +46,7 @@ Creates a byte array.
 
 | Property | Modifier | Type | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="bytes"></a> `bytes` | `public` | `Uint8Array` | Underlying bytes. |
+| <a id="bytes"></a> `bytes` | `public` | `Uint8Array`&lt;`ArrayBuffer`&gt; | Underlying bytes. |
 | <a id="name"></a> `NAME` | `static` | `string` | Byte array name (required because `constructor.name` is dropped during minification). |
 
 ## Methods

@@ -14,7 +14,7 @@
         <link rel="prev" href="../messages/">
       
       
-        <link rel="next" href="../../reference/py/__init__/">
+        <link rel="next" href="../complete-aggregate/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
@@ -1390,6 +1390,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../complete-aggregate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Complete Aggregate
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -4704,6 +4725,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV3Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
         
   
@@ -4730,6 +4772,27 @@
   
   <span class="md-ellipsis">
     AggregateCompleteTransactionV2Descriptor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV3Descriptor
   </span>
   
 
@@ -5485,6 +5548,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateBondedTransactionV3
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
         
   
@@ -5511,6 +5595,27 @@
   
   <span class="md-ellipsis">
     AggregateCompleteTransactionV2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AggregateCompleteTransactionV3
   </span>
   
 
@@ -9174,7 +9279,7 @@ about the transaction's current state.</p>
 <tr>
 <td><code>unconfirmed</code></td>
 <td>The transaction is in the <a class="mkdocs-ezglossary-link"
-	id="e5da1c62b540828e62e316038ed976a4"
+	id="e23e29d325adb0aa3786dbf3ddb23bda"
 	title="A list of transactions pending validation, shared by all nodes in the network."
 	name="_:Unconfirmed pool"
 	href="../../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a> waiting to be included in a block.</td>
@@ -9190,14 +9295,14 @@ about the transaction's current state.</p>
 <tr>
 <td><code>partial</code></td>
 <td>For <a class="mkdocs-ezglossary-link"
-	id="01a13215f8270a2293d84b95e1f9ae95"
+	id="407e77ea0677dff3d8550bb2f5ff1b34"
 	title="An aggregate transaction submitted to the network without all required cosignatures.
 The network temporarily holds the transaction while waiting for the additional cosignatures.
 Also called partial transactions."
 	name="_:Bonded Aggregate Transaction"
 	href="../../../textbook/transactions/#0f2f74e774ec018e1bfcf6b51b862582">bonded aggregate transactions</a> waiting for <a class="mkdocs-ezglossary-link"
-	id="4c0fc4018df638d90f8c273471a52d3e"
-	title="When a transaction requires multiple signatures, they are called cosignatures."
+	id="761f12af7ecd1516d37cabf103732d83"
+	title="When a transaction requires signatures from multiple accounts, they are called cosignatures."
 	name="_:Cosignature"
 	href="../../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a>.</td>
 </tr>
@@ -9347,7 +9452,7 @@ Failed transactions are rejected during validation and will not be included in a
 </div>
 <p>If the endpoint returns HTTP 404, the transaction status is not yet available.
 This can happen immediately after announcing a transaction, before the <a class="mkdocs-ezglossary-link"
-	id="3664580921bf4a83f9707adacca78109"
+	id="66b8472a440ea9895291351523d7d931"
 	title="A computer running the Symbol software which shares information with other nodes,
 validates incoming transactions, and participates in consensus and block creation."
 	name="_:Node"
@@ -9383,7 +9488,7 @@ The function handles this case by logging the attempt and continuing to poll.</p
 </div>
 <p>Between polling attempts, the function waits for a configurable delay (default: 2 seconds).
 This prevents overwhelming the <a class="mkdocs-ezglossary-link"
-	id="66b8472a440ea9895291351523d7d931"
+	id="b0c292014679f553d5ffa78fbd29fa8f"
 	title="A computer running the Symbol software which shares information with other nodes,
 validates incoming transactions, and participates in consensus and block creation."
 	name="_:Node"

@@ -2,7 +2,7 @@
 
 Type safe descriptor used to generate a descriptor map for AggregateCompleteTransactionV2Descriptor.
 
-Send transactions in batches to different accounts (V2, latest).
+Send transactions in batches to different accounts (V2, deprecated).
 Use this transaction when all required signatures are available when the transaction is created.
 
 ## Constructors

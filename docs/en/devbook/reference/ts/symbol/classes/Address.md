@@ -34,7 +34,7 @@ Creates a Symbol address.
 
 | Property | Modifier | Type | Description | Inherited from |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="bytes"></a> `bytes` | `public` | `Uint8Array` | Underlying bytes. | [`ByteArray`](../../index/classes/ByteArray.md).[`bytes`](../../index/classes/ByteArray.md#bytes) |
+| <a id="bytes"></a> `bytes` | `public` | `Uint8Array`&lt;`ArrayBuffer`&gt; | Underlying bytes. | [`ByteArray`](../../index/classes/ByteArray.md).[`bytes`](../../index/classes/ByteArray.md#bytes) |
 | <a id="encoded_size"></a> `ENCODED_SIZE` | `static` | `number` | Length of encoded address string. | - |
 | <a id="name"></a> `NAME` | `static` | `string` | Byte array name (required because `constructor.name` is dropped during minification). | [`ByteArray`](../../index/classes/ByteArray.md).[`NAME`](../../index/classes/ByteArray.md#name) |
 | <a id="size"></a> `SIZE` | `static` | `number` | Byte size of raw address. | - |

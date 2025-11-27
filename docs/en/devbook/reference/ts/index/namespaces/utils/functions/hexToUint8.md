@@ -1,10 +1,10 @@
 # Function: hexToUint8()
 
 ```ts
-function hexToUint8(input): Uint8Array
+function hexToUint8(input): Uint8Array<ArrayBuffer>
 ```
 
-Converts a hex string to a uint8 array.
+Converts a hex string to an uint8 array.
 
 ## Parameters
 
@@ -14,6 +14,6 @@ Converts a hex string to a uint8 array.
 
 ## Returns
 
-`Uint8Array`
+`Uint8Array`&lt;`ArrayBuffer`&gt;
 
 Uint8 array corresponding to the input.

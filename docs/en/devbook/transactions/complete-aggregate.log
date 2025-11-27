@@ -1,0 +1,71 @@
+Using node https://001-sai-dual.symboltest.net:3001
+Account A: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Account B: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
+Fetching current network time from /node/time
+  Network time: 96601724742 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Built aggregate transaction without signatures:
+{
+  "signature": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 3,
+  "network": 152,
+  "type": 16705,
+  "fee": "46400",
+  "deadline": "96608924742",
+  "transactions_hash": "C2F8137E86FA6CD2B5A6E0CBBEA5485DCC427C5F1C9AC98F7A35E84CF0A28877",
+  "transactions": [
+    {
+      "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+      "version": 1,
+      "network": 152,
+      "type": 16724,
+      "recipient_address": "98AD8BAAB80B1DC684542EC175259711AB2C41D2FE4DA9AD",
+      "mosaics": [
+        {
+          "mosaic_id": "16666583871264174062",
+          "amount": "10000000"
+        }
+      ],
+      "message": ""
+    },
+    {
+      "signer_public_key": "D04AB232742BB4AB3A1368BD4615E4E6D0224AB71A016BAF8520A332C9778737",
+      "version": 1,
+      "network": 152,
+      "type": 16724,
+      "recipient_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+      "mosaics": [
+        {
+          "mosaic_id": "7859648582932718274",
+          "amount": "1"
+        }
+      ],
+      "message": ""
+    }
+  ],
+  "cosignatures": []
+}
+[Account A] Signing the aggregate...
+[Account A] Payload ready to share:
+{
+  "payload": "680100000000000068EB60FF9F330E4F86DE7FB30F4E6A398519C23C0AE2EC465524CD03C79382489EB0048EA67FA73E6C68B290BA0BE8A4DDC8DD1911F181C688E10B7EB7625B043B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29000000000398414140B50000000000004634577E16000000C2F8137E86FA6CD2B5A6E0CBBEA5485DCC427C5F1C9AC98F7A35E84CF0A28877C00000000000000060000000000000003B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29000000000198544198AD8BAAB80B1DC684542EC175259711AB2C41D2FE4DA9AD0000010000000000EEAFF441BA994BE780969800000000006000000000000000D04AB232742BB4AB3A1368BD4615E4E6D0224AB71A016BAF8520A332C97787370000000001985441988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE90000010000000000C2621B75BE14136D0100000000000000"
+}
+[Account A] ==> Payload sent to Account B (offchain)
+[Account B] Cosigning...
+[Account B] Cosignature created: {
+  "version": "0",
+  "signer_public_key": "D04AB232742BB4AB3A1368BD4615E4E6D0224AB71A016BAF8520A332C9778737",
+  "signature": "7037EBED281136D1ADAF2F1CC1721ABC58F6CFC6130C6B6864057BC77F6167AAF31271751E2E93BB0993CC1A99F2A6807C1DE87A16A9DF1C44133652F939A90F"
+}
+[Account B] <== Cosignature sent back to Account A (offchain)
+[Account A] Ready to announce
+Announcing transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for confirmation from /transactionStatus/7F8BE244311CEB28C77CBACE81469DDAD231A48C954961F0E04E38A2B7AA2016
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Transaction confirmed in 14 seconds

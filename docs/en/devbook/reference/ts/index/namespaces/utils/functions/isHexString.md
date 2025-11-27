@@ -4,7 +4,7 @@
 function isHexString(input): boolean
 ```
 
-Determines whether or not a string is a hex string.
+Determines whether a string is a hex string.
 
 ## Parameters
 

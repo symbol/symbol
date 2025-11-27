@@ -32,7 +32,7 @@ new Signature(signature?): Signature
 
 | Property | Modifier | Type | Description | Inherited from |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="bytes"></a> `bytes` | `public` | `Uint8Array` | Underlying bytes. | [`ByteArray`](../../../../index/classes/ByteArray.md).[`bytes`](../../../../index/classes/ByteArray.md#bytes) |
+| <a id="bytes"></a> `bytes` | `public` | `Uint8Array`&lt;`ArrayBuffer`&gt; | Underlying bytes. | [`ByteArray`](../../../../index/classes/ByteArray.md).[`bytes`](../../../../index/classes/ByteArray.md#bytes) |
 | <a id="name"></a> `NAME` | `static` | `string` | Byte array name (required because `constructor.name` is dropped during minification). | [`ByteArray`](../../../../index/classes/ByteArray.md).[`NAME`](../../../../index/classes/ByteArray.md#name) |
 | <a id="size"></a> `SIZE` | `static` | `number` | - | - |
 
@@ -55,12 +55,12 @@ get size(): number
 ### serialize()
 
 ```ts
-serialize(): Uint8Array<ArrayBufferLike>
+serialize(): Uint8Array<ArrayBuffer>
 ```
 
 #### Returns
 
-`Uint8Array`&lt;`ArrayBufferLike`&gt;
+`Uint8Array`&lt;`ArrayBuffer`&gt;
 
 ***
 

@@ -2,7 +2,7 @@
 
 Type safe descriptor used to generate a descriptor map for AggregateBondedTransactionV2Descriptor.
 
-Propose an arrangement of transactions between different accounts (V2, latest).
+Propose an arrangement of transactions between different accounts (V2, deprecated).
 Use this transaction when not all required signatures are available when the transaction is created.
 Missing signatures must be provided using a Cosignature or DetachedCosignature.
 To prevent spam attacks, before trying to announce this transaction a HashLockTransaction must be successfully announced and confirmed.
