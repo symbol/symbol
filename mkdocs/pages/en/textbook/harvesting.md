@@ -154,7 +154,7 @@ digraph RewardDistribution {
     BlockRewards [label="Block Rewards\n(Fees + Inflation)"]
     Harvester [label="Harvester" URL="#harvester"]
     Sink [label="Network sink account" URL="#sink"]
-    Beneficiary [label="Node-designated\nbeneficiary account" URL="#beneficiary"]
+    Beneficiary [label="Optional\nnode-designated\nbeneficiary account" URL="#beneficiary"]
 
     T1 [shape=point width=0 height=0]
     T2 [shape=point width=0 height=0]
@@ -163,7 +163,7 @@ digraph RewardDistribution {
     T1 -> T2:s [label=" 95%" weight=2 dir=none];
     T1 -> Sink [label="5%" minlen=3];
     T2 -> Harvester [label="Remaining" weight=2];
-    T2 -> Beneficiary [label="Up to 25%" minlen=3];
+    T2 -> Beneficiary [label="25%" minlen=3 style=dashed];
 
     {rank=same; T1; Sink;}
     {rank=same; T2; Beneficiary;}
@@ -179,9 +179,8 @@ digraph RewardDistribution {
 * **The node-designated beneficiary**:
     {id="beneficiary"}
 
-    An optional account that receives a fixed percentage of the reward
+    An optional account, chosen by the node owner,  that receives a fixed 25% of the reward
     (after subtracting the network sink amount).
-    The node owner choses both the account and the percentage (up to 25%).
 
     Node owners may retain this portion for themselves or redistribute it through their own reward programs,
     for example, by sharing it with their delegators.
@@ -193,15 +192,15 @@ digraph RewardDistribution {
     It can be the node's <remote harvesting:> account, or any of its <delegators:>.
 
 !!! example
-    For example, assuming 100 XYM of block rewards (fees + inflation) and a beneficiary percentage of 20%:
+    For example, assuming 100 XYM of block rewards (fees + inflation) and that a beneficiary account is configured:
 
     <div class="centered" markdown>
 
     | Recipient                | Calculation             |      Amount |
     | ------------------------ | ----------------------- | ----------: |
     | **Network sink account** | 5% of 100 XYM           |       5 XYM |
-    | **Beneficiary account**  | 20% of remaining 95 XYM |      19 XYM |
-    | **Harvester account**    | Remaining 76 XYM        |      76 XYM |
+    | **Beneficiary account**  | 25% of remaining 95 XYM |   23.75 XYM |
+    | **Harvester account**    | Remaining XYM           |   71.25 XYM |
     | **Total**                |                         | **100 XYM** |
 
     </div>
@@ -238,7 +237,9 @@ the higher the value, the greater the chance to harvest a block and earn rewards
 
 !!! note
 
-    Importance scores are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
+    Importance scores on mainnet are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
     two scores is used when calculating harvesting probabilities.
     Therefore, when you first fund an account, it will require 12 hours to have a probability greater than zero to
     start harvesting.
+
+    On testnet scores are recalculated every 180 blocks (roughly 1.5 hours), so testing is easier.
