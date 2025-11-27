@@ -20,7 +20,7 @@ Each profile includes:
 
 * The mnemonic phrase, from which account keys can be derived.
 * The list of managed accounts, both derived from the phrase and imported externally.
-* Network settings, such as whether the profile uses Mainnet or Testnet.
+* Network settings, such as whether the profile uses <mainnet:> or <testnet:>.
 * A password to protect access and encrypt the profile contents.
 * Optional metadata, such as a profile name and password hint, for user convenience.
 

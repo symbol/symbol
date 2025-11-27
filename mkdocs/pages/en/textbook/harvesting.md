@@ -237,9 +237,9 @@ the higher the value, the greater the chance to harvest a block and earn rewards
 
 !!! note
 
-    Importance scores on mainnet are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
+    Importance scores on <mainnet:> are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
     two scores is used when calculating harvesting probabilities.
     Therefore, when you first fund an account, it will require 12 hours to have a probability greater than zero to
     start harvesting.
 
-    On testnet scores are recalculated every 180 blocks (roughly 1.5 hours), so testing is easier.
+    On <testnet:> scores are recalculated every 180 blocks (roughly 1.5 hours), so testing is easier.
