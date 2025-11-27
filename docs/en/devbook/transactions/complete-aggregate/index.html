@@ -14,7 +14,7 @@
         <link rel="prev" href="../monitoring-status/">
       
       
-        <link rel="next" href="../../reference/py/__init__/">
+        <link rel="next" href="../bonded-aggregate/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
@@ -1402,6 +1402,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bonded-aggregate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bonded Aggregate
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -8609,17 +8630,17 @@
 
 <h1 id="creating-a-complete-aggregate-transaction">Creating a Complete Aggregate Transaction<a class="headerlink" href="#creating-a-complete-aggregate-transaction" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This tutorial shows how to create an asset swap using <a class="mkdocs-ezglossary-link"
-	id="e66c195cafaf5df761b3bec0712ac392"
+	id="f4c2f28162ac9c05cf32c26231305a0c"
 	title="An aggregate transaction submitted to the network with all required cosignatures already attached.
 Nodes can therefore proceed to validation and include the transaction in a block immediately."
 	name="_:Complete Aggregate Transaction"
 	href="../../../textbook/transactions/#bef9024194e49776adfcf3924351889c">complete aggregate transactions</a>.</p>
 <p>In this example, Account A sends 10 <a class="mkdocs-ezglossary-link"
-	id="ed6c4cbffc3d76f92e1a0379d03a2fa5"
+	id="16867305ca8bbd8a57f2a527b6ac0d5b"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to Account B, while Account B simultaneously sends 1 custom <a class="mkdocs-ezglossary-link"
-	id="133e4ff5c3b222df278c3e8e2c1f35b3"
+	id="bd2b939bc5cc6d947272dd371f4c478a"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8631,17 +8652,17 @@ single atomic transaction.</p>
 <div class="admonition note">
 <p class="admonition-title">Two types of aggregate transactions</p>
 <p><a class="mkdocs-ezglossary-link"
-	id="41cfb71d04e71c167cfabd385b14c485"
+	id="4e63f141844d0fb0ed420f8a654bb4d4"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
 	href="../../../textbook/transactions/#f4cd3e5143da74ac79f397be4a500b5c">Aggregate transactions</a> group multiple <a class="mkdocs-ezglossary-link"
-	id="dd2ccd011d66e69e0e17108c25bad036"
+	id="c12bacfa7a06785ea4720b206eacbaf9"
 	title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
 like moving funds from one account to another, or registering a new currency, for example."
 	name="_:Transaction"
 	href="../../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a> in a single operation, and require <a class="mkdocs-ezglossary-link"
-	id="5c1ca59d7e812ef6bb0a22ae723edf5e"
+	id="630836c2613cf1a8c9f4c74b9f48b31f"
 	title="A digital attachment to a document that certifies that the document is approved by a given account."
 	name="_:Signature"
 	href="../../../textbook/cryptography/#64c803c8046a084f159cb3fa471c7450">signatures</a> from all
@@ -8651,7 +8672,7 @@ This procedure works well, for example, in the following scenarios:</p>
 <ul>
 <li><strong>Multi-party coordination:</strong> When parties can communicate off-chain to exchange transaction payloads and
   <a class="mkdocs-ezglossary-link"
-	id="4c0fc4018df638d90f8c273471a52d3e"
+	id="761f12af7ecd1516d37cabf103732d83"
 	title="When a transaction requires signatures from multiple accounts, they are called cosignatures."
 	name="_:Cosignature"
 	href="../../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a>.</li>
@@ -8659,7 +8680,7 @@ This procedure works well, for example, in the following scenarios:</p>
   No cosignatures are needed in this case.</li>
 </ul>
 <p>If off-chain coordination is impractical, use <a class="mkdocs-ezglossary-link"
-	id="01a13215f8270a2293d84b95e1f9ae95"
+	id="407e77ea0677dff3d8550bb2f5ff1b34"
 	title="An aggregate transaction submitted to the network without all required cosignatures.
 The network temporarily holds the transaction while waiting for the additional cosignatures.
 Also called partial transactions."
@@ -8671,16 +8692,16 @@ which allow cosignatures to be added on-chain.</p>
 <p>Before you start, make sure to set up your development environment.
 See <a href="../../start/setup/">Setting Up a Development Environment</a>.</p>
 <p>You also need two <a class="mkdocs-ezglossary-link"
-	id="c39838466c8783b2aeb7d711d455d007"
+	id="f287da5608b588e0d79572f5bcd10e5b"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> with <a class="mkdocs-ezglossary-link"
-	id="eb502b2ab67b3677d8c5637b6fa6ba45"
+	id="d73085973416e9e7d17293766f5bf6b6"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> and one custom <a class="mkdocs-ezglossary-link"
-	id="012a11006f14348f14aa11dbebd3cf69"
+	id="c090b494a1a5a29d8172252c262843bb"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -9710,7 +9731,7 @@ multiplier from <a href="/en/devbook/reference/rest/symbol#operations-Network_ro
 </div>
 </div>
 <p>The <a class="mkdocs-ezglossary-link"
-	id="1a69ad48467efc338a0b0f263a775584"
+	id="91fe19348f9604e16a656870b610aa2c"
 	title="When basic transactions are included in an aggregate transaction they are called embedded transactions."
 	name="_:Embedded Transaction"
 	href="../../../textbook/transactions/#0010b0d59ce3bbeed299dd79c16ed261">embedded transactions</a> define the operations to execute atomically.
@@ -9732,7 +9753,7 @@ Each embedded transaction specifies:</p>
 <p>Note that embedded transactions do <strong>not</strong> include fee or deadline fields.
 These are inherited from the enclosing aggregate transaction.</p>
 <p>The example creates two <a class="mkdocs-ezglossary-link"
-	id="3613d40b3a0ecc8393156a4fef770b96"
+	id="42f278c21a19f864412c31686e7590f1"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
 	href="../../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transactions</a> for the swap:</p>
@@ -9849,11 +9870,11 @@ without holding XYM, since another account covers the fee.</p>
 <p><strong>Transactions hash:</strong> A hash computed from all embedded transactions.
   This ensures the embedded transactions cannot be modified after signing.
   Use <span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="ac5bc47d1c3135fc73abd622067086a0"
+	id="c419a5791d92f71333f882fd4339603a"
 	title="Hashes embedded transactions of an aggregate."
 	name="py:SymbolFacade.hash_embedded_transactions"
 	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.hash_embedded_transactions">SymbolFacade.hash_embedded_transactions</a></code></label><input type="radio" name="rGroup999" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="532ddef01a09217e8434d3a27b8b02a2"
+	id="ce3723cb52a8e796cc84a0504fcdf1ed"
 	title="Hashes embedded transactions of an aggregate transaction."
 	name="js:SymbolFacade.hashEmbeddedTransactions"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#hashembeddedtransactions">SymbolFacade.hashEmbeddedTransactions</a></code></label></span> to compute this value.</p>
@@ -10034,11 +10055,11 @@ space reserved for one cosignature (104 bytes).</p>
 <ol>
 <li>
 <p><strong>Account A (Initiator)</strong> signs the transaction using <span markdown class="dylink"><input type="radio" name="rGroup1000" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="c934839ec12b6472f245f831647f8ad5"
+	id="bdcd025d2a710f03e2b7e5ce14304243"
 	title="Signs a Symbol transaction."
 	name="py:SymbolFacade.sign_transaction"
 	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.sign_transaction">SymbolFacade.sign_transaction</a></code></label><input type="radio" name="rGroup1000" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="92d170e255e8b97425752cd33f4f04f5"
+	id="b15a1f79dd2c85a6a1860362c414d981"
 	title="Signs a Symbol transaction."
 	name="js:SymbolFacade.signTransaction"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#signtransaction">SymbolFacade.signTransaction</a></code></label></span>.
@@ -10158,7 +10179,7 @@ as shown in the <a href="../transfer/#announcing-the-transaction">Transfer Trans
 </div>
 </div>
 <p>Once all signatures are collected, the transaction is announced to a <a class="mkdocs-ezglossary-link"
-	id="3664580921bf4a83f9707adacca78109"
+	id="66b8472a440ea9895291351523d7d931"
 	title="A computer running the Symbol software which shares information with other nodes,
 validates incoming transactions, and participates in consensus and block creation."
 	name="_:Node"
@@ -10447,13 +10468,13 @@ or the entire transaction fails and no assets are transferred.</p>
 <tr>
 <td><a href="#creating-embedded-transactions">Create embedded transactions</a></td>
 <td><span markdown class="dylink"><input type="radio" name="rGroup1004" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="9ed62cf22387c2223ed1c97f1034bd77"
+	id="0fb9ce3efa46b1808bfa9fd19905abc2"
 	title="Creates an embedded transaction from a transaction descriptor.
 When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
 When unset, descriptor arrays will be presumed to be already sorted."
 	name="py:TransactionFactory.create_embedded"
 	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create_embedded">TransactionFactory.create_embedded</a></code></label><input type="radio" name="rGroup1004" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="d2d3fe46901c3a2cbf5f569671e5d588"
+	id="331294ac02746ef564d6e05de7210ebf"
 	title="Creates an embedded transaction from a transaction descriptor."
 	name="js:SymbolTransactionFactory.createEmbedded"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#createembedded">SymbolTransactionFactory.createEmbedded</a></code></label></span></td>
@@ -10461,21 +10482,21 @@ When unset, descriptor arrays will be presumed to be already sorted."
 <tr>
 <td><a href="#building-the-aggregate-transaction">Build the aggregate</a></td>
 <td><span markdown class="dylink"><input type="radio" name="rGroup1005" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="705ea278161b1958d88336f10b555689"
+	id="8931f3a91c8aa893642309c5f5ebc31e"
 	title="Creates a transaction from a transaction descriptor.
 When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
 When unset, descriptor arrays will be presumed to be already sorted."
 	name="py:TransactionFactory.create"
 	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create">TransactionFactory.create</a></code></label><input type="radio" name="rGroup1005" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="fdc91a0c023cf443166de6b726629c6b"
+	id="76f52a746c1e5df04c9c9099135e1644"
 	title="Creates a transaction from a transaction descriptor."
 	name="js:SymbolTransactionFactory.create"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span><br/><span markdown class="dylink"><input type="radio" name="rGroup1006" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="2b34bad9aa49b61c658aa2c28310680c"
+	id="ae29e6f20b300e032851fb1e623760b5"
 	title="Hashes embedded transactions of an aggregate."
 	name="py:SymbolFacade.hash_embedded_transactions"
 	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.hash_embedded_transactions">SymbolFacade.hash_embedded_transactions</a></code></label><input type="radio" name="rGroup1006" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="ae63912558b270dcca7558ef29387401"
+	id="6558c756afcfc2b342a08c3678624582"
 	title="Hashes embedded transactions of an aggregate transaction."
 	name="js:SymbolFacade.hashEmbeddedTransactions"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#hashembeddedtransactions">SymbolFacade.hashEmbeddedTransactions</a></code></label></span></td>
@@ -10483,11 +10504,11 @@ When unset, descriptor arrays will be presumed to be already sorted."
 <tr>
 <td><a href="#collecting-signatures">Collect signatures off-chain</a></td>
 <td><span markdown class="dylink"><input type="radio" name="rGroup1007" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="4ec62c250e080625f83e65f5564eb05e"
+	id="4a60ef2ccecca8cf3c371283091fee10"
 	title="Signs a Symbol transaction."
 	name="py:SymbolFacade.sign_transaction"
 	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.sign_transaction">SymbolFacade.sign_transaction</a></code></label><input type="radio" name="rGroup1007" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="41d55e4d03cc6d50e5202b663acf021a"
+	id="cf8e62a11455f0ee5e7518cad37cb7db"
 	title="Signs a Symbol transaction."
 	name="js:SymbolFacade.signTransaction"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#signtransaction">SymbolFacade.signTransaction</a></code></label></span><br/><span markdown class="dylink"><input type="radio" name="rGroup1008" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
