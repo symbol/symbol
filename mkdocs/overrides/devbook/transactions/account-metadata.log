@@ -1,0 +1,83 @@
+Using node https://reference.symboltest.net:3001
+Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Fetching current network time from /node/time
+  Network time: 98406073135 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Created embedded metadata transaction:
+{
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16708,
+  "target_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+  "scoped_metadata_key": "16705141506538718608",
+  "value_size_delta": 5,
+  "value": "616c696365"
+}
+Built aggregate transaction:
+{
+  "signature": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 3,
+  "network": 152,
+  "type": 16705,
+  "fee": "26400",
+  "deadline": "98413273135",
+  "transactions_hash": "976C555DD4FEEA2B48088457AC445A41FA28E13C88B12823844F5EC399B97144",
+  "transactions": [
+    {
+      "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+      "version": 1,
+      "network": 152,
+      "type": 16708,
+      "target_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+      "scoped_metadata_key": "16705141506538718608",
+      "value_size_delta": 5,
+      "value": "616c696365"
+    }
+  ],
+  "cosignatures": []
+}
+Announcing aggregate transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for Aggregate transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Aggregate transaction confirmed in 11 seconds
+
+--- Modifying existing metadata ---
+Fetching current metadata from /metadata?targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&metadataType=0
+  Current value: alice
+Built aggregate transaction:
+{
+  "signature": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 3,
+  "network": 152,
+  "type": 16705,
+  "fee": "26400",
+  "deadline": "98413273135",
+  "transactions_hash": "AA58533BB20A54FE0CF3AD44EC4CEA05C1BC6A47D817850DBB072D0CB254116F",
+  "transactions": [
+    {
+      "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+      "version": 1,
+      "network": 152,
+      "type": 16708,
+      "target_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+      "scoped_metadata_key": "16705141506538718608",
+      "value_size_delta": -2,
+      "value": "03030b6365"
+    }
+  ],
+  "cosignatures": []
+}
+Announcing aggregate transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for Aggregate transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Aggregate transaction confirmed in 31 seconds
