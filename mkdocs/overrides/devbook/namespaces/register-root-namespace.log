@@ -1,0 +1,36 @@
+Using node https://reference.symboltest.net:3001
+Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Fetching current network time from /node/time
+  Network time: 99282614227 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Creating root namespace: ns_1766533079
+Built transaction:
+{
+  "signature": "64F716B9F4CB265D7130FDBD6BABB93A3AE2CC31896D0D3C85DE7CAFDE3CC5053730FC56FCF64B3FCFD24213A9BF3432AC08D2C03766EAF847C86421D88EA603",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16718,
+  "fee": "15900",
+  "deadline": "99289814227",
+  "duration": "86400",
+  "id": "10704093651797406551",
+  "registration_type": 0,
+  "name": "6e735f31373636353333303739"
+}
+Transaction hash: 2E3ACFD140AEAA21E7839376C4290695E9E58761DC37B1E60D3207F76370CC22
+Announcing namespace registration to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for namespace registration confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Namespace registration confirmed in 11 seconds
+Namespace ID: 0x948c9476ade5f357
+Fetching namespace information from /namespaces/948c9476ade5f357
+Namespace information:
+  Registration type: 0
+  Owner address: 988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9
+  Start height: 2984442
+  End height: 3073722
