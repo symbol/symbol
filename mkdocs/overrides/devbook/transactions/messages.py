@@ -13,7 +13,7 @@ from symbolchain.sc import Amount
 
 # Configuration
 NODE_URL = os.environ.get(
-	"NODE_URL", "https://001-sai-dual.symboltest.net:3001"
+	"NODE_URL", "https://reference.symboltest.net:3001"
 )
 print(f"Using node {NODE_URL}")
 

@@ -8,7 +8,7 @@ import {
 
 // Configuration
 const NODE_URL = process.env.NODE_URL ||
-	'https://001-sai-dual.symboltest.net:3001';
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to poll for confirmed transaction
