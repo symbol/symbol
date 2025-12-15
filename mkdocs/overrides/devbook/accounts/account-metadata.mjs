@@ -79,6 +79,9 @@ try {
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
 
+	// --- ADDING NEW METADATA ---
+	console.log('\n--- Adding new metadata ---');
+
 	// Define metadata key and value
 	const keyString = `username_${Date.now()}`;
 	const scopedMetadataKey = metadataGenerateKey(keyString);
@@ -110,8 +113,6 @@ try {
 		transactions: embeddedTransactions
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
-	console.log('Built aggregate transaction:');
-	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
 	// Sign and generate final payload
 	const signature = facade.signTransaction(signerKeyPair, transaction);
@@ -121,29 +122,30 @@ try {
 	// Announce and wait for confirmation
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
+	console.log(
+		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(jsonPayload, 'aggregate transaction');
-	await waitForConfirmation(transactionHash, 'Aggregate transaction');
+	await waitForConfirmation(transactionHash, 'aggregate transaction');
 
 	// --- MODIFYING EXISTING METADATA ---
 	console.log('\n--- Modifying existing metadata ---');
 
 	// Fetch current metadata value from network
+	const scopedKeyHex = scopedMetadataKey.toString(16)
+		.toUpperCase().padStart(16, '0');
 	const metadataPath = `/metadata?sourceAddress=${signerAddress}`
 		+ `&targetAddress=${signerAddress}`
+		+ `&scopedMetadataKey=${scopedKeyHex}`
 		+ '&metadataType=0';
 	console.log('Fetching current metadata from', metadataPath);
 	const metadataResponse = await fetch(`${NODE_URL}${metadataPath}`);
 	const metadataJSON = await metadataResponse.json();
 
-	// Find the entry matching our scoped metadata key
-	const foundEntry = metadataJSON.data.find(
-		entry => BigInt(`0x${entry.metadataEntry.scopedMetadataKey}`)
-			=== scopedMetadataKey
-	);
-	if (!foundEntry) {
+	// Get the metadata entry
+	if (!metadataJSON.data.length) {
 		throw new Error('Metadata entry not found');
 	}
-	const metadataEntry = foundEntry.metadataEntry;
+	const metadataEntry = metadataJSON.data[0].metadataEntry;
 	const currentValue = Buffer.from(metadataEntry.value, 'hex');
 	console.log('  Current value:', currentValue.toString('utf8'));
 
@@ -176,8 +178,6 @@ try {
 	});
 	updateTransaction.fee = new models.Amount(
 		feeMult * updateTransaction.size);
-	console.log('Built aggregate transaction:');
-	console.log(JSON.stringify(updateTransaction.toJson(), null, 2));
 
 	// Sign and announce the update
 	const updateSignature = facade.signTransaction(
@@ -188,8 +188,10 @@ try {
 	// Announce and wait for confirmation
 	const updateHash =
 		facade.hashTransaction(updateTransaction).toString();
+	console.log(
+		'Built aggregate transaction with hash:', updateHash);
 	await announceTransaction(updatePayload, 'aggregate transaction');
-	await waitForConfirmation(updateHash, 'Aggregate transaction');
+	await waitForConfirmation(updateHash, 'aggregate transaction');
 
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');

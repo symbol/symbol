@@ -81,6 +81,9 @@ try:
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
 
+	# --- ADDING NEW METADATA ---
+	print('\n--- Adding new metadata ---')
+
 	# Define metadata key and value
 	key_string = f'username_{int(time.time())}'
 	scoped_metadata_key = metadata_generate_key(key_string)
@@ -111,8 +114,6 @@ try:
 		'transactions': embedded_transactions
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
-	print('Built aggregate transaction:')
-	print(json.dumps(transaction.to_json(), indent=2))
 
 	# Sign and generate final payload
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -121,8 +122,9 @@ try:
 
 	# Announce and wait for confirmation
 	transaction_hash = facade.hash_transaction(transaction)
+	print(f'Built aggregate transaction with hash: {transaction_hash}')
 	announce_transaction(json_payload, 'aggregate transaction')
-	wait_for_confirmation(transaction_hash, 'Aggregate transaction')
+	wait_for_confirmation(transaction_hash, 'aggregate transaction')
 
 	# --- MODIFYING EXISTING METADATA ---
 	print('\n--- Modifying existing metadata ---')
@@ -131,6 +133,7 @@ try:
 	metadata_path = (
 		f'/metadata?sourceAddress={signer_address}'
 		f'&targetAddress={signer_address}'
+		f'&scopedMetadataKey={scoped_metadata_key:016X}'
 		'&metadataType=0'
 	)
 	print(f'Fetching current metadata from {metadata_path}')
@@ -138,15 +141,10 @@ try:
 			f'{NODE_URL}{metadata_path}') as response:
 		response_json = json.loads(response.read().decode())
 
-	# Find the entry matching our scoped metadata key
-	metadata_entry = next(
-		(entry['metadataEntry'] for entry in response_json['data']
-			if int(entry['metadataEntry']['scopedMetadataKey'], 16)
-				== scoped_metadata_key),
-		None
-	)
-	if metadata_entry is None:
+	# Get the metadata entry
+	if not response_json['data']:
 		raise Exception('Metadata entry not found')
+	metadata_entry = response_json['data'][0]['metadataEntry']
 	current_value = bytes.fromhex(metadata_entry['value'])
 	print(f'  Current value: {current_value.decode("utf8")}')
 
@@ -177,8 +175,6 @@ try:
 		'transactions': embedded_transactions
 	})
 	update_transaction.fee = Amount(fee_mult * update_transaction.size)
-	print('Built aggregate transaction:')
-	print(json.dumps(update_transaction.to_json(), indent=2))
 
 	# Sign and announce the update
 	signature = facade.sign_transaction(
@@ -188,8 +184,9 @@ try:
 
 	# Announce and wait for confirmation
 	update_hash = facade.hash_transaction(update_transaction)
+	print(f'Built aggregate transaction with hash: {update_hash}')
 	announce_transaction(json_payload, 'aggregate transaction')
-	wait_for_confirmation(update_hash, 'Aggregate transaction')
+	wait_for_confirmation(update_hash, 'aggregate transaction')
 
 except Exception as e:
 	print(e)
