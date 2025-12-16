@@ -53,7 +53,7 @@ def page_markdown_js_typedoc(content, page, config, files):
 	def symbol_type_repl(m):
 		dict = {"Class":"class", "Function":"method"}
 		nonlocal symbol_name
-		symbol_name = m.group(2)
+		symbol_name = m.group(2).removesuffix('()')
 		if symbol_name == "default":
 			nonlocal parent_name
 			symbol_name = parent_name
@@ -88,6 +88,11 @@ def page_markdown_js_typedoc(content, page, config, files):
 			r"(\n### )([^(]*?)(\(\)\n\n```.*?```\n\n)([^#].*?)(\n\n####)",
 			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
 
+	# Add glossary definition to global functions
+	content = re.sub(
+		r"(```ts\nfunction .*?)\n\n(.*?)(\n\n## )",
+		rf'<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\1\2\3', content, flags=re.DOTALL)
+
 	# Add special anchor because the typedoc-md plugin forgot to add it?
 	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, 1)
 
@@ -103,10 +108,14 @@ def page_markdown_dylinks(content, page, config, files):
 	Turn expressions like <dy:ClassName> and <dy:ClassName.methodName> into links to the reference pages that change
 	text and href depending on the selected language.
 	Accepts JavaScript.camelCase and reformats to Python.snake_case.
+	Settings in mkdocs.base.yml:
+	- The dictionary extra.symbol.class-remaps translates from Python names to JS names, because sometimes they're different.
+	- The array extra.symbol.global-namespaces lists class names which do not exist in JS and must be removed.
 	"""
 	langs = ['py', 'js']
 	lang_names = ['Python', 'JavaScript']
 	class_remaps = config['extra']['symbol']['class-remaps']
+	global_namespaces = config['extra']['symbol']['global-namespaces']
 	rgroup_id = 999
 	def class_formatter(m):
 		nonlocal rgroup_id
@@ -130,7 +139,9 @@ def page_markdown_dylinks(content, page, config, files):
 				if class_name in class_remaps:
 					class_name = class_remaps[class_name]
 				method_name = camel_to_snake(method_name)
-			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}.{method_name}></label>'
+			if l == 'js' and class_name in global_namespaces:
+				class_name = ""
+			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}{'.' if class_name else ''}{method_name}></label>'
 		r += '</span>'
 		rgroup_id += 1
 		return r

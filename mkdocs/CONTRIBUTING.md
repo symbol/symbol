@@ -99,7 +99,15 @@ when the last tab the user has read was **JavaScript**, and will change to `<py:
 Note that the name of the method changes automatically.
 
 The code to handle this conversion is located in `hooks.py` and it takes care of JS to Python name changes.
-Additional class name remaps can be provided in `mkdocs.yml` in the `extra.symbol.class-remaps` section.
+Additionally:
+
+* Class name remaps can be provided in `mkdocs.base.yml` in the `extra.symbol.class-remaps` key.
+* Global functions must be prepended by their Python module, even in JS, so Python can find them.
+    The list of modules which contain global functions is in the `extra.symbol.global.namespaces` key.
+
+    For example, `<dy:Metadata.metadataGenerateKey>` will turn into `<py:Metadata.metadata_generate_key>` and
+    `<js:metadataGenerateKey>`.
+
 
 ### Tutorial Steps
 
