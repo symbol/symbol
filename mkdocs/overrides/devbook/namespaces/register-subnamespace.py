@@ -100,7 +100,7 @@ try:
 				print('Namespace registration confirmed in',
 					attempt, 'seconds')
 				break
-				if status['group'] == 'failed':
+			if status['group'] == 'failed':
 				raise Exception('Namespace registration failed:',
 					status['code'])
 		except urllib.error.HTTPError:

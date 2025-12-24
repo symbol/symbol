@@ -93,7 +93,7 @@ The code then waits for the transaction to be confirmed by polling the
 To verify the namespace was registered, the code retrieves it from the network
 using the <get:/namespaces/{namespaceId}> endpoint and displays its properties.
 
-The namespace ID is computed using <dy:generateNamespaceId>.
+The namespace ID is computed using <dy:IdGenerator.generateNamespaceId>.
 This function applies a deterministic hashing algorithm to the namespace name,
 producing the ID needed to query the namespace information.
 
@@ -124,7 +124,7 @@ This tutorial showed how to:
 
 | Step                                                          | Related documentation                              |
 | ------------------------------------------------------------- | -------------------------------------------------- |
-| [Generate namespace ID](#building-the-transaction)            | <dy:generateNamespaceId>                           |
+| [Generate namespace ID](#building-the-transaction)            | <dy:IdGenerator.generateNamespaceId>               |
 | [Build a namespace registration](#building-the-transaction)   | <dy:SymbolTransactionFactory.create>               |
 | [Retrieve the namespace](#retrieving-the-namespace)           | <get:/namespaces/{namespaceId}>                    |
 
@@ -135,4 +135,3 @@ Now that you have a root namespace, you can:
 - Link your namespace to a mosaic or account to create an alias
 - [Register a subnamespace](./register-subnamespace.md) to create a hierarchical structure
 - [Extend the namespace](./extend-root-namespace.md) before it expires to keep it active
-

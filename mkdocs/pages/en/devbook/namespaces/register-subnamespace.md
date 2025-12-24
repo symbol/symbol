@@ -51,7 +51,7 @@ The main difference when registering a subnamespace is in the transaction descri
 * **Parent ID**: Instead of specifying a duration, you provide the namespace ID of the parent namespace.
     The parent must be either a root namespace or another child namespace (if creating a third-level namespace).
 
-    The parent namespace ID is calculated from its name using <dy:generateNamespaceId>.
+    The parent namespace ID is calculated from its name using <dy:IdGenerator.generateNamespaceId>.
 
 * **Name:** The name of the subnamespace.
     This name follows the same rules as root namespace names: lowercase letters, numbers, hyphens, and underscores,
@@ -82,7 +82,7 @@ The transaction is then signed, announced, and confirmed following the same proc
 To verify the subnamespace was registered, the code retrieves it from the network
 using the <get:/namespaces/{namespaceId}> endpoint and displays its properties.
 
-The subnamespace ID is computed using <dy:generateNamespaceId>.
+The subnamespace ID is computed using <dy:IdGenerator.generateNamespaceId>.
 This function takes both the subnamespace name and the parent ID,
 applying a deterministic hashing algorithm to produce the child namespace ID.
 
@@ -113,7 +113,7 @@ This tutorial showed how to:
 
 | Step                                                           | Related documentation                 |
 | -------------------------------------------------------------- | ------------------------------------- |
-| [Generate namespace ID](#building-the-transaction)             | <dy:generateNamespaceId>              |
+| [Generate namespace ID](#building-the-transaction)             | <dy:IdGenerator.generateNamespaceId>  |
 | [Build a subnamespace registration](#building-the-transaction) | <dy:SymbolTransactionFactory.create>  |
 | [Retrieve the namespace](#retrieving-the-namespace)            | <get:/namespaces/{namespaceId}>       |
 
@@ -123,4 +123,3 @@ Now that you have a subnamespace, you can:
 
 - Register additional subnamespaces to expand your hierarchical structure
 - Link your namespace to a mosaic or account to create an alias
-
