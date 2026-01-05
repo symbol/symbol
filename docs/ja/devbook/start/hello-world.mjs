@@ -9,7 +9,7 @@ console.log(`Network name: ${facade.network.name}`);
 const launchDate = facade.network.toDatetime(new NetworkTimestamp(0));
 console.log(`Network launch date: ${launchDate.toISOString()}`);
 
-const NODE_URL = 'https://001-sai-dual.symboltest.net:3001';
+const NODE_URL = 'https://reference.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 try {
 	// Fetch current chain information

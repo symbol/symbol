@@ -1,4 +1,4 @@
-Using node https://001-sai-dual.symboltest.net:3001
+Using node https://reference.symboltest.net:3001
 Fetching current network time from /node/time
   Network time: 78235462065n ms since nemesis
 Fetching recommended fees from /network/fees/transaction
