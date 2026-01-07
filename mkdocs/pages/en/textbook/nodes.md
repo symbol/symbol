@@ -9,7 +9,7 @@ Nodes form the backbone of the blockchain, ensuring the network remains function
 To participate in block creation, each node must be associated with a harvester <account:>,
 which signs any blocks the node produces.
 To help offset operational costs, the <XYM:> rewards from <harvesting:> can be directed
-to one or more accounts chosen by the node operator.
+to an account chosen by the node operator.
 
 Symbol nodes consist of multiple software components, which can be enabled and configured independently.
 This flexibility allows for a variety of setups with different hardware requirements.
