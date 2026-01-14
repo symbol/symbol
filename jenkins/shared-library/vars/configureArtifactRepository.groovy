@@ -64,7 +64,8 @@ void configurePypi(Map info) {
 
 	env.PIP_INDEX_URL = "${info.url}simple"
 	env.PIP_TRUSTED_HOST = "${hostName} pypi.org"
-	env.PIP_EXTRA_INDEX_URL = 'https://pypi.org/simple'
+	env.PIP_NO_CACHE_DIR = 1
+	env.PIP_FORCE_REINSTALL = 1
 	if (null != info.userName && null != info.password) {
 		env.NETRC = pwd()
 		// groovylint-disable-next-line GStringExpressionWithinString
