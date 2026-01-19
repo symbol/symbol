@@ -127,6 +127,7 @@ class OptionsManager:
 		cxxflags = [self._arch_flag] if not self.is_msvc else []
 		if self.is_clang:
 			options += ['toolset=clang']
+			options += ['cxxflags=-Wno-deprecated-declarations']
 			options += [format_multivalue_options('linkflags', [f'-stdlib={self.stl.lib}'])]
 			cxxflags += self._stl_flags
 
