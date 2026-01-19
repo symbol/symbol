@@ -105,9 +105,8 @@ configuration.
 
 {{ tutorial.code_snippet(['py:39:57', 'js:34:52']) }}
 
-To prepare an aggregate, first retrieve the current network time from <get:/node/time> and the recommended fee
-multiplier from <get:/network/fees/transaction>, following the same steps described in the
-[Transfer Transaction](./transfer.md) tutorial.
+Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
+following the process described in the [Transfer Transaction](./transfer.md) tutorial.
 
 ### Creating Embedded Transactions
 
