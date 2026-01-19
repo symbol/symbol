@@ -27,10 +27,10 @@ Waiting for namespace registration confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
 Namespace registration confirmed in 11 seconds
-Namespace ID: 0x948c9476ade5f357
+Namespace ID: 10704093651797406551 (0x948c9476ade5f357)
 Fetching namespace information from /namespaces/948c9476ade5f357
 Namespace information:
   Registration type: 0
-  Owner address: 988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9
+  Owner address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
   Start height: 2984442
   End height: 3073722

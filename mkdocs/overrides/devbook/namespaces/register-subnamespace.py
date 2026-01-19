@@ -8,6 +8,7 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.Network import NetworkTimestamp
 from symbolchain.symbol.IdGenerator import generate_namespace_id
 from symbolchain.sc import Amount
+from symbolchain.symbol.Network import Address
 
 NODE_URL = os.environ.get(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
@@ -109,7 +110,7 @@ try:
 	# Retrieve the namespace
 	namespace_id = generate_namespace_id(
 		child_namespace_name, parent_id)
-	print(f'Child namespace ID: {hex(namespace_id)}')
+	print(f'Child namespace ID: {namespace_id} ({hex(namespace_id)})')
 
 	namespace_path = f'/namespaces/{namespace_id:x}'
 	print(f'Fetching namespace information from {namespace_path}')
@@ -120,7 +121,9 @@ try:
 		print('Namespace information:')
 		reg_type = namespace_info["registrationType"]
 		print(f'  Registration type: {reg_type}')
-		print(f'  Owner address: {namespace_info["ownerAddress"]}')
+		owner_address_hex = bytes.fromhex(namespace_info["ownerAddress"])
+		owner_address = Address(owner_address_hex)
+		print(f'  Owner address: {owner_address}')
 		print(f'  Parent ID: {namespace_info["parentId"]}')
 		print(f'  Depth: {namespace_info["depth"]}')
 		print(f'  Level 0: {namespace_info["level0"]}')

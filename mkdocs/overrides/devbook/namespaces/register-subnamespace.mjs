@@ -126,7 +126,8 @@ try {
 	const namespaceId = generateNamespaceId(
 		childNamespaceName, parentId);
 	console.log(
-		'Child namespace ID:', `0x${namespaceId.toString(16)}`);
+		'Child namespace ID:',
+		`${namespaceId} (0x${namespaceId.toString(16)})`);
 
 	const namespacePath =
 		`/namespaces/${namespaceId.toString(16)}`;
@@ -139,7 +140,9 @@ try {
 	console.log('Namespace information:');
 	console.log(
 		'  Registration type:', namespaceInfo.registrationType);
-	console.log('  Owner address:', namespaceInfo.ownerAddress);
+	const ownerAddress = new models.Address(
+		Uint8Array.from(Buffer.from(namespaceInfo.ownerAddress, 'hex')));
+	console.log('  Owner address:', ownerAddress.toString());
 	console.log('  Parent ID:', namespaceInfo.parentId);
 	console.log('  Depth:', namespaceInfo.depth);
 	console.log('  Level 0:', namespaceInfo.level0);

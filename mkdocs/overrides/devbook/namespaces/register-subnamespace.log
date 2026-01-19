@@ -27,11 +27,11 @@ Waiting for namespace registration confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
 Namespace registration confirmed in 19 seconds
-Child namespace ID: 0x9ce448486e40ee0d
+Child namespace ID: 11305240440531381773 (0x9ce448486e40ee0d)
 Fetching namespace information from /namespaces/9ce448486e40ee0d
 Namespace information:
   Registration type: 1
-  Owner address: 988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9
+  Owner address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
   Parent ID: B0786316D5C1D9DD
   Depth: 2
   Level 0: B0786316D5C1D9DD
