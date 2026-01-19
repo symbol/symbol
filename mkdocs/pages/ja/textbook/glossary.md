@@ -17,7 +17,7 @@ APR
 
 バックランニング
 :   （Backrunning）すでに未処理の `transactionB` が存在する状態で、やや低い手数料（またはガス）で `transactionA` を送信し、
-    同一ブロック内で `transactionB` の*直後*にマイニングされるように狙う行為。
+    同一ブロック内で `transactionB` の*直後*に`transactionA`がマイニングされるように狙う行為。
 
 BLS
 :   [Boneh–Lynn–Shacham](https://en.wikipedia.org/wiki/BLS_digital_signature) 署名方式。
@@ -100,7 +100,7 @@ FFT
     <DeFi:> 市場ではこの方法で利益を得るケースがある。
 
 ハードウェアウォレット
-:   （Hardware wallet）[秘密キー](default:秘密キー) を安全に保管し、署名を生成するための専用デバイス。
+:   （Hardware wallet）[秘密鍵](default:秘密鍵) を安全に保管し、署名を生成するための専用デバイス。
     鍵は暗号化されたメモリに保存され、デバイス外に出ることはないため、
     ハードウェアウォレットは最も安全なアクセス手段のひとつとされる。
     通常は署名機能のみを持ち、[ウォレット](default:ウォレット) アプリケーションと組み合わせて
