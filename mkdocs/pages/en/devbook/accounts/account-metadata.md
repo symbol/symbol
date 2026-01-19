@@ -125,9 +125,8 @@ This transaction specifies:
 
 The code adds the embedded account metadata transaction to an <aggregate transaction:>.
 
-Since the signer is modifying their own account, no <cosignatures:> are required and the aggregate can be of type
-complete, which can be created as <complete aggregate transaction:|complete>, allowing it to be signed and announced
-immediately.
+Since the signer is modifying their own account, no <cosignatures:> are required and the aggregate can be created as
+<complete aggregate transaction:|complete>, allowing it to be signed and announced immediately.
 
 !!! note "Adding metadata to a different account"
 
