@@ -503,6 +503,7 @@ function(catapult_define_tool TOOL_NAME)
 	target_link_libraries(${TARGET_NAME} catapult.tools)
 	catapult_target(${TARGET_NAME})
 
+	add_dependencies(${TARGET_NAME} catapult_sdk_publish)
 	add_dependencies(tools ${TARGET_NAME})
 
 	install(TARGETS ${TARGET_NAME})
