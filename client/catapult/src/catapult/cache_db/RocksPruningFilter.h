@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include <cstdint>
 #include <memory>
+#include <stdint.h>
 
 namespace rocksdb { class CompactionFilter; }
 

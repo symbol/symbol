@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include <cstdint>
 #include <memory>
 #include <string>
+#include <stdint.h>
 
 namespace boost { namespace asio { class io_context; } }
 
