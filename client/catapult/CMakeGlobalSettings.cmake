@@ -272,17 +272,20 @@ endfunction()
 function(catapult_set_test_compiler_options)
 	# some gtest workarounds for gcc + clang
 	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+		set(CMAKE_CXX_FLAGS_LOCAL "-Wno-dangling-else")
+
 		# - Wno-dangling-else: workaround for GTEST ambiguous else blocker not working https://github.com/google/googletest/issues/1119
 		# disable dangling reference for tests - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165#c9
-		if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER "13")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-				-Wno-dangling-else -Wno-dangling-reference -Wno-free-nonheap-object"
-				PARENT_SCOPE)
-		else()
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-				-Wno-dangling-else"
-				PARENT_SCOPE)
+		if(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "13")
+			set(CMAKE_CXX_FLAGS_LOCAL "${CMAKE_CXX_FLAGS_LOCAL} -Wno-dangling-reference")
 		endif()
+
+		# - Wno-free-nonheap-object: bug should be fix in gcc 16 - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115016
+		if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "14" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "16")
+			set(CMAKE_CXX_FLAGS_LOCAL "${CMAKE_CXX_FLAGS_LOCAL} -Wno-free-nonheap-object")
+		endif()
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_LOCAL}" PARENT_SCOPE)
 	elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		# - Wno-global-constructors: required for GTEST test definition macros
 		# - Wno-zero-as-null-pointer-constant: workaround for GTEST NULL/nullptr mismatch https://github.com/google/googletest/issues/1323
