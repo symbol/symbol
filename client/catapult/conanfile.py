@@ -9,7 +9,7 @@ class CatapultConan(ConanFile):
 	settings = "os", "compiler", "build_type", "arch"  # pylint: disable=invalid-name
 
 	def requirements(self):
-		self.requires("boost/1.90.0", run=True)
+		self.requires("boost/1.83.0", run=True)
 		self.requires("openssl/3.6.0", run=True)
 		self.requires("cppzmq/4.11.0@nemtech/stable", run=True)
 		self.requires("mongo-c-driver/1.30.3@nemtech/stable", run=True)
