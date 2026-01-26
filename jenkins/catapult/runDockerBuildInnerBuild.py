@@ -147,7 +147,6 @@ class BuildManager(BasicBuildManager):
 		else:
 			cpu_count = os.cpu_count()
 			cpu_count_str = str(cpu_count if cpu_count > 0 else 1)
-			self.dispatch_subprocess(['ninja', 'publish'])
 			self.dispatch_subprocess(['ninja', '-j', cpu_count_str])
 			self.dispatch_subprocess(['ninja', 'install'])
 
