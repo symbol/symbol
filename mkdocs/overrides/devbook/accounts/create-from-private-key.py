@@ -7,7 +7,7 @@ facade = SymbolFacade('testnet')
 
 # Use an existing private key if provided,
 # Otherwise generate a random one.
-private_key_string = os.environ.get('PRIVATE_KEY')
+private_key_string = os.getenv('PRIVATE_KEY')
 if private_key_string:
 	print("Loading account from environment variable...")
 	private_key = PrivateKey(private_key_string)
