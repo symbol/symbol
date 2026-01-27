@@ -12,7 +12,7 @@ from symbolchain.symbol.Network import NetworkTimestamp
 from symbolchain.sc import Amount
 
 # Configuration
-NODE_URL = os.environ.get(
+NODE_URL = os.getenv(
 	"NODE_URL", "https://reference.symboltest.net:3001"
 )
 print(f"Using node {NODE_URL}")
@@ -45,7 +45,7 @@ def retrieve_confirmed_transaction(hash_value, label):
 # Set up sender and recipient accounts
 facade = SymbolFacade("testnet")
 
-sender_private_key_string = os.environ.get(
+sender_private_key_string = os.getenv(
 	"SENDER_PRIVATE_KEY",
 	"0000000000000000000000000000000000000000000000000000000000000000",
 )
@@ -56,7 +56,7 @@ sender_address = facade.network.public_key_to_address(
 	sender_key_pair.public_key
 )
 
-recipient_private_key_string = os.environ.get(
+recipient_private_key_string = os.getenv(
 	"RECIPIENT_PRIVATE_KEY",
 	"1111111111111111111111111111111111111111111111111111111111111111",
 )
