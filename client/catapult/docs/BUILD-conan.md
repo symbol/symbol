@@ -144,7 +144,6 @@ _where `build_type` argument value can be any of Release, RelWithDebInfo, Debug_
 
   ```sh
   cmake --preset conan-release -G Ninja -DUSE_CONAN=ON ../../
-  ninja publish
   ninja -j4
   ```
 

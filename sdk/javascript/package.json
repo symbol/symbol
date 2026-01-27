@@ -56,7 +56,7 @@
     "crypto-browserify": "~3.12.0",
     "eslint": "~8.57.0",
     "eslint-config-airbnb": "~19.0.4",
-    "eslint-plugin-jsdoc": "^61.1.1",
+    "eslint-plugin-jsdoc": "^62.0.0",
     "json-bigint": "~1.0.0",
     "mkdirp": "~3.0.1",
     "mocha": "~11.7.0",
@@ -66,13 +66,13 @@
     "typedoc": "^0.28.0",
     "typescript": "~5.9.2",
     "url": "~0.11.3",
-    "webpack": "~5.103.0",
+    "webpack": "~5.104.1",
     "webpack-cli": "~6.0.1",
     "yargs": "~18.0.0"
   },
   "dependencies": {
     "@noble/hashes": "~2.0.1",
-    "@types/node": "^24.2.0",
+    "@types/node": "^25.0.3",
     "bitcore-mnemonic": "~11.4.0",
     "ripemd160": "~2.0.2"
   },
