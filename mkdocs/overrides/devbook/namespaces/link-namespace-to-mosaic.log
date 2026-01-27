@@ -1,0 +1,36 @@
+Using node https://reference.symboltest.net:3001
+Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Namespace name: nsmos_1769457459
+Namespace ID: 15646024088153024661 (0xd921d8031190e895)
+Mosaic ID: 8605501816345780144 (0x776ce24edd44dfb0)
+Fetching current network time from /node/time
+  Network time: 102207064377 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Built transaction:
+{
+  "signature": "BBC4F875BCEA9DACA779CB088FC000798C82327C0615AEC4B89AE62DB520F547263F428AF4C9A89BED1D5E78606EC6A68B86646A74747ECB16981788DBA69B01",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 17230,
+  "fee": "14500",
+  "deadline": "102214264377",
+  "namespace_id": "15646024088153024661",
+  "mosaic_id": "8605501816345780144",
+  "alias_action": 1
+}
+Transaction hash: D69061ADC5F0B86BB8462D5FD8FBEE20C1F3F8BF9F9640EE45AE2A2133F3230F
+Announcing mosaic alias transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Mosaic alias transaction confirmed in 9 seconds
+Fetching namespace information from /namespaces/d921d8031190e895
+Namespace alias information:
+  Alias type: 1
+  Aliased mosaic ID: 776CE24EDD44DFB0
+Using mosaic alias in transfer: nsmos_1769457459
+Transfer transaction:
+  Mosaic ID (alias): 15646024088153024661 (0xd921d8031190e895)
