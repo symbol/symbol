@@ -70,7 +70,7 @@ namespace catapult { namespace crypto {
 			state.SetBytesProcessed(static_cast<int64_t>(buffer.size()) * state.iterations());
 		}
 
-		void AddDefaultArguments(benchmark::internal::Benchmark& benchmark) {
+		void AddDefaultArguments(benchmark::Benchmark& benchmark) {
 			for (auto arg : { 256, 1024, 4096, 16384})
 				benchmark.UseRealTime()->Arg(arg);
 		}
