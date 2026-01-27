@@ -15,7 +15,7 @@ target_link_libraries(${TARGET_NAME}
 find_program(PYTHON_EXECUTABLE python3 python REQUIRED)
 
 add_custom_target(
-	publish ALL
+	catapult_sdk_publish ALL
 	COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/sdk/publishSdk.py -r ${PROJECT_SOURCE_DIR} -p ${CMAKE_BINARY_DIR}/inc
 	BYPRODUCTS ${CMAKE_BINARY_DIR}/inc/catapult/catapult.h
 )

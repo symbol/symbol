@@ -79,7 +79,7 @@ The script that fires actual compilation is `runDockerBuildInnerBuild.py`. To un
 
 1. Sets up directories and ``ccache``.
 2. Fires up ``cmake``.
-3. Fires up the actual compilation using ``ninja publish`` followed by ``ninja``.
+3. Fires up the actual compilation using ``ninja``.
 4. Makes initial installation using ``ninja install`` (which installs to volume mounted in ``/binaries``).
 5. Copies the dependencies into directories inside ``/binaries``.
 

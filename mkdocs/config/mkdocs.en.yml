@@ -75,6 +75,7 @@ nav:
               - devbook/accounts/create-from-mnemonic.md
               - devbook/accounts/testnet-faucet.md
               - devbook/accounts/query-balance.md
+              - devbook/accounts/account-metadata.md
           - Transactions:
               - devbook/transactions/transfer.md
               - devbook/transactions/typed-descriptors.md

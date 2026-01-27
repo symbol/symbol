@@ -57,7 +57,6 @@ BOOST_ROOT="$(realpath ../_deps/boost)" cmake .. \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_PREFIX_PATH="$(realpath ../_deps/facebook);$(realpath ../_deps/google);$(realpath ../_deps/mongodb);$(realpath ../_deps/zeromq)" \
 	-GNinja
-ninja publish
 ninja
 ```
 
