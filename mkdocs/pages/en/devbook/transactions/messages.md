@@ -4,7 +4,7 @@ title: Messages
 
 # Sending Messages with Transfer Transactions
 
-<Transfer transactions:> can include an optional message field, which allows attaching up to 1,024 bytes of data to the
+<Transfer transactions:|Transfer transactions> can include an optional message field, which allows attaching up to 1,024 bytes of data to the
 transaction.
 Messages can be sent as plain text or encrypted using the recipient's public key, ensuring only the intended recipient
 can read them.
