@@ -1,5 +1,5 @@
 ---
-title: Account Metadata
+title: Add Metadata
 ---
 
 # Adding Metadata to an Account
