@@ -17,7 +17,7 @@ Before you start, make sure to:
 
 - Set up your development environment.
   See [Setting Up a Development Environment](../start/setup.md).
-- Have <account:> with an existing root namespace.
+- Have an <account:> with an existing root namespace.
   See [Registering a Root Namespace](./register-root-namespace.md).
 
     !!! note
@@ -38,8 +38,8 @@ transactions are announced and confirmed.
 
 ## Code Explanation
 
-Most of the code follows the same pattern as registering a root namespace.
-This section focuses on the key differences.
+The code follows the same pattern as the [Registering a Root Namespace](./register-root-namespace.md) tutorial.
+This section focuses only on the key differences.
 
 For detailed explanations of the common steps (setting up the account, fetching network time and fees, and announcing),
 see [Registering a Root Namespace](./register-root-namespace.md).
@@ -67,19 +67,21 @@ The main difference when registering a subnamespace is in the transaction descri
     `parent_id: generateNamespaceId('company')`.
 
     To ensure the subnamespace name is unique across multiple runs of the tutorial, a timestamp is added to the name.
+    In practice, programs would use a fixed name for their namespaces.
 
 The subnamespace automatically inherits the expiration time of its root namespace.
 When the root expires, all subnamespaces expire with it.
 
 !!! note "Subnamespace lease fees"
 
-    Registering a subnamespace requires a lease fee in addition to the transaction fee.
+    In addition to the standard [transaction fee](#fetching-network-time-and-fees),
+    registering a subnamespace requires a [lease fee](../../textbook/namespaces.md#lease-fee).
 
-    Unlike root namespaces, this fee is fixed regardless of duration.
+    Unlike the transaction fee, the lease fee is **not** included in the transaction request.
+
+    For subnamespaces, this fee is fixed regardless of duration.
     The network deducts the lease fee automatically when the transaction is confirmed,
     so you do not need to specify it in the transaction.
-
-    For details, see [Lease fee](../../textbook/namespaces.md#lease-fee).
 
 The transaction is then signed, announced, and confirmed following the same process as in
 [Registering a Root Namespace](./register-root-namespace.md#submitting-the-transaction).
@@ -99,9 +101,8 @@ A successful response confirms the subnamespace was registered and is active on 
 
 !!! info "Subnamespace registered but not linked yet"
 
-    A namespace becomes useful when it serves as an alias for a <mosaic:> or an <account:>.
-    Link the namespace to an identifier using the guides in [Next Steps](#next-steps).
-
+    A subnamespace becomes useful when it serves as an alias for a <mosaic:> or an <account:>.
+    Link the subnamespace to an identifier using the guides in [Next Steps](#next-steps).
 
 ## Output
 
@@ -143,10 +144,6 @@ Some highlights from the output:
 The transaction hash printed in the output can also be used to search for the transaction
 in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
-!!! info "Subnamespace registered but not linked yet"
-
-    A namespace becomes useful when it serves as an alias for a <mosaic:> or an <account:>.
-    Link the namespace to an identifier using the guides in [Next Steps](#next-steps).
 
 ## Conclusion
 

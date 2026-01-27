@@ -10,7 +10,7 @@ from symbolchain.symbol.IdGenerator import generate_namespace_id
 from symbolchain.sc import Amount
 from symbolchain.symbol.Network import Address
 
-NODE_URL = os.environ.get(
+NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 

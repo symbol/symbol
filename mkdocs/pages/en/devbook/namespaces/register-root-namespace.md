@@ -63,24 +63,27 @@ The namespace registration transaction specifies:
     Use `child` to [register a subnamespace](./register-subnamespace.md) instead.
 
 * **Duration:** The number of blocks for which the namespace will be leased.
-    The minimum duration is 86,400 blocks (approximately 30 days on mainnet), and the maximum is
-    15,552,000 blocks (approximately 5 years).
+    The minimum duration is 86,400 blocks (approximately 30 days), and the maximum is
+    5,256,000 blocks (approximately 5 years).
 
 * **Name:** The name of the root namespace.
     Names can only contain lowercase letters, numbers, hyphens, and underscores, must start with a letter or number,
     and can be at most 64 characters long.
 
     To ensure the namespace name is unique across multiple runs of the tutorial, a timestamp is added to the name.
+    In practice, programs would use a fixed name for their namespaces.
 
 !!! note "Namespace lease fees"
 
-    Registering a root namespace requires a lease fee in addition to the transaction fee.
+    In addition to the standard [transaction fee](#fetching-network-time-and-fees),
+    registering a namespace requires a [lease fee](../../textbook/namespaces.md#lease-fee) proportional to
+    the requested duration.
 
-    The lease fee is proportional to the requested duration.
-    The network deducts it automatically when the transaction is confirmed, so you do not need to specify it in the
-    transaction.
+    Unlike the transaction fee, the lease fee is **not** included in the transaction request.
+    It is calculated and deducted automatically by the network from the **transaction signer’s account**
+    when the registration transaction is confirmed.
 
-    For details, see [Lease Fee](../../textbook/namespaces.md#lease-fee).
+    The amount of the lease fee can be calculated beforehand using the <get:/network/fees/rental> endpoint.
 
 ### Submitting the Transaction
 

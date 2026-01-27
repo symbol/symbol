@@ -2,7 +2,7 @@ import json
 import os
 import urllib.request
 
-NODE_URL = os.environ.get(
+NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
@@ -106,7 +106,7 @@ def format_amount(amount, divisibility):
 
 
 # The account address to query
-ADDRESS = os.environ.get(
+ADDRESS = os.getenv(
 	'ADDRESS', 'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ')
 print(f'Fetching account information from {ADDRESS}')
 
