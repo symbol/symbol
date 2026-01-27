@@ -7,7 +7,7 @@ facade = SymbolFacade('testnet')
 
 # Use an existing mnemonic if provided, otherwise generate a random one
 bip32 = Bip32()
-mnemonic = os.environ.get('MNEMONIC')
+mnemonic = os.getenv('MNEMONIC')
 if mnemonic:
 	print("Loading mnemonic phrase from environment variable...")
 else:
@@ -16,7 +16,7 @@ else:
 print(f'Mnemonic phrase: {mnemonic}')
 
 # Load password from environment variable or use default
-password = os.environ.get('PASSWORD', 'correcthorsebatterystaple')
+password = os.getenv('PASSWORD', 'correcthorsebatterystaple')
 print(f'Password: {password}')
 
 # Derive a root Bip32 node from the mnemonic and a password

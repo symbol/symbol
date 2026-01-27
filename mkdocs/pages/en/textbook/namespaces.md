@@ -19,8 +19,14 @@ Each name consists of one to three parts, separated by dots, for example, `foo`,
 The first part is called the _root namespace_.
 Any additional parts are _subnamespaces_, which must be registered separately under the root.
 
-Each root namespace can have up to 256 subnamespaces, which expire when the parent namespace expires
-(see [Duration](#duration) below).
+Root namespace
+:   A namespace that has no parent and can be used on its own.
+    It can be used to group subnamespaces together in a hierarchical manner.
+    Each root namespace can have up to 256 subnamespaces.
+
+Subnamespace
+:   A namespace that belongs to a parent root namespace.
+    Subnamespaces expire when the parent namespace expires (see [Duration](#duration)).
 
 ## Properties
 
