@@ -52,7 +52,13 @@ This account must own the namespace being linked.
 The code defines:
 
 * **Namespace name:** The name of the namespace to be linked. A timestamp is appended to ensure uniqueness across runs.
-* **Namespace ID:** The ID is generated from the namespace name using <dy:IdGenerator.generateNamespaceId>.
+* **Namespace ID:** The ID is generated from the namespace name using <dy:IdGenerator.generateNamespacePath>,
+    which returns an array of IDs for each level in the hierarchy.
+    The last element (`[-1]`) is selected to get the final namespace ID.
+
+    For a root namespace like `foo`, the array contains one element.
+    For a subnamespace like `symbol.xym`, it contains two elements, and the last one is the ID of `xym` under `symbol`.
+
 * **Target address:** The address that the namespace will point to.
 
 ### Fetching Network Time and Fees
@@ -116,8 +122,8 @@ The code demonstrates creating a <transfer transaction:> using the namespace as 
 the full hexadecimal address.
 
 To use a namespace as a recipient address, the namespace ID must be encoded into a 24-byte address. The namespace ID
-is obtained using `generate_namespace_path()[-1]`, which correctly handles both root namespaces and subnamespaces by
-computing the hierarchical namespace ID.
+is obtained using `generate_namespace_path()[-1]`, as described in the
+[previous section](#defining-the-namespace-and-target-address).
 
 The namespace ID is then encoded into a 24-byte address with the following structure:
 

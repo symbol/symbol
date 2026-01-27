@@ -52,7 +52,13 @@ This account must own both the namespace and the mosaic being linked.
 The code defines:
 
 * **Namespace name:** The name of the namespace to be linked. A timestamp is appended to ensure uniqueness across runs.
-* **Namespace ID:** The ID is generated from the namespace name using <dy:IdGenerator.generateNamespaceId>.
+* **Namespace ID:** The ID is generated from the namespace name using <dy:IdGenerator.generateNamespacePath>,
+    which returns an array of IDs for each level in the hierarchy.
+    The last element (`[-1]`) is selected to get the final namespace ID.
+
+    For a root namespace like `foo`, the array contains one element.
+    For a subnamespace like `symbol.xym`, it contains two elements, and the last one is the ID of `xym` under `symbol`.
+
 * **Mosaic ID:** The hexadecimal identifier of the mosaic that the namespace will point to.
     In this example, a test mosaic ID is used, but any valid mosaic ID can be specified.
 
@@ -117,9 +123,7 @@ The code demonstrates creating a <transfer transaction:> using the namespace in 
 the full hexadecimal mosaic ID.
 
 To use a namespace as a mosaic ID, the namespace must be converted to its namespace ID using
-`generate_namespace_path()[-1]`. This method correctly handles both root namespaces and subnamespaces
-by computing the hierarchical namespace ID. For subnamespaces like `symbol.xym`, it returns
-the ID of the child namespace rather than a hash of the full string.
+`generate_namespace_path()[-1]`, as described in the [previous section](#defining-the-namespace-and-target-mosaic).
 
 For more details on how to announce transfer transactions, see the
 [Transfer Transaction](../transactions/transfer.md) tutorial.
