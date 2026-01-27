@@ -3,7 +3,8 @@ import {
 	SymbolFacade,
 	NetworkTimestamp,
 	models,
-	generateNamespacePath
+	generateNamespacePath,
+	generateMosaicAliasId
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL ||
@@ -143,8 +144,7 @@ try {
 	console.log('Using mosaic alias in transfer:', namespaceName);
 
 	// Convert namespace to mosaic alias ID
-	const nsIdPath = generateNamespacePath(namespaceName);
-	const mosaicAliasId = nsIdPath[nsIdPath.length - 1];
+	const mosaicAliasId = generateMosaicAliasId(namespaceName);
 
 	const transferTx = facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',

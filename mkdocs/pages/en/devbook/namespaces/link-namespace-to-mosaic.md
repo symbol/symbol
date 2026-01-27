@@ -38,7 +38,7 @@ transactions are announced and confirmed.
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:16:24', 'js:13:21']) }}
+{{ tutorial.code_snippet(['py:17:25', 'js:14:22']) }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -47,7 +47,7 @@ This account must own both the namespace and the mosaic being linked.
 
 ### Defining the Namespace and Target Mosaic
 
-{{ tutorial.code_snippet(['py:26:34', 'js:23:34']) }}
+{{ tutorial.code_snippet(['py:27:35', 'js:24:35']) }}
 
 The code defines:
 
@@ -64,14 +64,14 @@ The code defines:
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:37:55', 'js:37:56']) }}
+{{ tutorial.code_snippet(['py:38:56', 'js:38:57']) }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:57:66', 'js:58:67']) }}
+{{ tutorial.code_snippet(['py:58:67', 'js:59:68']) }}
 
 The mosaic alias transaction specifies:
 
@@ -94,19 +94,19 @@ The mosaic alias transaction specifies:
 
 ### Submitting the Transaction
 
-{{ tutorial.code_snippet(['py:68:87', 'js:69:89']) }}
+{{ tutorial.code_snippet(['py:69:88', 'js:70:90']) }}
 
 The transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:89:107', 'js:91:125']) }}
+{{ tutorial.code_snippet(['py:90:108', 'js:92:126']) }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Verifying the Alias
 
-{{ tutorial.code_snippet(['py:109:121', 'js:127:140']) }}
+{{ tutorial.code_snippet(['py:110:122', 'js:128:141']) }}
 
 To verify the alias was created, the code retrieves the namespace information from the network
 using the <get:/namespaces/{namespaceId}> endpoint.
@@ -116,14 +116,14 @@ specified mosaic.
 
 ### Using the Alias
 
-{{ tutorial.code_snippet(['py:123:143', 'js:142:162']) }}
+{{ tutorial.code_snippet(['py:124:144', 'js:143:162']) }}
 
 Once the namespace is linked to a mosaic, the namespace can be used in place of the mosaic ID in transactions.
 The code demonstrates creating a <transfer transaction:> using the namespace in the mosaics array instead of
 the full hexadecimal mosaic ID.
 
-To use a namespace as a mosaic ID, the namespace must be converted to its namespace ID using
-`generate_namespace_path()[-1]`, as described in the [previous section](#defining-the-namespace-and-target-mosaic).
+To use a namespace as a mosaic ID, the namespace name is converted to its mosaic alias ID using
+<dy:IdGenerator.generateMosaicAliasId>.
 
 For more details on how to announce transfer transactions, see the
 [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -163,3 +163,4 @@ This tutorial showed how to:
 | [Generate namespace ID](#defining-the-namespace-and-target-mosaic)| <dy:IdGenerator.generateNamespacePath>        |
 | [Build a mosaic alias transaction](#building-the-transaction)     | <dy:SymbolTransactionFactory.create>          |
 | [Verify the alias](#verifying-the-alias)                          | <get:/namespaces/{namespaceId}>               |
+| [Use the alias in a transfer](#using-the-alias)                   | <dy:IdGenerator.generateMosaicAliasId>        |

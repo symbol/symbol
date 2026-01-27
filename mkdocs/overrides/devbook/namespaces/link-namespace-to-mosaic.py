@@ -6,7 +6,8 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.Network import NetworkTimestamp
-from symbolchain.symbol.IdGenerator import generate_namespace_path
+from symbolchain.symbol.IdGenerator import (
+	generate_namespace_path, generate_mosaic_alias_id)
 from symbolchain.sc import Amount
 
 NODE_URL = os.getenv(
@@ -124,7 +125,7 @@ try:
 	print(f'Using mosaic alias in transfer: {namespace_name}')
 
 	# Convert namespace to mosaic alias ID
-	mosaic_alias_id = generate_namespace_path(namespace_name)[-1]
+	mosaic_alias_id = generate_mosaic_alias_id(namespace_name)
 
 	transfer_tx = facade.transaction_factory.create({
 		'type': 'transfer_transaction_v1',
