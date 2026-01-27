@@ -4,13 +4,13 @@ import time
 import urllib.request
 
 # Configuration
-NODE_URL = os.environ.get(
+NODE_URL = os.getenv(
 	"NODE_URL", "https://reference.symboltest.net:3001"
 )
 print(f'Using node {NODE_URL}')
 
 # Transaction hash to monitor
-transaction_hash = os.environ.get(
+transaction_hash = os.getenv(
 	"TRANSACTION_HASH",
 	"2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA",
 )
