@@ -170,7 +170,7 @@ class BuildManager(BasicBuildManager):
 		for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
 			self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', f'libboost_{name}.so*', destination)
 
-		for name in ['bson-1.0', 'mongoc-1.0', 'bsoncxx', 'mongocxx', 'zmq', 'rocksdb', 'snappy', 'gflags']:
+		for name in ['bson2', 'mongoc2', 'bsoncxx', 'mongocxx', 'zmq', 'rocksdb', 'snappy', 'gflags']:
 			system_bin_path = self.environment_manager.system_bin_path
 			self.environment_manager.copy_glob_with_symlinks(system_bin_path, f'lib{name}.so*', destination)
 

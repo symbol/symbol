@@ -14,7 +14,7 @@ DEPENDENCY_NAMES_MAP = {
 	'boost': ('boost', 'Boost'),
 	'benchmark': ('google_benchmark', 'benchmark'),
 	'gtest': ('google_googletest', 'GTest'),
-	'mongo-c-driver': ('mongodb_mongo-c-driver', 'MONGOC-1.0'),
+	'mongo-c-driver': ('mongodb_mongo-c-driver', 'mongoc'),
 	'mongo-cxx-driver': ('mongodb_mongo-cxx-driver', 'MONGOCXX'),
 	'zeromq': ('zeromq_libzmq', None),
 	'cppzmq': ('zeromq_cppzmq', 'cppzmq'),
