@@ -261,7 +261,7 @@ pipeline {
 									sh '''
 										cd /catapult-src
 										lcov --directory client/catapult/_build --capture --output-file coverage_all.info --ignore-errors mismatch,inconsistent
-										lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info
+										lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info --ignore-errors inconsistent
 										lcov --list client_coverage.info
 									'''
 
