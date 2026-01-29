@@ -29,6 +29,11 @@ class CatapultConan(ConanFile):
 		self.options["boost*"].shared = True
 		self.options["boost*"].bzip2 = False
 		self.options["boost*"].zlib = False
+		if 'Linux' == self.settings.os and 'armv8' == self.settings.arch:
+			self.options["boost*"].extra_b2_flags = " ".join([
+				'cxxflags="--target=aarch64-linux-gnu"',
+				'linkflags="--target=aarch64-linux-gnu"'
+			])
 
 		self.options["boost*"].without_atomic = False
 		self.options["boost*"].without_chrono = False
