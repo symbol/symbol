@@ -131,7 +131,6 @@ class BuildManager(BasicBuildManager):
 		if self.environment_manager.is_windows_platform():
 			# copy the real ccache.exe since shim version is in the path
 			shutil.copy2('C:/Users/ContainerAdministrator/scoop/apps/ccache/current/ccache.exe', 'c:/tmp/_build/cl.exe')
-			self.dispatch_subprocess(['cmake', '--build', '.', '--target', 'publish'])
 			self.dispatch_subprocess([
 				'msbuild',
 				f'/p:Configuration={self.build_type}',
