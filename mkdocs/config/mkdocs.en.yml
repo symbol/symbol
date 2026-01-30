@@ -76,6 +76,7 @@ nav:
               - devbook/accounts/testnet-faucet.md
               - devbook/accounts/query-balance.md
               - devbook/accounts/account-metadata.md
+              - devbook/accounts/configure-multisig.md
           - Transactions:
               - devbook/transactions/transfer.md
               - devbook/transactions/typed-descriptors.md

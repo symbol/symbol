@@ -133,7 +133,7 @@ def multisig_disable_transaction():
 		embedded_transaction_2]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
-		# This is the account that will pay for this transaction
+		# This is the account that will pay for all transactions
 		'signer_public_key': cosignatory_key_pairs[0].public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
 		'transactions_hash': facade.hash_embedded_transactions(

@@ -26,12 +26,16 @@ Private Key
     It should be impossible to guess by unauthorized parties, and, although it is commonly randomly-generated,
     it is extremely unlikely that the same number is generated twice by chance.
 
+Symbol private keys are 32 bytes long, typically represented as 64-character hexadecimal strings.
+
 Public Key
 :   A very long number that serves as the public identifier of a <private key:> and can be disseminated widely.
     It can be used to prove that the private key is known without revealing it.
 
     Although mathematically derived from the private key, the reverse operation is practically impossible with
     current technology.
+
+Symbol public keys are 32 bytes long, typically represented as 64-character hexadecimal strings.
 
 Key Pair
 :   A matched set consisting of a <private key:> and its corresponding <public key:>.
