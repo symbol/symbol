@@ -27,6 +27,15 @@ digraph "Multisignature Tree" {
 }
 ```
 
+!!! note "Multilevel multisignature accounts"
+
+    More complex configurations, where a cosignatory is itself a multisig account, are also supported,
+    up to three levels deep.
+
+    Multisig accounts can be configured in any order.  
+    However, once an account is converted into a multisig, it can no longer sign its own transactions and must rely
+    exclusively on the cosignatories configured at that point.
+
 ## Prerequisites
 
 Before you start, make sure to:
