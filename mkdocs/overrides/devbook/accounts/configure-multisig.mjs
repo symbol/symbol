@@ -100,8 +100,7 @@ function multisigEnableTransaction(timestamp, feeMult) {
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
 	// Sign the aggregate transaction with the multisig's signature
-	SymbolTransactionFactory.attachSignature(
-		transaction,
+	SymbolTransactionFactory.attachSignature(transaction,
 		facade.signTransaction(multisigKeyPair, transaction));
 
 	// Append signatures from all cosignatories
@@ -157,8 +156,7 @@ function multisigDisableTransaction(timestamp, feeMult) {
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
 	// Sign the aggregate transaction using the first cosigner's signature
-	SymbolTransactionFactory.attachSignature(
-		transaction,
+	SymbolTransactionFactory.attachSignature(transaction,
 		facade.signTransaction(cosignatoryKeyPairs[0], transaction));
 
 	return transaction;

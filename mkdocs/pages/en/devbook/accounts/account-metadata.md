@@ -212,4 +212,3 @@ This tutorial showed how to:
 | [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>       |
 | [Retrieve metadata](#retrieving-metadata)                                             | <get:/metadata>                                    |
 | [Modify existing metadata](#modifying-existing-metadata)                              | <dy:Metadata.metadataUpdateValue>                  |
-
