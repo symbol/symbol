@@ -7840,7 +7840,7 @@
 	name="_:モザイク"
 	href="../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a>や任意のメッセージを送信するための<a class="mkdocs-ezglossary-link"
 	id="6835b765a460e4f9a695b20f2d8341b8"
-	title="トランザクションとは、Symbol ブロックチェーン上で実行される 1 つまたは複数のアクションを表します。
+	title="トランザクションとは、Symbol ブロックチェーン上で実行される1つまたは複数のアクションを表します。
 例えば、あるアカウントから別のアカウントへの資金移動や、新しい通貨の登録などが該当します。"
 	name="_:トランザクション"
 	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション</a>。</dd>
@@ -7881,7 +7881,7 @@
 <p><strong>マルチシグ対応</strong></p>
 <p>転送トランザクションは他のトランザクションと同様に<a class="mkdocs-ezglossary-link"
 	id="8e3ff1d2753bbbbb7997788ddaa221d4"
-	title="複数の署名者（共同署名者、コシグナトリー）による署名を必要とする
+	title="トランザクションを受け入れるために複数の署名者（連署人）による署名を必要とする
 特別な アカウント です。
 「マルチシグ」とも呼ばれます。"
 	name="_:マルチシグアカウント"
@@ -7917,12 +7917,12 @@
 <h3 id="_4">受信者アドレス<a class="headerlink" href="#_4" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>受信者は<a class="mkdocs-ezglossary-link"
 	id="023c7fc03731fab2ed99ceddb55b3a6c"
-	title="公開キー を短縮して扱いやすくした表現で、
+	title="公開鍵 を短縮して扱いやすくした表現で、
 通常は アカウント の同義語として使われます。"
 	name="_:アドレス"
 	href="../../textbook/cryptography/#f6e8ee8f749e716ec3449833d259b540">アドレス</a>または<a class="mkdocs-ezglossary-link"
 	id="7b452131bd09b3f8a1e57a0074f31ab0"
-	title="アドレスやモザイク IDの代わりに使用できる、人間が読みやすいテキスト文字列。"
+	title="アドレスやモザイク IDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>のエイリアスで指定できます。</p>
 <div class="admonition warning">
@@ -7931,12 +7931,12 @@
 <p>これは通常の動作としてサポートされていますが、
 受信者がその宛先アドレスを制御していることを十分に確認する必要があります。
 対応する<a class="mkdocs-ezglossary-link"
-	id="52205076128f0acbc34f647dcbabe06e"
+	id="ed341c16cf60721b1ef0df6ad9d1e1e6"
 	title="非常に長い数値であり、厳重に秘匿すべき情報です。
 値そのものに意味はなく、第三者に推測されることは想定されていません。
 通常はランダムに生成され、同じキーが偶然に生成されることはほぼありません。"
-	name="_:秘密キー"
-	href="../../textbook/cryptography/#36ce8bc42b2aac25bfd8c3ea600fc89f">秘密キー</a>を誰も持っていない場合、送信されたモザイクは永久にロックされてしまいます。</p>
+	name="_:秘密鍵"
+	href="../../textbook/cryptography/#87b32666b22cbcb8905e62db6871dccf">秘密鍵</a>を誰も持っていない場合、送信されたモザイクは永久にロックされてしまいます。</p>
 </div>
 <h3 id="_5">転送するモザイクの一覧<a class="headerlink" href="#_5" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>この一覧には、それぞれの転送対象モザイクの<a class="mkdocs-ezglossary-link"
@@ -7946,7 +7946,7 @@
 	name="_:モザイク"
 	href="../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク ID</a>（または<a class="mkdocs-ezglossary-link"
 	id="280f8b6b6c8bcd5a87c6a0171a8142ce"
-	title="アドレスやモザイク IDの代わりに使用できる、人間が読みやすいテキスト文字列。"
+	title="アドレスやモザイク IDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>のエイリアス）と、転送する数量が含まれます。</p>
 <p>当然ながら、送信者は各モザイクを十分に保有していなければなりません。
@@ -7962,7 +7962,7 @@
 <p>暗号化をサポートするため、Symbol 上のアプリケーションでは「最初の 1 バイト」で暗号化の有無を示す<strong>慣例</strong>が定められています。</p>
 <ul>
 <li>先頭バイトが <code>0x00</code> の場合、後続のバイトは暗号化されていないメッセージです。</li>
-<li>先頭バイトが <code>0x01</code> の場合、後続のバイトは受信者の公開キーを用い、
+<li>先頭バイトが <code>0x01</code> の場合、後続のバイトは受信者の公開鍵を用い、
   Bouncy Castle の AES ブロック暗号（<a href="https://ja.wikipedia.org/wiki/ブロック暗号モード#CBC">CBC モード</a>）で暗号化されたメッセージです。
   この場合、受信者のみが復号できます。</li>
 </ul>
@@ -7993,7 +7993,7 @@ Symbol プロトコルそのものの一部ではありません。</p>
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2025年10月24日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年1月19日</span>
   </span>
 
     
@@ -8013,12 +8013,13 @@ Symbol プロトコルそのものの一部ではありません。</p>
   <span class="md-source-file__fact">
     <span class="md-icon" title="投稿者">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:daoka.sweep@gmail.com">daokasweep</a>
     </nav>
   </span>
 

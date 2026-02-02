@@ -89,13 +89,23 @@
 	text-align: center;
 	padding: 0;
 	border: 0;
-	transition: box-shadow 0s;
 }
 
 .md-typeset .grid .card:hover {
-	position: relative;
-	box-shadow: 0 0 0 9999px var(--md-blanket-color);
-	background: var(--md-blanket-color);
+	box-shadow: none;
+}
+
+.md-typeset .grid a.userbook:hover h2,
+.md-typeset .grid a.userbook:hover p {
+	color: var(--userbook-color--light);
+}
+.md-typeset .grid a.devbook:hover h2,
+.md-typeset .grid a.devbook:hover p {
+	color: var(--devbook-color--light);
+}
+.md-typeset .grid a.textbook:hover h2,
+.md-typeset .grid a.textbook:hover p {
+	color: var(--textbook-color--light);
 }
 
 .md-typeset .grid .card a {

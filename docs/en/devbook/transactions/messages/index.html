@@ -1098,6 +1098,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../accounts/account-metadata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1401,6 +1422,115 @@
   
   <span class="md-ellipsis">
     Bonded Aggregate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_3" id="__nav_3_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Namespaces
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Namespaces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/register-root-namespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Register Root Namespace
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/register-subnamespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Register Subnamespace
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/extend-root-namespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extend Root Namespace
   </span>
   
 
@@ -8597,7 +8727,7 @@
 	id="3613d40b3a0ecc8393156a4fef770b96"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
-	href="../../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transactions</a> can include an optional message field, which allows attaching up to 1,024 bytes of data to the
+	href="../../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">Transfer transactions</a> can include an optional message field, which allows attaching up to 1,024 bytes of data to the
 transaction.
 Messages can be sent as plain text or encrypted using the recipient's public key, ensuring only the intended recipient
 can read them.</p>
@@ -8608,7 +8738,7 @@ can read them.</p>
 <li>Set up your development environment.
   See <a href="../../start/setup/">Setting Up a Development Environment</a>.</li>
 <li>Create an <a class="mkdocs-ezglossary-link"
-	id="2583842618a5a4b877bd703b6fe44d80"
+	id="b9a7f365d1a0ebe5596454f8f22bf70c"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8616,7 +8746,7 @@ It functions similarly to a safe deposit box in traditional banking."
   <a href="../../accounts/create-from-private-key/">from code</a> or
   <a href="../../../userbook/wallet/create-account/">by using a wallet</a>.</li>
 <li>Obtain <a class="mkdocs-ezglossary-link"
-	id="8ac82480ea0ca7695d5bdfce69392856"
+	id="04c8199d6fcb48a4a12bbcd97942d49c"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to pay for the transaction fee.
@@ -8869,7 +8999,7 @@ calculation, network time, and transaction confirmation work.</p>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="kn">from</span><span class="w"> </span><span class="nn">symbolchain.sc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Amount</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="c1"># Configuration</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="n">NODE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="n">NODE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="s2">&quot;NODE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;https://reference.symboltest.net:3001&quot;</span>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="p">)</span>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using node </span><span class="si">{</span><span class="n">NODE_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -8902,7 +9032,7 @@ calculation, network time, and transaction confirmation work.</p>
 </span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="c1"># Set up sender and recipient accounts</span>
 </span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="n">facade</span> <span class="o">=</span> <span class="n">SymbolFacade</span><span class="p">(</span><span class="s2">&quot;testnet&quot;</span><span class="p">)</span>
 </span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>
-</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="n">sender_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="n">sender_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="s2">&quot;SENDER_PRIVATE_KEY&quot;</span><span class="p">,</span>
 </span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="s2">&quot;0000000000000000000000000000000000000000000000000000000000000000&quot;</span><span class="p">,</span>
 </span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="p">)</span>
@@ -8913,7 +9043,7 @@ calculation, network time, and transaction confirmation work.</p>
 </span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a>    <span class="n">sender_key_pair</span><span class="o">.</span><span class="n">public_key</span>
 </span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="p">)</span>
 </span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>
-</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="n">recipient_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="n">recipient_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>    <span class="s2">&quot;RECIPIENT_PRIVATE_KEY&quot;</span><span class="p">,</span>
 </span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="s2">&quot;1111111111111111111111111111111111111111111111111111111111111111&quot;</span><span class="p">,</span>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="p">)</span>
@@ -9528,7 +9658,7 @@ The parts about fetching network time, calculating fees, and announcing transact
 <span class="normal"><a href="#__codelineno-2-71">71</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-45"><a id="__codelineno-2-45" name="__codelineno-2-45"></a><span class="c1"># Set up sender and recipient accounts</span>
 </span><span id="__span-2-46"><a id="__codelineno-2-46" name="__codelineno-2-46"></a><span class="n">facade</span> <span class="o">=</span> <span class="n">SymbolFacade</span><span class="p">(</span><span class="s2">&quot;testnet&quot;</span><span class="p">)</span>
 </span><span id="__span-2-47"><a id="__codelineno-2-47" name="__codelineno-2-47"></a>
-</span><span id="__span-2-48"><a id="__codelineno-2-48" name="__codelineno-2-48"></a><span class="n">sender_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-2-48"><a id="__codelineno-2-48" name="__codelineno-2-48"></a><span class="n">sender_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-2-49"><a id="__codelineno-2-49" name="__codelineno-2-49"></a>    <span class="s2">&quot;SENDER_PRIVATE_KEY&quot;</span><span class="p">,</span>
 </span><span id="__span-2-50"><a id="__codelineno-2-50" name="__codelineno-2-50"></a>    <span class="s2">&quot;0000000000000000000000000000000000000000000000000000000000000000&quot;</span><span class="p">,</span>
 </span><span id="__span-2-51"><a id="__codelineno-2-51" name="__codelineno-2-51"></a><span class="p">)</span>
@@ -9539,7 +9669,7 @@ The parts about fetching network time, calculating fees, and announcing transact
 </span><span id="__span-2-56"><a id="__codelineno-2-56" name="__codelineno-2-56"></a>    <span class="n">sender_key_pair</span><span class="o">.</span><span class="n">public_key</span>
 </span><span id="__span-2-57"><a id="__codelineno-2-57" name="__codelineno-2-57"></a><span class="p">)</span>
 </span><span id="__span-2-58"><a id="__codelineno-2-58" name="__codelineno-2-58"></a>
-</span><span id="__span-2-59"><a id="__codelineno-2-59" name="__codelineno-2-59"></a><span class="n">recipient_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-2-59"><a id="__codelineno-2-59" name="__codelineno-2-59"></a><span class="n">recipient_private_key_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-2-60"><a id="__codelineno-2-60" name="__codelineno-2-60"></a>    <span class="s2">&quot;RECIPIENT_PRIVATE_KEY&quot;</span><span class="p">,</span>
 </span><span id="__span-2-61"><a id="__codelineno-2-61" name="__codelineno-2-61"></a>    <span class="s2">&quot;1111111111111111111111111111111111111111111111111111111111111111&quot;</span><span class="p">,</span>
 </span><span id="__span-2-62"><a id="__codelineno-2-62" name="__codelineno-2-62"></a><span class="p">)</span>
@@ -9718,7 +9848,7 @@ descriptor.</p>
 <p>For applications requiring more than 1,024 bytes of data, common approaches include:</p>
 <ul>
 <li><strong>On-chain storage:</strong> Split the data across multiple transactions within an <a class="mkdocs-ezglossary-link"
-	id="09c76ad36f63f2ddf7945123c3b2bdf4"
+	id="7f6f69059d0016e76c9d147dfd8daaef"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
@@ -10201,7 +10331,7 @@ transaction hashes printed in the output.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 1, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 27, 2026</span>
   </span>
 
     
@@ -10221,11 +10351,12 @@ transaction hashes printed in the output.</p>
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
         <a href="mailto:zero4862@pm.me">zero</a>
     </nav>
   </span>

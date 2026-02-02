@@ -1091,6 +1091,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/accounts/account-metadata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1254,6 +1275,115 @@
   
   <span class="md-ellipsis">
     Bonded Aggregate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_3" id="__nav_3_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Namespaces
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Namespaces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/namespaces/register-root-namespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Register Root Namespace
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/namespaces/register-subnamespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Register Subnamespace
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/namespaces/extend-root-namespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extend Root Namespace
   </span>
   
 
@@ -8580,8 +8710,21 @@ but leases can be renewed.</p>
 Each name consists of one to three parts, separated by dots, for example, <code>foo</code>, <code>foo.bar</code>, or <code>foo.bar.baz</code>.</p>
 <p>The first part is called the <em>root namespace</em>.
 Any additional parts are <em>subnamespaces</em>, which must be registered separately under the root.</p>
-<p>Each root namespace can have up to 256 subnamespaces, which expire when the parent namespace expires
-(see <a href="#duration">Duration</a> below).</p>
+<dl>
+<dt>
+	<a id="27845e481e77bd05dd909646df6423aa">Root namespace</a> 
+</dt>
+<dd>A namespace that has no parent and can be used on its own.
+It can be used to group subnamespaces together in a hierarchical manner.
+Each root namespace can have up to 256 subnamespaces.</dd>
+
+<dt>
+	<a id="e62b35ddac703414b7c55745c6e9a203">Subnamespace</a> 
+</dt>
+<dd>A namespace that belongs to a parent root namespace.
+Subnamespaces expire when the parent namespace expires (see <a href="#duration">Duration</a>).</dd>
+
+</dl>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Anchor link to this section for reference">⚓︎</a></h2>
 <h3 id="name">Name<a class="headerlink" href="#name" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Each namespace has a unique name that identifies it on the network, and must follow specific formatting rules:</p>
@@ -8596,12 +8739,12 @@ Any additional parts are <em>subnamespaces</em>, which must be registered separa
 During this time, the creator can perform operations such as:</p>
 <ul>
 <li>Linking the namespace to a <a class="mkdocs-ezglossary-link"
-	id="9dd7990b79df695fb16fc33fc8b32cef"
+	id="c81bac4e82cbe8f11ef74a05139a5478"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaic</a> or an <a class="mkdocs-ezglossary-link"
-	id="045a324f83c53de3eff056eae2bf3201"
+	id="4415118be2d5ecf32b87e88b81795389"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8661,7 +8804,7 @@ Once the grace period ends, the namespace is fully expired and becomes available
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Unlike <a class="mkdocs-ezglossary-link"
-	id="1c53acfd37d520da2f3ac745741d8b32"
+	id="193af8ff377bbfdf2c634f1631598120"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -8670,7 +8813,7 @@ This allows them to remain active indefinitely, as long as the creator continues
 </div>
 <h2 id="lease-fee">Lease Fee<a class="headerlink" href="#lease-fee" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Registering a namespace requires paying a lease fee in the network currency (<a class="mkdocs-ezglossary-link"
-	id="c498d2a7ad099525f9a0216ee8ed4ed9"
+	id="1814728bd442cb1ae3d367dba09d1424"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>).
@@ -8690,12 +8833,12 @@ However, this transaction fee is typically negligible compared to the lease fee.
 </div>
 <h2 id="linking">Linking<a class="headerlink" href="#linking" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Namespaces can be linked to either a <a class="mkdocs-ezglossary-link"
-	id="b0fc630dae1f654eca017ffd5095fa3f"
+	id="62048e072dc06e6d2fc425bcd0466ada"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaic</a> or an <a class="mkdocs-ezglossary-link"
-	id="cdc9790796255812e1a50c10575f1545"
+	id="1994e44ca2f255678700a428cfd000c0"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8834,7 +8977,7 @@ approve transactions."
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 17, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 27, 2026</span>
   </span>
 
     
@@ -8854,12 +8997,13 @@ approve transactions."
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:zero4862@pm.me">zero</a>
     </nav>
   </span>
 

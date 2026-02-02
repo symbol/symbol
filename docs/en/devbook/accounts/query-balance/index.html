@@ -14,7 +14,7 @@
         <link rel="prev" href="../testnet-faucet/">
       
       
-        <link rel="next" href="../../transactions/transfer/">
+        <link rel="next" href="../account-metadata/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
@@ -1238,6 +1238,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account-metadata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1401,6 +1422,115 @@
   
   <span class="md-ellipsis">
     Bonded Aggregate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_3" id="__nav_3_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Namespaces
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Namespaces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/register-root-namespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Register Root Namespace
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/register-subnamespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Register Subnamespace
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/extend-root-namespace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extend Root Namespace
   </span>
   
 
@@ -8594,7 +8724,7 @@
 
 <h1 id="querying-an-account-balance">Querying an Account Balance<a class="headerlink" href="#querying-an-account-balance" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p><a class="mkdocs-ezglossary-link"
-	id="0bf66a86103a6e1ae19ae3660a281f47"
+	id="d07455e842a3666b8496e82fad49ee99"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -8604,7 +8734,7 @@ It functions similarly to a safe deposit box in traditional banking."
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaics</a> (fungible tokens), including the native currency <a class="mkdocs-ezglossary-link"
-	id="4b78eff92b8ad23763c1c466113b2133"
+	id="2a9f06a950c70b338c34c29e92731c4a"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>.</p>
@@ -8779,7 +8909,7 @@ You only need a way to make HTTP requests.</p>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="n">NODE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="n">NODE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a>    <span class="s1">&#39;NODE_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;https://reference.symboltest.net:3001&#39;</span><span class="p">)</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Using node </span><span class="si">{</span><span class="n">NODE_URL</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a>
@@ -8883,7 +9013,7 @@ You only need a way to make HTTP requests.</p>
 </span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>
 </span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>
 </span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="c1"># The account address to query</span>
-</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="n">ADDRESS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="n">ADDRESS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="s1">&#39;ADDRESS&#39;</span><span class="p">,</span> <span class="s1">&#39;TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ&#39;</span><span class="p">)</span>
 </span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fetching account information from </span><span class="si">{</span><span class="n">ADDRESS</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>
@@ -9234,7 +9364,7 @@ If no value is provided, a default one is used.</p>
 <p>The tutorial defines the following functions:</p>
 <ul>
 <li><code>get_account_info()</code>: Fetches <a class="mkdocs-ezglossary-link"
-	id="a29e24f3fd0d5f9b6fb1dc6009e09ee2"
+	id="398c57727cbe064080385d822c9e4b77"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -9756,7 +9886,7 @@ The fractional part is then zero-padded to ensure it always displays the correct
 <span class="normal"><a href="#__codelineno-10-148">148</a></span>
 <span class="normal"><a href="#__codelineno-10-149">149</a></span>
 <span class="normal"><a href="#__codelineno-10-150">150</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-108"><a id="__codelineno-10-108" name="__codelineno-10-108"></a><span class="c1"># The account address to query</span>
-</span><span id="__span-10-109"><a id="__codelineno-10-109" name="__codelineno-10-109"></a><span class="n">ADDRESS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-10-109"><a id="__codelineno-10-109" name="__codelineno-10-109"></a><span class="n">ADDRESS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
 </span><span id="__span-10-110"><a id="__codelineno-10-110" name="__codelineno-10-110"></a>    <span class="s1">&#39;ADDRESS&#39;</span><span class="p">,</span> <span class="s1">&#39;TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ&#39;</span><span class="p">)</span>
 </span><span id="__span-10-111"><a id="__codelineno-10-111" name="__codelineno-10-111"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fetching account information from </span><span class="si">{</span><span class="n">ADDRESS</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </span><span id="__span-10-112"><a id="__codelineno-10-112" name="__codelineno-10-112"></a>

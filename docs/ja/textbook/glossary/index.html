@@ -7710,7 +7710,7 @@
 	<a id="8679a49b301fbcc049ea244d9babf5ba">バックランニング</a> 
 </dt>
 <dd>（Backrunning）すでに未処理の <code>transactionB</code> が存在する状態で、やや低い手数料（またはガス）で <code>transactionA</code> を送信し、
-同一ブロック内で <code>transactionB</code> の<em>直後</em>にマイニングされるように狙う行為。</dd>
+同一ブロック内で <code>transactionB</code> の<em>直後</em>に<code>transactionA</code>がマイニングされるように狙う行為。</dd>
 
 <dt>
 	<a id="7903066a79e69334a9df99e3de4e260d">BLS</a> 
@@ -7856,12 +7856,12 @@ EVM 上のトークン標準（例：ERC-20、ERC-721、ERC-1155）を指すの�
 	<a id="ab5473fffd6f21472d9d292952cd20bf">ハードウェアウォレット</a> 
 </dt>
 <dd>（Hardware wallet）<a class="mkdocs-ezglossary-link"
-	id="5d3f8d71552740e740928829fee9df03"
+	id="32f7ce6f18f7ecdf744d4064ffceee04"
 	title="非常に長い数値であり、厳重に秘匿すべき情報です。
 値そのものに意味はなく、第三者に推測されることは想定されていません。
 通常はランダムに生成され、同じキーが偶然に生成されることはほぼありません。"
-	name="_:秘密キー"
-	href="../../textbook/cryptography/#36ce8bc42b2aac25bfd8c3ea600fc89f">秘密キー</a> を安全に保管し、署名を生成するための専用デバイス。
+	name="_:秘密鍵"
+	href="../../textbook/cryptography/#87b32666b22cbcb8905e62db6871dccf">秘密鍵</a> を安全に保管し、署名を生成するための専用デバイス。
 鍵は暗号化されたメモリに保存され、デバイス外に出ることはないため、
 ハードウェアウォレットは最も安全なアクセス手段のひとつとされる。
 通常は署名機能のみを持ち、<a class="mkdocs-ezglossary-link"
@@ -7871,7 +7871,7 @@ EVM 上のトークン標準（例：ERC-20、ERC-721、ERC-1155）を指すの�
 	href="../../textbook/accounts/#2a9bce20a5c796126c9862a4f40950a8">ウォレット</a> アプリケーションと組み合わせて
 <a class="mkdocs-ezglossary-link"
 	id="e74f50e7aa19c373b5fc08a2e2ac813b"
-	title="トランザクションとは、Symbol ブロックチェーン上で実行される 1 つまたは複数のアクションを表します。
+	title="トランザクションとは、Symbol ブロックチェーン上で実行される1つまたは複数のアクションを表します。
 例えば、あるアカウントから別のアカウントへの資金移動や、新しい通貨の登録などが該当します。"
 	name="_:トランザクション"
 	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション</a> を作成・送信する。</dd>
@@ -7940,7 +7940,7 @@ DeFi 市場ではこの方法で利益を得るケースがある。"
 	href="../../textbook/glossary/#2ae85934b3f9302877626b55f35442e5">フロントランニング</a>、<a class="mkdocs-ezglossary-link"
 	id="72092fc4acbb55df514529a0ec84f97c"
 	title="（Backrunning）すでに未処理の transactionB が存在する状態で、やや低い手数料（またはガス）で transactionA を送信し、
-同一ブロック内で transactionB の直後にマイニングされるように狙う行為。"
+同一ブロック内で transactionB の直後にtransactionAがマイニングされるように狙う行為。"
 	name="_:バックランニング"
 	href="../../textbook/glossary/#8679a49b301fbcc049ea244d9babf5ba">バックランニング</a>、<a class="mkdocs-ezglossary-link"
 	id="b2c145c9e977e990f0e4fd7314dcfea0"
@@ -8026,16 +8026,16 @@ Symbol のコンセンサスメカニズム。
 各アカウントが <a class="mkdocs-ezglossary-link"
 	id="97a6770d9b40d1dd1a9c768c81dbb0a9"
 	title="Symbol が新しい ブロック をチェーンに追加し、参加する
-アカウント に報酬を分配するプロセス。
-PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持つ。"
+アカウント に報酬を分配するプロセスです。
+PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
 	name="_:ハーベスティング"
 	href="../../textbook/harvesting/#ff18d4dd87ad820305edbe133d434f4d">ブロックを収穫</a> する確率は、
 その <a class="mkdocs-ezglossary-link"
 	id="5ec3419e5610ef19530a7a9a1cd3f2b1"
 	title="アカウントの残高、支払ったトランザクション手数料、
 そして新しいブロックの ハーベスティング への参加状況に基づき、
-ネットワークへの貢献度を数値化したもの。
-このスコアにより、ハーベスティングの優先度およびコンセンサス投票時の重みが決まる。"
+ネットワークへの貢献度を数値化したものです。
+このスコアにより、ハーベスティングの優先度およびコンセンサス投票時の重みが決まります。"
 	name="_:インポータンス"
 	href="../../textbook/harvesting/#8d301074509fc6237fa93b125ad7eb12">インポータンス</a> スコアに基づいて計算される。</dd>
 
@@ -8074,7 +8074,7 @@ DeFi 市場ではこの方法で利益を得るケースがある。"
 直後にもう一つの注文を置く（<a class="mkdocs-ezglossary-link"
 	id="881a58e57e6b831185baf8e73117f032"
 	title="（Backrunning）すでに未処理の transactionB が存在する状態で、やや低い手数料（またはガス）で transactionA を送信し、
-同一ブロック内で transactionB の直後にマイニングされるように狙う行為。"
+同一ブロック内で transactionB の直後にtransactionAがマイニングされるように狙う行為。"
 	name="_:バックランニング"
 	href="../../textbook/glossary/#8679a49b301fbcc049ea244d9babf5ba">バックランニング</a>）ことで利益を得る。</dd>
 
@@ -8200,7 +8200,7 @@ DeFi 市場ではこの方法で利益を得るケースがある。"
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2025年10月24日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年1月19日</span>
   </span>
 
     
@@ -8220,12 +8220,13 @@ DeFi 市場ではこの方法で利益を得るケースがある。"
   <span class="md-source-file__fact">
     <span class="md-icon" title="投稿者">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:daoka.sweep@gmail.com">daokasweep</a>
     </nav>
   </span>
 
