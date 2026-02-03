@@ -1,4 +1,4 @@
-FROM symbolplatform/symbol-server-build-base:ubuntu-gcc-13-conan
+FROM symbolplatform/symbol-server-build-base:ubuntu-gcc-15-conan
 USER root
 
 # install shellcheck

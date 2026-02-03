@@ -131,7 +131,6 @@ class BuildManager(BasicBuildManager):
 		if self.environment_manager.is_windows_platform():
 			# copy the real ccache.exe since shim version is in the path
 			shutil.copy2('C:/Users/ContainerAdministrator/scoop/apps/ccache/current/ccache.exe', 'c:/tmp/_build/cl.exe')
-			self.dispatch_subprocess(['cmake', '--build', '.', '--target', 'publish'])
 			self.dispatch_subprocess([
 				'msbuild',
 				f'/p:Configuration={self.build_type}',
@@ -170,7 +169,7 @@ class BuildManager(BasicBuildManager):
 		for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
 			self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', f'libboost_{name}.so*', destination)
 
-		for name in ['bson-1.0', 'mongoc-1.0', 'bsoncxx', 'mongocxx', 'zmq', 'rocksdb', 'snappy', 'gflags']:
+		for name in ['bson2', 'mongoc2', 'bsoncxx', 'mongocxx', 'zmq', 'rocksdb', 'snappy', 'gflags']:
 			system_bin_path = self.environment_manager.system_bin_path
 			self.environment_manager.copy_glob_with_symlinks(system_bin_path, f'lib{name}.so*', destination)
 

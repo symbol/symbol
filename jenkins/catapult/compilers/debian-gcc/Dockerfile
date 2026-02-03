@@ -1,4 +1,4 @@
-ARG FROM_IMAGE=debian:12
+ARG FROM_IMAGE=debian:13
 FROM ${FROM_IMAGE}
 
 RUN apt-get update >/dev/null && \

@@ -22,6 +22,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <stdint.h>
 
 namespace boost { namespace asio { class io_context; } }
 

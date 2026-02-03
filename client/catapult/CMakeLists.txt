@@ -58,7 +58,7 @@ message("boost    libs: ${Boost_LIBRARIES}")
 if(ENABLE_TESTS)
 	message("--- locating gtest dependencies ---")
 
-	find_package(GTest 1.16.0 EXACT REQUIRED)
+	find_package(GTest 1.17.0 EXACT REQUIRED)
 	message("GTest   found: ${GTest_FOUND}")
 	message("GTest     inc: ${GTest_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")
@@ -88,7 +88,7 @@ endfunction()
 
 ### setup rocksdb
 message("--- locating rocksdb dependencies ---")
-find_package(RocksDB 10.5.1 EXACT REQUIRED)
+find_package(RocksDB 10.6.2 EXACT REQUIRED)
 
 if(WIN32)
 	set(RocksDB_LIBRARY RocksDB::rocksdb)
