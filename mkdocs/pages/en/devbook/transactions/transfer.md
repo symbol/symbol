@@ -4,7 +4,7 @@ title: Transfer
 
 # Creating a Transfer Transaction
 
-<Transfer transactions:> are the most basic type of Symbol transaction.
+<Transfer transactions:|Transfer transactions> are the most basic type of Symbol transaction.
 They allow sending <XYM:> or any other type of <mosaic:> from one <account:> to another, optionally including a message.
 
 This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status

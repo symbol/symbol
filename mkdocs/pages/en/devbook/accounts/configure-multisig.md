@@ -5,7 +5,7 @@ title: Configure a Multisig
 # Configuring a Multisignature Account
 
 A <multisignature account:>, also called _multisig_, cannot initiate transactions on its own.
-Instead, it relies instead on _cosignatory_ accounts to create transactions and sign them on its behalf.
+Instead, it relies on _cosignatory_ accounts to create transactions and sign them on its behalf.
 
 This tutorial shows how to convert a regular account into a multisig account that requires approval from one of two
 cosignatories.
