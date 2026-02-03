@@ -77,6 +77,7 @@ nav:
               - devbook/accounts/query-balance.md
               - devbook/accounts/account-metadata.md
               - devbook/accounts/configure-multisig.md
+              - devbook/accounts/sign-multisig.md
           - Transactions:
               - devbook/transactions/transfer.md
               - devbook/transactions/typed-descriptors.md
