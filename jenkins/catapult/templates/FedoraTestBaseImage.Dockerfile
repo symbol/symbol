@@ -19,8 +19,7 @@ RUN dnf update --assumeyes && dnf install --assumeyes \
 	slang-devel \
 	&& \
 	dnf clean all && \
-	rm -rf /var/cache/yum && \
-	pip3 install -U colorama conan cryptography gitpython pycodestyle pylint PyYAML
+	rm -rf /var/cache/yum
 
 # add fedora user (used by jenkins)
 ARG HOME_DIR=/home/fedora
@@ -31,3 +30,5 @@ WORKDIR ${HOME_DIR}
 ENV VIRTUAL_ENV=${HOME_DIR}/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip3 install -U colorama conan cryptography gitpython pycodestyle pylint ply PyYAML
