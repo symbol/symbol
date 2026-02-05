@@ -21,7 +21,7 @@
 {% set ns.step_count = ns.step_count + 1 %}
 {%- endmacro %}
 
-{% macro code_full(filename, langs) -%}
+{% macro code_full(filename, langs, show=true) -%}
 {%- set ns.filename = filename -%}
 
 {# Convert list to dictionary with empty values #}
@@ -34,6 +34,7 @@
 {%- endif -%}
 
 {# Now iterate over the normalized dictionary #}
+{%- if show -%}
 {%- for l, props in langs.items() -%}
 {%- set caption = props.caption if props.caption is defined else None -%}
 === "{{lang_icon[l]}} {{lang_name[l]}}"
@@ -47,6 +48,7 @@
     {% if caption %}{{ caption | indent }}{% endif %}
 
 {% endfor %}
+{%- endif -%}
 {%- endmacro %}
 
 {% macro code_snippet(langs) -%}
