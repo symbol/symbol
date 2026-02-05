@@ -181,7 +181,7 @@ namespace catapult { namespace ionet {
 			EXPECT_TRUE(TTraits::IsEmpty(extractResult)) << "packet size " << size;
 		}
 
-#if 14 == __GNUC__ && !defined(__clang__)
+#if 14 <= __GNUC__ && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
