@@ -74,7 +74,7 @@ When the root expires, all subnamespaces expire with it.
 
 !!! note "Subnamespace lease fees"
 
-    In addition to the standard [transaction fee](#fetching-network-time-and-fees),
+    In addition to the standard transaction fee,
     registering a subnamespace requires a [lease fee](../../textbook/namespaces.md#lease-fee).
 
     Unlike the transaction fee, the lease fee is **not** included in the transaction request.
