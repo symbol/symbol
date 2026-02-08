@@ -56,10 +56,15 @@ The code defines:
     This name must match a namespace that your account already owns.
 * **Namespace ID:** The ID is generated from the namespace name using <dy:IdGenerator.generateNamespacePath>,
     which returns an array of IDs for each level in the hierarchy.
-    The last element is selected to get the final namespace ID.    Taking the last element works for both root namespaces and subnamespaces.
+    The last element is selected to get the final namespace ID.    Taking the last element works for both root namespaces
+    and subnamespaces.
 
     For a root namespace like `foo`, the array contains one element.
     For a subnamespace like `symbol.xym`, it contains two elements, and the last one is the ID of `xym` under `symbol`.
+
+    !!! info "Subnamespace IDs are unique"
+        Subnamespace IDs are derived hierarchically, so two subnamespaces with the same leaf name but different parents
+        produce different IDs. For example, the last element of the path for `foo.xym` and `bar.xym` will be different.
 
 * **Mosaic ID:** The hexadecimal identifier of the mosaic that the namespace will point to, read from
     the `MOSAIC_ID` environment variable. If not set, a default test mosaic ID is used.
