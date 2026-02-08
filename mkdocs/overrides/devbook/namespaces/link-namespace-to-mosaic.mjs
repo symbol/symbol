@@ -21,7 +21,7 @@ const signerAddress = facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
 console.log('Signer address:', signerAddress.toString());
 
-const namespaceName = `nsmos_${Date.now()}`;
+const namespaceName = process.env.NAMESPACE_NAME || 'my_namespace';
 console.log('Namespace name:', namespaceName);
 
 const nsPath = generateNamespacePath(namespaceName);
@@ -31,7 +31,7 @@ console.log(
 	`${namespaceId} (0x${namespaceId.toString(16)})`);
 
 // Target mosaic ID to link the namespace to
-const mosaicId = 0x091F837E059AE13Cn;
+const mosaicId = BigInt(process.env.MOSAIC_ID || '0x45C8C3733983AAC2');
 console.log('Mosaic ID:', `${mosaicId} (0x${mosaicId.toString(16)})`);
 
 try {
@@ -56,7 +56,7 @@ try {
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
 
-	// Build the transaction
+	// Build the alias transaction
 	const transaction = facade.transactionFactory.create({
 		type: 'mosaic_alias_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -134,14 +134,14 @@ try {
 		await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();
 	const namespaceInfo = namespaceJSON.namespace;
-	console.log('Namespace alias information:');
+	console.log('Alias information:');
 	console.log('  Alias type:', namespaceInfo.alias.type);
 	if (namespaceInfo.alias.type === 1) { // MOSAIC type
-		console.log('  Aliased mosaic ID:', namespaceInfo.alias.mosaicId);
+		console.log('  Linked mosaic ID:', namespaceInfo.alias.mosaicId);
 	}
 
-	// Use the alias in a transfer transaction
-	console.log('Using mosaic alias in transfer:', namespaceName);
+	// Send a transfer using the alias instead of a raw mosaic ID
+	console.log('Using alias in transfer:', namespaceName);
 
 	// Convert namespace to mosaic alias ID
 	const mosaicAliasId = generateMosaicAliasId(namespaceName);

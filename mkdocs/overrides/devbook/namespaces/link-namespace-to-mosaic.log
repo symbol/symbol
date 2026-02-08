@@ -1,36 +1,36 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
-Namespace name: nsmos_1769457459
-Namespace ID: 15646024088153024661 (0xd921d8031190e895)
-Mosaic ID: 8605501816345780144 (0x776ce24edd44dfb0)
+Namespace name: nsmos_1770541301
+Namespace ID: 13340994241872799248 (0xb924bb94515c2610)
+Mosaic ID: 5028483883612744386 (0x45c8c3733983aac2)
 Fetching current network time from /node/time
-  Network time: 102207064377 ms since nemesis
+  Network time: 103292001688 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Built transaction:
 {
-  "signature": "BBC4F875BCEA9DACA779CB088FC000798C82327C0615AEC4B89AE62DB520F547263F428AF4C9A89BED1D5E78606EC6A68B86646A74747ECB16981788DBA69B01",
+  "signature": "538EC97E2E9BF4099A28BCA4E7A7C1FEE53F9D7B85C2EB8DC4690B61F4D0CA350F3DEA096F284C4E8E99B533E383CF6C5602E5DA121244A0742997673A9AC60B",
   "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
   "version": 1,
   "network": 152,
   "type": 17230,
   "fee": "14500",
-  "deadline": "102214264377",
-  "namespace_id": "15646024088153024661",
-  "mosaic_id": "8605501816345780144",
+  "deadline": "103299201688",
+  "namespace_id": "13340994241872799248",
+  "mosaic_id": "5028483883612744386",
   "alias_action": 1
 }
-Transaction hash: D69061ADC5F0B86BB8462D5FD8FBEE20C1F3F8BF9F9640EE45AE2A2133F3230F
+Transaction hash: CAA9489E08AA66371D4342D420A75622E6394D6198BF130D01A0B31424AD6E38
 Announcing mosaic alias transaction to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
 Waiting for transaction confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
-Mosaic alias transaction confirmed in 9 seconds
-Fetching namespace information from /namespaces/d921d8031190e895
-Namespace alias information:
+Mosaic alias transaction confirmed in 16 seconds
+Fetching namespace information from /namespaces/b924bb94515c2610
+Alias information:
   Alias type: 1
-  Aliased mosaic ID: 776CE24EDD44DFB0
-Using mosaic alias in transfer: nsmos_1769457459
+  Linked mosaic ID: 45C8C3733983AAC2
+Using alias in transfer: nsmos_1770541301
 Transfer transaction:
-  Mosaic ID (alias): 15646024088153024661 (0xd921d8031190e895)
+  Mosaic ID (alias): 13340994241872799248 (0xb924bb94515c2610)

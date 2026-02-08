@@ -51,16 +51,18 @@ This account must own both the namespace and the mosaic being linked.
 
 The code defines:
 
-* **Namespace name:** The name of the namespace to be linked. A timestamp is appended to ensure uniqueness across runs.
+* **Namespace name:** The namespace to link, read from the `NAMESPACE_NAME` environment variable,
+    which defaults to `my_namespace` if not set.
+    This name must match a namespace that your account already owns.
 * **Namespace ID:** The ID is generated from the namespace name using <dy:IdGenerator.generateNamespacePath>,
     which returns an array of IDs for each level in the hierarchy.
-    The last element (`[-1]`) is selected to get the final namespace ID.
+    The last element is selected to get the final namespace ID.    Taking the last element works for both root namespaces and subnamespaces.
 
     For a root namespace like `foo`, the array contains one element.
     For a subnamespace like `symbol.xym`, it contains two elements, and the last one is the ID of `xym` under `symbol`.
 
-* **Mosaic ID:** The hexadecimal identifier of the mosaic that the namespace will point to.
-    In this example, a test mosaic ID is used, but any valid mosaic ID can be specified.
+* **Mosaic ID:** The hexadecimal identifier of the mosaic that the namespace will point to, read from
+    the `MOSAIC_ID` environment variable. If not set, a default test mosaic ID is used.
 
 ### Fetching Network Time and Fees
 
@@ -111,7 +113,7 @@ The code then waits for the transaction to be confirmed by polling the
 To verify the alias was created, the code retrieves the namespace information from the network
 using the <get:/namespaces/{namespaceId}> endpoint.
 
-The response includes the alias type (`mosaic`) and the aliased mosaic ID, confirming the namespace now points to the
+The response includes the alias type (`mosaic`) and the linked mosaic ID, confirming the namespace now points to the
 specified mosaic.
 
 ### Using the Alias
@@ -119,14 +121,29 @@ specified mosaic.
 {{ tutorial.code_snippet(['py:124:144', 'js:143:162']) }}
 
 Once the namespace is linked to a mosaic, the namespace can be used in place of the mosaic ID in transactions.
-The code demonstrates creating a <transfer transaction:> using the namespace in the mosaics array instead of
+The code demonstrates creating a <transfer transaction:> using the alias in the mosaics array instead of
 the full hexadecimal mosaic ID.
+
+For simplicity, this example sends the mosaic back to the sender's own address
+and does not announce the transaction or wait for its confirmation.
 
 To use a namespace as a mosaic ID, the namespace name is converted to its mosaic alias ID using
 <dy:IdGenerator.generateMosaicAliasId>.
 
 For more details on how to announce transfer transactions, see the
 [Transfer Transaction](../transactions/transfer.md) tutorial.
+
+!!! note "Mosaic Resolution Receipt"
+    When the network processes a transaction that uses a namespace alias as a mosaic ID, it generates a
+    **Mosaic Resolution Receipt**. This receipt records the actual mosaic ID the alias pointed to at the time the
+    transaction was confirmed.
+
+    This is important for historical auditability: since aliases can be changed or removed at any time, the receipt
+    ensures that the resolved mosaic ID can always be verified, even if the alias has since been updated.
+
+    Resolution receipts can be queried using the <get:/statements/resolutions/mosaic> endpoint.
+    For more details on receipts, see the [Resolution Statements](../../textbook/blocks.md#resolution-statements)
+    section in the Textbook.
 
 ## Output
 
@@ -138,7 +155,7 @@ The output shown below corresponds to a typical run of the program.
 
 Some highlights from the output:
 
-* **Namespace and target** (lines 3, 5): The namespace `nsmos_1769457459` is being linked to the target mosaic ID.
+* **Namespace and target** (lines 3, 5): The namespace `nsmos_1770541301` is being linked to the target mosaic ID.
 
 * **Transaction hash** (line 23): The transaction hash can be used to search for the transaction in the
     [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -146,8 +163,8 @@ Some highlights from the output:
 * **Alias verification** (lines 32-33): The namespace information confirms the alias type is `1` (mosaic) and
     shows the linked mosaic ID.
 
-* **Using the alias** (lines 36): A transfer transaction is created using the mosaic alias in the mosaics array,
-    demonstrating that the alias can be used in place of the full mosaic ID.
+* **Using the alias** (lines 36): A transfer transaction is created using the alias in the mosaics array,
+    demonstrating that it can be used in place of the full mosaic ID.
 
     !!! note "Different mosaic ID"
         The mosaic ID used in the transfer differs from the original mosaic ID because it is the
@@ -164,3 +181,4 @@ This tutorial showed how to:
 | [Build a mosaic alias transaction](#building-the-transaction)     | <dy:SymbolTransactionFactory.create>          |
 | [Verify the alias](#verifying-the-alias)                          | <get:/namespaces/{namespaceId}>               |
 | [Use the alias in a transfer](#using-the-alias)                   | <dy:IdGenerator.generateMosaicAliasId>        |
+| [Query mosaic resolution receipts](#using-the-alias)              | <get:/statements/resolutions/mosaic>          |

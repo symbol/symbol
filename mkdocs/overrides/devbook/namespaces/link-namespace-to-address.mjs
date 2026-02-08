@@ -21,7 +21,7 @@ const signerAddress = facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
 console.log('Signer address:', signerAddress.toString());
 
-const namespaceName = `nsaddr_${Date.now()}`;
+const namespaceName = process.env.NAMESPACE_NAME || 'my_namespace';
 console.log('Namespace name:', namespaceName);
 
 const nsPath = generateNamespacePath(namespaceName);
@@ -32,6 +32,7 @@ console.log(
 
 // Target address to link the namespace to
 const targetAddress = new SymbolFacade.Address(
+	process.env.TARGET_ADDRESS ||
 	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI');
 console.log('Target address:', targetAddress.toString());
 
@@ -57,7 +58,7 @@ try {
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
 
-	// Build the transaction
+	// Build the alias transaction
 	const transaction = facade.transactionFactory.create({
 		type: 'address_alias_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -135,48 +136,49 @@ try {
 		await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();
 	const namespaceInfo = namespaceJSON.namespace;
-	console.log('Namespace alias information:');
+	console.log('Alias information:');
 	console.log('  Alias type:', namespaceInfo.alias.type);
 	if (namespaceInfo.alias.type === 2) { // ADDRESS type
 		const aliasedAddress = new models.Address(
 			Uint8Array.from(Buffer.from(
 				namespaceInfo.alias.address, 'hex')));
-		console.log('  Aliased address:', aliasedAddress.toString());
+		console.log('  Linked address:', aliasedAddress.toString());
 	}
 
-	// Use the alias in a transfer transaction
-	console.log('Using namespace alias in transfer:', namespaceName);
+	// Send a transfer using the alias instead of a raw address
+	console.log('Using alias in transfer:', namespaceName);
 
-	// Convert namespace to aliased address format (24 bytes)
-	// Byte 0: network byte (0x98) | alias flag (0x01) = 0x99 for mainnet
-	//         or 0x90 | 0x01 = 0x91 for testnet
-	// Bytes 1-8: namespace ID in little-endian (reversed)
+	// Encode the namespace ID as a recipient address (24 bytes)
+	// Byte 0: network byte (Network Identifier | 0x01 to indicate alias)
+	// Bytes 1-8: namespace ID in little-endian
 	// Bytes 9-23: zero padding
-	const nsIdPath = generateNamespacePath(namespaceName);
-	const nsId = nsIdPath[nsIdPath.length - 1];
-	const aliasBytes = new Uint8Array(24);
-	aliasBytes[0] = facade.network.identifier | 0x01;
+	const recipientPath = generateNamespacePath(namespaceName);
+	const recipientId = recipientPath[recipientPath.length - 1];
+	const recipientBytes = new Uint8Array(24);
+	recipientBytes[0] = facade.network.identifier | 0x01;
 	// Convert namespace ID to little-endian bytes
-	const nsIdBytes = new Uint8Array(8);
+	const recipientIdBytes = new Uint8Array(8);
 	for (let i = 0; i < 8; i++) {
-		nsIdBytes[i] = Number((nsId >> BigInt(i * 8)) & 0xFFn);
+		recipientIdBytes[i] = Number(
+			(recipientId >> BigInt(i * 8)) & 0xFFn);
 	}
-	aliasBytes.set(nsIdBytes, 1);
+	recipientBytes.set(recipientIdBytes, 1);
 	// Bytes 9-23 are already zero-filled
-	const aliasAddress = new SymbolFacade.Address(aliasBytes);
+	const recipientAddress = new SymbolFacade.Address(recipientBytes);
 
 	const transferTx = facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: aliasAddress,
+		recipientAddress: recipientAddress,
 		mosaics: [{
 			mosaicId: generateMosaicAliasId('symbol.xym'),
 			amount: 1_000_000n // 1 XYM
 		}]
 	});
 	console.log('Transfer transaction:');
-	console.log('  Recipient address (alias):', aliasAddress.toString());
+	console.log('  Recipient address (alias):',
+		recipientAddress.toString());
 } catch (e) {
 	console.error(e.message);
 }

@@ -25,16 +25,16 @@ signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
 
-namespace_name = f'nsaddr_{int(time.time())}'
+namespace_name = os.getenv('NAMESPACE_NAME', 'my_namespace')
 print(f'Namespace name: {namespace_name}')
 
 namespace_id = generate_namespace_path(namespace_name)[-1]
 print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
 
 # Target address to link the namespace to
-target_address_hex = (
-	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI')
-target_address = Address(target_address_hex)
+target_address = Address(
+	os.getenv('TARGET_ADDRESS',
+	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI'))
 print(f'Target address: {target_address}')
 
 try:
@@ -58,7 +58,7 @@ try:
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
 
-	# Build the transaction
+	# Build the alias transaction
 	transaction = facade.transaction_factory.create({
 		'type': 'address_alias_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -117,39 +117,38 @@ try:
 			f'{NODE_URL}{namespace_path}') as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
-		print('Namespace alias information:')
+		print('Alias information:')
 		alias_type = namespace_info['alias']['type']
 		print(f'  Alias type: {alias_type}')
 		if alias_type == 2:  # ADDRESS type
 			aliased_address_hex = namespace_info['alias']['address']
 			aliased_address = Address(bytes.fromhex(aliased_address_hex))
-			print(f'  Aliased address: {aliased_address}')
+			print(f'  Linked address: {aliased_address}')
 
-	# Use the alias in a transfer transaction
-	print(f'Using namespace alias in transfer: {namespace_name}')
+	# Send a transfer using the alias instead of a raw address
+	print(f'Using alias in transfer: {namespace_name}')
 
-	# Convert namespace to aliased address format (24 bytes)
-	# Byte 0: network byte (0x98) | alias flag (0x01) = 0x99 for mainnet
-	#         or 0x90 | 0x01 = 0x91 for testnet
+	# Encode the namespace ID as a recipient address (24 bytes)
+	# Byte 0: network byte (Network Identifier | 0x01 to indicate alias)
 	# Bytes 1-8: namespace ID in little-endian
 	# Bytes 9-23: zero padding
-	ns_id = generate_namespace_path(namespace_name)[-1]
-	alias_address = Address(
+	recipient_id = generate_namespace_path(namespace_name)[-1]
+	recipient_address = Address(
 		bytes([facade.network.identifier | 0x01]) +
-		ns_id.to_bytes(8, 'little') + bytes(15))
+		recipient_id.to_bytes(8, 'little') + bytes(15))
 
 	transfer_tx = facade.transaction_factory.create({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
-		'recipient_address': alias_address,
+		'recipient_address': recipient_address,
 		'mosaics': [{
 			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
 			'amount': 1_000_000  # 1 XYM
 		}]
 	})
 	print('Transfer transaction:')
-	print(f'  Recipient address (alias): {alias_address}')
+	print(f'  Recipient address (alias): {recipient_address}')
 
 except Exception as e:
 	print(e)

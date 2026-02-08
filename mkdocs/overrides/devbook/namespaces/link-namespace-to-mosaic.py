@@ -24,14 +24,14 @@ signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
 
-namespace_name = f'nsmos_{int(time.time())}'
+namespace_name = os.getenv('NAMESPACE_NAME', 'my_namespace')
 print(f'Namespace name: {namespace_name}')
 
 namespace_id = generate_namespace_path(namespace_name)[-1]
 print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
 
 # Target mosaic ID to link the namespace to
-mosaic_id = int('0x091F837E059AE13C', 16)
+mosaic_id = int(os.getenv('MOSAIC_ID', '0x45C8C3733983AAC2'), 16)
 print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
 
 try:
@@ -55,7 +55,7 @@ try:
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
 
-	# Build the transaction
+	# Build the alias transaction
 	transaction = facade.transaction_factory.create({
 		'type': 'mosaic_alias_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -114,15 +114,15 @@ try:
 			f'{NODE_URL}{namespace_path}') as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
-		print('Namespace alias information:')
+		print('Alias information:')
 		alias_type = namespace_info['alias']['type']
 		print(f'  Alias type: {alias_type}')
 		if alias_type == 1:  # MOSAIC type
 			aliased_mosaic_id = namespace_info['alias']['mosaicId']
-			print(f'  Aliased mosaic ID: {aliased_mosaic_id}')
+			print(f'  Linked mosaic ID: {aliased_mosaic_id}')
 
-	# Use the alias in a transfer transaction
-	print(f'Using mosaic alias in transfer: {namespace_name}')
+	# Send a transfer using the alias instead of a raw mosaic ID
+	print(f'Using alias in transfer: {namespace_name}')
 
 	# Convert namespace to mosaic alias ID
 	mosaic_alias_id = generate_mosaic_alias_id(namespace_name)
