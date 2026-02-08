@@ -160,4 +160,4 @@ This tutorial showed how to:
 Now that you have a subnamespace, you can:
 
 - Register additional subnamespaces to expand your hierarchical structure
-- Link your namespace to a mosaic or account to create an alias
+- [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md) to create an alias
