@@ -90,6 +90,8 @@ nav:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
               - devbook/namespaces/extend-root-namespace.md
+              - devbook/namespaces/link-namespace-to-address.md
+              - devbook/namespaces/link-namespace-to-mosaic.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
