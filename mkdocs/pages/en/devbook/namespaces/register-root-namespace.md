@@ -163,6 +163,6 @@ This tutorial showed how to:
 
 Now that you have a root namespace, you can:
 
-- Link your namespace to a mosaic or account to create an alias
+- [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md) to create an alias
 - [Register a subnamespace](./register-subnamespace.md) to create a hierarchical structure
 - [Extend the namespace](./extend-root-namespace.md) before it expires to keep it active
