@@ -13,13 +13,13 @@ This tutorial shows how to link a namespace to a mosaic identifier and how to un
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:> that owns the namespace, either [from code](../accounts/create-from-private-key.md) or
+* Create an <account:> that owns the namespace, either [from code](../accounts/create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md).
-- [Register a root namespace](./register-root-namespace.md) to link to a mosaic.
-- Have a mosaic ID to link the namespace to. You can create one or use an existing mosaic.
-- Obtain <XYM:> to pay for the transaction fee.
+* [Register a root namespace](./register-root-namespace.md) to link to a mosaic.
+* Have a mosaic ID to link the namespace to. You can create one or use an existing mosaic.
+* Obtain <XYM:> to pay for the transaction fee.
     See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
@@ -56,15 +56,16 @@ The code defines:
     This name must match a namespace that your account already owns.
 * **Namespace ID:** The ID is generated from the namespace name using <dy:IdGenerator.generateNamespacePath>,
     which returns an array of IDs for each level in the hierarchy.
-    The last element is selected to get the final namespace ID.    Taking the last element works for both root namespaces
-    and subnamespaces.
+    The last element is selected to get the final namespace ID.
+    Taking the last element works for both root namespaces and subnamespaces.
 
     For a root namespace like `foo`, the array contains one element.
     For a subnamespace like `symbol.xym`, it contains two elements, and the last one is the ID of `xym` under `symbol`.
 
     !!! info "Subnamespace IDs are unique"
         Subnamespace IDs are derived hierarchically, so two subnamespaces with the same leaf name but different parents
-        produce different IDs. For example, the last element of the path for `foo.xym` and `bar.xym` will be different.
+        produce different IDs.
+        For example, the last element of the path for `foo.xym` and `bar.xym` will be different.
 
 * **Mosaic ID:** The hexadecimal identifier of the mosaic that the namespace will point to, read from
     the `MOSAIC_ID` environment variable. If not set, a default test mosaic ID is used.
@@ -140,8 +141,8 @@ For more details on how to announce transfer transactions, see the
 
 !!! note "Mosaic Resolution Receipt"
     When the network processes a transaction that uses a namespace alias as a mosaic ID, it generates a
-    **Mosaic Resolution Receipt**. This receipt records the actual mosaic ID the alias pointed to at the time the
-    transaction was confirmed.
+    **Mosaic Resolution Receipt**.
+    This receipt records the actual mosaic ID the alias pointed to at the time the transaction was confirmed.
 
     This is important for historical auditability: since aliases can be changed or removed at any time, the receipt
     ensures that the resolved mosaic ID can always be verified, even if the alias has since been updated.
