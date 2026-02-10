@@ -4,7 +4,7 @@ title: Register Root Namespace
 
 # Registering a Root Namespace
 
-<Namespaces:> provide human-readable aliases for <accounts:> and <mosaics:>,
+<Namespaces:|Namespaces> provide human-readable aliases for <accounts:> and <mosaics:>,
 which can be used instead of long addresses and hexadecimal mosaic IDs.
 
 This tutorial shows how to register a <root namespace:> and set its lease [duration](../../textbook/namespaces.md#duration).

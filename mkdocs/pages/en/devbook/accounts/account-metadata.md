@@ -4,11 +4,20 @@ title: Add Metadata
 
 # Adding Metadata to an Account
 
-<Accounts:> can store <metadata:> as key-value pairs.
+<Accounts:|Accounts> - like <mosaics:> and <namespaces:> - can store <metadata:> as key-value pairs.
 
 This tutorial shows how to add metadata to an account, retrieve metadata from the network, and update existing values.
 
-In this example, the string `alice` is attached to an account and then changed to `bob`.
+In this example, the string `alice` is attached to an account and then changed to `bob`:
+
+```dot
+digraph {
+    rankdir="LR";
+    Account [label="Account A" tooltip="Account"];
+    Metadata [label="username: alice" tooltip="Metadata entry" shape=note];
+    Account -> Metadata [label="metadata"];
+}
+```
 
 ## Prerequisites
 
@@ -62,16 +71,6 @@ following the process described in the [Transfer Transaction](../transactions/tr
 Each metadata entry is uniquely identified by the signer's address, the target account's address, and a
 **scoped metadata key**: a 64-bit value chosen by the metadata creator.
 
-!!! note "Multiple entries with the same key"
-
-    Because the signer's address is part of the unique identifier, different accounts can use the same scoped metadata
-    key on the same target account without conflict.
-
-    For example, Account A and Account B can both use the key `username` when adding metadata to Account C,
-    resulting in two distinct metadata entries.
-
-    Each entry is independent and can only be updated by the account that originally created it.
-
 The SDK provides a <dy:Metadata.metadataGenerateKey> helper function that generates a key from a
 human-readable string using SHA3-256 hashing.
 This approach makes keys more meaningful and reduces the chance of collisions.
@@ -83,6 +82,7 @@ In practice, you would use a fixed key that identifies the specific metadata ent
 
 The metadata value can be any byte sequence.
 In this example, the value is the string `alice` encoded in UTF-8.
+
 
 ### Creating the Embedded Account Metadata Transaction
 
@@ -154,12 +154,13 @@ The code queries the <get:/metadata> endpoint with filters for `sourceAddress`, 
 
 ### Modifying Existing Metadata
 
-{{ tutorial.code_snippet(['py:151:177', 'js:152:180']) }}
+{{ tutorial.code_snippet(['py:151:165', 'js:152:167']) }}
 
-To demonstrate updating metadata, the code changes the username from `alice` to `bob` using another account
-metadata transaction.
+To demonstrate updating metadata, the code changes the username from `alice` to `bob` by creating another
+`account_metadata_transaction_v1` transaction with the same scoped metadata key.
 
-Updating metadata in Symbol requires:
+Modifying an existing metadata value in Symbol differs from creating one.
+Instead of sending the new value directly, the transaction must include:
 
 * **`value_size_delta`:** The difference in length between the new and current values.
     In this example, the delta is `-2` because `bob` (3 bytes) is shorter than `alice` (5 bytes).
@@ -172,8 +173,15 @@ The XOR operation compares each byte: matching bytes become zero, and differing 
 Note that `value_size_delta` represents the difference in final value lengths (new vs current),
 not the length of the XOR'd bytes themselves.
 
-{{ tutorial.code_snippet(['py:179:189', 'js:182:194']) }}
+!!! tip "Deleting a metadata entry"
 
+    To delete a metadata entry, set `value_size_delta` to the negative of the current value length and provide the
+    current value as `value`. The XOR produces an empty result, which removes the entry from the network.
+
+{{ tutorial.code_snippet(['py:167:189', 'js:169:194']) }}
+
+As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
+in an aggregate transaction.
 The aggregate transaction is then signed and announced as in
 [Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction).
 
@@ -206,9 +214,9 @@ The transaction hashes can be used to search for the transactions in the
 
 This tutorial showed how to:
 
-| Step                                                                                  | Related documentation                              |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [Define metadata key and value](#defining-the-metadata)                               | <dy:Metadata.metadataGenerateKey>                  |
-| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>       |
-| [Retrieve metadata](#retrieving-metadata)                                             | <get:/metadata>                                    |
-| [Modify existing metadata](#modifying-existing-metadata)                              | <dy:Metadata.metadataUpdateValue>                  |
+| Step                                                                                  | Related documentation                                |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [Define metadata key and value](#defining-the-metadata)                               | <dy:Metadata.metadataGenerateKey>                    |
+| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [Retrieve metadata](#retrieving-metadata)                                             | <get:/metadata>                                      |
+| [Modify existing metadata](#modifying-existing-metadata)                              | <dy:Metadata.metadataUpdateValue>                    |

@@ -86,15 +86,19 @@ nav:
               - devbook/transactions/complete-aggregate.md
               - devbook/transactions/bonded-aggregate.md
               - devbook/transactions/fee-sponsorship.md
+          - Mosaics:
+              - devbook/mosaics/mosaic-metadata.md
           - Namespaces:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
               - devbook/namespaces/extend-root-namespace.md
               - devbook/namespaces/link-namespace-to-address.md
               - devbook/namespaces/link-namespace-to-mosaic.md
+              - devbook/namespaces/namespace-metadata.md
           - Mosaics:
               - devbook/mosaics/create-mosaic.md
               - devbook/mosaics/change-mosaic-supply.md
+              - devbook/mosaics/mosaic-metadata.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
