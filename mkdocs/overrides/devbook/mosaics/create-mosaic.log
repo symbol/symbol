@@ -1,0 +1,64 @@
+Using node https://reference.symboltest.net:3001
+Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Fetching current network time from /node/time
+  Network time: 103504012049 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+
+--- Creating mosaic definition ---
+Mosaic nonce: 1770754477
+Mosaic ID: 8318126551268698739 (0x736fec06ed1daa73)
+Built mosaic definition transaction:
+{
+  "signature": "6516FB17F162075795E8A4578595DE4745A57B151A6A6ACABF613C1ADF94DC36AF13F661E9FC356723A1F653D2ECC434E514F891A7D16502825431FE5AC17F06",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16717,
+  "fee": "15000",
+  "deadline": "103511212049",
+  "id": "8318126551268698739",
+  "duration": "0",
+  "nonce": 1770754477,
+  "flags": 6,
+  "divisibility": 2
+}
+Transaction hash: 959C4FDE753700E21959CB23E46EE761937A3AFEAFB40DBD9ADFBEE2D1C85F8B
+Announcing mosaic definition to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for Mosaic definition confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Mosaic definition confirmed in 12 seconds
+
+--- Increasing mosaic supply ---
+Built mosaic supply change transaction:
+{
+  "signature": "9704D30D6B060CB28A5A8DA3BAC40B7D02D878199C32D57FA70B6EB213735677BF7380F14A1A9B04B7DEA806D55A379CF20BAC3BDA24D16094DF2F97917A5605",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16973,
+  "fee": "14500",
+  "deadline": "103511212049",
+  "mosaic_id": "8318126551268698739",
+  "delta": "10000",
+  "action": 1
+}
+Transaction hash: E4E002C9E4536666E47E4B98DB7307FF5715C4BD8C4579D8AD67C9CBCECC2CD2
+Announcing mosaic supply change to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for Mosaic supply change confirmation...
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Mosaic supply change confirmed in 9 seconds
+
+--- Verifying mosaic ---
+Fetching mosaic information from /mosaics/736fec06ed1daa73
+Mosaic information:
+  Mosaic ID: 736FEC06ED1DAA73
+  Supply: 10000
+  Flags: 6
+  Divisibility: 2
+  Duration: 0
