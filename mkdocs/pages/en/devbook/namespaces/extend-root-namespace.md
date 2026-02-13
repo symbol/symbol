@@ -15,6 +15,7 @@ This tutorial shows how to extend a root namespace.
 - An <account:> that owns an active root namespace.
     See [Registering a Root Namespace](./register-root-namespace.md).
 - <XYM:> to pay for the transaction and lease fees.
+
 ## When to Extend
 
 You can extend a namespace in two situations:
@@ -24,7 +25,6 @@ You can extend a namespace in two situations:
 
 * **During the grace period:** The namespace has expired but is still within the [grace period](../../textbook/namespaces.md#duration),
     extending it restores the namespace to active status immediately.
-
 
 !!! note "Extending Subnamespaces"
 
