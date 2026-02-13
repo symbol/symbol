@@ -95,6 +95,7 @@ nav:
           - Mosaics:
               - devbook/mosaics/create-mosaic.md
               - devbook/mosaics/change-mosaic-supply.md
+              - devbook/mosaics/modify-mosaic-definition.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
