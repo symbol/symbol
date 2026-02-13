@@ -4,16 +4,16 @@ title: Change Mosaic Supply
 
 # Changing Mosaic Supply
 
-<Mosaics:> created with the `supply_mutable` flag can have their total supply increased or decreased after creation.
+<Mosaics:|Mosaics> created with the `supply_mutable` flag can have their total supply increased or decreased after creation.
 
 This tutorial shows how to change a mosaic's supply.
 
 ## Prerequisites
 
-Before you start, make sure to:
+Before you start, make sure to have:
 
 * An <account:> that owns a mosaic with the `supply_mutable` flag set.
-    See [Creating a Mosaic](./create-mosaic.md).
+    See the [Creating a Mosaic](./create-mosaic.md) tutorial.
 * <XYM:> to pay for the transaction fee.
     See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
@@ -27,7 +27,7 @@ from the Creating a Mosaic tutorial with these parameters:
 1. Set `action` to `increase`.
 2. Set `delta` to the number of atomic units to add.
     Remember that the delta is expressed in atomic units, so the mosaic's
-    [divisibility](../../textbook/mosaics.md#divisibility) determines the conversion to relative units.
+    [divisibility](../../textbook/mosaics.md#divisibility) determines the conversion to whole units.
 
 New units are added to the mosaic creator's account balance.
 

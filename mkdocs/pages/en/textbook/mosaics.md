@@ -67,7 +67,7 @@ Mosaics can be created with a specific duration or as eternal:
     Once this period ends, the mosaic expires and can no longer be transferred or used in transactions.
     Balances remain in accounts but are effectively frozen.
 
-!!! note
+!!! warning
     Mosaic duration cannot be extended after creation.
     Before creating an expiring mosaic, consider whether your use case truly requires it to expire.
 

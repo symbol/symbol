@@ -26,7 +26,7 @@ Built mosaic definition transaction:
 Transaction hash: 959C4FDE753700E21959CB23E46EE761937A3AFEAFB40DBD9ADFBEE2D1C85F8B
 Announcing mosaic definition to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for Mosaic definition confirmation...
+Waiting for mosaic definition confirmation...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: confirmed
@@ -49,7 +49,7 @@ Built mosaic supply change transaction:
 Transaction hash: E4E002C9E4536666E47E4B98DB7307FF5715C4BD8C4579D8AD67C9CBCECC2CD2
 Announcing mosaic supply change to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for Mosaic supply change confirmation...
+Waiting for mosaic supply change confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
 Mosaic supply change confirmed in 9 seconds

@@ -41,7 +41,7 @@ Creating a mosaic requires announcing two transactions:
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:60:69', 'js:69:81']) }}
+{{ tutorial.code_snippet(['py:50:59', 'js:50:58']) }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -50,14 +50,14 @@ This account will own the created mosaic.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:72:102', 'js:84:111']) }}
+{{ tutorial.code_snippet(['py:62:80', 'js:61:79']) }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Mosaic Definition Transaction
 
-{{ tutorial.code_snippet(['py:104:128', 'js:113:140']) }}
+{{ tutorial.code_snippet(['py:85:100', 'js:84:100']) }}
 
 The mosaic definition transaction registers a new mosaic on the network with the following properties:
 
@@ -75,7 +75,7 @@ The mosaic definition transaction registers a new mosaic on the network with the
         Before setting a duration, consider whether your use case truly requires it.
 
 * **Divisibility:** The number of decimal places the mosaic supports.
-    For example, a value of `2` means each whole unit can be divided into 100 (10^2) atomic units.
+    For example, a value of `2` means each whole unit can be divided into 100 (10^2^) atomic units.
     For more details, see [Divisibility](../../textbook/mosaics.md#divisibility) in the Textbook.
 
 * **Nonce:** An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) that acts as a locally unique identifier
@@ -117,7 +117,7 @@ The mosaic definition transaction registers a new mosaic on the network with the
 
 ### Submitting the Mosaic Definition
 
-{{ tutorial.code_snippet(['py:130:147', 'js:142:163']) }}
+{{ tutorial.code_snippet(['py:102:113', 'js:102:115']) }}
 
 The mosaic definition transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
@@ -127,7 +127,7 @@ The code then waits for the transaction to be confirmed by polling the
 
 ### Building the Mosaic Supply Change Transaction
 
-{{ tutorial.code_snippet(['py:149:165', 'js:165:182']) }}
+{{ tutorial.code_snippet(['py:118:126', 'js:120:129']) }}
 
 Once the mosaic definition is confirmed, a second transaction increases the mosaic's supply:
 
@@ -136,15 +136,15 @@ Once the mosaic definition is confirmed, a second transaction increases the mosa
 * **Mosaic ID:** The identifier of the mosaic, computed from the signer's address and nonce using
     <dy:IdGenerator.generateMosaicId>.
 
-* **Action:** The value `increase` mints new units.
+* **Action:** The value `increase` mints new units directly into the signer's account.
 
 * **Delta:** The number of atomic units to add.
     Since the mosaic has a [divisibility](../../textbook/mosaics.md#divisibility) of `2`, a delta of `10000`
-    results in `100.00` relative units (10000 / 10^2).
+    results in `100.00` whole units (10000 / 10^2^).
 
 ### Submitting the Supply Change
 
-{{ tutorial.code_snippet(['py:167:185', 'js:184:204']) }}
+{{ tutorial.code_snippet(['py:128:140', 'js:131:143']) }}
 
 The mosaic supply change transaction is signed and announced following the same process as the mosaic definition transaction.
 
@@ -160,7 +160,7 @@ Once any units are distributed to other accounts, the supply becomes permanently
 
 ### Retrieving the Mosaic
 
-{{ tutorial.code_snippet(['py:187:208', 'js:206:229']) }}
+{{ tutorial.code_snippet(['py:145:156', 'js:148:159']) }}
 
 To verify the mosaic was created successfully, the code retrieves it from the network
 using the <get:/mosaics/{mosaicId}> endpoint and displays its properties.
@@ -192,7 +192,7 @@ Some highlights from the output:
     The value `6` equals `transferable` (2) + `restrictable` (4).
     The divisibility is `2` and the duration `0` means the mosaic never expires.
 
-* **Supply delta** (line 46): The delta of `10000` atomic units represents `100.00` relative units
+* **Supply delta** (line 46): The delta of `10000` atomic units represents `100.00` whole units
     given the mosaic's divisibility of `2`.
 
 * **Verified properties** (lines 60-64): The mosaic is retrieved from the network, confirming
