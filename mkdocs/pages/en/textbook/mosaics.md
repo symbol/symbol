@@ -108,18 +108,18 @@ Grants the creator the ability to forcibly remove mosaic units from another acco
 returning them to the creator’s own account.
 This feature can be used to reclaim tokens or enforce contractual terms.
 
-## Rental Fee
+## Lease Fee
 
-Creating a mosaic requires paying a one-time rental fee in the network currency (<XYM:>).
+Creating a mosaic requires paying a one-time lease fee in the network currency (<XYM:>).
 
-The cost of the rental fee can be determined beforehand by querying the network,
+The cost of the lease fee can be determined beforehand by querying the network,
 and applications like the [Symbol Wallet](../userbook/wallet/install.md) typically display this information.
 
 The fee must be paid at the time of creation and is non-refundable.
 
 !!! note
     Creating a mosaic requires announcing a transaction, which also has an associated fee.
-    However, this transaction fee is typically negligible compared to the rental fee.
+    However, this transaction fee is typically negligible compared to the lease fee.
 
 ## Mosaic IDs and Namespaces
 

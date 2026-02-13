@@ -20,7 +20,7 @@ Before you start, make sure to:
 * Create an <account:> to create the mosaic, either
     [from code](../accounts/create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md).
-* Obtain <XYM:> to pay for the transaction and rental fees.
+* Obtain <XYM:> to pay for the transaction and lease fees.
     See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
@@ -103,16 +103,16 @@ The mosaic definition transaction registers a new mosaic on the network with the
 
     In this example, `transferable restrictable` is used.
 
-!!! note "Rental fee"
+!!! note "Lease fee"
 
     In addition to the standard [transaction fee](#fetching-network-time-and-fees),
-    creating a mosaic requires a one-time rental fee paid in <XYM:>.
+    creating a mosaic requires a one-time lease fee paid in <XYM:>.
 
-    Unlike the transaction fee, the rental fee is **not** included in the transaction request.
+    Unlike the transaction fee, the lease fee is **not** included in the transaction request.
     It is deducted automatically by the network from the signer's account
     when the mosaic definition transaction is confirmed.
 
-    The amount of the rental fee can be queried from the <get:/network/fees/rental> endpoint
+    The amount of the lease fee can be queried from the <get:/network/fees/rental> endpoint
     (`effectiveMosaicRentalFee` property).
 
 ### Submitting the Mosaic Definition
@@ -181,7 +181,7 @@ Some highlights from the output:
     to derive the mosaic ID `0x736fec06ed1daa73`.
 
 * **Fee** (line 18): The transaction fee of 0.015 XYM is calculated as the transaction size
-    multiplied by the fee multiplier. The [rental fee](../../textbook/mosaics.md#rental-fee) is deducted separately
+    multiplied by the fee multiplier. The [lease fee](../../textbook/mosaics.md#lease-fee) is deducted separately
     by the network when the transaction is confirmed.
 
 * **Mosaic ID** (line 20): The `id` field is automatically computed by the transaction factory from the nonce
