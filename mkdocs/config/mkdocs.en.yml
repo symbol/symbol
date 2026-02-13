@@ -92,6 +92,9 @@ nav:
               - devbook/namespaces/extend-root-namespace.md
               - devbook/namespaces/link-namespace-to-address.md
               - devbook/namespaces/link-namespace-to-mosaic.md
+          - Mosaics:
+              - devbook/mosaics/create-mosaic.md
+              - devbook/mosaics/change-mosaic-supply.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/

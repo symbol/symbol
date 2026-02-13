@@ -148,11 +148,11 @@ verifiability.
 | `Mosaic Alias Resolution`  | The unresolved and resolved <namespace:>. Recorded when a transaction uses a <mosaic:> alias.                           |
 | **Mosaic**                 |                                                                                                                         |
 | `Mosaic Expired`           | The identifier of the <mosaic:> expiring in this block. Recorded when a mosaic's lifetime elapses.                      |
-| `Mosaic Rental Fee`        | The sender, recipient, and amount representing the cost of registering a <mosaic:>. Recorded at mosaic registration.    |
+| `Mosaic Lease Fee`         | The sender, recipient, and amount representing the cost of registering a <mosaic:>. Recorded at mosaic registration.    |
 | **Namespace**              |                                                                                                                         |
 | `Namespace Expired`        | The identifier of the <namespace:> expiring in this block. Recorded when the namespace's lifetime elapses.              |
 | `Namespace Deleted`        | The identifier of the <namespace:> deleted in this block. Recorded when the grace period of an expired namespace ends.  |
-| `Namespace Rental Fee`     | The sender, recipient, and cost of extending a <namespace:>. Recorded at registration or renewal.                       |
+| `Namespace Lease Fee`      | The sender, recipient, and cost of extending a <namespace:>. Recorded at registration or renewal.                       |
 | **HashLock**               |                                                                                                                         |
 | `LockHash Created`         | The sender, mosaic ID, and amount locked. Recorded when a valid `HashLockTransaction` is announced.                     |
 | `LockHash Completed`       | The sender, mosaic ID, and amount returned. Recorded when an `AggregateBondedTransaction` linked to the hash completes. |

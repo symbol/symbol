@@ -57,12 +57,17 @@ These changes affect only the creator's balance:
 
 ### Duration
 
-Mosaics can be assigned an optional duration, expressed in blocks.
-Once this period ends, the mosaic expires and disappears from the balances of all accounts.
+Mosaics can be created with a specific duration or as eternal:
 
-If a duration is provided, the maximum allowed value in Symbol is 10 years (3650 days).
+* **Eternal mosaics** never expire. This is the recommended choice for most use cases,
+    such as currencies or permanent access rights.
 
-!!! note
+* **Expiring mosaics** have a duration expressed in blocks.
+    If a duration is provided, the maximum allowed value in Symbol is 10 years (3650 days).
+    Once this period ends, the mosaic expires and can no longer be transferred or used in transactions.
+    Balances remain in accounts but are effectively frozen.
+
+!!! warning
     Mosaic duration cannot be extended after creation.
     Before creating an expiring mosaic, consider whether your use case truly requires it to expire.
 
@@ -102,6 +107,19 @@ See the documentation about <mosaic restrictions:> for more information.
 Grants the creator the ability to forcibly remove mosaic units from another account,
 returning them to the creator’s own account.
 This feature can be used to reclaim tokens or enforce contractual terms.
+
+## Lease Fee
+
+Creating a mosaic requires paying a one-time lease fee in the network currency (<XYM:>).
+
+The cost of the lease fee can be determined beforehand by querying the network,
+and applications like the [Symbol Wallet](../userbook/wallet/install.md) typically display this information.
+
+The fee must be paid at the time of creation and is non-refundable.
+
+!!! note
+    Creating a mosaic requires announcing a transaction, which also has an associated fee.
+    However, this transaction fee is typically negligible compared to the lease fee.
 
 ## Mosaic IDs and Namespaces
 
