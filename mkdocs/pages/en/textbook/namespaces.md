@@ -8,6 +8,8 @@ They improve usability in wallets and block explorers by allowing meaningful _al
 `my_company.main_account` to stand in for raw mosaic IDs or account addresses,
 making interactions clearer and less error-prone.
 
+Additional arbitrary data can be attached to namespaces using <metadata:>.
+
 Because namespaces are a limited resource, they are leased for a fixed period rather than owned permanently,
 but leases can be renewed.
 
