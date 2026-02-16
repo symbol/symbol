@@ -16,6 +16,8 @@ New mosaics can be created as needed.
 Each is assigned a unique identifier and optionally a human-readable name for easier use
 [as explained below](#mosaic-ids-and-namespaces).
 
+Additional arbitrary data can be attached to mosaics using <metadata:>.
+
 ## Mosaic Properties
 
 Symbol mosaics support several configurable properties that define their behavior.
