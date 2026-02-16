@@ -11,6 +11,7 @@ from symbolchain.symbol.Metadata import (
 	metadata_update_value
 )
 from symbolchain.symbol.Network import NetworkTimestamp
+from symbolchain.symbol.IdGenerator import generate_namespace_id
 
 NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
@@ -60,6 +61,12 @@ signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
 
+# Get namespace name from environment or use default
+NAMESPACE_NAME = os.getenv('NAMESPACE_NAME', 'testnamespace')
+namespace_id = generate_namespace_id(NAMESPACE_NAME)
+print(f'Namespace name: {NAMESPACE_NAME}')
+print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
+
 try:
 	# Fetch current network time
 	time_path = '/node/time'
@@ -85,15 +92,16 @@ try:
 	print('\n--- Adding new metadata ---')
 
 	# Define metadata key and value
-	key_string = f'username_{int(time.time())}'
+	key_string = f'description_{int(time.time())}'
 	scoped_metadata_key = metadata_generate_key(key_string)
-	metadata_value = 'alice'.encode('utf8')
+	metadata_value = 'My first namespace'.encode('utf8')
 
 	# Create the embedded metadata transaction
 	embedded_transaction = facade.transaction_factory.create_embedded({
-		'type': 'account_metadata_transaction_v1',
+		'type': 'namespace_metadata_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'target_address': signer_address,
+		'target_namespace_id': namespace_id,
 		'scoped_metadata_key': scoped_metadata_key,
 		# When creating new metadata, value_size_delta
 		# equals the value length
@@ -131,10 +139,10 @@ try:
 
 	# Fetch current metadata value from network
 	metadata_path = (
-		f'/metadata?sourceAddress={signer_address}'
-		f'&targetAddress={signer_address}'
+		f'/metadata?targetAddress={signer_address}'
 		f'&scopedMetadataKey={scoped_metadata_key:016X}'
-		'&metadataType=0'
+		f'&targetId={namespace_id:016X}'
+		'&metadataType=2'
 	)
 	print(f'Fetching current metadata from {metadata_path}')
 	with urllib.request.urlopen(
@@ -149,20 +157,23 @@ try:
 	print(f'  Current value: {current_value.decode("utf8")}')
 
 	# XOR the current and new values
-	new_value = 'bob'.encode('utf8')
+	new_value = 'Updated namespace'.encode('utf8')
 	update_value = metadata_update_value(current_value, new_value)
 
 	# Create the update transaction with XOR'd value
 	embedded_update = facade.transaction_factory.create_embedded({
-		'type': 'account_metadata_transaction_v1',
+		'type': 'namespace_metadata_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'target_address': signer_address,
+		'target_namespace_id': namespace_id,
 		'scoped_metadata_key': scoped_metadata_key,
 		# value_size_delta is the difference in length
 		# (can be negative)
 		'value_size_delta': len(new_value) - len(current_value),
 		'value': update_value
 	})
+	print('Created embedded update transaction:')
+	print(json.dumps(embedded_update.to_json(), indent=2))
 
 	# Build the aggregate for the update
 	embedded_transactions = [embedded_update]
