@@ -144,8 +144,8 @@ try {
 		.toUpperCase().padStart(16, '0');
 	const namespaceIdHex = namespaceId.toString(16)
 		.toUpperCase().padStart(16, '0');
-	const metadataPath = `/metadata?sourceAddress=${signerAddress}`
-		+ `&targetAddress=${signerAddress}`
+	const metadataPath = `/metadata`
+		+ `?targetAddress=${signerAddress}`
 		+ `&scopedMetadataKey=${scopedKeyHex}`
 		+ `&targetId=${namespaceIdHex}`
 		+ '&metadataType=2';

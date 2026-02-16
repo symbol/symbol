@@ -1,21 +1,26 @@
 ---
-title: Add Metadata
+title: Add Namespace Metadata
 ---
 
 # Adding Metadata to a Namespace
 
-<Namespaces:|Namespaces> - like <accounts:> and <mosaics:> - can store <metadata:> as key-value pairs.
+<Namespaces:|Namespaces>, like <accounts:> and <mosaics:>, can store <metadata:> as key-value pairs.
 
-This tutorial shows how to add metadata to a namespace, retrieve metadata from the network, and update existing values.
+This tutorial shows how to add metadata to a namespace, retrieve it from the network, and update existing values.
 
-In this example, the string `My first namespace` is attached to a namespace and then changed to `Updated namespace`:
+In this example, the pair `description = My first namespace` is attached to a namespace and then changed to `Updated namespace`:
 
 ```dot
 digraph {
-    rankdir="LR";
-    NS [label="Namespace\ntestnamespace" tooltip="Namespace"];
-    Metadata [label="description:\nMy first namespace" tooltip="Metadata entry" shape=note];
-    NS -> Metadata [label="metadata"];
+    layout="neato";
+    Namespace [label="Namespace\ntestnamespace" tooltip="Namespace" pos="0,0!"];
+    Metadata [
+        style=filled
+        class=metadata
+        label=<<table border="0"><tr><td><b>Key</b></td><td><b>Value</b></td></tr><tr><td>description</td><td>My first namespace</td></tr></table>>
+        tooltip="Metadata entry"
+        shape=note
+        pos="2.5,0.5!"];
 }
 ```
 
@@ -23,19 +28,19 @@ digraph {
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:> to own the namespace, either
+* Create an <account:> to own the namespace, either
     [from code](../accounts/create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md).
-- [Register a namespace](./register-root-namespace.md) owned by the signer account.
-- Obtain <XYM:> to pay for the transaction fee.
+* [Register a namespace](./register-root-namespace.md) owned by the signer account.
+* Obtain <XYM:> to pay for the transaction fee.
     See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
 transactions are announced and confirmed, and the
-[Complete Aggregate transaction](../transactions/complete-aggregate.md) tutorial to understand how aggregate
-transactions work.
+[Complete Aggregate transaction](../transactions/complete-aggregate.md) tutorial to understand how
+<aggregate transactions:> work.
 
 ## Full Code
 
@@ -61,8 +66,10 @@ The namespace ID is computed from the name using <dy:IdGenerator.generateNamespa
 
 !!! note "Namespace must exist"
 
-    The namespace must already be registered and owned by the signer account.
-    See [Registering a Root Namespace](./register-root-namespace.md) for how to create one.
+    The namespace must already be registered and owned by the signer account,
+    or the transaction adding the metadata will be rejected.
+
+    See [Registering a Root Namespace](./register-root-namespace.md) to learn how to do it.
 
 ### Fetching Network Time and Fees
 
@@ -73,30 +80,34 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 ### Defining the Metadata
 
+Each namespace metadata entry is uniquely identified by:
+
+* The **signer's address**: the account adding the metadata
+* The **target account's address**: the namespace owner, whose signature is required
+* The **target namespace ID**
+* A **scoped metadata key**: a 64-bit value chosen by the metadata creator
+
+    The SDK provides a <dy:Metadata.metadataGenerateKey> helper function that generates this key from a
+    human-readable string using SHA3-256 hashing.
+    This approach makes keys more meaningful and reduces the chance of collisions.
+
 {{ tutorial.code_snippet(['py:94:97', 'js:93:96']) }}
-
-Each namespace metadata entry is uniquely identified by the signer's address, the target account's address,
-the target namespace ID, and a **scoped metadata key**: a 64-bit value chosen by the metadata creator.
-
-The SDK provides a <dy:Metadata.metadataGenerateKey> helper function that generates a key from a
-human-readable string using SHA3-256 hashing.
-This approach makes keys more meaningful and reduces the chance of collisions.
 
 In this example, the key is derived from the string `description`.
 For demonstration purposes, a timestamp is appended to the key string,
 so each time the code is executed a new entry is added to the namespace.
 In practice, you would use a fixed key that identifies the specific metadata entry you want to create or update.
 
-The metadata value can be any byte sequence.
+The metadata value can be any sequence of up to 1024 bytes.
 In this example, the value is the string `My first namespace` encoded in UTF-8.
 
 !!! note "Multiple entries with the same key"
 
-    Because the signer's address is part of the unique identifier, different accounts can use the same scoped metadata
-    key on the same namespace without conflict.
+    The key is only one of the 4 parts that identify a metadata entry,
+    so a change in any part produces a different entry.
 
-    For example, Account A and Account B can both use the key `description` when adding metadata to a namespace,
-    resulting in two distinct metadata entries.
+    For example, different accounts can use the same scoped metadata key on the same namespace without conflict,
+    because the signer's address is different.
 
     Each entry is independent and can only be updated by the account that originally created it.
 
@@ -107,20 +118,20 @@ In this example, the value is the string `My first namespace` encoded in UTF-8.
 A namespace metadata transaction attaches a key-value pair to a namespace on the blockchain.
 The same transaction type handles both adding new metadata entries and updating existing ones.
 
-Symbol requires these transactions to be inside an <aggregate transaction:> that includes the namespace owner's
-signature.
+Symbol requires these transactions to be inside an <aggregate transaction:> that includes both
+the signer account and the namespace owner's signature.
 This prevents unwanted metadata from being attached to a namespace without its owner's permission.
 
-For this reason, the code defines the namespace metadata transaction as an <embedded transaction:>.
-
-This transaction specifies:
+In this tutorial, the signer is also the namespace owner so only one signature is needed.
+However, the transaction still needs to be inside an aggregate,
+so the code defines the mosaic metadata transaction as an <embedded transaction:> with these properties:
 
 * **Type:** Use `namespace_metadata_transaction_v1`.
 
 * **Signer public key:** The account creating the metadata entry.
 
 * **Target address:** The namespace owner's address.
-    When the signer differs from the namespace owner, the owner must cosign the aggregate transaction.
+    When the signer differs from the namespace owner, the owner must <cosignature:|cosign> the aggregate transaction.
 
 * **Target namespace ID:** The namespace to attach the metadata to.
 
@@ -162,29 +173,32 @@ The aggregate transaction is signed and announced following the same process as 
 
 {{ tutorial.code_snippet(['py:140:157', 'js:142:162']) }}
 
-Updating an existing metadata entry requires the current value from the network.
+To retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
+with filters for `targetAddress`, `scopedMetadataKey`, `targetId` (the namespace ID), and `metadataType`
+(`2` for namespace metadata).
 
-The code queries the <get:/metadata> endpoint with filters for `targetAddress`, `scopedMetadataKey`,
-`targetId` (the namespace ID), and `metadataType` (`2` for namespace metadata) to retrieve the specific entry.
+The endpoint returns the list of entries matching the filters, which in this case contains a single item.
 
 ### Modifying Existing Metadata
 
 {{ tutorial.code_snippet(['py:159:176', 'js:164:182']) }}
 
+Updating an existing metadata entry requires the current value, retrieved from the network as previously shown.
+
 To demonstrate updating metadata, the code changes the description from `My first namespace` to `Updated namespace`
 by creating another `namespace_metadata_transaction_v1` transaction with the same scoped metadata key.
 
-Modifying an existing metadata value in Symbol differs from creating one.
-Instead of sending the new value directly, the transaction must include:
+Modifying an existing metadata value differs from creating a new one in that the updated value must be defined
+in terms of the current value, using the following fields:
 
-* **`value_size_delta`:** The difference in length between the new and current values.
-    In this example, the delta is `-1` because `Updated namespace` (17 bytes) is shorter than
+* `value_size_delta`: The difference in length between the new and current values.
+    In this example, the delta is `-1` because `Updated namespace` (17 bytes) is one byte shorter than
     `My first namespace` (18 bytes).
 
-* **`value`:** The XOR'd bytes computed by comparing the current and new values byte-by-byte.
+* `value`: The XOR'd bytes computed by comparing the current and new values byte-by-byte.
 
-The SDK provides a <dy:Metadata.metadataUpdateValue> helper function that handles the XOR calculation.
-The XOR operation compares each byte: matching bytes become zero, and differing bytes capture the change.
+    The SDK provides a <dy:Metadata.metadataUpdateValue> helper function that handles the XOR calculation.
+    The XOR operation compares each byte: matching bytes become zero, and differing bytes capture the change.
 
 Note that `value_size_delta` represents the difference in final value lengths (new vs current),
 not the length of the XOR'd bytes themselves.
@@ -194,12 +208,10 @@ not the length of the XOR'd bytes themselves.
     To delete a metadata entry, set `value_size_delta` to the negative of the current value length and provide the
     current value as `value`. The XOR produces an empty result, which removes the entry from the network.
 
-{{ tutorial.code_snippet(['py:178:200', 'js:184:209']) }}
-
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
-in an aggregate transaction.
-The aggregate transaction is then signed and announced as in
-[Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction).
+in an aggregate transaction and then signed and announced.
+
+{{ tutorial.code_snippet(['py:178:200', 'js:184:209']) }}
 
 ## Output
 
@@ -231,9 +243,9 @@ The transaction hashes can be used to search for the transactions in the
 
 This tutorial showed how to:
 
-| Step                                                                                             | Related documentation                              |
-| ------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
-| [Define metadata key and value](#defining-the-metadata)                                          | <dy:Metadata.metadataGenerateKey>                  |
-| [Create a namespace metadata transaction](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>       |
-| [Retrieve metadata](#retrieving-metadata)                                                        | <get:/metadata>                                    |
-| [Modify existing metadata](#modifying-existing-metadata)                                         | <dy:Metadata.metadataUpdateValue>                  |
+| Step                                                                                             | Related documentation                        |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------|
+| [Define metadata key and value](#defining-the-metadata)                                          | <dy:Metadata.metadataGenerateKey>            |
+| [Create a namespace metadata transaction](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [Retrieve metadata](#retrieving-metadata)                                                        | <get:/metadata>                              |
+| [Modify existing metadata](#modifying-existing-metadata)                                         | <dy:Metadata.metadataUpdateValue>            |

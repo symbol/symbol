@@ -173,7 +173,7 @@ The aggregate transaction is signed and announced following the same process as 
 
 {{ tutorial.code_snippet(['py:138:155', 'js:140:160']) }}
 
-The retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
+To retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
 with filters for `targetAddress`, `scopedMetadataKey`, `targetId` (the mosaic ID), and `metadataType`
 (`1` for mosaic metadata).
 
