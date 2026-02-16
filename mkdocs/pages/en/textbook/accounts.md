@@ -65,7 +65,7 @@ Wallets can be:
     significantly more secure.
 
 Most wallets allow managing multiple accounts, QR code scanning (for signing and requesting transaction signatures),
-metadata entry, and <multisignature account:|multisig> configuration.
+<metadata:> entry, and <multisignature account:|multisig> configuration.
 Accounts can be also imported or exported using either <private keys:> or <mnemonic phrases:>.
 
 ## HD Wallets
@@ -81,19 +81,6 @@ The seed is typically a <mnemonic phrase:>.
 Most wallets are HD wallets.
 
 Symbol uses the [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) standard to generate accounts from the seed.
-
-## Metadata
-
-Metadata
-:   Structured data attached an <account:> or to other blockchain entities like <mosaics:> and <namespaces:>.
-
-Metadata on Symbol consists of key–value pairs and is stored on-chain.
-
-Since metadata cannot be attached to an account without its explicit approval, its use cases include:
-
-* Tagging accounts with identity information.
-* Adding public contact or usage data.
-* Certifying purpose or affiliations.
 
 ## Multisignature Accounts
 

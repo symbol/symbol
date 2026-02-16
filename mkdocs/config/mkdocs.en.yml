@@ -112,6 +112,7 @@ nav:
       - textbook/mosaics.md
       - textbook/namespaces.md
       - textbook/blocks.md
+      - textbook/metadata.md
       - textbook/nodes.md
       - textbook/restrictions.md
       - textbook/harvesting.md

@@ -322,7 +322,7 @@ and validation steps, but differ in purpose and required fields.
 | **Locks**                           |                                                                                                   |
 | `Secret Lock`                       | Start a token swap between different chains.                                                      |
 | `Secret Proof`                      | Conclude a token swap between different chains.                                                   |
-| **Metadata**                        |                                                                                                   |
+| **[Metadata](default:metadata)**    |                                                                                                   |
 | `Account Metadata`                  | Associate a key-value state (metadata) to an account.                                             |
 | `Mosaic Metadata`                   | Associate a key-value state (metadata) to a mosaic.                                               |
 | `Namespace Metadata`                | Associate a key-value state (metadata) to a namespace.                                            |
