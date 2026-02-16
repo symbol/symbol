@@ -142,8 +142,8 @@ try {
 		.toUpperCase().padStart(16, '0');
 	const mosaicIdHex = mosaicId.toString(16)
 		.toUpperCase().padStart(16, '0');
-	const metadataPath = `/metadata?sourceAddress=${signerAddress}`
-		+ `&targetAddress=${signerAddress}`
+	const metadataPath = `/metadata`
+		+ `?targetAddress=${signerAddress}`
 		+ `&scopedMetadataKey=${scopedKeyHex}`
 		+ `&targetId=${mosaicIdHex}`
 		+ '&metadataType=1';

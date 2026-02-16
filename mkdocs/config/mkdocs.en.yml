@@ -86,8 +86,6 @@ nav:
               - devbook/transactions/complete-aggregate.md
               - devbook/transactions/bonded-aggregate.md
               - devbook/transactions/fee-sponsorship.md
-          - Mosaics:
-              - devbook/mosaics/mosaic-metadata.md
           - Namespaces:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
