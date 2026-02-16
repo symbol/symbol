@@ -28,6 +28,8 @@
 [data-md-color-scheme=slate][data-md-color-primary=indigo] {
 	--md-typeset-a-color: var(--md-primary-fg-color--light);
 	--md-accent-fg-color: var(--md-primary-fg-color);
+	--md-accent-fg-color--light: var(--md-primary-fg-color--dark);
+	--md-accent-fg-color--dark: var(--md-primary-fg-color--light);
 	--md-default-bg-color--light: #333;
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
@@ -43,6 +45,8 @@
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
 	--md-typeset-a-color: var(--md-primary-fg-color--light);
 	--md-accent-fg-color: var(--md-primary-fg-color);
+	--md-accent-fg-color--light: var(--md-primary-fg-color--light);
+	--md-accent-fg-color--dark: var(--md-primary-fg-color--dark);
 	--md-default-bg-color--light: #DDD;
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
@@ -567,7 +571,7 @@ code.doc-symbol-interface::after {
 .graphviz .node path:not([fill="transparent"]),
 .graphviz .node polygon:not([fill="transparent"]),
 .graphviz .node ellipse:not([fill="transparent"]) {
-	stroke: var(--md-primary-fg-color--light);
+	stroke: var(--md-accent-fg-color--dark);
 	fill: var(--md-accent-fg-color--transparent);
 	transition: fill 0.25s;
 }
@@ -583,6 +587,10 @@ code.doc-symbol-interface::after {
 
 .graphviz .cluster polygon {
 	stroke: var(--md-primary-fg-color--light);
+}
+
+.graphviz .node.metadata polygon {
+	fill: var(--md-accent-fg-color--light);
 }
 
 /* General tables customization */
