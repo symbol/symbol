@@ -580,6 +580,7 @@ code.doc-symbol-interface::after {
 .graphviz .node:hover a:any-link polygon,
 .graphviz .node:hover a:any-link ellipse,
 .graphviz .edge:hover a:any-link text {
+	/* Highlight on hover only if there's a link target */
 	fill: var(--md-primary-fg-color--light);
 	transition: fill 0.25s;
 }
