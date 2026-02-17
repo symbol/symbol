@@ -106,6 +106,13 @@ const addRestRoutes = server => {
 			return undefined;
 		});
 	});
+
+	// supply endpoints accept only text/plain
+	server.get('/network/currency/supply/circulating', (req, res, next) => {
+		res.setHeader('content-type', 'text/plain');
+		res.send('12345.678');
+		next();
+	});
 };
 
 // endregion
@@ -423,8 +430,25 @@ describe('server (bootstrapper)', () => {
 				.expectStatus(406)
 				.end((headers, body) => {
 					// Assert:
-					assertPayloadHeaders(headers, 69, methodOptions);
-					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Server accepts: application/json' });
+					assertPayloadHeaders(headers, 75, methodOptions);
+					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only application/json' });
+				}));
+
+			it('accepts text/plain for supply endpoints', () => makeWrappedJsonRequest('/network/currency/supply/circulating', 'get')
+				.header('Accept', 'text/plain')
+				.expectStatus(200)
+				.end((headers, body) => {
+					// Assert:
+					expect(headers['content-type']).to.include('text/plain');
+					expect(String(body)).to.equal('12345.678');
+				}));
+
+			it('rejects application/json for supply endpoints', () => makeWrappedJsonRequest('/network/currency/supply/circulating', 'get')
+				.header('Accept', 'application/json')
+				.expectStatus(406)
+				.end((headers, body) => {
+					// Assert:
+					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only text/plain' });
 				}));
 
 			// endregion

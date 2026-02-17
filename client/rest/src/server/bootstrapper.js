@@ -62,6 +62,12 @@ const createCrossDomainHeaderAdder = crossDomainConfig => (req, res) => {
 	}
 };
 
+const TEXT_PLAIN_SUPPLY_PATHS = [
+	'/network/currency/supply/circulating',
+	'/network/currency/supply/max',
+	'/network/currency/supply/total'
+];
+
 const catapultRestifyPlugins = {
 	crossDomain: addCrossDomainHeaders => (req, res, next) => {
 		addCrossDomainHeaders(req, res);
@@ -86,6 +92,17 @@ const catapultRestifyPlugins = {
 		}
 
 		next();
+	},
+	acceptParser: () => (req, res, next) => {
+		const isSupplyPath = TEXT_PLAIN_SUPPLY_PATHS.includes(req.path());
+		const accepts = isSupplyPath ? ['text/plain'] : ['application/json'];
+		const error = isSupplyPath
+			? new restifyErrors.NotAcceptableError('Endpoint accepts only text/plain')
+			: new restifyErrors.NotAcceptableError('Endpoint accepts only application/json');
+
+		if (req.accepts(accepts))
+			return next();
+		return next(error);
 	}
 };
 
@@ -153,7 +170,7 @@ export default {
 		const addCrossDomainHeaders = createCrossDomainHeaderAdder(config.crossDomain || {});
 
 		server.use(catapultRestifyPlugins.crossDomain(addCrossDomainHeaders));
-		server.use(restify.plugins.acceptParser('application/json'));
+		server.use(catapultRestifyPlugins.acceptParser());
 		server.use(restify.plugins.queryParser({ mapParams: true, parseArrays: false }));
 		server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
 
