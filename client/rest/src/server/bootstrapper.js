@@ -62,7 +62,7 @@ const createCrossDomainHeaderAdder = crossDomainConfig => (req, res) => {
 	}
 };
 
-const TEXT_PLAIN_SUPPLY_PATHS = [
+const TEXT_PLAIN_PATHS = [
 	'/network/currency/supply/circulating',
 	'/network/currency/supply/max',
 	'/network/currency/supply/total'
@@ -94,14 +94,14 @@ const catapultRestifyPlugins = {
 		next();
 	},
 	acceptParser: () => (req, res, next) => {
-		const isSupplyPath = TEXT_PLAIN_SUPPLY_PATHS.includes(req.path());
-		const accepts = isSupplyPath ? ['text/plain'] : ['application/json'];
-		const error = isSupplyPath
-			? new restifyErrors.NotAcceptableError('Endpoint accepts only text/plain')
-			: new restifyErrors.NotAcceptableError('Endpoint accepts only application/json');
+		const isTextPlainPath = TEXT_PLAIN_PATHS.includes(req.path());
+		const accepts = isTextPlainPath ? ['text/plain'] : ['application/json'];
 
 		if (req.accepts(accepts))
 			return next();
+		const error = isTextPlainPath
+			? new restifyErrors.NotAcceptableError('Endpoint accepts only text/plain')
+			: new restifyErrors.NotAcceptableError('Endpoint accepts only application/json');
 		return next(error);
 	}
 };
