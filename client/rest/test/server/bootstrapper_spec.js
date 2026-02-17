@@ -108,10 +108,10 @@ const addRestRoutes = server => {
 
 		// text/plain endpoints (e.g. supply)
 		server[method]('/network/currency/supply/circulating', (req, res, next) => {
-            res.setHeader('content-type', 'text/plain');
-            res.send('12345.678');
-            next();
-        });
+			res.setHeader('content-type', 'text/plain');
+			res.send('12345.678');
+			next();
+		});
 	});
 };
 
