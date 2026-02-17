@@ -1,0 +1,27 @@
+tags:
+  - Network routes
+summary: Returns circulating currency supply
+description: |
+  Returns the current circulating supply of the network currency mosaic.
+  
+  Circulating supply represents the portion of total on-chain supply that is not held in 
+  designated uncirculating or reserved accounts (e.g. nemesis or treasury accounts).
+  
+  Data sources:
+    - Mosaic supply and divisibility from blockchain state
+    - Nemesis signer public key from network properties file
+    - Uncirculating account public keys defined in rest.json (`uncirculatingAccountPublicKeys`)
+operationId: getCirculatingCurrencySupply
+responses:
+  "200":
+    description: |
+      Successful response containing the circulating currency supply.
+
+      The value is expressed in whole units with a fractional part
+      determined by the mosaic divisibility and returned as a fixed-decimal string.
+    content:
+      text/plain:
+        schema:
+          type: string
+          pattern: '^\d+\.\d+$'
+          example: "6351335211.744781"
