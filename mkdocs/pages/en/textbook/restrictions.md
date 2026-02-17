@@ -107,8 +107,8 @@ that an account is allowed to perform (but not both modes simultaneously).
     the account will no longer be able to modify or remove this restriction,
     effectively locking itself into the allowed set of operations permanently.
 
-    To minimize this risk, the [Symbol Desktop Wallet](../userbook/wallet/install.md) only supports blacklisting
-    transaction types, where the blocked types must be listed explicitly.
+    To avoid this risk, the [Symbol Desktop Wallet](../userbook/wallet/install.md) does not allow blocking the
+    operation restriction transaction.
 
 The restriction can be used to prevent accidental use of the wrong account,
 but it does not prevent the account owner from lifting the restriction
@@ -154,7 +154,7 @@ To apply a restriction to a mosaic, two components must be defined:
 **Both parts are required for the restriction to take effect.**
 
 This dependency is unique to mosaic restrictions.
-<Account restrictions:>, by contrast, do not require multiple parts to work.
+<Account restrictions:|Account restrictions>, by contrast, do not require multiple parts to work.
 
 ### Mosaic Global Restrictions
 
