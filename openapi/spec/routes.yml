@@ -57,6 +57,15 @@
 /network/inflation/at/{height}:
   get:
     $ref: "./core/network/routes/getNetworkInflationAtHeight.yml"
+/network/currency/supply/max:
+  get:
+    $ref: "./core/network/routes/getNetworkCurrencyMaxSupply.yml"
+/network/currency/supply/total:
+  get:
+    $ref: "./core/network/routes/getNetworkCurrencyTotalSupply.yml"
+/network/currency/supply/circulating:
+  get:
+    $ref: "./core/network/routes/getNetworkCurrencyCirculatingSupply.yml"
 
 # Core - Node
 /node/health:
