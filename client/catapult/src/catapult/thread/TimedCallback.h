@@ -161,7 +161,7 @@ namespace catapult { namespace thread {
 
 	private:
 		BasicTimedCallback<StrandedTimedCallback> m_impl;
-		ionet::Strand m_strand;
+		Strand m_strand;
 		StrandOwnerLifetimeExtender<StrandedTimedCallback> m_strandWrapper;
 	};
 

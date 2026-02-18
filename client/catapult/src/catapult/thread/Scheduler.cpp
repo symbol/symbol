@@ -139,7 +139,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			ionet::Strand m_strand;
+			Strand m_strand;
 			StrandOwnerLifetimeExtender<StrandedTaskWrapper> m_strandWrapper;
 			BasicTaskWrapper<StrandedTaskWrapper> m_impl;
 		};
