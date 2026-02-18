@@ -39,4 +39,3 @@ Announcing test transfer to /transactions
 Waiting for test transfer confirmation...
   Transaction status: failed
 test transfer failed: Failure_RestrictionAccount_Address_Interaction_Prohibited
-As expected.

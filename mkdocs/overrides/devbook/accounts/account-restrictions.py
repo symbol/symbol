@@ -66,7 +66,7 @@ def restriction_enable_transaction():
 		# This is the account that will be restricted
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
-		# ONLY allow OUTGOING transactions to the authorized address
+		# Allow only OUTGOING transactions to the authorized ADDRESS
 		'restriction_flags':
 			AccountRestrictionFlags.ADDRESS |
 			AccountRestrictionFlags.OUTGOING,
@@ -79,7 +79,7 @@ def restriction_enable_transaction():
 
 	return transaction
 
-# Returns a transaction that removes the restrictions on an account
+# Returns a transaction that removes a restriction from an account
 def restriction_disable_transaction(restriction):
 	transaction = facade.transaction_factory.create({
 		'type': 'account_address_restriction_transaction_v1',
@@ -102,16 +102,14 @@ def restriction_disable_transaction(restriction):
 
 facade = SymbolFacade('testnet')
 
-SIGNER_PRIVATE_KEY = os.getenv(
-	'SIGNER_PRIVATE_KEY',
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
 
-AUTH_PRIVATE_KEY = os.getenv(
-	'AUTH_PRIVATE_KEY',
+AUTH_PRIVATE_KEY = os.getenv('AUTH_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000001')
 auth_key_pair = SymbolFacade.KeyPair(PrivateKey(AUTH_PRIVATE_KEY))
 auth_address = facade.network.public_key_to_address(
@@ -177,5 +175,3 @@ try:
 
 except Exception as e:
 	print(e)
-	if len(restrictions) == 0:
-		print('As expected.')
