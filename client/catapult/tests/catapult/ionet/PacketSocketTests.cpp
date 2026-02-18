@@ -1155,7 +1155,7 @@ namespace catapult { namespace ionet {
 
 			CATAPULT_LOG(debug) << "starting async accept";
 			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
-			auto acceptorStrand = boost::asio::io_context::strand(ioContext);
+			auto acceptorStrand = boost::asio::make_strand(ioContext);
 			auto serverSocket = boost::asio::ip::tcp::socket(ioContext);
 
 			// - post an async server accept

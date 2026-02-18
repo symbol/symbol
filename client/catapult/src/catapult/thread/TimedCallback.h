@@ -119,7 +119,7 @@ namespace catapult { namespace thread {
 		/// On a timeout, the callback is invoked with \a timeoutArgs.
 		StrandedTimedCallback(boost::asio::io_context& ioContext, const TCallback& callback, TCallbackArgs&&... timeoutArgs)
 				: m_impl(*this, ioContext, callback, std::forward<TCallbackArgs>(timeoutArgs)...)
-				, m_strand(ioContext)
+				, m_strand(boost::asio::make_strand(ioContext))
 				, m_strandWrapper(m_strand)
 		{}
 
@@ -161,7 +161,7 @@ namespace catapult { namespace thread {
 
 	private:
 		BasicTimedCallback<StrandedTimedCallback> m_impl;
-		boost::asio::io_context::strand m_strand;
+		ionet::Strand m_strand;
 		StrandOwnerLifetimeExtender<StrandedTimedCallback> m_strandWrapper;
 	};
 

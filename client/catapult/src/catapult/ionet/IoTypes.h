@@ -40,4 +40,6 @@ namespace catapult { namespace ionet {
 	using NetworkSocket = boost::asio::ip::tcp::socket;
 
 	using Socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
+
+	using Strand = boost::asio::strand<boost::asio::io_context::executor_type>;
 }}

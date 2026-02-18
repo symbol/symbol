@@ -54,7 +54,7 @@ namespace catapult { namespace thread {
 		struct TestContext {
 		public:
 			std::unique_ptr<IoThreadPool> pPool;
-			boost::asio::io_context::strand Strand;
+			ionet::Strand Strand;
 			std::shared_ptr<Owner> pOwner;
 			ExtenderType Extender;
 			BreadcrumbsType Breadcrumbs;
@@ -62,7 +62,7 @@ namespace catapult { namespace thread {
 		public:
 			TestContext()
 					: pPool(test::CreateStartedIoThreadPool())
-					, Strand(boost::asio::io_context::strand(pPool->ioContext()))
+					, Strand(boost::asio::make_strand(pPool->ioContext()))
 					, pOwner(std::make_shared<Owner>(Breadcrumbs))
 					, Extender(Strand)
 			{}

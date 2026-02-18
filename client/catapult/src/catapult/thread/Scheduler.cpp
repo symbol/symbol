@@ -110,7 +110,7 @@ namespace catapult { namespace thread {
 		class StrandedTaskWrapper : public std::enable_shared_from_this<StrandedTaskWrapper> {
 		public:
 			StrandedTaskWrapper(boost::asio::io_context& ioContext, const Task& task)
-					: m_strand(ioContext)
+					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_impl(ioContext, task, *this)
 			{}
@@ -139,7 +139,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			boost::asio::io_context::strand m_strand;
+			ionet::Strand m_strand;
 			StrandOwnerLifetimeExtender<StrandedTaskWrapper> m_strandWrapper;
 			BasicTaskWrapper<StrandedTaskWrapper> m_impl;
 		};

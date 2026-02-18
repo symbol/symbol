@@ -78,7 +78,7 @@ namespace catapult { namespace ionet {
 		class SocketGuard final : public std::enable_shared_from_this<SocketGuard> {
 		public:
 			SocketGuard(boost::asio::io_context& ioContext, boost::asio::ssl::context& sslContext)
-					: m_strand(ioContext)
+					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(ioContext, sslContext)
 					, m_sentinelByte(0) {
@@ -87,7 +87,7 @@ namespace catapult { namespace ionet {
 			}
 
 			SocketGuard(NetworkSocket&& socket, boost::asio::io_context& ioContext, boost::asio::ssl::context& sslContext)
-					: m_strand(ioContext)
+					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(std::move(socket), sslContext)
 					, m_sentinelByte(0) {
@@ -100,7 +100,7 @@ namespace catapult { namespace ionet {
 				return m_socket;
 			}
 
-			boost::asio::io_context::strand& strand() {
+			Strand& strand() {
 				return m_strand;
 			}
 
@@ -172,7 +172,7 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
-			boost::asio::io_context::strand m_strand;
+			Strand m_strand;
 			thread::StrandOwnerLifetimeExtender<SocketGuard> m_strandWrapper;
 			Socket m_socket;
 			uint8_t m_sentinelByte;
@@ -456,7 +456,7 @@ namespace catapult { namespace ionet {
 				return m_publicKey;
 			}
 
-			boost::asio::io_context::strand& strand() {
+			Strand& strand() {
 				return m_pSocketGuard->strand();
 			}
 
@@ -585,7 +585,7 @@ namespace catapult { namespace ionet {
 				return m_socket.publicKey();
 			}
 
-			boost::asio::io_context::strand& strand() {
+			Strand& strand() {
 				return m_socket.strand();
 			}
 

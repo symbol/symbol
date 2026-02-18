@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "catapult/ionet/IoTypes.h"
 #include "catapult/utils/WrappedWithOwnerDecorator.h"
 #include "catapult/exceptions.h"
 #include <boost/asio.hpp>
@@ -39,7 +40,7 @@ namespace catapult { namespace thread {
 		template<typename THandler>
 		class StrandCheckHandler {
 		public:
-			StrandCheckHandler(const boost::asio::io_context::strand& strand, THandler handler)
+			StrandCheckHandler(const ionet::Strand& strand, THandler handler)
 					: m_pStrand(&strand)
 					, m_handler(std::move(handler))
 			{}
@@ -54,24 +55,24 @@ namespace catapult { namespace thread {
 			}
 
 		protected:
-			const boost::asio::io_context::strand* m_pStrand;
+			const ionet::Strand* m_pStrand;
 			THandler m_handler;
 		};
 
 		template<typename THandler>
-		static auto MakeStrandCheckHandler(const boost::asio::io_context::strand& strand, THandler handler) {
+		static auto MakeStrandCheckHandler(const ionet::Strand& strand, THandler handler) {
 			return StrandCheckHandler<THandler>(strand, std::move(handler));
 		}
 #else
 		template<typename THandler>
-		static auto MakeStrandCheckHandler(const boost::asio::io_context::strand&, THandler handler) {
+		static auto MakeStrandCheckHandler(const ionet::Strand&, THandler handler) {
 			return std::move(handler);
 		}
 #endif
 
 	public:
 		/// Creates a strand owner lifetime extender around \a strand.
-		explicit StrandOwnerLifetimeExtender(boost::asio::io_context::strand& strand) : m_strand(strand)
+		explicit StrandOwnerLifetimeExtender(ionet::Strand& strand) : m_strand(strand)
 		{}
 
 	public:
@@ -108,6 +109,6 @@ namespace catapult { namespace thread {
 		}
 
 	private:
-		boost::asio::io_context::strand& m_strand;
+		ionet::Strand& m_strand;
 	};
 }}
