@@ -1,0 +1,52 @@
+<table style="width: 100%;"><tr><td>
+	<div class="side-info"><table>
+	<tr><td class="side-info-icon">&varr;</td><td>Size: 59+ bytes = 0x3b+ <i>(variable)</i></td></tr>
+	<tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/state/namespace_history.cats#L5">schema</a></td></tr>
+	</table></div>
+<p>binary layout for non-historical root namespace history </p>
+</td></tr></table>
+
+<div class="big-table6">
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">version</code></div>
+	<div>byte[2]</div>
+	<div class="description"><p>serialization version </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">id</code></div>
+	<div><a href="#namespaceid" title="">NamespaceId</a></div>
+	<div class="description"><p>id of the root namespace history </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">owner_address</code></div>
+	<div><a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a></div>
+	<div class="description"><p>namespace owner address </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">lifetime</code></div>
+	<div><a href="#namespacelifetime" title="binary layout for namespace lifetime">NamespaceLifetime</a></div>
+	<div class="description"><p>lifetime in blocks </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">root_alias</code></div>
+	<div><a href="#namespacealias" title="binary layout for alias">NamespaceAlias</a></div>
+	<div class="description"><p>root namespace alias </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">children_count</code></div>
+	<div>byte[8]</div>
+	<div class="description"><p>number of children </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">paths</code></div>
+	<div><a href="#namespacepath" title="binary layout for a namespace path">NamespacePath</a>&ZeroWidthSpace;[children_count]</div>
+	<div class="description"><p>save child sub-namespace paths </p></div>
+</div>
