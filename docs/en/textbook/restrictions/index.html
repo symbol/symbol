@@ -1154,6 +1154,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/accounts/account-restrictions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add Account Restrictions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -8280,6 +8301,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/reference/serialization/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serialization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -8939,12 +8981,12 @@
 </dt>
 <dd>An advanced feature, also referred to as a <em>rule</em>, that allows fine-grained control over how specific
 <a class="mkdocs-ezglossary-link"
-	id="9abfc4a4b79f655d09ad392f005021af"
+	id="cb3f3e4ad1e8e022a0bca4dcf653a4c6"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
 	href="../../textbook/accounts/#78f9b58b98e4ce5893a0c349aeed5a87">accounts</a> or <a class="mkdocs-ezglossary-link"
-	id="aac1ac91fd40b72e07c56160c9468333"
+	id="d8c0ee0f726dbc4aab338db032bcc257"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -9008,7 +9050,7 @@ restrictions have also been adopted for other purposes, including enhancing secu
 accounts or mosaics can be used."
 	name="_:Restriction"
 	href="../../textbook/restrictions/#a0a0b2390a7807b40a0c6b786d824d14">restriction</a> that limits what an individual <a class="mkdocs-ezglossary-link"
-	id="a3b2adddf64590ed17c1692943385cf6"
+	id="d28f09155c8525178716eeed1c3155ec"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -9036,7 +9078,7 @@ which mosaics it can receive, or what transaction types it can initiate."
 	href="../../textbook/restrictions/#261af0a7c7481b968cde811b4e5ec321">account restriction</a> that controls which other addresses a given account is allowed to interact with.</dd>
 
 </dl>
-<p>This restriction allows either <strong>blocking</strong> (blacklisting) or <strong>allowing</strong> (whitelisting) specific addresses,
+<p>This restriction allows either <strong>blocking</strong> (blocklisting) or <strong>allowing</strong> (allowlisting) specific addresses,
 but not both modes simultaneously.</p>
 <p>The restriction can be applied to <strong>incoming</strong> transactions, <strong>outgoing</strong> transactions, or <strong>both</strong>.</p>
 <div class="admonition example">
@@ -9044,22 +9086,22 @@ but not both modes simultaneously.</p>
 <p>An account can be configured to:</p>
 <ul>
 <li>
-<p>Reject any transactions sent to blacklisted addresses.</p>
+<p>Reject any transactions sent to blocklisted addresses.</p>
 <ul>
-<li class="operation-item">Set an <strong>outgoing</strong> address restriction in <strong>blacklist</strong> mode, and include the unwanted addresses.</li>
+<li class="operation-item">Set an <strong>outgoing</strong> address restriction in <strong>blocklist</strong> mode, and include the unwanted addresses.</li>
 </ul>
 </li>
 <li>
 <p>Ignore any transactions from unapproved sources.</p>
 <ul>
-<li class="operation-item">Set an <strong>incoming</strong> address restriction in <strong>whitelist</strong> mode, and list only the trusted source accounts.</li>
+<li class="operation-item">Set an <strong>incoming</strong> address restriction in <strong>allowlist</strong> mode, and list only the trusted source accounts.</li>
 </ul>
 </li>
 <li>
 <p>Allow interactions only with a predefined set of trusted accounts.
     This is useful, for example, when an account is restricted to internal use within an organization.</p>
 <ul>
-<li class="operation-item">Set both <strong>incoming</strong> and <strong>outgoing</strong> address restrictions in <strong>whitelist</strong> mode, using the same list of approved accounts.</li>
+<li class="operation-item">Set both <strong>incoming</strong> and <strong>outgoing</strong> address restrictions in <strong>allowlist</strong> mode, using the same list of approved accounts.</li>
 </ul>
 </li>
 </ul>
@@ -9075,14 +9117,14 @@ but not both modes simultaneously.</p>
 which mosaics it can receive, or what transaction types it can initiate."
 	name="_:Account Restriction"
 	href="../../textbook/restrictions/#261af0a7c7481b968cde811b4e5ec321">account restriction</a> that limits which <a class="mkdocs-ezglossary-link"
-	id="d8c0ee0f726dbc4aab338db032bcc257"
+	id="a8efe28ac8778b529bca5bd447ac9bf6"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
 	href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">mosaics</a> an account is allowed to receive.</dd>
 
 </dl>
-<p>This restriction supports either <strong>blocking</strong> (blacklisting) or <strong>allowing</strong> (whitelisting) incoming transactions
+<p>This restriction supports either <strong>blocking</strong> (blocklisting) or <strong>allowing</strong> (allowlisting) incoming transactions
 containing specific mosaics (but not both modes simultaneously).</p>
 <p>Outgoing transactions are not affected.
 There is no equivalent restriction for mosaics sent from the account.</p>
@@ -9101,7 +9143,7 @@ not just to <a class="mkdocs-ezglossary-link"
 <li>
 <p>Block the reception of certain unwanted mosaics, for example, those used by spammers.</p>
 <ul>
-<li class="operation-item">Set an account mosaic restriction in <strong>blacklist</strong> mode and list the mosaics to block.</li>
+<li class="operation-item">Set an account mosaic restriction in <strong>blocklist</strong> mode and list the mosaics to block.</li>
 </ul>
 </li>
 <li>
@@ -9109,7 +9151,7 @@ not just to <a class="mkdocs-ezglossary-link"
     This is useful, for example, when an account's contents are publicly visible and should remain uncluttered
     by unsolicited or irrelevant tokens.</p>
 <ul>
-<li class="operation-item">Set an account mosaic restriction in <strong>whitelist</strong> mode and include only the allowed mosaics.</li>
+<li class="operation-item">Set an account mosaic restriction in <strong>allowlist</strong> mode and include only the allowed mosaics.</li>
 </ul>
 </li>
 </ul>
@@ -9132,15 +9174,15 @@ like moving funds from one account to another, or registering a new currency, fo
 	href="../../textbook/transactions/#dbaff459c19d2574b92538a13b4b8910">transactions</a> an account is allowed to initiate.</dd>
 
 </dl>
-<p>This restriction supports either <strong>blocking</strong> (blacklisting) or <strong>allowing</strong> (whitelisting) the transaction types
+<p>This restriction supports either <strong>blocking</strong> (blocklisting) or <strong>allowing</strong> (allowlisting) the transaction types
 that an account is allowed to perform (but not both modes simultaneously).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>If the <code>ACCOUNT_OPERATION_RESTRICTION</code> transaction type is omitted from the whitelist,
+<p>If the <code>ACCOUNT_OPERATION_RESTRICTION</code> transaction type is omitted from the allowlist,
 the account will no longer be able to modify or remove this restriction,
 effectively locking itself into the allowed set of operations permanently.</p>
-<p>To minimize this risk, the <a href="../../userbook/wallet/install/">Symbol Desktop Wallet</a> only supports blacklisting
-transaction types, where the blocked types must be listed explicitly.</p>
+<p>To avoid this risk, the <a href="../../userbook/wallet/install/">Symbol Desktop Wallet</a> does not allow blocking the
+operation restriction transaction.</p>
 </div>
 <p>The restriction can be used to prevent accidental use of the wrong account,
 but it does not prevent the account owner from lifting the restriction
@@ -9153,14 +9195,14 @@ See the list of supported types in the <a href="../transactions/#supported-trans
 <li>
 <p>Limit an account to namespace registration and renewal only.</p>
 <ul>
-<li class="operation-item">Set an account operation restriction in <strong>whitelist</strong> mode that allows only namespace-related and
+<li class="operation-item">Set an account operation restriction in <strong>allowlist</strong> mode that allows only namespace-related and
 restriction-related functions.</li>
 </ul>
 </li>
 <li>
 <p>Do not allow moving funds from an account.</p>
 <ul>
-<li class="operation-item">Set an account operation restriction in <strong>blacklist</strong> mode that forbids <a class="mkdocs-ezglossary-link"
+<li class="operation-item">Set an account operation restriction in <strong>blocklist</strong> mode that forbids <a class="mkdocs-ezglossary-link"
 	id="d8055004b250dbf54e5901372a16e683"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
@@ -9188,7 +9230,7 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 
 </dl>
 <p>Unlike <a class="mkdocs-ezglossary-link"
-	id="5af2329d35f847fbce4cd8034e019658"
+	id="268f5423fed3f496eef7451d2d3c10a8"
 	title="A type of restriction that limits what an individual account can do, such as which addresses it can interact with,
 which mosaics it can receive, or what transaction types it can initiate."
 	name="_:Account Restriction"
@@ -9226,7 +9268,7 @@ defined in the corresponding mosaic global restriction."
 	title="A type of restriction that limits what an individual account can do, such as which addresses it can interact with,
 which mosaics it can receive, or what transaction types it can initiate."
 	name="_:Account Restriction"
-	href="../../textbook/restrictions/#261af0a7c7481b968cde811b4e5ec321">account restrictions</a>, by contrast, do not require multiple parts to work.</p>
+	href="../../textbook/restrictions/#261af0a7c7481b968cde811b4e5ec321">Account restrictions</a>, by contrast, do not require multiple parts to work.</p>
 <h3 id="mosaic-global-restrictions">Mosaic Global Restrictions<a class="headerlink" href="#mosaic-global-restrictions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <dl>
 <dt>
@@ -9410,7 +9452,7 @@ the value <code>1</code> in the mosaic address restriction.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 17, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 19, 2026</span>
   </span>
 
     
