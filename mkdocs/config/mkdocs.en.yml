@@ -78,6 +78,7 @@ nav:
               - devbook/accounts/account-metadata.md
               - devbook/accounts/configure-multisig.md
               - devbook/accounts/sign-multisig.md
+              - devbook/accounts/account-restrictions.md
           - Transactions:
               - devbook/transactions/transfer.md
               - devbook/transactions/typed-descriptors.md
