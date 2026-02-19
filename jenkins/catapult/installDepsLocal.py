@@ -64,6 +64,7 @@ class Builder:
 
 		boost_prefix_option = f'--prefix={self.target_directory / "boost"}'
 		bootstrap_options = [r'.\bootstrap.bat' if EnvironmentManager.is_windows_platform() else './bootstrap.sh']
+		bootstrap_options += ['--without-libraries=python']
 		if self.is_clang:
 			bootstrap_options += ['with-toolset=clang']
 
