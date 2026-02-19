@@ -115,11 +115,7 @@ const signerAddress = facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
 console.log(`Signer address: ${signerAddress}`);
 
-const AUTH_PRIVATE_KEY = process.env.AUTH_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000001';
-const authKeyPair = new KeyPair(new PrivateKey(AUTH_PRIVATE_KEY));
-const authAddress = facade.network.publicKeyToAddress(
-	authKeyPair.publicKey);
+const authAddress = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
 console.log(`Authorized address: ${authAddress}`);
 
 try {
@@ -154,13 +150,14 @@ try {
 	} else {
 		// Disable the restriction
 		console.log('\n--- Disabling restriction ---');
-		transaction = restrictionDisableTransaction(timestamp, feeMult, restrictions[0]);
+		transaction = restrictionDisableTransaction(timestamp, feeMult,
+			restrictions[0]);
 	}
+
+	// Sign, announce and wait for confirmation
 	let payload = SymbolTransactionFactory.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));
-
-	// Announce and wait for confirmation
 	let hash =
 		facade.hashTransaction(transaction).toString();
 	await announceTransaction(payload, 'restriction transaction');
@@ -178,7 +175,6 @@ try {
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));
 	hash = facade.hashTransaction(transaction).toString();
-
 	console.log('\n--- Attempting transfer to unauthorized address ---');
 	await announceTransaction(payload, 'test transfer');
 	await waitForConfirmation(hash, 'test transfer');

@@ -109,11 +109,7 @@ signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
 
-AUTH_PRIVATE_KEY = os.getenv('AUTH_PRIVATE_KEY',
-	'0000000000000000000000000000000000000000000000000000000000000001')
-auth_key_pair = SymbolFacade.KeyPair(PrivateKey(AUTH_PRIVATE_KEY))
-auth_address = facade.network.public_key_to_address(
-	auth_key_pair.public_key)
+auth_address = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA'
 print(f'Authorized address: {auth_address}')
 
 try:
@@ -148,11 +144,11 @@ try:
 		# Disable the restriction
 		print('\n--- Disabling restriction ---')
 		transaction = restriction_disable_transaction(restrictions[0])
+
+	# Sign, announce and wait for confirmation
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(signer_key_pair, transaction))
-
-	# Announce and wait for confirmation
 	transaction_hash = facade.hash_transaction(transaction)
 	announce_transaction(json_payload, 'restriction transaction')
 	wait_for_confirmation(transaction_hash, 'restriction transaction')
