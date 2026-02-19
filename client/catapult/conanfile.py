@@ -38,7 +38,7 @@ class CatapultConan(ConanFile):
 		self.options["boost*"].without_atomic = False
 		self.options["boost*"].without_chrono = False
 		self.options["boost*"].without_container = False
-		self.options["boost*"].without_context = True
+		self.options["boost*"].without_context = False
 		self.options["boost*"].without_contract = True
 		self.options["boost*"].without_coroutine = True
 		self.options["boost*"].without_date_time = False
@@ -58,7 +58,7 @@ class CatapultConan(ConanFile):
 		self.options["boost*"].without_python = True
 		self.options["boost*"].without_random = False
 		self.options["boost*"].without_regex = False
-		self.options["boost*"].without_serialization = True
+		self.options["boost*"].without_serialization = False  # due to this bug - https://github.com/conan-io/conan-center-index/issues/28801
 		self.options["boost*"].without_stacktrace = True
 		self.options["boost*"].without_system = False
 		self.options["boost*"].without_test = True
