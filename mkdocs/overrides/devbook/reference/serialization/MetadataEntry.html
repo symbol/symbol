@@ -1,0 +1,52 @@
+<table style="width: 100%;"><tr><td>
+	<div class="side-info"><table>
+	<tr><td class="side-info-icon">&varr;</td><td>Size: 69+ bytes = 0x45+ <i>(variable)</i></td></tr>
+	<tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/state/metadata_entry.cats#L6">schema</a></td></tr>
+	</table></div>
+<p>binary layout of a metadata entry </p>
+</td></tr></table>
+
+<div class="big-table6">
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">version</code></div>
+	<div>byte[2]</div>
+	<div class="description"><p>serialization version </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">source_address</code></div>
+	<div><a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a></div>
+	<div class="description"><p>metadata source address (provider) </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">target_address</code></div>
+	<div><a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a></div>
+	<div class="description"><p>metadata target address </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">scoped_metadata_key</code></div>
+	<div><a href="#scopedmetadatakey" title="">ScopedMetadataKey</a></div>
+	<div class="description"><p>metadata key scoped to source, target and type </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">target_id</code></div>
+	<div>byte[8]</div>
+	<div class="description"><p>target id </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">metadata_type</code></div>
+	<div><a href="#metadatatype" title="enum for the different types of metadata">MetadataType</a></div>
+	<div class="description"><p>metadata type </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">value</code></div>
+	<div><a href="#metadatavalue" title="binary layout of a metadata entry value">MetadataValue</a></div>
+	<div class="description"><p>value </p></div>
+</div>

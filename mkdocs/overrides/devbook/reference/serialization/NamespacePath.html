@@ -1,0 +1,28 @@
+<table style="width: 100%;"><tr><td>
+	<div class="side-info"><table>
+	<tr><td class="side-info-icon">&varr;</td><td>Size: 2+ bytes = 0x2+ <i>(variable)</i></td></tr>
+	<tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/state/namespace_history_types.cats#L35">schema</a></td></tr>
+	</table></div>
+<p>binary layout for a namespace path </p>
+</td></tr></table>
+
+<div class="big-table6">
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">path_size</code></div>
+	<div>byte[1]</div>
+	<div class="description"><p>number of paths (excluding root id) </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">path</code></div>
+	<div><a href="#namespaceid" title="">NamespaceId</a>&ZeroWidthSpace;[path_size]</div>
+	<div class="description"><p>namespace path (excluding root id) </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">alias</code></div>
+	<div><a href="#namespacealias" title="binary layout for alias">NamespaceAlias</a></div>
+	<div class="description"><p>namespace alias </p></div>
+</div>
