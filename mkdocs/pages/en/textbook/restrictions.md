@@ -38,7 +38,7 @@ If the account is part of a <multisignature account:>, any changes must be appro
 Account address restriction
 :   A type of <account restriction:> that controls which other addresses a given account is allowed to interact with.
 
-This restriction allows either **blocking** (blacklisting) or **allowing** (whitelisting) specific addresses,
+This restriction allows either **blocking** (blocklisting) or **allowing** (allowlisting) specific addresses,
 but not both modes simultaneously.
 
 The restriction can be applied to **incoming** transactions, **outgoing** transactions, or **both**.
@@ -47,18 +47,18 @@ The restriction can be applied to **incoming** transactions, **outgoing** transa
 
     An account can be configured to:
 
-    * Reject any transactions sent to blacklisted addresses.
-        * Set an **outgoing** address restriction in **blacklist** mode, and include the unwanted addresses.
+    * Reject any transactions sent to blocklisted addresses.
+        * Set an **outgoing** address restriction in **blocklist** mode, and include the unwanted addresses.
         {.operation-item}
 
     * Ignore any transactions from unapproved sources.
-        * Set an **incoming** address restriction in **whitelist** mode, and list only the trusted source accounts.
+        * Set an **incoming** address restriction in **allowlist** mode, and list only the trusted source accounts.
         {.operation-item}
 
     * Allow interactions only with a predefined set of trusted accounts.
         This is useful, for example, when an account is restricted to internal use within an organization.
 
-        * Set both **incoming** and **outgoing** address restrictions in **whitelist** mode, using the same list of approved accounts.
+        * Set both **incoming** and **outgoing** address restrictions in **allowlist** mode, using the same list of approved accounts.
         {.operation-item}
 
 ### Account Mosaic Restrictions
@@ -66,7 +66,7 @@ The restriction can be applied to **incoming** transactions, **outgoing** transa
 Account mosaic restriction
 :   A type of <account restriction:> that limits which <mosaics:> an account is allowed to receive.
 
-This restriction supports either **blocking** (blacklisting) or **allowing** (whitelisting) incoming transactions
+This restriction supports either **blocking** (blocklisting) or **allowing** (allowlisting) incoming transactions
 containing specific mosaics (but not both modes simultaneously).
 
 Outgoing transactions are not affected.
@@ -83,14 +83,14 @@ not just to <transfer transactions:>.
     An account can be configured to:
 
     * Block the reception of certain unwanted mosaics, for example, those used by spammers.
-        * Set an account mosaic restriction in **blacklist** mode and list the mosaics to block.
+        * Set an account mosaic restriction in **blocklist** mode and list the mosaics to block.
         {.operation-item}
 
     * Allow only a specific set of approved mosaics.
         This is useful, for example, when an account's contents are publicly visible and should remain uncluttered
         by unsolicited or irrelevant tokens.
 
-        * Set an account mosaic restriction in **whitelist** mode and include only the allowed mosaics.
+        * Set an account mosaic restriction in **allowlist** mode and include only the allowed mosaics.
         {.operation-item}
 
 ### Account Operation Restrictions
@@ -98,17 +98,17 @@ not just to <transfer transactions:>.
 Account operation restriction
 :   A type of <account restriction:> that limits which types of <transactions:> an account is allowed to initiate.
 
-This restriction supports either **blocking** (blacklisting) or **allowing** (whitelisting) the transaction types
+This restriction supports either **blocking** (blocklisting) or **allowing** (allowlisting) the transaction types
 that an account is allowed to perform (but not both modes simultaneously).
 
 !!! warning
 
-    If the `ACCOUNT_OPERATION_RESTRICTION` transaction type is omitted from the whitelist,
+    If the `ACCOUNT_OPERATION_RESTRICTION` transaction type is omitted from the allowlist,
     the account will no longer be able to modify or remove this restriction,
     effectively locking itself into the allowed set of operations permanently.
 
-    To minimize this risk, the [Symbol Desktop Wallet](../userbook/wallet/install.md) only supports blacklisting
-    transaction types, where the blocked types must be listed explicitly.
+    To avoid this risk, the [Symbol Desktop Wallet](../userbook/wallet/install.md) does not allow blocking the
+    operation restriction transaction.
 
 The restriction can be used to prevent accidental use of the wrong account,
 but it does not prevent the account owner from lifting the restriction
@@ -120,12 +120,12 @@ See the list of supported types in the [Transactions page](./transactions.md#sup
 !!! example "Examples"
 
     * Limit an account to namespace registration and renewal only.
-        * Set an account operation restriction in **whitelist** mode that allows only namespace-related and
+        * Set an account operation restriction in **allowlist** mode that allows only namespace-related and
         restriction-related functions.
         {.operation-item}
 
     * Do not allow moving funds from an account.
-        * Set an account operation restriction in **blacklist** mode that forbids <transfer transactions:>.
+        * Set an account operation restriction in **blocklist** mode that forbids <transfer transactions:>.
         {.operation-item}
 
 ## Mosaic-Based Restrictions
@@ -154,7 +154,7 @@ To apply a restriction to a mosaic, two components must be defined:
 **Both parts are required for the restriction to take effect.**
 
 This dependency is unique to mosaic restrictions.
-<Account restrictions:>, by contrast, do not require multiple parts to work.
+<Account restrictions:|Account restrictions>, by contrast, do not require multiple parts to work.
 
 ### Mosaic Global Restrictions
 
