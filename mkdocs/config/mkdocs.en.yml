@@ -103,6 +103,7 @@ nav:
           - TypeScript SDK: devbook/reference/ts/
           - Java SDK: devbook/reference/java/
           - Symbol REST API: devbook/reference/rest/symbol.md
+          - Serialization: devbook/reference/serialization/index.md
   - Textbook:
       - textbook/intro.md
       - textbook/cryptography.md

@@ -1,0 +1,28 @@
+<table style="width: 100%;"><tr><td>
+	<div class="side-info"><table>
+	<tr><td class="side-info-icon">&varr;</td><td>Size: 12+ bytes = 0xc+ <i>(variable)</i></td></tr>
+	<tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/statements/mosaic_resolution_statement.cats#L14">schema</a></td></tr>
+	</table></div>
+<p>A <a href="#mosaic" title="A quantity of a certain mosaic.">Mosaic</a> resolution statement links a namespace alias used in a transaction to the real mosaic id <strong>at the time of the transaction</strong>. </p>
+</td></tr></table>
+
+<div class="big-table6">
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">unresolved</code></div>
+	<div><a href="#unresolvedmosaicid" title="Either a MosaicId or a NamespaceId.">UnresolvedMosaicId</a></div>
+	<div class="description"><p>Unresolved mosaic. </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">resolution_entries_count</code></div>
+	<div>byte[4]</div>
+	<div class="description"><p>Number of resolution entries. </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">resolution_entries</code></div>
+	<div><a href="#mosaicresolutionentry" title="Actual MosaicId behind a NamespaceId at the time a transaction was confirmed.">MosaicResolutionEntry</a>&ZeroWidthSpace;[resolution_entries_count]</div>
+	<div class="description"><p>Resolution entries. </p></div>
+</div>

@@ -1,0 +1,58 @@
+<table style="width: 100%;"><tr><td>
+	<div class="side-info"><table>
+	<tr><td class="side-info-icon">&varr;</td><td>Size: 50+ bytes = 0x32+ <i>(variable)</i></td></tr>
+	<tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/state/multisig_entry.cats#L5">schema</a></td></tr>
+	</table></div>
+<p>binary layout for a multisig entry </p>
+</td></tr></table>
+
+<div class="big-table6">
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">version</code></div>
+	<div>byte[2]</div>
+	<div class="description"><p>serialization version </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">min_approval</code></div>
+	<div>byte[4]</div>
+	<div class="description"><p>minimum approval for modifications </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">min_removal</code></div>
+	<div>byte[4]</div>
+	<div class="description"><p>minimum approval for removal </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">account_address</code></div>
+	<div><a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a></div>
+	<div class="description"><p>account address </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">cosignatory_addresses_count</code></div>
+	<div>byte[8]</div>
+	<div class="description"><p>number of cosignatories </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">cosignatory_addresses</code></div>
+	<div><a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a>&ZeroWidthSpace;[cosignatory_addresses_count]</div>
+	<div class="description"><p>cosignatories for account </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">multisig_addresses_count</code></div>
+	<div>byte[8]</div>
+	<div class="description"><p>number of other accounts for which the entry is cosignatory </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">multisig_addresses</code></div>
+	<div><a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a>&ZeroWidthSpace;[multisig_addresses_count]</div>
+	<div class="description"><p>accounts for which the entry is cosignatory </p></div>
+</div>
