@@ -4,14 +4,26 @@ title: Modify Mosaic Definition
 
 # Modifying a Mosaic Definition
 
-After creating a <mosaic:>, its definition can be modified by sending a second definition transaction with the same
-nonce.
+Until a <mosaic:>'s supply has been distributed to other accounts, its creator can still change its definition
+properties (flags, divisibility, and duration) by sending a second definition transaction with the same identifier.
 
-Since the mosaic's total supply must be `0` for modification, the most common use case is adjusting properties right
-after creation and before minting supply.
-For example, adding a flag that was not set initially or changing its divisibility.
+For example, adding a flag that was not set initially, changing its divisibility, or extending its duration before
+distribution.
+
+!!! warning "Zero supply requirement"
+
+    A mosaic definition can only be modified when its total supply is `0`.
+    No units of the mosaic can exist anywhere on the network, otherwise the transaction fails with
+    `Failure_Mosaic_Modification_Disallowed`.
 
 This tutorial shows how to modify an existing mosaic's flags.
+To change the mosaic's supply instead of its definition, see [Changing Mosaic Supply](./change-mosaic-supply.md).
+
+!!! tip "Consider creating a new mosaic instead"
+
+    [Creating a new mosaic](./create-mosaic.md) is easier than modifying an existing one.
+    Understanding how modification works is still important to know when a mosaic's definition can no longer be edited.
+
 
 ## Prerequisites
 
@@ -27,13 +39,6 @@ Before you start, make sure to:
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
 transactions are announced and confirmed.
-
-!!! warning "Zero supply requirement"
-
-    A mosaic definition can only be modified when its total supply is `0`.
-    If the mosaic has any supply, the transaction fails with `Failure_Mosaic_Modification_Disallowed`.
-    To modify a mosaic that already has supply, the owner must hold the entire supply and
-    [decrease it](./change-mosaic-supply.md) to `0` first.
 
 ## Full Code
 
@@ -61,11 +66,20 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 ### Building the Modification Transaction
 
+Modifying a mosaic definition requires knowing its current values (flags, divisibility, and duration),
+because the network combines them with the values in the transaction rather than replacing them.
+The mosaic can be retrieved using the <get:/mosaics/{mosaicId}> endpoint or looked up in the
+[Symbol Explorer](https://testnet.symbol.fyi/).
+
+In this tutorial, the current values are already known because the mosaic was just
+[created and retrieved](./create-mosaic.md#retrieving-the-mosaic) in the previous tutorial.
+
 {{ tutorial.code_snippet(['py:49:65', 'js:44:61']) }}
 
-The `MOSAIC_NONCE` environment variable specifies the nonce of the mosaic to modify.
-The nonce must match the one used when [creating the mosaic](./create-mosaic.md), since the <mosaic ID:> is derived
-from the combination of the owner's address and the nonce using <dy:IdGenerator.generateMosaicId>.
+The `MOSAIC_NONCE` environment variable specifies the <nonce:> of
+the mosaic to modify.
+
+The nonce must match the one used when [creating the mosaic](./create-mosaic.md) to target the same mosaic.
 
 The modification transaction uses the same `mosaic_definition_transaction_v1` type as the original creation.
 The key difference is that the **nonce targets an existing mosaic** instead of creating a new one.
@@ -79,6 +93,7 @@ When processing the transaction, each property is combined with the mosaic's cur
 * **Divisibility** is XOR'd with the current divisibility.
     The resulting value must be between `0` and `6`.
 * **Duration** is added to the current remaining duration.
+    Duration can only be extended, not reduced, because the field is unsigned.
     A value of `0` leaves the duration unchanged.
     Eternal mosaics (duration `0`) cannot have their duration modified.
     The resulting duration cannot exceed approximately 10,512,000 blocks (approximately 10 years).
@@ -86,7 +101,7 @@ When processing the transaction, each property is combined with the mosaic's cur
 In this example, the existing mosaic has flags `transferable restrictable`
 ([numeric value](./create-mosaic.md#conclusion) `6`).
 The modification sets `flags: 'revokable'` (numeric value `8`).
-XOR produces `6 ^ 8 = 14`, which corresponds to `transferable restrictable revokable`.
+XOR produces 6 ⊕ 8 = 14, which corresponds to `transferable restrictable revokable`.
 
 The following table illustrates how XOR affects individual flags:
 
@@ -96,13 +111,14 @@ The following table illustrates how XOR affects individual flags:
 | `restrictable`  | on      | off          | on           |
 | `revokable`     | off     | on           | on           |
 
-Setting `divisibility` to `0` results in `2 ^ 0 = 2` (no change), and `duration: 0` adds nothing to the current
+Setting `divisibility` to `0` results in 2 ⊕ 0 = 2 (no change), and `duration: 0` adds nothing to the current
 duration.
 
 !!! note "Lease fee"
 
-    Like mosaic creation, modifying a mosaic definition incurs a lease fee paid in <XYM:>, in addition to
-    the standard [transaction fee](#fetching-network-time-and-fees).
+    Each mosaic definition transaction incurs the full [lease fee](../../textbook/mosaics.md#lease-fee) paid in
+    <XYM:>, whether creating or modifying a mosaic.
+    This is the same fee every time, in addition to the standard [transaction fee](#fetching-network-time-and-fees).
     The lease fee amount can be queried from the <get:/network/fees/rental> endpoint
     (`effectiveMosaicRentalFee` property).
 

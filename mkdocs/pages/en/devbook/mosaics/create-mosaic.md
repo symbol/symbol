@@ -80,7 +80,7 @@ The mosaic definition transaction registers a new mosaic on the network with the
 
 * **Nonce:** An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) that acts as a locally unique identifier
     for mosaics created by the same account.
-    The <mosaic ID:> is derived deterministically from the owner's address and the nonce using
+    The <mosaic ID:> is derived deterministically from the owner's address and the <nonce:> using
     <dy:IdGenerator.generateMosaicId>, so each unique nonce produces a different mosaic.
 
     !!! note "Nonce choice in this tutorial"
