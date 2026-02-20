@@ -30,20 +30,23 @@ namespace catapult { namespace utils {
 	/// Custom reader writer lock implemented by using an atomic that allows multiple readers and a single writer
 	/// and prefers writers.
 	/// \note
-	/// - 128 max writers
-	/// - 256 max readers
-	/// - writer lock must be acquired via a reader lock promotion
+	/// - 65,536 max writers (pending + active combined)
+	/// - 131,072 max readers (1:2 writer-to-reader ratio)
 	template<typename TReaderNotificationPolicy>
 	class BasicSpinReaderWriterLock : private TReaderNotificationPolicy {
 	private:
-		// 0[active writer]|1234567[total writers]|01234567[total readers]
-		static constexpr uint16_t Active_Writer_Flag = 0x8000;
-		static constexpr uint16_t Pending_Writer_Mask = 0x7F00;
-		static constexpr uint16_t Reader_Mask = 0x00FF;
-		static constexpr uint16_t Writer_Mask = Pending_Writer_Mask | Active_Writer_Flag;
+		// Bit layout (32-bit atomic):
+		// Bit 31:       [1 bit]  Active writer flag
+		// Bits 30-16:   [15 bits] Pending writer count
+		// Bits 15-0:    [16 bits] Active reader count
 
-		static constexpr uint16_t Active_Reader_Increment = 0x0001;
-		static constexpr uint16_t Pending_Writer_Increment = 0x0100;
+		static constexpr uint32_t Active_Writer_Flag = 0b10000000000000000000000000000000;
+		static constexpr uint32_t Pending_Writer_Mask = 0b01111111111111110000000000000000;
+		static constexpr uint32_t Reader_Mask = 0b00000000000000001111111111111111;
+		static constexpr uint32_t Writer_Mask = Pending_Writer_Mask | Active_Writer_Flag;
+
+		static constexpr uint32_t Active_Reader_Increment = 0b00000000000000000000000000000001;
+		static constexpr uint32_t Pending_Writer_Increment = 0b00000000000000010000000000000000;
 
 	private:
 		// region YieldStepper
@@ -125,7 +128,7 @@ namespace catapult { namespace utils {
 		class WriterLockGuard : public LockGuard {
 		public:
 			/// Creates a guard around \a value.
-			explicit WriterLockGuard(std::atomic<uint16_t>& value)
+			explicit WriterLockGuard(std::atomic<uint32_t>& value)
 					: LockGuard([&value]() {
 						// unset the active writer flag
 						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment);
@@ -134,7 +137,7 @@ namespace catapult { namespace utils {
 
 			/// Creates a guard around \a value and \a isActive.
 			/// \note This constructor is used when writer is created by promotion.
-			WriterLockGuard(std::atomic<uint16_t>& value, bool& isActive)
+			WriterLockGuard(std::atomic<uint32_t>& value, bool& isActive)
 					: LockGuard([&value, &isActive]() {
 						// unset the active writer flag and change the writer to a reader
 						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment - Active_Reader_Increment);
@@ -154,7 +157,7 @@ namespace catapult { namespace utils {
 		class ReaderLockGuard : public LockGuard {
 		public:
 			/// Creates a guard around \a value and \a notificationPolicy.
-			ReaderLockGuard(std::atomic<uint16_t>& value, TReaderNotificationPolicy& notificationPolicy)
+			ReaderLockGuard(std::atomic<uint32_t>& value, TReaderNotificationPolicy& notificationPolicy)
 					: LockGuard([&value, &notificationPolicy]() {
 						// decrease the number of readers by one
 						value.fetch_sub(Active_Reader_Increment);
@@ -192,7 +195,7 @@ namespace catapult { namespace utils {
 			}
 
 		private:
-			std::atomic<uint16_t>& m_value;
+			std::atomic<uint32_t>& m_value;
 			bool m_isWriterActive;
 		};
 
@@ -220,7 +223,7 @@ namespace catapult { namespace utils {
 		}
 
 	private:
-		inline bool isSet(uint16_t mask) const {
+		inline bool isSet(uint32_t mask) const {
 			return 0 != (m_value & mask);
 		}
 
@@ -229,7 +232,7 @@ namespace catapult { namespace utils {
 		inline ReaderLockGuard acquireReader() {
 			YieldStepper stepper;
 
-			uint16_t current = m_value;
+			uint32_t current = m_value;
 			for (;;) {
 				// wait for any pending writes to complete
 				if (0 != (current & Pending_Writer_Mask)) {
@@ -239,7 +242,7 @@ namespace catapult { namespace utils {
 				}
 
 				// try to increment the number of readers by one
-				auto desired = static_cast<uint16_t>(current + Active_Reader_Increment);
+				auto desired = static_cast<uint32_t>(current + Active_Reader_Increment);
 				if (m_value.compare_exchange_strong(current, desired))
 					break;
 
@@ -260,11 +263,11 @@ namespace catapult { namespace utils {
 		}
 
 	private:
-		static void AcquireWriter(std::atomic<uint16_t>& value) {
+		static void AcquireWriter(std::atomic<uint32_t>& value) {
 			YieldStepper stepper;
 
 			// wait for exclusive access (when there is no active writer and no readers)
-			uint16_t expected = value & Pending_Writer_Mask;
+			uint32_t expected = value & Pending_Writer_Mask;
 			while (!value.compare_exchange_strong(expected, expected | Active_Writer_Flag)) {
 				stepper.yield();
 				expected = value & Pending_Writer_Mask;
@@ -272,7 +275,7 @@ namespace catapult { namespace utils {
 		}
 
 	private:
-		std::atomic<uint16_t> m_value;
+		std::atomic<uint32_t> m_value;
 	};
 
 	/// No-op reader notification policy.
