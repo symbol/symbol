@@ -139,7 +139,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			Strand m_strand;
+			StrandOwnerLifetimeExtender<StrandedTaskWrapper>::Strand m_strand;
 			StrandOwnerLifetimeExtender<StrandedTaskWrapper> m_strandWrapper;
 			BasicTaskWrapper<StrandedTaskWrapper> m_impl;
 		};

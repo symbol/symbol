@@ -26,11 +26,12 @@
 
 namespace catapult { namespace thread {
 
-	using Strand = boost::asio::strand<boost::asio::io_context::executor_type>;
-
 	/// Wraps a strand and automatically augments handlers to extend the lifetime of an owning object.
 	template<typename TOwner>
 	class StrandOwnerLifetimeExtender {
+	public:
+		using Strand = boost::asio::strand<boost::asio::io_context::executor_type>;
+
 	private:
 #ifdef ENABLE_CATAPULT_DIAGNOSTICS
 		class outside_strand_error : public catapult_runtime_error {
