@@ -20,6 +20,7 @@ BOOST_DISABLED_LIBS = map(lambda library_name: f'--without-{library_name}', [
 	'json',
 	'mpi',
 	'nowide',
+	'process',
 	'python',
 	'serialization',
 	'stacktrace',

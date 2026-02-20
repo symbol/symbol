@@ -38,7 +38,7 @@ class CatapultConan(ConanFile):
 		self.options["boost*"].without_atomic = False
 		self.options["boost*"].without_chrono = False
 		self.options["boost*"].without_container = False
-		self.options["boost*"].without_context = False
+		self.options["boost*"].without_context = True
 		self.options["boost*"].without_contract = True
 		self.options["boost*"].without_coroutine = True
 		self.options["boost*"].without_date_time = False
@@ -55,6 +55,7 @@ class CatapultConan(ConanFile):
 		self.options["boost*"].without_mpi = True
 		self.options["boost*"].without_nowide = True
 		self.options["boost*"].without_program_options = False
+		self.options["boost*"].without_process = True
 		self.options["boost*"].without_python = True
 		self.options["boost*"].without_random = False
 		self.options["boost*"].without_regex = False
