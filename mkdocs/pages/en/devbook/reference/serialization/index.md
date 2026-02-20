@@ -10,28 +10,28 @@ hide:
 <div class="big-table3">
    <div id="amount"><b>Amount</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>A quantity of mosaics in <a href="/concepts/mosaic.html#divisibility">absolute units</a>. <br/>It can only be positive or zero. Negative quantities must be indicated by other means (See for example <a href="#mosaicsupplychangetransactionv1" title="Change the total supply of a mosaic (V1, latest).">MosaicSupplyChangeTransactionV1</a> and <a href="#mosaicsupplychangeaction" title="Enumeration of mosaic supply change actions.">MosaicSupplyChangeAction</a>). </p></div>
+   <div class="description"><p>A quantity of mosaics in absolute units. <br/>It can only be positive or zero. Negative quantities must be indicated by other means (See for example <a href="#mosaicsupplychangetransactionv1" title="Change the total supply of a mosaic (V1, latest).">MosaicSupplyChangeTransactionV1</a> and <a href="#mosaicsupplychangeaction" title="Enumeration of mosaic supply change actions.">MosaicSupplyChangeAction</a>). </p></div>
    <div id="blockduration"><b>BlockDuration</b></div>
    <div>8&nbsp;ubytes</div>
    <div class="description"><p>A time lapse, expressed in number of blocks. </p></div>
    <div id="blockfeemultiplier"><b>BlockFeeMultiplier</b></div>
    <div>4&nbsp;ubytes</div>
-   <div class="description"><p>Multiplier applied to the size of a transaction to obtain its fee, in <a href="/concepts/mosaic.html#divisibility">absolute units</a>. <br/>See the <a href="/concepts/fees.html">fees documentation</a>. </p></div>
+   <div class="description"><p>Multiplier applied to the size of a transaction to obtain its fee, in absolute units. <br/>See the fees documentation. </p></div>
    <div id="difficulty"><b>Difficulty</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>How hard it was to harvest this block. <br/>The initial value is 1e14 and it will remain like this as long as blocks are generated every <code class="docutils literal">blockGenerationTargetTime</code> seconds (<a href="/guides/network/configuring-network-properties.html">network property</a>). <br/>If blocks start taking more or less time than the configured value, the difficulty will be adjusted (in the range of 1e13 to 1e15) to try to hit the target time. <br/>See the <a href="/symbol-technicalref/main.pdf">Technical Reference</a> section 8.1. </p></div>
+   <div class="description"><p>How hard it was to harvest this block. <br/>The initial value is 1e14 and it will remain like this as long as blocks are generated every <code class="docutils literal">blockGenerationTargetTime</code> seconds (network property). <br/>If blocks start taking more or less time than the configured value, the difficulty will be adjusted (in the range of 1e13 to 1e15) to try to hit the target time. <br/>See the Technical Reference section 8.1. </p></div>
    <div id="finalizationepoch"><b>FinalizationEpoch</b></div>
    <div>4&nbsp;ubytes</div>
-   <div class="description"><p>Index of a <a href="/concepts/block.html#finalization">finalization</a> epoch. <br/>The first epoch is number 1 and contains only the first block (the <a href="/concepts/block.html#block-creation">Nemesis</a> block). Epoch duration (in blocks) is defined by the <code class="docutils literal">votingSetGrouping</code> network property. </p></div>
+   <div class="description"><p>Index of a finalization epoch. <br/>The first epoch is number 1 and contains only the first block (the Nemesis block). Epoch duration (in blocks) is defined by the <code class="docutils literal">votingSetGrouping</code> network property. </p></div>
    <div id="finalizationpoint"><b>FinalizationPoint</b></div>
    <div>4&nbsp;ubytes</div>
-   <div class="description"><p>A particular point in time inside a <a href="/concepts/block.html#finalization">finalization</a> epoch. <br/>See the <a href="/symbol-technicalref/main.pdf">Technical Reference</a> section 15.2. </p></div>
+   <div class="description"><p>A particular point in time inside a finalization epoch. <br/>See the Technical Reference section 15.2. </p></div>
    <div id="height"><b>Height</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>Index of a block in the blockchain. <br/>The first block (the <a href="/concepts/block.html#block-creation">Nemesis</a> block) has height 1 and each subsequent block increases height by 1. </p></div>
+   <div class="description"><p>Index of a block in the blockchain. <br/>The first block (the Nemesis block) has height 1 and each subsequent block increases height by 1. </p></div>
    <div id="importance"><b>Importance</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p><a href="/concepts/consensus-algorithm.html#importance-score">Importance score</a> for an account. <br/>See also <a href="#importanceheight" title="Block height at which an Importance was calculated.">ImportanceHeight</a> and <a href="#importancesnapshot" title="temporal importance information">ImportanceSnapshot</a>. </p></div>
+   <div class="description"><p>Importance score for an account. <br/>See also <a href="#importanceheight" title="Block height at which an Importance was calculated.">ImportanceHeight</a> and <a href="#importancesnapshot" title="temporal importance information">ImportanceSnapshot</a>. </p></div>
    <div id="importanceheight"><b>ImportanceHeight</b></div>
    <div>8&nbsp;ubytes</div>
    <div class="description"><p><a href="#block" title="binary layout for a block">Block</a> height at which an <a href="#importance" title="Importance score for an account.">Importance</a> was calculated. </p></div>
@@ -40,16 +40,16 @@ hide:
    <div class="description"><p>Either a <a href="#mosaicid" title="A Mosaic identifier.">MosaicId</a> or a <a href="#namespaceid" title="">NamespaceId</a>. <br/>The <strong>most</strong>-significant bit of the first byte is 0 for <a href="#mosaicid" title="A Mosaic identifier.">MosaicId</a>'s and 1 for <a href="#namespaceid" title="">NamespaceId</a>'s. </p></div>
    <div id="mosaicid"><b>MosaicId</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>A <a href="/concepts/mosaic.html">Mosaic</a> identifier. </p></div>
+   <div class="description"><p>A Mosaic identifier. </p></div>
    <div id="timestamp"><b>Timestamp</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>Number of milliseconds elapsed since the creation of the <a href="/concepts/block.html#block-creation">Nemesis</a> block. <br/>The Nemesis block creation time can be found in the <code class="docutils literal">epochAdjustment</code> field returned by the <a href="/symbol-openapi/v1.0.1/#operation/getNetworkProperties">/network/properties</a> REST endpoint. This is the number of seconds elapsed since the <a href="https://en.wikipedia.org/wiki/Unix_time">UNIX epoch</a> and it is always 1615853185 for Symbol's MAINNET. </p></div>
+   <div class="description"><p>Number of milliseconds elapsed since the creation of the Nemesis block. <br/>The Nemesis block creation time can be found in the <code class="docutils literal">epochAdjustment</code> field returned by the /network/properties REST endpoint. This is the number of seconds elapsed since the <a href="https://en.wikipedia.org/wiki/Unix_time">UNIX epoch</a> and it is always 1615853185 for Symbol's MAINNET. </p></div>
    <div id="unresolvedaddress"><b>UnresolvedAddress</b></div>
    <div>24&nbsp;ubytes</div>
    <div class="description"><p>Either an <a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a> or a <a href="#namespaceid" title="">NamespaceId</a>. <br/>The <strong>least</strong>-significant bit of the first byte is 0 for Addresses and 1 for <a href="#namespaceid" title="">NamespaceId</a>'s. </p></div>
    <div id="address"><b>Address</b></div>
    <div>24&nbsp;ubytes</div>
-   <div class="description"><p>An <a href="/concepts/cryptography.html#address">address</a> identifies an account and is derived from its <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a>. </p></div>
+   <div class="description"><p>An address identifies an account and is derived from its <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a>. </p></div>
    <div id="hash256"><b>Hash256</b></div>
    <div>32&nbsp;ubytes</div>
    <div class="description"><p>A 32-byte (256 bit) hash. <br/>The exact algorithm is unspecified as it can change depending on where it is used. </p></div>
@@ -58,10 +58,10 @@ hide:
    <div class="description"><p>A 64-byte (512 bit) hash. <br/>The exact algorithm is unspecified as it can change depending on where it is used. </p></div>
    <div id="publickey"><b>PublicKey</b></div>
    <div>32&nbsp;ubytes</div>
-   <div class="description"><p>A 32-byte (256 bit) integer derived from a private key. <br/>It serves as the public identifier of the <a href="/concepts/cryptography.html#key-pair">key pair</a> and can be disseminated widely. It is used to prove that an entity was signed with the paired private key. </p></div>
+   <div class="description"><p>A 32-byte (256 bit) integer derived from a private key. <br/>It serves as the public identifier of the key pair and can be disseminated widely. It is used to prove that an entity was signed with the paired private key. </p></div>
    <div id="votingpublickey"><b>VotingPublicKey</b></div>
    <div>32&nbsp;ubytes</div>
-   <div class="description"><p>A <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a> used for voting during the <a href="/concepts/block.html#finalization">finalization process</a>. </p></div>
+   <div class="description"><p>A <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a> used for voting during the finalization process. </p></div>
    <div id="signature"><b>Signature</b></div>
    <div>64&nbsp;ubytes</div>
    <div class="description"><p>A 64-byte (512 bit) array certifying that the signed data has not been modified. <br/>Symbol currently uses <a href="https://ed25519.cr.yp.to/">Ed25519</a> signatures. </p></div>
