@@ -97,8 +97,11 @@ if(USE_SANITIZER)
 		endif()
 
 		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-			# disable vptr on M1
+			# -fno-sanitize=vptr: disable vptr on Apple MX processors to avoid false positives
 			set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fno-sanitize=vptr")
+
+			# revert to clang 15 behavior due to false positives around unterminated constant strings
+			add_compile_options(-mllvm -asan-globals=0)
 		endif()
 	endif()
 

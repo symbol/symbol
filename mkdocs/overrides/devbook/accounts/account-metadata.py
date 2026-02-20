@@ -12,7 +12,7 @@ from symbolchain.symbol.Metadata import (
 )
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.environ.get(
+NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 

@@ -1,25 +1,39 @@
 ---
-title: Add Metadata
+title: Add Account Metadata
 ---
 
 # Adding Metadata to an Account
 
-<Accounts:> can store <metadata:> as key-value pairs.
+<Accounts:|Accounts>, like <mosaics:> and <namespaces:>, can store <metadata:> as key-value pairs.
 
 This tutorial shows how to add metadata to an account, retrieve metadata from the network, and update existing values.
 
-In this example, the string `alice` is attached to an account and then changed to `bob`.
+In this example, the pair `username = alice` is attached to an account and then changed to `bob`.
+
+```dot
+digraph {
+    layout="neato";
+    Account [label="Account\nTCHBDE...HHE32I" tooltip="Account" pos="0,0!"];
+    Metadata [
+        style=filled
+        class=metadata
+        label=<<table border="0"><tr><td><b>Key</b></td><td><b>Value</b></td></tr><tr><td>username</td><td>alice</td></tr></table>>
+        tooltip="Metadata entry"
+        shape=note
+        pos="2.0,0.5!"];
+}
+```
 
 ## Prerequisites
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:> to add metadata to, either
+* Create an <account:> to add metadata to, either
     [from code](./create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md).
-- Obtain <XYM:> to pay for the transaction fee.
+* Obtain <XYM:> to pay for the transaction fee.
     See [Getting Testnet Funds from the Faucet](./testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
@@ -61,16 +75,6 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 Each metadata entry is uniquely identified by the signer's address, the target account's address, and a
 **scoped metadata key**: a 64-bit value chosen by the metadata creator.
-
-!!! note "Multiple entries with the same key"
-
-    Because the signer's address is part of the unique identifier, different accounts can use the same scoped metadata
-    key on the same target account without conflict.
-
-    For example, Account A and Account B can both use the key `username` when adding metadata to Account C,
-    resulting in two distinct metadata entries.
-
-    Each entry is independent and can only be updated by the account that originally created it.
 
 The SDK provides a <dy:Metadata.metadataGenerateKey> helper function that generates a key from a
 human-readable string using SHA3-256 hashing.
@@ -154,28 +158,34 @@ The code queries the <get:/metadata> endpoint with filters for `sourceAddress`, 
 
 ### Modifying Existing Metadata
 
-{{ tutorial.code_snippet(['py:151:177', 'js:152:180']) }}
+{{ tutorial.code_snippet(['py:151:165', 'js:152:167']) }}
 
-To demonstrate updating metadata, the code changes the username from `alice` to `bob` using another account
-metadata transaction.
+To demonstrate updating metadata, the code changes the username from `alice` to `bob` by creating another
+`account_metadata_transaction_v1` transaction with the same scoped metadata key.
 
-Updating metadata in Symbol requires:
+Modifying an existing metadata value differs from creating a new one in that the updated value must be defined
+in terms of the current value, using the following fields:
 
 * **`value_size_delta`:** The difference in length between the new and current values.
-    In this example, the delta is `-2` because `bob` (3 bytes) is shorter than `alice` (5 bytes).
+    In this example, the delta is `-2` because `bob` (3 bytes) is two bytes shorter than `alice` (5 bytes).
 
 * **`value`:** The XOR'd bytes computed by comparing the current and new values byte-by-byte.
 
-The SDK provides a <dy:Metadata.metadataUpdateValue> helper function that handles the XOR calculation.
-The XOR operation compares each byte: matching bytes become zero, and differing bytes capture the change.
+    The SDK provides a <dy:Metadata.metadataUpdateValue> helper function that handles the XOR calculation.
+    The XOR operation compares each byte: matching bytes become zero, and differing bytes capture the change.
 
 Note that `value_size_delta` represents the difference in final value lengths (new vs current),
 not the length of the XOR'd bytes themselves.
 
-{{ tutorial.code_snippet(['py:179:189', 'js:182:194']) }}
+!!! tip "Deleting a metadata entry"
 
-The aggregate transaction is then signed and announced as in
-[Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction).
+    To delete a metadata entry, set `value_size_delta` to the negative of the current value length and provide the
+    current value as `value`. The XOR produces an empty result, which removes the entry from the network.
+
+As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
+in an aggregate transaction and then signed and announced.
+
+{{ tutorial.code_snippet(['py:167:189', 'js:169:194']) }}
 
 ## Output
 
@@ -206,9 +216,9 @@ The transaction hashes can be used to search for the transactions in the
 
 This tutorial showed how to:
 
-| Step                                                                                  | Related documentation                              |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [Define metadata key and value](#defining-the-metadata)                               | <dy:Metadata.metadataGenerateKey>                  |
-| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>       |
-| [Retrieve metadata](#retrieving-metadata)                                             | <get:/metadata>                                    |
-| [Modify existing metadata](#modifying-existing-metadata)                              | <dy:Metadata.metadataUpdateValue>                  |
+| Step                                                                                          | Related documentation                        |
+|-----------------------------------------------------------------------------------------------|----------------------------------------------|
+| [Define metadata key and value](#defining-the-metadata)                                       | <dy:Metadata.metadataGenerateKey>            |
+| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [Retrieve metadata](#retrieving-metadata)                                                     | <get:/metadata>                              |
+| [Modify existing metadata](#modifying-existing-metadata)                                      | <dy:Metadata.metadataUpdateValue>            |

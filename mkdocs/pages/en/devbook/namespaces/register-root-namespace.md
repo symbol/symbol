@@ -4,7 +4,7 @@ title: Register Root Namespace
 
 # Registering a Root Namespace
 
-<Namespaces:> provide human-readable aliases for <accounts:> and <mosaics:>,
+<Namespaces:|Namespaces> provide human-readable aliases for <accounts:> and <mosaics:>,
 which can be used instead of long addresses and hexadecimal mosaic IDs.
 
 This tutorial shows how to register a <root namespace:> and set its lease [duration](../../textbook/namespaces.md#duration).
@@ -16,12 +16,12 @@ as explained in [Next Steps](#next-steps).
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
   See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:> to register the namespace, either
+* Create an <account:> to register the namespace, either
   [from code](../accounts/create-from-private-key.md) or
   [by using a wallet](../../userbook/wallet/create-account.md).
-- Obtain <XYM:> to pay for the transaction and lease fees.
+* Obtain <XYM:> to pay for the transaction and lease fees.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
@@ -153,16 +153,16 @@ in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 This tutorial showed how to:
 
-| Step                                                          | Related documentation                              |
-| ------------------------------------------------------------- | -------------------------------------------------- |
-| [Generate namespace ID](#building-the-transaction)            | <dy:IdGenerator.generateNamespaceId>               |
-| [Build a namespace registration transaction](#building-the-transaction)   | <dy:SymbolTransactionFactory.create>   |
-| [Retrieve the namespace](#retrieving-the-namespace)           | <get:/namespaces/{namespaceId}>                    |
+| Step                                                                    | Related documentation                |
+|-------------------------------------------------------------------------|--------------------------------------|
+| [Generate namespace ID](#building-the-transaction)                      | <dy:IdGenerator.generateNamespaceId> |
+| [Build a namespace registration transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
+| [Retrieve the namespace](#retrieving-the-namespace)                     | <get:/namespaces/{namespaceId}>      |
 
 ## Next Steps
 
 Now that you have a root namespace, you can:
 
-- [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md) to create an alias
-- [Register a subnamespace](./register-subnamespace.md) to create a hierarchical structure
-- [Extend the namespace](./extend-root-namespace.md) before it expires to keep it active
+* [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md) to create an alias
+* [Register a subnamespace](./register-subnamespace.md) to create a hierarchical structure
+* [Extend the namespace](./extend-root-namespace.md) before it expires to keep it active

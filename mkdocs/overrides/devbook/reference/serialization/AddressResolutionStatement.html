@@ -1,0 +1,28 @@
+<table style="width: 100%;"><tr><td>
+	<div class="side-info"><table>
+	<tr><td class="side-info-icon">&varr;</td><td>Size: 28+ bytes = 0x1c+ <i>(variable)</i></td></tr>
+	<tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/statements/address_resolution_statement.cats#L14">schema</a></td></tr>
+	</table></div>
+<p>An <a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a> resolution statement links a namespace alias used in a transaction to the real address <strong>at the time of the transaction</strong>. </p>
+</td></tr></table>
+
+<div class="big-table6">
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">unresolved</code></div>
+	<div><a href="#unresolvedaddress" title="Either an Address or a NamespaceId.">UnresolvedAddress</a></div>
+	<div class="description"><p>Unresolved address. </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">resolution_entries_count</code></div>
+	<div>byte[4]</div>
+	<div class="description"><p>Number of resolution entries. </p></div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div><code class="docutils literal">resolution_entries</code></div>
+	<div><a href="#addressresolutionentry" title="Actual Address behind a NamespaceId at the time a transaction was confirmed.">AddressResolutionEntry</a>&ZeroWidthSpace;[resolution_entries_count]</div>
+	<div class="description"><p>Resolution entries. </p></div>
+</div>
