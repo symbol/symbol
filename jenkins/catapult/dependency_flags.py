@@ -68,7 +68,6 @@ def get_boost_disabled_libraries():
 		'nowide',
 		'process',
 		'python',
-		'serialization',
 		'stacktrace',
 		'test',
 		'timer',
