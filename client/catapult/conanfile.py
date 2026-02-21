@@ -54,8 +54,8 @@ class CatapultConan(ConanFile):
 		self.options["boost*"].without_math = False
 		self.options["boost*"].without_mpi = True
 		self.options["boost*"].without_nowide = True
-		self.options["boost*"].without_program_options = False
 		self.options["boost*"].without_process = True
+		self.options["boost*"].without_program_options = False
 		self.options["boost*"].without_python = True
 		self.options["boost*"].without_random = False
 		self.options["boost*"].without_regex = False
