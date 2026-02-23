@@ -70,10 +70,11 @@ Mosaics can be created with a specific duration or as eternal:
     Balances remain in accounts but are effectively frozen.
 
 !!! warning
-    Mosaic duration cannot be extended after creation.
-    Before creating an expiring mosaic, consider whether your use case truly requires it to expire.
+    Mosaic duration can only be extended while the total supply is `0`.
+    Once supply has been minted and distributed, the duration cannot be extended.
+    Eternal mosaics cannot have their duration modified at all.
 
-    This behavior is different from that of <namespaces:>, which can be renewed.
+    This behavior is different from that of <namespaces:>, which can always be renewed.
 
 ### Transferability
 
@@ -127,6 +128,12 @@ The fee must be paid at the time of creation and is non-refundable.
 
 Mosaic ID
 :   A 64-bit number that uniquely identifies a mosaic on the network.
+    The mosaic ID is derived deterministically from the creator's <address:> and a <nonce:>.
+
+Nonce
+:   An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) chosen by the creator when defining a mosaic.
+    Each unique nonce produces a different <mosaic ID:> for the same account.
+    The same account cannot reuse a nonce that already identifies an active mosaic.
 
 For example, **XYM**, the native network currency on Symbol, has the mosaic ID `0x6BED913FA20223F8` on <mainnet:>.
 
