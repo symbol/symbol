@@ -4,8 +4,8 @@ title: Modify Mosaic Definition
 
 # Modifying a Mosaic Definition
 
-Until a <mosaic:>'s supply has been distributed to other accounts, its creator can still change its definition
-properties (flags, divisibility, and duration) by sending a second definition transaction with the same identifier.
+As long as no units of a <mosaic:> exist on the network, its creator can still change its definition properties
+(flags, divisibility, and duration) by sending a second definition transaction with the same identifier.
 
 For example, adding a flag that was not set initially, changing its divisibility, or extending its duration before
 distribution.
@@ -23,7 +23,6 @@ To change the mosaic's supply instead of its definition, see [Changing Mosaic Su
 
     [Creating a new mosaic](./create-mosaic.md) is easier than modifying an existing one.
     Understanding how modification works is still important to know when a mosaic's definition can no longer be edited.
-
 
 ## Prerequisites
 
@@ -76,13 +75,11 @@ In this tutorial, the current values are already known because the mosaic was ju
 
 {{ tutorial.code_snippet(['py:49:65', 'js:44:61']) }}
 
-The `MOSAIC_NONCE` environment variable specifies the <nonce:> of
-the mosaic to modify.
-
+The `MOSAIC_NONCE` environment variable specifies the <nonce:> of the mosaic to modify.
 The nonce must match the one used when [creating the mosaic](./create-mosaic.md) to target the same mosaic.
 
 The modification transaction uses the same `mosaic_definition_transaction_v1` type as the original creation.
-The key difference is that the **nonce targets an existing mosaic** instead of creating a new one.
+The key difference is that **the nonce targets an existing mosaic** instead of creating a new one.
 
 When processing the transaction, each property is combined with the mosaic's current value using the following rules:
 
@@ -96,7 +93,7 @@ When processing the transaction, each property is combined with the mosaic's cur
     Duration can only be extended, not reduced, because the field is unsigned.
     A value of `0` leaves the duration unchanged.
     Eternal mosaics (duration `0`) cannot have their duration modified.
-    The resulting duration cannot exceed approximately 10,512,000 blocks (approximately 10 years).
+    The resulting duration cannot exceed 10,512,000 blocks (approximately 10 years).
 
 In this example, the existing mosaic has flags `transferable restrictable`
 ([numeric value](./create-mosaic.md#conclusion) `6`).
