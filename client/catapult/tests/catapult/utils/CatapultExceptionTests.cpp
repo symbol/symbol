@@ -85,6 +85,10 @@ namespace catapult {
 		std::string ConvertToExceptionFunctionName(const std::string& functionFullName) {
 			CATAPULT_LOG(info) << "function: " << functionFullName;
 
+#ifdef _MSC_VER
+			return functionFullName;  // Boost 1.90 no transformation is needed.
+#endif
+
 			std::size_t functionNameEnd = functionFullName.find_first_of("<(");
 			if (std::string::npos == functionNameEnd)
 				return functionFullName;
