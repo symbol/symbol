@@ -80,7 +80,7 @@ The mosaic definition transaction registers a new mosaic on the network with the
 
 * **Nonce:** An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) that acts as a locally unique identifier
     for mosaics created by the same account.
-    The <mosaic ID:> is derived deterministically from the owner's address and the nonce using
+    The <mosaic ID:> is derived deterministically from the owner's address and the <nonce:> using
     <dy:IdGenerator.generateMosaicId>, so each unique nonce produces a different mosaic.
 
     !!! note "Nonce choice in this tutorial"
@@ -146,7 +146,8 @@ Once the mosaic definition is confirmed, a second transaction increases the mosa
 
 {{ tutorial.code_snippet(['py:128:140', 'js:131:143']) }}
 
-The mosaic supply change transaction is signed and announced following the same process as the mosaic definition transaction.
+The mosaic supply change transaction is signed and announced following the same process as the mosaic definition
+transaction.
 
 !!! tip "Combining both transactions"
 
@@ -218,5 +219,6 @@ Now that you have created a mosaic, you can:
 
 * [Link a namespace to your mosaic](../namespaces/link-namespace-to-mosaic.md) to create a human-readable alias
 * [Send your mosaic with a transfer transaction](../transactions/transfer.md) to distribute it to other accounts
-* [Change the mosaic supply](./change-mosaic-supply.md) to increase or decrease the total supply for `supply_mutable` mosaics
-* Modify the mosaic definition  to change its flags or duration before distributing the mosaic
+* [Change the mosaic supply](./change-mosaic-supply.md) to increase or decrease the total supply for `supply_mutable`
+    mosaics
+* [Modify the mosaic definition](./modify-mosaic-definition.md) to change its flags or duration before distributing
