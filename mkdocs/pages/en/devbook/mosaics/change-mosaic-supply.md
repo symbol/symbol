@@ -4,7 +4,8 @@ title: Change Mosaic Supply
 
 # Changing Mosaic Supply
 
-<Mosaics:|Mosaics> created with the `supply_mutable` flag can have their total supply increased or decreased after creation.
+<Mosaics:|Mosaics> created with the `supply_mutable` flag can have their total supply increased or decreased after
+creation.
 
 This tutorial shows how to change a mosaic's supply.
 
