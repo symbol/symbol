@@ -17,8 +17,7 @@ try:
 	# Retrieve the confirmed transaction
 	tx_path = f'/transactions/confirmed/{TX_HASH}'
 	print(f'Fetching transaction from {tx_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{tx_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{tx_path}') as response:
 		tx_data = json.loads(response.read().decode())
 
 	block_height = tx_data['meta']['height']
@@ -49,16 +48,14 @@ try:
 	if is_address_alias:
 		address_path = ('/statements/resolutions/address'
 			f'?height={block_height}')
-		print(f'\nFetching address resolutions from'
-			f' {address_path}')
+		print(f'\nFetching address resolutions from {address_path}')
 		with urllib.request.urlopen(
 				f'{NODE_URL}{address_path}') as response:
-			address_data = json.loads(
-				response.read().decode())
+			address_data = json.loads(response.read().decode())
 
 		address_statements = address_data['data']
 		print(f'  Found {len(address_statements)}'
-			' resolution statement(s)')
+			+ ' resolution statement(s)')
 
 		for item in address_statements:
 			statement = item['statement']
@@ -70,8 +67,7 @@ try:
 				if source['primaryId'] <= tx_primary:
 					resolved = entry['resolved']
 			if resolved:
-				address = Address(
-					bytes.fromhex(resolved))
+				address = Address(bytes.fromhex(resolved))
 				print('\nAddress resolution:')
 				print(f'  Unresolved:  {statement["unresolved"]}')
 				print(f'  Resolved:   {address}')
@@ -80,16 +76,13 @@ try:
 	if len(aliased_mosaics):
 		mosaic_path = ('/statements/resolutions/mosaic'
 			f'?height={block_height}')
-		print(f'\nFetching mosaic resolutions from'
-			f' {mosaic_path}')
+		print(f'\nFetching mosaic resolutions from {mosaic_path}')
 		with urllib.request.urlopen(
 				f'{NODE_URL}{mosaic_path}') as response:
-			mosaic_data = json.loads(
-				response.read().decode())
+			mosaic_data = json.loads(response.read().decode())
 
 		mosaic_statements = mosaic_data['data']
-		print(f'  Found {len(mosaic_statements)}'
-			' resolution statement(s)')
+		print(f'  Found {len(mosaic_statements)} resolution statement(s)')
 
 		for item in mosaic_statements:
 			statement = item['statement']

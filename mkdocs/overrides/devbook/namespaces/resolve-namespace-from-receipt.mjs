@@ -39,8 +39,7 @@ try {
 			(mosaicId >> 63n & 1n) === 1n;
 		if (isMosaicAlias) aliasedMosaics.add(mosaic.id);
 		console.log(`  Mosaic: ${mosaic.id}`);
-		console.log(
-			`  Is mosaic alias: ${isMosaicAlias}`);
+		console.log(`  Is mosaic alias: ${isMosaicAlias}`);
 	}
 
 	// Query address resolution statements
@@ -48,8 +47,7 @@ try {
 		const addressPath =
 			'/statements/resolutions/address'
 			+ `?height=${blockHeight}`;
-		console.log('\nFetching address resolutions from',
-			addressPath);
+		console.log('\nFetching address resolutions from', addressPath);
 		const addressResponse =
 			await fetch(`${NODE_URL}${addressPath}`);
 		const addressData = await addressResponse.json();
@@ -71,8 +69,7 @@ try {
 			if (resolved) {
 				const bytes = Uint8Array.from(
 					Buffer.from(resolved, 'hex'));
-				const address =
-					new SymbolFacade.Address(bytes);
+				const address = new SymbolFacade.Address(bytes);
 				console.log('\nAddress resolution:');
 				console.log('  Unresolved:', statement.unresolved);
 				console.log(`  Resolved:   ${address}`);
@@ -85,12 +82,9 @@ try {
 		const mosaicPath =
 			'/statements/resolutions/mosaic'
 			+ `?height=${blockHeight}`;
-		console.log('\nFetching mosaic resolutions from',
-			mosaicPath);
-		const mosaicResponse =
-			await fetch(`${NODE_URL}${mosaicPath}`);
-		const mosaicData =
-			await mosaicResponse.json();
+		console.log('\nFetching mosaic resolutions from', mosaicPath);
+		const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);
+		const mosaicData = await mosaicResponse.json();
 
 		const mosaicStatements = mosaicData.data;
 		console.log(
