@@ -159,8 +159,8 @@ Signing ensures the transaction is authentic and authorized by the sender.
 
 <dy:SymbolFacade.signTransaction> returns a <signature:> encoded as a hexadecimal string.
 
-<dy:SymbolTransactionFactory.attachSignature> adds the signature to the transaction and serializes it into a JSON payload
-ready to be submitted directly to a node for announcement.
+<dy:SymbolTransactionFactory.attachSignature> adds the signature to the transaction and serializes it into a
+JSON payload ready to be submitted directly to a node for announcement.
 
 ### Announcing the Transaction
 
@@ -188,7 +188,8 @@ as shown in the next step.
     In addition, the logic for checking transaction status is reusable.
     It can be moved into a utility function or module, since it is needed after announcing every transaction.
 
-The snippet above repeatedly queries the <get:/transactionStatus/{hash}> endpoint using the hash of the submitted transaction.
+The snippet above repeatedly queries the <get:/transactionStatus/{hash}> endpoint using the hash of the submitted
+transaction.
 The response may take one of several forms:
 
 * An HTTP error, indicating that the node has not yet started processing the transaction.

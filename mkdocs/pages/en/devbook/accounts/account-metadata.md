@@ -6,7 +6,7 @@ title: Add Account Metadata
 
 <Accounts:|Accounts>, like <mosaics:> and <namespaces:>, can store <metadata:> as key-value pairs.
 
-This tutorial shows how to add metadata to an account, retrieve metadata from the network, and update existing values.
+This tutorial shows how to add metadata to an account, retrieve it from the network, and update existing values.
 
 In this example, the pair `username = alice` is attached to an account and then changed to `bob`.
 
@@ -38,8 +38,8 @@ Before you start, make sure to:
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
 transactions are announced and confirmed, and the
-[Complete Aggregate transaction](../transactions/complete-aggregate.md) tutorial to understand how aggregate
-transactions work.
+[Complete Aggregate transaction](../transactions/complete-aggregate.md) tutorial to understand how
+<aggregate transactions:> work.
 
 ## Full Code
 
@@ -71,22 +71,35 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 ### Defining the Metadata
 
+Each account metadata entry is uniquely identified by:
+
+* The **signer's address**: the account adding the metadata
+* The **target account's address**: the account receiving the metadata, whose signature is required
+* A **scoped metadata key**: a 64-bit value chosen by the metadata creator
+
+    The SDK provides a <dy:Metadata.metadataGenerateKey> helper function that generates this key from a
+    human-readable string using SHA3-256 hashing.
+    This approach makes keys more meaningful and reduces the chance of collisions.
+
 {{ tutorial.code_snippet(['py:87:90', 'js:85:88']) }}
-
-Each metadata entry is uniquely identified by the signer's address, the target account's address, and a
-**scoped metadata key**: a 64-bit value chosen by the metadata creator.
-
-The SDK provides a <dy:Metadata.metadataGenerateKey> helper function that generates a key from a
-human-readable string using SHA3-256 hashing.
-This approach makes keys more meaningful and reduces the chance of collisions.
 
 In this example, the key is derived from the string `username`.
 For demonstration purposes, a timestamp is appended to the key string,
 so each time the code is executed a new entry is added to the account.
 In practice, you would use a fixed key that identifies the specific metadata entry you want to create or update.
 
-The metadata value can be any byte sequence.
+The metadata value can be any sequence of up to 1024 bytes.
 In this example, the value is the string `alice` encoded in UTF-8.
+
+!!! note "Multiple entries with the same key"
+
+    The key is only one of the 3 parts that identify a metadata entry,
+    so a change in any part produces a different entry.
+
+    For example, different accounts can use the same scoped metadata key on the same target account without conflict,
+    because the signer's address is different.
+
+    Each entry is independent and can only be updated by the account that originally created it.
 
 ### Creating the Embedded Account Metadata Transaction
 
@@ -132,9 +145,9 @@ The code adds the embedded account metadata transaction to an <aggregate transac
 Since the signer is modifying their own account, no <cosignatures:> are required and the aggregate can be created as
 <complete aggregate transaction:|complete>, allowing it to be signed and announced immediately.
 
-!!! note "Adding metadata to a different account"
+!!! note "Adding metadata by a different account"
 
-    If the target account is different from the signer, the target must cosign the aggregate transaction to approve the
+    If the signer is different from the account owner, the owner must cosign the aggregate transaction to approve the
     metadata entry.
 
     For details on collecting cosignatures on-chain, see the [Bonded Aggregate](../transactions/bonded-aggregate.md)
@@ -151,14 +164,17 @@ The aggregate transaction is signed and announced following the same process as 
 
 {{ tutorial.code_snippet(['py:132:149', 'js:133:150']) }}
 
-Updating an existing metadata entry requires the current value from the network.
+To retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
+with filters for `sourceAddress`, `targetAddress`, `scopedMetadataKey`, and `metadataType`
+(`0` for account metadata).
 
-The code queries the <get:/metadata> endpoint with filters for `sourceAddress`, `targetAddress`,
-`scopedMetadataKey`, and `metadataType` (`0` for account metadata) to retrieve the specific entry.
+The endpoint returns the list of entries matching the filters, which in this case contains a single item.
 
 ### Modifying Existing Metadata
 
 {{ tutorial.code_snippet(['py:151:165', 'js:152:167']) }}
+
+Updating an existing metadata entry requires the current value, retrieved from the network as previously shown.
 
 To demonstrate updating metadata, the code changes the username from `alice` to `bob` by creating another
 `account_metadata_transaction_v1` transaction with the same scoped metadata key.

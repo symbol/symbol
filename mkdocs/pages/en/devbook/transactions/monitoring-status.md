@@ -110,7 +110,8 @@ If the endpoint returns HTTP 404, the transaction status is not yet available.
 This can happen immediately after announcing a transaction, before the <node:> processes it, or if the hash is invalid.
 The function handles this case by logging the attempt and continuing to poll.
 
-For any other error (such as connectivity issues or failed transactions), the function re-raises the exception immediately.
+For any other error (such as connectivity issues or failed transactions), the function re-raises the exception
+immediately.
 
 ### Waiting Between Attempts
 

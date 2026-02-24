@@ -27,7 +27,7 @@ Waiting for aggregate transaction confirmation...
 aggregate transaction confirmed in 11 seconds
 
 --- Modifying existing metadata ---
-Fetching current metadata from /metadata?targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&metadataType=0
+Fetching current metadata from /metadata?sourceAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&scopedMetadataKey=E7F71DA42B54B310&metadataType=0
   Current value: alice
 Created embedded update transaction:
 {

@@ -149,15 +149,16 @@ in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 This tutorial showed how to:
 
-| Step                                                           | Related documentation                 |
-| -------------------------------------------------------------- | ------------------------------------- |
-| [Generate namespace ID](#building-the-transaction)             | <dy:IdGenerator.generateNamespaceId>  |
+| Step                                                                       | Related documentation                 |
+| -------------------------------------------------------------------------  | ------------------------------------- |
+| [Generate namespace ID](#building-the-transaction)                         | <dy:IdGenerator.generateNamespaceId>  |
 | [Build a subnamespace registration transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.create>  |
-| [Retrieve the subnamespace](#retrieving-the-subnamespace)      | <get:/namespaces/{namespaceId}>       |
+| [Retrieve the subnamespace](#retrieving-the-subnamespace)                  | <get:/namespaces/{namespaceId}>       |
 
 ## Next Steps
 
 Now that you have a subnamespace, you can:
 
 - Register additional subnamespaces to expand your hierarchical structure
-- [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md) to create an alias
+- [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or
+    [to an account](./link-namespace-to-address.md) to create an alias

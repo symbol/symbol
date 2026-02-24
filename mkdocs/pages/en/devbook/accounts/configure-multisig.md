@@ -239,8 +239,10 @@ The output shown below corresponds to two typical runs of the program.
 
     - **Lines 2-4**: Addresses and public keys of all involved accounts.
     - **Line 10** (`Response: No cosignatories`): No cosignatories are currently configured.
-    - **Line 27** (`"min_approval_delta": 1`): The number of required signatures to approve transactions will be increased by one.
-    - **Line 28** (`"min_removal_delta": 1`): The number of required signatures to remove a cosignatory will be increased by one.
+    - **Line 27** (`"min_approval_delta": 1`): The number of required signatures to approve transactions will be
+        increased by one.
+    - **Line 28** (`"min_removal_delta": 1`): The number of required signatures to remove a cosignatory will be
+        increased by one.
     - **Line 29** (`"address_additions"`): List of addresses that will be added as cosignatories.
 
 === ":material-minus-thick: Disabling the Multisig"
