@@ -145,9 +145,9 @@ The code adds the embedded account metadata transaction to an <aggregate transac
 Since the signer is modifying their own account, no <cosignatures:> are required and the aggregate can be created as
 <complete aggregate transaction:|complete>, allowing it to be signed and announced immediately.
 
-!!! note "Adding metadata by a different account"
+!!! note "Adding metadata to a different account"
 
-    If the signer is different from the account owner, the owner must cosign the aggregate transaction to approve the
+    If the target account is different from the signer, the target must cosign the aggregate transaction to approve the
     metadata entry.
 
     For details on collecting cosignatures on-chain, see the [Bonded Aggregate](../transactions/bonded-aggregate.md)
