@@ -12,9 +12,9 @@ This tutorial shows how to extend a root namespace.
 
 ## Prerequisites
 
-- An <account:> that owns an active root namespace.
+* An <account:> that owns an active root namespace.
     See [Registering a Root Namespace](./register-root-namespace.md).
-- <XYM:> to pay for the transaction and lease fees.
+* <XYM:> to pay for the transaction and lease fees.
 
 ## When to Extend
 

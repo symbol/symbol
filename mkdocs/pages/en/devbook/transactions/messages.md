@@ -15,13 +15,13 @@ This tutorial shows how to send both plain and encrypted messages and how to dec
 
 Before you start, make sure to:
 
-- Set up your development environment.
-  See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:> to send the transfer transaction, either
-  [from code](../accounts/create-from-private-key.md) or
-  [by using a wallet](../../userbook/wallet/create-account.md).
-- Obtain <XYM:> to pay for the transaction fee.
-  See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
+* Set up your development environment.
+    See [Setting Up a Development Environment](../start/setup.md).
+* Create an <account:> to send the transfer transaction, either
+    [from code](../accounts/create-from-private-key.md) or
+    [by using a wallet](../../userbook/wallet/create-account.md).
+* Obtain <XYM:> to pay for the transaction fee.
+    See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, check the [Transfer transaction](./transfer.md) tutorial to understand how fee
 calculation, network time, and transaction confirmation work.
