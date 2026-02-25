@@ -32,7 +32,7 @@ Waiting for aggregate transaction confirmation...
 aggregate transaction confirmed in 21 seconds
 
 --- Modifying existing metadata ---
-Fetching current metadata from /metadata?targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&scopedMetadataKey=DA51DFDE6A4AD5E7&targetId=6D1314BE751B62C2&metadataType=1
+Fetching current metadata from /metadata?sourceAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&scopedMetadataKey=DA51DFDE6A4AD5E7&targetId=6D1314BE751B62C2&metadataType=1
   Current value: My first mosaic
 Created embedded update transaction:
 {
