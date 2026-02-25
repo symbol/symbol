@@ -126,14 +126,14 @@ duration.
 The modification transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:88:106', 'js:87:124']) }}
+{{ tutorial.code_snippet(['py:88:106', 'js:87:121']) }}
 
 The code then waits for the transaction to be confirmed by polling the <get:/transactionStatus/{hash}> endpoint
 until the status changes to `confirmed`.
 
 ### Retrieving the Mosaic
 
-{{ tutorial.code_snippet(['py:108:121', 'js:126:139']) }}
+{{ tutorial.code_snippet(['py:108:121', 'js:123:136']) }}
 
 To verify the modification was applied, the code retrieves the mosaic from the network using the
 <get:/mosaics/{mosaicId}> endpoint and displays its updated properties.

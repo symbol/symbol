@@ -219,7 +219,8 @@ The output shown below corresponds to two typical runs of the program.
     - **Line 9** (`Response: [ ... ]`): Existing restrictions are detected.
     - **Line 21** (`restriction_flags`): Same flag value used when enabling the restriction.
     - **Line 23-25** (`restriction_deletions`): The previously configured address is removed.
-    - **Line 44** (`test transfer confirmed`): The transfer is confirmed successfully because the restriction has been lifted.
+    - **Line 44** (`test transfer confirmed`): The transfer is confirmed successfully because the restriction has been
+        lifted.
 
 The transaction hashes shown in the output can be used to look up the transactions in the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
