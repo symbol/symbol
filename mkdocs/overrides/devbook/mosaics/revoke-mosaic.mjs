@@ -12,11 +12,8 @@ console.log('Using node', NODE_URL);
 // Helper function to fetch account mosaic balances
 async function getAccountMosaics(address) {
 	const accountPath = `/accounts/${address}`;
-	console.log(
-		'Fetching account information from',
-		accountPath);
-	const response = await fetch(
-		`${NODE_URL}${accountPath}`);
+	console.log('Fetching account information from', accountPath);
+	const response = await fetch(`${NODE_URL}${accountPath}`);
 	const responseJSON = await response.json();
 	return responseJSON.account.mosaics;
 }

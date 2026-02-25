@@ -16,11 +16,8 @@ print(f'Using node {NODE_URL}')
 # Helper function to fetch account mosaic balances
 def get_account_mosaics(address):
 	account_path = f'/accounts/{address}'
-	print(
-		f'Fetching account information from {account_path}')
-	with urllib.request.urlopen(
-		f'{NODE_URL}{account_path}'
-	) as response:
+	print(f'Fetching account information from {account_path}')
+	with urllib.request.urlopen(f'{NODE_URL}{account_path}') as response:
 		response_json = json.loads(response.read().decode())
 		return response_json['account']['mosaics']
 
