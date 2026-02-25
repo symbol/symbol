@@ -211,7 +211,7 @@ not the length of the XOR'd bytes themselves.
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
 in an aggregate transaction and then signed and announced.
 
-{{ tutorial.code_snippet(['py:177:199', 'js:183:211']) }}
+{{ tutorial.code_snippet(['py:177:199', 'js:183:208']) }}
 
 ## Output
 
