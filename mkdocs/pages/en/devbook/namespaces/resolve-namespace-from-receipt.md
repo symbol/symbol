@@ -39,6 +39,9 @@ mosaic ID.
 This hash is read from the `TRANSACTION_HASH` environment variable, which defaults to a known transaction on the
 Symbol <testnet:>.
 
+The provided default transaction hash might result in a `Not Found` error if the `testnet` is reset.
+You can use `TRANSACTION_HASH` to analyze a different transaction.
+
 ### Retrieving the Confirmed Transaction
 
 {{ tutorial.code_snippet(['py:17:29', 'js:13:26']) }}
@@ -151,9 +154,9 @@ Some highlights from the output:
 * **Resolved mosaic ID** (lines 22-23): The mosaic resolution shows that the unresolved namespace ID
     `E74B99BA41F4AFEE` resolved to mosaic ID `72C0212E67A08BCE` for this transaction.
 
-!!! note "Resolution statements only contain numeric IDs"
-    Resolution statements contain namespace IDs, not human-readable names like `symbol.xym`.
-    To retrieve the readable name from an ID, use <post:/namespaces/names>.
+    !!! note "Resolution statements only contain numeric IDs"
+        Resolution statements contain mosaic IDs, not human-readable names like `symbol.xym`.
+        To retrieve the readable name from an ID, use <post:/namespaces/names>.
 
 ## Conclusion
 
