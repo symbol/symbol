@@ -128,8 +128,15 @@ namespace catapult {
 				exceptionFqn.replace(pos, toSearch.size(), ">>");
 #endif
 
+// For VS 2022 and greater with Boost 1.90 no transformation is needed.
+#if (defined(_MSC_VER) && _MSC_VER >= 1930)
+			auto thrownFunctionName = expected.FunctionName;
+#else
+			auto thrownFunctionName = ConvertToExceptionFunctionName(expected.FunctionName);
+#endif
+
 			std::vector<std::string> expectedDiagLines{
-				"Throw in function " + ConvertToExceptionFunctionName(expected.FunctionName),
+				"Throw in function " + thrownFunctionName,
 				"Dynamic exception type: " STRUCTPREFIX "boost::wrapexcept<" + exceptionFqn + endBrace,
 				"std::exception::what: " + expected.What
 			};

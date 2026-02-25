@@ -33,11 +33,7 @@ endif()
 ### set boost settings
 add_definitions(-DBOOST_ALL_DYN_LINK)
 add_definitions(-DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
-
-if(Boost_VERSION VERSION_LESS 1.84)
-	# workaround for https://github.com/boostorg/phoenix/issues/111
-	add_definitions(-DBOOST_PHOENIX_STL_TUPLE_H_)
-endif()
+add_definitions(-DBOOST_ASIO_NO_DEPRECATED)
 
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
@@ -129,7 +125,7 @@ if(MSVC)
 	add_compile_options(/MP)            # Enable parallel compilation
 	add_compile_options(/GA)            # Optimizes for Windows applications
 
-	add_definitions(-D_WIN32_WINNT=0x0601)
+	add_definitions(-D_WIN32_WINNT=0x0A00)
 
 	add_compile_options(/w44287)		# 'operator' : unsigned/negative constant mismatch
 	add_compile_options(/w44388)		# 'token' : signed/unsigned mismatch

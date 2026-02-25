@@ -35,7 +35,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanConvertRawPointerToBinary) {
 		// Arrange:
-		uint8_t data[10];
+		uint8_t data[10] = {};
 
 		// Act
 		auto bsonBinary = ToBinary(data, 10);

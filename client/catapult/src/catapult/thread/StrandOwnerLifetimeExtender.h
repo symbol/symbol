@@ -21,6 +21,7 @@
 
 #pragma once
 #include "catapult/utils/WrappedWithOwnerDecorator.h"
+#include "catapult/exceptions.h"
 #include <boost/asio.hpp>
 
 namespace catapult { namespace thread {
@@ -29,20 +30,77 @@ namespace catapult { namespace thread {
 	template<typename TOwner>
 	class StrandOwnerLifetimeExtender {
 	public:
+		using Strand = boost::asio::strand<boost::asio::io_context::executor_type>;
+
+	private:
+#ifdef ENABLE_CATAPULT_DIAGNOSTICS
+		class outside_strand_error : public catapult_runtime_error {
+		public:
+			using catapult_runtime_error::catapult_runtime_error;
+		};
+
+		template<typename THandler>
+		class StrandCheckHandler {
+		public:
+			StrandCheckHandler(const Strand& strand, THandler handler)
+					: m_pStrand(&strand)
+					, m_handler(std::move(handler))
+			{}
+
+		public:
+			template<typename... TArgs>
+			auto operator()(TArgs&& ...args) const {
+				if (!m_pStrand->running_in_this_thread())
+					CATAPULT_THROW_AND_LOG_0(outside_strand_error, "wrapped function executing outside of strand");
+
+				return m_handler(std::forward<TArgs>(args)...);
+			}
+
+		protected:
+			const Strand* m_pStrand;
+			THandler m_handler;
+		};
+
+		template<typename THandler>
+		static auto MakeStrandCheckHandler(const Strand& strand, THandler handler) {
+			return StrandCheckHandler<THandler>(strand, std::move(handler));
+		}
+#else
+		template<typename THandler>
+		static auto MakeStrandCheckHandler(const Strand&, THandler handler) {
+			return std::move(handler);
+		}
+#endif
+
+	public:
 		/// Creates a strand owner lifetime extender around \a strand.
-		explicit StrandOwnerLifetimeExtender(boost::asio::io_context::strand& strand) : m_strand(strand)
+		explicit StrandOwnerLifetimeExtender(Strand& strand) : m_strand(strand)
 		{}
 
 	public:
 		/// Wraps \a handler and attaches \a pOwner to it.
 		template<typename THandler>
 		auto wrap(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
-			// when wrap is called the returned callback needs to extend the lifetime of pOwner
-			utils::WrappedWithOwnerDecorator<THandler> wrappedHandler(pOwner, std::move(handler));
-			return m_strand.wrap(wrappedHandler);
+			// 1. check in-strand execution (in diagnostic mode)
+			auto checkedHandler = MakeStrandCheckHandler<THandler>(m_strand, std::move(handler));
+
+			// 2. extend owner lifetime
+			utils::WrappedWithOwnerDecorator<decltype(checkedHandler)> wrappedWithOwnerHandler(pOwner, std::move(checkedHandler));
+
+			// 3. specify strand as executor for asio
+			return boost::asio::bind_executor(m_strand, std::move(wrappedWithOwnerHandler));
 		}
 
 	public:
+		/// Attaches \a pOwner to \a handler and dispatches it to the strand.
+		template<typename THandler>
+		void dispatch(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
+			// ensure all handlers extend the lifetime of pOwner and dispatch to a strand
+			boost::asio::dispatch(m_strand, [pOwner, handler]() {
+				handler(pOwner);
+			});
+		}
+
 		/// Attaches \a pOwner to \a handler and posts it to the strand.
 		template<typename THandler>
 		void post(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
@@ -53,6 +111,6 @@ namespace catapult { namespace thread {
 		}
 
 	private:
-		boost::asio::io_context::strand& m_strand;
+		Strand& m_strand;
 	};
 }}

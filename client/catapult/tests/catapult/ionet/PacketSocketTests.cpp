@@ -1155,7 +1155,7 @@ namespace catapult { namespace ionet {
 
 			CATAPULT_LOG(debug) << "starting async accept";
 			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
-			auto acceptorStrand = boost::asio::io_context::strand(ioContext);
+			auto acceptorStrand = boost::asio::make_strand(ioContext);
 			auto serverSocket = boost::asio::ip::tcp::socket(ioContext);
 
 			// - post an async server accept
@@ -1262,7 +1262,7 @@ namespace catapult { namespace ionet {
 
 	namespace {
 		auto CreateEndpointForListenInterface(const std::string& listenInterface) {
-			return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(listenInterface), test::GetLocalHostPort());
+			return boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(listenInterface), test::GetLocalHostPort());
 		}
 
 		void RunConnectionAcceptedTest(const std::string& listenInterface, const std::string& remoteHost, IpProtocol outgoingProtocols) {

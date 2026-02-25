@@ -3,31 +3,12 @@ import sys
 from pathlib import Path
 
 from configuration import load_compiler_configuration, load_versions_map
-from dependency_flags import get_dependency_flags
+from dependency_flags import get_boost_disabled_libraries, get_dependency_flags
 
 SINGLE_COMMAND_SEPARATOR = ' \\\n    && '
 LAYER_TO_IMAGE_TAG_MAP = {'os': 'preimage1', 'boost': 'preimage2', 'deps': 'preimage3', 'test': '', 'conan': 'conan'}
 VS_DEV_CMD = r'C:\BuildTools\VC\Auxiliary\Build\vcvars64.bat'
-BOOST_DISABLED_LIBS = map(lambda library_name: f'--without-{library_name}', [
-	'context',
-	'contract',
-	'coroutine',
-	'fiber',
-	'graph',
-	'graph_parallel',
-	'headers',
-	'iostreams',
-	'json',
-	'mpi',
-	'nowide',
-	'python',
-	'serialization',
-	'stacktrace',
-	'test',
-	'timer',
-	'type_erasure',
-	'wave'
-])
+BOOST_DISABLED_LIBS = map(lambda library_name: f'--without-{library_name}', get_boost_disabled_libraries())
 
 
 def print_line(lines, **kwargs):

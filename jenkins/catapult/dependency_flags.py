@@ -51,3 +51,26 @@ def get_dependency_flags(dependency_name):
 		flags += WINDOWS_DEPENDENCY_FLAGS.get(dependency_name, [])
 
 	return flags
+
+
+def get_boost_disabled_libraries():
+	return [
+		'context',
+		'contract',
+		'coroutine',
+		'fiber',
+		'graph',
+		'graph_parallel',
+		'headers',
+		'iostreams',
+		'json',
+		'mpi',
+		'nowide',
+		'process',
+		'python',
+		'stacktrace',
+		'test',
+		'timer',
+		'type_erasure',
+		'wave'
+	]

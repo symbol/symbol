@@ -65,7 +65,7 @@ namespace catapult { namespace net {
 					const boost::asio::ip::tcp::endpoint& endpoint,
 					const AsyncTcpServerSettings& settings)
 					: m_ioContext(pool.ioContext())
-					, m_acceptorStrand(m_ioContext)
+					, m_acceptorStrand(boost::asio::make_strand(m_ioContext))
 					, m_acceptor(m_ioContext)
 					, m_settings(settings)
 					, m_isStopped(false)
@@ -204,7 +204,7 @@ namespace catapult { namespace net {
 
 		private:
 			boost::asio::io_context& m_ioContext;
-			boost::asio::io_context::strand m_acceptorStrand;
+			ionet::Strand m_acceptorStrand;
 			boost::asio::ip::tcp::acceptor m_acceptor;
 
 			const AsyncTcpServerSettings m_settings;

@@ -77,7 +77,14 @@ namespace catapult { namespace thread {
 					CATAPULT_THROW_EXCEPTION(boost::system::system_error(ec));
 				}
 
-				m_task.Callback().then(m_wrapper.wrapFutureContinuation([this](auto result) { this->handleCompletion(result); }));
+				auto callbackHandler = m_wrapper.wrap([this](auto result) {
+					this->handleCompletion(result);
+				});
+
+				m_task.Callback().then([callbackHandler = std::move(callbackHandler)](auto resultFuture) {
+					auto result = resultFuture.get();
+					boost::asio::dispatch(boost::asio::get_associated_executor(callbackHandler), std::bind(callbackHandler, result));
+				});
 			}
 
 			void handleCompletion(TaskResult result) {
@@ -88,7 +95,7 @@ namespace catapult { namespace thread {
 
 				auto nextDelay = m_task.NextDelay();
 				CATAPULT_LOG(trace) << "task '" << m_task.Name << "' will continue in " << nextDelay;
-				m_timer.expires_from_now(ToMillis(nextDelay));
+				m_timer.expires_after(ToMillis(nextDelay));
 				startWait();
 			}
 
@@ -103,7 +110,7 @@ namespace catapult { namespace thread {
 		class StrandedTaskWrapper : public std::enable_shared_from_this<StrandedTaskWrapper> {
 		public:
 			StrandedTaskWrapper(boost::asio::io_context& ioContext, const Task& task)
-					: m_strand(ioContext)
+					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_impl(ioContext, task, *this)
 			{}
@@ -123,15 +130,6 @@ namespace catapult { namespace thread {
 				return m_strandWrapper.wrap(shared_from_this(), handler);
 			}
 
-			template<typename THandler>
-			auto wrapFutureContinuation(THandler handler) {
-				// boost asio callbacks need to be copyable, so they do not support move-only arguments (e.g. future)
-				// as a workaround, call future.get() outside of the strand and post the result onto the strand
-				return [pThis = shared_from_this(), handler](auto&& future) {
-					return pThis->m_strandWrapper.wrap(pThis, handler)(future.get());
-				};
-			}
-
 		private:
 			template<typename THandler>
 			void post(THandler handler) {
@@ -141,7 +139,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			boost::asio::io_context::strand m_strand;
+			StrandOwnerLifetimeExtender<StrandedTaskWrapper>::Strand m_strand;
 			StrandOwnerLifetimeExtender<StrandedTaskWrapper> m_strandWrapper;
 			BasicTaskWrapper<StrandedTaskWrapper> m_impl;
 		};

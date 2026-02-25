@@ -9,7 +9,7 @@ class CatapultConan(ConanFile):
 	settings = "os", "compiler", "build_type", "arch"  # pylint: disable=invalid-name
 
 	def requirements(self):
-		self.requires("boost/1.83.0", run=True)
+		self.requires("boost/1.90.0", run=True)
 		self.requires("openssl/3.6.1", run=True)
 		self.requires("cppzmq/4.11.0@nemtech/stable", run=True)
 		self.requires("mongo-c-driver/2.2.1@nemtech/stable", run=True)
@@ -54,11 +54,12 @@ class CatapultConan(ConanFile):
 		self.options["boost*"].without_math = False
 		self.options["boost*"].without_mpi = True
 		self.options["boost*"].without_nowide = True
+		self.options["boost*"].without_process = True
 		self.options["boost*"].without_program_options = False
 		self.options["boost*"].without_python = True
 		self.options["boost*"].without_random = False
 		self.options["boost*"].without_regex = False
-		self.options["boost*"].without_serialization = True
+		self.options["boost*"].without_serialization = False  # due to this bug - https://github.com/conan-io/conan-center-index/issues/28801
 		self.options["boost*"].without_stacktrace = True
 		self.options["boost*"].without_system = False
 		self.options["boost*"].without_test = True

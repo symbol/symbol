@@ -68,7 +68,7 @@ namespace catapult { namespace test {
 		boost::asio::ip::tcp::acceptor& get() const;
 
 		/// Gets a strand that should be used when calling the acceptor.
-		boost::asio::io_context::strand& strand() const;
+		ionet::Strand& strand() const;
 
 		/// Returns \c true if the underlying acceptor is stopped.
 		bool isStopped() const;

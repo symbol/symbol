@@ -120,7 +120,7 @@ namespace catapult { namespace model {
 
 	BYTE_POINTER_TEST(ToBytePointerReturnsPointerToStartOfEntity) {
 		// Arrange:
-		CustomSizePrefixedEntity entity;
+		CustomSizePrefixedEntity entity{};
 
 		// Act:
 		auto pEntityStart = test::AsVoidPointer(TTraits::ToStartPointer(entity));

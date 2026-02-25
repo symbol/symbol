@@ -57,7 +57,7 @@ namespace catapult { namespace test {
 		Impl(boost::asio::io_context& ioContext, const boost::asio::ip::tcp::endpoint& endpoint)
 				: m_ioContext(ioContext)
 				, m_endpoint(endpoint)
-				, m_acceptorStrand(m_ioContext)
+				, m_acceptorStrand(boost::asio::make_strand(m_ioContext))
 				, m_timer(m_ioContext)
 				, m_isClosed(false)
 				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_endpoint))
@@ -83,7 +83,7 @@ namespace catapult { namespace test {
 	public:
 		void init() {
 			// setup the timer
-			m_timer.expires_from_now(std::chrono::seconds(2 * detail::Default_Wait_Timeout));
+			m_timer.expires_after(std::chrono::seconds(2 * detail::Default_Wait_Timeout));
 			m_timer.async_wait([pThis = shared_from_this()](const auto& ec) {
 				if (boost::asio::error::operation_aborted == ec)
 					return;
@@ -144,7 +144,7 @@ namespace catapult { namespace test {
 		// this is now *properly* mitigated by wrapping acceptor operations in a strand
 		boost::asio::io_context& m_ioContext;
 		boost::asio::ip::tcp::endpoint m_endpoint;
-		boost::asio::io_context::strand m_acceptorStrand;
+		ionet::Strand m_acceptorStrand;
 		boost::asio::steady_timer m_timer;
 		std::atomic_bool m_isClosed;
 		std::unique_ptr<boost::asio::ip::tcp::acceptor> m_pAcceptor;
@@ -177,7 +177,7 @@ namespace catapult { namespace test {
 		return m_pImpl->acceptor();
 	}
 
-	boost::asio::io_context::strand& TcpAcceptor::strand() const {
+	ionet::Strand& TcpAcceptor::strand() const {
 		return m_pImpl->strand();
 	}
 
@@ -202,11 +202,11 @@ namespace catapult { namespace test {
 	}
 
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port) {
-		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
+		return boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address("127.0.0.1"), port);
 	}
 
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpointIPv6(unsigned short port) {
-		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("::1"), port);
+		return boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address("::1"), port);
 	}
 
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions() {

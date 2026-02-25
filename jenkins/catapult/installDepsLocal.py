@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from configuration import load_versions_map
-from dependency_flags import get_dependency_flags
+from dependency_flags import get_boost_disabled_libraries, get_dependency_flags
 from environment import EnvironmentManager
 from process import ProcessManager
 
@@ -64,6 +64,7 @@ class Builder:
 
 		boost_prefix_option = f'--prefix={self.target_directory / "boost"}'
 		bootstrap_options = [r'.\bootstrap.bat' if EnvironmentManager.is_windows_platform() else './bootstrap.sh']
+		bootstrap_options += [f'--without-libraries={",".join(get_boost_disabled_libraries())}']
 		if self.is_clang:
 			bootstrap_options += ['with-toolset=clang']
 
