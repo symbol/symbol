@@ -1,0 +1,39 @@
+Using node https://reference.symboltest.net:3001
+Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Source address: TDDMLYAOZP4BMHJ6ML5B7DK7TQHMPBLGP5XOTY
+Fetching current network time from /node/time
+  Network time: 103820415032 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+
+--- Revoking mosaic ---
+Mosaic ID: 6619508144549180335 (0x5bdd3795f7a8b3af)
+Built mosaic revocation transaction:
+{
+  "signature": "A3F891B2C47D5E6A8901F234B567C890D123E456F789A012B345C678D901E234F567A890B123C456D789E012F345A678B901C234D567E890F123A456B789C005",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 17229,
+  "fee": "17100",
+  "deadline": "103827615032",
+  "source_address": "98C6B2E01CCF7066C9EC97C87A6F56E70F2F9750B7DBB9D3",
+  "mosaic": {
+    "mosaic_id": "6619508144549180335",
+    "amount": "700"
+  }
+}
+Transaction hash: B7A2C4D6E8F01234A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8
+Announcing mosaic revocation to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for mosaic revocation confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Mosaic revocation confirmed in 14 seconds
+
+--- Verifying revocation ---
+Fetching account information from /accounts/TDDMLYAOZP4BMHJ6ML5B7DK7TQHMPBLGP5XOTY
+Account has 2 mosaic(s):
+  Mosaic ID: 72C0212E67A08BCE, Amount: 500000000
+  Mosaic ID: 5BDD3795F7A8B3AF, Amount: 300
