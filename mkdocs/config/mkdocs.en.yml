@@ -100,6 +100,7 @@ nav:
               - devbook/mosaics/change-mosaic-supply.md
               - devbook/mosaics/modify-mosaic-definition.md
               - devbook/mosaics/mosaic-metadata.md
+              - devbook/mosaics/revoke-mosaic.md
           - Chain State:
               - devbook/chain/chain-heights.md
       - Reference Guides:
