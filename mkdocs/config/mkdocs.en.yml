@@ -94,6 +94,7 @@ nav:
               - devbook/namespaces/link-namespace-to-address.md
               - devbook/namespaces/link-namespace-to-mosaic.md
               - devbook/namespaces/namespace-metadata.md
+              - devbook/namespaces/resolve-namespace-from-receipt.md
           - Mosaics:
               - devbook/mosaics/create-mosaic.md
               - devbook/mosaics/change-mosaic-supply.md
