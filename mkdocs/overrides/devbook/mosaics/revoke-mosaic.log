@@ -1,39 +1,47 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
-Source address: TDDMLYAOZP4BMHJ6ML5B7DK7TQHMPBLGP5XOTY
+Source address: TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA
+Mosaic ID: 8857803461494335809 (0x7aed3d514c986941)
 Fetching current network time from /node/time
-  Network time: 103820415032 ms since nemesis
+  Network time: 104783268507 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 
+--- Checking initial balance ---
+Fetching account information from /accounts/TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA
+  Mosaic ID: 7AED3D514C986941, Amount: 1000
+
 --- Revoking mosaic ---
-Mosaic ID: 6619508144549180335 (0x5bdd3795f7a8b3af)
 Built mosaic revocation transaction:
 {
-  "signature": "A3F891B2C47D5E6A8901F234B567C890D123E456F789A012B345C678D901E234F567A890B123C456D789E012F345A678B901C234D567E890F123A456B789C005",
+  "signature": "225719859B43C8B9FCB04432E83FA95258C15A64B60974754DC2E4CAF9E58110995F2ECB5552049C3F79632FFAF19F4B90247012A7777E79D3AF0A17507A9F0D",
   "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
   "version": 1,
   "network": 152,
   "type": 17229,
-  "fee": "17100",
-  "deadline": "103827615032",
-  "source_address": "98C6B2E01CCF7066C9EC97C87A6F56E70F2F9750B7DBB9D3",
+  "fee": "16800",
+  "deadline": "104790468507",
+  "source_address": "987D075454716222F609929E883174AD8C996D5828C938BC",
   "mosaic": {
-    "mosaic_id": "6619508144549180335",
+    "mosaic_id": "8857803461494335809",
     "amount": "700"
   }
 }
-Transaction hash: B7A2C4D6E8F01234A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8
+Transaction hash: C0E59A5E36FC50CC5BDF8A16EABAB791611737B64E3590D43576374B803771E6
 Announcing mosaic revocation to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
 Waiting for mosaic revocation confirmation...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
   Transaction status: confirmed
-Mosaic revocation confirmed in 14 seconds
+Mosaic revocation confirmed in 8 seconds
 
 --- Verifying revocation ---
-Fetching account information from /accounts/TDDMLYAOZP4BMHJ6ML5B7DK7TQHMPBLGP5XOTY
-Account has 2 mosaic(s):
-  Mosaic ID: 72C0212E67A08BCE, Amount: 500000000
-  Mosaic ID: 5BDD3795F7A8B3AF, Amount: 300
+Fetching account information from /accounts/TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA
+  Mosaic ID: 7AED3D514C986941, Amount: 300

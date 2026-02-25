@@ -38,7 +38,7 @@ For more details on revocability, see [Revocability](../../textbook/mosaics.md#r
 
 ### Setting Up the Accounts
 
-{{ tutorial.code_snippet(['py:15:27', 'js:12:25']) }}
+{{ tutorial.code_snippet(['py:28:43', 'js:24:43']) }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a test
 key if not set.
@@ -47,20 +47,27 @@ This account must be the original creator of the mosaic with the `revokable` fla
 
 The `SOURCE_ADDRESS` environment variable specifies the address of the account from which mosaic units will be revoked.
 
+The `MOSAIC_ID` environment variable specifies the hexadecimal identifier of the mosaic to revoke.
+See [Querying Account Balance](../accounts/query-balance.md) to list the mosaics held by an account.
+
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:29:47', 'js:28:46']) }}
+{{ tutorial.code_snippet(['py:46:64', 'js:46:64']) }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
+### Checking Initial Balance
+
+{{ tutorial.code_snippet(['py:68:72', 'js:68:73']) }}
+
+Before revoking, the helper function `get_account_mosaics` fetches the source account's current balance for the target
+mosaic from the <get:/accounts/{accountId}> endpoint.
+This provides a baseline to compare against after the revocation.
+
 ### Building the Revocation Transaction
 
-{{ tutorial.code_snippet(['py:52:66', 'js:51:65']) }}
-
-The `MOSAIC_ID` environment variable specifies the hexadecimal identifier of the mosaic to revoke.
-The mosaic ID can be obtained from the output of the [Creating a Mosaic](./create-mosaic.md) tutorial
-or from the [Symbol Explorer](https://testnet.symbol.fyi/).
+{{ tutorial.code_snippet(['py:77:87', 'js:78:88']) }}
 
 The revocation transaction reclaims mosaic units from the source account and returns them to the creator's balance:
 
@@ -72,8 +79,9 @@ The revocation transaction reclaims mosaic units from the source account and ret
 * **Mosaic:** An object containing the <mosaic ID:> and the amount to revoke.
 
 * **Amount:** The number of atomic units to revoke from the source account.
-    Since the mosaic in this example has a [divisibility](../../textbook/mosaics.md#divisibility) of `2`,
-    an amount of `700` represents `7.00` whole units (700 / 10^2^).
+    To find out the mosaic's [divisibility](../../textbook/mosaics.md#divisibility),
+    query the <get:/mosaics/{mosaicId}> endpoint.
+    For example, with a divisibility of `2`, an amount of `700` represents `7.00` whole units (700 / 10^2^).
 
 !!! note "Partial revocation"
 
@@ -82,45 +90,45 @@ The revocation transaction reclaims mosaic units from the source account and ret
 
 ### Submitting the Revocation
 
-{{ tutorial.code_snippet(['py:68:88', 'js:67:84']) }}
+{{ tutorial.code_snippet(['py:89:109', 'js:90:107']) }}
 
 The revocation transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:90:107', 'js:86:118']) }}
+{{ tutorial.code_snippet(['py:111:128', 'js:109:141']) }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Verifying the Revocation
 
-{{ tutorial.code_snippet(['py:112:120', 'js:123:132']) }}
+{{ tutorial.code_snippet(['py:132:136', 'js:145:150']) }}
 
-To verify the revocation, the code retrieves the source account's mosaic balances from the
-<get:/accounts/{accountId}> endpoint.
-
-A successful response shows that the revoked mosaic's balance has decreased by the specified amount.
+To verify the revocation, the helper function `get_account_mosaics` fetches the source account's balance again.
+The balance should be lower than the [initial balance](#checking-initial-balance) by the revoked amount.
 
 ## Output
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="10 20 22 23 39"
+```text linenums="1" hl_lines="4 12 24 26 27 47"
 --8<-- 'devbook/mosaics/revoke-mosaic.log'
 ```
 
 Some highlights from the output:
 
-* **Mosaic ID** (line 10): The mosaic ID `6619508144549180335` (`0x5bdd3795f7a8b3af`) identifies the mosaic to revoke.
+* **Mosaic ID** (line 4): The mosaic ID `8857803461494335809` (`0x7aed3d514c986941`) identifies the mosaic to revoke.
 
-* **Source address** (line 20): The `source_address` field identifies the account from which units are revoked.
+* **Initial balance** (line 12): Before the revocation, the source account holds `1000` atomic units of the mosaic.
 
-* **Revoked amount** (lines 22-23): The `mosaic` object specifies the mosaic ID in decimal format and the amount `700`
-    (representing `7.00` whole units with divisibility `2`). The decimal value corresponds to the hexadecimal ID shown
-    on line 10.
+* **Source address** (line 24): The `source_address` field identifies the account from which units are revoked.
+    This is the hex-encoded form of the Base32 address shown on line 3.
 
-* **Verified balance** (line 39): After the revocation, the source account's balance for mosaic
-    `5BDD3795F7A8B3AF` is `300`, confirming that `700` atomic units were successfully reclaimed.
+* **Revoked amount** (lines 26-27): The `mosaic` object specifies the mosaic ID in decimal format and the amount `700`.
+    The decimal value corresponds to the hexadecimal ID shown on line 4.
+
+* **Verified balance** (line 47): After the revocation, the source account's balance is `300`, confirming that `700`
+    atomic units were successfully reclaimed.
 
 The transaction hash printed in the output can be used to search for the transaction in the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -131,5 +139,6 @@ This tutorial showed how to:
 
 | Step                                                                       | Related documentation                |
 | -------------------------------------------------------------------------- | ------------------------------------ |
+| [Check account balance](#checking-initial-balance)                         | <get:/accounts/{accountId}>          |
 | [Revoke mosaic units](#building-the-revocation-transaction)                | <dy:SymbolTransactionFactory.create> |
-| [Verify account balance](#verifying-the-revocation)                        | <get:/accounts/{accountId}>          |
+| [Verify the revocation](#verifying-the-revocation)                         | <get:/accounts/{accountId}>          |

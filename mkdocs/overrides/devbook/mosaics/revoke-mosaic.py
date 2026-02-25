@@ -12,6 +12,19 @@ NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
+
+# Helper function to fetch account mosaic balances
+def get_account_mosaics(address):
+	account_path = f'/accounts/{address}'
+	print(
+		f'Fetching account information from {account_path}')
+	with urllib.request.urlopen(
+		f'{NODE_URL}{account_path}'
+	) as response:
+		response_json = json.loads(response.read().decode())
+		return response_json['account']['mosaics']
+
+
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
@@ -22,8 +35,12 @@ signer_address = facade.network.public_key_to_address(
 print(f'Signer address: {signer_address}')
 
 SOURCE_ADDRESS = os.getenv('SOURCE_ADDRESS',
-	'TDDMLYAOZP4BMHJ6ML5B7DK7TQHMPBLGP5XOTY')
+	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA')
 print(f'Source address: {SOURCE_ADDRESS}')
+
+MOSAIC_ID_HEX = os.getenv('MOSAIC_ID', '7aed3d514c986941')
+mosaic_id = int(MOSAIC_ID_HEX, 16)
+print(f'Mosaic ID: {mosaic_id} (0x{MOSAIC_ID_HEX})')
 
 try:
 	# Fetch current network time
@@ -46,12 +63,16 @@ try:
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
 
+	# --- CHECKING INITIAL BALANCE ---
+	print('\n--- Checking initial balance ---')
+	mosaics = get_account_mosaics(SOURCE_ADDRESS)
+	for mosaic in mosaics:
+		if mosaic['id'] == MOSAIC_ID_HEX.upper():
+			print(f'  Mosaic ID: {mosaic["id"]},'
+				f' Amount: {mosaic["amount"]}')
+
 	# --- REVOKING MOSAIC ---
 	print('\n--- Revoking mosaic ---')
-
-	mosaic_id_hex = os.getenv('MOSAIC_ID', '0')
-	mosaic_id = int(mosaic_id_hex, 16)
-	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
 
 	revoke_tx = facade.transaction_factory.create({
 		'type': 'mosaic_supply_revocation_transaction_v1',
@@ -108,14 +129,9 @@ try:
 
 	# --- VERIFYING REVOCATION ---
 	print('\n--- Verifying revocation ---')
-
-	account_path = f'/accounts/{SOURCE_ADDRESS}'
-	print(f'Fetching account information from {account_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{account_path}') as response:
-		response_json = json.loads(response.read().decode())
-		mosaics = response_json['account']['mosaics']
-		print(f'Account has {len(mosaics)} mosaic(s):')
-		for mosaic in mosaics:
+	mosaics = get_account_mosaics(SOURCE_ADDRESS)
+	for mosaic in mosaics:
+		if mosaic['id'] == MOSAIC_ID_HEX.upper():
 			print(f'  Mosaic ID: {mosaic["id"]},'
 				f' Amount: {mosaic["amount"]}')
 

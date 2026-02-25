@@ -9,6 +9,18 @@ const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
+// Helper function to fetch account mosaic balances
+async function getAccountMosaics(address) {
+	const accountPath = `/accounts/${address}`;
+	console.log(
+		'Fetching account information from',
+		accountPath);
+	const response = await fetch(
+		`${NODE_URL}${accountPath}`);
+	const responseJSON = await response.json();
+	return responseJSON.account.mosaics;
+}
+
 const SIGNER_PRIVATE_KEY =
 	process.env.SIGNER_PRIVATE_KEY
 	|| '0000000000000000000000000000000000000000000000000000000000000000';
@@ -21,8 +33,14 @@ const signerAddress =
 console.log('Signer address:', signerAddress.toString());
 
 const SOURCE_ADDRESS = process.env.SOURCE_ADDRESS
-	|| 'TDDMLYAOZP4BMHJ6ML5B7DK7TQHMPBLGP5XOTY';
+	|| 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
 console.log('Source address:', SOURCE_ADDRESS);
+
+const MOSAIC_ID_HEX = process.env.MOSAIC_ID
+	|| '7aed3d514c986941';
+const mosaicId = BigInt(`0x${MOSAIC_ID_HEX}`);
+console.log(
+	`Mosaic ID: ${mosaicId} (0x${MOSAIC_ID_HEX})`);
 
 try {
 	// Fetch current network time
@@ -45,12 +63,17 @@ try {
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
 
+	// --- CHECKING INITIAL BALANCE ---
+	console.log('\n--- Checking initial balance ---');
+	let mosaics = await getAccountMosaics(SOURCE_ADDRESS);
+	for (const mosaic of mosaics) {
+		if (mosaic.id === MOSAIC_ID_HEX.toUpperCase())
+			console.log(`  Mosaic ID: ${mosaic.id},`
+				+ ` Amount: ${mosaic.amount}`);
+	}
+
 	// --- REVOKING MOSAIC ---
 	console.log('\n--- Revoking mosaic ---');
-
-	const mosaicIdHex = process.env.MOSAIC_ID || '0';
-	const mosaicId = BigInt(`0x${mosaicIdHex}`);
-	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
 
 	const revokeTx = facade.transactionFactory.create({
 		type: 'mosaic_supply_revocation_transaction_v1',
@@ -119,16 +142,11 @@ try {
 
 	// --- VERIFYING REVOCATION ---
 	console.log('\n--- Verifying revocation ---');
-
-	const accountPath = `/accounts/${SOURCE_ADDRESS}`;
-	console.log('Fetching account information from', accountPath);
-	const accountResponse = await fetch(`${NODE_URL}${accountPath}`);
-	const accountJSON = await accountResponse.json();
-	const mosaics = accountJSON.account.mosaics;
-	console.log(`Account has ${mosaics.length} mosaic(s):`);
+	mosaics = await getAccountMosaics(SOURCE_ADDRESS);
 	for (const mosaic of mosaics) {
-		console.log(`  Mosaic ID: ${mosaic.id},
-			Amount: ${mosaic.amount}`);
+		if (mosaic.id === MOSAIC_ID_HEX.toUpperCase())
+			console.log(`  Mosaic ID: ${mosaic.id},`
+				+ ` Amount: ${mosaic.amount}`);
 	}
 } catch (e) {
 	console.error(e.message);
