@@ -139,7 +139,8 @@ try:
 
 	# Fetch current metadata value from network
 	metadata_path = (
-		f'/metadata?targetAddress={signer_address}'
+		f'/metadata?sourceAddress={signer_address}'
+		f'&targetAddress={signer_address}'
 		f'&scopedMetadataKey={scoped_metadata_key:016X}'
 		f'&targetId={namespace_id:016X}'
 		'&metadataType=2'
