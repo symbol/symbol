@@ -171,17 +171,17 @@ The aggregate transaction is signed and announced following the same process as 
 
 ### Retrieving Metadata
 
-{{ tutorial.code_snippet(['py:140:157', 'js:142:162']) }}
+{{ tutorial.code_snippet(['py:140:158', 'js:142:163']) }}
 
 To retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
-with filters for `targetAddress`, `scopedMetadataKey`, `targetId` (the namespace ID), and `metadataType`
-(`2` for namespace metadata).
+with filters for `sourceAddress`, `targetAddress`, `scopedMetadataKey`, `targetId` (the namespace ID), and
+`metadataType` (`2` for namespace metadata).
 
 The endpoint returns the list of entries matching the filters, which in this case contains a single item.
 
 ### Modifying Existing Metadata
 
-{{ tutorial.code_snippet(['py:159:176', 'js:164:182']) }}
+{{ tutorial.code_snippet(['py:160:177', 'js:165:183']) }}
 
 Updating an existing metadata entry requires the current value, retrieved from the network as previously shown.
 
@@ -211,7 +211,7 @@ not the length of the XOR'd bytes themselves.
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
 in an aggregate transaction and then signed and announced.
 
-{{ tutorial.code_snippet(['py:178:200', 'js:184:209']) }}
+{{ tutorial.code_snippet(['py:179:201', 'js:185:210']) }}
 
 ## Output
 

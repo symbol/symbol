@@ -171,17 +171,17 @@ The aggregate transaction is signed and announced following the same process as 
 
 ### Retrieving Metadata
 
-{{ tutorial.code_snippet(['py:138:155', 'js:140:160']) }}
+{{ tutorial.code_snippet(['py:138:156', 'js:140:161']) }}
 
 To retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
-with filters for `targetAddress`, `scopedMetadataKey`, `targetId` (the mosaic ID), and `metadataType`
-(`1` for mosaic metadata).
+with filters for `sourceAddress`, `targetAddress`, `scopedMetadataKey`, `targetId` (the mosaic ID), and
+`metadataType` (`1` for mosaic metadata).
 
 The endpoint returns the list of entries matching the filters, which in this case contains a single item.
 
 ### Modifying Existing Metadata
 
-{{ tutorial.code_snippet(['py:157:174', 'js:162:180']) }}
+{{ tutorial.code_snippet(['py:158:175', 'js:163:181']) }}
 
 Updating an existing metadata entry requires the current value, retrieved from the network as previously shown.
 
@@ -211,7 +211,7 @@ not the length of the XOR'd bytes themselves.
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
 in an aggregate transaction and then signed and announced.
 
-{{ tutorial.code_snippet(['py:176:198', 'js:182:210']) }}
+{{ tutorial.code_snippet(['py:177:199', 'js:183:211']) }}
 
 ## Output
 
