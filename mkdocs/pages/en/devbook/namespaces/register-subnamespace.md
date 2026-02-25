@@ -15,16 +15,16 @@ as explained in [Next Steps](#next-steps).
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
   See [Setting Up a Development Environment](../start/setup.md).
-- Have an <account:> with an existing root namespace.
+* Have an <account:> with an existing root namespace.
   See [Registering a Root Namespace](./register-root-namespace.md).
 
     !!! note
         The examples in this tutorial use a root namespace named `ns_root`.
         Make sure to update the code to use your own root namespace name.
 
-- Obtain <XYM:> to pay for the transaction and lease fees.
+* Obtain <XYM:> to pay for the transaction and lease fees.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
@@ -144,20 +144,20 @@ Some highlights from the output:
 The transaction hash printed in the output can also be used to search for the transaction
 in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
-
 ## Conclusion
 
 This tutorial showed how to:
 
-| Step                                                           | Related documentation                 |
-| -------------------------------------------------------------- | ------------------------------------- |
-| [Generate namespace ID](#building-the-transaction)             | <dy:IdGenerator.generateNamespaceId>  |
+| Step                                                                       | Related documentation                 |
+| -------------------------------------------------------------------------  | ------------------------------------- |
+| [Generate namespace ID](#building-the-transaction)                         | <dy:IdGenerator.generateNamespaceId>  |
 | [Build a subnamespace registration transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.create>  |
-| [Retrieve the subnamespace](#retrieving-the-subnamespace)      | <get:/namespaces/{namespaceId}>       |
+| [Retrieve the subnamespace](#retrieving-the-subnamespace)                  | <get:/namespaces/{namespaceId}>       |
 
 ## Next Steps
 
 Now that you have a subnamespace, you can:
 
-- Register additional subnamespaces to expand your hierarchical structure
-- [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md) to create an alias
+* Register additional subnamespaces to expand your hierarchical structure
+* [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or
+    [to an account](./link-namespace-to-address.md) to create an alias

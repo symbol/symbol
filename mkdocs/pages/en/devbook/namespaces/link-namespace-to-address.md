@@ -97,7 +97,8 @@ The address alias transaction specifies:
     To unlink a namespace from an address, announce another `address_alias_transaction_v1` transaction with the same
     namespace ID and address, but set the `alias_action` field to `unlink`.
 
-    The unlinking process does not remove the namespace itself, only the association between the namespace and the address.
+    The unlinking process does not remove the namespace itself, only the association between the namespace and the
+    address.
     After unlinking, the namespace can be linked to a different address or mosaic.
 
 ### Submitting the Transaction

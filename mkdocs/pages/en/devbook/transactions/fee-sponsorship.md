@@ -70,8 +70,8 @@ To ensure that the funds cannot misused, both the prefund transfer and the messa
 <aggregate transaction:>.
 The aggregate is signed by both the application account and the user, and announced by the latter.
 
-**Transaction fees are deducted after all embedded transactions are executed**, which makes the prefunded amount available
-to the message sender for paying all transaction fees.
+**Transaction fees are deducted after all embedded transactions are executed**, which makes the prefunded amount
+available to the message sender for paying all transaction fees.
 
 Note that the prefund amount must be sufficient to cover both embedded transactions' fees,
 and that the order of the embedded transactions does not matter in this case.
@@ -130,7 +130,8 @@ The sender of this transaction is the application account, and the recipient is 
 
 ### Aggregate Transaction
 
-The <complete aggregate transaction:> is built as usual, and its `fee` field is updated once the transaction size is known.
+The <complete aggregate transaction:> is built as usual, and its `fee` field is updated once the transaction size is
+known.
 
 The prefund transaction's amount is then set to match the calculated fee.
 
@@ -140,8 +141,8 @@ case it must be updated afterwards, once the prefund transaction has been modifi
 
 !!! caution
 
-    As shown in the code, when setting the `transactions_hash` field, use the model-specific type `sc.Hash256` (:simple-python:)
-    or `models.Hash256` (:simple-javascript:), and not the generic cryptography type `Hash256`.
+    As shown in the code, when setting the `transactions_hash` field, use the model-specific type `sc.Hash256`
+    (:simple-python:) or `models.Hash256` (:simple-javascript:), and not the generic cryptography type `Hash256`.
 
 {{ tutorial.code_snippet(['py:40:55', 'js:36:55']) }}
 
