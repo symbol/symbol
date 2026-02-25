@@ -85,8 +85,7 @@ try {
 	console.log('  Response:', await announceResponse.text());
 
 	// Wait for confirmation
-	console.log(
-		'Waiting for mosaic modification confirmation...');
+	console.log('Waiting for mosaic modification confirmation...');
 	for (let attempt = 0; attempt < 60; attempt++) {
 		await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -104,16 +103,14 @@ try {
 			console.log('  Transaction status:', status.group);
 
 			if (status.group === 'confirmed') {
-				console.log(
-					'Mosaic modification confirmed in',
+				console.log('Mosaic modification confirmed in',
 					attempt, 'seconds');
 				break;
 			}
 
 			if (status.group === 'failed') {
 				throw new Error(
-					'Mosaic modification failed:'
-					+ ` ${status.code}`);
+					`Mosaic modification failed: ${status.code}`);
 			}
 		} catch (error) {
 			if (error.message.includes('failed:')) {

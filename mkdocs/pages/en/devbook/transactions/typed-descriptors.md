@@ -29,7 +29,8 @@ The rest of the process, including signing and announcing the transaction, remai
 
 ## Creation Process
 
-Transactions are created in a type-safe manner in two steps: creating a transaction descriptor and creating the transaction itself.
+Transactions are created in a type-safe manner in two steps: creating a transaction descriptor and creating the
+transaction itself.
 
 ### Creating the Descriptor
 
@@ -54,23 +55,26 @@ Whenever one such descriptor is available, tutorials will link to both the relev
     --8<-- "devbook/transactions/transfer.typed.mjs:53:55"
     ```
 
-Once the descriptor is ready, creating the transaction is straightforward: it simply involves passing the descriptor to the
-<js:SymbolFacade.createTransactionFromTypedDescriptor> method and provide the desired fees and deadline.
+Once the descriptor is ready, creating the transaction is straightforward: it simply involves passing the descriptor to
+the <js:SymbolFacade.createTransactionFromTypedDescriptor> method and provide the desired fees and deadline.
 
 Note that, as in the [Creating a Transfer Transaction](./transfer.md#building-the-transaction) tutorial,
 the transaction's fee must be calculated after construction because it depends on the transaction's size.
 
 !!! warning "Deadlines are provided differently in the typed and untyped versions"
 
-    Deadlines passed to <js:SymbolTransactionFactory.create> are specified in milliseconds and are relative to the _network time_.
+    Deadlines passed to <js:SymbolTransactionFactory.create> are specified in milliseconds and are relative to the
+    _network time_.
     In contrast, deadlines passed to <js:SymbolFacade.createTransactionFromTypedDescriptor> are specified in seconds
     and are relative to the _system time_, that is, the local clock of the machine running the code.
 
     This approach is convenient because it removes the need to fetch the current network time: for example,
-    to make a transaction expire in two hours, you only need to provide a deadline of `#!js 2 * 60 * 60` seconds as in the code above.
+    to make a transaction expire in two hours, you only need to provide a deadline of `#!js 2 * 60 * 60` seconds as in
+    the code above.
 
     However, if the system clock is not properly synchronized with the network time, transactions may expire earlier
-    than expected, or be rejected entirely if the provided deadline exceeds the network's maximum allowed offset of 2 hours.
+    than expected, or be rejected entirely if the provided deadline exceeds the network's maximum allowed offset of 2
+    hours.
 
     **Therefore, applications using the type-safe method should periodically check the network time to ensure the
     system clock is properly synchronized.**

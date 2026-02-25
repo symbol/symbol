@@ -8,7 +8,8 @@ title: Add Namespace Metadata
 
 This tutorial shows how to add metadata to a namespace, retrieve it from the network, and update existing values.
 
-In this example, the pair `description = My first namespace` is attached to a namespace and then changed to `Updated namespace`:
+In this example, the pair `description = My first namespace` is attached to a namespace and then changed to
+`Updated namespace`:
 
 ```dot
 digraph {
@@ -124,7 +125,7 @@ This prevents unwanted metadata from being attached to a namespace without its o
 
 In this tutorial, the signer is also the namespace owner so only one signature is needed.
 However, the transaction still needs to be inside an aggregate,
-so the code defines the mosaic metadata transaction as an <embedded transaction:> with these properties:
+so the code defines the namespace metadata transaction as an <embedded transaction:> with these properties:
 
 * **Type:** Use `namespace_metadata_transaction_v1`.
 

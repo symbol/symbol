@@ -125,7 +125,8 @@ Finally, the aggregate transaction is signed by the cosignatory:
     In that case, they are attached using <dy:SymbolFacade.cosignTransaction> instead of
     <dy:SymbolFacade.signTransaction>.
 
-    See the [Configuring a Multisignature Account](./configure-multisig.md#enabling-the-multisig) tutorial for an example.
+    See the [Configuring a Multisignature Account](./configure-multisig.md#enabling-the-multisig) tutorial for an
+    example.
 
 ### Submitting the Aggregate Transaction
 

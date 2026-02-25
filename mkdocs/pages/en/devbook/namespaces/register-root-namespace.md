@@ -7,7 +7,8 @@ title: Register Root Namespace
 <Namespaces:|Namespaces> provide human-readable aliases for <accounts:> and <mosaics:>,
 which can be used instead of long addresses and hexadecimal mosaic IDs.
 
-This tutorial shows how to register a <root namespace:> and set its lease [duration](../../textbook/namespaces.md#duration).
+This tutorial shows how to register a <root namespace:> and set its lease
+[duration](../../textbook/namespaces.md#duration).
 
 Once registered, additional steps are required to link the namespace to a mosaic or account,
 as explained in [Next Steps](#next-steps).
@@ -163,6 +164,7 @@ This tutorial showed how to:
 
 Now that you have a root namespace, you can:
 
-* [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md) to create an alias
+* [Link your namespace to a mosaic](./link-namespace-to-mosaic.md) or [to an account](./link-namespace-to-address.md)
+    to create an alias
 * [Register a subnamespace](./register-subnamespace.md) to create a hierarchical structure
 * [Extend the namespace](./extend-root-namespace.md) before it expires to keep it active
