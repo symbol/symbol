@@ -268,7 +268,8 @@ The resulting detached cosignature payload includes:
 * **Signature:** The cryptographic signature computed from the transaction hash and Account B's private key.
 * **Parent hash:** The hash of the bonded transaction being cosigned.
 
-The cosignature payload is submitted using the `announce_transaction` helper function to <put:/transactions/cosignature>.
+The cosignature payload is submitted using the `announce_transaction` helper function to
+<put:/transactions/cosignature>.
 The network validates the cosignature and attaches it to the partial transaction.
 
 Once enough cosignatures are collected to satisfy all embedded transactions,
@@ -298,15 +299,16 @@ Key points in the output:
 * **Line 14** (`"type": 16961`): Indicates this is an `aggregate_bonded_transaction_v3`.
 * **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
 * **Line 48** (`"cosignatures": []`): Initially empty. Cosignatures are submitted on-chain after announcement.
-* **Line 51** (`Bonded aggregate transaction hash:`): The hash of the bonded aggregate, required for creating the hash lock and
-  announcing the transaction.
-* **Line 54** (`Announcing Hash lock to /transactions`): A hash lock must be announced and confirmed before the bonded aggregate.
-* **Line 63** (`Announcing Bonded aggregate transaction to /transactions/partial`): Bonded aggregates use a different endpoint than
-  regular transactions.
-* **Line 67** (`Bonded aggregate transaction partial in 1 seconds`): The bonded aggregate is now waiting for cosignatures to be
-  submitted on-chain.
-* **Line 71** (`[Account B] Verifying transaction: 2 embedded transactions`): Account B inspects the transaction content before cosigning to
-  ensure they agree with all operations.
+* **Line 51** (`Bonded aggregate transaction hash:`): The hash of the bonded aggregate, required for creating the hash
+    lock and announcing the transaction.
+* **Line 54** (`Announcing Hash lock to /transactions`): A hash lock must be announced and confirmed before the bonded
+    aggregate.
+* **Line 63** (`Announcing Bonded aggregate transaction to /transactions/partial`): Bonded aggregates use a different
+    endpoint than regular transactions.
+* **Line 67** (`Bonded aggregate transaction partial in 1 seconds`): The bonded aggregate is now waiting for
+    cosignatures to be submitted on-chain.
+* **Line 71** (`[Account B] Verifying transaction: 2 embedded transactions`): Account B inspects the transaction content
+    before cosigning to ensure they agree with all operations.
 * **Line 73** (`Announcing cosignature to /transactions/cosignature`): The cosignature is submitted to the network.
 
 The aggregate transaction is treated as a single atomic unit by the network.

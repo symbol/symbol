@@ -1,6 +1,7 @@
 # Hello World
 
-This tutorial shows how to verify that your Symbol SDK installation is working correctly by writing a minimal program that:
+This tutorial shows how to verify that your Symbol SDK installation is working correctly by writing a minimal program
+that:
 
 * Retrieves the network name and launch date using the SDK.
 * Connects to a <node:> and prints the current blockchain height.

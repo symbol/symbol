@@ -242,12 +242,13 @@ Key points in the output:
 * **Line 14** (`"type": 16705`): Indicates this is an `aggregate_complete_transaction_v3`.
 * **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
 * **Line 48** (`"cosignatures": []`): Initially empty. Account B's cosignature is added before announcement.
-  Note how Account A's signature is only needed once, even though it appears as signer in both the aggregate and the
-  first embedded transaction.
-* **Line 53** (`"payload": "6801..."`): The transaction payload computed from the aggregate transaction and its embedded transactions.
+    Note how Account A's signature is only needed once, even though it appears as signer in both the aggregate and the
+    first embedded transaction.
+* **Line 53** (`"payload": "6801..."`): The transaction payload computed from the aggregate transaction and its embedded
+    transactions.
 * **Line 60** (`"signature": "7037..."`): Account B's cosignature for the aggregate transaction.
-* **Line 66** (`Waiting for confirmation ...`): The hash shown in the confirmation check can be used to search for the transaction
-  in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
+* **Line 66** (`Waiting for confirmation ...`): The hash shown in the confirmation check can be used to search for the
+    transaction in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 The aggregate transaction is treated as a single atomic unit by the network.
 The swap executes completely: Account A receives the custom mosaic and Account B receives the XYM,
