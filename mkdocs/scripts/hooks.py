@@ -171,11 +171,16 @@ def page_markdown_rest(content, page, config, files):
 	content = re.sub(r'<(get|put|post):([^>]*)>', path_formatter, content)
 	return content
 
+def page_markdown_ws(content, page, config, files):
+	content = re.sub(r'(<ws:[^>]*>)', r'\1&nbsp;<code class="rest-method rest-method-ws">WS</code>', content)
+	return content
+
 @mkdocs.plugins.event_priority(0)
 def on_page_markdown(content, page, config, files):
 	content = page_markdown_js_typedoc(content, page, config, files)
 	content = page_markdown_dylinks(content, page, config, files)
 	content = page_markdown_rest(content, page, config, files)
+	content = page_markdown_ws(content, page, config, files)
 	return content
 
 def on_startup(*args, **kwargs):
