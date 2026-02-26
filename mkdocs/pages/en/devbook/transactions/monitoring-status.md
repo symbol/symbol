@@ -174,7 +174,8 @@ This tutorial showed how to:
 For production applications, consider these improvements:
 
 * **Wait for finalization:** Verify that the block containing the transaction has been finalized
-    using <get:/finalization/proof/height/{height}> to ensure it is truly irreversible.
+    to ensure it is truly irreversible.
+    See [Querying Chain and Finalization Height](../chain/chain-heights.md).
 * **Query multiple nodes:** Check status and finalization across several <nodes:> for greater reliability and
     protection against single-node issues.
 * **Use WebSockets:** Replace polling with WebSocket subscriptions for real-time updates without repeated API calls.
