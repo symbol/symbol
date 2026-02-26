@@ -544,6 +544,10 @@ code.doc-symbol-interface::after {
 	background-color: #49cc90
 }
 
+.md-typeset code.rest-method-ws {
+	background-color: #b50505;
+}
+
 /* Graphviz diagrams */
 .graphviz {
 	display: block;
