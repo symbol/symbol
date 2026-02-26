@@ -14,7 +14,7 @@
         <link rel="prev" href="../rest/symbol/">
       
       
-        <link rel="next" href="../../../textbook/intro/">
+        <link rel="next" href="../websockets/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
@@ -1547,6 +1547,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resolve Namespace from Receipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1642,11 +1663,120 @@
   
   
     <li class="md-nav__item">
+      <a href="../../mosaics/modify-mosaic-definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modify Mosaic Definition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../mosaics/mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Add Mosaic Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mosaics/revoke-mosaic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Revoke Mosaic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Chain State
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Chain State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../chain/chain-heights/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Chain and Finalization Height
   </span>
   
 
@@ -9636,6 +9766,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../websockets/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WebSockets
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -11345,28 +11496,28 @@
 <div class="big-table3">
    <div id="amount"><b>Amount</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>A quantity of mosaics in <a href="/concepts/mosaic.html#divisibility">absolute units</a>. <br/>It can only be positive or zero. Negative quantities must be indicated by other means (See for example <a href="#mosaicsupplychangetransactionv1" title="Change the total supply of a mosaic (V1, latest).">MosaicSupplyChangeTransactionV1</a> and <a href="#mosaicsupplychangeaction" title="Enumeration of mosaic supply change actions.">MosaicSupplyChangeAction</a>). </p></div>
+   <div class="description"><p>A quantity of mosaics in absolute units. <br/>It can only be positive or zero. Negative quantities must be indicated by other means (See for example <a href="#mosaicsupplychangetransactionv1" title="Change the total supply of a mosaic (V1, latest).">MosaicSupplyChangeTransactionV1</a> and <a href="#mosaicsupplychangeaction" title="Enumeration of mosaic supply change actions.">MosaicSupplyChangeAction</a>). </p></div>
    <div id="blockduration"><b>BlockDuration</b></div>
    <div>8&nbsp;ubytes</div>
    <div class="description"><p>A time lapse, expressed in number of blocks. </p></div>
    <div id="blockfeemultiplier"><b>BlockFeeMultiplier</b></div>
    <div>4&nbsp;ubytes</div>
-   <div class="description"><p>Multiplier applied to the size of a transaction to obtain its fee, in <a href="/concepts/mosaic.html#divisibility">absolute units</a>. <br/>See the <a href="/concepts/fees.html">fees documentation</a>. </p></div>
+   <div class="description"><p>Multiplier applied to the size of a transaction to obtain its fee, in absolute units. <br/>See the fees documentation. </p></div>
    <div id="difficulty"><b>Difficulty</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>How hard it was to harvest this block. <br/>The initial value is 1e14 and it will remain like this as long as blocks are generated every <code class="docutils literal">blockGenerationTargetTime</code> seconds (<a href="/guides/network/configuring-network-properties.html">network property</a>). <br/>If blocks start taking more or less time than the configured value, the difficulty will be adjusted (in the range of 1e13 to 1e15) to try to hit the target time. <br/>See the <a href="/symbol-technicalref/main.pdf">Technical Reference</a> section 8.1. </p></div>
+   <div class="description"><p>How hard it was to harvest this block. <br/>The initial value is 1e14 and it will remain like this as long as blocks are generated every <code class="docutils literal">blockGenerationTargetTime</code> seconds (network property). <br/>If blocks start taking more or less time than the configured value, the difficulty will be adjusted (in the range of 1e13 to 1e15) to try to hit the target time. <br/>See the Technical Reference section 8.1. </p></div>
    <div id="finalizationepoch"><b>FinalizationEpoch</b></div>
    <div>4&nbsp;ubytes</div>
-   <div class="description"><p>Index of a <a href="/concepts/block.html#finalization">finalization</a> epoch. <br/>The first epoch is number 1 and contains only the first block (the <a href="/concepts/block.html#block-creation">Nemesis</a> block). Epoch duration (in blocks) is defined by the <code class="docutils literal">votingSetGrouping</code> network property. </p></div>
+   <div class="description"><p>Index of a finalization epoch. <br/>The first epoch is number 1 and contains only the first block (the Nemesis block). Epoch duration (in blocks) is defined by the <code class="docutils literal">votingSetGrouping</code> network property. </p></div>
    <div id="finalizationpoint"><b>FinalizationPoint</b></div>
    <div>4&nbsp;ubytes</div>
-   <div class="description"><p>A particular point in time inside a <a href="/concepts/block.html#finalization">finalization</a> epoch. <br/>See the <a href="/symbol-technicalref/main.pdf">Technical Reference</a> section 15.2. </p></div>
+   <div class="description"><p>A particular point in time inside a finalization epoch. <br/>See the Technical Reference section 15.2. </p></div>
    <div id="height"><b>Height</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>Index of a block in the blockchain. <br/>The first block (the <a href="/concepts/block.html#block-creation">Nemesis</a> block) has height 1 and each subsequent block increases height by 1. </p></div>
+   <div class="description"><p>Index of a block in the blockchain. <br/>The first block (the Nemesis block) has height 1 and each subsequent block increases height by 1. </p></div>
    <div id="importance"><b>Importance</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p><a href="/concepts/consensus-algorithm.html#importance-score">Importance score</a> for an account. <br/>See also <a href="#importanceheight" title="Block height at which an Importance was calculated.">ImportanceHeight</a> and <a href="#importancesnapshot" title="temporal importance information">ImportanceSnapshot</a>. </p></div>
+   <div class="description"><p>Importance score for an account. <br/>See also <a href="#importanceheight" title="Block height at which an Importance was calculated.">ImportanceHeight</a> and <a href="#importancesnapshot" title="temporal importance information">ImportanceSnapshot</a>. </p></div>
    <div id="importanceheight"><b>ImportanceHeight</b></div>
    <div>8&nbsp;ubytes</div>
    <div class="description"><p><a href="#block" title="binary layout for a block">Block</a> height at which an <a href="#importance" title="Importance score for an account.">Importance</a> was calculated. </p></div>
@@ -11375,16 +11526,16 @@
    <div class="description"><p>Either a <a href="#mosaicid" title="A Mosaic identifier.">MosaicId</a> or a <a href="#namespaceid" title="">NamespaceId</a>. <br/>The <strong>most</strong>-significant bit of the first byte is 0 for <a href="#mosaicid" title="A Mosaic identifier.">MosaicId</a>'s and 1 for <a href="#namespaceid" title="">NamespaceId</a>'s. </p></div>
    <div id="mosaicid"><b>MosaicId</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>A <a href="/concepts/mosaic.html">Mosaic</a> identifier. </p></div>
+   <div class="description"><p>A Mosaic identifier. </p></div>
    <div id="timestamp"><b>Timestamp</b></div>
    <div>8&nbsp;ubytes</div>
-   <div class="description"><p>Number of milliseconds elapsed since the creation of the <a href="/concepts/block.html#block-creation">Nemesis</a> block. <br/>The Nemesis block creation time can be found in the <code class="docutils literal">epochAdjustment</code> field returned by the <a href="/symbol-openapi/v1.0.1/#operation/getNetworkProperties">/network/properties</a> REST endpoint. This is the number of seconds elapsed since the <a href="https://en.wikipedia.org/wiki/Unix_time">UNIX epoch</a> and it is always 1615853185 for Symbol's MAINNET. </p></div>
+   <div class="description"><p>Number of milliseconds elapsed since the creation of the Nemesis block. <br/>The Nemesis block creation time can be found in the <code class="docutils literal">epochAdjustment</code> field returned by the /network/properties REST endpoint. This is the number of seconds elapsed since the <a href="https://en.wikipedia.org/wiki/Unix_time">UNIX epoch</a> and it is always 1615853185 for Symbol's MAINNET. </p></div>
    <div id="unresolvedaddress"><b>UnresolvedAddress</b></div>
    <div>24&nbsp;ubytes</div>
    <div class="description"><p>Either an <a href="#address" title="An address identifies an account and is derived from its PublicKey.">Address</a> or a <a href="#namespaceid" title="">NamespaceId</a>. <br/>The <strong>least</strong>-significant bit of the first byte is 0 for Addresses and 1 for <a href="#namespaceid" title="">NamespaceId</a>'s. </p></div>
    <div id="address"><b>Address</b></div>
    <div>24&nbsp;ubytes</div>
-   <div class="description"><p>An <a href="/concepts/cryptography.html#address">address</a> identifies an account and is derived from its <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a>. </p></div>
+   <div class="description"><p>An address identifies an account and is derived from its <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a>. </p></div>
    <div id="hash256"><b>Hash256</b></div>
    <div>32&nbsp;ubytes</div>
    <div class="description"><p>A 32-byte (256 bit) hash. <br/>The exact algorithm is unspecified as it can change depending on where it is used. </p></div>
@@ -11393,10 +11544,10 @@
    <div class="description"><p>A 64-byte (512 bit) hash. <br/>The exact algorithm is unspecified as it can change depending on where it is used. </p></div>
    <div id="publickey"><b>PublicKey</b></div>
    <div>32&nbsp;ubytes</div>
-   <div class="description"><p>A 32-byte (256 bit) integer derived from a private key. <br/>It serves as the public identifier of the <a href="/concepts/cryptography.html#key-pair">key pair</a> and can be disseminated widely. It is used to prove that an entity was signed with the paired private key. </p></div>
+   <div class="description"><p>A 32-byte (256 bit) integer derived from a private key. <br/>It serves as the public identifier of the key pair and can be disseminated widely. It is used to prove that an entity was signed with the paired private key. </p></div>
    <div id="votingpublickey"><b>VotingPublicKey</b></div>
    <div>32&nbsp;ubytes</div>
-   <div class="description"><p>A <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a> used for voting during the <a href="/concepts/block.html#finalization">finalization process</a>. </p></div>
+   <div class="description"><p>A <a href="#publickey" title="A 32-byte (256 bit) integer derived from a private key.">PublicKey</a> used for voting during the finalization process. </p></div>
    <div id="signature"><b>Signature</b></div>
    <div>64&nbsp;ubytes</div>
    <div class="description"><p>A 64-byte (512 bit) array certifying that the signed data has not been modified. <br/>Symbol currently uses <a href="https://ed25519.cr.yp.to/">Ed25519</a> signatures. </p></div>
@@ -12880,7 +13031,7 @@
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/receipts.cats#L48">schema</a></td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/client/catapult/src/catapult/model/Receipt.h#L105">catapult model</a></td></tr>
     </table></div>
-<p>Network currency mosaics were created due to <a href="/concepts/inflation">inflation</a>. </p>
+<p>Network currency mosaics were created due to inflation. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -13306,7 +13457,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 18 bytes = 0x12</td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/namespace/namespace_receipts.cats#L5">schema</a></td></tr>
     </table></div>
-<p><a href="#receipt" title="Receipts provide proof for every state change not retrievable from the block.">Receipt</a> generated when a <a href="/concepts/namespace.html">namespace</a> expires. </p>
+<p><a href="#receipt" title="Receipts provide proof for every state change not retrievable from the block.">Receipt</a> generated when a namespace expires. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -13348,7 +13499,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 18 bytes = 0x12</td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/namespace/namespace_receipts.cats#L14">schema</a></td></tr>
     </table></div>
-<p><a href="#receipt" title="Receipts provide proof for every state change not retrievable from the block.">Receipt</a> generated when a <a href="/concepts/namespace.html">namespace</a> is deleted. </p>
+<p><a href="#receipt" title="Receipts provide proof for every state change not retrievable from the block.">Receipt</a> generated when a namespace is deleted. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -14762,7 +14913,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 172 bytes = 0xac</td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/coresystem/voting_key_link.cats#L30">schema</a></td></tr>
     </table></div>
-<p>Link an account with a public key required for finalization voting (V1, latest). <br/>This transaction is required for node operators wanting to vote for <a href="/concepts/block.html#finalization">finalization</a>. <br/>Announce a <a href="#votingkeylinktransactionv1" title="Link an account with a public key required for finalization voting (V1, latest).">VotingKeyLinkTransactionV1</a> to associate a voting key with an account during a fixed period. An account can be linked to up to <strong>3</strong> different voting keys at the same time. <br/>The recommended production setting is to always have at least <strong>2</strong> linked keys with different <code class="docutils literal">endPoint</code> values to ensure a key is registered after the first one expires. <br/>See more details in <a href="/guides/network/running-a-symbol-node-manually.html#manual-voting-key-renewal">the manual node setup guide</a>. </p>
+<p>Link an account with a public key required for finalization voting (V1, latest). <br/>This transaction is required for node operators wanting to vote for finalization. <br/>Announce a <a href="#votingkeylinktransactionv1" title="Link an account with a public key required for finalization voting (V1, latest).">VotingKeyLinkTransactionV1</a> to associate a voting key with an account during a fixed period. An account can be linked to up to <strong>3</strong> different voting keys at the same time. <br/>The recommended production setting is to always have at least <strong>2</strong> linked keys with different <code class="docutils literal">endPoint</code> values to ensure a key is registered after the first one expires. <br/>See more details in the manual node setup guide. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -14960,7 +15111,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 164 bytes = 0xa4</td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/coresystem/vrf_key_link.cats#L18">schema</a></td></tr>
     </table></div>
-<p>Link an account with a VRF public key required for harvesting (V1, latest). <br/>Announce a <a href="#vrfkeylinktransactionv1" title="Link an account with a VRF public key required for harvesting (V1, latest).">VrfKeyLinkTransactionV1</a> to link an account with a VRF public key. The linked key is used to randomize block production and leader/participant selection. <br/>This transaction is required for all accounts wishing to <a href="/concepts/harvesting.html">harvest</a>. </p>
+<p>Link an account with a VRF public key required for harvesting (V1, latest). <br/>Announce a <a href="#vrfkeylinktransactionv1" title="Link an account with a VRF public key required for harvesting (V1, latest).">VrfKeyLinkTransactionV1</a> to link an account with a VRF public key. The linked key is used to randomize block production and leader/participant selection. <br/>This transaction is required for all accounts wishing to harvest. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -15740,7 +15891,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 167+ bytes = 0xa7+ <i>(variable)</i></td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/metadata/account_metadata.cats#L28">schema</a></td></tr>
     </table></div>
-<p>Associate a key-value state (<a href="/concepts/metadata.html">metadata</a>) to an <strong>account</strong> (V1, latest). <br/><br/><b>Note:</b> This transaction must <strong>always</strong> be wrapped in an AggregateTransaction so that a cosignature from <code class="docutils literal">target_address</code> can be provided. Without this cosignature the transaction is invalid. <br/>Compare to <a href="#mosaicmetadatatransactionv1" title="Associate a key-value state (metadata) to a mosaic (V1, latest).">MosaicMetadataTransactionV1</a> and <a href="#namespacemetadatatransactionv1" title="Associate a key-value state (metadata) to a namespace (V1, latest).">NamespaceMetadataTransactionV1</a>. </p>
+<p>Associate a key-value state (metadata) to an <strong>account</strong> (V1, latest). <br/><br/><b>Note:</b> This transaction must <strong>always</strong> be wrapped in an AggregateTransaction so that a cosignature from <code class="docutils literal">target_address</code> can be provided. Without this cosignature the transaction is invalid. <br/>Compare to <a href="#mosaicmetadatatransactionv1" title="Associate a key-value state (metadata) to a mosaic (V1, latest).">MosaicMetadataTransactionV1</a> and <a href="#namespacemetadatatransactionv1" title="Associate a key-value state (metadata) to a namespace (V1, latest).">NamespaceMetadataTransactionV1</a>. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -15950,7 +16101,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 175+ bytes = 0xaf+ <i>(variable)</i></td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/metadata/mosaic_metadata.cats#L28">schema</a></td></tr>
     </table></div>
-<p>Associate a key-value state (<a href="/concepts/metadata.html">metadata</a>) to a <strong>mosaic</strong> (V1, latest). <br/>Compare to <a href="#accountmetadatatransactionv1" title="Associate a key-value state (metadata) to an account (V1, latest).">AccountMetadataTransactionV1</a> and <a href="#namespacemetadatatransactionv1" title="Associate a key-value state (metadata) to a namespace (V1, latest).">NamespaceMetadataTransactionV1</a>. </p>
+<p>Associate a key-value state (metadata) to a <strong>mosaic</strong> (V1, latest). <br/>Compare to <a href="#accountmetadatatransactionv1" title="Associate a key-value state (metadata) to an account (V1, latest).">AccountMetadataTransactionV1</a> and <a href="#namespacemetadatatransactionv1" title="Associate a key-value state (metadata) to a namespace (V1, latest).">NamespaceMetadataTransactionV1</a>. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -16172,7 +16323,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 175+ bytes = 0xaf+ <i>(variable)</i></td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/metadata/namespace_metadata.cats#L29">schema</a></td></tr>
     </table></div>
-<p>Associate a key-value state (<a href="/concepts/metadata.html">metadata</a>) to a <strong>namespace</strong> (V1, latest). <br/>Compare to <a href="#accountmetadatatransactionv1" title="Associate a key-value state (metadata) to an account (V1, latest).">AccountMetadataTransactionV1</a> and <a href="#mosaicmetadatatransactionv1" title="Associate a key-value state (metadata) to a mosaic (V1, latest).">MosaicMetadataTransactionV1</a>. </p>
+<p>Associate a key-value state (metadata) to a <strong>namespace</strong> (V1, latest). <br/>Compare to <a href="#accountmetadatatransactionv1" title="Associate a key-value state (metadata) to an account (V1, latest).">AccountMetadataTransactionV1</a> and <a href="#mosaicmetadatatransactionv1" title="Associate a key-value state (metadata) to a mosaic (V1, latest).">MosaicMetadataTransactionV1</a>. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -16394,7 +16545,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 153 bytes = 0x99</td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/mosaic/mosaic_definition.cats#L24">schema</a></td></tr>
     </table></div>
-<p>Create a new <a href="/concepts/mosaic.html">mosaic</a> (V1, latest). </p>
+<p>Create a new mosaic (V1, latest). </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -16964,7 +17115,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 139+ bytes = 0x8b+ <i>(variable)</i></td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/multisig/multisig_account_modification.cats#L46">schema</a></td></tr>
     </table></div>
-<p>Create or modify a <a href="/concepts/multisig-account.html">multi-signature</a> account (V1, latest). <br/>This transaction allows you to: - Transform a regular account into a multisig account. - Change the configurable properties of a multisig account. - Add or delete cosignatories from a multisig account (removing all cosignatories turns a multisig account into a regular account again). </p>
+<p>Create or modify a multi-signature account (V1, latest). <br/>This transaction allows you to: - Transform a regular account into a multisig account. - Change the configurable properties of a multisig account. - Add or delete cosignatories from a multisig account (removing all cosignatories turns a multisig account into a regular account again). </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -17198,7 +17349,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 164 bytes = 0xa4</td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/namespace/address_alias.cats#L19">schema</a></td></tr>
     </table></div>
-<p>Attach or detach a <a href="/concepts/namespace.html">namespace</a> (alias) to an account address (V1, latest). <br/>A namespace can be assigned to any account present in the network (this is, an account which has received at least one transaction). </p>
+<p>Attach or detach a namespace (alias) to an account address (V1, latest). <br/>A namespace can be assigned to any account present in the network (this is, an account which has received at least one transaction). </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -17384,7 +17535,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 148 bytes = 0x94</td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/namespace/mosaic_alias.cats#L19">schema</a></td></tr>
     </table></div>
-<p>Attach or detach a <a href="/concepts/namespace.html">namespace</a> to a Mosaic.(V1, latest) <br/>Setting an alias to a mosaic is only possible if the account announcing this transaction has also created the namespace and the mosaic involved. </p>
+<p>Attach or detach a namespace to a Mosaic.(V1, latest) <br/>Setting an alias to a mosaic is only possible if the account announcing this transaction has also created the namespace and the mosaic involved. </p>
 </td></tr></table>
 
 <div class="big-table6">
@@ -17570,7 +17721,7 @@
     <tr><td class="side-info-icon">&varr;</td><td>Size: 141+ bytes = 0x8d+ <i>(variable)</i></td></tr>
     <tr><td class="side-info-icon"><i class="fab fa-github"></i></td><td><a href="https://github.com/symbol/symbol/blob/main/catbuffer/schemas/symbol/namespace/namespace_registration.cats#L27">schema</a></td></tr>
     </table></div>
-<p>Register (or renew a registration for) a <a href="/concepts/namespace.html">namespace</a> (V1, latest). <br/>Namespaces help keep assets organized. </p>
+<p>Register (or renew a registration for) a namespace (V1, latest). <br/>Namespaces help keep assets organized. </p>
 </td></tr></table>
 
 <div class="big-table6">

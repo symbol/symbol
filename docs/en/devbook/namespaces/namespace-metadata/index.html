@@ -14,7 +14,7 @@
         <link rel="prev" href="../link-namespace-to-mosaic/">
       
       
-        <link rel="next" href="../../mosaics/create-mosaic/">
+        <link rel="next" href="../resolve-namespace-from-receipt/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
@@ -1714,6 +1714,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resolve-namespace-from-receipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resolve Namespace from Receipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1809,11 +1830,120 @@
   
   
     <li class="md-nav__item">
+      <a href="../../mosaics/modify-mosaic-definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modify Mosaic Definition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../mosaics/mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Add Mosaic Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mosaics/revoke-mosaic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Revoke Mosaic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Chain State
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Chain State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../chain/chain-heights/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Chain and Finalization Height
   </span>
   
 
@@ -8496,6 +8626,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/websockets/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WebSockets
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -9096,7 +9247,8 @@ It can be attached to accounts, mosaics, or namespaces."
 	name="_:Metadata"
 	href="../../../textbook/metadata/#5b4d2d257b88ac43547a89cd6f75d41b">metadata</a> as key-value pairs.</p>
 <p>This tutorial shows how to add metadata to a namespace, retrieve it from the network, and update existing values.</p>
-<p>In this example, the pair <code>description = My first namespace</code> is attached to a namespace and then changed to <code>Updated namespace</code>:</p>
+<p>In this example, the pair <code>description = My first namespace</code> is attached to a namespace and then changed to
+<code>Updated namespace</code>:</p>
 <p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="402pt" height="97pt" viewBox="0.00 0.00 401.68 96.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 92.87)"><title>%3</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-92.87 397.68,-92.87 397.68,4 -4,4"/><!-- Namespace --><g id="node1" class="node"><title>Namespace</title><g id="a_node1"><a xlink:title="Namespace"><ellipse fill="none" stroke="#789abc" cx="87.68" cy="-26.87" rx="87.86" ry="26.74"/><text text-anchor="middle" x="87.68" y="-30.67" font-family="Times,serif" font-size="14.00" fill="#789abc">Namespace</text><text text-anchor="middle" x="87.68" y="-15.67" font-family="Times,serif" font-size="14.00" fill="#789abc">testnamespace</text></a></g></g><!-- Metadata --><g id="node2" class="node metadata"><title>Metadata</title><g id="a_node2"><a xlink:title="Metadata entry"><polygon fill="#789abc" stroke="#789abc" points="387.68,-88.87 141.68,-88.87 141.68,-36.87 393.68,-36.87 393.68,-82.87 387.68,-88.87"/><polyline fill="none" stroke="#789abc" points="387.68,-88.87 387.68,-82.87 "/><polyline fill="none" stroke="#789abc" points="393.68,-82.87 387.68,-82.87 "/><text text-anchor="start" x="179.18" y="-70.67" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="#789abc">Key</text><text text-anchor="start" x="289.18" y="-70.67" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="#789abc">Value</text><text text-anchor="start" x="153.68" y="-48.67" font-family="Times,serif" font-size="14.00" fill="#789abc">description</text><text text-anchor="start" x="240.68" y="-48.67" font-family="Times,serif" font-size="14.00" fill="#789abc">My first namespace</text></a></g></g></g></svg></p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Before you start, make sure to:</p>
@@ -9104,7 +9256,7 @@ It can be attached to accounts, mosaics, or namespaces."
 <li>Set up your development environment.
     See <a href="../../start/setup/">Setting Up a Development Environment</a>.</li>
 <li>Create an <a class="mkdocs-ezglossary-link"
-	id="045a324f83c53de3eff056eae2bf3201"
+	id="96373ff71ea1666b67eff65614c7f7f7"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -9113,7 +9265,7 @@ It functions similarly to a safe deposit box in traditional banking."
     <a href="../../../userbook/wallet/create-account/">by using a wallet</a>.</li>
 <li><a href="../register-root-namespace/">Register a namespace</a> owned by the signer account.</li>
 <li>Obtain <a class="mkdocs-ezglossary-link"
-	id="ecff417f782e768cd734ab2e3dee5720"
+	id="f9b83df0bd4fa6bb4a283aa736973c25"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to pay for the transaction fee.
@@ -9123,7 +9275,7 @@ It functions similarly to a safe deposit box in traditional banking."
 transactions are announced and confirmed, and the
 <a href="../../transactions/complete-aggregate/">Complete Aggregate transaction</a> tutorial to understand how
 <a class="mkdocs-ezglossary-link"
-	id="88a3939b3368e88e8d45ead4774cc87a"
+	id="c51babfd027d38dd67f83551ac34c8d3"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
@@ -9334,7 +9486,8 @@ all embedded transactions are accepted or none are."
 <span class="normal"><a href="#__codelineno-0-200">200</a></span>
 <span class="normal"><a href="#__codelineno-0-201">201</a></span>
 <span class="normal"><a href="#__codelineno-0-202">202</a></span>
-<span class="normal"><a href="#__codelineno-0-203">203</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
@@ -9475,68 +9628,69 @@ all embedded transactions are accepted or none are."
 </span><span id="__span-0-139"><a id="__codelineno-0-139" name="__codelineno-0-139"></a>
 </span><span id="__span-0-140"><a id="__codelineno-0-140" name="__codelineno-0-140"></a>    <span class="c1"># Fetch current metadata value from network</span>
 </span><span id="__span-0-141"><a id="__codelineno-0-141" name="__codelineno-0-141"></a>    <span class="n">metadata_path</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="__span-0-142"><a id="__codelineno-0-142" name="__codelineno-0-142"></a>        <span class="sa">f</span><span class="s1">&#39;/metadata?targetAddress=</span><span class="si">{</span><span class="n">signer_address</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="__span-0-143"><a id="__codelineno-0-143" name="__codelineno-0-143"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;scopedMetadataKey=</span><span class="si">{</span><span class="n">scoped_metadata_key</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="__span-0-144"><a id="__codelineno-0-144" name="__codelineno-0-144"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;targetId=</span><span class="si">{</span><span class="n">namespace_id</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="__span-0-145"><a id="__codelineno-0-145" name="__codelineno-0-145"></a>        <span class="s1">&#39;&amp;metadataType=2&#39;</span>
-</span><span id="__span-0-146"><a id="__codelineno-0-146" name="__codelineno-0-146"></a>    <span class="p">)</span>
-</span><span id="__span-0-147"><a id="__codelineno-0-147" name="__codelineno-0-147"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fetching current metadata from </span><span class="si">{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</span><span id="__span-0-148"><a id="__codelineno-0-148" name="__codelineno-0-148"></a>    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span>
-</span><span id="__span-0-149"><a id="__codelineno-0-149" name="__codelineno-0-149"></a>            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">NODE_URL</span><span class="si">}{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
-</span><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a>        <span class="n">response_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a>
-</span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a>    <span class="c1"># Get the metadata entry</span>
-</span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
-</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">)</span>
-</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>    <span class="n">metadata_entry</span> <span class="o">=</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;metadataEntry&#39;</span><span class="p">]</span>
-</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a>    <span class="n">current_value</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">metadata_entry</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
-</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Current value: </span><span class="si">{</span><span class="n">current_value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>
-</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a>    <span class="c1"># XOR the current and new values</span>
-</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>    <span class="n">new_value</span> <span class="o">=</span> <span class="s1">&#39;Updated namespace&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
-</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>    <span class="n">update_value</span> <span class="o">=</span> <span class="n">metadata_update_value</span><span class="p">(</span><span class="n">current_value</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
-</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a>
-</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>    <span class="c1"># Create the update transaction with XOR&#39;d value</span>
-</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>    <span class="n">embedded_update</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create_embedded</span><span class="p">({</span>
-</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
-</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
-</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>        <span class="s1">&#39;target_address&#39;</span><span class="p">:</span> <span class="n">signer_address</span><span class="p">,</span>
-</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>        <span class="s1">&#39;target_namespace_id&#39;</span><span class="p">:</span> <span class="n">namespace_id</span><span class="p">,</span>
-</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>        <span class="s1">&#39;scoped_metadata_key&#39;</span><span class="p">:</span> <span class="n">scoped_metadata_key</span><span class="p">,</span>
-</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a>        <span class="c1"># value_size_delta is the difference in length</span>
-</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a>        <span class="c1"># (can be negative)</span>
-</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>        <span class="s1">&#39;value_size_delta&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">),</span>
-</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a>        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">update_value</span>
-</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>    <span class="p">})</span>
-</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">)</span>
-</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">embedded_update</span><span class="o">.</span><span class="n">to_json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>
-</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>    <span class="c1"># Build the aggregate for the update</span>
-</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>    <span class="n">embedded_transactions</span> <span class="o">=</span> <span class="p">[</span><span class="n">embedded_update</span><span class="p">]</span>
-</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="n">update_transaction</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
-</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
-</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>        <span class="s1">&#39;deadline&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">add_hours</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span>
-</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>        <span class="s1">&#39;transactions_hash&#39;</span><span class="p">:</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_embedded_transactions</span><span class="p">(</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>            <span class="n">embedded_transactions</span><span class="p">),</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="s1">&#39;transactions&#39;</span><span class="p">:</span> <span class="n">embedded_transactions</span>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="p">})</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="n">update_transaction</span><span class="o">.</span><span class="n">fee</span> <span class="o">=</span> <span class="n">Amount</span><span class="p">(</span><span class="n">fee_mult</span> <span class="o">*</span> <span class="n">update_transaction</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="c1"># Sign and announce the update</span>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="n">signature</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">sign_transaction</span><span class="p">(</span>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>        <span class="n">signer_key_pair</span><span class="p">,</span> <span class="n">update_transaction</span><span class="p">)</span>
-</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>    <span class="n">json_payload</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">attach_signature</span><span class="p">(</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>        <span class="n">update_transaction</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>    <span class="c1"># Announce and wait for confirmation</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="n">update_hash</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_transaction</span><span class="p">(</span><span class="n">update_transaction</span><span class="p">)</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Built aggregate transaction with hash: </span><span class="si">{</span><span class="n">update_hash</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>    <span class="n">announce_transaction</span><span class="p">(</span><span class="n">json_payload</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>    <span class="n">wait_for_confirmation</span><span class="p">(</span><span class="n">update_hash</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>
-</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span><span id="__span-0-142"><a id="__codelineno-0-142" name="__codelineno-0-142"></a>        <span class="sa">f</span><span class="s1">&#39;/metadata?sourceAddress=</span><span class="si">{</span><span class="n">signer_address</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-0-143"><a id="__codelineno-0-143" name="__codelineno-0-143"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;targetAddress=</span><span class="si">{</span><span class="n">signer_address</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-0-144"><a id="__codelineno-0-144" name="__codelineno-0-144"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;scopedMetadataKey=</span><span class="si">{</span><span class="n">scoped_metadata_key</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-0-145"><a id="__codelineno-0-145" name="__codelineno-0-145"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;targetId=</span><span class="si">{</span><span class="n">namespace_id</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-0-146"><a id="__codelineno-0-146" name="__codelineno-0-146"></a>        <span class="s1">&#39;&amp;metadataType=2&#39;</span>
+</span><span id="__span-0-147"><a id="__codelineno-0-147" name="__codelineno-0-147"></a>    <span class="p">)</span>
+</span><span id="__span-0-148"><a id="__codelineno-0-148" name="__codelineno-0-148"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fetching current metadata from </span><span class="si">{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span id="__span-0-149"><a id="__codelineno-0-149" name="__codelineno-0-149"></a>    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span>
+</span><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a>            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">NODE_URL</span><span class="si">}{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a>        <span class="n">response_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a>
+</span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a>    <span class="c1"># Get the metadata entry</span>
+</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">)</span>
+</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a>    <span class="n">metadata_entry</span> <span class="o">=</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;metadataEntry&#39;</span><span class="p">]</span>
+</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>    <span class="n">current_value</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">metadata_entry</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Current value: </span><span class="si">{</span><span class="n">current_value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>    <span class="c1"># XOR the current and new values</span>
+</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>    <span class="n">new_value</span> <span class="o">=</span> <span class="s1">&#39;Updated namespace&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
+</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a>    <span class="n">update_value</span> <span class="o">=</span> <span class="n">metadata_update_value</span><span class="p">(</span><span class="n">current_value</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
+</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>
+</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>    <span class="c1"># Create the update transaction with XOR&#39;d value</span>
+</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>    <span class="n">embedded_update</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create_embedded</span><span class="p">({</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
+</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>        <span class="s1">&#39;target_address&#39;</span><span class="p">:</span> <span class="n">signer_address</span><span class="p">,</span>
+</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>        <span class="s1">&#39;target_namespace_id&#39;</span><span class="p">:</span> <span class="n">namespace_id</span><span class="p">,</span>
+</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a>        <span class="s1">&#39;scoped_metadata_key&#39;</span><span class="p">:</span> <span class="n">scoped_metadata_key</span><span class="p">,</span>
+</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a>        <span class="c1"># value_size_delta is the difference in length</span>
+</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>        <span class="c1"># (can be negative)</span>
+</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a>        <span class="s1">&#39;value_size_delta&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">),</span>
+</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">update_value</span>
+</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a>    <span class="p">})</span>
+</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">)</span>
+</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">embedded_update</span><span class="o">.</span><span class="n">to_json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>
+</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>    <span class="c1"># Build the aggregate for the update</span>
+</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="n">embedded_transactions</span> <span class="o">=</span> <span class="p">[</span><span class="n">embedded_update</span><span class="p">]</span>
+</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>    <span class="n">update_transaction</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
+</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
+</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
+</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>        <span class="s1">&#39;deadline&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">add_hours</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span>
+</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>        <span class="s1">&#39;transactions_hash&#39;</span><span class="p">:</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_embedded_transactions</span><span class="p">(</span>
+</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>            <span class="n">embedded_transactions</span><span class="p">),</span>
+</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>        <span class="s1">&#39;transactions&#39;</span><span class="p">:</span> <span class="n">embedded_transactions</span>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="p">})</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="n">update_transaction</span><span class="o">.</span><span class="n">fee</span> <span class="o">=</span> <span class="n">Amount</span><span class="p">(</span><span class="n">fee_mult</span> <span class="o">*</span> <span class="n">update_transaction</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="c1"># Sign and announce the update</span>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="n">signature</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">sign_transaction</span><span class="p">(</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>        <span class="n">signer_key_pair</span><span class="p">,</span> <span class="n">update_transaction</span><span class="p">)</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="n">json_payload</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">attach_signature</span><span class="p">(</span>
+</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">update_transaction</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="c1"># Announce and wait for confirmation</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>    <span class="n">update_hash</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_transaction</span><span class="p">(</span><span class="n">update_transaction</span><span class="p">)</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Built aggregate transaction with hash: </span><span class="si">{</span><span class="n">update_hash</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>    <span class="n">announce_transaction</span><span class="p">(</span><span class="n">json_payload</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="n">wait_for_confirmation</span><span class="p">(</span><span class="n">update_hash</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 <p><a class="source-link" href="https://github.com/symbol/symbol/raw/refs/heads/new-docs/mkdocs/overrides/devbook/namespaces/namespace-metadata.py">Download source</a></p>
 </div>
@@ -9753,7 +9907,8 @@ all embedded transactions are accepted or none are."
 <span class="normal"><a href="#__codelineno-1-210">210</a></span>
 <span class="normal"><a href="#__codelineno-1-211">211</a></span>
 <span class="normal"><a href="#__codelineno-1-212">212</a></span>
-<span class="normal"><a href="#__codelineno-1-213">213</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrivateKey</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;symbol-sdk&#39;</span><span class="p">;</span>
+<span class="normal"><a href="#__codelineno-1-213">213</a></span>
+<span class="normal"><a href="#__codelineno-1-214">214</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrivateKey</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;symbol-sdk&#39;</span><span class="p">;</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="nx">generateNamespaceId</span><span class="p">,</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="nx">metadataGenerateKey</span><span class="p">,</span>
@@ -9900,72 +10055,73 @@ all embedded transactions are accepted or none are."
 </span><span id="__span-1-145"><a id="__codelineno-1-145" name="__codelineno-1-145"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">namespaceIdHex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">namespaceId</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mf">16</span><span class="p">)</span>
 </span><span id="__span-1-146"><a id="__codelineno-1-146" name="__codelineno-1-146"></a><span class="w">        </span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">().</span><span class="nx">padStart</span><span class="p">(</span><span class="mf">16</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="p">);</span>
 </span><span id="__span-1-147"><a id="__codelineno-1-147" name="__codelineno-1-147"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`/metadata`</span>
-</span><span id="__span-1-148"><a id="__codelineno-1-148" name="__codelineno-1-148"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`?targetAddress=</span><span class="si">${</span><span class="nx">signerAddress</span><span class="si">}</span><span class="sb">`</span>
-</span><span id="__span-1-149"><a id="__codelineno-1-149" name="__codelineno-1-149"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;scopedMetadataKey=</span><span class="si">${</span><span class="nx">scopedKeyHex</span><span class="si">}</span><span class="sb">`</span>
-</span><span id="__span-1-150"><a id="__codelineno-1-150" name="__codelineno-1-150"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;targetId=</span><span class="si">${</span><span class="nx">namespaceIdHex</span><span class="si">}</span><span class="sb">`</span>
-</span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;&amp;metadataType=2&#39;</span><span class="p">;</span>
-</span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Fetching current metadata from&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">metadataPath</span><span class="p">);</span>
-</span><span id="__span-1-153"><a id="__codelineno-1-153" name="__codelineno-1-153"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">metadataPath</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
-</span><span id="__span-1-154"><a id="__codelineno-1-154" name="__codelineno-1-154"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
-</span><span id="__span-1-155"><a id="__codelineno-1-155" name="__codelineno-1-155"></a>
-</span><span id="__span-1-156"><a id="__codelineno-1-156" name="__codelineno-1-156"></a><span class="w">    </span><span class="c1">// Get the metadata entry</span>
-</span><span id="__span-1-157"><a id="__codelineno-1-157" name="__codelineno-1-157"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-158"><a id="__codelineno-1-158" name="__codelineno-1-158"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">);</span>
-</span><span id="__span-1-159"><a id="__codelineno-1-159" name="__codelineno-1-159"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-160"><a id="__codelineno-1-160" name="__codelineno-1-160"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">metadataEntry</span><span class="p">;</span>
-</span><span id="__span-1-161"><a id="__codelineno-1-161" name="__codelineno-1-161"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">currentValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Buffer</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="nx">metadataEntry</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;hex&#39;</span><span class="p">);</span>
-</span><span id="__span-1-162"><a id="__codelineno-1-162" name="__codelineno-1-162"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;  Current value:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">));</span>
-</span><span id="__span-1-163"><a id="__codelineno-1-163" name="__codelineno-1-163"></a>
-</span><span id="__span-1-164"><a id="__codelineno-1-164" name="__codelineno-1-164"></a><span class="w">    </span><span class="c1">// XOR the current and new values</span>
-</span><span id="__span-1-165"><a id="__codelineno-1-165" name="__codelineno-1-165"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">newValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TextEncoder</span><span class="p">().</span><span class="nx">encode</span><span class="p">(</span><span class="s1">&#39;Updated namespace&#39;</span><span class="p">);</span>
-</span><span id="__span-1-166"><a id="__codelineno-1-166" name="__codelineno-1-166"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataUpdateValue</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">,</span><span class="w"> </span><span class="nx">newValue</span><span class="p">);</span>
-</span><span id="__span-1-167"><a id="__codelineno-1-167" name="__codelineno-1-167"></a>
-</span><span id="__span-1-168"><a id="__codelineno-1-168" name="__codelineno-1-168"></a><span class="w">    </span><span class="c1">// Create the update transaction with XOR&#39;d value</span>
-</span><span id="__span-1-169"><a id="__codelineno-1-169" name="__codelineno-1-169"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">embeddedUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span>
-</span><span id="__span-1-170"><a id="__codelineno-1-170" name="__codelineno-1-170"></a><span class="w">        </span><span class="p">.</span><span class="nx">createEmbedded</span><span class="p">({</span>
-</span><span id="__span-1-171"><a id="__codelineno-1-171" name="__codelineno-1-171"></a><span class="w">            </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
-</span><span id="__span-1-172"><a id="__codelineno-1-172" name="__codelineno-1-172"></a><span class="w">            </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
-</span><span id="__span-1-173"><a id="__codelineno-1-173" name="__codelineno-1-173"></a><span class="w">            </span><span class="nx">targetAddress</span><span class="o">:</span><span class="w"> </span><span class="nx">signerAddress</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
-</span><span id="__span-1-174"><a id="__codelineno-1-174" name="__codelineno-1-174"></a><span class="w">            </span><span class="nx">targetNamespaceId</span><span class="o">:</span><span class="w"> </span><span class="nx">namespaceId</span><span class="p">,</span>
-</span><span id="__span-1-175"><a id="__codelineno-1-175" name="__codelineno-1-175"></a><span class="w">            </span><span class="nx">scopedMetadataKey</span><span class="p">,</span>
-</span><span id="__span-1-176"><a id="__codelineno-1-176" name="__codelineno-1-176"></a><span class="w">            </span><span class="c1">// valueSizeDelta is the difference in length</span>
-</span><span id="__span-1-177"><a id="__codelineno-1-177" name="__codelineno-1-177"></a><span class="w">            </span><span class="c1">// (can be negative)</span>
-</span><span id="__span-1-178"><a id="__codelineno-1-178" name="__codelineno-1-178"></a><span class="w">            </span><span class="nx">valueSizeDelta</span><span class="o">:</span><span class="w"> </span><span class="nx">newValue</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
-</span><span id="__span-1-179"><a id="__codelineno-1-179" name="__codelineno-1-179"></a><span class="w">            </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="nx">updateValue</span>
-</span><span id="__span-1-180"><a id="__codelineno-1-180" name="__codelineno-1-180"></a><span class="w">        </span><span class="p">});</span>
-</span><span id="__span-1-181"><a id="__codelineno-1-181" name="__codelineno-1-181"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">);</span>
-</span><span id="__span-1-182"><a id="__codelineno-1-182" name="__codelineno-1-182"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">embeddedUpdate</span><span class="p">.</span><span class="nx">toJson</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">));</span>
-</span><span id="__span-1-183"><a id="__codelineno-1-183" name="__codelineno-1-183"></a>
-</span><span id="__span-1-184"><a id="__codelineno-1-184" name="__codelineno-1-184"></a><span class="w">    </span><span class="c1">// Build the aggregate for the update</span>
-</span><span id="__span-1-185"><a id="__codelineno-1-185" name="__codelineno-1-185"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateEmbedded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">embeddedUpdate</span><span class="p">];</span>
-</span><span id="__span-1-186"><a id="__codelineno-1-186" name="__codelineno-1-186"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
-</span><span id="__span-1-187"><a id="__codelineno-1-187" name="__codelineno-1-187"></a><span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
-</span><span id="__span-1-188"><a id="__codelineno-1-188" name="__codelineno-1-188"></a><span class="w">        </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
-</span><span id="__span-1-189"><a id="__codelineno-1-189" name="__codelineno-1-189"></a><span class="w">        </span><span class="nx">deadline</span><span class="o">:</span><span class="w"> </span><span class="nx">timestamp</span><span class="p">.</span><span class="nx">addHours</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="nx">timestamp</span><span class="p">,</span>
-</span><span id="__span-1-190"><a id="__codelineno-1-190" name="__codelineno-1-190"></a><span class="w">        </span><span class="nx">transactionsHash</span><span class="o">:</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="k">static</span><span class="p">.</span><span class="nx">hashEmbeddedTransactions</span><span class="p">(</span>
-</span><span id="__span-1-191"><a id="__codelineno-1-191" name="__codelineno-1-191"></a><span class="w">            </span><span class="nx">updateEmbedded</span><span class="p">),</span>
-</span><span id="__span-1-192"><a id="__codelineno-1-192" name="__codelineno-1-192"></a><span class="w">        </span><span class="nx">transactions</span><span class="o">:</span><span class="w"> </span><span class="nx">updateEmbedded</span>
-</span><span id="__span-1-193"><a id="__codelineno-1-193" name="__codelineno-1-193"></a><span class="w">    </span><span class="p">});</span>
-</span><span id="__span-1-194"><a id="__codelineno-1-194" name="__codelineno-1-194"></a><span class="w">    </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span>
-</span><span id="__span-1-195"><a id="__codelineno-1-195" name="__codelineno-1-195"></a><span class="w">        </span><span class="nx">feeMult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
-</span><span id="__span-1-196"><a id="__codelineno-1-196" name="__codelineno-1-196"></a>
-</span><span id="__span-1-197"><a id="__codelineno-1-197" name="__codelineno-1-197"></a><span class="w">    </span><span class="c1">// Sign and announce the update</span>
-</span><span id="__span-1-198"><a id="__codelineno-1-198" name="__codelineno-1-198"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateSignature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">signTransaction</span><span class="p">(</span>
-</span><span id="__span-1-199"><a id="__codelineno-1-199" name="__codelineno-1-199"></a><span class="w">        </span><span class="nx">signerKeyPair</span><span class="p">,</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">);</span>
-</span><span id="__span-1-200"><a id="__codelineno-1-200" name="__codelineno-1-200"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updatePayload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="k">static</span>
-</span><span id="__span-1-201"><a id="__codelineno-1-201" name="__codelineno-1-201"></a><span class="w">        </span><span class="p">.</span><span class="nx">attachSignature</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">,</span><span class="w"> </span><span class="nx">updateSignature</span><span class="p">);</span>
-</span><span id="__span-1-202"><a id="__codelineno-1-202" name="__codelineno-1-202"></a>
-</span><span id="__span-1-203"><a id="__codelineno-1-203" name="__codelineno-1-203"></a><span class="w">    </span><span class="c1">// Announce and wait for confirmation</span>
-</span><span id="__span-1-204"><a id="__codelineno-1-204" name="__codelineno-1-204"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateHash</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-1-205"><a id="__codelineno-1-205" name="__codelineno-1-205"></a><span class="w">        </span><span class="nx">facade</span><span class="p">.</span><span class="nx">hashTransaction</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">).</span><span class="nx">toString</span><span class="p">();</span>
-</span><span id="__span-1-206"><a id="__codelineno-1-206" name="__codelineno-1-206"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
-</span><span id="__span-1-207"><a id="__codelineno-1-207" name="__codelineno-1-207"></a><span class="w">        </span><span class="s1">&#39;Built aggregate transaction with hash:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">updateHash</span><span class="p">);</span>
-</span><span id="__span-1-208"><a id="__codelineno-1-208" name="__codelineno-1-208"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">announceTransaction</span><span class="p">(</span><span class="nx">updatePayload</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
-</span><span id="__span-1-209"><a id="__codelineno-1-209" name="__codelineno-1-209"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForConfirmation</span><span class="p">(</span><span class="nx">updateHash</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
-</span><span id="__span-1-210"><a id="__codelineno-1-210" name="__codelineno-1-210"></a>
-</span><span id="__span-1-211"><a id="__codelineno-1-211" name="__codelineno-1-211"></a><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-212"><a id="__codelineno-1-212" name="__codelineno-1-212"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">message</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;| Cause:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">cause</span><span class="o">?</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">);</span>
-</span><span id="__span-1-213"><a id="__codelineno-1-213" name="__codelineno-1-213"></a><span class="p">}</span>
+</span><span id="__span-1-148"><a id="__codelineno-1-148" name="__codelineno-1-148"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`?sourceAddress=</span><span class="si">${</span><span class="nx">signerAddress</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-1-149"><a id="__codelineno-1-149" name="__codelineno-1-149"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;targetAddress=</span><span class="si">${</span><span class="nx">signerAddress</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-1-150"><a id="__codelineno-1-150" name="__codelineno-1-150"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;scopedMetadataKey=</span><span class="si">${</span><span class="nx">scopedKeyHex</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;targetId=</span><span class="si">${</span><span class="nx">namespaceIdHex</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;&amp;metadataType=2&#39;</span><span class="p">;</span>
+</span><span id="__span-1-153"><a id="__codelineno-1-153" name="__codelineno-1-153"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Fetching current metadata from&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">metadataPath</span><span class="p">);</span>
+</span><span id="__span-1-154"><a id="__codelineno-1-154" name="__codelineno-1-154"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">metadataPath</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+</span><span id="__span-1-155"><a id="__codelineno-1-155" name="__codelineno-1-155"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+</span><span id="__span-1-156"><a id="__codelineno-1-156" name="__codelineno-1-156"></a>
+</span><span id="__span-1-157"><a id="__codelineno-1-157" name="__codelineno-1-157"></a><span class="w">    </span><span class="c1">// Get the metadata entry</span>
+</span><span id="__span-1-158"><a id="__codelineno-1-158" name="__codelineno-1-158"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-159"><a id="__codelineno-1-159" name="__codelineno-1-159"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">);</span>
+</span><span id="__span-1-160"><a id="__codelineno-1-160" name="__codelineno-1-160"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-161"><a id="__codelineno-1-161" name="__codelineno-1-161"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">metadataEntry</span><span class="p">;</span>
+</span><span id="__span-1-162"><a id="__codelineno-1-162" name="__codelineno-1-162"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">currentValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Buffer</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="nx">metadataEntry</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;hex&#39;</span><span class="p">);</span>
+</span><span id="__span-1-163"><a id="__codelineno-1-163" name="__codelineno-1-163"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;  Current value:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">));</span>
+</span><span id="__span-1-164"><a id="__codelineno-1-164" name="__codelineno-1-164"></a>
+</span><span id="__span-1-165"><a id="__codelineno-1-165" name="__codelineno-1-165"></a><span class="w">    </span><span class="c1">// XOR the current and new values</span>
+</span><span id="__span-1-166"><a id="__codelineno-1-166" name="__codelineno-1-166"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">newValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TextEncoder</span><span class="p">().</span><span class="nx">encode</span><span class="p">(</span><span class="s1">&#39;Updated namespace&#39;</span><span class="p">);</span>
+</span><span id="__span-1-167"><a id="__codelineno-1-167" name="__codelineno-1-167"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataUpdateValue</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">,</span><span class="w"> </span><span class="nx">newValue</span><span class="p">);</span>
+</span><span id="__span-1-168"><a id="__codelineno-1-168" name="__codelineno-1-168"></a>
+</span><span id="__span-1-169"><a id="__codelineno-1-169" name="__codelineno-1-169"></a><span class="w">    </span><span class="c1">// Create the update transaction with XOR&#39;d value</span>
+</span><span id="__span-1-170"><a id="__codelineno-1-170" name="__codelineno-1-170"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">embeddedUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span>
+</span><span id="__span-1-171"><a id="__codelineno-1-171" name="__codelineno-1-171"></a><span class="w">        </span><span class="p">.</span><span class="nx">createEmbedded</span><span class="p">({</span>
+</span><span id="__span-1-172"><a id="__codelineno-1-172" name="__codelineno-1-172"></a><span class="w">            </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
+</span><span id="__span-1-173"><a id="__codelineno-1-173" name="__codelineno-1-173"></a><span class="w">            </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
+</span><span id="__span-1-174"><a id="__codelineno-1-174" name="__codelineno-1-174"></a><span class="w">            </span><span class="nx">targetAddress</span><span class="o">:</span><span class="w"> </span><span class="nx">signerAddress</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
+</span><span id="__span-1-175"><a id="__codelineno-1-175" name="__codelineno-1-175"></a><span class="w">            </span><span class="nx">targetNamespaceId</span><span class="o">:</span><span class="w"> </span><span class="nx">namespaceId</span><span class="p">,</span>
+</span><span id="__span-1-176"><a id="__codelineno-1-176" name="__codelineno-1-176"></a><span class="w">            </span><span class="nx">scopedMetadataKey</span><span class="p">,</span>
+</span><span id="__span-1-177"><a id="__codelineno-1-177" name="__codelineno-1-177"></a><span class="w">            </span><span class="c1">// valueSizeDelta is the difference in length</span>
+</span><span id="__span-1-178"><a id="__codelineno-1-178" name="__codelineno-1-178"></a><span class="w">            </span><span class="c1">// (can be negative)</span>
+</span><span id="__span-1-179"><a id="__codelineno-1-179" name="__codelineno-1-179"></a><span class="w">            </span><span class="nx">valueSizeDelta</span><span class="o">:</span><span class="w"> </span><span class="nx">newValue</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
+</span><span id="__span-1-180"><a id="__codelineno-1-180" name="__codelineno-1-180"></a><span class="w">            </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="nx">updateValue</span>
+</span><span id="__span-1-181"><a id="__codelineno-1-181" name="__codelineno-1-181"></a><span class="w">        </span><span class="p">});</span>
+</span><span id="__span-1-182"><a id="__codelineno-1-182" name="__codelineno-1-182"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">);</span>
+</span><span id="__span-1-183"><a id="__codelineno-1-183" name="__codelineno-1-183"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">embeddedUpdate</span><span class="p">.</span><span class="nx">toJson</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">));</span>
+</span><span id="__span-1-184"><a id="__codelineno-1-184" name="__codelineno-1-184"></a>
+</span><span id="__span-1-185"><a id="__codelineno-1-185" name="__codelineno-1-185"></a><span class="w">    </span><span class="c1">// Build the aggregate for the update</span>
+</span><span id="__span-1-186"><a id="__codelineno-1-186" name="__codelineno-1-186"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateEmbedded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">embeddedUpdate</span><span class="p">];</span>
+</span><span id="__span-1-187"><a id="__codelineno-1-187" name="__codelineno-1-187"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+</span><span id="__span-1-188"><a id="__codelineno-1-188" name="__codelineno-1-188"></a><span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
+</span><span id="__span-1-189"><a id="__codelineno-1-189" name="__codelineno-1-189"></a><span class="w">        </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
+</span><span id="__span-1-190"><a id="__codelineno-1-190" name="__codelineno-1-190"></a><span class="w">        </span><span class="nx">deadline</span><span class="o">:</span><span class="w"> </span><span class="nx">timestamp</span><span class="p">.</span><span class="nx">addHours</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="nx">timestamp</span><span class="p">,</span>
+</span><span id="__span-1-191"><a id="__codelineno-1-191" name="__codelineno-1-191"></a><span class="w">        </span><span class="nx">transactionsHash</span><span class="o">:</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="k">static</span><span class="p">.</span><span class="nx">hashEmbeddedTransactions</span><span class="p">(</span>
+</span><span id="__span-1-192"><a id="__codelineno-1-192" name="__codelineno-1-192"></a><span class="w">            </span><span class="nx">updateEmbedded</span><span class="p">),</span>
+</span><span id="__span-1-193"><a id="__codelineno-1-193" name="__codelineno-1-193"></a><span class="w">        </span><span class="nx">transactions</span><span class="o">:</span><span class="w"> </span><span class="nx">updateEmbedded</span>
+</span><span id="__span-1-194"><a id="__codelineno-1-194" name="__codelineno-1-194"></a><span class="w">    </span><span class="p">});</span>
+</span><span id="__span-1-195"><a id="__codelineno-1-195" name="__codelineno-1-195"></a><span class="w">    </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span>
+</span><span id="__span-1-196"><a id="__codelineno-1-196" name="__codelineno-1-196"></a><span class="w">        </span><span class="nx">feeMult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
+</span><span id="__span-1-197"><a id="__codelineno-1-197" name="__codelineno-1-197"></a>
+</span><span id="__span-1-198"><a id="__codelineno-1-198" name="__codelineno-1-198"></a><span class="w">    </span><span class="c1">// Sign and announce the update</span>
+</span><span id="__span-1-199"><a id="__codelineno-1-199" name="__codelineno-1-199"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateSignature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">signTransaction</span><span class="p">(</span>
+</span><span id="__span-1-200"><a id="__codelineno-1-200" name="__codelineno-1-200"></a><span class="w">        </span><span class="nx">signerKeyPair</span><span class="p">,</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">);</span>
+</span><span id="__span-1-201"><a id="__codelineno-1-201" name="__codelineno-1-201"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updatePayload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="k">static</span>
+</span><span id="__span-1-202"><a id="__codelineno-1-202" name="__codelineno-1-202"></a><span class="w">        </span><span class="p">.</span><span class="nx">attachSignature</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">,</span><span class="w"> </span><span class="nx">updateSignature</span><span class="p">);</span>
+</span><span id="__span-1-203"><a id="__codelineno-1-203" name="__codelineno-1-203"></a>
+</span><span id="__span-1-204"><a id="__codelineno-1-204" name="__codelineno-1-204"></a><span class="w">    </span><span class="c1">// Announce and wait for confirmation</span>
+</span><span id="__span-1-205"><a id="__codelineno-1-205" name="__codelineno-1-205"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateHash</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-206"><a id="__codelineno-1-206" name="__codelineno-1-206"></a><span class="w">        </span><span class="nx">facade</span><span class="p">.</span><span class="nx">hashTransaction</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">).</span><span class="nx">toString</span><span class="p">();</span>
+</span><span id="__span-1-207"><a id="__codelineno-1-207" name="__codelineno-1-207"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
+</span><span id="__span-1-208"><a id="__codelineno-1-208" name="__codelineno-1-208"></a><span class="w">        </span><span class="s1">&#39;Built aggregate transaction with hash:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">updateHash</span><span class="p">);</span>
+</span><span id="__span-1-209"><a id="__codelineno-1-209" name="__codelineno-1-209"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">announceTransaction</span><span class="p">(</span><span class="nx">updatePayload</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
+</span><span id="__span-1-210"><a id="__codelineno-1-210" name="__codelineno-1-210"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForConfirmation</span><span class="p">(</span><span class="nx">updateHash</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
+</span><span id="__span-1-211"><a id="__codelineno-1-211" name="__codelineno-1-211"></a>
+</span><span id="__span-1-212"><a id="__codelineno-1-212" name="__codelineno-1-212"></a><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-213"><a id="__codelineno-1-213" name="__codelineno-1-213"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">message</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;| Cause:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">cause</span><span class="o">?</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">);</span>
+</span><span id="__span-1-214"><a id="__codelineno-1-214" name="__codelineno-1-214"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
 <p><a class="source-link" href="https://github.com/symbol/symbol/raw/refs/heads/new-docs/mkdocs/overrides/devbook/namespaces/namespace-metadata.mjs">Download source</a></p>
 </div>
@@ -10289,7 +10445,7 @@ the signer account and the namespace owner's signature.
 This prevents unwanted metadata from being attached to a namespace without its owner's permission.</p>
 <p>In this tutorial, the signer is also the namespace owner so only one signature is needed.
 However, the transaction still needs to be inside an aggregate,
-so the code defines the mosaic metadata transaction as an <a class="mkdocs-ezglossary-link"
+so the code defines the namespace metadata transaction as an <a class="mkdocs-ezglossary-link"
 	id="db4fd1c588997d24b2f625caf1bda06b"
 	title="When basic transactions are included in an aggregate transaction they are called embedded transactions."
 	name="_:Embedded Transaction"
@@ -10479,24 +10635,26 @@ tutorial.</p>
 <span class="normal"><a href="#__codelineno-14-154">154</a></span>
 <span class="normal"><a href="#__codelineno-14-155">155</a></span>
 <span class="normal"><a href="#__codelineno-14-156">156</a></span>
-<span class="normal"><a href="#__codelineno-14-157">157</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-140"><a id="__codelineno-14-140" name="__codelineno-14-140"></a>    <span class="c1"># Fetch current metadata value from network</span>
+<span class="normal"><a href="#__codelineno-14-157">157</a></span>
+<span class="normal"><a href="#__codelineno-14-158">158</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-140"><a id="__codelineno-14-140" name="__codelineno-14-140"></a>    <span class="c1"># Fetch current metadata value from network</span>
 </span><span id="__span-14-141"><a id="__codelineno-14-141" name="__codelineno-14-141"></a>    <span class="n">metadata_path</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="__span-14-142"><a id="__codelineno-14-142" name="__codelineno-14-142"></a>        <span class="sa">f</span><span class="s1">&#39;/metadata?targetAddress=</span><span class="si">{</span><span class="n">signer_address</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="__span-14-143"><a id="__codelineno-14-143" name="__codelineno-14-143"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;scopedMetadataKey=</span><span class="si">{</span><span class="n">scoped_metadata_key</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="__span-14-144"><a id="__codelineno-14-144" name="__codelineno-14-144"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;targetId=</span><span class="si">{</span><span class="n">namespace_id</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="__span-14-145"><a id="__codelineno-14-145" name="__codelineno-14-145"></a>        <span class="s1">&#39;&amp;metadataType=2&#39;</span>
-</span><span id="__span-14-146"><a id="__codelineno-14-146" name="__codelineno-14-146"></a>    <span class="p">)</span>
-</span><span id="__span-14-147"><a id="__codelineno-14-147" name="__codelineno-14-147"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fetching current metadata from </span><span class="si">{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</span><span id="__span-14-148"><a id="__codelineno-14-148" name="__codelineno-14-148"></a>    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span>
-</span><span id="__span-14-149"><a id="__codelineno-14-149" name="__codelineno-14-149"></a>            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">NODE_URL</span><span class="si">}{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
-</span><span id="__span-14-150"><a id="__codelineno-14-150" name="__codelineno-14-150"></a>        <span class="n">response_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-</span><span id="__span-14-151"><a id="__codelineno-14-151" name="__codelineno-14-151"></a>
-</span><span id="__span-14-152"><a id="__codelineno-14-152" name="__codelineno-14-152"></a>    <span class="c1"># Get the metadata entry</span>
-</span><span id="__span-14-153"><a id="__codelineno-14-153" name="__codelineno-14-153"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
-</span><span id="__span-14-154"><a id="__codelineno-14-154" name="__codelineno-14-154"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">)</span>
-</span><span id="__span-14-155"><a id="__codelineno-14-155" name="__codelineno-14-155"></a>    <span class="n">metadata_entry</span> <span class="o">=</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;metadataEntry&#39;</span><span class="p">]</span>
-</span><span id="__span-14-156"><a id="__codelineno-14-156" name="__codelineno-14-156"></a>    <span class="n">current_value</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">metadata_entry</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
-</span><span id="__span-14-157"><a id="__codelineno-14-157" name="__codelineno-14-157"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Current value: </span><span class="si">{</span><span class="n">current_value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span id="__span-14-142"><a id="__codelineno-14-142" name="__codelineno-14-142"></a>        <span class="sa">f</span><span class="s1">&#39;/metadata?sourceAddress=</span><span class="si">{</span><span class="n">signer_address</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-14-143"><a id="__codelineno-14-143" name="__codelineno-14-143"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;targetAddress=</span><span class="si">{</span><span class="n">signer_address</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-14-144"><a id="__codelineno-14-144" name="__codelineno-14-144"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;scopedMetadataKey=</span><span class="si">{</span><span class="n">scoped_metadata_key</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-14-145"><a id="__codelineno-14-145" name="__codelineno-14-145"></a>        <span class="sa">f</span><span class="s1">&#39;&amp;targetId=</span><span class="si">{</span><span class="n">namespace_id</span><span class="si">:</span><span class="s1">016X</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="__span-14-146"><a id="__codelineno-14-146" name="__codelineno-14-146"></a>        <span class="s1">&#39;&amp;metadataType=2&#39;</span>
+</span><span id="__span-14-147"><a id="__codelineno-14-147" name="__codelineno-14-147"></a>    <span class="p">)</span>
+</span><span id="__span-14-148"><a id="__codelineno-14-148" name="__codelineno-14-148"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fetching current metadata from </span><span class="si">{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span id="__span-14-149"><a id="__codelineno-14-149" name="__codelineno-14-149"></a>    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span>
+</span><span id="__span-14-150"><a id="__codelineno-14-150" name="__codelineno-14-150"></a>            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">NODE_URL</span><span class="si">}{</span><span class="n">metadata_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+</span><span id="__span-14-151"><a id="__codelineno-14-151" name="__codelineno-14-151"></a>        <span class="n">response_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span><span id="__span-14-152"><a id="__codelineno-14-152" name="__codelineno-14-152"></a>
+</span><span id="__span-14-153"><a id="__codelineno-14-153" name="__codelineno-14-153"></a>    <span class="c1"># Get the metadata entry</span>
+</span><span id="__span-14-154"><a id="__codelineno-14-154" name="__codelineno-14-154"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+</span><span id="__span-14-155"><a id="__codelineno-14-155" name="__codelineno-14-155"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">)</span>
+</span><span id="__span-14-156"><a id="__codelineno-14-156" name="__codelineno-14-156"></a>    <span class="n">metadata_entry</span> <span class="o">=</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;metadataEntry&#39;</span><span class="p">]</span>
+</span><span id="__span-14-157"><a id="__codelineno-14-157" name="__codelineno-14-157"></a>    <span class="n">current_value</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">metadata_entry</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+</span><span id="__span-14-158"><a id="__codelineno-14-158" name="__codelineno-14-158"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Current value: </span><span class="si">{</span><span class="n">current_value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -10520,41 +10678,42 @@ tutorial.</p>
 <span class="normal"><a href="#__codelineno-15-159">159</a></span>
 <span class="normal"><a href="#__codelineno-15-160">160</a></span>
 <span class="normal"><a href="#__codelineno-15-161">161</a></span>
-<span class="normal"><a href="#__codelineno-15-162">162</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-142"><a id="__codelineno-15-142" name="__codelineno-15-142"></a><span class="w">    </span><span class="c1">// Fetch current metadata value from network</span>
+<span class="normal"><a href="#__codelineno-15-162">162</a></span>
+<span class="normal"><a href="#__codelineno-15-163">163</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-142"><a id="__codelineno-15-142" name="__codelineno-15-142"></a><span class="w">    </span><span class="c1">// Fetch current metadata value from network</span>
 </span><span id="__span-15-143"><a id="__codelineno-15-143" name="__codelineno-15-143"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">scopedKeyHex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">scopedMetadataKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mf">16</span><span class="p">)</span>
 </span><span id="__span-15-144"><a id="__codelineno-15-144" name="__codelineno-15-144"></a><span class="w">        </span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">().</span><span class="nx">padStart</span><span class="p">(</span><span class="mf">16</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="p">);</span>
 </span><span id="__span-15-145"><a id="__codelineno-15-145" name="__codelineno-15-145"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">namespaceIdHex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">namespaceId</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mf">16</span><span class="p">)</span>
 </span><span id="__span-15-146"><a id="__codelineno-15-146" name="__codelineno-15-146"></a><span class="w">        </span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">().</span><span class="nx">padStart</span><span class="p">(</span><span class="mf">16</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="p">);</span>
 </span><span id="__span-15-147"><a id="__codelineno-15-147" name="__codelineno-15-147"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`/metadata`</span>
-</span><span id="__span-15-148"><a id="__codelineno-15-148" name="__codelineno-15-148"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`?targetAddress=</span><span class="si">${</span><span class="nx">signerAddress</span><span class="si">}</span><span class="sb">`</span>
-</span><span id="__span-15-149"><a id="__codelineno-15-149" name="__codelineno-15-149"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;scopedMetadataKey=</span><span class="si">${</span><span class="nx">scopedKeyHex</span><span class="si">}</span><span class="sb">`</span>
-</span><span id="__span-15-150"><a id="__codelineno-15-150" name="__codelineno-15-150"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;targetId=</span><span class="si">${</span><span class="nx">namespaceIdHex</span><span class="si">}</span><span class="sb">`</span>
-</span><span id="__span-15-151"><a id="__codelineno-15-151" name="__codelineno-15-151"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;&amp;metadataType=2&#39;</span><span class="p">;</span>
-</span><span id="__span-15-152"><a id="__codelineno-15-152" name="__codelineno-15-152"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Fetching current metadata from&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">metadataPath</span><span class="p">);</span>
-</span><span id="__span-15-153"><a id="__codelineno-15-153" name="__codelineno-15-153"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">metadataPath</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
-</span><span id="__span-15-154"><a id="__codelineno-15-154" name="__codelineno-15-154"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
-</span><span id="__span-15-155"><a id="__codelineno-15-155" name="__codelineno-15-155"></a>
-</span><span id="__span-15-156"><a id="__codelineno-15-156" name="__codelineno-15-156"></a><span class="w">    </span><span class="c1">// Get the metadata entry</span>
-</span><span id="__span-15-157"><a id="__codelineno-15-157" name="__codelineno-15-157"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-15-158"><a id="__codelineno-15-158" name="__codelineno-15-158"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">);</span>
-</span><span id="__span-15-159"><a id="__codelineno-15-159" name="__codelineno-15-159"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-15-160"><a id="__codelineno-15-160" name="__codelineno-15-160"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">metadataEntry</span><span class="p">;</span>
-</span><span id="__span-15-161"><a id="__codelineno-15-161" name="__codelineno-15-161"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">currentValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Buffer</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="nx">metadataEntry</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;hex&#39;</span><span class="p">);</span>
-</span><span id="__span-15-162"><a id="__codelineno-15-162" name="__codelineno-15-162"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;  Current value:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">));</span>
+</span><span id="__span-15-148"><a id="__codelineno-15-148" name="__codelineno-15-148"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`?sourceAddress=</span><span class="si">${</span><span class="nx">signerAddress</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-15-149"><a id="__codelineno-15-149" name="__codelineno-15-149"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;targetAddress=</span><span class="si">${</span><span class="nx">signerAddress</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-15-150"><a id="__codelineno-15-150" name="__codelineno-15-150"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;scopedMetadataKey=</span><span class="si">${</span><span class="nx">scopedKeyHex</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-15-151"><a id="__codelineno-15-151" name="__codelineno-15-151"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="sb">`&amp;targetId=</span><span class="si">${</span><span class="nx">namespaceIdHex</span><span class="si">}</span><span class="sb">`</span>
+</span><span id="__span-15-152"><a id="__codelineno-15-152" name="__codelineno-15-152"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;&amp;metadataType=2&#39;</span><span class="p">;</span>
+</span><span id="__span-15-153"><a id="__codelineno-15-153" name="__codelineno-15-153"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Fetching current metadata from&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">metadataPath</span><span class="p">);</span>
+</span><span id="__span-15-154"><a id="__codelineno-15-154" name="__codelineno-15-154"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">metadataPath</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+</span><span id="__span-15-155"><a id="__codelineno-15-155" name="__codelineno-15-155"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">metadataResponse</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+</span><span id="__span-15-156"><a id="__codelineno-15-156" name="__codelineno-15-156"></a>
+</span><span id="__span-15-157"><a id="__codelineno-15-157" name="__codelineno-15-157"></a><span class="w">    </span><span class="c1">// Get the metadata entry</span>
+</span><span id="__span-15-158"><a id="__codelineno-15-158" name="__codelineno-15-158"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-159"><a id="__codelineno-15-159" name="__codelineno-15-159"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Metadata entry not found&#39;</span><span class="p">);</span>
+</span><span id="__span-15-160"><a id="__codelineno-15-160" name="__codelineno-15-160"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-15-161"><a id="__codelineno-15-161" name="__codelineno-15-161"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metadataEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataJSON</span><span class="p">.</span><span class="nx">data</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">metadataEntry</span><span class="p">;</span>
+</span><span id="__span-15-162"><a id="__codelineno-15-162" name="__codelineno-15-162"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">currentValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Buffer</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="nx">metadataEntry</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;hex&#39;</span><span class="p">);</span>
+</span><span id="__span-15-163"><a id="__codelineno-15-163" name="__codelineno-15-163"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;  Current value:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
 </div>
 <p>To retrieve the current value of a metadata entry, the code uses the <a href="/en/devbook/reference/rest/symbol#operations-Metadata_routes-searchMetadataEntries" title="Search metadata entries"><code>/metadata</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint
-with filters for <code>targetAddress</code>, <code>scopedMetadataKey</code>, <code>targetId</code> (the namespace ID), and <code>metadataType</code>
-(<code>2</code> for namespace metadata).</p>
+with filters for <code>sourceAddress</code>, <code>targetAddress</code>, <code>scopedMetadataKey</code>, <code>targetId</code> (the namespace ID), and
+<code>metadataType</code> (<code>2</code> for namespace metadata).</p>
 <p>The endpoint returns the list of entries matching the filters, which in this case contains a single item.</p>
 <h3 id="modifying-existing-metadata">Modifying Existing Metadata<a class="headerlink" href="#modifying-existing-metadata" title="Anchor link to this section for reference">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="9:2"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><input id="__tabbed_9_2" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_9_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-159">159</a></span>
-<span class="normal"><a href="#__codelineno-16-160">160</a></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-160">160</a></span>
 <span class="normal"><a href="#__codelineno-16-161">161</a></span>
 <span class="normal"><a href="#__codelineno-16-162">162</a></span>
 <span class="normal"><a href="#__codelineno-16-163">163</a></span>
@@ -10570,29 +10729,29 @@ with filters for <code>targetAddress</code>, <code>scopedMetadataKey</code>, <co
 <span class="normal"><a href="#__codelineno-16-173">173</a></span>
 <span class="normal"><a href="#__codelineno-16-174">174</a></span>
 <span class="normal"><a href="#__codelineno-16-175">175</a></span>
-<span class="normal"><a href="#__codelineno-16-176">176</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-159"><a id="__codelineno-16-159" name="__codelineno-16-159"></a>    <span class="c1"># XOR the current and new values</span>
-</span><span id="__span-16-160"><a id="__codelineno-16-160" name="__codelineno-16-160"></a>    <span class="n">new_value</span> <span class="o">=</span> <span class="s1">&#39;Updated namespace&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
-</span><span id="__span-16-161"><a id="__codelineno-16-161" name="__codelineno-16-161"></a>    <span class="n">update_value</span> <span class="o">=</span> <span class="n">metadata_update_value</span><span class="p">(</span><span class="n">current_value</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
-</span><span id="__span-16-162"><a id="__codelineno-16-162" name="__codelineno-16-162"></a>
-</span><span id="__span-16-163"><a id="__codelineno-16-163" name="__codelineno-16-163"></a>    <span class="c1"># Create the update transaction with XOR&#39;d value</span>
-</span><span id="__span-16-164"><a id="__codelineno-16-164" name="__codelineno-16-164"></a>    <span class="n">embedded_update</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create_embedded</span><span class="p">({</span>
-</span><span id="__span-16-165"><a id="__codelineno-16-165" name="__codelineno-16-165"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
-</span><span id="__span-16-166"><a id="__codelineno-16-166" name="__codelineno-16-166"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
-</span><span id="__span-16-167"><a id="__codelineno-16-167" name="__codelineno-16-167"></a>        <span class="s1">&#39;target_address&#39;</span><span class="p">:</span> <span class="n">signer_address</span><span class="p">,</span>
-</span><span id="__span-16-168"><a id="__codelineno-16-168" name="__codelineno-16-168"></a>        <span class="s1">&#39;target_namespace_id&#39;</span><span class="p">:</span> <span class="n">namespace_id</span><span class="p">,</span>
-</span><span id="__span-16-169"><a id="__codelineno-16-169" name="__codelineno-16-169"></a>        <span class="s1">&#39;scoped_metadata_key&#39;</span><span class="p">:</span> <span class="n">scoped_metadata_key</span><span class="p">,</span>
-</span><span id="__span-16-170"><a id="__codelineno-16-170" name="__codelineno-16-170"></a>        <span class="c1"># value_size_delta is the difference in length</span>
-</span><span id="__span-16-171"><a id="__codelineno-16-171" name="__codelineno-16-171"></a>        <span class="c1"># (can be negative)</span>
-</span><span id="__span-16-172"><a id="__codelineno-16-172" name="__codelineno-16-172"></a>        <span class="s1">&#39;value_size_delta&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">),</span>
-</span><span id="__span-16-173"><a id="__codelineno-16-173" name="__codelineno-16-173"></a>        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">update_value</span>
-</span><span id="__span-16-174"><a id="__codelineno-16-174" name="__codelineno-16-174"></a>    <span class="p">})</span>
-</span><span id="__span-16-175"><a id="__codelineno-16-175" name="__codelineno-16-175"></a>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">)</span>
-</span><span id="__span-16-176"><a id="__codelineno-16-176" name="__codelineno-16-176"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">embedded_update</span><span class="o">.</span><span class="n">to_json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="normal"><a href="#__codelineno-16-176">176</a></span>
+<span class="normal"><a href="#__codelineno-16-177">177</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-160"><a id="__codelineno-16-160" name="__codelineno-16-160"></a>    <span class="c1"># XOR the current and new values</span>
+</span><span id="__span-16-161"><a id="__codelineno-16-161" name="__codelineno-16-161"></a>    <span class="n">new_value</span> <span class="o">=</span> <span class="s1">&#39;Updated namespace&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
+</span><span id="__span-16-162"><a id="__codelineno-16-162" name="__codelineno-16-162"></a>    <span class="n">update_value</span> <span class="o">=</span> <span class="n">metadata_update_value</span><span class="p">(</span><span class="n">current_value</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
+</span><span id="__span-16-163"><a id="__codelineno-16-163" name="__codelineno-16-163"></a>
+</span><span id="__span-16-164"><a id="__codelineno-16-164" name="__codelineno-16-164"></a>    <span class="c1"># Create the update transaction with XOR&#39;d value</span>
+</span><span id="__span-16-165"><a id="__codelineno-16-165" name="__codelineno-16-165"></a>    <span class="n">embedded_update</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create_embedded</span><span class="p">({</span>
+</span><span id="__span-16-166"><a id="__codelineno-16-166" name="__codelineno-16-166"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
+</span><span id="__span-16-167"><a id="__codelineno-16-167" name="__codelineno-16-167"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
+</span><span id="__span-16-168"><a id="__codelineno-16-168" name="__codelineno-16-168"></a>        <span class="s1">&#39;target_address&#39;</span><span class="p">:</span> <span class="n">signer_address</span><span class="p">,</span>
+</span><span id="__span-16-169"><a id="__codelineno-16-169" name="__codelineno-16-169"></a>        <span class="s1">&#39;target_namespace_id&#39;</span><span class="p">:</span> <span class="n">namespace_id</span><span class="p">,</span>
+</span><span id="__span-16-170"><a id="__codelineno-16-170" name="__codelineno-16-170"></a>        <span class="s1">&#39;scoped_metadata_key&#39;</span><span class="p">:</span> <span class="n">scoped_metadata_key</span><span class="p">,</span>
+</span><span id="__span-16-171"><a id="__codelineno-16-171" name="__codelineno-16-171"></a>        <span class="c1"># value_size_delta is the difference in length</span>
+</span><span id="__span-16-172"><a id="__codelineno-16-172" name="__codelineno-16-172"></a>        <span class="c1"># (can be negative)</span>
+</span><span id="__span-16-173"><a id="__codelineno-16-173" name="__codelineno-16-173"></a>        <span class="s1">&#39;value_size_delta&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">),</span>
+</span><span id="__span-16-174"><a id="__codelineno-16-174" name="__codelineno-16-174"></a>        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">update_value</span>
+</span><span id="__span-16-175"><a id="__codelineno-16-175" name="__codelineno-16-175"></a>    <span class="p">})</span>
+</span><span id="__span-16-176"><a id="__codelineno-16-176" name="__codelineno-16-176"></a>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">)</span>
+</span><span id="__span-16-177"><a id="__codelineno-16-177" name="__codelineno-16-177"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">embedded_update</span><span class="o">.</span><span class="n">to_json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-164">164</a></span>
-<span class="normal"><a href="#__codelineno-17-165">165</a></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-165">165</a></span>
 <span class="normal"><a href="#__codelineno-17-166">166</a></span>
 <span class="normal"><a href="#__codelineno-17-167">167</a></span>
 <span class="normal"><a href="#__codelineno-17-168">168</a></span>
@@ -10609,25 +10768,26 @@ with filters for <code>targetAddress</code>, <code>scopedMetadataKey</code>, <co
 <span class="normal"><a href="#__codelineno-17-179">179</a></span>
 <span class="normal"><a href="#__codelineno-17-180">180</a></span>
 <span class="normal"><a href="#__codelineno-17-181">181</a></span>
-<span class="normal"><a href="#__codelineno-17-182">182</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-164"><a id="__codelineno-17-164" name="__codelineno-17-164"></a><span class="w">    </span><span class="c1">// XOR the current and new values</span>
-</span><span id="__span-17-165"><a id="__codelineno-17-165" name="__codelineno-17-165"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">newValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TextEncoder</span><span class="p">().</span><span class="nx">encode</span><span class="p">(</span><span class="s1">&#39;Updated namespace&#39;</span><span class="p">);</span>
-</span><span id="__span-17-166"><a id="__codelineno-17-166" name="__codelineno-17-166"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataUpdateValue</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">,</span><span class="w"> </span><span class="nx">newValue</span><span class="p">);</span>
-</span><span id="__span-17-167"><a id="__codelineno-17-167" name="__codelineno-17-167"></a>
-</span><span id="__span-17-168"><a id="__codelineno-17-168" name="__codelineno-17-168"></a><span class="w">    </span><span class="c1">// Create the update transaction with XOR&#39;d value</span>
-</span><span id="__span-17-169"><a id="__codelineno-17-169" name="__codelineno-17-169"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">embeddedUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span>
-</span><span id="__span-17-170"><a id="__codelineno-17-170" name="__codelineno-17-170"></a><span class="w">        </span><span class="p">.</span><span class="nx">createEmbedded</span><span class="p">({</span>
-</span><span id="__span-17-171"><a id="__codelineno-17-171" name="__codelineno-17-171"></a><span class="w">            </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
-</span><span id="__span-17-172"><a id="__codelineno-17-172" name="__codelineno-17-172"></a><span class="w">            </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
-</span><span id="__span-17-173"><a id="__codelineno-17-173" name="__codelineno-17-173"></a><span class="w">            </span><span class="nx">targetAddress</span><span class="o">:</span><span class="w"> </span><span class="nx">signerAddress</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
-</span><span id="__span-17-174"><a id="__codelineno-17-174" name="__codelineno-17-174"></a><span class="w">            </span><span class="nx">targetNamespaceId</span><span class="o">:</span><span class="w"> </span><span class="nx">namespaceId</span><span class="p">,</span>
-</span><span id="__span-17-175"><a id="__codelineno-17-175" name="__codelineno-17-175"></a><span class="w">            </span><span class="nx">scopedMetadataKey</span><span class="p">,</span>
-</span><span id="__span-17-176"><a id="__codelineno-17-176" name="__codelineno-17-176"></a><span class="w">            </span><span class="c1">// valueSizeDelta is the difference in length</span>
-</span><span id="__span-17-177"><a id="__codelineno-17-177" name="__codelineno-17-177"></a><span class="w">            </span><span class="c1">// (can be negative)</span>
-</span><span id="__span-17-178"><a id="__codelineno-17-178" name="__codelineno-17-178"></a><span class="w">            </span><span class="nx">valueSizeDelta</span><span class="o">:</span><span class="w"> </span><span class="nx">newValue</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
-</span><span id="__span-17-179"><a id="__codelineno-17-179" name="__codelineno-17-179"></a><span class="w">            </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="nx">updateValue</span>
-</span><span id="__span-17-180"><a id="__codelineno-17-180" name="__codelineno-17-180"></a><span class="w">        </span><span class="p">});</span>
-</span><span id="__span-17-181"><a id="__codelineno-17-181" name="__codelineno-17-181"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">);</span>
-</span><span id="__span-17-182"><a id="__codelineno-17-182" name="__codelineno-17-182"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">embeddedUpdate</span><span class="p">.</span><span class="nx">toJson</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">));</span>
+<span class="normal"><a href="#__codelineno-17-182">182</a></span>
+<span class="normal"><a href="#__codelineno-17-183">183</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-165"><a id="__codelineno-17-165" name="__codelineno-17-165"></a><span class="w">    </span><span class="c1">// XOR the current and new values</span>
+</span><span id="__span-17-166"><a id="__codelineno-17-166" name="__codelineno-17-166"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">newValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TextEncoder</span><span class="p">().</span><span class="nx">encode</span><span class="p">(</span><span class="s1">&#39;Updated namespace&#39;</span><span class="p">);</span>
+</span><span id="__span-17-167"><a id="__codelineno-17-167" name="__codelineno-17-167"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">metadataUpdateValue</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">,</span><span class="w"> </span><span class="nx">newValue</span><span class="p">);</span>
+</span><span id="__span-17-168"><a id="__codelineno-17-168" name="__codelineno-17-168"></a>
+</span><span id="__span-17-169"><a id="__codelineno-17-169" name="__codelineno-17-169"></a><span class="w">    </span><span class="c1">// Create the update transaction with XOR&#39;d value</span>
+</span><span id="__span-17-170"><a id="__codelineno-17-170" name="__codelineno-17-170"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">embeddedUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span>
+</span><span id="__span-17-171"><a id="__codelineno-17-171" name="__codelineno-17-171"></a><span class="w">        </span><span class="p">.</span><span class="nx">createEmbedded</span><span class="p">({</span>
+</span><span id="__span-17-172"><a id="__codelineno-17-172" name="__codelineno-17-172"></a><span class="w">            </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;namespace_metadata_transaction_v1&#39;</span><span class="p">,</span>
+</span><span id="__span-17-173"><a id="__codelineno-17-173" name="__codelineno-17-173"></a><span class="w">            </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
+</span><span id="__span-17-174"><a id="__codelineno-17-174" name="__codelineno-17-174"></a><span class="w">            </span><span class="nx">targetAddress</span><span class="o">:</span><span class="w"> </span><span class="nx">signerAddress</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
+</span><span id="__span-17-175"><a id="__codelineno-17-175" name="__codelineno-17-175"></a><span class="w">            </span><span class="nx">targetNamespaceId</span><span class="o">:</span><span class="w"> </span><span class="nx">namespaceId</span><span class="p">,</span>
+</span><span id="__span-17-176"><a id="__codelineno-17-176" name="__codelineno-17-176"></a><span class="w">            </span><span class="nx">scopedMetadataKey</span><span class="p">,</span>
+</span><span id="__span-17-177"><a id="__codelineno-17-177" name="__codelineno-17-177"></a><span class="w">            </span><span class="c1">// valueSizeDelta is the difference in length</span>
+</span><span id="__span-17-178"><a id="__codelineno-17-178" name="__codelineno-17-178"></a><span class="w">            </span><span class="c1">// (can be negative)</span>
+</span><span id="__span-17-179"><a id="__codelineno-17-179" name="__codelineno-17-179"></a><span class="w">            </span><span class="nx">valueSizeDelta</span><span class="o">:</span><span class="w"> </span><span class="nx">newValue</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
+</span><span id="__span-17-180"><a id="__codelineno-17-180" name="__codelineno-17-180"></a><span class="w">            </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="nx">updateValue</span>
+</span><span id="__span-17-181"><a id="__codelineno-17-181" name="__codelineno-17-181"></a><span class="w">        </span><span class="p">});</span>
+</span><span id="__span-17-182"><a id="__codelineno-17-182" name="__codelineno-17-182"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Created embedded update transaction:&#39;</span><span class="p">);</span>
+</span><span id="__span-17-183"><a id="__codelineno-17-183" name="__codelineno-17-183"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">embeddedUpdate</span><span class="p">.</span><span class="nx">toJson</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -10669,8 +10829,7 @@ in an aggregate transaction and then signed and announced.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="10:2"><input checked="checked" id="__tabbed_10_1" name="__tabbed_10" type="radio" /><input id="__tabbed_10_2" name="__tabbed_10" type="radio" /><div class="tabbed-labels"><label for="__tabbed_10_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_10_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-18-178">178</a></span>
-<span class="normal"><a href="#__codelineno-18-179">179</a></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-18-179">179</a></span>
 <span class="normal"><a href="#__codelineno-18-180">180</a></span>
 <span class="normal"><a href="#__codelineno-18-181">181</a></span>
 <span class="normal"><a href="#__codelineno-18-182">182</a></span>
@@ -10691,34 +10850,34 @@ in an aggregate transaction and then signed and announced.</p>
 <span class="normal"><a href="#__codelineno-18-197">197</a></span>
 <span class="normal"><a href="#__codelineno-18-198">198</a></span>
 <span class="normal"><a href="#__codelineno-18-199">199</a></span>
-<span class="normal"><a href="#__codelineno-18-200">200</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-18-178"><a id="__codelineno-18-178" name="__codelineno-18-178"></a>    <span class="c1"># Build the aggregate for the update</span>
-</span><span id="__span-18-179"><a id="__codelineno-18-179" name="__codelineno-18-179"></a>    <span class="n">embedded_transactions</span> <span class="o">=</span> <span class="p">[</span><span class="n">embedded_update</span><span class="p">]</span>
-</span><span id="__span-18-180"><a id="__codelineno-18-180" name="__codelineno-18-180"></a>    <span class="n">update_transaction</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-</span><span id="__span-18-181"><a id="__codelineno-18-181" name="__codelineno-18-181"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
-</span><span id="__span-18-182"><a id="__codelineno-18-182" name="__codelineno-18-182"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
-</span><span id="__span-18-183"><a id="__codelineno-18-183" name="__codelineno-18-183"></a>        <span class="s1">&#39;deadline&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">add_hours</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span>
-</span><span id="__span-18-184"><a id="__codelineno-18-184" name="__codelineno-18-184"></a>        <span class="s1">&#39;transactions_hash&#39;</span><span class="p">:</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_embedded_transactions</span><span class="p">(</span>
-</span><span id="__span-18-185"><a id="__codelineno-18-185" name="__codelineno-18-185"></a>            <span class="n">embedded_transactions</span><span class="p">),</span>
-</span><span id="__span-18-186"><a id="__codelineno-18-186" name="__codelineno-18-186"></a>        <span class="s1">&#39;transactions&#39;</span><span class="p">:</span> <span class="n">embedded_transactions</span>
-</span><span id="__span-18-187"><a id="__codelineno-18-187" name="__codelineno-18-187"></a>    <span class="p">})</span>
-</span><span id="__span-18-188"><a id="__codelineno-18-188" name="__codelineno-18-188"></a>    <span class="n">update_transaction</span><span class="o">.</span><span class="n">fee</span> <span class="o">=</span> <span class="n">Amount</span><span class="p">(</span><span class="n">fee_mult</span> <span class="o">*</span> <span class="n">update_transaction</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-</span><span id="__span-18-189"><a id="__codelineno-18-189" name="__codelineno-18-189"></a>
-</span><span id="__span-18-190"><a id="__codelineno-18-190" name="__codelineno-18-190"></a>    <span class="c1"># Sign and announce the update</span>
-</span><span id="__span-18-191"><a id="__codelineno-18-191" name="__codelineno-18-191"></a>    <span class="n">signature</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">sign_transaction</span><span class="p">(</span>
-</span><span id="__span-18-192"><a id="__codelineno-18-192" name="__codelineno-18-192"></a>        <span class="n">signer_key_pair</span><span class="p">,</span> <span class="n">update_transaction</span><span class="p">)</span>
-</span><span id="__span-18-193"><a id="__codelineno-18-193" name="__codelineno-18-193"></a>    <span class="n">json_payload</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">attach_signature</span><span class="p">(</span>
-</span><span id="__span-18-194"><a id="__codelineno-18-194" name="__codelineno-18-194"></a>        <span class="n">update_transaction</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
-</span><span id="__span-18-195"><a id="__codelineno-18-195" name="__codelineno-18-195"></a>
-</span><span id="__span-18-196"><a id="__codelineno-18-196" name="__codelineno-18-196"></a>    <span class="c1"># Announce and wait for confirmation</span>
-</span><span id="__span-18-197"><a id="__codelineno-18-197" name="__codelineno-18-197"></a>    <span class="n">update_hash</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_transaction</span><span class="p">(</span><span class="n">update_transaction</span><span class="p">)</span>
-</span><span id="__span-18-198"><a id="__codelineno-18-198" name="__codelineno-18-198"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Built aggregate transaction with hash: </span><span class="si">{</span><span class="n">update_hash</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</span><span id="__span-18-199"><a id="__codelineno-18-199" name="__codelineno-18-199"></a>    <span class="n">announce_transaction</span><span class="p">(</span><span class="n">json_payload</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
-</span><span id="__span-18-200"><a id="__codelineno-18-200" name="__codelineno-18-200"></a>    <span class="n">wait_for_confirmation</span><span class="p">(</span><span class="n">update_hash</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-18-200">200</a></span>
+<span class="normal"><a href="#__codelineno-18-201">201</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-18-179"><a id="__codelineno-18-179" name="__codelineno-18-179"></a>    <span class="c1"># Build the aggregate for the update</span>
+</span><span id="__span-18-180"><a id="__codelineno-18-180" name="__codelineno-18-180"></a>    <span class="n">embedded_transactions</span> <span class="o">=</span> <span class="p">[</span><span class="n">embedded_update</span><span class="p">]</span>
+</span><span id="__span-18-181"><a id="__codelineno-18-181" name="__codelineno-18-181"></a>    <span class="n">update_transaction</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
+</span><span id="__span-18-182"><a id="__codelineno-18-182" name="__codelineno-18-182"></a>        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
+</span><span id="__span-18-183"><a id="__codelineno-18-183" name="__codelineno-18-183"></a>        <span class="s1">&#39;signer_public_key&#39;</span><span class="p">:</span> <span class="n">signer_key_pair</span><span class="o">.</span><span class="n">public_key</span><span class="p">,</span>
+</span><span id="__span-18-184"><a id="__codelineno-18-184" name="__codelineno-18-184"></a>        <span class="s1">&#39;deadline&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">add_hours</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span>
+</span><span id="__span-18-185"><a id="__codelineno-18-185" name="__codelineno-18-185"></a>        <span class="s1">&#39;transactions_hash&#39;</span><span class="p">:</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_embedded_transactions</span><span class="p">(</span>
+</span><span id="__span-18-186"><a id="__codelineno-18-186" name="__codelineno-18-186"></a>            <span class="n">embedded_transactions</span><span class="p">),</span>
+</span><span id="__span-18-187"><a id="__codelineno-18-187" name="__codelineno-18-187"></a>        <span class="s1">&#39;transactions&#39;</span><span class="p">:</span> <span class="n">embedded_transactions</span>
+</span><span id="__span-18-188"><a id="__codelineno-18-188" name="__codelineno-18-188"></a>    <span class="p">})</span>
+</span><span id="__span-18-189"><a id="__codelineno-18-189" name="__codelineno-18-189"></a>    <span class="n">update_transaction</span><span class="o">.</span><span class="n">fee</span> <span class="o">=</span> <span class="n">Amount</span><span class="p">(</span><span class="n">fee_mult</span> <span class="o">*</span> <span class="n">update_transaction</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+</span><span id="__span-18-190"><a id="__codelineno-18-190" name="__codelineno-18-190"></a>
+</span><span id="__span-18-191"><a id="__codelineno-18-191" name="__codelineno-18-191"></a>    <span class="c1"># Sign and announce the update</span>
+</span><span id="__span-18-192"><a id="__codelineno-18-192" name="__codelineno-18-192"></a>    <span class="n">signature</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">sign_transaction</span><span class="p">(</span>
+</span><span id="__span-18-193"><a id="__codelineno-18-193" name="__codelineno-18-193"></a>        <span class="n">signer_key_pair</span><span class="p">,</span> <span class="n">update_transaction</span><span class="p">)</span>
+</span><span id="__span-18-194"><a id="__codelineno-18-194" name="__codelineno-18-194"></a>    <span class="n">json_payload</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">transaction_factory</span><span class="o">.</span><span class="n">attach_signature</span><span class="p">(</span>
+</span><span id="__span-18-195"><a id="__codelineno-18-195" name="__codelineno-18-195"></a>        <span class="n">update_transaction</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+</span><span id="__span-18-196"><a id="__codelineno-18-196" name="__codelineno-18-196"></a>
+</span><span id="__span-18-197"><a id="__codelineno-18-197" name="__codelineno-18-197"></a>    <span class="c1"># Announce and wait for confirmation</span>
+</span><span id="__span-18-198"><a id="__codelineno-18-198" name="__codelineno-18-198"></a>    <span class="n">update_hash</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">hash_transaction</span><span class="p">(</span><span class="n">update_transaction</span><span class="p">)</span>
+</span><span id="__span-18-199"><a id="__codelineno-18-199" name="__codelineno-18-199"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Built aggregate transaction with hash: </span><span class="si">{</span><span class="n">update_hash</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span id="__span-18-200"><a id="__codelineno-18-200" name="__codelineno-18-200"></a>    <span class="n">announce_transaction</span><span class="p">(</span><span class="n">json_payload</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
+</span><span id="__span-18-201"><a id="__codelineno-18-201" name="__codelineno-18-201"></a>    <span class="n">wait_for_confirmation</span><span class="p">(</span><span class="n">update_hash</span><span class="p">,</span> <span class="s1">&#39;aggregate transaction&#39;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-184">184</a></span>
-<span class="normal"><a href="#__codelineno-19-185">185</a></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-185">185</a></span>
 <span class="normal"><a href="#__codelineno-19-186">186</a></span>
 <span class="normal"><a href="#__codelineno-19-187">187</a></span>
 <span class="normal"><a href="#__codelineno-19-188">188</a></span>
@@ -10742,32 +10901,33 @@ in an aggregate transaction and then signed and announced.</p>
 <span class="normal"><a href="#__codelineno-19-206">206</a></span>
 <span class="normal"><a href="#__codelineno-19-207">207</a></span>
 <span class="normal"><a href="#__codelineno-19-208">208</a></span>
-<span class="normal"><a href="#__codelineno-19-209">209</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-184"><a id="__codelineno-19-184" name="__codelineno-19-184"></a><span class="w">    </span><span class="c1">// Build the aggregate for the update</span>
-</span><span id="__span-19-185"><a id="__codelineno-19-185" name="__codelineno-19-185"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateEmbedded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">embeddedUpdate</span><span class="p">];</span>
-</span><span id="__span-19-186"><a id="__codelineno-19-186" name="__codelineno-19-186"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
-</span><span id="__span-19-187"><a id="__codelineno-19-187" name="__codelineno-19-187"></a><span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
-</span><span id="__span-19-188"><a id="__codelineno-19-188" name="__codelineno-19-188"></a><span class="w">        </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
-</span><span id="__span-19-189"><a id="__codelineno-19-189" name="__codelineno-19-189"></a><span class="w">        </span><span class="nx">deadline</span><span class="o">:</span><span class="w"> </span><span class="nx">timestamp</span><span class="p">.</span><span class="nx">addHours</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="nx">timestamp</span><span class="p">,</span>
-</span><span id="__span-19-190"><a id="__codelineno-19-190" name="__codelineno-19-190"></a><span class="w">        </span><span class="nx">transactionsHash</span><span class="o">:</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="k">static</span><span class="p">.</span><span class="nx">hashEmbeddedTransactions</span><span class="p">(</span>
-</span><span id="__span-19-191"><a id="__codelineno-19-191" name="__codelineno-19-191"></a><span class="w">            </span><span class="nx">updateEmbedded</span><span class="p">),</span>
-</span><span id="__span-19-192"><a id="__codelineno-19-192" name="__codelineno-19-192"></a><span class="w">        </span><span class="nx">transactions</span><span class="o">:</span><span class="w"> </span><span class="nx">updateEmbedded</span>
-</span><span id="__span-19-193"><a id="__codelineno-19-193" name="__codelineno-19-193"></a><span class="w">    </span><span class="p">});</span>
-</span><span id="__span-19-194"><a id="__codelineno-19-194" name="__codelineno-19-194"></a><span class="w">    </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span>
-</span><span id="__span-19-195"><a id="__codelineno-19-195" name="__codelineno-19-195"></a><span class="w">        </span><span class="nx">feeMult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
-</span><span id="__span-19-196"><a id="__codelineno-19-196" name="__codelineno-19-196"></a>
-</span><span id="__span-19-197"><a id="__codelineno-19-197" name="__codelineno-19-197"></a><span class="w">    </span><span class="c1">// Sign and announce the update</span>
-</span><span id="__span-19-198"><a id="__codelineno-19-198" name="__codelineno-19-198"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateSignature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">signTransaction</span><span class="p">(</span>
-</span><span id="__span-19-199"><a id="__codelineno-19-199" name="__codelineno-19-199"></a><span class="w">        </span><span class="nx">signerKeyPair</span><span class="p">,</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">);</span>
-</span><span id="__span-19-200"><a id="__codelineno-19-200" name="__codelineno-19-200"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updatePayload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="k">static</span>
-</span><span id="__span-19-201"><a id="__codelineno-19-201" name="__codelineno-19-201"></a><span class="w">        </span><span class="p">.</span><span class="nx">attachSignature</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">,</span><span class="w"> </span><span class="nx">updateSignature</span><span class="p">);</span>
-</span><span id="__span-19-202"><a id="__codelineno-19-202" name="__codelineno-19-202"></a>
-</span><span id="__span-19-203"><a id="__codelineno-19-203" name="__codelineno-19-203"></a><span class="w">    </span><span class="c1">// Announce and wait for confirmation</span>
-</span><span id="__span-19-204"><a id="__codelineno-19-204" name="__codelineno-19-204"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateHash</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-19-205"><a id="__codelineno-19-205" name="__codelineno-19-205"></a><span class="w">        </span><span class="nx">facade</span><span class="p">.</span><span class="nx">hashTransaction</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">).</span><span class="nx">toString</span><span class="p">();</span>
-</span><span id="__span-19-206"><a id="__codelineno-19-206" name="__codelineno-19-206"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
-</span><span id="__span-19-207"><a id="__codelineno-19-207" name="__codelineno-19-207"></a><span class="w">        </span><span class="s1">&#39;Built aggregate transaction with hash:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">updateHash</span><span class="p">);</span>
-</span><span id="__span-19-208"><a id="__codelineno-19-208" name="__codelineno-19-208"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">announceTransaction</span><span class="p">(</span><span class="nx">updatePayload</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
-</span><span id="__span-19-209"><a id="__codelineno-19-209" name="__codelineno-19-209"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForConfirmation</span><span class="p">(</span><span class="nx">updateHash</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
+<span class="normal"><a href="#__codelineno-19-209">209</a></span>
+<span class="normal"><a href="#__codelineno-19-210">210</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-185"><a id="__codelineno-19-185" name="__codelineno-19-185"></a><span class="w">    </span><span class="c1">// Build the aggregate for the update</span>
+</span><span id="__span-19-186"><a id="__codelineno-19-186" name="__codelineno-19-186"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateEmbedded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">embeddedUpdate</span><span class="p">];</span>
+</span><span id="__span-19-187"><a id="__codelineno-19-187" name="__codelineno-19-187"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+</span><span id="__span-19-188"><a id="__codelineno-19-188" name="__codelineno-19-188"></a><span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;aggregate_complete_transaction_v3&#39;</span><span class="p">,</span>
+</span><span id="__span-19-189"><a id="__codelineno-19-189" name="__codelineno-19-189"></a><span class="w">        </span><span class="nx">signerPublicKey</span><span class="o">:</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
+</span><span id="__span-19-190"><a id="__codelineno-19-190" name="__codelineno-19-190"></a><span class="w">        </span><span class="nx">deadline</span><span class="o">:</span><span class="w"> </span><span class="nx">timestamp</span><span class="p">.</span><span class="nx">addHours</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="nx">timestamp</span><span class="p">,</span>
+</span><span id="__span-19-191"><a id="__codelineno-19-191" name="__codelineno-19-191"></a><span class="w">        </span><span class="nx">transactionsHash</span><span class="o">:</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="k">static</span><span class="p">.</span><span class="nx">hashEmbeddedTransactions</span><span class="p">(</span>
+</span><span id="__span-19-192"><a id="__codelineno-19-192" name="__codelineno-19-192"></a><span class="w">            </span><span class="nx">updateEmbedded</span><span class="p">),</span>
+</span><span id="__span-19-193"><a id="__codelineno-19-193" name="__codelineno-19-193"></a><span class="w">        </span><span class="nx">transactions</span><span class="o">:</span><span class="w"> </span><span class="nx">updateEmbedded</span>
+</span><span id="__span-19-194"><a id="__codelineno-19-194" name="__codelineno-19-194"></a><span class="w">    </span><span class="p">});</span>
+</span><span id="__span-19-195"><a id="__codelineno-19-195" name="__codelineno-19-195"></a><span class="w">    </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span>
+</span><span id="__span-19-196"><a id="__codelineno-19-196" name="__codelineno-19-196"></a><span class="w">        </span><span class="nx">feeMult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
+</span><span id="__span-19-197"><a id="__codelineno-19-197" name="__codelineno-19-197"></a>
+</span><span id="__span-19-198"><a id="__codelineno-19-198" name="__codelineno-19-198"></a><span class="w">    </span><span class="c1">// Sign and announce the update</span>
+</span><span id="__span-19-199"><a id="__codelineno-19-199" name="__codelineno-19-199"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateSignature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">signTransaction</span><span class="p">(</span>
+</span><span id="__span-19-200"><a id="__codelineno-19-200" name="__codelineno-19-200"></a><span class="w">        </span><span class="nx">signerKeyPair</span><span class="p">,</span><span class="w"> </span><span class="nx">updateTransaction</span><span class="p">);</span>
+</span><span id="__span-19-201"><a id="__codelineno-19-201" name="__codelineno-19-201"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updatePayload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">transactionFactory</span><span class="p">.</span><span class="k">static</span>
+</span><span id="__span-19-202"><a id="__codelineno-19-202" name="__codelineno-19-202"></a><span class="w">        </span><span class="p">.</span><span class="nx">attachSignature</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">,</span><span class="w"> </span><span class="nx">updateSignature</span><span class="p">);</span>
+</span><span id="__span-19-203"><a id="__codelineno-19-203" name="__codelineno-19-203"></a>
+</span><span id="__span-19-204"><a id="__codelineno-19-204" name="__codelineno-19-204"></a><span class="w">    </span><span class="c1">// Announce and wait for confirmation</span>
+</span><span id="__span-19-205"><a id="__codelineno-19-205" name="__codelineno-19-205"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">updateHash</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-19-206"><a id="__codelineno-19-206" name="__codelineno-19-206"></a><span class="w">        </span><span class="nx">facade</span><span class="p">.</span><span class="nx">hashTransaction</span><span class="p">(</span><span class="nx">updateTransaction</span><span class="p">).</span><span class="nx">toString</span><span class="p">();</span>
+</span><span id="__span-19-207"><a id="__codelineno-19-207" name="__codelineno-19-207"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
+</span><span id="__span-19-208"><a id="__codelineno-19-208" name="__codelineno-19-208"></a><span class="w">        </span><span class="s1">&#39;Built aggregate transaction with hash:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">updateHash</span><span class="p">);</span>
+</span><span id="__span-19-209"><a id="__codelineno-19-209" name="__codelineno-19-209"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">announceTransaction</span><span class="p">(</span><span class="nx">updatePayload</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
+</span><span id="__span-19-210"><a id="__codelineno-19-210" name="__codelineno-19-210"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForConfirmation</span><span class="p">(</span><span class="nx">updateHash</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;aggregate transaction&#39;</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -10868,7 +11028,7 @@ in an aggregate transaction and then signed and announced.</p>
 </span><span id="__span-20-33"><a id="__codelineno-20-33" name="__codelineno-20-33"></a>aggregate transaction confirmed in 20 seconds
 </span><span id="__span-20-34"><a id="__codelineno-20-34" name="__codelineno-20-34"></a>
 </span><span id="__span-20-35"><a id="__codelineno-20-35" name="__codelineno-20-35"></a>--- Modifying existing metadata ---
-</span><span id="__span-20-36"><a id="__codelineno-20-36" name="__codelineno-20-36"></a>Fetching current metadata from /metadata?targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&amp;scopedMetadataKey=CCE09B9D6EE43489&amp;targetId=B53912EB77DDEF7C&amp;metadataType=2
+</span><span id="__span-20-36"><a id="__codelineno-20-36" name="__codelineno-20-36"></a>Fetching current metadata from /metadata?sourceAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&amp;targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&amp;scopedMetadataKey=CCE09B9D6EE43489&amp;targetId=B53912EB77DDEF7C&amp;metadataType=2
 </span><span id="__span-20-37"><a id="__codelineno-20-37" name="__codelineno-20-37"></a><span class="hll">  Current value: My first namespace
 </span></span><span id="__span-20-38"><a id="__codelineno-20-38" name="__codelineno-20-38"></a>Created embedded update transaction:
 </span><span id="__span-20-39"><a id="__codelineno-20-39" name="__codelineno-20-39"></a>{
@@ -10987,7 +11147,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 16, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 25, 2026</span>
   </span>
 
     

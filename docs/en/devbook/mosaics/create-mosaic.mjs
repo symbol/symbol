@@ -81,7 +81,7 @@ try {
 	// --- CREATING MOSAIC DEFINITION ---
 	console.log('\n--- Creating mosaic definition ---');
 
-	const nonce = Date.now() & 0xFFFFFFFF;
+	const nonce = Math.floor(Date.now() / 1000) & 0x7FFFFFFF;
 	console.log('Mosaic nonce:', nonce);
 
 	const definitionTx =

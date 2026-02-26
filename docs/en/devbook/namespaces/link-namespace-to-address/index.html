@@ -1705,6 +1705,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resolve-namespace-from-receipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resolve Namespace from Receipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1800,11 +1821,120 @@
   
   
     <li class="md-nav__item">
+      <a href="../../mosaics/modify-mosaic-definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modify Mosaic Definition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../mosaics/mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Add Mosaic Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mosaics/revoke-mosaic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Revoke Mosaic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Chain State
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Chain State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../chain/chain-heights/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Chain and Finalization Height
   </span>
   
 
@@ -8487,6 +8617,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/websockets/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WebSockets
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -9075,7 +9226,7 @@ hexadecimal addresses in transactions.</p>
 <li>Set up your development environment.
     See <a href="../../start/setup/">Setting Up a Development Environment</a>.</li>
 <li>Create an <a class="mkdocs-ezglossary-link"
-	id="bf9ccf9dd3bbd90d00d1b073fed411dc"
+	id="045a324f83c53de3eff056eae2bf3201"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -9083,7 +9234,7 @@ It functions similarly to a safe deposit box in traditional banking."
     <a href="../../../userbook/wallet/create-account/">by using a wallet</a>.</li>
 <li><a href="../register-root-namespace/">Register a root namespace</a> to link to an address.</li>
 <li>Obtain <a class="mkdocs-ezglossary-link"
-	id="8e6f18f66fc7a82fd3056b21d5b22ae6"
+	id="c498d2a7ad099525f9a0216ee8ed4ed9"
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to pay for the transaction fee.
@@ -10084,7 +10235,8 @@ following the process described in the <a href="../../transactions/transfer/">Tr
 <p class="admonition-title">Unlinking an alias</p>
 <p>To unlink a namespace from an address, announce another <code>address_alias_transaction_v1</code> transaction with the same
 namespace ID and address, but set the <code>alias_action</code> field to <code>unlink</code>.</p>
-<p>The unlinking process does not remove the namespace itself, only the association between the namespace and the address.
+<p>The unlinking process does not remove the namespace itself, only the association between the namespace and the
+address.
 After unlinking, the namespace can be linked to a different address or mosaic.</p>
 </div>
 <h3 id="submitting-the-transaction">Submitting the Transaction<a class="headerlink" href="#submitting-the-transaction" title="Anchor link to this section for reference">⚓︎</a></h3>
@@ -10653,13 +10805,13 @@ The network resolves the alias to the linked address when processing the transac
 <tr>
 <td><a href="#building-the-transaction">Build an address alias transaction</a></td>
 <td><span markdown class="dylink"><input type="radio" name="rGroup1001" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="8931f3a91c8aa893642309c5f5ebc31e"
+	id="d7d55f52fab4438acce95a6fb62680dd"
 	title="Creates a transaction from a transaction descriptor.
 When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
 When unset, descriptor arrays will be presumed to be already sorted."
 	name="py:TransactionFactory.create"
 	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create">TransactionFactory.create</a></code></label><input type="radio" name="rGroup1001" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="76f52a746c1e5df04c9c9099135e1644"
+	id="9272e9540898666431268d0cca6a0e68"
 	title="Creates a transaction from a transaction descriptor."
 	name="js:SymbolTransactionFactory.create"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span></td>
@@ -10696,7 +10848,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 9, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 25, 2026</span>
   </span>
 
     

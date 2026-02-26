@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://docs.symboltest.net/en/devbook/mosaics/create-mosaic/">
       
       
-        <link rel="prev" href="../../namespaces/namespace-metadata/">
+        <link rel="prev" href="../../namespaces/resolve-namespace-from-receipt/">
       
       
         <link rel="next" href="../change-mosaic-supply/">
@@ -1547,6 +1547,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resolve Namespace from Receipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1809,11 +1830,120 @@
   
   
     <li class="md-nav__item">
+      <a href="../modify-mosaic-definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modify Mosaic Definition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Add Mosaic Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../revoke-mosaic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Revoke Mosaic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Chain State
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Chain State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../chain/chain-heights/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Chain and Finalization Height
   </span>
   
 
@@ -8496,6 +8626,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/websockets/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WebSockets
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -9676,7 +9827,7 @@ transactions are announced and confirmed.</p>
 </span><span id="__span-1-81"><a id="__codelineno-1-81" name="__codelineno-1-81"></a><span class="w">    </span><span class="c1">// --- CREATING MOSAIC DEFINITION ---</span>
 </span><span id="__span-1-82"><a id="__codelineno-1-82" name="__codelineno-1-82"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;\n--- Creating mosaic definition ---&#39;</span><span class="p">);</span>
 </span><span id="__span-1-83"><a id="__codelineno-1-83" name="__codelineno-1-83"></a>
-</span><span id="__span-1-84"><a id="__codelineno-1-84" name="__codelineno-1-84"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nonce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFFFFFF</span><span class="p">;</span>
+</span><span id="__span-1-84"><a id="__codelineno-1-84" name="__codelineno-1-84"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nonce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x7FFFFFFF</span><span class="p">;</span>
 </span><span id="__span-1-85"><a id="__codelineno-1-85" name="__codelineno-1-85"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Mosaic nonce:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">nonce</span><span class="p">);</span>
 </span><span id="__span-1-86"><a id="__codelineno-1-86" name="__codelineno-1-86"></a>
 </span><span id="__span-1-87"><a id="__codelineno-1-87" name="__codelineno-1-87"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">definitionTx</span><span class="w"> </span><span class="o">=</span>
@@ -9958,7 +10109,7 @@ following the process described in the <a href="../../transactions/transfer/">Tr
 <span class="normal"><a href="#__codelineno-7-97"> 97</a></span>
 <span class="normal"><a href="#__codelineno-7-98"> 98</a></span>
 <span class="normal"><a href="#__codelineno-7-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-7-100">100</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-84"><a id="__codelineno-7-84" name="__codelineno-7-84"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nonce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFFFFFF</span><span class="p">;</span>
+<span class="normal"><a href="#__codelineno-7-100">100</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-84"><a id="__codelineno-7-84" name="__codelineno-7-84"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nonce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x7FFFFFFF</span><span class="p">;</span>
 </span><span id="__span-7-85"><a id="__codelineno-7-85" name="__codelineno-7-85"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Mosaic nonce:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">nonce</span><span class="p">);</span>
 </span><span id="__span-7-86"><a id="__codelineno-7-86" name="__codelineno-7-86"></a>
 </span><span id="__span-7-87"><a id="__codelineno-7-87" name="__codelineno-7-87"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">definitionTx</span><span class="w"> </span><span class="o">=</span>
@@ -10006,9 +10157,16 @@ Before setting a duration, consider whether your use case truly requires it.</p>
     for mosaics created by the same account.
     The <a class="mkdocs-ezglossary-link"
 	id="bf18ccf41affeeae1d4e37779bf9dbdb"
-	title="A 64-bit number that uniquely identifies a mosaic on the network."
+	title="A 64-bit number that uniquely identifies a mosaic on the network.
+The mosaic ID is derived deterministically from the creator's address and a nonce."
 	name="_:Mosaic ID"
-	href="../../../textbook/mosaics/#c6c004d488787b86bce66101a200320a">mosaic ID</a> is derived deterministically from the owner's address and the nonce using
+	href="../../../textbook/mosaics/#c6c004d488787b86bce66101a200320a">mosaic ID</a> is derived deterministically from the owner's address and the <a class="mkdocs-ezglossary-link"
+	id="8e288b55c940eaacf07bdeea5cc7008a"
+	title="An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) chosen by the creator when defining a mosaic.
+Each unique nonce produces a different mosaic ID for the same account.
+The same account cannot reuse a nonce that already identifies an active mosaic."
+	name="_:Nonce"
+	href="../../../textbook/mosaics/#ec755c7f908b1c3d1ea5886e4170e98f">nonce</a> using
     <span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="a5ccb384c780560b54b9e027508f27b2"
 	title="Generates a mosaic id from an owner address and a nonce."
@@ -10253,7 +10411,8 @@ when the mosaic definition transaction is confirmed.</p>
 </div>
 </div>
 </div>
-<p>The mosaic supply change transaction is signed and announced following the same process as the mosaic definition transaction.</p>
+<p>The mosaic supply change transaction is signed and announced following the same process as the mosaic definition
+transaction.</p>
 <div class="admonition tip">
 <p class="admonition-title">Combining both transactions</p>
 <p>Instead of announcing the definition and supply change as two separate transactions, you can submit them
@@ -10545,8 +10704,9 @@ When unset, descriptor arrays will be presumed to be already sorted."
 <ul>
 <li><a href="../../namespaces/link-namespace-to-mosaic/">Link a namespace to your mosaic</a> to create a human-readable alias</li>
 <li><a href="../../transactions/transfer/">Send your mosaic with a transfer transaction</a> to distribute it to other accounts</li>
-<li><a href="../change-mosaic-supply/">Change the mosaic supply</a> to increase or decrease the total supply for <code>supply_mutable</code> mosaics</li>
-<li>Modify the mosaic definition  to change its flags or duration before distributing the mosaic</li>
+<li><a href="../change-mosaic-supply/">Change the mosaic supply</a> to increase or decrease the total supply for <code>supply_mutable</code>
+    mosaics</li>
+<li><a href="../modify-mosaic-definition/">Modify the mosaic definition</a> to change its flags or duration before distributing</li>
 </ul>
 
 
@@ -10570,7 +10730,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 13, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 23, 2026</span>
   </span>
 
     

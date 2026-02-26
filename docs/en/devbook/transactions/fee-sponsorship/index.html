@@ -1711,6 +1711,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resolve Namespace from Receipt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1806,11 +1827,120 @@
   
   
     <li class="md-nav__item">
+      <a href="../../mosaics/modify-mosaic-definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modify Mosaic Definition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../mosaics/mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Add Mosaic Metadata
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mosaics/revoke-mosaic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Revoke Mosaic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Chain State
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Chain State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../chain/chain-heights/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Chain and Finalization Height
   </span>
   
 
@@ -8493,6 +8623,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/websockets/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WebSockets
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -9081,7 +9232,7 @@ For newcomers, this often means acquiring funds through an exchange and completi
 Further proposals, including <a href="https://eips.ethereum.org/EIPS/eip-7702">EIP-7702</a>, build on this approach by allowing
 regular accounts to adopt smart contract behavior.</p>
 <p>On Symbol, similar behavior can be implemented out of the box using <a class="mkdocs-ezglossary-link"
-	id="c51babfd027d38dd67f83551ac34c8d3"
+	id="893a7f7c742df05698f328aa25d05e54"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
@@ -9117,14 +9268,14 @@ payment, which users can remove individually once they choose to manage fees the
 <p>In this approach, an account controlled by the application developer sends a <em>prefund</em> transfer to the user's account.</p>
 <p>To ensure that the funds cannot misused, both the prefund transfer and the message transfer are embedded in a single
 <a class="mkdocs-ezglossary-link"
-	id="a0c55f78fa915efabfe599e8ac920edf"
+	id="2492cb366126386d2f286b1c53e36fcc"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
 	href="../../../textbook/transactions/#f4cd3e5143da74ac79f397be4a500b5c">aggregate transaction</a>.
 The aggregate is signed by both the application account and the user, and announced by the latter.</p>
-<p><strong>Transaction fees are deducted after all embedded transactions are executed</strong>, which makes the prefunded amount available
-to the message sender for paying all transaction fees.</p>
+<p><strong>Transaction fees are deducted after all embedded transactions are executed</strong>, which makes the prefunded amount
+available to the message sender for paying all transaction fees.</p>
 <p>Note that the prefund amount must be sufficient to cover both embedded transactions' fees,
 and that the order of the embedded transactions does not matter in this case.</p>
 <p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="540pt" height="230pt" viewBox="0.00 0.00 540.00 230.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 226)"><title>Option1</title><g id="a_graph0"><a xlink:title="Option 1"><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-226 536,-226 536,4 -4,4"/></a></g><g id="clust1" class="cluster"><title>clusterAggregate</title><g id="a_clust1"><a xlink:title="Aggregate Transaction"><polygon fill="transparent" stroke="#789abc" points="8,-8 8,-214 524,-214 524,-8 8,-8"/><text text-anchor="middle" x="266" y="-198.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Aggregate Transaction</text></a></g></g><g id="clust2" class="cluster"><title>clusterT1</title><g id="a_clust2"><a xlink:title="Embedded Message Transaction"><polygon fill="transparent" stroke="#789abc" stroke-dasharray="5,2" points="267,-16 267,-183 516,-183 516,-16 267,-16"/><text text-anchor="middle" x="391.5" y="-167.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Embedded Message Transaction</text></a></g></g><g id="clust3" class="cluster"><title>clusterT2</title><g id="a_clust3"><a xlink:title="Embedded Prefund Transaction"><polygon fill="transparent" stroke="#789abc" stroke-dasharray="5,2" points="16,-16 16,-183 259,-183 259,-16 16,-16"/><text text-anchor="middle" x="137.5" y="-167.8" font-family="Times,serif" font-size="14.00" fill="#789abc">Embedded Prefund Transaction</text></a></g></g><!-- A1 --><g id="node1" class="node"><title>A1</title><g id="a_node1"><a xlink:title="Message Sender"><ellipse fill="none" stroke="#789abc" cx="391" cy="-134" rx="57.39" ry="18"/><text text-anchor="middle" x="391" y="-130.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Account A</text></a></g></g><!-- B1 --><g id="node2" class="node"><title>B1</title><g id="a_node2"><a xlink:title="Message Recipient"><ellipse fill="none" stroke="#789abc" cx="391" cy="-42" rx="57.69" ry="18"/><text text-anchor="middle" x="391" y="-38.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Account B</text></a></g></g><!-- A1&#45;&gt;B1 --><g id="edge1" class="edge"><title>A1&#45;&gt;B1</title><path fill="none" stroke="#789abc" d="M391,-115.65C391,-102.82 391,-85.11 391,-70.38"/><polygon fill="#789abc" stroke="#789abc" points="394.5,-70.3 391,-60.3 387.5,-70.3 394.5,-70.3"/><g id="a_edge1&#45;label"><a xlink:title="Message"><text text-anchor="middle" x="402" y="-83.6" font-family="Times,serif" font-size="18.00" fill="#789abc">🖂</text></a></g></g><!-- C2 --><g id="node3" class="node"><title>C2</title><g id="a_node3"><a xlink:title="Application Account"><ellipse fill="none" stroke="#789abc" cx="137" cy="-134" rx="68.79" ry="18"/><text text-anchor="middle" x="137" y="-130.3" font-family="Times,serif" font-size="14.00" fill="#789abc">App Account</text></a></g></g><!-- A2 --><g id="node4" class="node"><title>A2</title><g id="a_node4"><a xlink:title="Message Sender"><ellipse fill="none" stroke="#789abc" cx="137" cy="-42" rx="57.39" ry="18"/><text text-anchor="middle" x="137" y="-38.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Account A</text></a></g></g><!-- C2&#45;&gt;A2 --><g id="edge2" class="edge"><title>C2&#45;&gt;A2</title><path fill="none" stroke="#789abc" d="M137,-115.65C137,-102.82 137,-85.11 137,-70.38"/><polygon fill="#789abc" stroke="#789abc" points="140.5,-70.3 137,-60.3 133.5,-70.3 140.5,-70.3"/><g id="a_edge2&#45;label"><a xlink:title="Fees"><text text-anchor="middle" x="148" y="-83.6" font-family="Times,serif" font-size="18.00" fill="#789abc">💲</text></a></g></g></g></svg></p>
@@ -9136,7 +9287,7 @@ Nodes can therefore proceed to validation and include the transaction in a block
 	name="_:Complete Aggregate Transaction"
 	href="../../../textbook/transactions/#bef9024194e49776adfcf3924351889c">complete aggregate transaction</a> and request the developer's signature through an off-chain
 API, or build a <a class="mkdocs-ezglossary-link"
-	id="e6094a4ba844674468af6d19f68164bb"
+	id="340b35ac4a2ed1770872878392a32304"
 	title="An aggregate transaction submitted to the network without all required cosignatures.
 The network temporarily holds the transaction while waiting for the additional cosignatures.
 Also called partial transactions."
@@ -9513,25 +9664,26 @@ For this reason, the amount is initially set to <code>0</code>.</p>
 	title="An aggregate transaction submitted to the network with all required cosignatures already attached.
 Nodes can therefore proceed to validation and include the transaction in a block immediately."
 	name="_:Complete Aggregate Transaction"
-	href="../../../textbook/transactions/#bef9024194e49776adfcf3924351889c">complete aggregate transaction</a> is built as usual, and its <code>fee</code> field is updated once the transaction size is known.</p>
+	href="../../../textbook/transactions/#bef9024194e49776adfcf3924351889c">complete aggregate transaction</a> is built as usual, and its <code>fee</code> field is updated once the transaction size is
+known.</p>
 <p>The prefund transaction's amount is then set to match the calculated fee.</p>
 <p>Finally, the <code>transactions_hash</code> field is updated with the hash of the embedded transactions.
 This field is normally set when the aggregate is created using <span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
-	id="63dda72a6d9c4a473754cbdca61163d8"
+	id="786030ff86a87ba515fb0f5dcfaa5253"
 	title="Creates a transaction from a transaction descriptor.
 When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
 When unset, descriptor arrays will be presumed to be already sorted."
 	name="py:TransactionFactory.create"
 	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create">TransactionFactory.create</a></code></label><input type="radio" name="rGroup999" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
-	id="e0ddca0a115e59bbb67619152b4a9e31"
+	id="fba318712745b2a293704542e3ffc733"
 	title="Creates a transaction from a transaction descriptor."
 	name="js:SymbolTransactionFactory.create"
 	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span>, but in this
 case it must be updated afterwards, once the prefund transaction has been modified.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
-<p>As shown in the code, when setting the <code>transactions_hash</code> field, use the model-specific type <code>sc.Hash256</code> (<span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span>)
-or <code>models.Hash256</code> (<span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span>), and not the generic cryptography type <code>Hash256</code>.</p>
+<p>As shown in the code, when setting the <code>transactions_hash</code> field, use the model-specific type <code>sc.Hash256</code>
+(<span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span>) or <code>models.Hash256</code> (<span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span>), and not the generic cryptography type <code>Hash256</code>.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_4_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
@@ -10168,7 +10320,7 @@ This signature can be obtained through either on-chain or off-chain methods, as 
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>This tutorial demonstrated two ways to have one account pay transaction fees on behalf of another using
 <a class="mkdocs-ezglossary-link"
-	id="893a7f7c742df05698f328aa25d05e54"
+	id="da65fc8e3f8a923a2bd1089e62d18672"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
@@ -10199,7 +10351,7 @@ experience for new users without sacrificing the decentralization properties of 
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 25, 2026</span>
   </span>
 
     
@@ -10219,12 +10371,13 @@ experience for new users without sacrificing the decentralization properties of 
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:zero4862@pm.me">zero</a>
     </nav>
   </span>
 
