@@ -43,7 +43,7 @@ The response contains:
     * **finalizationPoint:** The finalization point within the epoch.
     * **hash:** The hash of the finalized block.
 
-The chain height increases each time a new block produced (approximately every 30 seconds).
+The chain height increases each time a new block is produced (approximately every 30 seconds).
 
 The finalized height lags behind the chain tip because a block is typically finalized 10 to 20 minutes after it is
 produced.
@@ -68,10 +68,10 @@ Once a change occurs, the counter starts from `0s ago` and increments each secon
 
 Each iteration prints a single status line showing:
 
-* The current chain height and how many seconds since it last changed.
-* The finalized height and how many seconds since it last changed.
+* The current chain height and how many seconds have elapsed since it last changed.
+* The finalized height and how many seconds have elapsed since it last changed.
 
-The loop sleeps for one second between iterations.
+The loop then sleeps for one second between iterations.
 
 ## Output
 
@@ -83,9 +83,11 @@ The following output shows a typical run monitoring the chain and finalization h
 
 The output shows:
 
-1. Both heights initially show `-` because no change has been observed yet.
-2. The chain height advances from `3,159,411` to `3,159,412`, and the counter starts at `0s ago`.
-3. The finalized height catches up from `3,159,388` to `3,159,411`, resetting its counter to `0s ago`.
+1. The chain height advances 1 block, from `3,159,411` to `3,159,412`.
+    At that point, the change counter starts from `0s`.
+2. Later, the finalized height catches up and advances 23 blocks, from `3,159,388` to `3,159,411`.
+    Its change counter starts from `0s` too.
+3. Both heights initially show `-` because no change has been observed yet.
 
 The gap between the chain height and the finalized height is normal.
 A transaction included in a block at the chain tip is confirmed but not yet irreversible.
