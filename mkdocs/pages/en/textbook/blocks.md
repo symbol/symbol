@@ -163,3 +163,86 @@ verifiability.
 | `LockSecret Expired`       | The recipient, mosaic ID, and amount returned. Recorded when a secret lock expires.                                     |
 
 </div>
+
+## State Hashes
+
+Each block header contains three [hashes](default:Hash) that represent different aspects of the block:
+
+* **Transaction hash:** Root of a <merkle tree:> built from the block's transactions.
+* **Receipts hash:** Root of a merkle tree built from the block's receipt statements.
+* **State hash:** A hash of the complete chain state after processing the block.
+
+These hashes let any node independently verify a block's contents without trusting the source.
+If a block is tampered with, the corresponding hash will not match, and the block will be rejected.
+
+### Transaction hash
+
+Merkle tree
+:   A binary tree where each leaf node holds a data hash, and each parent node holds the hash of its two children.
+    The root summarizes the entire dataset in a single hash.
+
+The transaction hash is computed as a <merkle tree:>.
+Each transaction is hashed individually, then adjacent hashes are combined pairwise using SHA3-256 until a single root
+remains.
+If there is an odd number of hashes at any level, the last one is duplicated before combining.
+
+If any transaction in the block is added, removed, or modified, the transaction hash changes.
+To prove that a specific transaction belongs to a block, only a short path of intermediate hashes is needed
+(one per level) rather than all transaction payloads.
+
+For example, to prove transaction **T2** exists in a four-transaction block, only **H(T2)**, **H(T1)**, and
+**H(T3,T4)** are needed:
+
+```dot
+digraph MerkleProof {
+    rankdir=BT;
+    node [shape=box fontsize=10];
+    edge [arrowsize=0.7];
+    root [label="transactionsHash", penwidth=3];
+    h12  [label="H(T1,T2)"];
+    h34  [label="H(T3,T4)" penwidth=3];
+    t1   [label="H(T1)" penwidth=3];
+    t2   [label="H(T2)" penwidth=3];
+    t3   [label="H(T3)"];
+    t4   [label="H(T4)"];
+    t1 -> h12; t2 -> h12;
+    t3 -> h34; t4 -> h34;
+    h12 -> root; h34 -> root;
+}
+```
+
+The verifier hashes **H(T2)** with **H(T1)** to get **H(T1,T2)**, then hashes that with **H(T3,T4)** to recompute
+the root.
+If the result matches the block's transaction hash, **T2** is proven to be part of the block.
+
+Each level of the tree halves the number of nodes, so a proof requires only log₂(n) hashes.
+For a block with 16 transactions, only 4 hashes are needed instead of 16 full transaction payloads.
+
+### Receipts hash
+
+The receipts hash is computed the same way as the transaction hash, using a <merkle tree:> built from the block's
+receipt statements instead of transactions.
+
+### State hash
+
+Patricia tree
+:   A trie-based structure where keys are encoded as paths through the tree.
+    Unlike a <merkle tree:>, a patricia tree supports proofs of both existence and non-existence.
+
+The state hash represents the entire chain state after processing the block.
+Symbol maintains separate <patricia trees:|patricia trees> for each type of on-chain data:
+
+* Account balances, keys, and importance scores
+* Mosaic definitions and properties
+* Namespace registrations
+* Multisig account configurations
+* Account and mosaic restrictions
+* Metadata entries
+* Hash lock and secret lock deposits
+
+Each patricia tree has its own root hash.
+The state hash is computed as `SHA3-256(root₁ || root₂ || ... || rootₙ)`, a single hash over the concatenated roots
+of all sub-caches.
+
+Because this hash captures the full chain state, two nodes that agree on a block's state hash are guaranteed to have
+identical views of every account, mosaic, and namespace at that height.

@@ -1,0 +1,10 @@
+Using node https://reference.symboltest.net:3001
+Transaction hash: 99011A8DBC086E0C359E9D8A38FEC6714C33726FCD0C1B5C0F772A82400D808B
+Fetching transaction from /transactions/confirmed/99011A8DBC086E0C359E9D8A38FEC6714C33726FCD0C1B5C0F772A82400D808B
+  Confirmed at block height: 55
+Fetching block from /blocks/55
+  Block transactions hash: 058BED8B39E4D0335DA9EE4B29344F8A594A995B151E5CF705FBB9D106B6D52B
+Fetching merkle proof:
+  /blocks/55/transactions/99011A8DBC086E0C359E9D8A38FEC6714C33726FCD0C1B5C0F772A82400D808B/merkle
+  Merkle path length: 4
+Transaction 99011A8DBC086E0C... proven in block 55
