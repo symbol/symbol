@@ -100,3 +100,8 @@ This tutorial showed how to:
 | Step                                                   | Related documentation                                      |
 | ------------------------------------------------------ | ---------------------------------------------------------- |
 | [Fetch chain information](#fetching-chain-information) | <get:/chain/info>                                          |
+
+## Next steps
+
+For an event-driven approach to monitoring new blocks and finalization, see
+[Listening to New Blocks](../websockets/listen-new-blocks.md).
