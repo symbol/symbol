@@ -5,7 +5,7 @@ console.log(`Using node ${NODE_URL}`);
 
 const websocket = new WebSocket(WS_URL);
 
-// connect to websocket endpoint
+// Connect to websocket endpoint
 const uid = await new Promise((resolve) => {
 	websocket.addEventListener('message', (event) => {
 		const message = JSON.parse(event.data);
@@ -14,15 +14,15 @@ const uid = await new Promise((resolve) => {
 });
 console.log(`Connected to ${WS_URL} with uid ${uid}`);
 
-// subscribe to block channel
+// Subscribe to block channel
 websocket.send(JSON.stringify({ uid, subscribe: 'block' }));
 console.log('Subscribed to block channel');
 
-// subscribe to finalizedBlock channel
+// Subscribe to finalizedBlock channel
 websocket.send(JSON.stringify({ uid, subscribe: 'finalizedBlock' }));
 console.log('Subscribed to finalizedBlock channel');
 
-// handle incoming messages
+// Handle incoming messages
 websocket.addEventListener('message', (event) => {
 	const message = JSON.parse(event.data);
 	const topic = message.topic;
@@ -47,7 +47,7 @@ websocket.addEventListener('message', (event) => {
 	}
 });
 
-// unsubscribe on exit
+// Unsubscribe on exit
 process.on('SIGINT', () => {
 	websocket.send(JSON.stringify({ uid, unsubscribe: 'block' }));
 	websocket.send(

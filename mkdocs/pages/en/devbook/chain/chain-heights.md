@@ -103,5 +103,5 @@ This tutorial showed how to:
 
 ## Next steps
 
-For an event-driven approach to monitoring new blocks and finalization, see
-[Listening to New Blocks](../websockets/listen-new-blocks.md).
+For an event-driven approach to monitoring new blocks and finalization, see the
+[Listening to New Blocks](../websockets/listen-new-blocks.md) WebSocket tutorial.

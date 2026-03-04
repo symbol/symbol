@@ -4,8 +4,8 @@ title: New Blocks
 
 # Listening to New Blocks
 
-The `block` and `finalizedBlock` [WebSocket channels](../reference/websockets/index.md) send real-time notifications
-when a new <block:> is produced or [finalized](../../textbook/consensus.md#finalization).
+The <ws:block> and <ws:finalizedBlock> WebSocket channels send real-time notifications when a new <block:> is produced
+or [finalized](../../textbook/consensus.md#finalization).
 Compared to polling the <get:/chain/info> endpoint, WebSockets push updates as they happen without the overhead of
 repeated API calls.
 
@@ -62,8 +62,8 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 The code subscribes to two channels:
 
-* `block`: Notifies every time a new block is produced (approximately every 30 seconds).
-* `finalizedBlock`: Notifies every time a finalization round completes (approximately every 10 to 20 minutes).
+* <ws:block>: Notifies every time a new block is produced (approximately every 30 seconds).
+* <ws:finalizedBlock>: Notifies every time a finalization round completes (approximately every 10 to 20 minutes).
 
 Each subscription message includes the `uid` received during the connection step and the name of the channel.
 
@@ -126,7 +126,7 @@ This tutorial showed how to:
 
 | Step                                                       | Related documentation                                                          |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [Subscribe to block channel](#subscribing-to-channels)     | [ws:block](../reference/websockets/index.md#block)                             |
-| [Subscribe to finalized channel](#subscribing-to-channels) | [ws:finalizedBlock](../reference/websockets/index.md#finalizedblock)           |
+| [Subscribe to block channel](#subscribing-to-channels)     | <ws:block>                                                                     |
+| [Subscribe to finalized channel](#subscribing-to-channels) | <ws:finalizedBlock>                                                            |
 | [Handle block messages](#handling-messages)                | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO)                 |
 | [Handle finalized messages](#handling-messages)            | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO)       |
