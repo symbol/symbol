@@ -166,7 +166,7 @@ verifiability.
 
 ## State Hashes
 
-Each block header contains three [hashes]<hashes:> that represent different aspects of the block:
+Each block header contains three <hashes:> that represent different aspects of the block:
 
 * **Transaction hash:** Root of a <Merkle tree:> built from the block's transactions.
 * **Receipts hash:** Root of a Merkle tree built from the block's receipt statements.
@@ -178,7 +178,7 @@ If a block is tampered with, the corresponding hash will not match, and the bloc
 ### Transaction hash
 
 Merkle tree
-:   A [binary tree](https://en.wikipedia.org/wiki/Binary_tree)) where each leaf node holds a data hash, and each parent
+:   A [binary tree](https://en.wikipedia.org/wiki/Binary_tree) where each leaf node holds a data hash, and each parent
     node holds the hash of its two children.
     The root summarizes the entire dataset in a single hash.
 
