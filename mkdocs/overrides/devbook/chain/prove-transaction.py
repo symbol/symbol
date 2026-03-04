@@ -20,8 +20,8 @@ try:
 	with urllib.request.urlopen(f'{NODE_URL}{tx_path}') as response:
 		tx_data = json.loads(response.read().decode())
 
+	print(json.dumps(tx_data['meta'], indent=2))
 	block_height = tx_data['meta']['height']
-	print(f'  Confirmed at block height: {block_height}')
 	merkle_component_hash = Hash256(
 		tx_data['meta']['merkleComponentHash'])
 
@@ -31,8 +31,12 @@ try:
 	with urllib.request.urlopen(f'{NODE_URL}{block_path}') as response:
 		block_data = json.loads(response.read().decode())
 
-	transactions_hash = Hash256(block_data['block']['transactionsHash'])
-	print(f'  Block transactions hash: {transactions_hash}')
+	print(json.dumps({
+		'height': block_data['block']['height'],
+		'transactionsHash': block_data['block']['transactionsHash'],
+	}, indent=2))
+	transactions_hash = Hash256(
+		block_data['block']['transactionsHash'])
 
 	# Fetch the merkle proof path for the transaction
 	merkle_path = (f'/blocks/{block_height}'
@@ -41,6 +45,8 @@ try:
 	print(f'  {merkle_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{merkle_path}') as response:
 		merkle_data = json.loads(response.read().decode())
+
+	print(json.dumps(merkle_data, indent=2))
 
 	# Convert the API response to the format expected by the SDK
 	merkle_proof_path = [

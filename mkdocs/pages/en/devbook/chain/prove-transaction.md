@@ -5,12 +5,12 @@ title: Prove Transaction Inclusion
 # Proving a Transaction's Inclusion in a Block
 
 Each Symbol <block:> records its transactions in a
-<merkle tree:> whose root, the `transactionsHash`,
+<Merkle tree:> whose root, the `transactionsHash`,
 is stored in the block header.
 A transaction can be verified against this root to prove it was included in a block without having to download all the
 block's transactions.
 
-This tutorial shows how to fetch a merkle proof from the API and verify that a specific transaction is part of a block.
+This tutorial shows how to fetch a Merkle proof from the API and verify that a specific transaction is part of a block.
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ Before you start:
 
 * [Set up your development environment](../start/setup.md).
 * Review how [state hashes](../../textbook/blocks.md#state-hashes) work, in particular the `transactionsHash`
-    merkle tree.
+    Merkle tree.
 
 This tutorial only reads data from the network. No <account:> or <XYM:> balance is required.
 
@@ -42,28 +42,28 @@ The code fetches the confirmed transaction from the <get:/transactions/confirmed
 The `meta.height` field is the block height where the transaction was confirmed, needed in the following step to
 retrieve the block header.
 
-The response also contains the `merkleComponentHash`, which is the leaf hash used in the block's merkle tree.
+The response also contains the `merkleComponentHash`, which is the leaf hash used in the block's Merkle tree.
 For regular transactions, this value equals the transaction hash.
 For <aggregate transactions:>, it is computed as the SHA3-256 hash of the transaction hash concatenated with the
 public keys of the cosignatories.
 
 ### Fetching the Block Header
 
-{{ tutorial.code_snippet(['py:28:35', 'js:24:32']) }}
+{{ tutorial.code_snippet(['py:28:39', 'js:24:35']) }}
 
 The <get:/blocks/{height}> endpoint returns block metadata, including the `transactionsHash` field.
-This hash is the root of the merkle tree built from the
+This hash is the root of the Merkle tree built from the
 `merkleComponentHash` of each transaction in the block.
 
-The code wraps the hex string in a `Hash256` object, which is the format expected by the <dy:proveMerkle> function.
+The code wraps the hex string in a `Hash256` object, which is the format expected by the <dy:Merkle.proveMerkle> function.
 
 ### Fetching the Merkle Proof Path
 
-{{ tutorial.code_snippet(['py:37:50', 'js:34:48']) }}
+{{ tutorial.code_snippet(['py:41:56', 'js:37:53']) }}
 
-The <get:/blocks/{height}/transactions/{hash}/merkle> endpoint returns a **merkle proof path**:
+The <get:/blocks/{height}/transactions/{hash}/merkle> endpoint returns a **Merkle proof path**:
 the minimum set of intermediate hashes needed to recompute the `transactionsHash` starting from the
-`merkleComponentHash` (one per level of the merkle tree).
+`merkleComponentHash` (one per level of the Merkle tree).
 
 Each item in the path contains:
 
@@ -71,13 +71,13 @@ Each item in the path contains:
 * **position**: Whether this hash sits to the `left` or `right` when combined with the previous result.
 
 The code converts each item into a pair of hash and boolean (`true` if the hash is on the left), to match the format
-expected by the <dy:proveMerkle> function.
+expected by the <dy:Merkle.proveMerkle> function.
 
 ### Verifying the Proof
 
-{{ tutorial.code_snippet(['py:52:64', 'js:50:62']) }}
+{{ tutorial.code_snippet(['py:58:70', 'js:55:67']) }}
 
-<dy:proveMerkle> recomputes the merkle root by iteratively combining the `merkleComponentHash` with each intermediate
+<dy:Merkle.proveMerkle> recomputes the Merkle root by iteratively combining the `merkleComponentHash` with each intermediate
 hash in the proof path, following the specified position order.
 If the computed root matches the block's `transactionsHash`, the transaction is proven to be part of the block.
 
@@ -85,21 +85,22 @@ If the computed root matches the block's `transactionsHash`, the transaction is 
 
 The following output shows a typical run of the program:
 
-```text linenums="1" hl_lines="4 6 9 10"
+```text linenums="1" hl_lines="5-6 15 39 40"
 --8<-- 'devbook/chain/prove-transaction.log'
 ```
 
 Some highlights from the output:
 
-* **Block height** (line 4): The transaction was confirmed in block `55`.
+* **Transaction metadata** (lines 5-6): The JSON response from <get:/transactions/confirmed/{transactionId}> includes
+    the block `height` and `merkleComponentHash` needed for the proof.
 
-* **Block transactions hash** (line 6): The `transactionsHash` from block `55` is the merkle root for all
-    transactions confirmed in that block.
+* **Block transactions hash** (lines 15): The JSON response from <get:/blocks/{height}> includes the `transactionsHash`,
+    which is the Merkle root for all transactions confirmed in that block.
 
-* **Merkle path length** (line 9): A path with `4` entries means the tree has 4 levels, so the block contains up to
-    2⁴ = 16 transactions.
+* **Merkle path length** (lines 39): The JSON response from <get:/blocks/{height}/transactions/{hash}/merkle>
+    contains `4` entries, meaning the tree has 4 levels and the block contains up to 2⁴ = 16 transactions.
 
-* **Proof result** (line 10): The computed root matched the `transactionsHash`, confirming the transaction is genuinely
+* **Proof result** (line 40): The computed root matched the `transactionsHash`, confirming the transaction is genuinely
     part of block `55`.
 
 To inspect the transaction or its block in the explorer, visit the
@@ -113,8 +114,8 @@ This tutorial showed how to:
 | ------------------------------------------------------------------ | ------------------------------------------------- |
 | [Fetch confirmed transaction](#fetching-the-confirmed-transaction) | <get:/transactions/confirmed/{transactionId}>     |
 | [Fetch the block header](#fetching-the-block-header)               | <get:/blocks/{height}>                            |
-| [Fetch the merkle proof path](#fetching-the-merkle-proof-path)     | <get:/blocks/{height}/transactions/{hash}/merkle> |
-| [Verify the proof](#verifying-the-proof)                           | <dy:proveMerkle>                                  |
+| [Fetch the Merkle proof path](#fetching-the-merkle-proof-path)     | <get:/blocks/{height}/transactions/{hash}/merkle> |
+| [Verify the proof](#verifying-the-proof)                           | <dy:Merkle.proveMerkle>                           |
 
 ## Next Steps
 

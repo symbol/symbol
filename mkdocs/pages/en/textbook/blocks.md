@@ -166,10 +166,10 @@ verifiability.
 
 ## State Hashes
 
-Each block header contains three [hashes](default:Hash) that represent different aspects of the block:
+Each block header contains three [hashes]<hashes:> that represent different aspects of the block:
 
-* **Transaction hash:** Root of a <merkle tree:> built from the block's transactions.
-* **Receipts hash:** Root of a merkle tree built from the block's receipt statements.
+* **Transaction hash:** Root of a <Merkle tree:> built from the block's transactions.
+* **Receipts hash:** Root of a Merkle tree built from the block's receipt statements.
 * **State hash:** A hash of the complete chain state after processing the block.
 
 These hashes let any node independently verify a block's contents without trusting the source.
@@ -178,10 +178,11 @@ If a block is tampered with, the corresponding hash will not match, and the bloc
 ### Transaction hash
 
 Merkle tree
-:   A binary tree where each leaf node holds a data hash, and each parent node holds the hash of its two children.
+:   A [binary tree](https://en.wikipedia.org/wiki/Binary_tree)) where each leaf node holds a data hash, and each parent
+    node holds the hash of its two children.
     The root summarizes the entire dataset in a single hash.
 
-The transaction hash is computed as a <merkle tree:>.
+The transaction hash is computed as a <Merkle tree:>.
 Each transaction is hashed individually, then adjacent hashes are combined pairwise using SHA3-256 until a single root
 remains.
 If there is an odd number of hashes at any level, the last one is duplicated before combining.
@@ -220,17 +221,17 @@ For a block with 16 transactions, only 4 hashes are needed instead of 16 full tr
 
 ### Receipts hash
 
-The receipts hash is computed the same way as the transaction hash, using a <merkle tree:> built from the block's
+The receipts hash is computed the same way as the transaction hash, using a <Merkle tree:> built from the block's
 receipt statements instead of transactions.
 
 ### State hash
 
 Patricia tree
-:   A trie-based structure where keys are encoded as paths through the tree.
-    Unlike a <merkle tree:>, a patricia tree supports proofs of both existence and non-existence.
+:   A [trie-based](en.wikipedia.org/wiki/Trie) structure where keys are encoded as paths through the tree.
+    Unlike a <Merkle tree:>, a Patricia tree supports proofs of both existence and non-existence.
 
 The state hash represents the entire chain state after processing the block.
-Symbol maintains separate <patricia trees:|patricia trees> for each type of on-chain data:
+Symbol maintains separate <Patricia trees:> for each type of on-chain data:
 
 * Account balances, keys, and importance scores
 * Mosaic definitions and properties
@@ -240,7 +241,7 @@ Symbol maintains separate <patricia trees:|patricia trees> for each type of on-c
 * Metadata entries
 * Hash lock and secret lock deposits
 
-Each patricia tree has its own root hash.
+Each Patricia tree has its own root hash.
 The state hash is computed as `SHA3-256(root₁ || root₂ || ... || rootₙ)`, a single hash over the concatenated roots
 of all sub-caches.
 

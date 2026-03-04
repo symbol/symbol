@@ -176,7 +176,7 @@ For production applications, consider these improvements:
 * **Wait for finalization:** Verify that the block containing the transaction has been finalized
     to ensure it is truly irreversible.
     See [Querying Chain and Finalization Height](../chain/chain-heights.md).
-* **Prove transaction inclusion:** Verify cryptographically that a transaction is part of a block using a merkle proof.
+* **Prove transaction inclusion:** Verify cryptographically that a transaction is part of a block using a Merkle proof.
     See [Proving a Transaction's Inclusion in a Block](../chain/prove-transaction.md).
 * **Query multiple nodes:** Check status and finalization across several <nodes:> for greater reliability and
     protection against single-node issues.

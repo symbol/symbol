@@ -16,8 +16,8 @@ try {
 	const txResponse = await fetch(`${NODE_URL}${txPath}`);
 	const txData = await txResponse.json();
 
+	console.log(JSON.stringify(txData.meta, undefined, 2));
 	const blockHeight = txData.meta.height;
-	console.log('  Confirmed at block height:', blockHeight);
 	const merkleComponentHash = new Hash256(
 		txData.meta.merkleComponentHash);
 
@@ -27,9 +27,12 @@ try {
 	const blockResponse = await fetch(`${NODE_URL}${blockPath}`);
 	const blockData = await blockResponse.json();
 
+	console.log(JSON.stringify({
+		height: blockData.block.height,
+		transactionsHash: blockData.block.transactionsHash,
+	}, undefined, 2));
 	const transactionsHash = new Hash256(
 		blockData.block.transactionsHash);
-	console.log(`  Block transactions hash: ${transactionsHash}`);
 
 	// Fetch the merkle proof path for the transaction
 	const merklePath = `/blocks/${blockHeight}`
@@ -38,6 +41,8 @@ try {
 	console.log(`  ${merklePath}`);
 	const merkleResponse = await fetch(`${NODE_URL}${merklePath}`);
 	const merkleData = await merkleResponse.json();
+
+	console.log(JSON.stringify(merkleData, undefined, 2));
 
 	// Convert the API response to the format expected by the SDK
 	const merkleProofPath = merkleData.merklePath.map(
