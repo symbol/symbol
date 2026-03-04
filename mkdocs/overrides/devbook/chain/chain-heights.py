@@ -51,5 +51,7 @@ try:
 		prev_finalized_height = finalized_height
 		time.sleep(1)
 
+except KeyboardInterrupt:
+	pass
 except Exception as error:
 	print(error)
