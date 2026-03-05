@@ -227,7 +227,7 @@ receipt statements instead of transactions.
 ### State hash
 
 Patricia tree
-:   A [trie-based](en.wikipedia.org/wiki/Trie) structure where keys are encoded as paths through the tree.
+:   A [trie-based](https://en.wikipedia.org/wiki/Trie) structure where keys are encoded as paths through the tree.
     Unlike a <Merkle tree:>, a Patricia tree supports proofs of both existence and non-existence.
 
 The state hash represents the entire chain state after processing the block.
