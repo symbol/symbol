@@ -103,6 +103,8 @@ nav:
               - devbook/mosaics/revoke-mosaic.md
           - Chain State:
               - devbook/chain/chain-heights.md
+          - WebSockets:
+              - devbook/websockets/listen-transaction-flow.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/

@@ -179,3 +179,6 @@ For production applications, consider these improvements:
 * **Query multiple nodes:** Check status and finalization across several <nodes:> for greater reliability and
     protection against single-node issues.
 * **Use WebSockets:** Replace polling with WebSocket subscriptions for real-time updates without repeated API calls.
+    See the [Listening to Transaction Flow](../websockets/listen-transaction-flow.md) WebSocket tutorial.
+* **Monitor new blocks:** Listen for new blocks and finalization events in real time.
+    See the [Listening to New Blocks](../websockets/listen-new-blocks.md) WebSocket tutorial.

@@ -1,0 +1,10 @@
+Using node https://reference.symboltest.net:3001
+Monitoring address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Connected to wss://reference.symboltest.net:3001/ws with uid Hj3kL9mN2pQr5tVw=
+Subscribed to confirmedAdded channel
+Subscribed to unconfirmedAdded channel
+Subscribed to unconfirmedRemoved channel
+unconfirmedAdded: hash=7A3F1B9E4C2D8A65...
+unconfirmedRemoved: hash=7A3F1B9E4C2D8A65...
+confirmedAdded: hash=7A3F1B9E4C2D8A65...
+Unsubscribed from all channels
