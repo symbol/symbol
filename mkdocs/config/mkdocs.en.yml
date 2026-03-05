@@ -103,7 +103,9 @@ nav:
               - devbook/mosaics/revoke-mosaic.md
           - Chain State:
               - devbook/chain/chain-heights.md
+              - devbook/chain/prove-transaction.md
           - WebSockets:
+              - devbook/websockets/listen-new-blocks.md
               - devbook/websockets/listen-transaction-flow.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/

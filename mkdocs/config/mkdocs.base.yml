@@ -159,6 +159,7 @@ extra:
       SymbolTransactionFactory: TransactionFactory
     global-namespaces:
       - Metadata
+      - Merkle
       - IdGenerator
       - ripemd160
 copyright: >
