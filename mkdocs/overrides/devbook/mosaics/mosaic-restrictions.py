@@ -4,8 +4,8 @@ import time
 import urllib.request
 import hashlib
 
-from symbolchain.CryptoTypes import PrivateKey, Hash256
-from symbolchain.facade.SymbolFacade import SymbolFacade, Address
+from symbolchain.CryptoTypes import PrivateKey
+from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -44,7 +44,7 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
-# Returns a filtered list of restrictions currently applied to the mosaic,
+# Returns a filtered list of restrictions currently applied to the mosaic
 # matching the given restriction key
 def get_mosaic_restrictions(query, key):
 	restrictions_path = f'/restrictions/mosaic?{query}'
@@ -88,7 +88,6 @@ def global_restriction_enable_transaction():
 		'new_restriction_type': 'ge',
 		'new_restriction_value': 1
 	})
-	transaction.fee = Amount(fee_mult * transaction.size)
 	print(json.dumps(transaction.to_json(), indent=2))
 
 	return transaction
@@ -104,7 +103,6 @@ def address_restriction_set_value(prev_value, new_value, address):
 		'new_restriction_value': new_value,
 		'target_address': address
 	})
-	transaction.fee = Amount(fee_mult * transaction.size)
 	print(json.dumps(transaction.to_json(), indent=2))
 
 	return transaction
