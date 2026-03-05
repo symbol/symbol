@@ -4,7 +4,7 @@ title: Transaction Flow
 
 # Listening to Transaction Flow
 
-Symbol provides WebSocket channels that send real-time notifications as a <transaction:> moves through the confirmation 
+Symbol provides WebSocket channels that send real-time notifications as a <transaction:> moves through the confirmation
 process for a specific <account:>.
 Compared to polling the <get:/transactionStatus/{hash}> endpoint, WebSockets push updates as they happen without
 the overhead of repeated API calls.
@@ -82,12 +82,12 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 {{ tutorial.code_snippet(['py:28:39', 'js:21:31']) }}
 
-The code subscribes to three address-scoped channels:
+The code subscribes to three address-scoped channels, appending the monitored address to each channel name:
 
-* <ws:confirmedAdded/{address}>: Notifies when a transaction involving the address is included in a <block:>.
-* <ws:unconfirmedAdded/{address}`>: Notifies when a transaction enters the <unconfirmed pool:>, waiting to be included
+* <ws:confirmedAdded|confirmedAdded/{address}>: Notifies when a transaction involving the address is included in a <block:>.
+* <ws:unconfirmedAdded|unconfirmedAdded/{address}>: Notifies when a transaction enters the <unconfirmed pool:>, waiting to be included
     in a block.
-* <ws:unconfirmedRemoved/{address}>: Notifies when a transaction leaves the unconfirmed state (either confirmed or
+* <ws:unconfirmedRemoved|unconfirmedRemoved/{address}>: Notifies when a transaction leaves the unconfirmed state (either confirmed or
     expired).
 
 Each subscription message includes the `uid` received during the connection step and the full channel name with
@@ -129,7 +129,7 @@ Any <transaction:> type triggers the WebSocket notifications, as long as the mon
 The following output shows the result of sending a [Transfer Transaction](../transactions/transfer.md) while the
 listener is running:
 
-```text linenums="1"
+```text linenums="1" hl_lines="2 4-6 7-9 10"
 --8<-- 'devbook/websockets/listen-transaction-flow.log'
 ```
 

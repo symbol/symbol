@@ -77,9 +77,9 @@ All channels share the same response format, which is:
 
     [FinalizedBlockDTO](../rest/symbol.md#model-FinalizedBlockDTO)
 
-### `confirmedAdded`
+### `confirmedAdded/{address}`
 
-`ws:confirmedAdded/{address}`
+`ws:confirmedAdded`
 :   Notifies subscribed clients when a transaction related to the given address is included in a block.
     Each returned message contains information about one confirmed transaction.
 
@@ -96,9 +96,9 @@ All channels share the same response format, which is:
 
     [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
 
-### `unconfirmedAdded`
+### `unconfirmedAdded/{address}`
 
-`ws:unconfirmedAdded/{address}`
+`ws:unconfirmedAdded`
 :   Notifies subscribed clients when a transaction related to the given address enters the unconfirmed state,
     waiting to be included in a block.
     Each returned message contains information about one unconfirmed transaction.
@@ -120,9 +120,9 @@ has all required cosigners and changes its state from `partial` to `unconfirmed`
 
     [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
 
-### `unconfirmedRemoved`
+### `unconfirmedRemoved/{address}`
 
-`ws:unconfirmedRemoved/{address}`
+`ws:unconfirmedRemoved`
 :   Notifies subscribed clients when a transaction related to the given address exits the `unconfirmed` state.
     Each returned message contains a no-longer-unconfirmed transaction hash.
 
@@ -142,9 +142,9 @@ the transaction is now confirmed, or the deadline was reached and the transactio
 
     Hash of the transaction.
 
-### `partialAdded`
+### `partialAdded/{address}`
 
-`ws:partialAdded/{address}`
+`ws:partialAdded`
 :   Notifies subscribed clients when a <bonded aggregate transaction:> related to the given address enters the
     `partial` state, waiting for all required cosignatures to complete.
     Each returned message contains information about one added partial transaction.
@@ -162,9 +162,9 @@ the transaction is now confirmed, or the deadline was reached and the transactio
 
     [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
 
-### `partialRemoved`
+### `partialRemoved/{address}`
 
-`ws:partialRemoved/{address}`
+`ws:partialRemoved`
 :   Notifies subscribed clients when a <bonded aggregate transaction:> related to the given address exits the
     `partial` state.
     Each returned message contains one removed partial transaction hash.
@@ -186,9 +186,9 @@ or the deadline was reached and the transaction was not included in a block.
 
     Hash of the transaction.
 
-### `cosignature`
+### `cosignature/{address}`
 
-`ws:cosignature/{address}`
+`ws:cosignature`
 :   Notifies subscribed clients when a <cosignature:> related to the given address is added to a
     <bonded aggregate transaction:> in the `partial` state.
     Each returned message contains one cosignature-signed transaction.
@@ -206,9 +206,9 @@ or the deadline was reached and the transaction was not included in a block.
 
     [CosignatureDTO](../rest/symbol.md#model-CosignatureDTO)
 
-### `status`
+### `status/{address}`
 
-`ws:status/{address}`
+`ws:status`
 :   Notifies subscribed clients when a transaction related to the given address signals an error.
     Each returned message contains one error message and a transaction hash.
 
