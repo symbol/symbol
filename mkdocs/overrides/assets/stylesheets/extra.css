@@ -615,6 +615,12 @@ code.doc-symbol-interface::after {
 	white-space: nowrap;
 }
 
+/* Tables with an unbroken first column */
+
+.md-typeset .keyed-table table td:first-child code {
+	white-space: nowrap;
+}
+
 .md-typeset .subsections table td:not(:has(strong)):first-child+td {
 	border-style: hidden;
 }

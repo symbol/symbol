@@ -185,11 +185,9 @@ try {
 	console.log('Checking if target account is authorized:');
 	const addressRestrictions = await getMosaicAddressRestrictions(
 		mosaicId, targetAddress, restrictionKey);
-
 	let prevValue = 0xFFFFFFFFFFFFFFFFn;
 	if (addressRestrictions.length > 0)
 		prevValue = BigInt(addressRestrictions[0].value);
-
 	if (prevValue !== 1n) {
 		// Enable the address restriction
 		console.log('+ Authorizing target account');

@@ -127,7 +127,7 @@ hasher = hashlib.sha3_256()
 hasher.update(restriction_name.encode('utf8'))
 restriction_key = int.from_bytes(hasher.digest()[:4])
 print(f'Restriction name: "{restriction_name}"'
-	' (key: 0x{restriction_key:08X})')
+	f' (key: 0x{restriction_key:08X})')
 
 try:
 	# Fetch current network time
