@@ -56,7 +56,7 @@ transactions are announced and confirmed.
 ## Code Explanation
 
 The code begins by defining two helper functions.
-For details on how transactions are announced and how their confirmation is tracked, refer to
+For details on how transactions are announced and how their confirmation is tracked, refer to the
 [Transfer transaction](../transactions/transfer.md) tutorial.
 The remaining helper functions are described in the sections below.
 
