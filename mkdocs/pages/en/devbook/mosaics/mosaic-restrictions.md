@@ -50,13 +50,13 @@ Before you start, make sure to:
 
 - Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:>: to own the mosaic, either [from code](./create-from-private-key.md) or
+- Create an <account:>: to own the mosaic, either [from code](../accounts/create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md),
     or use the provided default account.
 - Create a restrictable <mosaic:> or use the provided default one.
     See [Creating a Mosaic](./create-mosaic.md).
 - Obtain <XYM:> to pay for the transaction fees.
-    See [Getting Testnet Funds from the Faucet](./testnet-faucet.md).
+    See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) and
 [Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md) tutorials to understand how
@@ -132,15 +132,13 @@ The returned entries are then filtered to keep only those involving the selected
 If no restriction is found, one is created by adding two transactions to the list of transactions to announce:
 
 - a **mosaic global restriction transaction** defining the restriction condition.
-    See the [`MosaicGlobalRestrictionTransaction`](../reference/serialization/index.md#mosaicglobalrestrictiontransactionv1)
-    serialization table for details about each of its fields.
+    See the <ser:MosaicGlobalRestrictionTransactionV1> serialization table for details about each of its fields.
 
     The restriction created in this tutorial requires the value associated with the key
     `security_level` to be **greater than or equal to 1**.
 
 - a **mosaic address restriction transaction** authorizing the owner account.
-    See the [`MosaicAddressRestrictionTransaction`](../reference/serialization/index.md#mosaicaddressrestrictiontransactionv1)
-    serialization table for details about each of its fields.
+    See the <ser:MosaicAddressRestrictionTransactionV1> serialization table for details about each of its fields.
 
     The code assigns the value 1 to the owner's `security_level` so the owner account can continue transacting with
     its own mosaic.
@@ -183,8 +181,8 @@ target account.
 Only the first restriction in the returned list is examined, because, after filtering by `restriction_key`,
 the list is either empty or contains a single entry.
 
-The same [`MosaicAddressRestrictionTransaction`](../reference/serialization/index.md#mosaicaddressrestrictiontransactionv1)
-is used in both cases, changing only the value assigned to the restriction.
+The same <ser:MosaicAddressRestrictionTransactionV1> is used in both cases, changing only the value assigned to the
+restriction.
 
 When no previous restriction exists, the special value `0xFFFFFFFF_FFFFFFFF` must be used as the previous value.
 
@@ -237,8 +235,7 @@ The output shown below corresponds to two typical runs of the program.
     - **Line 12** (`Response: []`): The mosaic currently has no global restrictions.
     - **Line 13**: The transaction configuring the mosaic restriction.
         It includes the mosaic ID (in decimal), the restriction key (in decimal), the restriction value (`1`), and
-        the restriction condition (`6`, which corresponds to
-        [`greater-or-equal`](../reference/serialization/index.md#mosaicrestrictiontype))
+        the restriction condition (`6`, which corresponds to the `greater-or-equal` <ser:MosaicRestrictionType>)
     - **Line 27**: The transaction authorizing the owner account.
         It includes the mosaic ID (in decimal), the restriction key (in decimal), and the necessary restriction
         value (`1`).
@@ -290,9 +287,9 @@ The following table summarizes the most common error sources:
 
 This tutorial showed how to:
 
-| Step                                                                                        | Related documentation                                                                                              |
-|---------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| [Retrieve the current mosaic restriction configuration](#enabling-the-global-restriction)   | <get:/restrictions/mosaic>                                                                                         |
-| [Configure a mosaic global restriction](#enabling-the-global-restriction)                   | [`MosaicGlobalRestrictionTransaction`](../reference/serialization/index.md#mosaicglobalrestrictiontransactionv1)   |
-| [Retrieve an account's mosaic restriction configuration](#toggling-the-address-restriction) | <get:/restrictions/mosaic>                                                                                         |
-| [Configure a mosaic address restriction](#toggling-the-address-restriction)                 | [`MosaicAddressRestrictionTransaction`](../reference/serialization/index.md#mosaicaddressrestrictiontransactionv1) |
+| Step                                                                                        | Related documentation                       |
+|---------------------------------------------------------------------------------------------|---------------------------------------------|
+| [Retrieve the current mosaic restriction configuration](#enabling-the-global-restriction)   | <get:/restrictions/mosaic>                  |
+| [Configure a mosaic global restriction](#enabling-the-global-restriction)                   | <ser:MosaicGlobalRestrictionTransactionV1>  |
+| [Retrieve an account's mosaic restriction configuration](#toggling-the-address-restriction) | <get:/restrictions/mosaic>                  |
+| [Configure a mosaic address restriction](#toggling-the-address-restriction)                 | <ser:MosaicAddressRestrictionTransactionV1> |

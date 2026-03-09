@@ -121,12 +121,12 @@ the account that signs it, as shown in the next two sections.
 ### Enabling the Multisig
 
 All changes to the multisig configuration of an account, including adding or removing cosignatories,
-are performed using a `MultisigAccountModificationTransaction`, which **must** be embedded in an
+are performed using a <ser:MultisigAccountModificationTransactionV1>, which **must** be embedded in an
 <aggregate transaction:>:
 
 {{ tutorial.code_snippet(['py:65:76', 'js:70:82']) }}
 
-The embedded `MultisigAccountModificationTransaction` includes the following fields:
+The embedded <ser:MultisigAccountModificationTransactionV1> includes the following fields:
 
 - `signer_public_key`: <public key:> of the account whose multisig configuration will be modified.
 
@@ -188,7 +188,7 @@ Disabling a multisig configuration requires removing all cosignatories.
 The process is similar to enabling it, with ttwo key differences:
 cosignatories must be removed one by one, and the multisig account itself cannot sign the transaction.
 
-For this reason, two `MultisigAccountModificationTransaction`s are created:
+For this reason, two <ser:MultisigAccountModificationTransactionV1>s are created:
 
 {{ tutorial.code_snippet(['py:110:129', 'js:117:138']) }}
 
@@ -267,9 +267,9 @@ The transaction hashes shown in the output can be used to look up the transactio
 
 This tutorial showed how to:
 
-| Step                                                                   | Related documentation                        |
-|------------------------------------------------------------------------|----------------------------------------------|
-| [Retrieve the current multisig configuration](#detecting-the-multisig) | <get:/account/{address}/multisig>            |
-| [Enable a multisig account](#enabling-the-multisig)                    | `MultisigAccountModificationTransaction`     |
-| [Disable a multisig account](#disabling-the-multisig)                  | `MultisigAccountModificationTransaction`     |
-| Wrap configuration in an embedded transaction                          | <dy:SymbolTransactionFactory.createEmbedded> |
+| Step                                                                   | Related documentation                          |
+|------------------------------------------------------------------------|------------------------------------------------|
+| [Retrieve the current multisig configuration](#detecting-the-multisig) | <get:/account/{address}/multisig>              |
+| [Enable a multisig account](#enabling-the-multisig)                    | <ser:MultisigAccountModificationTransactionV1> |
+| [Disable a multisig account](#disabling-the-multisig)                  | <ser:MultisigAccountModificationTransactionV1> |
+| Wrap configuration in an embedded transaction                          | <dy:SymbolTransactionFactory.createEmbedded>   |
