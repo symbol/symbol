@@ -90,545 +90,275 @@ hide:
 
 ## Enumerations
 
-### LinkAction
-
 --8<-- 'devbook/reference/serialization/LinkAction.html'
-
-### NetworkType
 
 --8<-- 'devbook/reference/serialization/NetworkType.html'
 
-### TransactionType
-
 --8<-- 'devbook/reference/serialization/TransactionType.html'
-
-### BlockType
 
 --8<-- 'devbook/reference/serialization/BlockType.html'
 
-### ReceiptType
-
 --8<-- 'devbook/reference/serialization/ReceiptType.html'
-
-### NamespaceRegistrationType
 
 --8<-- 'devbook/reference/serialization/NamespaceRegistrationType.html'
 
-### AliasAction
-
 --8<-- 'devbook/reference/serialization/AliasAction.html'
-
-### LockHashAlgorithm
 
 --8<-- 'devbook/reference/serialization/LockHashAlgorithm.html'
 
-### MosaicFlags
-
 --8<-- 'devbook/reference/serialization/MosaicFlags.html'
-
-### MosaicSupplyChangeAction
 
 --8<-- 'devbook/reference/serialization/MosaicSupplyChangeAction.html'
 
-### AccountRestrictionFlags
-
 --8<-- 'devbook/reference/serialization/AccountRestrictionFlags.html'
-
-### MosaicRestrictionType
 
 --8<-- 'devbook/reference/serialization/MosaicRestrictionType.html'
 
-### AccountType
-
 --8<-- 'devbook/reference/serialization/AccountType.html'
-
-### AccountKeyTypeFlags
 
 --8<-- 'devbook/reference/serialization/AccountKeyTypeFlags.html'
 
-### AccountStateFormat
-
 --8<-- 'devbook/reference/serialization/AccountStateFormat.html'
-
-### LockStatus
 
 --8<-- 'devbook/reference/serialization/LockStatus.html'
 
-### MetadataType
-
 --8<-- 'devbook/reference/serialization/MetadataType.html'
 
-### NamespaceAliasType
-
 --8<-- 'devbook/reference/serialization/NamespaceAliasType.html'
-
-### MosaicRestrictionEntryType
 
 --8<-- 'devbook/reference/serialization/MosaicRestrictionEntryType.html'
 
 ## Structures
 
-### Mosaic
-
 --8<-- 'devbook/reference/serialization/Mosaic.html'
-
-### UnresolvedMosaic
 
 --8<-- 'devbook/reference/serialization/UnresolvedMosaic.html'
 
-### Transaction
-
 --8<-- 'devbook/reference/serialization/Transaction.html'
-
-### EmbeddedTransaction
 
 --8<-- 'devbook/reference/serialization/EmbeddedTransaction.html'
 
-### VrfProof
-
 --8<-- 'devbook/reference/serialization/VrfProof.html'
-
-### Block
 
 --8<-- 'devbook/reference/serialization/Block.html'
 
-### NemesisBlockV1
-
 --8<-- 'devbook/reference/serialization/NemesisBlockV1.html'
-
-### NormalBlockV1
 
 --8<-- 'devbook/reference/serialization/NormalBlockV1.html'
 
-### ImportanceBlockV1
-
 --8<-- 'devbook/reference/serialization/ImportanceBlockV1.html'
-
-### FinalizationRound
 
 --8<-- 'devbook/reference/serialization/FinalizationRound.html'
 
-### FinalizedBlockHeader
-
 --8<-- 'devbook/reference/serialization/FinalizedBlockHeader.html'
-
-### Receipt
 
 --8<-- 'devbook/reference/serialization/Receipt.html'
 
-### HarvestFeeReceipt
-
 --8<-- 'devbook/reference/serialization/HarvestFeeReceipt.html'
-
-### InflationReceipt
 
 --8<-- 'devbook/reference/serialization/InflationReceipt.html'
 
-### LockHashCreatedFeeReceipt
-
 --8<-- 'devbook/reference/serialization/LockHashCreatedFeeReceipt.html'
-
-### LockHashCompletedFeeReceipt
 
 --8<-- 'devbook/reference/serialization/LockHashCompletedFeeReceipt.html'
 
-### LockHashExpiredFeeReceipt
-
 --8<-- 'devbook/reference/serialization/LockHashExpiredFeeReceipt.html'
-
-### LockSecretCreatedFeeReceipt
 
 --8<-- 'devbook/reference/serialization/LockSecretCreatedFeeReceipt.html'
 
-### LockSecretCompletedFeeReceipt
-
 --8<-- 'devbook/reference/serialization/LockSecretCompletedFeeReceipt.html'
-
-### LockSecretExpiredFeeReceipt
 
 --8<-- 'devbook/reference/serialization/LockSecretExpiredFeeReceipt.html'
 
-### MosaicExpiredReceipt
-
 --8<-- 'devbook/reference/serialization/MosaicExpiredReceipt.html'
-
-### MosaicRentalFeeReceipt
 
 --8<-- 'devbook/reference/serialization/MosaicRentalFeeReceipt.html'
 
-### NamespaceExpiredReceipt
-
 --8<-- 'devbook/reference/serialization/NamespaceExpiredReceipt.html'
-
-### NamespaceDeletedReceipt
 
 --8<-- 'devbook/reference/serialization/NamespaceDeletedReceipt.html'
 
-### NamespaceRentalFeeReceipt
-
 --8<-- 'devbook/reference/serialization/NamespaceRentalFeeReceipt.html'
-
-### ReceiptSource
 
 --8<-- 'devbook/reference/serialization/ReceiptSource.html'
 
-### AddressResolutionEntry
-
 --8<-- 'devbook/reference/serialization/AddressResolutionEntry.html'
-
-### AddressResolutionStatement
 
 --8<-- 'devbook/reference/serialization/AddressResolutionStatement.html'
 
-### MosaicResolutionEntry
-
 --8<-- 'devbook/reference/serialization/MosaicResolutionEntry.html'
-
-### MosaicResolutionStatement
 
 --8<-- 'devbook/reference/serialization/MosaicResolutionStatement.html'
 
-### TransactionStatement
-
 --8<-- 'devbook/reference/serialization/TransactionStatement.html'
-
-### BlockStatement
 
 --8<-- 'devbook/reference/serialization/BlockStatement.html'
 
-### AccountKeyLinkTransactionV1
-
 --8<-- 'devbook/reference/serialization/AccountKeyLinkTransactionV1.html'
-
-### EmbeddedAccountKeyLinkTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedAccountKeyLinkTransactionV1.html'
 
-### NodeKeyLinkTransactionV1
-
 --8<-- 'devbook/reference/serialization/NodeKeyLinkTransactionV1.html'
-
-### EmbeddedNodeKeyLinkTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedNodeKeyLinkTransactionV1.html'
 
-### Cosignature
-
 --8<-- 'devbook/reference/serialization/Cosignature.html'
-
-### DetachedCosignature
 
 --8<-- 'devbook/reference/serialization/DetachedCosignature.html'
 
-### AggregateCompleteTransactionV1
-
 --8<-- 'devbook/reference/serialization/AggregateCompleteTransactionV1.html'
-
-### AggregateCompleteTransactionV2
 
 --8<-- 'devbook/reference/serialization/AggregateCompleteTransactionV2.html'
 
-### AggregateCompleteTransactionV3
-
 --8<-- 'devbook/reference/serialization/AggregateCompleteTransactionV3.html'
-
-### AggregateBondedTransactionV1
 
 --8<-- 'devbook/reference/serialization/AggregateBondedTransactionV1.html'
 
-### AggregateBondedTransactionV2
-
 --8<-- 'devbook/reference/serialization/AggregateBondedTransactionV2.html'
-
-### AggregateBondedTransactionV3
 
 --8<-- 'devbook/reference/serialization/AggregateBondedTransactionV3.html'
 
-### VotingKeyLinkTransactionV1
-
 --8<-- 'devbook/reference/serialization/VotingKeyLinkTransactionV1.html'
-
-### EmbeddedVotingKeyLinkTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedVotingKeyLinkTransactionV1.html'
 
-### VrfKeyLinkTransactionV1
-
 --8<-- 'devbook/reference/serialization/VrfKeyLinkTransactionV1.html'
-
-### EmbeddedVrfKeyLinkTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedVrfKeyLinkTransactionV1.html'
 
-### HashLockTransactionV1
-
 --8<-- 'devbook/reference/serialization/HashLockTransactionV1.html'
-
-### EmbeddedHashLockTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedHashLockTransactionV1.html'
 
-### SecretLockTransactionV1
-
 --8<-- 'devbook/reference/serialization/SecretLockTransactionV1.html'
-
-### EmbeddedSecretLockTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedSecretLockTransactionV1.html'
 
-### SecretProofTransactionV1
-
 --8<-- 'devbook/reference/serialization/SecretProofTransactionV1.html'
-
-### EmbeddedSecretProofTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedSecretProofTransactionV1.html'
 
-### AccountMetadataTransactionV1
-
 --8<-- 'devbook/reference/serialization/AccountMetadataTransactionV1.html'
-
-### EmbeddedAccountMetadataTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedAccountMetadataTransactionV1.html'
 
-### MosaicMetadataTransactionV1
-
 --8<-- 'devbook/reference/serialization/MosaicMetadataTransactionV1.html'
-
-### EmbeddedMosaicMetadataTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMosaicMetadataTransactionV1.html'
 
-### NamespaceMetadataTransactionV1
-
 --8<-- 'devbook/reference/serialization/NamespaceMetadataTransactionV1.html'
-
-### EmbeddedNamespaceMetadataTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedNamespaceMetadataTransactionV1.html'
 
-### MosaicDefinitionTransactionV1
-
 --8<-- 'devbook/reference/serialization/MosaicDefinitionTransactionV1.html'
-
-### EmbeddedMosaicDefinitionTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMosaicDefinitionTransactionV1.html'
 
-### MosaicSupplyChangeTransactionV1
-
 --8<-- 'devbook/reference/serialization/MosaicSupplyChangeTransactionV1.html'
-
-### EmbeddedMosaicSupplyChangeTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMosaicSupplyChangeTransactionV1.html'
 
-### MosaicSupplyRevocationTransactionV1
-
 --8<-- 'devbook/reference/serialization/MosaicSupplyRevocationTransactionV1.html'
-
-### EmbeddedMosaicSupplyRevocationTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMosaicSupplyRevocationTransactionV1.html'
 
-### MultisigAccountModificationTransactionV1
-
 --8<-- 'devbook/reference/serialization/MultisigAccountModificationTransactionV1.html'
-
-### EmbeddedMultisigAccountModificationTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMultisigAccountModificationTransactionV1.html'
 
-### AddressAliasTransactionV1
-
 --8<-- 'devbook/reference/serialization/AddressAliasTransactionV1.html'
-
-### EmbeddedAddressAliasTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedAddressAliasTransactionV1.html'
 
-### MosaicAliasTransactionV1
-
 --8<-- 'devbook/reference/serialization/MosaicAliasTransactionV1.html'
-
-### EmbeddedMosaicAliasTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMosaicAliasTransactionV1.html'
 
-### NamespaceRegistrationTransactionV1
-
 --8<-- 'devbook/reference/serialization/NamespaceRegistrationTransactionV1.html'
-
-### EmbeddedNamespaceRegistrationTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedNamespaceRegistrationTransactionV1.html'
 
-### AccountAddressRestrictionTransactionV1
-
 --8<-- 'devbook/reference/serialization/AccountAddressRestrictionTransactionV1.html'
-
-### EmbeddedAccountAddressRestrictionTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedAccountAddressRestrictionTransactionV1.html'
 
-### AccountMosaicRestrictionTransactionV1
-
 --8<-- 'devbook/reference/serialization/AccountMosaicRestrictionTransactionV1.html'
-
-### EmbeddedAccountMosaicRestrictionTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedAccountMosaicRestrictionTransactionV1.html'
 
-### AccountOperationRestrictionTransactionV1
-
 --8<-- 'devbook/reference/serialization/AccountOperationRestrictionTransactionV1.html'
-
-### EmbeddedAccountOperationRestrictionTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedAccountOperationRestrictionTransactionV1.html'
 
-### MosaicAddressRestrictionTransactionV1
-
 --8<-- 'devbook/reference/serialization/MosaicAddressRestrictionTransactionV1.html'
-
-### EmbeddedMosaicAddressRestrictionTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMosaicAddressRestrictionTransactionV1.html'
 
-### MosaicGlobalRestrictionTransactionV1
-
 --8<-- 'devbook/reference/serialization/MosaicGlobalRestrictionTransactionV1.html'
-
-### EmbeddedMosaicGlobalRestrictionTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedMosaicGlobalRestrictionTransactionV1.html'
 
-### TransferTransactionV1
-
 --8<-- 'devbook/reference/serialization/TransferTransactionV1.html'
-
-### EmbeddedTransferTransactionV1
 
 --8<-- 'devbook/reference/serialization/EmbeddedTransferTransactionV1.html'
 
-### PinnedVotingKey
-
 --8<-- 'devbook/reference/serialization/PinnedVotingKey.html'
-
-### ImportanceSnapshot
 
 --8<-- 'devbook/reference/serialization/ImportanceSnapshot.html'
 
-### HeightActivityBucket
-
 --8<-- 'devbook/reference/serialization/HeightActivityBucket.html'
-
-### HeightActivityBuckets
 
 --8<-- 'devbook/reference/serialization/HeightActivityBuckets.html'
 
-### AccountState
-
 --8<-- 'devbook/reference/serialization/AccountState.html'
-
-### HashLockInfo
 
 --8<-- 'devbook/reference/serialization/HashLockInfo.html'
 
-### MetadataValue
-
 --8<-- 'devbook/reference/serialization/MetadataValue.html'
-
-### MetadataEntry
 
 --8<-- 'devbook/reference/serialization/MetadataEntry.html'
 
-### MosaicProperties
-
 --8<-- 'devbook/reference/serialization/MosaicProperties.html'
-
-### MosaicDefinition
 
 --8<-- 'devbook/reference/serialization/MosaicDefinition.html'
 
-### MosaicEntry
-
 --8<-- 'devbook/reference/serialization/MosaicEntry.html'
-
-### MultisigEntry
 
 --8<-- 'devbook/reference/serialization/MultisigEntry.html'
 
-### NamespaceLifetime
-
 --8<-- 'devbook/reference/serialization/NamespaceLifetime.html'
-
-### NamespaceAlias
 
 --8<-- 'devbook/reference/serialization/NamespaceAlias.html'
 
-### NamespacePath
-
 --8<-- 'devbook/reference/serialization/NamespacePath.html'
-
-### RootNamespaceHistory
 
 --8<-- 'devbook/reference/serialization/RootNamespaceHistory.html'
 
-### AccountRestrictionAddressValue
-
 --8<-- 'devbook/reference/serialization/AccountRestrictionAddressValue.html'
-
-### AccountRestrictionMosaicValue
 
 --8<-- 'devbook/reference/serialization/AccountRestrictionMosaicValue.html'
 
-### AccountRestrictionTransactionTypeValue
-
 --8<-- 'devbook/reference/serialization/AccountRestrictionTransactionTypeValue.html'
-
-### AccountRestrictionsInfo
 
 --8<-- 'devbook/reference/serialization/AccountRestrictionsInfo.html'
 
-### AccountRestrictions
-
 --8<-- 'devbook/reference/serialization/AccountRestrictions.html'
-
-### AddressKeyValue
 
 --8<-- 'devbook/reference/serialization/AddressKeyValue.html'
 
-### AddressKeyValueSet
-
 --8<-- 'devbook/reference/serialization/AddressKeyValueSet.html'
-
-### RestrictionRule
 
 --8<-- 'devbook/reference/serialization/RestrictionRule.html'
 
-### GlobalKeyValue
-
 --8<-- 'devbook/reference/serialization/GlobalKeyValue.html'
-
-### GlobalKeyValueSet
 
 --8<-- 'devbook/reference/serialization/GlobalKeyValueSet.html'
 
-### MosaicAddressRestrictionEntry
-
 --8<-- 'devbook/reference/serialization/MosaicAddressRestrictionEntry.html'
-
-### MosaicGlobalRestrictionEntry
 
 --8<-- 'devbook/reference/serialization/MosaicGlobalRestrictionEntry.html'
 
-### MosaicRestrictionEntry
-
 --8<-- 'devbook/reference/serialization/MosaicRestrictionEntry.html'
-
-### SecretLockInfo
 
 --8<-- 'devbook/reference/serialization/SecretLockInfo.html'
 
@@ -696,5 +426,8 @@ Their description is already present in the containing structures above and is o
     border: none;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
+}
+.md-typeset table:not([class]) td:has(dl) {
+    padding-left: 0;
 }
 </style>

@@ -17,6 +17,7 @@ plugins:
       - js
       - java
       - ws
+      - ser
       - _
   mkdoxy:  # Generate API reference docs for Java
     save-api: .doxy
