@@ -116,12 +116,12 @@ This situation should not occur in this tutorial.
 
 ### Enabling the Restriction
 
-To restrict the list of addresses the account can interact with, an `AccountAddressRestrictionTransaction` is used.
+To restrict the list of addresses the account can interact with, an <ser:AccountAddressRestrictionTransactionV1> is used.
 
 The other two account restriction types, not covered in this tutorial, are:
 
-- `AccountMosaicRestrictionTransaction`
-- `AccountOperationRestrictionTransaction`
+- <ser:AccountMosaicRestrictionTransactionV1>
+- <ser:AccountOperationRestrictionTransactionV1>
 
 {{ tutorial.code_snippet(['py:63:80', 'js:69:87']) }}
 
@@ -129,18 +129,18 @@ The transaction includes the following fields:
 
 - `signer_public_key`: <public key:> of the account whose restriction configuration will be modified.
 
-- `restriction_flags`:
+- `restriction_flags`: These are <ser:AccountRestrictionFlags>.
 
-    - `AccountRestrictionFlags.ADDRESS` specifies that the restriction applies to addresses.
+    - `ADDRESS` specifies that the restriction applies to addresses.
         Other possible scopes are `MOSAIC_ID` and `TRANSACTION_TYPE`.
-    - `AccountRestrictionFlags.OUTGOING` specifies that only outgoing transactions are affected.
+    - `OUTGOING` specifies that only outgoing transactions are affected.
         Incoming transaction restrictions can be configured independently by omitting this flag.
 
     By default, the listed values form an _allowlist_.
     Only the specified addresses are allowed.
 
     To configure the restriction in _blocklist_ mode, where the listed addresses are forbidden,
-    include the `AccountRestrictionFlags.BLOCK` flag.
+    include the `BLOCK` flag.
 
     The network XOR's these flags with the current value, which at this point is 0 because the tutorial makes sure
     no restriction is present before enabling it.
@@ -232,5 +232,5 @@ This tutorial showed how to:
 | Step                                                                               | Related documentation                        |
 |------------------------------------------------------------------------------------|----------------------------------------------|
 | [Retrieve the current restriction configuration](#detecting-the-restriction-state) | <get:/restrictions/account/{address}>        |
-| [Enable a restriction](#enabling-the-restriction)                                  | `AccountAddressRestrictionTransaction`       |
-| [Remove a restriction](#removing-the-restriction)                                  | `AccountAddressRestrictionTransaction`       |
+| [Enable a restriction](#enabling-the-restriction)                                  | <ser:AccountAddressRestrictionTransactionV1> |
+| [Remove a restriction](#removing-the-restriction)                                  | <ser:AccountAddressRestrictionTransactionV1> |
