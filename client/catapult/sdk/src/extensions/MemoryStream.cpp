@@ -35,7 +35,7 @@ namespace catapult { namespace extensions {
 		if(0u == buffer.Size)
 			return;
 		m_buffer.resize(std::max<size_t>(m_buffer.size(), m_position + buffer.Size));
-		utils::memcpy_cond(&m_buffer[m_position], buffer.pData, buffer.Size);
+		std::memcpy(&m_buffer[m_position], buffer.pData, buffer.Size);
 		m_position += buffer.Size;
 	}
 
