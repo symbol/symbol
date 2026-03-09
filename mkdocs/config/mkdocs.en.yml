@@ -101,6 +101,7 @@ nav:
               - devbook/mosaics/modify-mosaic-definition.md
               - devbook/mosaics/mosaic-metadata.md
               - devbook/mosaics/revoke-mosaic.md
+              - devbook/mosaics/mosaic-restrictions.md
           - Chain State:
               - devbook/chain/chain-heights.md
               - devbook/chain/prove-transaction.md
