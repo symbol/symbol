@@ -34,7 +34,7 @@
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
 	--md-blanket-color: #000C;
-	--md-code-bg-color: var(--md-primary-fg-color--dark);
+	--md-code-bg-color: var(--md-accent-fg-color--transparent);
 	--md-typeset-mark-color: inherit;
 	--md-code-hl-string-color: #d59781;
 	--md-code-hl-comment-color: green;
@@ -612,6 +612,12 @@ code.doc-symbol-interface::after {
 .md-typeset .subsections table td:not(:has(strong)):first-child {
 	padding-left: 2rem;
 	border-style: hidden;
+	white-space: nowrap;
+}
+
+/* Tables with an unbroken first column */
+
+.md-typeset .keyed-table table td:first-child code {
 	white-space: nowrap;
 }
 

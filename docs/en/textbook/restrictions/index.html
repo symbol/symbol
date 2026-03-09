@@ -1712,6 +1712,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/mosaics/mosaic-restrictions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add Mosaic Restrictions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1770,6 +1791,94 @@
   
   <span class="md-ellipsis">
     Chain and Finalization Height
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/chain/prove-transaction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Prove Transaction Inclusion
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_6" id="__nav_3_3_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    WebSockets
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            WebSockets
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devbook/websockets/listen-new-blocks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New Blocks
   </span>
   
 
@@ -9157,7 +9266,7 @@ validates incoming transactions, and participates in consensus and block creatio
 	name="_:Node"
 	href="../../textbook/nodes/#bc6d0fc1a92ae07d7739daed957574ab">nodes</a>.</p>
 <p>They are also enforced within <a class="mkdocs-ezglossary-link"
-	id="423094b0e796f5bb67084de6029228f3"
+	id="cc28df251d2c2ce5cfe1ae78c400a505"
 	title="Aggregate transactions group multiple basic transactions and execute them atomically:
 all embedded transactions are accepted or none are."
 	name="_:Aggregate Transaction"
@@ -9201,7 +9310,7 @@ restrictions have also been adopted for other purposes, including enhancing secu
 accounts or mosaics can be used."
 	name="_:Restriction"
 	href="../../textbook/restrictions/#a0a0b2390a7807b40a0c6b786d824d14">restriction</a> that limits what an individual <a class="mkdocs-ezglossary-link"
-	id="eaa5fdfb5e71ca8e5b777ff837e1d012"
+	id="c50a64b3720a01dabf9b4d69f298ebc3"
 	title="A secure place where digital assets like cryptocurrencies or NFTs can be stored.
 It functions similarly to a safe deposit box in traditional banking."
 	name="_:Account"
@@ -9373,7 +9482,7 @@ restriction-related functions.</li>
 accounts or mosaics can be used."
 	name="_:Restriction"
 	href="../../textbook/restrictions/#a0a0b2390a7807b40a0c6b786d824d14">restriction</a> that defines rules accounts must satisfy in order to transact with a given <a class="mkdocs-ezglossary-link"
-	id="a633fd0e1c7b93c0676864d09778d44e"
+	id="09f091a1dc2438be315b34b1ced00392"
 	title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
 For example: currencies, licenses, collectibles, access rights, or voting power."
 	name="_:Mosaic"
@@ -9381,7 +9490,7 @@ For example: currencies, licenses, collectibles, access rights, or voting power.
 
 </dl>
 <p>Unlike <a class="mkdocs-ezglossary-link"
-	id="268f5423fed3f496eef7451d2d3c10a8"
+	id="6cc4ac3856d31dfacbd6e2c05550964a"
 	title="A type of restriction that limits what an individual account can do, such as which addresses it can interact with,
 which mosaics it can receive, or what transaction types it can initiate."
 	name="_:Account Restriction"
@@ -9389,8 +9498,8 @@ which mosaics it can receive, or what transaction types it can initiate."
 the mosaic's perspective.
 Any account wishing to use the mosaic must comply with them.</p>
 <p>These restrictions are created and managed by the mosaic creator.
-Other accounts cannot set or modify restrictions on mosaics they do not own.
-The restrictions do not apply to the mosaic creator.</p>
+Other accounts cannot set or modify restrictions on mosaics they do not own.</p>
+<p><strong>The restrictions apply to the mosaic creator too</strong>, which must be explicitly authorized like every other account.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Restrictions can only be applied to mosaics that have been created with the <a href="../mosaics/#restrictability">Restrictable</a>
@@ -9504,7 +9613,7 @@ The mosaic ID is derived deterministically from the creator's address and a nonc
 It assigns restriction attributes to a specific account, which are then evaluated against the condition
 defined in the corresponding mosaic global restriction."
 	name="_:Mosaic Address Restriction"
-	href="../../textbook/restrictions/#8b18474be3c30029e62f76f4960d44b8">mosaic address restrictions</a> (see next section), which are then evaluated against the global condition.</p>
+	href="../../textbook/restrictions/#8b18474be3c30029e62f76f4960d44b8">Mosaic address restrictions</a> (see next section), which are then evaluated against the global condition.</p>
 <p>Additionally, a mosaic global restriction can depend on the restriction values of another mosaic,
 known as the <em>reference mosaic</em>.
 The two mosaics do not need to be owned by the same account, allowing restriction logic to be delegated to third parties.</p>
@@ -9607,7 +9716,7 @@ the value <code>1</code> in the mosaic address restriction.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 19, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 9, 2026</span>
   </span>
 
     
