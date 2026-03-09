@@ -34,7 +34,7 @@
 	--md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 	--md-footer-fg-color: var(--md-primary-fg-color);
 	--md-blanket-color: #000C;
-	--md-code-bg-color: var(--md-primary-fg-color--dark);
+	--md-code-bg-color: var(--md-accent-fg-color--transparent);
 	--md-typeset-mark-color: inherit;
 	--md-code-hl-string-color: #d59781;
 	--md-code-hl-comment-color: green;
