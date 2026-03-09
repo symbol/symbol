@@ -6,11 +6,11 @@ title: Transaction Flow
 
 Symbol provides WebSocket channels that send real-time notifications as a <transaction:> moves through the confirmation
 process for a specific <account:>.
-Compared to polling the <get:/transactionStatus/{hash}> endpoint, WebSockets push updates as they happen without
-the overhead of repeated API calls.
+Compared to polling the <get:/transactionStatus/{hash}> endpoint, WebSockets push updates as they happen without the
+overhead of repeated API calls.
 
-This tutorial shows how to subscribe to all three channels and display updates as a transaction progresses from
-unconfirmed to confirmed.
+This tutorial shows how to subscribe to transaction channels, announce a minimal
+[Transfer Transaction](../transactions/transfer.md), and wait for its confirmation using WebSockets.
 
 !!! note
 
@@ -23,7 +23,8 @@ Before you start, make sure to:
 
 * Set up your development environment.
   See [Setting Up a Development Environment](../start/setup.md).
-* Have the address of the <account:> to monitor.
+* Have the address of the account to monitor.
+* Have an account with enough balance for transaction fees.
   See [Creating an Account from a Private Key](../accounts/create-from-private-key.md) or
   [Creating an Account by Using a Wallet](../../userbook/wallet/create-account.md).
 
@@ -53,24 +54,24 @@ If no value is provided, a default one is used.
 The WebSocket URL is derived from `NODE_URL` by replacing the HTTP protocol with the WebSocket protocol and appending
 `/ws`.
 
-The program runs until interrupted with `Ctrl+C`, which triggers the unsubscribe step before closing the connection.
-
 ## Code Explanation
 
-### Resolving the Monitored Address
+### Setting Up the Monitored Address and Signer
 
-{{ tutorial.code_snippet(['py:14:18', 'js:6:8']) }}
+{{ tutorial.code_snippet(['py:16:27', 'js:9:17']) }}
 
-Transaction WebSocket channels are scoped to a specific address, so the code needs to know which <account:> to
-monitor.
-The channel notifies whenever the address participates in a transaction, whether as sender, recipient, or any other role
-(for example, cosigner in an <aggregate transaction:>).
+Each transaction WebSocket channel is scoped to a single address.
+The `MONITOR_ADDRESS` environment variable sets the address to watch.
+The channel sends a notification whenever this address is involved in a transaction, whether as sender, recipient,
+or any other role (for example, cosigner in an <aggregate transaction:>).
 
-The address is read from the `MONITOR_ADDRESS` environment variable.
+To trigger notifications, this tutorial sends a transfer transaction to the monitored address.
+The sender's private key is read from `SIGNER_PRIVATE_KEY`.
+In this tutorial, the sender and the monitored address belong to the same account.
 
 ### Connecting to the WebSocket
 
-{{ tutorial.code_snippet(['py:22:26', 'js:10:19']) }}
+{{ tutorial.code_snippet(['py:31:35', 'js:20:28']) }}
 
 The code opens a WebSocket connection to the node's `/ws` endpoint.
 Upon connecting, the server sends a message containing a unique identifier (`uid`) that must be included in all
@@ -80,31 +81,52 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 ### Subscribing to Channels
 
-{{ tutorial.code_snippet(['py:28:39', 'js:21:31']) }}
+{{ tutorial.code_snippet(['py:37:48', 'js:30:40']) }}
 
 The code subscribes to three address-scoped channels, appending the monitored address to each channel name:
 
-* <ws:confirmedAdded|confirmedAdded/{address}>: Notifies when a transaction involving the address is included in a <block:>.
-* <ws:unconfirmedAdded|unconfirmedAdded/{address}>: Notifies when a transaction enters the <unconfirmed pool:>, waiting to be included
-    in a block.
-* <ws:unconfirmedRemoved|unconfirmedRemoved/{address}>: Notifies when a transaction leaves the unconfirmed state (either confirmed or
-    expired).
+* <ws:unconfirmedAdded&#47;{address}>: Notifies when a transaction enters the <unconfirmed pool:>,
+    waiting to be included in a block.
+* <ws:unconfirmedRemoved&#47;{address}>: Notifies when a transaction leaves the unconfirmed state
+    (either confirmed or expired).
+* <ws:confirmedAdded&#47;{address}>: Notifies when a transaction involving the address is included in a <block:>.
 
-Each subscription message includes the `uid` received during the connection step and the full channel name with
-the monitored address.
+Each subscription message includes the `uid` received during the connection step and the full channel name with the 
+monitored address.
 
-### Handling Messages
 
-{{ tutorial.code_snippet(['py:41:48', 'js:33:40']) }}
+### Building and Signing a Transfer Transaction
 
-The code listens for incoming messages until the program is interrupted.
+{{ tutorial.code_snippet(['py:50:75', 'js:42:65']) }}
+
+This tutorial builds a minimal [Transfer Transaction](../transactions/transfer.md) to the monitored address, with no
+mosaics and no message.
+A transfer is used for simplicity, but any transaction type triggers the same WebSocket notifications.
+
+The transaction is built as usual: fetching the network time and fee multiplier, creating the transaction descriptor,
+and signing it.
+The hash is computed locally so it can be matched against incoming WebSocket messages later.
+
+### Announcing and Waiting for Confirmation
+
+{{ tutorial.code_snippet(['py:77:98', 'js:67:95']) }}
+
+The code announces the transaction and then listens for incoming messages, printing each one.
+
+!!! important "Announce after subscribing to channels"
+
+    Always announce the transaction **after** subscribing to the WebSocket channels to ensure the listener is ready.
+    Otherwise, notifications could arrive before the WebSocket is listening.
+
 Each message includes a `topic` field identifying the channel and a `data` object with the event payload.
 
 For `confirmedAdded` and `unconfirmedAdded` messages, the payload follows the
 [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) schema.
 For `unconfirmedRemoved` messages, the payload contains only the transaction hash (`meta.hash`).
 
-This tutorial extracts the transaction hash from each message to track the transaction's progression through states.
+When a `confirmedAdded` message arrives whose hash matches the announced transaction, the program prints a confirmation
+message and exits.
+
 The expected sequence for a successful transaction is described in the
 [Transaction Lifecycle](../../textbook/transactions.md#transaction-lifecycle) section:
 
@@ -112,24 +134,15 @@ The expected sequence for a successful transaction is described in the
 2. `unconfirmedRemoved`: The transaction leaves the unconfirmed pool.
 3. `confirmedAdded`: The transaction is confirmed in a block.
 
-### Unsubscribing on Exit
+### Unsubscribing from Channels
 
-{{ tutorial.code_snippet(['py:50:57', 'js:42:50']) }}
+{{ tutorial.code_snippet(['py:100:106', 'js:97:102']) }}
 
-When the program is interrupted (`Ctrl+C`), the code sends unsubscribe messages for all three channels before closing
-the connection.
-This ensures a clean disconnection from the node.
+After confirmation, the code sends unsubscribe messages for all three channels before closing the connection.
 
 ## Output
 
-To test the listener, start the program in one terminal, then send a transaction involving the monitored address in a
-separate terminal.
-Any <transaction:> type triggers the WebSocket notifications, as long as the monitored address participates in it.
-
-The following output shows the result of sending a [Transfer Transaction](../transactions/transfer.md) while the
-listener is running:
-
-```text linenums="1" hl_lines="2 4-6 7-9 10"
+```text linenums="1" hl_lines="2 3 4-6 7 8-10 11 12"
 --8<-- 'devbook/websockets/listen-transaction-flow.log'
 ```
 
@@ -138,20 +151,22 @@ The output shows:
 * **Address** (line 2): The monitored address.
 * **Connection** (line 3): The WebSocket connection is established and the server returns a unique `uid`.
 * **Subscriptions** (lines 4-6): All three transaction channels are subscribed.
-* **Transaction flow** (lines 7-9): The transaction moves from `unconfirmedAdded` to `unconfirmedRemoved` to
+* **Announcement** (line 7): The transaction is announced and its hash is printed.
+* **Transaction flow** (lines 8-10): The transaction moves from `unconfirmedAdded` to `unconfirmedRemoved` to
     `confirmedAdded`, showing the full confirmation lifecycle.
-* **Unsubscribe** (line 10): On `Ctrl+C`, the code unsubscribes from all channels.
+* **Confirmation** (line 11): The hash from `confirmedAdded` matches the announced transaction, confirming success.
+* **Unsubscribe** (line 12): The code unsubscribes from all channels.
 
 ## Conclusion
 
 This tutorial showed how to:
 
-| Step                                                        | Related documentation                                                      |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------|
-| [Subscribe to confirmedAdded](#subscribing-to-channels)     | <ws:confirmedAdded>                                                        |
-| [Subscribe to unconfirmedAdded](#subscribing-to-channels)   | <ws:unconfirmedAdded>                                                      |
-| [Subscribe to unconfirmedRemoved](#subscribing-to-channels) | <ws:unconfirmedRemoved>                                                    |
-| [Handle transaction messages](#handling-messages)           | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
+| Step                                                                           | Related documentation                                                         |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------|
+| [Subscribe to unconfirmedAdded](#subscribing-to-channels)                      | <ws:unconfirmedAdded&#47;{address}>                                           |
+| [Subscribe to unconfirmedRemoved](#subscribing-to-channels)                    | <ws:unconfirmedRemoved&#47;{address}>                                         |
+| [Subscribe to confirmedAdded](#subscribing-to-channels)                        | <ws:confirmedAdded&#47;{address}>                                             |
+| [Handle transaction messages](#announcing-and-waiting-for-confirmation)        | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO)    |
 
 ## Next Steps
 
