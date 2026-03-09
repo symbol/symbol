@@ -139,7 +139,8 @@ Any account wishing to use the mosaic must comply with them.
 
 These restrictions are created and managed by the mosaic creator.
 Other accounts cannot set or modify restrictions on mosaics they do not own.
-The restrictions do not apply to the mosaic creator.
+
+**The restrictions apply to the mosaic creator too**, which must be explicitly authorized like every other account.
 
 !!! note
 
