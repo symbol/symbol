@@ -32,11 +32,7 @@ namespace catapult { namespace extensions {
 	{}
 
 	void MemoryStream::write(const RawBuffer& buffer) {
-		if(0u == buffer.Size)
-			return;
-
-		m_buffer.resize(std::max<size_t>(m_buffer.size(), m_position + buffer.Size));
-		std::memcpy(&m_buffer[m_position], buffer.pData, buffer.Size);
+		m_buffer.insert(m_buffer.end(), buffer.pData, buffer.pData + buffer.Size);
 		m_position += buffer.Size;
 	}
 
