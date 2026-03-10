@@ -35,9 +35,12 @@ namespace catapult { namespace extensions {
 		if(0u == buffer.Size)
 			return;
 
-		m_buffer.resize(std::max<size_t>(m_buffer.size(), m_position + buffer.Size));
+		const auto end = m_position + buffer.Size;
+		if(end > m_buffer.size())
+			m_buffer.resize(end);
+
 		std::memcpy(&m_buffer[m_position], buffer.pData, buffer.Size);
-		m_position += buffer.Size;
+		m_position = end;
 	}
 
 	void MemoryStream::flush()
