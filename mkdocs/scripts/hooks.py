@@ -186,10 +186,13 @@ def on_page_markdown(content, page, config, files):
 def on_startup(*args, **kwargs):
 	"""
 	Add the mkdocs folder to PYTHONPATH, so custom modules like the CATS lexer are found.
+	Customize the log level of individual plugins.
 	"""
 	project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 	if project_root not in sys.path:
 		sys.path.insert(0, project_root)
+	# Make this noisy plugin shut up a bit
+	mkdocs.plugins.get_plugin_logger('mkdocs_site_urls').setLevel(logging.WARNING)
 
 def on_nav(nav, config, files):
 	"""
