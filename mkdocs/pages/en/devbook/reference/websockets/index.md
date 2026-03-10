@@ -40,7 +40,7 @@ All channels share the same response format, which is:
 
 ### `block`
 
-`ws:block`
+ws:block
 :   Notifies subscribed clients every time **a new block is created**.
     Each returned message contains information about one block.
 
@@ -59,7 +59,7 @@ All channels share the same response format, which is:
 
 ### `finalizedBlock`
 
-`ws:finalizedBlock`
+ws:finalizedBlock
 :   Notifies subscribed clients every time a set of blocks is <finalization|finalized>.
     Each returned message contains information about the **highest block** in the finalization round.
     All blocks with a smaller height are assumed finalized.
@@ -79,7 +79,7 @@ All channels share the same response format, which is:
 
 ### `confirmedAdded`
 
-`ws:confirmedAdded/{address}`
+ws:confirmedAdded&#47;{address}
 :   Notifies subscribed clients when a transaction related to the given address is included in a block.
     Each returned message contains information about one confirmed transaction.
 
@@ -98,7 +98,7 @@ All channels share the same response format, which is:
 
 ### `unconfirmedAdded`
 
-`ws:unconfirmedAdded/{address}`
+ws:unconfirmedAdded&#47;{address}
 :   Notifies subscribed clients when a transaction related to the given address enters the unconfirmed state,
     waiting to be included in a block.
     Each returned message contains information about one unconfirmed transaction.
@@ -122,7 +122,7 @@ has all required cosigners and changes its state from `partial` to `unconfirmed`
 
 ### `unconfirmedRemoved`
 
-`ws:unconfirmedRemoved/{address}`
+ws:unconfirmedRemoved&#47;{address}
 :   Notifies subscribed clients when a transaction related to the given address exits the `unconfirmed` state.
     Each returned message contains a no-longer-unconfirmed transaction hash.
 
@@ -144,7 +144,7 @@ the transaction is now confirmed, or the deadline was reached and the transactio
 
 ### `partialAdded`
 
-`ws:partialAdded/{address}`
+ws:partialAdded&#47;{address}
 :   Notifies subscribed clients when a <bonded aggregate transaction:> related to the given address enters the
     `partial` state, waiting for all required cosignatures to complete.
     Each returned message contains information about one added partial transaction.
@@ -164,7 +164,7 @@ the transaction is now confirmed, or the deadline was reached and the transactio
 
 ### `partialRemoved`
 
-`ws:partialRemoved/{address}`
+ws:partialRemoved&#47;{address}
 :   Notifies subscribed clients when a <bonded aggregate transaction:> related to the given address exits the
     `partial` state.
     Each returned message contains one removed partial transaction hash.
@@ -188,7 +188,7 @@ or the deadline was reached and the transaction was not included in a block.
 
 ### `cosignature`
 
-`ws:cosignature/{address}`
+ws:cosignature&#47;{address}
 :   Notifies subscribed clients when a <cosignature:> related to the given address is added to a
     <bonded aggregate transaction:> in the `partial` state.
     Each returned message contains one cosignature-signed transaction.
@@ -208,7 +208,7 @@ or the deadline was reached and the transaction was not included in a block.
 
 ### `status`
 
-`ws:status/{address}`
+ws:status&#47;{address}
 :   Notifies subscribed clients when a transaction related to the given address signals an error.
     Each returned message contains one error message and a transaction hash.
 

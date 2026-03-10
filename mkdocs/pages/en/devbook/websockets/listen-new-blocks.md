@@ -48,7 +48,7 @@ The program runs until interrupted with `Ctrl+C`, which triggers the unsubscribe
 
 ### Connecting to the WebSocket
 
-{{ tutorial.code_snippet(['py:13:17', 'js:6:15']) }}
+{{ tutorial.code_snippet(['py:13:17', 'js:7:16']) }}
 
 The first step is to open a WebSocket connection to the node's `/ws` endpoint.
 Upon connecting, the server sends a message containing a unique identifier (`uid`) that must be included in all subsequent
@@ -58,7 +58,7 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 ### Subscribing to Channels
 
-{{ tutorial.code_snippet(['py:19:27', 'js:17:23']) }}
+{{ tutorial.code_snippet(['py:19:27', 'js:18:24']) }}
 
 The code subscribes to two channels:
 
@@ -69,7 +69,7 @@ Each subscription message includes the `uid` received during the connection step
 
 ### Handling Messages
 
-{{ tutorial.code_snippet(['py:29:48', 'js:25:48']) }}
+{{ tutorial.code_snippet(['py:29:48', 'js:26:50']) }}
 
 The code listens for incoming messages until the program is interrupted.
 Each message includes a `topic` field identifying the channel and a `data` object with the event payload.
@@ -96,7 +96,7 @@ this process.
 
 ### Unsubscribing on Exit
 
-{{ tutorial.code_snippet(['py:50:57', 'js:50:58']) }}
+{{ tutorial.code_snippet(['py:50:57', 'js:52:60']) }}
 
 When the program is interrupted (`Ctrl+C`), the code sends unsubscribe messages for both channels before closing the
 connection.
