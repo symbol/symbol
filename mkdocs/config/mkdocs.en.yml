@@ -111,7 +111,6 @@ nav:
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
-          - Java SDK: devbook/reference/java/
           - Symbol REST API: devbook/reference/rest/symbol.md
           - Serialization: devbook/reference/serialization/index.md
           - WebSockets: devbook/reference/websockets/index.md
