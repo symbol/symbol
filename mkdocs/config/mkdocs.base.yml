@@ -156,6 +156,16 @@ extra:
       tsconfig: ../sdk/javascript/tsconfig/check-bindings.json
       options: ../sdk/javascript/docs/typedoc.json
       disabled: !ENV [SYMBOL_DOCS_DISABLE_TS, false]
+    py-sdk:
+      ignore-files:
+        - __main__
+        - symbolchain
+        - symbol
+        - sc
+        - nc
+        - NemFacade
+      ignore-folders:
+        - nem
     class-remaps:
       SymbolTransactionFactory: TransactionFactory
     global-namespaces:

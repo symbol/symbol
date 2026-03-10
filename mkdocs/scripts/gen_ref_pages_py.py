@@ -3,6 +3,8 @@ from pathlib import Path
 import mkdocs_gen_files
 
 nav = mkdocs_gen_files.Nav()
+ignored_files = mkdocs_gen_files.config['extra']['symbol']['py-sdk']['ignore-files']
+ignored_folders = mkdocs_gen_files.config['extra']['symbol']['py-sdk']['ignore-folders']
 
 root = Path(__file__).parent.parent.parent
 src = root / "sdk/python/symbolchain"
@@ -17,7 +19,9 @@ for path in paths:
 
 	if parts[-1] == "__init__":
 		parts = parts[:-1]
-	elif parts[-1] == "__main__":
+	if parts[-1] in ignored_files:
+		continue
+	if any(e in parts for e in ignored_folders):
 		continue
 
 	nav[parts] = doc_path.as_posix()
