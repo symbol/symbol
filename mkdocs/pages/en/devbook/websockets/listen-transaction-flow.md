@@ -67,7 +67,9 @@ or any other role (for example, cosigner in an <aggregate transaction:>).
 
 To trigger notifications, this tutorial sends a transfer transaction to the monitored address.
 The sender's private key is read from `SIGNER_PRIVATE_KEY`.
-In this tutorial, the sender and the monitored address belong to the same account.
+
+If any of these environment variables is not provided, the tutorial provides default values that correspond to
+the same account.
 
 ### Connecting to the WebSocket
 
@@ -91,9 +93,8 @@ The code subscribes to three address-scoped channels, appending the monitored ad
     (either confirmed or expired).
 * <ws:confirmedAdded&#47;{address}>: Notifies when a transaction involving the address is included in a <block:>.
 
-Each subscription message includes the `uid` received during the connection step and the full channel name with the 
+Each subscription message includes the `uid` received during the connection step and the full channel name with the
 monitored address.
-
 
 ### Building and Signing a Transfer Transaction
 
@@ -113,7 +114,7 @@ The hash is computed locally so it can be matched against incoming WebSocket mes
 
 The code announces the transaction and then listens for incoming messages, printing each one.
 
-!!! important "Announce after subscribing to channels"
+!!! warning "Announce after subscribing to channels"
 
     Always announce the transaction **after** subscribing to the WebSocket channels to ensure the listener is ready.
     Otherwise, notifications could arrive before the WebSocket is listening.
@@ -161,12 +162,12 @@ The output shows:
 
 This tutorial showed how to:
 
-| Step                                                                           | Related documentation                                                         |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------|
-| [Subscribe to unconfirmedAdded](#subscribing-to-channels)                      | <ws:unconfirmedAdded&#47;{address}>                                           |
-| [Subscribe to unconfirmedRemoved](#subscribing-to-channels)                    | <ws:unconfirmedRemoved&#47;{address}>                                         |
-| [Subscribe to confirmedAdded](#subscribing-to-channels)                        | <ws:confirmedAdded&#47;{address}>                                             |
-| [Handle transaction messages](#announcing-and-waiting-for-confirmation)        | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO)    |
+| Step                                                                    | Related documentation                                                      |
+|-------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [Subscribe to unconfirmedAdded](#subscribing-to-channels)               | <ws:unconfirmedAdded&#47;{address}>                                        |
+| [Subscribe to unconfirmedRemoved](#subscribing-to-channels)             | <ws:unconfirmedRemoved&#47;{address}>                                      |
+| [Subscribe to confirmedAdded](#subscribing-to-channels)                 | <ws:confirmedAdded&#47;{address}>                                          |
+| [Handle transaction messages](#announcing-and-waiting-for-confirmation) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
 
 ## Next Steps
 
