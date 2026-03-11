@@ -60,10 +60,11 @@ The WebSocket URL is derived from `NODE_URL` by replacing the HTTP protocol with
 
 {{ tutorial.code_snippet(['py:16:27', 'js:9:17']) }}
 
-Each transaction WebSocket channel is scoped to a single address.
+Each transaction WebSocket channel is scoped to a specific address.
 The `MONITOR_ADDRESS` environment variable sets the address to watch.
 The channel sends a notification whenever this address is involved in a transaction, whether as sender, recipient,
-or any other role (for example, cosigner in an <aggregate transaction:>).
+or any other role derived from the transaction's content (for example, signer of an embedded transaction in an
+<aggregate transaction:>).
 
 To trigger notifications, this tutorial sends a transfer transaction to the monitored address.
 The sender's private key is read from `SIGNER_PRIVATE_KEY`.
@@ -171,4 +172,4 @@ This tutorial showed how to:
 
 ## Next Steps
 
-To detect rejected transactions and their error codes, see the Listening to Transaction Errors tutorial.
+To detect rejected transactions and their error codes, see the [Listening to Transaction Errors](listen-transaction-error.md) tutorial.
