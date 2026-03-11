@@ -4,8 +4,8 @@ title: Transaction Errors
 
 # Listening to Transaction Errors
 
-The <ws:status> WebSocket channel sends real-time notifications when a <transaction:> related to a specific <account:>
-is rejected by the network.
+The <ws:status&#47;{address}> WebSocket channel sends real-time notifications when a <transaction:> related to a
+specific <account:> is rejected by the network.
 Instead of polling the <get:/transactionStatus/{hash}> endpoint, the `status` channel pushes error details as soon as
 the network rejects a transaction.
 
@@ -79,7 +79,7 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 {{ tutorial.code_snippet(['py:37:42', 'js:35:38']) }}
 
-The code subscribes to the <ws:status> channel scoped to the monitored address.
+The code subscribes to the <ws:status&#47;{address}> channel scoped to the monitored address.
 This channel notifies whenever a transaction involving the address is rejected by the network, providing the error code
 and the transaction hash.
 
@@ -136,8 +136,8 @@ The output shows:
 
 This tutorial showed how to:
 
-| Step                                                                               | Related documentation                                                          |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [Subscribe to status channel](#subscribing-to-the-status-channel)                  | <ws:status>                                                                    |
-| [Trigger a rejection](#building-and-signing-an-invalid-transfer-transaction)       | [Transfer Transaction](../transactions/transfer.md)                            |
-| [Handle error messages](#announcing-and-waiting-for-the-error)                     | [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) |
+| Step                                                                         | Related documentation                                                          |
+|------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [Subscribe to status channel](#subscribing-to-the-status-channel)            | <ws:status&#47;{address}>                                                      |
+| [Trigger a rejection](#building-and-signing-an-invalid-transfer-transaction) | [Transfer Transaction](../transactions/transfer.md)                            |
+| [Handle error messages](#announcing-and-waiting-for-the-error)               | [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) |
