@@ -109,6 +109,7 @@ nav:
               - devbook/websockets/listen-new-blocks.md
               - devbook/websockets/listen-transaction-flow.md
               - devbook/websockets/listen-bonded-transaction-flow.md
+              - devbook/websockets/listen-transaction-error.md
       - Reference Guides:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
