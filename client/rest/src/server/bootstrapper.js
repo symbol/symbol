@@ -99,9 +99,11 @@ const catapultRestifyPlugins = {
 
 		if (req.accepts(accepts))
 			return next();
+
 		const error = isTextPlainPath
 			? new restifyErrors.NotAcceptableError('Endpoint accepts only text/plain')
 			: new restifyErrors.NotAcceptableError('Endpoint accepts only application/json');
+
 		return next(error);
 	}
 };

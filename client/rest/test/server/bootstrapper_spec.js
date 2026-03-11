@@ -458,7 +458,7 @@ describe('server (bootstrapper)', () => {
 				.end((headers, body) => {
 					// Assert:
 					expect(headers['content-type']).to.include('text/plain');
-					expect(String(body)).to.equal('12345.678');
+					expect(body).to.equal(12345.678);
 				}));
 
 			// endregion
