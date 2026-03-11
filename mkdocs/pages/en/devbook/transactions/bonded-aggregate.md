@@ -84,7 +84,7 @@ transactions are announced and confirmed.
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that poll for pending
-transactions and cosign after verifying the transaction.
+transactions and add their signatures after verifying the transaction.
 
 In practice, each role runs as a separate program on a separate machine.
 This tutorial combines both roles in a single script for simplicity.

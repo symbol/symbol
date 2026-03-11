@@ -88,7 +88,7 @@ but applications will probably want to use more fine-grained control.
 
 A complete aggregate transaction may involve two distinct roles: an **initiator** (Account A) that builds and announces
 the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that receive the transaction
-payload off-chain and cosign after verifying the transaction.
+payload off-chain and add their signatures after verifying the transaction.
 When only one account is involved, no cosignatures are needed.
 
 In practice, each role runs as a separate program on a separate machine.
@@ -276,10 +276,17 @@ or the entire transaction fails and no assets are transferred.
 
 This tutorial showed how to:
 
-| Step                                                                   | Related documentation                                                               |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------|
-| [Create embedded transactions](#creating-embedded-transactions)        | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [Build the aggregate](#building-the-aggregate-transaction)             | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [Sign the transaction](#signing-the-transaction)                       | <dy:SymbolFacade.signTransaction>                                                   |
-| [Verify and cosign](#verifying-and-cosigning)                          | <dy:SymbolFacade.cosignTransaction>                                                 |
-| [Collect the cosignature](#collecting-the-cosignature)                 | <dy:SymbolTransactionFactory.attachSignature>                                       |
+| Step                                                            | Related documentation                                                               |
+|-----------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [Create embedded transactions](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                        |
+| [Build the aggregate](#building-the-aggregate-transaction)      | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [Sign the transaction](#signing-the-transaction)                | <dy:SymbolFacade.signTransaction>                                                   |
+| [Verify and cosign](#verifying-and-cosigning)                   | <dy:SymbolFacade.cosignTransaction>                                                 |
+| [Collect the cosignature](#collecting-the-cosignature)          | <dy:SymbolTransactionFactory.attachSignature>                                       |
+
+## Next Steps
+
+* **Sponsor fees:** Let one account pay transaction fees on behalf of another using the
+  [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
+* **Use bonded aggregates:** If parties cannot coordinate off-chain, see the
+  [Creating a Complete Aggregate Transaction](./complete-aggregate.md) tutorial for a fully on-chain alternative.

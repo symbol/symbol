@@ -5,7 +5,7 @@ title: Bonded Transaction Flow
 # Listening to Bonded Transaction Flow
 
 <Bonded aggregate transactions:|Bonded aggregate transactions> follow a richer lifecycle than regular transactions.
-After announcement, they enter a `partial` state where the network receives <cosignatures:> from all required
+After being announced, they enter a `partial` state where the network receives <cosignatures:> from all required
 participants.
 Only after all cosignatures arrive does the transaction move through the standard `unconfirmed` and `confirmed` states.
 
@@ -57,7 +57,7 @@ To use your own accounts, complete the following steps:
 {{ tutorial.code_full('devbook/websockets/listen-bonded-transaction-flow', ['py', 'js']) }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
-announces the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that monitor
+announces the aggregate, and one or more **cosigners** (Account B and any additional cosigners) that monitor
 WebSocket channels and cosign after verifying the transaction.
 
 In practice, each role runs as a separate program on a separate machine, and all cosigners must already be
@@ -76,7 +76,7 @@ Account A only needs Account B's public key to build the aggregate, because B's 
 the signer of an embedded transaction and to derive B's <address:>.
 
 The `ACCOUNT_A_PRIVATE_KEY` and `ACCOUNT_B_PRIVATE_KEY` environment variables set the keys for each account.
-If not provided, test keys are used as defaults.
+If not provided, test keys are used by default.
 If using your own keys, ensure Account A has XYM and Account B holds a custom mosaic for the swap.
 The addresses are derived from the public keys using the facade's network configuration.
 
@@ -119,7 +119,7 @@ use extra channels:
 {{ tutorial.code_snippet(['py:194:203', 'js:257:267']) }}
 
 Once Account B is subscribed, Account A announces the bonded aggregate to <put:/transactions/partial> (not the
-regular `/transactions` endpoint).
+regular <put:/transactions> endpoint).
 
 ### Account B: Handling WebSocket Messages and Cosigning
 
@@ -176,11 +176,11 @@ The output shows:
 
 This tutorial showed how to:
 
-| Step                                                                                        | Related documentation                                                          |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [Subscribe to partialAdded](#account-b-connecting-and-subscribing-to-channels)              | <ws:partialAdded&#47;{address}>                                                |
-| [Subscribe to partialRemoved](#account-b-connecting-and-subscribing-to-channels)            | <ws:partialRemoved&#47;{address}>                                              |
-| [Subscribe to cosignature](#account-b-connecting-and-subscribing-to-channels)               | <ws:cosignature&#47;{address}>                                                 |
-| [Handle transaction messages](#account-b-handling-websocket-messages-and-cosigning)         | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO)     |
-| [Handle cosignature messages](#account-b-handling-websocket-messages-and-cosigning)         | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO)             |
-| [Submit cosignatures on partialAdded](#account-b-handling-websocket-messages-and-cosigning) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature>    |
+| Step                                                                                        | Related documentation                                                       |
+|---------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [Subscribe to partialAdded](#account-b-connecting-and-subscribing-to-channels)              | <ws:partialAdded&#47;{address}>                                             |
+| [Subscribe to partialRemoved](#account-b-connecting-and-subscribing-to-channels)            | <ws:partialRemoved&#47;{address}>                                           |
+| [Subscribe to cosignature](#account-b-connecting-and-subscribing-to-channels)               | <ws:cosignature&#47;{address}>                                              |
+| [Handle transaction messages](#account-b-handling-websocket-messages-and-cosigning)         | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO)  |
+| [Handle cosignature messages](#account-b-handling-websocket-messages-and-cosigning)         | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO)          |
+| [Submit cosignatures on partialAdded](#account-b-handling-websocket-messages-and-cosigning) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |

@@ -92,8 +92,8 @@ async def main():
 	# Sign the bonded aggregate
 	bonded_signature = facade.sign_transaction(
 		account_a_key_pair, bonded_tx)
-	bonded_payload = (facade.transaction_factory.attach_signature(
-			bonded_tx, bonded_signature))
+	bonded_payload = facade.transaction_factory.attach_signature(
+		bonded_tx, bonded_signature)
 	bonded_hash = facade.hash_transaction(bonded_tx)
 	print(
 		f'[Account A] Bonded aggregate hash: {str(bonded_hash)[:16]}...')
@@ -114,8 +114,8 @@ async def main():
 	hash_lock.fee = Amount(fee_multiplier * hash_lock.size)
 	hash_lock_signature = facade.sign_transaction(
 		account_a_key_pair, hash_lock)
-	hash_lock_payload = (facade.transaction_factory.attach_signature(
-			hash_lock, hash_lock_signature))
+	hash_lock_payload = facade.transaction_factory.attach_signature(
+		hash_lock, hash_lock_signature)
 	hash_lock_hash = facade.hash_transaction(hash_lock)
 
 	# Confirm hash lock via WebSocket
@@ -223,8 +223,8 @@ async def main():
 				message_hash = (message['data']['meta']['hash'])
 				print(f'partialAdded: hash={message_hash[:16]}...')
 				if message_hash == str(bonded_hash):
-					cosignature = (facade.cosign_transaction_hash(
-							account_b_key_pair, bonded_hash, True))
+					cosignature = facade.cosign_transaction_hash(
+							account_b_key_pair, bonded_hash, True)
 					cosignature_payload = json.dumps({
 						'version': str(cosignature.version),
 						'signerPublicKey': str(
