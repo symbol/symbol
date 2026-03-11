@@ -41,8 +41,8 @@ single atomic transaction.
 
 !!! note "Two types of aggregate transactions"
 
-    <Aggregate transactions:> group multiple <transactions:> in a single operation, and require <signatures:> from all
-    involved accounts.
+    <Aggregate transactions:|Aggregate transactions> group multiple <transactions:> in a single operation,
+    and require <signatures:> from all involved accounts.
 
     A _complete aggregate transaction_ collects all signatures before being announced.
     This procedure works well, for example, in the following scenarios:
@@ -69,9 +69,10 @@ To use your own accounts, complete the following steps:
   [from code](../accounts/create-from-private-key.md) or
   [by using a wallet](../../userbook/wallet/create-account.md).
 * Create a second account (Account B) to participate in the swap.
-* Obtain XYM for Account A to pay for the transaction fee, transfer amounts, and the hash lock deposit.
+* Obtain XYM for Account A to pay for the transaction fee and transfer amounts.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 * Create a mosaic owned by Account B for the swap.
+  See [Creating a Mosaic](../mosaics/create-mosaic.md).
 
 Additionally, review the [Transfer transaction](./transfer.md) tutorial to understand how
 transactions are announced and confirmed.
@@ -85,21 +86,30 @@ transactions are announced and confirmed.
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.
 
-## Code Explanation
+A complete aggregate transaction may involve two distinct roles: an **initiator** (Account A) that builds and announces
+the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that receive the transaction
+payload off-chain and cosign after verifying the transaction.
+When only one account is involved, no cosignatures are needed.
+
+In practice, each role runs as a separate program on a separate machine.
+This tutorial demonstrates the multi-party case but combines both roles in a single script for simplicity.
+
+## Account A: Initiator Workflow
 
 ### Setting Up Accounts
 
 {{ tutorial.code_snippet(['py:16:37', 'js:13:31']) }}
 
-This example includes both private keys in one script to demonstrate the complete workflow, but in practice
-each party would sign on their own machine without sharing private keys.
+This example includes both <private keys:> in one script for simplicity.
+In practice, each party signs on their own machine.
+Account A only needs Account B's public key to build the aggregate, because B's <public key:> is required to set B as
+the signer of an embedded transaction and to derive B's <address:>.
 
-The snippet reads the private keys from the `ACCOUNT_A_PRIVATE_KEY` and `ACCOUNT_B_PRIVATE_KEY`
-environment variables, which default to test keys if not set.
+The `ACCOUNT_A_PRIVATE_KEY` and `ACCOUNT_B_PRIVATE_KEY` environment variables set the keys for each account.
+If not provided, test keys are used as defaults.
 If using your own keys, ensure Account A has XYM and Account B holds a custom mosaic for the swap.
 
-The addresses for both accounts are derived from their public keys using the facade's network
-configuration.
+The addresses for both accounts are derived from their public keys using the facade's network configuration.
 
 ### Fetching Network Time and Fees
 
@@ -152,14 +162,9 @@ Once the embedded transactions are prepared, create the complete aggregate trans
 
     !!! tip "Sharing transaction fees"
 
-        While the signer pays the entire fee upfront, other participants can contribute to the cost by including
-        XYM transfers back to the signer within the aggregate.
-
-        For example, Account B could add XYM to its existing transfer to Account A, or include a separate embedded
-        transfer transaction for the fee contribution.
-
-        This technique allows parties to split costs or even enables one account to send transactions
-        without holding XYM, since another account covers the fee.
+        While the signer pays the entire fee upfront, other participants can contribute to the cost within
+        the aggregate.
+        For more details, see the [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
 
 * **Deadline:** The timestamp, in [network time](./transfer.md#fetching-network-time), after which the transaction
   expires and can no longer be confirmed.
@@ -173,28 +178,14 @@ Once the embedded transactions are prepared, create the complete aggregate trans
 The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus
 space reserved for one cosignature (104 bytes).
 
-### Collecting Signatures
+### Signing the Transaction
 
-{{ tutorial.code_snippet(['py:99:134', 'js:98:139']) }}
+{{ tutorial.code_snippet(['py:99:111', 'js:98:112']) }}
 
-With the aggregate transaction built, both accounts must sign it off-chain before it can be announced.
-
-The snippet above separates the process by machine:
-
-1. **Account A (Initiator)** signs the transaction using <dy:SymbolFacade.signTransaction>.
-  It then uses <dy:SymbolTransactionFactory.attachSignature> which normally produces a fully announce-ready payload.
-  In this case, however, the payload is still missing Account B’s cosignature.
-  Account A sends this intermediate payload to Account B through an off-chain channel.
-
-2. **Account B (Cosignatory)** receives the payload and deserializes it using
-  <dy:SymbolTransactionFactory.deserialize> to reconstruct the transaction object.
-  Account B should verify that the embedded transactions match what it expects to sign.
-  It then cosigns using <dy:SymbolFacade.cosignTransaction>, which computes the transaction hash and produces a
-  cosignature object.
-  Only this cosignature is sent back to Account A.
-
-3. **Account A** receives the Account B's cosignature, adds it to the transaction object's `cosignatures` array, and
-  rebuilds the payload for announcement.
+Account A signs the transaction using <dy:SymbolFacade.signTransaction> and produces an intermediate payload using
+<dy:SymbolTransactionFactory.attachSignature>.
+This payload is not yet ready to announce because it is missing Account B's cosignature.
+Account A sends this intermediate payload to Account B through an off-chain channel.
 
 !!! note "Signatures in aggregate transactions"
 
@@ -206,6 +197,34 @@ The snippet above separates the process by machine:
     cosignatures are **not** required. The aggregate can be announced immediately after signing, and the fee
     calculation does not need to reserve space for cosignatures.
 
+## Account B: Cosigner Workflow
+
+### Verifying and Cosigning
+
+{{ tutorial.code_snippet(['py:113:126', 'js:114:131']) }}
+
+Account B receives the payload and deserializes it using <dy:SymbolTransactionFactory.deserialize> to reconstruct the
+transaction object.
+Account B should verify that the embedded transactions match what it expects to sign.
+
+It then cosigns using <dy:SymbolFacade.cosignTransaction>, which computes the transaction hash and produces a
+cosignature object.
+Only this cosignature is sent back to Account A.
+
+!!! warning "Verify before cosigning"
+
+    Always inspect transaction content before cosigning.
+    Cosignatures are binding and cannot be undone.
+
+## Account A: Announcing and Confirming
+
+### Collecting the Cosignature
+
+{{ tutorial.code_snippet(['py:128:134', 'js:133:139']) }}
+
+Account A receives Account B's cosignature, adds it to the transaction object's `cosignatures` array, and rebuilds the
+payload for announcement.
+
 ### Announcing the Transaction
 
 Now that the transaction is ready to be announced, it follows the same process as regular, non-aggregate transactions,
@@ -213,8 +232,7 @@ as shown in the [Transfer Transaction](./transfer.md#announcing-the-transaction)
 
 {{ tutorial.code_snippet(['py:136:149', 'js:141:153']) }}
 
-Once all signatures are collected, the transaction is announced to a <node:> using the
-<put:/transactions> endpoint.
+Once all signatures are collected, the transaction is announced to a <node:> using the <put:/transactions> endpoint.
 
 The node validates that all required signatures are present and valid before accepting the transaction.
 If validation passes, the transaction is added to the <unconfirmed pool:> and broadcast to other nodes.
@@ -262,4 +280,6 @@ This tutorial showed how to:
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------|
 | [Create embedded transactions](#creating-embedded-transactions)        | <dy:SymbolTransactionFactory.createEmbedded>                                        |
 | [Build the aggregate](#building-the-aggregate-transaction)             | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [Collect signatures off-chain](#collecting-signatures)                 | <dy:SymbolFacade.signTransaction><br/><dy:SymbolFacade.cosignTransaction>           |
+| [Sign the transaction](#signing-the-transaction)                       | <dy:SymbolFacade.signTransaction>                                                   |
+| [Verify and cosign](#verifying-and-cosigning)                          | <dy:SymbolFacade.cosignTransaction>                                                 |
+| [Collect the cosignature](#collecting-the-cosignature)                 | <dy:SymbolTransactionFactory.attachSignature>                                       |

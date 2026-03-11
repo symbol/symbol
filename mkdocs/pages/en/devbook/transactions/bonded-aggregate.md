@@ -38,8 +38,8 @@ digraph {
 
 !!! note "Two types of aggregate transactions"
 
-    <Aggregate transactions:> group multiple <transactions:> in a single operation, and require <signatures:> from all
-    involved accounts.
+    <Aggregate transactions:|Aggregate transactions> group multiple <transactions:> in a single operation,
+    and require <signatures:> from all involved accounts.
 
     A _bonded aggregate transaction_ collects signatures on-chain after being announced.
     This works well when off-chain coordination is impractical. For example:
@@ -71,6 +71,7 @@ To use your own accounts, complete the following steps:
 * Obtain XYM for Account A to pay for the transaction fee, transfer amounts, and the hash lock deposit.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 * Create a mosaic owned by Account B for the swap.
+  See [Creating a Mosaic](../mosaics/create-mosaic.md).
 
 Additionally, review the [Transfer transaction](./transfer.md) tutorial to understand how
 transactions are announced and confirmed.
@@ -81,6 +82,13 @@ transactions are announced and confirmed.
 
 {{ tutorial.code_full('devbook/transactions/bonded-aggregate', ['py', 'js']) }}
 
+A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
+announces the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that poll for pending
+transactions and cosign after verifying the transaction.
+
+In practice, each role runs as a separate program on a separate machine.
+This tutorial combines both roles in a single script for simplicity.
+
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.
 
@@ -90,15 +98,16 @@ but applications will probably want to use more fine-grained control.
 
 {{ tutorial.code_snippet(['py:62:82', 'js:76:94']) }}
 
-This example includes both private keys in one script to demonstrate the complete workflow, but in practice
-each party would sign on their own machine without sharing private keys.
+This example includes both <private keys:> in one script for simplicity.
+In practice, each party signs on their own machine.
+Account A only needs Account B's public key to build the aggregate, because B's <public key:> is required to set B as
+the signer of an embedded transaction and to derive B's <address:>.
 
-The snippet reads the private keys from the `ACCOUNT_A_PRIVATE_KEY` and `ACCOUNT_B_PRIVATE_KEY`
-environment variables, which default to test keys if not set.
+The `ACCOUNT_A_PRIVATE_KEY` and `ACCOUNT_B_PRIVATE_KEY` environment variables set the keys for each account.
+If not provided, test keys are used as defaults.
 If using your own keys, ensure Account A has XYM and Account B holds a custom mosaic for the swap.
 
-The addresses for both accounts are derived from their public keys using the facade's network
-configuration.
+The addresses for both accounts are derived from their public keys using the facade's network configuration.
 
 ### Fetching Network Time and Fees
 
@@ -151,14 +160,9 @@ Once the embedded transactions are prepared, create the bonded aggregate transac
 
     !!! tip "Sharing transaction fees"
 
-        While the signer pays the entire fee upfront, other participants can contribute to the cost by including
-        XYM transfers back to the signer within the aggregate.
-
-        For example, Account B could add XYM to its existing transfer to Account A, or include a separate embedded
-        transfer transaction for the fee contribution.
-
-        This technique allows parties to split costs or even enables one account to send transactions
-        without holding XYM, since another account covers the fee.
+        While the signer pays the entire fee upfront, other participants can contribute to the cost within the
+        aggregate.
+        For more details, see [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md).
 
 * **Deadline:** The timestamp, in [network time](./transfer.md#fetching-network-time), after which the transaction
   expires and can no longer be confirmed.
@@ -330,3 +334,12 @@ This tutorial showed how to:
 | [Verify the transaction](#verifying-the-transaction)                        | <get:/transactions/partial/{transactionId}>                                         |
 | [Cosign the transaction](#cosigning-the-transaction)                        | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature>         |
 | [Wait for confirmation](#waiting-for-confirmation)                          | <get:/transactionStatus/{hash}>                                                     |
+
+## Next Steps
+
+* **Monitor with WebSockets:** Replace polling with real-time notifications using the
+  [Listening to Bonded Transaction Flow](../websockets/listen-bonded-transaction-flow.md) tutorial.
+* **Sponsor fees:** Let one account pay transaction fees on behalf of another using the
+  [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
+* **Use complete aggregates:** If parties can coordinate off-chain, skip the hash lock with the
+  [Creating a Complete Aggregate Transaction](./complete-aggregate.md) tutorial.
