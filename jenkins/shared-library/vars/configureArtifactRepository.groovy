@@ -56,6 +56,7 @@ void configureNpm(Map info) {
 		npmrcContent += "\n//${hostNamePath}:_auth=${userNamePasswordEncoding}"
 	}
 
+	npmrcContent += '\n"config": {\n    "save-exact": true\n}'
 	writeFile(file: '.npmrc', text: npmrcContent)
 }
 
