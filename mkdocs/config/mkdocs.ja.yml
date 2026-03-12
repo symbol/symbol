@@ -49,19 +49,19 @@ extra:
   social:
   - icon: fontawesome/solid/house
     link: https://docs.symboltest.net
-    name: ホームページへ移動します
+    name: ホームページ
   - icon: fontawesome/brands/x-twitter
     link: https://x.com/SymbolSyndicate
-    name: Xでフォローします
+    name: X (旧Twitter)
   - icon: fontawesome/brands/github
     link: https://github.com/symbol
-    name: リポジトリを閲覧します
+    name: リポジトリ
   - icon: fontawesome/brands/discord
     link: https://discord.gg/J38KwW5ZuG
-    name: Discordサーバーに参加します
+    name: Discordサーバー
   - icon: fontawesome/solid/handshake-simple
     link: https://docs.symbol.dev
-    name: 旧ドキュメントサイトを開きます
+    name: 旧ドキュメントサイト
 nav:
   - index.md
   - ユーザーマニュアル:
