@@ -138,15 +138,6 @@ extra:
     - name: 日本語
       link: /ja/
       lang: ja
-  social:
-    - icon: fontawesome/solid/house
-      link: https://docs.symboltest.net
-    - icon: fontawesome/brands/x-twitter
-      link: https://x.com/SymbolSyndicate
-    - icon: fontawesome/brands/github
-      link: https://github.com/symbol
-    - icon: fontawesome/brands/discord
-      link: https://discord.gg/J38KwW5ZuG
   symbol:
     branch: new-docs
     java-sdk:
