@@ -96,6 +96,15 @@ def page_markdown_js_typedoc(content, page, config, files):
 	# Add special anchor because the typedoc-md plugin forgot to add it?
 	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, 1)
 
+	# Replace \c with code tags
+	content = re.sub(r'\\c ([^ ]*?) ', r'`\1` ', content)
+
+	# Remove absolute markdown hyperlinks
+	content = re.sub(r'\[([^]]*)\]\(/[^)]*\)', r'\1', content)
+
+	# Remove \note tags. They've been mangled when moved from CATS to JS and are barely usable.
+	content = re.sub(r'\\note ', '', content)
+
 	return content
 
 def camel_to_snake(name):
