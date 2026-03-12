@@ -46,6 +46,22 @@ extra:
       当社では、お客様の繰り返しのアクセスや好みを認識するため、
       また、当社のドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
       お客様の同意により、当社はドキュメントの改善に協力することになります。
+  social:
+  - icon: fontawesome/solid/house
+    link: https://docs.symboltest.net
+    name: ホームページへ移動します
+  - icon: fontawesome/brands/x-twitter
+    link: https://x.com/SymbolSyndicate
+    name: Xでフォローします
+  - icon: fontawesome/brands/github
+    link: https://github.com/symbol
+    name: リポジトリを閲覧します
+  - icon: fontawesome/brands/discord
+    link: https://discord.gg/J38KwW5ZuG
+    name: Discordサーバーに参加します
+  - icon: fontawesome/solid/handshake-simple
+    link: https://docs.symbol.dev
+    name: 旧ドキュメントサイトを開きます
 nav:
   - index.md
   - ユーザーマニュアル:

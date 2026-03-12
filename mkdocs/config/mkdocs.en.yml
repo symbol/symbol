@@ -49,6 +49,22 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better.
+  social:
+    - icon: fontawesome/solid/house
+      link: https://docs.symboltest.net
+      name: Go to the home page
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/SymbolSyndicate
+      name: Follow us on X
+    - icon: fontawesome/brands/github
+      link: https://github.com/symbol
+      name: Explore our repos
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/J38KwW5ZuG
+      name: Join our Discord server
+    - icon: fontawesome/solid/handshake-simple
+      link: https://docs.symbol.dev
+      name: Visit the legacy documentation site
 nav:
   - index.md
   - User Manual:
