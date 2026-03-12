@@ -40,11 +40,17 @@
 	--md-code-hl-comment-color: green;
 	--md-typeset-table-color: var(--md-primary-fg-color);
 	--md-typeset-table-color--light: var(--md-accent-fg-color--transparent);
+	--userbook-a-color: var(--userbook-color--light);
+	--userbook-a-hl-color: var(--userbook-color);
+	--devbook-a-color: var(--devbook-color--light);
+	--devbook-a-hl-color: var(--devbook-color);
+	--textbook-a-color: var(--textbook-color--light);
+	--textbook-a-hl-color: var(--textbook-color);
 }
 
 [data-md-color-scheme=default][data-md-color-primary=indigo] {
-	--md-typeset-a-color: var(--md-primary-fg-color--light);
-	--md-accent-fg-color: var(--md-primary-fg-color);
+	--md-typeset-a-color: var(--md-primary-fg-color);
+	--md-accent-fg-color: var(--md-primary-fg-color--light);
 	--md-accent-fg-color--light: var(--md-primary-fg-color--light);
 	--md-accent-fg-color--dark: var(--md-primary-fg-color--dark);
 	--md-default-bg-color--light: #DDD;
@@ -56,6 +62,12 @@
 	--md-code-hl-comment-color: green;
 	--md-typeset-table-color: var(--md-primary-fg-color);
 	--md-typeset-table-color--light: var(--md-accent-fg-color--transparent);
+	--userbook-a-color: var(--userbook-color);
+	--userbook-a-hl-color: var(--userbook-color--light);
+	--devbook-a-color: var(--devbook-color);
+	--devbook-a-hl-color: var(--devbook-color--light);
+	--textbook-a-color: var(--textbook-color);
+	--textbook-a-hl-color: var(--textbook-color--light);
 }
 
 /* Home page cards */
@@ -266,32 +278,32 @@ aside.md-source-file {
 /* Links to other sections use the color of that section */
 .md-content a[href*="userbook"][href^='..'],
 .gslide-desc a[href*="userbook"][href^='..'] {
-	color: var(--userbook-color--light);
+	color: var(--userbook-a-color);
 }
 
 .md-content a[href*="userbook"][href^='..']:hover,
 .gslide-desc a[href*="userbook"][href^='..']:hover {
-	color: var(--userbook-color);
+	color: var(--userbook-a-hl-color);
 }
 
 .md-content a[href*="devbook"][href^='..'],
 .gslide-desc a[href*="devbook"][href^='..'] {
-	color: var(--devbook-color--light);
+	color: var(--devbook-a-color);
 }
 
 .md-content a[href*="devbook"][href^='..']:hover,
 .gslide-desc a[href*="devbook"][href^='..']:hover {
-	color: var(--devbook-color);
+	color: var(--devbook-a-hl-color);
 }
 
 .md-content a[href*="textbook"][href^='..'],
 .gslide-desc a[href*="textbook"][href^='..'] {
-	color: var(--textbook-color--light);
+	color: var(--textbook-a-color);
 }
 
 .md-content a[href*="textbook"][href^='..']:hover,
 .gslide-desc a[href*="textbook"][href^='..']:hover {
-	color: var(--textbook-color);
+	color: var(--textbook-a-hl-color);
 }
 
 /* Anchors (links without href target) have no color */
