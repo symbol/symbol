@@ -80,6 +80,7 @@ nav:
               - userbook/wallet/create-account.md
               - userbook/wallet/import-account.md
               - userbook/wallet/delete-account.md
+      - userbook/security.md
   - Developer Manual:
       - devbook/intro.md
       - Getting Started:
