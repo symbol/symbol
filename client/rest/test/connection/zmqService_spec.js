@@ -20,11 +20,279 @@
  */
 
 import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
-import createZmqConnectionService from '../../src/connection/zmqService.js';
+import createZmqConnectionService, { ZmqSocketWrapper } from '../../src/connection/zmqService.js';
 import test from '../testUtils.js';
 import { expect } from 'chai';
 import { Address } from 'symbol-sdk/symbol';
 import zmq from 'zeromq';
+
+describe('ZmqSocketWrapper', () => {
+	const createMockSubscriber = () => {
+		const eventsPendingResolvers = [];
+		const receivePendingResolvers = [];
+
+		const subscriber = {
+			linger: undefined,
+			closed: false,
+			connectCalls: [],
+			subscribeCalls: [],
+			numCloseCalls: 0,
+			events: {
+				receive: () => new Promise((resolve, reject) => {
+					eventsPendingResolvers.push({ resolve, reject });
+				})
+			},
+			receive: () => new Promise((resolve, reject) => {
+				receivePendingResolvers.push({ resolve, reject });
+			}),
+			connect: url => { subscriber.connectCalls.push(url); },
+			subscribe: filter => { subscriber.subscribeCalls.push(filter); },
+			close: () => {
+				++subscriber.numCloseCalls;
+				subscriber.closed = true;
+				eventsPendingResolvers.splice(0).forEach(({ reject }) => reject(new Error('socket closed')));
+				receivePendingResolvers.splice(0).forEach(({ reject }) => reject(new Error('socket closed')));
+			},
+			pushEvent: event => {
+				const pending = eventsPendingResolvers.shift();
+				if (pending)
+					pending.resolve(event);
+			},
+			rejectEvent: err => {
+				const pending = eventsPendingResolvers.shift();
+				if (pending)
+					pending.reject(err);
+			},
+			pushFrames: frames => {
+				const pending = receivePendingResolvers.shift();
+				if (pending)
+					pending.resolve(frames);
+			}
+		};
+		return subscriber;
+	};
+
+	const createWrapper = (key, subscriber) => new ZmqSocketWrapper(key, () => subscriber);
+
+	describe('constructor', () => {
+		it('stores key and initializes inner socket with linger 0', () => {
+			// Arrange + Act:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test-key', subscriber);
+
+			// Assert:
+			expect(wrapper.key).to.equal('test-key');
+			expect(subscriber.linger).to.equal(0);
+			expect(wrapper.eventsLoopActive).to.equal(false);
+
+			wrapper.close();
+		});
+	});
+
+	describe('connect', () => {
+		it('delegates to inner socket', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+
+			// Act:
+			wrapper.connect('tcp://127.0.0.1:7654');
+
+			// Assert:
+			expect(subscriber.connectCalls).to.deep.equal(['tcp://127.0.0.1:7654']);
+
+			wrapper.close();
+		});
+	});
+
+	describe('subscribe', () => {
+		it('delegates to inner socket', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			const filter = Buffer.of(0x01, 0x02);
+
+			// Act:
+			wrapper.subscribe(filter);
+
+			// Assert:
+			expect(subscriber.subscribeCalls).to.deep.equal([filter]);
+
+			wrapper.close();
+		});
+	});
+
+	describe('monitor', () => {
+		it('emits v5-compatible event for each known v6 event type', () => {
+			// Arrange:
+			const eventMappings = [
+				{ v6: 'connect', v5: 'connect' },
+				{ v6: 'connect:delay', v5: 'connect_delay' },
+				{ v6: 'connect:retry', v5: 'connect_retry' },
+				{ v6: 'bind', v5: 'listen' },
+				{ v6: 'bind:error', v5: 'bind_error' },
+				{ v6: 'accept', v5: 'accept' },
+				{ v6: 'accept:error', v5: 'accept_error' },
+				{ v6: 'close', v5: 'close' },
+				{ v6: 'close:error', v5: 'close_error' },
+				{ v6: 'disconnect', v5: 'disconnect' }
+			];
+
+			// Act + Assert: run all mappings in parallel
+			return Promise.all(eventMappings.map(({ v6, v5 }) => {
+				const subscriber = createMockSubscriber();
+				const wrapper = createWrapper('test', subscriber);
+				wrapper.monitor();
+
+				return new Promise(resolve => {
+					wrapper.once(v5, (value, address) => {
+						expect(value, `mapping for ${v6}`).to.equal(99);
+						expect(address, `address for ${v6}`).to.equal('tcp://127.0.0.1:3000');
+						wrapper.close();
+						resolve();
+					});
+					subscriber.pushEvent({ type: v6, value: 99, address: 'tcp://127.0.0.1:3000' });
+				});
+			}));
+		});
+
+		it('silently ignores unknown v6 event types', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			wrapper.monitor();
+
+			// Act + Assert: push unknown event, then after a tick push a known event to confirm loop is still alive
+			return new Promise(resolve => {
+				wrapper.once('connect', () => resolve());
+				subscriber.pushEvent({ type: 'unknown_v6_event', value: 0, address: '' });
+				// push the known event after all pending microtasks to let the loop advance past the unknown event
+				setImmediate(() => {
+					subscriber.pushEvent({ type: 'connect', value: 0, address: '' });
+				});
+			}).finally(() => wrapper.close());
+		});
+
+		it('emits error event when events loop throws while active', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			wrapper.monitor();
+
+			// Act + Assert:
+			return new Promise(resolve => {
+				wrapper.once('error', err => {
+					expect(err.message).to.equal('events loop error');
+					resolve();
+				});
+				subscriber.rejectEvent(new Error('events loop error'));
+			});
+		});
+
+		it('suppresses error event when events loop throws after unmonitor', async () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			wrapper.monitor();
+
+			// Act: stop monitoring before the error arrives
+			wrapper.unmonitor();
+			const emittedErrors = [];
+			wrapper.on('error', err => emittedErrors.push(err));
+			subscriber.rejectEvent(new Error('late error'));
+
+			// Wait for async processing
+			await new Promise(resolve => { setTimeout(resolve, 10); });
+
+			// Assert: no error was emitted
+			expect(emittedErrors).to.deep.equal([]);
+		});
+	});
+
+	describe('unmonitor', () => {
+		it('stops events loop', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			wrapper.monitor();
+
+			// Act:
+			wrapper.unmonitor();
+
+			// Assert:
+			expect(wrapper.eventsLoopActive).to.equal(false);
+
+			wrapper.close(); // cleanup pending receive and inner socket
+		});
+	});
+
+	describe('startReceiving', () => {
+		it('calls handler with spread frames for each received message', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			const receivedArgs = [];
+			wrapper.startReceiving((...args) => receivedArgs.push(args));
+
+			const frame1 = Buffer.from('topic');
+			const frame2 = Buffer.from('data');
+
+			// Act + Assert:
+			return new Promise(resolve => {
+				subscriber.pushFrames([frame1, frame2]);
+				setTimeout(() => {
+					expect(receivedArgs).to.have.lengthOf(1);
+					expect(receivedArgs[0]).to.deep.equal([frame1, frame2]);
+					wrapper.close();
+					resolve();
+				}, 0);
+			});
+		});
+
+		it('silently stops when inner socket is closed', async () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			let handlerCallCount = 0;
+			wrapper.startReceiving(() => { ++handlerCallCount; });
+
+			// Act: close immediately (rejects the pending receive)
+			subscriber.close();
+
+			// Wait for async processing
+			await new Promise(resolve => { setTimeout(resolve, 10); });
+
+			// Assert: handler was never called, no error thrown
+			expect(handlerCallCount).to.equal(0);
+		});
+	});
+
+	describe('close', () => {
+		it('closes inner socket and stops events loop', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			const wrapper = createWrapper('test', subscriber);
+			wrapper.monitor();
+
+			// Act:
+			wrapper.close();
+
+			// Assert:
+			expect(wrapper.eventsLoopActive).to.equal(false);
+			expect(subscriber.numCloseCalls).to.equal(1);
+		});
+
+		it('ignores errors from inner socket close', () => {
+			// Arrange:
+			const subscriber = createMockSubscriber();
+			subscriber.close = () => { throw new Error('close failed'); };
+			const wrapper = createWrapper('test', subscriber);
+
+			// Act + Assert: should not throw
+			expect(() => wrapper.close()).not.to.throw();
+		});
+	});
+});
 
 describe('zmq service', () => {
 	const cleanupActions = [];
@@ -156,18 +424,11 @@ describe('zmq service', () => {
 			return new Promise((resolve, reject) => {
 				// Arrange: create a publisher and publish a block
 				const endpoint = `tcp://${zmqConfig.host}:${zmqConfig.port}`;
-				const zsocket = zmq.socket('pub');
-				cleanupActions.push(() => {
-					zsocket.disconnect(endpoint);
-					zsocket.close();
-				});
+				const zsocket = new zmq.Publisher();
+				zsocket.linger = 0;
+				cleanupActions.push(() => { zsocket.close(); });
 
-				zsocket.bind(endpoint, err => {
-					if (err) {
-						reject(err);
-						return;
-					}
-
+				zsocket.bind(endpoint).then(() => {
 					// Arrange: subscribe to block events (this needs to be done after bind in order to avoid potential races)
 					service.on('block', message => {
 						// Assert: the parsed message is consistent with the published block message
@@ -183,12 +444,9 @@ describe('zmq service', () => {
 					});
 
 					// Act: publish a single block (as a multipart message) after completion of bind callback processing
-					setTimeout(() => {
+					setTimeout(async () => {
 						const marker = Buffer.of(0x49, 0x6A, 0xCA, 0x80, 0xE4, 0xD8, 0xF2, 0x9F);
-						zsocket.send(marker, zmq.ZMQ_SNDMORE);
-						zsocket.send(blockBuffers.block, zmq.ZMQ_SNDMORE);
-						zsocket.send(blockBuffers.entityHash, zmq.ZMQ_SNDMORE);
-						zsocket.send(blockBuffers.generationHash);
+						await zsocket.send([marker, blockBuffers.block, blockBuffers.entityHash, blockBuffers.generationHash]);
 					}, 100);
 				});
 			});

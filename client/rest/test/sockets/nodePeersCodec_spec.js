@@ -88,7 +88,7 @@ describe('node peers codec deserialize', () => {
 		}]);
 	});
 
-	it('returns multiple deserialzed objects with friendlyName and host', () => {
+	it('returns multiple deserialized objects with friendlyName and host', () => {
 		// Arrange:
 		const binaryParser = new BinaryParser();
 		const friendlyNameBufferPeerA = Buffer.from([0x10, 0x17]);

@@ -19,7 +19,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import zmq from 'zeromq';
 import EventEmitter from 'events';
 
 const logAllMonitorEvents = (zsocket, throttle, logger) => {
@@ -62,7 +61,7 @@ const logAllMonitorEvents = (zsocket, throttle, logger) => {
 export default {
 	/**
 	 * Prepares a zmq socket for a connection.
-	 * @param {zmq.Socket} zsocket Zmq socket.
+	 * @param {ZmqSocketWrapper} zsocket Zmq socket.
 	 * @param {object} zmqConfig Zmq configuration.
 	 * @param {logger} logger Level-based logger object.
 	 */

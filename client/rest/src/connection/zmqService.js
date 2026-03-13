@@ -21,10 +21,90 @@
 
 import zmqUtils from './zmqUtils.js';
 import zmq from 'zeromq';
+import EventEmitter from 'events';
+
+// Map v6 event types to v5-compatible event names used by logAllMonitorEvents
+const V6_TO_V5_EVENT_NAME_MAP = new Map([
+	['connect', 'connect'],
+	['connect:delay', 'connect_delay'],
+	['connect:retry', 'connect_retry'],
+	['bind', 'listen'],
+	['bind:error', 'bind_error'],
+	['accept', 'accept'],
+	['accept:error', 'accept_error'],
+	['close', 'close'],
+	['close:error', 'close_error'],
+	['disconnect', 'disconnect']
+
+]);
+
+class ZmqSocketWrapper extends EventEmitter {
+	constructor(key, subscriberFactory) {
+		super();
+		this.key = key;
+		this.innerSocket = subscriberFactory ? subscriberFactory() : new zmq.Subscriber();
+		this.innerSocket.linger = 0;
+		this.eventsLoopActive = false;
+	}
+
+	connect(url) {
+		this.innerSocket.connect(url);
+	}
+
+	subscribe(filter) {
+		this.innerSocket.subscribe(filter);
+	}
+
+	monitor() {
+		this.eventsLoopActive = true;
+		(async () => {
+			try {
+				while (this.eventsLoopActive) {
+					const event = await this.innerSocket.events.receive(); // eslint-disable-line no-await-in-loop
+					const v5Name = V6_TO_V5_EVENT_NAME_MAP.get(event.type);
+					if (v5Name)
+						this.emit(v5Name, event.value, event.address);
+				}
+			} catch (err) {
+				console.error('Error in ZMQ event loop:', err);
+				if (this.eventsLoopActive)
+					this.emit('error', err);
+			}
+		})();
+	}
+
+	unmonitor() {
+		this.eventsLoopActive = false;
+	}
+
+	startReceiving(handler) {
+		(async () => {
+			try {
+				while (!this.innerSocket.closed) {
+					const frames = await this.innerSocket.receive(); // eslint-disable-line no-await-in-loop
+					handler(...frames);
+				}
+			} catch (err) {
+				if (this.eventsLoopActive)
+					this.emit('error', err);
+			}
+		})();
+	}
+
+	close() {
+		this.eventsLoopActive = false;
+		try {
+			this.innerSocket.close();
+		} catch (err) {
+			// ignore errors during close
+		}
+	}
+}
+
+export { ZmqSocketWrapper };
 
 const createZmqSocket = (key, zmqConfig, logger, currentSocketCount) => {
-	const zsocket = zmq.socket('sub');
-	zsocket.key = key;
+	const zsocket = new ZmqSocketWrapper(key, () => new zmq.Subscriber());
 	zmqUtils.prepareZsocket(zsocket, zmqConfig, logger);
 
 	zsocket.connect(`tcp://${zmqConfig.host}:${zmqConfig.port}`);
@@ -62,6 +142,6 @@ export default (zmqConfig, channelDescriptors, logger) =>
 		// the second param (handler) gets called with the provided args in the message, which vary depending on the defined handler type
 		// (block, transaction, transactionStatus...)
 		zsocket.subscribe(subscriptionInfo.filter);
-		zsocket.on('message', subscriptionInfo.handler);
+		zsocket.startReceiving(subscriptionInfo.handler);
 		return zsocket;
 	});
