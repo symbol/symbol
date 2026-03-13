@@ -779,6 +779,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../../../../userbook/security/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -8919,8 +8940,8 @@
 <dd>Type safe descriptor used to generate a descriptor map for AccountMetadataTransactionV1Descriptor.</dd>
 
 </dl>
-<p>Associate a key-value state (<a href="/concepts/metadata.html">metadata</a>) to an <strong>account</strong> (V1, latest).
-\note This transaction must <strong>always</strong> be wrapped in an AggregateTransaction so that a cosignature from <code>target_address</code> can be provided. Without this cosignature the transaction is invalid.
+<p>Associate a key-value state (metadata) to an <strong>account</strong> (V1, latest).
+This transaction must <strong>always</strong> be wrapped in an AggregateTransaction so that a cosignature from <code>target_address</code> can be provided. Without this cosignature the transaction is invalid.
 Compare to MosaicMetadataTransaction and NamespaceMetadataTransaction.</p>
 <h2 id="constructors">Constructors<a id="constructor"></a><a class="headerlink" href="#constructors" title="Anchor link to this section for reference">⚓︎</a></h2>
 <h3 id="new-accountmetadatatransactionv1descriptor">new AccountMetadataTransactionV1Descriptor()<a class="headerlink" href="#new-accountmetadatatransactionv1descriptor" title="Anchor link to this section for reference">⚓︎</a></h3>
@@ -8959,7 +8980,7 @@ Compare to MosaicMetadataTransaction and NamespaceMetadataTransaction.</p>
 <tr>
 <td><code>value</code>?</td>
 <td><code>string</code> | <code>Uint8Array</code>&lt;<code>ArrayBufferLike</code>&gt;</td>
-<td>Difference between existing value and new value. \note When there is no existing value, this array is directly used and <code>value_size_delta</code>==<code>value_size</code>. \note When there is an existing value, the new value is the byte-wise XOR of the previous value and this array.</td>
+<td>Difference between existing value and new value. When there is no existing value, this array is directly used and <code>value_size_delta</code>==<code>value_size</code>. When there is an existing value, the new value is the byte-wise XOR of the previous value and this array.</td>
 </tr>
 </tbody>
 </table>
