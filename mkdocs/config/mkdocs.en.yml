@@ -80,6 +80,14 @@ nav:
               - userbook/wallet/create-account.md
               - userbook/wallet/import-account.md
               - userbook/wallet/delete-account.md
+      - Shoestring Node Operation:
+          - userbook/shoestring/overview.md
+          - userbook/shoestring/install.md
+          - userbook/shoestring/quickstart.md
+          - userbook/shoestring/configure.md
+          - userbook/shoestring/manage.md
+          - userbook/shoestring/migrate.md
+          - userbook/shoestring/security.md
       - userbook/security.md
   - Developer Manual:
       - devbook/intro.md
