@@ -23,21 +23,9 @@ import zmqUtils from './zmqUtils.js';
 import zmq from 'zeromq';
 import EventEmitter from 'events';
 
-// Map v6 event types to v5-compatible event names used by logAllMonitorEvents
-const V6_TO_V5_EVENT_NAME_MAP = new Map([
-	['connect', 'connect'],
-	['connect:delay', 'connect_delay'],
-	['connect:retry', 'connect_retry'],
-	['bind', 'listen'],
-	['bind:error', 'bind_error'],
-	['accept', 'accept'],
-	['accept:error', 'accept_error'],
-	['close', 'close'],
-	['close:error', 'close_error'],
-	['disconnect', 'disconnect']
-
-]);
-
+/**
+ * Wrapper for a zmq socket that provides an exception-safe interface.
+ */
 class ZmqSocketWrapper extends EventEmitter {
 	constructor(key, subscriberFactory) {
 		super();
@@ -53,6 +41,17 @@ class ZmqSocketWrapper extends EventEmitter {
 
 	subscribe(filter) {
 		this.innerSocket.subscribe(filter);
+		const startMessaging = async () => {
+			try {
+				while (!this.innerSocket.closed) {
+					const frames = await this.innerSocket.receive(); // eslint-disable-line no-await-in-loop
+					this.emit('message', ...frames);
+				}
+			} catch (err) {
+				this.emit('error', err);
+			}
+		};
+		startMessaging();
 	}
 
 	monitor() {
@@ -61,34 +60,20 @@ class ZmqSocketWrapper extends EventEmitter {
 			try {
 				while (this.eventsLoopActive) {
 					const event = await this.innerSocket.events.receive(); // eslint-disable-line no-await-in-loop
-					const v5Name = V6_TO_V5_EVENT_NAME_MAP.get(event.type);
-					if (v5Name)
-						this.emit(v5Name, event.value, event.address);
+					const eventName = event.type;
+					const eventValue = eventName.endsWith('_error') && event.error ? event.error.errno : event.value;
+					this.emit(eventName, eventValue, event.address);
 				}
 			} catch (err) {
 				console.error('Error in ZMQ event loop:', err);
 				if (this.eventsLoopActive)
-					this.emit('error', err);
+					this.emit('monitor:error', err);
 			}
 		})();
 	}
 
 	unmonitor() {
 		this.eventsLoopActive = false;
-	}
-
-	startReceiving(handler) {
-		(async () => {
-			try {
-				while (!this.innerSocket.closed) {
-					const frames = await this.innerSocket.receive(); // eslint-disable-line no-await-in-loop
-					handler(...frames);
-				}
-			} catch (err) {
-				if (this.eventsLoopActive)
-					this.emit('error', err);
-			}
-		})();
 	}
 
 	close() {
@@ -142,6 +127,6 @@ export default (zmqConfig, channelDescriptors, logger) =>
 		// the second param (handler) gets called with the provided args in the message, which vary depending on the defined handler type
 		// (block, transaction, transactionStatus...)
 		zsocket.subscribe(subscriptionInfo.filter);
-		zsocket.startReceiving(subscriptionInfo.handler);
+		zsocket.on('message', subscriptionInfo.handler);
 		return zsocket;
 	});

@@ -24,18 +24,18 @@ import EventEmitter from 'events';
 const logAllMonitorEvents = (zsocket, throttle, logger) => {
 	const eventNameLevelPairs = {
 		connect: 'info',
-		connect_delay: 'debug',
-		connect_retry: 'info',
+		'connect:delay': 'debug',
+		'connect:retry': 'info',
 
-		listen: 'debug',
-		bind_error: 'error',
+		bind: 'debug',
+		'bind:error': 'error',
 		accept: 'debug',
-		accept_error: 'error',
+		'accept:error': 'error',
 		close: 'info',
-		close_error: 'error',
+		'close:error': 'error',
 		disconnect: 'warn',
 
-		monitor_error: 'error'
+		'monitor:error': 'error'
 	};
 
 	const createLogHandler = (name, level) => {

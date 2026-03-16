@@ -92,12 +92,12 @@ describe('zmqUtils', () => {
 				const zsocket = createMockZsocket();
 				const logger = test.createMockLogger();
 				const monitorEventNames = [
-					'connect', 'connect_delay', 'connect_retry',
-					'listen', 'bind_error',
-					'accept', 'accept_error',
-					'close', 'close_error',
+					'connect', 'connect:delay', 'connect:retry',
+					'bind', 'bind:error',
+					'accept', 'accept:error',
+					'close', 'close:error',
 					'disconnect',
-					'monitor_error'
+					'monitor:error'
 				];
 
 				// Act:
