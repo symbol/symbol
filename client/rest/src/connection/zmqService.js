@@ -41,11 +41,11 @@ class ZmqSocketWrapper extends EventEmitter {
 	}
 
 	/**
-	 * Connects the socket to the given URL.
-	 * @param {string} url Socket url.
+	 * Connects the socket to the given address.
+	 * @param {string} address Address to connect.
 	 */
-	connect(url) {
-		this.innerSocket.connect(url);
+	connect(address) {
+		this.innerSocket.connect(address);
 	}
 
 	/**
@@ -73,7 +73,7 @@ class ZmqSocketWrapper extends EventEmitter {
 	 */
 	monitor() {
 		this.eventsLoopActive = true;
-		(async () => {
+		const startMonitoring = async () => {
 			try {
 				while (this.eventsLoopActive) {
 					const event = await this.innerSocket.events.receive(); // eslint-disable-line no-await-in-loop
@@ -85,7 +85,8 @@ class ZmqSocketWrapper extends EventEmitter {
 				if (this.eventsLoopActive)
 					this.emit('monitor:error', err);
 			}
-		})();
+		};
+		startMonitoring();
 	}
 
 	/**
@@ -101,8 +102,7 @@ class ZmqSocketWrapper extends EventEmitter {
 	close() {
 		this.eventsLoopActive = false;
 		try {
-			if (!this.innerSocket.closed)
-				this.innerSocket.close();
+			this.innerSocket.close();
 		} catch (err) {
 			// ignore errors during close
 		}
