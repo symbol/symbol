@@ -1,0 +1,21 @@
+tags:
+  - Metadata routes
+summary: Get metadata information for an array of composite hashes
+description: Gets an array of metadata entries for the given composite hashes.
+operationId: getMetadataEntries
+requestBody:
+  $ref: "../../../request_bodies/compositeHashes.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of metadata entries.
+          items:
+            $ref: "../schemas/MetadataInfoDTO.yml"
+  "400":
+    $ref : "../../../responses/InvalidContent.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

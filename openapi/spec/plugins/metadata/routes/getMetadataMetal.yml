@@ -1,0 +1,42 @@
+tags:
+  - Metadata routes
+summary: Get Metal metadata binary data
+description: |
+  Gets the binary payload stored in a Metal metadata entry.
+  The response content type is determined by the stored data (e.g. image, document).
+  Optional query parameters can override the response headers for content type and filename.
+operationId: getMetadataMetal
+parameters:
+  - $ref: "../../../parameters/path/metalId.yml"
+  - name: mimeType
+    in: query
+    description: Override the MIME type of the response.
+    required: false
+    schema:
+      type: string
+      example: "image/png"
+  - name: fileName
+    in: query
+    description: Override the filename in the Content-Disposition header.
+    required: false
+    schema:
+      type: string
+  - name: download
+    in: query
+    description: When true, sets Content-Disposition to attachment.
+    required: false
+    schema:
+      type: boolean
+      default: false
+responses:
+  "200":
+    description: Binary payload of the Metal metadata.
+    content:
+      application/octet-stream:
+        schema:
+          type: string
+          format: binary
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"
