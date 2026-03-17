@@ -828,7 +828,7 @@ describe('server (bootstrapper)', () => {
 		const registerRoute = (server, route) => {
 			// create a zmq service that supports only basic (non-transaction) models
 			const config = {
-				host: '127.0.0.1', port: ports.mq, connectTimeout: 1000, monitorInterval: 50
+				host: '127.0.0.1', port: ports.mq, connectTimeout: 1000
 			};
 			const channelDescriptors = new MessageChannelBuilder().build();
 			const zmqService = createZmqConnectionService(config, channelDescriptors, test.createMockLogger());

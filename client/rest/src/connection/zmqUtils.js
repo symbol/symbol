@@ -25,7 +25,7 @@ const logAllMonitorEvents = (zsocket, throttle, logger) => {
 	const eventNameLevelPairs = {
 		connect: 'info',
 		'connect:delay': 'debug',
-		'connect:retry': 'info',
+		'connect:retry': 'debug',
 
 		bind: 'debug',
 		'bind:error': 'error',
@@ -102,8 +102,8 @@ export default {
 			clearTimeout(connectTimeoutTimerId);
 		});
 
-		// enable monitoring (0 => read all events each interval)
-		zsocket.monitor(zmqConfig.monitorInterval, 0);
+		// enable monitoring
+		zsocket.monitor();
 	},
 
 	/**

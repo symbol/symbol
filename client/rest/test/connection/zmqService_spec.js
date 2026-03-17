@@ -262,7 +262,7 @@ describe('zmq service', () => {
 
 	const createDefaultZmqConnectionService = () => {
 		const zmqConfig = {
-			host: '127.0.0.1', port: '3333', connectTimeout: 10, monitorInterval: 50
+			host: '127.0.0.1', port: '3333', connectTimeout: 10
 		};
 		const channelDescriptors = new MessageChannelBuilder().build();
 		const service = createZmqConnectionService(zmqConfig, channelDescriptors, test.createMockLogger());
@@ -370,7 +370,7 @@ describe('zmq service', () => {
 		it('forwards messages to subscribed handlers', () => {
 			// Arrange:
 			const zmqConfig = {
-				host: '127.0.0.1', port: '3333', connectTimeout: 1000, monitorInterval: 50
+				host: '127.0.0.1', port: '3333', connectTimeout: 1000
 			};
 			const channelDescriptors = new MessageChannelBuilder().build();
 			const service = createZmqConnectionService(zmqConfig, channelDescriptors, test.createLogger());
