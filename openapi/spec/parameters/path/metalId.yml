@@ -1,0 +1,7 @@
+name: metalId
+in: path
+description: |
+  Metal identifier: Base58-encoded composite hash of the first metadata chunk.
+required: true
+schema:
+  type: string

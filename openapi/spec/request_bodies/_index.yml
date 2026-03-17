@@ -4,6 +4,8 @@ addresses:
   $ref: './addresses.yml'
 cosignature:
   $ref: './cosignature.yml'
+hashes:
+  $ref: './hashes.yml'
 mosaicIds:
   $ref: './mosaicIds.yml'
 namespaceIds:
@@ -14,3 +16,5 @@ transactionIds:
   $ref: './transactionIds.yml'
 transactionPayload:
   $ref: './transactionPayload.yml'
+compositeHashes:
+  $ref: './compositeHashes.yml'

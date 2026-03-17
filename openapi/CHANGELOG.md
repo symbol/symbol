@@ -11,6 +11,15 @@ Milestone: Symbol Mainnet
 - feat: Added ``/network/currency/supply/circulating`` endpoint - returns circulating currency supply.
 - feat: Added ``/network/currency/supply/max`` endpoint - returns maximum currency supply.
 - feat: Added ``/network/currency/supply/total`` endpoint - returns total on-chain currency supply.
+- feat: Added ``/account/{address}/lock/hash`` endpoint - search hash locks by account.
+- feat: Added ``/account/{address}/lock/secret`` endpoint - search secret locks by account.
+- feat: Added ``POST /lock/hash`` endpoint - batch fetch hash locks by hashes.
+- feat: Added ``POST /lock/secret`` endpoint - batch fetch secret locks by compositeHashes.
+- feat: Added ``POST /metadata`` endpoint - batch fetch metadata entries by compositeHashes.
+- feat: Added ``/metadata/metal/{metalId}`` endpoint - retrieve Metal binary payload.
+- feat: Added ``POST /restrictions/account`` endpoint - batch fetch account restrictions by addresses.
+- feat: Added ``POST /restrictions/mosaic`` endpoint - batch fetch mosaic restrictions by compositeHashes.
+- fix: Corrected ``/network/inflation`` response schema reference.
 
 ## [1.0.4] - 25-Nov-2025
 
