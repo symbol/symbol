@@ -1,7 +1,7 @@
 tags:
   - Block routes
 summary: Search blocks
-description: Gets an array of bocks.
+description: Gets an array of blocks.
 operationId: searchBlocks
 parameters:
   - $ref: "../../../parameters/query/signerPublicKey.yml"

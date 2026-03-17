@@ -1,0 +1,21 @@
+tags:
+  - Hash Lock routes
+summary: Get hash lock information for an array of hashes
+description: Gets an array of hash lock entries for the given hashes.
+operationId: getHashLocks
+requestBody:
+  $ref: "../../../request_bodies/hashes.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of hash lock entries.
+          items:
+            $ref: "../schemas/HashLockInfoDTO.yml"
+  "400":
+    $ref : "../../../responses/InvalidContent.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

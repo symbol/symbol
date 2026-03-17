@@ -139,9 +139,14 @@
     $ref: "./plugins/aggregate/routes/announceCosignatureTransaction.yml"
 
 # Plugin - LockHash
+"/account/{address}/lock/hash":
+  get:
+    $ref: "./plugins/lock_hash/routes/searchAccountHashLocks.yml"
 "/lock/hash":
   get:
     $ref: "./plugins/lock_hash/routes/searchHashLock.yml"
+  post:
+    $ref: "./plugins/lock_hash/routes/getHashLocks.yml"
 
 "/lock/hash/{hash}":
   get:
@@ -152,9 +157,14 @@
     $ref: "./plugins/lock_hash/routes/getHashLockMerkle.yml"
 
 # Plugin - LockSecret
+"/account/{address}/lock/secret":
+  get:
+    $ref: "./plugins/lock_secret/routes/searchAccountSecretLocks.yml"
 "/lock/secret":
   get:
     $ref: "./plugins/lock_secret/routes/searchSecretLock.yml"
+  post:
+    $ref: "./plugins/lock_secret/routes/getSecretLocks.yml"
 
 "/lock/secret/{compositeHash}":
   get:
@@ -168,6 +178,8 @@
 "/metadata":
   get:
     $ref: "./plugins/metadata/routes/searchMetadataEntries.yml"
+  post:
+    $ref: "./plugins/metadata/routes/getMetadataEntries.yml"
 
 "/metadata/{compositeHash}":
   get:
@@ -176,6 +188,9 @@
 "/metadata/{compositeHash}/merkle":
   get:
     $ref: "./plugins/metadata/routes/getMetadataMerkle.yml"
+"/metadata/metal/{metalId}":
+  get:
+    $ref: "./plugins/metadata/routes/getMetadataMetal.yml"
 
 # Plugin - Mosaic
 "/mosaics/{mosaicId}":
@@ -240,6 +255,8 @@
 "/restrictions/account":
   get:
     $ref: "./plugins/restriction_account/routes/searchAccountRestrictions.yml"
+  post:
+    $ref: "./plugins/restriction_account/routes/getAccountRestrictionsBatch.yml"
 "/restrictions/account/{address}":
   get:
     $ref: "./plugins/restriction_account/routes/getAccountRestrictions.yml"
@@ -251,6 +268,8 @@
 "/restrictions/mosaic":
   get:
     $ref: "./plugins/restriction_mosaic/routes/searchMosaicRestrictions.yml"
+  post:
+    $ref: "./plugins/restriction_mosaic/routes/getMosaicRestrictionsBatch.yml"
 "/restrictions/mosaic/{compositeHash}":
   get:
     $ref: "./plugins/restriction_mosaic/routes/getMosaicRestrictions.yml"

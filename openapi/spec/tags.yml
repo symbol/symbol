@@ -12,5 +12,6 @@
 - name: Restriction Account routes
 - name: Receipt routes
 - name: Transaction routes
+- name: Transaction status routes
 - name: Hash Lock routes
 - name: Secret Lock routes

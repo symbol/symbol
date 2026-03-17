@@ -1,0 +1,7 @@
+type: object
+properties:
+  compositeHashes:
+    type: array
+    description: Array of composite hashes.
+    items:
+      $ref: "../../schemas/Hash256.yml"

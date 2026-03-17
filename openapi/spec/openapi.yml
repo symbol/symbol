@@ -9,8 +9,6 @@ externalDocs:
   description: Symbol Technical Documentation
   url: https://docs.symbol.dev/
 servers:
-  - url: http://localhost:3000
-    description: Local development
   - url: https://reference.symboltest.net:3001
     description: Testnet node
 components:

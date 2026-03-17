@@ -1,0 +1,7 @@
+type: object
+properties:
+  hashes:
+    type: array
+    description: Array of hashes.
+    items:
+      $ref: "../../schemas/Hash256.yml"
