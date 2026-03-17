@@ -10,7 +10,7 @@ Shoestring is distributed as a Python package and can be installed using `pip`.
 
 Before installing Shoestring, ensure the following software is available on the system:
 
-* Python 3.9 or newer.
+* Python 3.10 or newer.
 * `pip` (Python package manager).
 * [Docker](https://www.docker.com).
 * [OpenSSL](https://www.openssl.org/) command-line tools.
@@ -61,6 +61,24 @@ pip install symbol-shoestring
 ```
 
 This command installs the Shoestring tool and its dependencies.
+
+!!! warning "Troubleshooting"
+
+    On some systems, installing Shoestring may require additional system packages,
+    because some Python dependencies are built from source.
+
+    If installation fails with errors related to missing headers, libraries, or compiler tools,
+    install the required **development packages** for your system and run the installation again.
+
+    Common symptoms include errors mentioning `pyconfig.h`, OpenSSL headers, or missing build toolchains.
+
+    On Ubuntu and Debian, it is typically enough to install:
+
+    ```bash
+    sudo apt install python3-dev libssl-dev
+    ```
+
+    Then run the Shoestring installation again.
 
 ## Verifying the Installation
 
