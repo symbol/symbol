@@ -16,7 +16,7 @@ void call(Closure body) {
 				choices: jenkinsfileParams.operatingSystem ?: ['ubuntu'],
 				description: 'Operating System'
 			choice name: 'BUILD_CONFIGURATION',
-				choices: ['release-public', 'release-private'],
+				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
 			choice name: 'ARCHITECTURE',
 				choices: ['arm64', 'amd64'],
