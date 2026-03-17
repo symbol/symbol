@@ -27,6 +27,11 @@ import EventEmitter from 'events';
  * Wrapper for a zmq socket that provides an exception-safe interface.
  */
 class ZmqSocketWrapper extends EventEmitter {
+	/**
+	 * Creates an instance of ZmqSocketWrapper.
+	 * @param {string} key Socket key.
+	 * @param {function} subscriberFactory Socket factory.
+	 */
 	constructor(key, subscriberFactory) {
 		super();
 		this.key = key;
@@ -35,10 +40,18 @@ class ZmqSocketWrapper extends EventEmitter {
 		this.eventsLoopActive = false;
 	}
 
+	/**
+	 * Connects the socket to the given URL.
+	 * @param {string} url Socket url.
+	 */
 	connect(url) {
 		this.innerSocket.connect(url);
 	}
 
+	/**
+	 * Subscribes to the given filter.
+	 * @param {string} filter Filter.
+	 */
 	subscribe(filter) {
 		this.innerSocket.subscribe(filter);
 		const startMessaging = async () => {
@@ -48,12 +61,16 @@ class ZmqSocketWrapper extends EventEmitter {
 					this.emit('message', ...frames);
 				}
 			} catch (err) {
-				this.emit('error', err);
+				if (!this.innerSocket.closed)
+					this.emit('message:error', err);
 			}
 		};
 		startMessaging();
 	}
 
+	/**
+	 * Starts monitoring the socket for events and emits them.
+	 */
 	monitor() {
 		this.eventsLoopActive = true;
 		(async () => {
@@ -61,25 +78,31 @@ class ZmqSocketWrapper extends EventEmitter {
 				while (this.eventsLoopActive) {
 					const event = await this.innerSocket.events.receive(); // eslint-disable-line no-await-in-loop
 					const eventName = event.type;
-					const eventValue = eventName.endsWith('_error') && event.error ? event.error.errno : event.value;
+					const eventValue = eventName.endsWith('error') && event.error ? event.error.errno : event.value;
 					this.emit(eventName, eventValue, event.address);
 				}
 			} catch (err) {
-				console.error('Error in ZMQ event loop:', err);
 				if (this.eventsLoopActive)
 					this.emit('monitor:error', err);
 			}
 		})();
 	}
 
+	/**
+	 * Stops monitoring the socket for events.
+	 */
 	unmonitor() {
 		this.eventsLoopActive = false;
 	}
 
+	/**
+	 * Closes the socket and ignores any errors.
+	 */
 	close() {
 		this.eventsLoopActive = false;
 		try {
-			this.innerSocket.close();
+			if (!this.innerSocket.closed)
+				this.innerSocket.close();
 		} catch (err) {
 			// ignore errors during close
 		}

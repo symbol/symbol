@@ -59,6 +59,7 @@ describe('process', () => {
 	const sleep = sleepMilliseconds => new Promise(resolve => { setTimeout(resolve, sleepMilliseconds); });
 
 	const assertMessageLoggedExact = async (loggingFilename, expectedMessage) => {
+		await sleep(1000);
 		// read contents of log file
 		const loggingFileContents = await new Promise(resolve => {
 			fs.readFile(loggingFilename, { encoding: 'utf8', flag: 'r' }, async (err, data) => {
@@ -74,6 +75,7 @@ describe('process', () => {
 		}
 
 		// assert expected log message is included
+		console.log('logs:', loggingFileContents);
 		expect(loggingFileContents.includes(`message: '${expectedMessage}'`)).to.equal(true);
 	};
 

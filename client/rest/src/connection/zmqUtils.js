@@ -88,7 +88,7 @@ export default {
 		// log all monitor events
 		logAllMonitorEvents(zsocket, zmqConfig.monitorLoggingThrottle, logger);
 
-		// zmq js still forwards errors to error event that need to be handled
+		// zmq js still forwards errors to the error event that needs to be handled
 		zsocket.on('error', err => {
 			closeWithError('error from zsocket', err);
 		});
