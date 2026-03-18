@@ -1,35 +1,28 @@
-# Running a Node
+# Creating and Running a Node
 
-This tutorial shows how to create and start a Symbol node using the Shoestring tool.
+This tutorial shows how to create and start a Symbol node using the <Shoestring:> tool.
 
 The tutorial assumes that Shoestring and its dependencies are already installed.
 See [Installing Shoestring](./install.md).
 
 ## Create a New Node
 
-Deploying a node with Shoestring consists of five steps:
-
-1. Create a working directory.
-2. Generate network configuration files.
-3. Configure the desired roles.
-4. Create the node identity.
-5. Create the node installation.
-
-The following sections walk through these steps.
+Deploying a node with Shoestring requires a few steps, described below.
 
 ??? info "Using the Shoestring Wizard"
 
-    Alternatively, you can use the interactive setup wizard provided by Shoestring by running:
+    Alternatively, you can use the interactive setup wizard provided by Shoestring:
 
     ```bash
-    python3 -m shoestring wizard
+    python3 -m shoestring.wizard
     ```
 
     The wizard asks a series of questions and generates the same configuration files used in this tutorial.
 
     The resulting node behaves exactly the same as one created with the command-line steps shown below.
 
-    If you use the wizard, then, after completing it, continue from the step [Start the Node](#start-the-node).
+    After completing the wizard, continue from [Start the Node](#start-the-node)
+    if the node has not been started automatically.
 
 ### 1. Create a Working Directory
 
@@ -62,29 +55,52 @@ For testnet nodes, use:
 python3 -m shoestring init --package sai config.ini
 ```
 
-### 3. Configure Node Roles
+### 3. Configure Shoestring
 
-The node [roles](../../textbook/nodes.md#roles), called _features_ by Shoestring,
-are defined in the `#!ini [node]` section of `config.ini`.
+The `config.ini` file generated in the previous step already contains most required values.
+Only a few values need to be customized for your node, and they all reside in the `#!ini [node]` section:
 
-Open the file and locate the following section:
+* The node [roles](../../textbook/nodes.md#roles), called _features_ by Shoestring.
 
-```ini
-[node]
-features =
+    Set the desired node features from the list: `PEER`, `API`, `HARVESTER`, and `VOTER`.
+    You can combine multiple features separating them with a vertical bar `|`, for example:
+
+    ```ini title="config.ini"
+    [node]
+    features = PEER | API
+    ```
+
+* The `caCommonName` and `nodeCommonName` are used as Common Names (CN) in the certificates generated for the node.
+    They do not affect node behavior, but must not be empty for certificate generation to succeed.
+
+    For example:
+
+    ```ini title="config.ini"
+    [node]
+    caCommonName = My Symbol Node CA
+    nodeCommonName = My Symbol Node
+    ```
+
+### 4. Configure the Node
+
+An additional configuration file can be used to provide node-specific settings.
+Without it, the node will not be usable.
+
+Create a new file called `overrides.ini` with the following content:
+
+```ini title="overrides.ini"
+[node.localnode]
+host = 127.0.0.1
+friendlyName = My Symbol Node
 ```
 
-Set the desired node features from the list: `PEER`, `API`, `HARVESTER`, and `VOTER`.
-You can combine multiple features separating them with a vertical bar `|`, for example: `PEER | API`
+Use the public IP address or hostname of your node as seen by the rest of the network.
+If you use an unreachable host (like `127.0.0.1`), your node will connect to the network but other nodes will not
+interact with it.
 
-For example, an API node can be configured with:
+Use a human-readable name that will appear in node lists.
 
-```ini
-[node]
-features = API
-```
-
-### 4. Create the Node Identity
+### 5. Create the Node Identity
 
 Each node requires a cryptographic identity used for secure communication.
 
@@ -97,7 +113,7 @@ openssl genpkey -algorithm ed25519 -out ca.key.pem
 This creates a file named `ca.key.pem`, which **must be kept secure**.
 It contains the private key used to generate the node certificates.
 
-### 5. Create the Node Installation
+### 6. Create the Node Installation
 
 Once the configuration and key files are ready, create the node installation.
 
@@ -106,6 +122,7 @@ Run:
 ```bash
 python3 -m shoestring setup \
   --config ./config.ini \
+  --overrides ./overrides.ini \
   --package mainnet \
   --directory . \
   --ca-key-path ./ca.key.pem
@@ -118,7 +135,7 @@ This command performs several tasks:
 * generates certificates
 * prepares the Docker environment
 
-All necessary configuration is now done and the node can be started.
+The node is now configured and ready to be started.
 
 ## Start the Node
 
@@ -130,7 +147,25 @@ docker compose up -d
 
 The `-d` option runs the containers in detached mode, so the node continues running even after closing the terminal.
 
-To stop the node, run the following command from the same folder:
+!!! warning "Docker permissions"
+
+    If you see an error similar to:
+
+    ```text
+    permission denied while trying to connect to the Docker daemon socket
+    ```
+
+    your user does not have permission to run Docker commands.
+
+    On Linux, you can add your user to the `docker` group with:
+
+    ```bash
+    sudo usermod -aG docker $USER
+    ```
+
+    Then log out and log back in, and run the command again.
+
+To stop the node, run from the same folder:
 
 ```bash
 docker compose down
@@ -147,11 +182,28 @@ python3 -m shoestring health --config config.ini --directory .
 ```
 
 If the node started successfully, the command reports that the peer endpoint, REST API, and WebSocket services are
-reachable.
+reachable:
+
+```txt
+     ...    | running health agent for peer certificate
+      i     | ca certificate not near expiry (7299 day(s))
+      i     | node certificate not near expiry (374 day(s))
+keys/cert/ca.crt.pem: OK
+keys/cert/node.crt.pem: OK
+     ...    | running health agent for peer API
+      i     | peer API accessible, height = 226081
+     ...    | running health agent for REST API
+      i     | REST API accessible, height = 226081
+     ...    | running health agent for REST websockets
+      i     | websocket connected to ws://127.0.0.1:3000/ws, subscribing and waiting for block
+      i     | websocket received a block with height 226082
+```
+
+While the node is synchronizing with the network, the reported chain height is lower than the actual height.
 
 ## Next Steps
 
-Once the node is running, additional tasks may be required:
+Once the node is running, additional tasks may be needed:
 
 * customizing node configuration
 * upgrading the client

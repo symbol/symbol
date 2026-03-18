@@ -1,6 +1,6 @@
 # Installing Shoestring
 
-This page explains how to install the Shoestring tool and verify that it is working correctly.
+This page explains how to install the <Shoestring:> tool and verify that it is working correctly.
 
 Shoestring is distributed as a Python package and can be installed using `pip`.
 
@@ -12,7 +12,20 @@ Before installing Shoestring, ensure the following software is available on the 
 
 * Python 3.10 or newer.
 * `pip` (Python package manager).
-* [Docker](https://www.docker.com).
+* [Docker](https://www.docker.com) with Docker Compose support (v2).
+
+    ??? info "Installing Docker Compose"
+
+        Installation as a plugin is preferred.
+        For example, on Ubuntu and Debian, run:
+
+        ```bash
+        sudo apt install docker-compose-v2
+        ```
+
+        If the plugin version is not available on your system, you can install the older `docker-compose` package
+        and replace `docker compose` with `docker-compose` in the commands below (note the hyphen).
+
 * [OpenSSL](https://www.openssl.org/) command-line tools.
 
     ??? info "Installing OpenSSL"

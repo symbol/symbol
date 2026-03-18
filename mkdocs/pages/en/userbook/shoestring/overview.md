@@ -1,6 +1,7 @@
 # Shoestring Overview
 
-Shoestring is a command-line tool used to deploy and manage <nodes:> in the Symbol network.
+Shoestring
+:   A command-line tool used to deploy and manage <nodes:> in the Symbol network.
 
 It replaces the older `symbol-bootstrap` tool, which is no longer maintained.
 Shoestring performs the same core tasks, but with a simpler architecture and fewer dependencies.
