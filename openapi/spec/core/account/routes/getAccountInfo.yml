@@ -4,7 +4,7 @@ summary: Get account information
 description: Returns the account information.
 operationId: getAccountInfo
 parameters:
-  - $ref: "../../../parameters/path/accountId.yml"
+  - $ref: "../../../parameters/path/accountIdPath.yml"
 responses:
   "200":
     description: success

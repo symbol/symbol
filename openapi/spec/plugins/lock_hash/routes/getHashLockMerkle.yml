@@ -4,7 +4,7 @@ summary: Get hash lock merkle information
 description: Gets the hash lock merkle for a given hash.
 operationId: getHashLockMerkle
 parameters:
-  - $ref: "../../../parameters/path/hash.yml"
+  - $ref: "../../../parameters/path/hashPath.yml"
 responses:
   "200":
     description: success

@@ -5,18 +5,13 @@ tags:
   "$ref": "./tags.yml"
 paths:
   "$ref": "./routes.yml"
+# No authentication required for Symbol client API; empty requirement satisfies security-defined rule.
+security:
+  - {}
 externalDocs:
   description: Symbol Technical Documentation
   url: https://docs.symbol.dev/
 servers:
   - url: https://reference.symboltest.net:3001
     description: Testnet node
-components:
-  parameters:
-    "$ref": "./parameters/_index.yml"
-  requestBodies:
-    "$ref": "./request_bodies/_index.yml"
-  schemas:
-    $ref: "./schemas/_index.yml"
-  responses:
-    $ref: "./responses/_index.yml"
+

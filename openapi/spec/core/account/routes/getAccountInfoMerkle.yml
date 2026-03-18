@@ -4,7 +4,7 @@ summary: Get account merkle information
 description: Returns the account merkle information.
 operationId: getAccountInfoMerkle
 parameters:
-  - $ref: "../../../parameters/path/accountId.yml"
+  - $ref: "../../../parameters/path/accountIdPath.yml"
 responses:
   "200":
     description: success

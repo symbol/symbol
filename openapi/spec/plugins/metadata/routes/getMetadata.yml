@@ -4,7 +4,7 @@ summary: Get metadata information
 description: Gets the metadata for a given composite hash.
 operationId: getMetadata
 parameters:
-  - $ref: "../../../parameters/path/compositeHash.yml"
+  - $ref: "../../../parameters/path/compositeHashPath.yml"
 responses:
   "200":
     description: success

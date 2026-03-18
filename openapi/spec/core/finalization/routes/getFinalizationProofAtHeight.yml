@@ -4,7 +4,7 @@ summary: Get finalization proof
 description: Gets finalization proof at the given height.
 operationId: getFinalizationProofAtHeight
 parameters:
-  - $ref: "../../../parameters/path/height.yml"
+  - $ref: "../../../parameters/path/heightPath.yml"
 responses:
   "200":
     description: success

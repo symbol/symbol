@@ -1,6 +1,0 @@
-ResourceNotFound:
-  "$ref": "./ResourceNotFound.yml"
-InvalidContent:
-  "$ref": "./InvalidContent.yml"
-InvalidArgument:
-  "$ref": "./InvalidArgument.yml"

@@ -4,7 +4,7 @@ summary: Get unconfirmed transaction information
 description: Returns unconfirmed transaction information given a transactionId or hash.
 operationId: getUnconfirmedTransaction
 parameters:
-  - $ref: "../../../parameters/path/transactionId.yml"
+  - $ref: "../../../parameters/path/transactionIdPath.yml"
 responses:
   "200":
     description: success

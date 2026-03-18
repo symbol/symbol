@@ -4,12 +4,12 @@ summary: Search accounts
 description: Gets an array of accounts.
 operationId: searchAccounts
 parameters:
-  - $ref: "../../../parameters/query/pageSize.yml"
-  - $ref: "../../../parameters/query/pageNumber.yml"
-  - $ref: "../../../parameters/query/offset.yml"
-  - $ref: "../../../parameters/query/order.yml"
-  - $ref: "../../../parameters/query/orderByAccount.yml"
-  - $ref: "../../../parameters/query/mosaicId.yml"
+  - $ref: "../../../parameters/query/pageSizeQuery.yml"
+  - $ref: "../../../parameters/query/pageNumberQuery.yml"
+  - $ref: "../../../parameters/query/offsetQuery.yml"
+  - $ref: "../../../parameters/query/orderQuery.yml"
+  - $ref: "../../../parameters/query/orderByAccountQuery.yml"
+  - $ref: "../../../parameters/query/mosaicIdQuery.yml"
 responses:
   "200":
     description: success
