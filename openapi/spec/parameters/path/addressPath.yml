@@ -4,4 +4,3 @@ description: Account address.
 required: true
 schema:
   $ref: "../../schemas/Address.yml"
-

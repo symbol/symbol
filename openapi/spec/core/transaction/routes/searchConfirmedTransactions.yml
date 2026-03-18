@@ -7,21 +7,21 @@ description: |
   was resolved from the alias at confirmation time.
 operationId: searchConfirmedTransactions
 parameters:
-  - $ref: "../../../parameters/query/address.yml"
-  - $ref: "../../../parameters/query/recipientAddress.yml"
-  - $ref: "../../../parameters/query/signerPublicKey.yml"
-  - $ref: "../../../parameters/query/height.yml"
-  - $ref: "../../../parameters/query/fromHeight.yml"
-  - $ref: "../../../parameters/query/toHeight.yml"
-  - $ref: "../../../parameters/query/fromTransferAmount.yml"
-  - $ref: "../../../parameters/query/toTransferAmount.yml"
-  - $ref: "../../../parameters/query/transactionTypes.yml"
-  - $ref: "../../../parameters/query/embedded.yml"
-  - $ref: "../../../parameters/query/transferMosaicId.yml"
-  - $ref: "../../../parameters/query/pageSize.yml"
-  - $ref: "../../../parameters/query/pageNumber.yml"
-  - $ref: "../../../parameters/query/offset.yml"
-  - $ref: "../../../parameters/query/order.yml"
+  - $ref: "../../../parameters/query/addressQuery.yml"
+  - $ref: "../../../parameters/query/recipientAddressQuery.yml"
+  - $ref: "../../../parameters/query/signerPublicKeyQuery.yml"
+  - $ref: "../../../parameters/query/heightQuery.yml"
+  - $ref: "../../../parameters/query/fromHeightQuery.yml"
+  - $ref: "../../../parameters/query/toHeightQuery.yml"
+  - $ref: "../../../parameters/query/fromTransferAmountQuery.yml"
+  - $ref: "../../../parameters/query/toTransferAmountQuery.yml"
+  - $ref: "../../../parameters/query/transactionTypesQuery.yml"
+  - $ref: "../../../parameters/query/embeddedQuery.yml"
+  - $ref: "../../../parameters/query/transferMosaicIdQuery.yml"
+  - $ref: "../../../parameters/query/pageSizeQuery.yml"
+  - $ref: "../../../parameters/query/pageNumberQuery.yml"
+  - $ref: "../../../parameters/query/offsetQuery.yml"
+  - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
     description: success

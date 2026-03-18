@@ -4,7 +4,7 @@ summary: Get the account restrictions
 description: Returns the account restrictions for a given address.
 operationId: getAccountRestrictions
 parameters:
-  - $ref: "../../../parameters/path/address.yml"
+  - $ref: "../../../parameters/path/addressPath.yml"
 responses:
   "200":
     description: success

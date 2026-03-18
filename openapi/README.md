@@ -1,33 +1,30 @@
 # symbol-openapi
 
-[![Build Status](https://travis-ci.com/nemtech/symbol-openapi.svg?branch=main)](https://travis-ci.com/nemtech/symbol-openapi)
-
 OpenAPI specification for catapult-rest.
 
 ## Requirements
 
-* Node.js 12 LTS
+* Node.js 18 LTS or higher
 
 ## Installation
 
-1. Clone the ``symbol-openapi`` repository.
+1. Clone the `symbol-openapi` repository.
 
 ```
-git clone https://github.com/nemtech/symbol-openapi.git
+git clone https://github.com/symbol/symbol-openapi.git
 ```
 
-2. Install ``swagger-cli`` globally.
+2. Install dependencies.
 
 ```
-npm install -g @apidevtools/swagger-cli
+npm install
 ```
 
 ## Commands
 
 ### Build
 
-Compile the specification.
-The generated output is saved under ``_build`` directory.
+Compile the specification. The generated output is saved under the `_build` directory.
 
 ```
 npm run build
@@ -35,10 +32,18 @@ npm run build
 
 ### Test
 
-Check if the specification is valid. 
+Validate the specification using Redocly CLI.
 
 ```
-npm run test
+npm test
+```
+
+### Postman
+
+Generate a Postman collection from the built specification.
+
+```
+npm run postman
 ```
 
 ## Contributing
@@ -47,5 +52,4 @@ Before contributing please [read this](CONTRIBUTING.md).
 
 ## License
 
-Copyright (c) 2018-present NEM 
-Licensed under the [Apache License 2.0](https://github.com/nemtech/nem2-docs/blob/master/LICENSE)
+Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed under the [GNU Lesser General Public License v3](LICENSE.txt)

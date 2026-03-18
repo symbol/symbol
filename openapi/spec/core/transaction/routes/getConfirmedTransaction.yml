@@ -4,7 +4,7 @@ summary: Get confirmed transaction information
 description: Returns confirmed transaction information given a transactionId or hash.
 operationId: getConfirmedTransaction
 parameters:
-  - $ref: "../../../parameters/path/transactionId.yml"
+  - $ref: "../../../parameters/path/transactionIdPath.yml"
 responses:
   "200":
     description: success

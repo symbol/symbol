@@ -5,7 +5,7 @@ description: |
   Retrieves network inflation parameters at a given block height.
 operationId: getNetworkInflationAtHeight
 parameters:
-  - $ref: "../../../parameters/path/height.yml"
+  - $ref: "../../../parameters/path/heightPath.yml"
 responses:
   "200":
     description: success

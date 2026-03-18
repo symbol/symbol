@@ -4,7 +4,7 @@ summary: Get the account restrictions merkle
 description: Returns the account restrictions merkle for a given address.
 operationId: getAccountRestrictionsMerkle
 parameters:
-  - $ref: "../../../parameters/path/address.yml"
+  - $ref: "../../../parameters/path/addressPath.yml"
 responses:
   "200":
     description: success

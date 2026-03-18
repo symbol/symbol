@@ -4,15 +4,15 @@ summary: Search metadata entries
 description: Returns an array of metadata.
 operationId: searchMetadataEntries
 parameters:
-  - $ref: "../../../parameters/query/sourceAddress.yml"
-  - $ref: "../../../parameters/query/targetAddress.yml"
-  - $ref: "../../../parameters/query/scopedMetadataKey.yml"
-  - $ref: "../../../parameters/query/targetId.yml"
-  - $ref: "../../../parameters/query/metadataType.yml"
-  - $ref: "../../../parameters/query/pageSize.yml"
-  - $ref: "../../../parameters/query/pageNumber.yml"
-  - $ref: "../../../parameters/query/offset.yml"
-  - $ref: "../../../parameters/query/order.yml"
+  - $ref: "../../../parameters/query/sourceAddressQuery.yml"
+  - $ref: "../../../parameters/query/targetAddressQuery.yml"
+  - $ref: "../../../parameters/query/scopedMetadataKeyQuery.yml"
+  - $ref: "../../../parameters/query/targetIdQuery.yml"
+  - $ref: "../../../parameters/query/metadataTypeQuery.yml"
+  - $ref: "../../../parameters/query/pageSizeQuery.yml"
+  - $ref: "../../../parameters/query/pageNumberQuery.yml"
+  - $ref: "../../../parameters/query/offsetQuery.yml"
+  - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
     description: success

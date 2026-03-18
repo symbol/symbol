@@ -15,8 +15,8 @@ description: |
   block header (block.receiptsHash) to verify if the statement was linked with the block.
 operationId: getMerkleReceipts
 parameters:
-  - $ref: "../../../parameters/path/height.yml"
-  - $ref: "../../../parameters/path/receiptHash.yml"
+  - $ref: "../../../parameters/path/heightPath.yml"
+  - $ref: "../../../parameters/path/receiptHashPath.yml"
 responses:
   "200":
     description: success

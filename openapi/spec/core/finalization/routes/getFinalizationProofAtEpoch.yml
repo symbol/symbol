@@ -4,7 +4,7 @@ summary: Get finalization proof
 description: Gets finalization proof for the greatest height associated with the given epoch.
 operationId: getFinalizationProofAtEpoch
 parameters:
-  - $ref: "../../../parameters/path/epoch.yml"
+  - $ref: "../../../parameters/path/epochPath.yml"
 responses:
   "200":
     description: success

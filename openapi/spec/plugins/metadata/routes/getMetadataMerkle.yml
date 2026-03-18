@@ -4,7 +4,7 @@ summary: Get metadata merkle information
 description: Gets the metadata merkle for a given composite hash.
 operationId: getMetadataMerkle
 parameters:
-  - $ref: "../../../parameters/path/compositeHash.yml"
+  - $ref: "../../../parameters/path/compositeHashPath.yml"
 responses:
   "200":
     description: success

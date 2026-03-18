@@ -4,15 +4,15 @@ summary: Search blocks
 description: Gets an array of blocks.
 operationId: searchBlocks
 parameters:
-  - $ref: "../../../parameters/query/signerPublicKey.yml"
-  - $ref: "../../../parameters/query/beneficiaryAddress.yml"
-  - $ref: "../../../parameters/query/pageSize.yml"
-  - $ref: "../../../parameters/query/pageNumber.yml"
-  - $ref: "../../../parameters/query/offset.yml"
-  - $ref: "../../../parameters/query/order.yml"
-  - $ref: "../../../parameters/query/orderByBlock.yml"
-  - $ref: "../../../parameters/query/fromTimestamp.yml"
-  - $ref: "../../../parameters/query/toTimestamp.yml"
+  - $ref: "../../../parameters/query/signerPublicKeyQuery.yml"
+  - $ref: "../../../parameters/query/beneficiaryAddressQuery.yml"
+  - $ref: "../../../parameters/query/pageSizeQuery.yml"
+  - $ref: "../../../parameters/query/pageNumberQuery.yml"
+  - $ref: "../../../parameters/query/offsetQuery.yml"
+  - $ref: "../../../parameters/query/orderQuery.yml"
+  - $ref: "../../../parameters/query/orderByBlockQuery.yml"
+  - $ref: "../../../parameters/query/fromTimestampQuery.yml"
+  - $ref: "../../../parameters/query/toTimestampQuery.yml"
 responses:
   "200":
     description: success
