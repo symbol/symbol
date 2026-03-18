@@ -4,4 +4,3 @@ description: Finalization epoch.
 required: true
 schema:
   $ref: "../../schemas/FinalizationEpoch.yml"
-

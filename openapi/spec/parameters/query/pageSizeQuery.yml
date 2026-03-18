@@ -6,4 +6,3 @@ schema:
   minimum: 10
   maximum: 100
   default: 10
-

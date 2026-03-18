@@ -4,8 +4,8 @@
   "description": "OpenAPI Specification of catapult-rest",
   "main": "index.js",
   "scripts": {
-    "test": "swagger-cli validate _build/openapi3.yml",
-    "build": "swagger-cli bundle ./spec/openapi.yml --outfile _build/openapi3.yml --type yaml",
+    "test": "redocly lint _build/openapi3.yml",
+    "build": "redocly bundle spec/openapi.yml -o _build/openapi3.yml",
     "postman": "openapi2postmanv2 -s _build/openapi3.yml -o _build/postman.json -p",
     "version": "echo $npm_package_version",
     "version:prepare": "mkdir _build/v$npm_package_version && cp -r _build/template/. _build/v$npm_package_version",
@@ -13,17 +13,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nemtech/symbol-openapi.git"
+    "url": "git+https://github.com/symbol/symbol-openapi.git"
   },
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/nemtech/symbol-openapi/issues"
+    "url": "https://github.com/symbol/symbol-openapi/issues"
   },
-  "homepage": "https://github.com/nemtech/symbol-openapi#readme",
+  "homepage": "https://github.com/symbol/symbol-openapi#readme",
   "dependencies": {},
   "devDependencies": {
-    "openapi-to-postmanv2": "^1.2.6",
-    "swagger-cli": "^4.0.4",
-    "yaml-cli": "^1.1.8"
+    "@redocly/cli": "^1.25.0",
+    "openapi-to-postmanv2": "^6.0.0"
   }
 }

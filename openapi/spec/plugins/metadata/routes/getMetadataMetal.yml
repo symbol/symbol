@@ -7,7 +7,7 @@ description: |
   Optional query parameters can override the response headers for content type and filename.
 operationId: getMetadataMetal
 parameters:
-  - $ref: "../../../parameters/path/metalId.yml"
+  - $ref: "../../../parameters/path/metalIdPath.yml"
   - name: mimeType
     in: query
     description: Override the MIME type of the response.

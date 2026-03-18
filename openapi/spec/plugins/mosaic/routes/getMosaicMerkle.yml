@@ -4,7 +4,7 @@ summary: Get mosaic merkle information
 description: Gets the mosaic definition merkle for a given mosaic identifier.
 operationId: getMosaicMerkle
 parameters:
-  - $ref: "../../../parameters/path/mosaicId.yml"
+  - $ref: "../../../parameters/path/mosaicIdPath.yml"
 responses:
   "200":
     description: success

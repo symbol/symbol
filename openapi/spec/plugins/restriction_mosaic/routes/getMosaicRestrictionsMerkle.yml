@@ -4,7 +4,7 @@ summary: Get the mosaic restrictions merkle
 description: Returns the mosaic restrictions merkle for a given composite hash.
 operationId: getMosaicRestrictionsMerkle
 parameters:
-  - $ref: "../../../parameters/path/compositeHash.yml"
+  - $ref: "../../../parameters/path/compositeHashPath.yml"
 responses:
   "200":
     description: success

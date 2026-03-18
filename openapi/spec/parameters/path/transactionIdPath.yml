@@ -4,4 +4,3 @@ description: Transaction id or hash.
 required: true
 schema:
   type: string
-

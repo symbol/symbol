@@ -4,18 +4,18 @@ summary: Search transaction statements
 description: Gets an array of transaction statements.
 operationId: searchReceipts
 parameters:
-  - $ref: "../../../parameters/query/height.yml"
-  - $ref: "../../../parameters/query/fromHeight.yml"
-  - $ref: "../../../parameters/query/toHeight.yml"
-  - $ref: "../../../parameters/query/receiptTypes.yml"
-  - $ref: "../../../parameters/query/recipientAddress.yml"
-  - $ref: "../../../parameters/query/senderAddress.yml"
-  - $ref: "../../../parameters/query/targetAddress.yml"
-  - $ref: "../../../parameters/query/artifactId.yml"
-  - $ref: "../../../parameters/query/pageSize.yml"
-  - $ref: "../../../parameters/query/pageNumber.yml"
-  - $ref: "../../../parameters/query/offset.yml"
-  - $ref: "../../../parameters/query/order.yml"
+  - $ref: "../../../parameters/query/heightQuery.yml"
+  - $ref: "../../../parameters/query/fromHeightQuery.yml"
+  - $ref: "../../../parameters/query/toHeightQuery.yml"
+  - $ref: "../../../parameters/query/receiptTypesQuery.yml"
+  - $ref: "../../../parameters/query/recipientAddressQuery.yml"
+  - $ref: "../../../parameters/query/senderAddressQuery.yml"
+  - $ref: "../../../parameters/query/targetAddressQuery.yml"
+  - $ref: "../../../parameters/query/artifactIdQuery.yml"
+  - $ref: "../../../parameters/query/pageSizeQuery.yml"
+  - $ref: "../../../parameters/query/pageNumberQuery.yml"
+  - $ref: "../../../parameters/query/offsetQuery.yml"
+  - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
     description: success

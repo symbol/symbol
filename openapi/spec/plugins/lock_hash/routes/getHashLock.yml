@@ -4,7 +4,7 @@ summary: Get hash lock information
 description: Gets the hash lock for a given hash.
 operationId: getHashLock
 parameters:
-  - $ref: "../../../parameters/path/hash.yml"
+  - $ref: "../../../parameters/path/hashPath.yml"
 responses:
   "200":
     description: success

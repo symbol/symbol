@@ -1,6 +1,6 @@
 name: mosaicId
-in: query
-description: Filter by mosaic identifier.
+in: path
+description: Mosaic identifier.
+required: true
 schema:
   $ref: "../../schemas/MosaicId.yml"
-
