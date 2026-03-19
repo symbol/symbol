@@ -100,7 +100,7 @@ describe('ZmqSocketWrapper', () => {
 			wrapper.connect('tcp://127.0.0.1:7654');
 
 			// Assert:
-			expect(subscriber.connectCalls).to.deep.equal(['tcp://127.0.0.1:7654']);
+			expect(wrapper.innerSocket.connectCalls).to.deep.equal(['tcp://127.0.0.1:7654']);
 		});
 	});
 
@@ -113,7 +113,7 @@ describe('ZmqSocketWrapper', () => {
 			wrapper.subscribe(filter);
 
 			// Assert:
-			expect(subscriber.subscribeCalls).to.deep.equal([filter]);
+			expect(wrapper.innerSocket.subscribeCalls).to.deep.equal([filter]);
 		});
 	});
 
@@ -224,7 +224,7 @@ describe('ZmqSocketWrapper', () => {
 
 			// Assert:
 			expect(wrapper.eventsLoopActive).to.equal(false);
-			expect(subscriber.numCloseCalls).to.equal(1);
+			expect(wrapper.innerSocket.numCloseCalls).to.equal(1);
 		});
 
 		it('ignores errors from inner socket close', () => {
