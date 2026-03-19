@@ -53,11 +53,6 @@ describe('ZmqSocketWrapper', () => {
 				eventsPendingResolvers.splice(0).forEach(({ reject }) => reject(new Error('socket closed')));
 				receivePendingResolvers.splice(0).forEach(({ reject }) => reject(new Error('socket closed')));
 			},
-			pushEvent: event => {
-				const pending = eventsPendingResolvers.shift();
-				if (pending)
-					pending.resolve(event);
-			},
 			rejectEvent: err => {
 				const pending = eventsPendingResolvers.shift();
 				if (pending)
@@ -74,25 +69,33 @@ describe('ZmqSocketWrapper', () => {
 
 	const createWrapper = (key, subscriber) => new ZmqSocketWrapper(key, () => subscriber);
 
+	let subscriber;
+	let wrapper;
+
+	beforeEach(() => {
+		// Arrange:
+		subscriber = createMockSubscriber();
+		wrapper = createWrapper('test-key', subscriber);
+	});
+
+	afterEach(() => {
+		if (!wrapper.innerSocket.closed)
+			wrapper.close();
+	});
+
 	describe('constructor', () => {
 		it('stores key and initializes inner socket with linger 0', () => {
-			// Arrange + Act:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test-key', subscriber);
+			// Act: in the before each hook
 
 			// Assert:
-			expect(wrapper.key).to.equal('test-key');
-			expect(subscriber.linger).to.equal(0);
 			expect(wrapper.eventsLoopActive).to.equal(false);
+			expect(wrapper.innerSocket.linger).to.equal(0);
+			expect(wrapper.key).to.equal('test-key');
 		});
 	});
 
 	describe('connect', () => {
 		it('delegates to inner socket', () => {
-			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
-
 			// Act:
 			wrapper.connect('tcp://127.0.0.1:7654');
 
@@ -104,8 +107,6 @@ describe('ZmqSocketWrapper', () => {
 	describe('subscribe', () => {
 		it('delegates to inner socket', () => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
 			const filter = Buffer.of(0x01, 0x02);
 
 			// Act:
@@ -113,21 +114,18 @@ describe('ZmqSocketWrapper', () => {
 
 			// Assert:
 			expect(subscriber.subscribeCalls).to.deep.equal([filter]);
-
-			wrapper.close();
 		});
 	});
 
 	describe('monitor', () => {
 		it('emits error event when events loop throws while active', () => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
 			wrapper.monitor();
 
-			// Act + Assert:
+			// Act:
 			return new Promise(resolve => {
 				wrapper.once('monitor:error', err => {
+					// Assert:
 					expect(err.message).to.equal('events loop error');
 					resolve();
 				});
@@ -137,8 +135,6 @@ describe('ZmqSocketWrapper', () => {
 
 		it('suppresses error event when events loop throws after unmonitor', async () => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
 			wrapper.monitor();
 
 			// Act: stop monitoring before the error arrives
@@ -153,13 +149,9 @@ describe('ZmqSocketWrapper', () => {
 			// Assert: no error was emitted
 			expect(emittedErrors).to.deep.equal([]);
 		});
-	});
 
-	describe('unmonitor', () => {
 		it('stops events loop', () => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
 			wrapper.monitor();
 
 			// Act:
@@ -173,8 +165,6 @@ describe('ZmqSocketWrapper', () => {
 	describe('messaging', () => {
 		const testMessageReceived = shouldSubscribe => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
 			const receivedArgs = [];
 			const frame1 = Buffer.from('topic');
 			const frame2 = Buffer.from('data');
@@ -185,13 +175,16 @@ describe('ZmqSocketWrapper', () => {
 				wrapper.subscribe('');
 			}
 
-			// Act + Assert:
+			// Act:
 			return new Promise(resolve => {
 				subscriber.pushFrames([frame1, frame2]);
 				setTimeout(() => {
+					// Assert:
 					expect(receivedArgs).to.have.lengthOf(expectedReceivedLength);
 					if (shouldSubscribe)
 						expect(receivedArgs[0]).to.deep.equal([frame1, frame2]);
+					else
+						expect(receivedArgs).to.deep.equal([]);
 
 					wrapper.close();
 					resolve();
@@ -205,8 +198,6 @@ describe('ZmqSocketWrapper', () => {
 
 		it('silently stops when inner socket is closed', async () => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
 			let handlerCallCount = 0;
 			wrapper.subscribe('');
 			wrapper.on('message', () => { ++handlerCallCount; });
@@ -226,8 +217,6 @@ describe('ZmqSocketWrapper', () => {
 	describe('close', () => {
 		it('closes inner socket and stops events loop', () => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			const wrapper = createWrapper('test', subscriber);
 			wrapper.monitor();
 
 			// Act:
@@ -240,9 +229,7 @@ describe('ZmqSocketWrapper', () => {
 
 		it('ignores errors from inner socket close', () => {
 			// Arrange:
-			const subscriber = createMockSubscriber();
-			subscriber.close = () => { throw new Error('close failed'); };
-			const wrapper = createWrapper('test', subscriber);
+			wrapper.innerSocket.close = () => { throw new Error('close failed'); };
 
 			// Act + Assert: should not throw
 			expect(() => wrapper.close()).not.to.throw();
