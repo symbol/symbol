@@ -297,8 +297,7 @@ The full encoded key is reconstructed by concatenating each followed nibble and 
 The leaf stores the SHA3-256 hash of the serialized entry (the value).
 
 Verification links the proof back to the block header in two steps.
-First, it checks that `SHA3-256(root₁ || root₂ || ... || rootₙ)` matches the block's `stateHash`, confirming the
-sub-cache roots are genuine.
+First, it checks that the sub-cache roots hash to the block's state hash, confirming they are genuine.
 Then, it checks that the root of the proof tree is one of those sub-cache roots.
 If both checks pass and the leaf's value matches the expected hash, the entry is proven to exist on chain.
 
