@@ -122,6 +122,7 @@ nav:
           - Chain State:
               - devbook/chain/chain-heights.md
               - devbook/chain/prove-transaction.md
+              - devbook/chain/prove-mosaic-state.md
           - WebSockets:
               - devbook/websockets/listen-new-blocks.md
               - devbook/websockets/listen-transaction-flow.md

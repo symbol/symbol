@@ -245,5 +245,62 @@ Each Patricia tree has its own root hash.
 The state hash is computed as `SHA3-256(root₁ || root₂ || ... || rootₙ)`, a single hash over the concatenated roots
 of all sub-caches.
 
+For example, to prove that a mosaic has a particular hashed value, only the nodes along the path from the sub-cache root
+to the leaf are needed.
+The mosaic's encoded key (`3A4C...` in the diagram) is the SHA3-256 hash of its identifier, and each nibble
+(half-byte, one hex digit) of this key determines which child to follow at each level of the tree:
+
+```dot
+digraph PatriciaProof {
+    rankdir=BT;
+    node [shape=box fontsize=10];
+    edge [arrowsize=0.7];
+
+    stateHash [label="stateHash\nSHA3-256(root₁ || root₂ || ... || rootₙ)" penwidth=3];
+
+    root1 [label="accounts root"];
+    root2 [label="mosaics root\n[16 links]" penwidth=3];
+    root3 [label="namespaces root"];
+    rootN [label="..." shape=none];
+
+    root1 -> stateHash;
+    root2 -> stateHash;
+    root3 -> stateHash;
+    rootN -> stateHash;
+
+    b1 [label="[16 links]" penwidth=3];
+    b2 [label="[15 links]" penwidth=3];
+    b3 [label="[5 links]" penwidth=3];
+    other1 [label="..." shape=none];
+    other2 [label="..." shape=none];
+    other3 [label="..." shape=none];
+    leaf [label="path: 540D7E...559E\nvalue: H(mosaic)" penwidth=3 style=filled fillcolor=lightyellow];
+
+    b1 -> root2 [label="3" penwidth=2];
+    other1 -> root2;
+    b2 -> b1 [label="A" penwidth=2];
+    other2 -> b1;
+    b3 -> b2 [label="4" penwidth=2];
+    other3 -> b2;
+    leaf -> b3 [label="C" penwidth=2];
+}
+```
+
+Each branch node has up to 16 links (one per nibble value `0`–`F`), each pointing to a child node.
+Each node also carries a **path**: a compressed sequence of nibbles from the encoded key,
+shared by all entries below it.
+In the example above the branch nodes have empty paths, but a node might carry a long path that skips many nibbles at
+once when there are no other entries that would require branching at those positions.
+The full encoded key is reconstructed by concatenating each followed nibble and node path from root to leaf:
+`3` + `A` + `4` + `C` + leaf path `540D7E...559E` = `3A4C540D7E...559E`.
+
+The leaf stores the SHA3-256 hash of the serialized entry (the value).
+
+Verification links the proof back to the block header in two steps.
+First, it checks that `SHA3-256(root₁ || root₂ || ... || rootₙ)` matches the block's `stateHash`, confirming the
+sub-cache roots are genuine.
+Then, it checks that the root of the proof tree is one of those sub-cache roots.
+If both checks pass and the leaf's value matches the expected hash, the entry is proven to exist on chain.
+
 Because this hash captures the full chain state, two nodes that agree on a block's state hash are guaranteed to have
 identical views of every account, mosaic, and namespace at that height.
