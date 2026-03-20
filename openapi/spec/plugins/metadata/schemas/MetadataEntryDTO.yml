@@ -13,9 +13,9 @@ properties:
   compositeHash:
     $ref: "../../../schemas/Hash256.yml"
   sourceAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   targetAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   scopedMetadataKey:
     $ref: "../../../schemas/MetadataKey.yml"
   targetId:

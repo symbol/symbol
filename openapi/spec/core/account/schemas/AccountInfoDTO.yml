@@ -1,10 +1,10 @@
 type: object
+description: Account information including an internal resource identifier and the full account state.
 required:
   - id
   - account
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   account:
     $ref: "./AccountDTO.yml"

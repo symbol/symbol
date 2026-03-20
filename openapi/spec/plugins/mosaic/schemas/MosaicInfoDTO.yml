@@ -4,7 +4,6 @@ required:
   - mosaic
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   mosaic:
     $ref: "./MosaicDTO.yml"

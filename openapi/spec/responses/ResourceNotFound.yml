@@ -1,5 +1,17 @@
-description: ResourceNotFound
+description: |
+  The requested resource does not exist.
+  Returned with HTTP status 404.
+  The response body contains `code` (e.g. `ResourceNotFound`) and `message` with the missing resource identifier.
 content:
   application/json:
     schema:
       $ref: '../schemas/ModelError.yml'
+    examples:
+      accountNotFound:
+        value:
+          code: ResourceNotFound
+          message: no resource exists with id 'NCHEST3QRQS4JZGOO64TH7NFJ2A63YA7TPM5PXI'
+      blockNotFound:
+        value:
+          code: ResourceNotFound
+          message: no resource exists with id '999999999999'

@@ -19,7 +19,7 @@ properties:
   startHeight:
     $ref: "../../../schemas/Height.yml"
   ownerAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   revision:
     $ref: "../../../schemas/UInt32.yml"
     description: Number of definitions for the same mosaic.

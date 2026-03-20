@@ -1,4 +1,8 @@
 type: object
+description: |
+  Verifiable entity base. Adds the `signature` field proving the entity was signed
+  by the account identified in `signerPublicKey` (EntityDTO). Used by BlockDTO and TransactionDTO.
+  The signature covers the serialized entity payload and can be verified using the signer's public key.
 required:
   - signature
 properties:

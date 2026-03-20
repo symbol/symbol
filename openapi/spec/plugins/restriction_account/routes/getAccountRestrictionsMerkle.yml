@@ -1,7 +1,7 @@
 tags:
   - Restriction Account routes
-summary: Get the account restrictions merkle
-description: Returns the account restrictions merkle for a given address.
+summary: Get the account restrictions Merkle
+description: Returns the account restrictions Merkle for a given address.
 operationId: getAccountRestrictionsMerkle
 parameters:
   - $ref: "../../../parameters/path/addressPath.yml"

@@ -4,3 +4,7 @@ description: Transaction hash.
 required: true
 schema:
   $ref: "../../schemas/Hash256.yml"
+examples:
+  default:
+    summary: Transaction hash
+    value: C8FC3FB54FDDFBCE0E8C71224990124E4EEC5AD5D30E592EDFA9524669A23810

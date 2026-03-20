@@ -1,5 +1,6 @@
 name: height
 in: query
-description: Filter by block height.
+description: |
+  Filter by block height. Sequential block position in the chain; starts at 1 and increments by one.
 schema:
   $ref: "../../schemas/Height.yml"

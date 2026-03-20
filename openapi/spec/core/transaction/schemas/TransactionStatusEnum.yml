@@ -172,7 +172,7 @@ description: |
   * Failure_Core_Future_Deadline - Validation failed because the deadline is too far in the future.
   * Failure_Core_Insufficient_Balance - Validation failed because the account has an insufficient balance.
   * Failure_Core_Too_Many_Transactions - Validation failed because there are too many transactions in a block.
-  * Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block - Validation failed because an entity originated from the nemesis account after the nemesis block.
+  * Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block - Validation failed because an entity originated from the nemesis account after the nemesis (first) block.
   * Failure_Core_Wrong_Network - Validation failed because the entity has the wrong network specified.
   * Failure_Core_Invalid_Address - Validation failed because an address is invalid.
   * Failure_Core_Invalid_Version - Validation failed because entity version is invalid.
@@ -274,7 +274,7 @@ description: |
   * Failure_Namespace_Unknown_Parent - Validation failed because the namespace parent is unknown.
   * Failure_Namespace_Already_Exists - Validation failed because the namespace already exists.
   * Failure_Namespace_Already_Active - Validation failed because the namespace is already active.
-  * Failure_Namespace_Eternal_After_Nemesis_Block - Validation failed because an eternal namespace was received after the nemesis block.
+  * Failure_Namespace_Eternal_After_Nemesis_Block - Validation failed because an eternal namespace was received after the nemesis (first) block.
   * Failure_Namespace_Max_Children_Exceeded - Validation failed because the maximum number of children for a root namespace was exceeded.
   * Failure_Namespace_Alias_Invalid_Action - Validation failed because alias action is invalid.
   * Failure_Namespace_Unknown - Validation failed because namespace does not exist.

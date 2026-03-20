@@ -1,8 +1,17 @@
 name: offset
 in: query
 description: |
-  Entry id at which to start pagination.
-  If the ordering parameter is set to -id, the elements returned precede the identifier.
-  Otherwise, newer elements with respect to the id are returned.
+  Cursor for pagination. Provide the value of the sort field (`orderBy`) from the
+  last entry of the previous page. **The offset type must match `orderBy`:**
+  - `orderBy=id`: use the entry's `id` (ObjectId, 24-char hex).
+  - `orderBy=height`: use the block height (string, e.g. `"17592"`).
+  - `orderBy=balance`: use the mosaic balance amount (string, e.g. `"1000000"`).
+  Not all endpoints support all `orderBy` values; see the endpoint's `orderBy` parameter.
+
+  The direction depends on `order`:
+  - `order=desc`: returns elements with smaller sort-field values
+    (the "next" page when viewing newest-first).
+  - `order=asc`: returns elements with larger sort-field values
+    (the "next" page when viewing oldest-first).
 schema:
   type: string

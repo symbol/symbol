@@ -1,5 +1,67 @@
 - name: Account routes
+  description: |
+    Accounts are the central entities on the Symbol blockchain. An
+    [account](https://docs.symbol.dev/concepts/account.html) is a key pair (private and public key)
+    associated with a mutable state stored on-chain. Each account is uniquely identified by an
+    [**address**](https://docs.symbol.dev/concepts/cryptography.html#address) derived from its public key,
+    encoded in Base32 format (39 characters). The **public key** is recorded on-chain with the first issued transaction
+    and remains empty until then.
+
+    An account's on-chain state includes its **balance** (the set of
+    [mosaic](https://docs.symbol.dev/concepts/mosaic.html) units it owns) and an
+    [**importance score**](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-calculation)
+    that determines the probability of being selected to harvest the next block. Importance is recalculated
+    periodically using **activity buckets** - rolling data that tracks fees paid, beneficiary counts, and raw
+    scores over a sliding window of recalculation periods.
+
+    Accounts participate in block creation through
+    [harvesting](https://docs.symbol.dev/concepts/harvesting.html). An eligible account (one that meets the
+    minimum balance threshold) can harvest directly, or it can
+    [delegate harvesting](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) to a
+    **remote account** (proxy) that signs blocks on its behalf. The **account type** field reflects this
+    relationship:
+    - `0`: Unlinked account, not participating in harvesting delegation.
+    - `1`: Balance-holding account (harvester) that is linked to a remote proxy account.
+    - `2`: Remote proxy account that signs blocks on behalf of a linked balance-holding account.
+    - `3`: Remote-harvester-eligible account that is currently unlinked.
+
+    To enable [remote](https://docs.symbol.dev/concepts/harvesting.html#remote-harvesting) or
+    [delegated](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) harvesting, the main
+    account links a set of **supplemental public keys**:
+    - `Linked key`: public key of the remote proxy account
+      ([AccountKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#accountkeylinktransaction)).
+    - `Node key`: public key used for TLS sessions with the node
+      ([NodeKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#nodekeylinktransaction));
+      required only for delegated harvesting.
+    - `VRF key`: key used to randomize harvester selection
+      ([VrfKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#vrfkeylinktransaction));
+      required for all harvesting types.
+    - `Voting keys`: keys used for block
+      [finalization](https://docs.symbol.dev/concepts/block.html#finalization) voting
+      ([VotingKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#votingkeylinktransaction));
+      each key is valid for a defined range of finalization epochs.
 - name: Block routes
+  description: |
+    [Blocks](https://docs.symbol.dev/concepts/block.html) are the units of the Symbol blockchain. Each block
+    contains a list of confirmed [transactions](https://docs.symbol.dev/concepts/transaction.html) and is signed
+    by a [harvester](https://docs.symbol.dev/concepts/harvesting.html) account selected by the
+    [consensus algorithm](https://docs.symbol.dev/concepts/consensus-algorithm.html).
+
+    - `Height`: unique, sequential position of the block in the chain. Subsequent blocks differ in height by 1.
+    - `Timestamp`: number of milliseconds elapsed since the creation of the first block.
+    - `Difficulty`: block difficulty (initial 1e14); adjusted in range 1e13–1e15 to maintain target block time.
+    - `Harvester`: [account](https://docs.symbol.dev/concepts/account.html) that created the block; receives
+      transaction [fees](https://docs.symbol.dev/concepts/fees.html) and
+      [inflation](https://docs.symbol.dev/concepts/inflation.html) rewards.
+    - `Beneficiary address`: optional account designated by the harvester to receive a
+      [the block reward](https://docs.symbol.dev/concepts/harvesting.html#rewards).
+    - `Fee multiplier`: multiplier applied to transaction size to calculate the
+      [effective fee](https://docs.symbol.dev/concepts/fees.html).
+    - `Importance block`: a special block type that additionally records voting-eligible account count,
+      harvesting-eligible account count, total voting balance, and the previous importance block hash.
+    - `Finalization` ([docs](https://docs.symbol.dev/concepts/block.html#finalization)): the process that makes blocks
+      permanent. Once a block is finalized, its transactions become immutable. Clients that rely on immutability
+      should only trust finalized blocks.
 - name: Chain routes
 - name: Finalization routes
 - name: Metadata routes

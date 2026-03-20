@@ -1,5 +1,7 @@
 type: object
-description: Merkle tree branch node.
+description: |
+  Internal node of a [Patricia Merkle tree](https://docs.symbol.dev/concepts/data-validation.html)
+  used in state proofs. A branch has up to 16 child links (one per nibble 0–F) and a path prefix.
 required:
   - type
   - path
@@ -10,22 +12,22 @@ required:
   - branchHash
 properties:
   type:
-    description: Merkle tree node type.
+    description: Node type (always branch).
     $ref: "./MerkleTreeNodeTypeEnum.yml"
   path:
-    description: Branch link path.
+    description: Path prefix (hex) from root to this branch.
     type: string
   encodedPath:
-    description: Encoded branch link path.
+    description: Compact-encoded path.
     type: string
   nibbleCount:
-    description: Nibble count.
+    description: Number of nibbles in the path.
     type: integer
   linkMask:
-    description: Branch link bitmask.
+    description: Bitmask indicating which nibble slots (0–15) have child links.
     type: string
   links:
-    description: Branch links (max 16).
+    description: Child links (max 16, one per nibble).
     type: array
     items:
       $ref: "./MerkleTreeBranchLinkDTO.yml"

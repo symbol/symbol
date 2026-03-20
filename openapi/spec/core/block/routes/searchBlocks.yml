@@ -1,7 +1,13 @@
 tags:
   - Block routes
 summary: Search blocks
-description: Gets an array of blocks.
+description: |
+  Returns a paginated list of blocks matching the given criteria.
+
+  Results can be filtered by harvester (``signerPublicKey``), beneficiary address,
+  and timestamp range. Standard pagination parameters (``pageSize``, ``pageNumber``,
+  ``offset``, ``order``) apply.
+  The ``orderBy`` parameter supports ``id`` and ``height``. The ``offset`` value must match the ``orderBy`` field.
 operationId: searchBlocks
 parameters:
   - $ref: "../../../parameters/query/signerPublicKeyQuery.yml"
@@ -15,10 +21,45 @@ parameters:
   - $ref: "../../../parameters/query/toTimestampQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated list of matching blocks.
     content:
       application/json:
         schema:
           $ref: "../schemas/BlockPage.yml"
+        examples:
+          default:
+            value:
+              data:
+                - id: "5E62690AB46E5565E8C0B5B5"
+                  meta:
+                    hash: C8FC3FB54FDDFBCE0E8C71224990124E4EEC5AD5D30E592EDFA9524669A23810
+                    totalFee: "0"
+                    generationHash: 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
+                    stateHashSubCacheMerkleRoots: []
+                    totalTransactionsCount: 5
+                    transactionsCount: 3
+                    statementsCount: 2
+                  block:
+                    size: 480
+                    signerPublicKey: AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26
+                    version: 1
+                    network: 152
+                    type: 33091
+                    signature: 4B408BBEDF25F2AC8E0E44A6E51E3CCBA03885902055F75EB9FF50433532CA44BF9175FDA7502EEE2FC1617126E453A2BD692BAFDAAF06BC8EDEBA7961B3730D
+                    height: "17592"
+                    timestamp: "108303181802"
+                    difficulty: "100000000000000"
+                    proofGamma: 8D49594A96C31EC6C64305FB2CCB47AA7A4AC0A4F614442BB3684D2BF41F274E
+                    proofVerificationHash: 82FB583BFE3EE78805784D078F2547AE
+                    proofScalar: 480175C83739B22C53EAECAA7E7F3B245F1DFAFA6B3AE5C1D0129502FCBAAD0C
+                    previousBlockHash: "0000000000000000000000000000000000000000000000000000000000000000"
+                    transactionsHash: C8FC3FB54FDDFBCE0E8C71224990124E4EEC5AD5D30E592EDFA9524669A23810
+                    receiptsHash: C8FC3FB54FDDFBCE0E8C71224990124E4EEC5AD5D30E592EDFA9524669A23810
+                    stateHash: C8FC3FB54FDDFBCE0E8C71224990124E4EEC5AD5D30E592EDFA9524669A23810
+                    beneficiaryAddress: "985A3B9B3A5821E7E5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0"
+                    feeMultiplier: 100
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -8,8 +8,7 @@ description: |
   and the real address or mosaicId.
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   meta:
     $ref: "./StatementMetaDTO.yml"
   statement:

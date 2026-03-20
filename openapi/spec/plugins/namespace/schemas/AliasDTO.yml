@@ -7,4 +7,4 @@ properties:
   mosaicId:
     $ref: "../../../schemas/MosaicId.yml"
   address:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"

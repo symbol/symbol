@@ -1,9 +1,16 @@
 tags:
   - Account routes
 summary: Search accounts
-description: Gets an array of accounts.
+description: |
+  Returns a paginated list of accounts matching the given criteria.
+
+  Results can be filtered by account address and mosaic ownership, and ordered by id or balance.
+  Standard pagination parameters (``pageSize``, ``pageNumber``, ``offset``, ``order``) apply.
+  The ``orderBy`` parameter supports ``id`` and ``balance``; when using ``orderBy=balance``,
+  the ``mosaicId`` filter is required. The ``offset`` value must match the ``orderBy`` field.
 operationId: searchAccounts
 parameters:
+  - $ref: "../../../parameters/query/addressQuery.yml"
   - $ref: "../../../parameters/query/pageSizeQuery.yml"
   - $ref: "../../../parameters/query/pageNumberQuery.yml"
   - $ref: "../../../parameters/query/offsetQuery.yml"
@@ -12,10 +19,36 @@ parameters:
   - $ref: "../../../parameters/query/mosaicIdQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated list of matching accounts.
     content:
       application/json:
         schema:
           $ref: "../schemas/AccountPage.yml"
+        examples:
+          default:
+            value:
+              data:
+                - id: "5E62690AB46E5565E8C0B5B5"
+                  account:
+                    version: 1
+                    address: "985A3B9B3A5821E7E5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0"
+                    addressHeight: "1"
+                    publicKey: AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26
+                    publicKeyHeight: "1"
+                    accountType: 0
+                    supplementalPublicKeys: {}
+                    activityBuckets:
+                      - startHeight: "1"
+                        totalFeesPaid: "0"
+                        beneficiaryCount: 0
+                        rawScore: "0"
+                    mosaics:
+                      - id: 0DC67FBE1CAD29E3
+                        amount: "1000000"
+                    importance: "0.010263666447108395"
+                    importanceHeight: "1"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -1,7 +1,13 @@
 type: object
+description: |
+  Size-prefixed entity base. Adds the `size` field indicating the total byte length
+  of the serialized entity. Used by BlockDTO and TransactionDTO.
+  In Symbol's binary format, entities are prefixed with their size for efficient parsing.
 required:
   - size
 properties:
   size:
     $ref: "../../../schemas/UInt32.yml"
-    description: Entity size in bytes.
+    description: |
+      Total size of the serialized entity in bytes. Includes the full binary payload,
+      including the 4-byte size field itself.

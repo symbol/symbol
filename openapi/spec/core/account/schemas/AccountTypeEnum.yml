@@ -5,7 +5,18 @@ enum:
   - 2
   - 3
 description: |
-  * 0 - Unlinked.
-  * 1 - Balance-holding account that is linked to a remote harvester account.
-  * 2 - Remote harvester account that is linked to a balance-holding account.
-  * 3 - Remote harvester eligible account that is unlinked.
+  Indicates the [harvesting](https://docs.symbol.dev/concepts/harvesting.html) delegation role
+  of the account. When an account enables
+  [remote](https://docs.symbol.dev/concepts/harvesting.html#remote-harvesting) or
+  [delegated](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) harvesting,
+  it links to a remote proxy account that signs blocks on its behalf. This field reflects which
+  side of that relationship the account is on:
+  - `0`: **Unlinked.** The account has no harvesting delegation relationship.
+  - `1`: **Main.** Balance-holding account (harvester) that is linked to a remote proxy account.
+    Importance score is calculated from this account's balance and activity.
+  - `2`: **Remote.** Proxy account that signs blocks on behalf of a linked main account.
+    It holds no funds; its sole purpose is to keep the main account's private key off the node.
+  - `3`: **Remote unlinked.** An account that was previously used as a remote proxy
+    but is currently not linked to any main account.
+examples:
+  - 0

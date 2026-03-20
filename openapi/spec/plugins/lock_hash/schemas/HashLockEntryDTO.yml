@@ -11,7 +11,7 @@ properties:
   version:
     $ref: "../../../schemas/StateVersion.yml"
   ownerAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   mosaicId:
     $ref: "../../../schemas/MosaicId.yml"
   amount:
