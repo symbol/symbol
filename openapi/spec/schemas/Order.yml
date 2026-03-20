@@ -1,8 +1,8 @@
 type: string
 description: |
   Indicates how to sort the results: 
-  * ``asc`` - ascending
-  * ``desc`` - descending
+  - `asc`: ascending
+  - `desc`: descending
 enum:
   - asc
   - desc

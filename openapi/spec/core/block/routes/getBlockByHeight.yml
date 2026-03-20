@@ -1,17 +1,64 @@
 tags:
   - Block routes
 summary: Get block information
-description: Gets a block from the chain that has the given height.
+description: |
+  Returns the block at the given height.
+  The response includes the block header, harvester signature, and block metadata
+  (hash, total fee, generation hash, transaction and statement counts).
+
+  If the block is an importance block, the response additionally contains
+  voting-eligible and harvesting-eligible account counts, total voting balance,
+  and the previous importance block hash.
 operationId: getBlockByHeight
 parameters:
   - $ref: "../../../parameters/path/heightPath.yml"
 responses:
   "200":
-    description: success
+    description: Block information successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/BlockInfoDTO.yml"
+        examples:
+          default:
+            value:
+              id: "6962CF6A2976BBB47C1054BC"
+              meta:
+                hash: "01D37363E7C88262044F4F7B0DD7B956F11246B95DB9BB8413FA56BADB431B83"
+                generationHash: "FFC5BEEA11DF1550862D5F10EBBE48A8B1AACFC8F572B155A8885FE80D309C81"
+                totalFee: "0"
+                totalTransactionsCount: 0
+                stateHashSubCacheMerkleRoots:
+                  - "29FCB54438CDCD2E680ECA8257493283A07B36E8ADA148DF5CC1CC3BBA743456"
+                  - "13B99273D5F2C7C767767EE2C963D09E7DBDB642A8703C524C779BB38CA0A738"
+                  - "AF75216804449D667BDE3A2A7FA019B711A379CFA6E0D76F54D3CD7409A11B29"
+                  - "7756DE9F2CB74A914B43E2C19CC209BA6AE4D436A618E79FA66E82ABF4C1FA0F"
+                  - "0000000000000000000000000000000000000000000000000000000000000000"
+                  - "271C4CC44F2B5979CB8BBF0FADA0FFB8C70C553AC66059941C9762B9DF8A3B60"
+                  - "C4C95FF41F432B160244F91D12DAB5D7EF6977B5CD9FD52E40E012A145061094"
+                  - "71F6FA9C3B6F19BB35210D8B6F3736254A699B5F0BD8759169CFC3D3D1C65007"
+                  - "8E5EEC4502B7DAF5FD02A5CFDCF59CA1CE9270F193E8E29B0124B25E59B59A8E"
+                transactionsCount: 0
+                statementsCount: 1
+              block:
+                size: 376
+                signature: "2071C002EE41AB668E26155EFF654620057E005218A0D43013FE36C5805C4E8A34A74D5CC563B27175EAECA8D34F919460E7016E9C17F24AA1562DA55C922902"
+                signerPublicKey: "FA313F7B4E6148B0E6CB8637599678D1587FCBCFD16F6E3FCBEC9A035B6C2F21"
+                version: 1
+                network: 104
+                type: 33091
+                height: "5066794"
+                timestamp: "152230125554"
+                difficulty: "113384262983259"
+                proofGamma: "AEB32E1A86D140D08BBF4D577509F47B3551AB9FCA0E377015EBD0E1B08C36AC"
+                proofVerificationHash: "57A494E2A5D0F88E2F936A4D9CB69C67"
+                proofScalar: "2F0BFFA62650753902F49AF8008BBBEA0EFA84573F47D9AB15A2F871A4DDA004"
+                previousBlockHash: "392530D7FDBE2F76F9D49E603E09E6A56B64B501C724F71426BC708841F7DF1D"
+                transactionsHash: "0000000000000000000000000000000000000000000000000000000000000000"
+                receiptsHash: "364652B46B3DC25961A6C3D34E94E711E6BFCA865D4F21A45E68670C9D6BA826"
+                stateHash: "22CE56C7360E7FE657B854D515FBF0A3706300C21286BD2213AF70973D622F62"
+                beneficiaryAddress: "985A3B9B3A5821E7E5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0"
+                feeMultiplier: 0
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

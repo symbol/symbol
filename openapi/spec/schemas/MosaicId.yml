@@ -1,4 +1,11 @@
 type: string
+description: |
+  Unique [mosaic](https://docs.symbol.dev/concepts/mosaic.html) identifier.
+  A 64-bit unsigned integer derived from the creator's address and a registration nonce,
+  encoded as a 16-character hexadecimal string.
 format: hex
-description: Mosaic identifier.
-example: 0DC67FBE1CAD29E3
+minLength: 16
+maxLength: 16
+pattern: '^[0-9a-fA-F]{16}$'
+examples:
+  - 0DC67FBE1CAD29E3

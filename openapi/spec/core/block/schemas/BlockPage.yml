@@ -1,11 +1,12 @@
 type: object
+description: Paginated list of block information objects.
 required:
   - data
   - pagination
 properties:
   data:
     type: array
-    description: Array of blocks.
+    description: Array of block information objects.
     items:
       $ref: "./BlockInfoDTO.yml"
   pagination:

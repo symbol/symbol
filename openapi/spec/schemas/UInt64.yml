@@ -1,3 +1,5 @@
 type: string
-description: A number that allows uint 64 values represented with a string.
-example: "123456"
+description: |
+  Unsigned 64-bit integer represented as a decimal string. Encoded as a string to preserve precision.
+examples:
+  - "123456"

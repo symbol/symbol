@@ -1,4 +1,8 @@
 type: string
-description: Absolute amount. An amount of 123456789 (absolute) for a mosaic with
-  divisibility 6 means 123.456789 (relative).
-example: "123456"
+description: |
+  Absolute amount expressed in the mosaic's smallest (atomic) unit, with no decimal point.
+  For example, an amount of `123456789` for a mosaic with divisibility 6 represents
+  `123.456789` whole units. Encoded as a string to preserve precision, since the value
+  is an unsigned 64-bit integer.
+examples:
+  - "123456789"

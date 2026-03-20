@@ -1,3 +1,13 @@
 type: string
-description: Probability of an account to harvest the next block.
-example: 0
+description: |
+  [Importance score](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-score)
+  of an account, representing the probability of being selected to harvest the next block under
+  the [PoS+](https://docs.symbol.dev/concepts/consensus-algorithm.html) consensus algorithm.
+  The score is derived from three factors: stake, transaction activity, and node operation.
+  Only accounts holding at least the minimum harvesting balance (`minHarvesterBalance` network
+  property) receive a non-zero score. Decimal value between 0 and 1 (inclusive).
+  Minimum: 0. Maximum: 1.
+pattern: '^(0|1|0\.[0-9]+|1\.0*)$'
+examples:
+  - "0"
+  - "0.010263666447108395"

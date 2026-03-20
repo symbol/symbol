@@ -1,7 +1,7 @@
 tags:
   - Multisig routes
-summary: Get multisig account merkle information
-description: Returns the multisig account merkle information.
+summary: Get multisig account Merkle information
+description: Returns the multisig account Merkle information.
 operationId: getAccountMultisigMerkle
 parameters:
   - $ref: "../../../parameters/path/addressPath.yml"

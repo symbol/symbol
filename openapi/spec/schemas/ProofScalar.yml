@@ -1,4 +1,9 @@
 type: string
 format: hex
-description: 32-bytes VRF proof scalar.
-example: 480175C83739B22C53EAECAA7E7F3B245F1DFAFA6B3AE5C1D0129502FCBAAD0C
+description: |
+  32-byte (64 hex characters) VRF proof scalar. Part of the block's
+  [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof).
+  The scalar proves that the gamma value was correctly derived from the VRF input
+  without revealing the harvester's private key.
+examples:
+  - 480175C83739B22C53EAECAA7E7F3B245F1DFAFA6B3AE5C1D0129502FCBAAD0C

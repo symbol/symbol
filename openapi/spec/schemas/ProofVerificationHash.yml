@@ -1,4 +1,11 @@
 type: string
 format: hex
-description: 16-bytes VRF proof verification hash.
-example: 82FB583BFE3EE78805784D078F2547AE
+description: |
+  16-byte (32 hex characters) VRF proof verification hash. Part of the block's
+  [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof),
+  together with ``proofGamma`` and ``proofScalar``.
+  The harvester generates this proof using its VRF private key; the verification hash
+  allows anyone with the VRF public key to verify that the proof was correctly computed
+  without revealing the private key.
+examples:
+  - 82FB583BFE3EE78805784D078F2547AE

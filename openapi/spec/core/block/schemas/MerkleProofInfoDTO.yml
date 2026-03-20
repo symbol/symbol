@@ -1,7 +1,8 @@
 type: object
+description: Merkle proof information containing the path items needed to recalculate the Merkle root.
 properties:
   merklePath:
     type: array
-    description: List of complementary merkle path items needed to recalculate the merkle root.
+    description: List of complementary Merkle path items needed to recalculate the Merkle root.
     items:
       $ref: "./MerklePathItemDTO.yml"

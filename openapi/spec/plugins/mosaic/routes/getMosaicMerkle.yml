@@ -1,7 +1,7 @@
 tags:
   - Mosaic routes
-summary: Get mosaic merkle information
-description: Gets the mosaic definition merkle for a given mosaic identifier.
+summary: Get mosaic Merkle information
+description: Gets the mosaic definition Merkle for a given mosaic identifier.
 operationId: getMosaicMerkle
 parameters:
   - $ref: "../../../parameters/path/mosaicIdPath.yml"

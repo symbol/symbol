@@ -10,7 +10,7 @@ properties:
   version:
     $ref: "../../../schemas/StateVersion.yml"
   accountAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   minApproval:
     $ref: "../../../schemas/UInt32.yml"
     description: Number of signatures needed to approve a transaction.
@@ -23,10 +23,10 @@ properties:
     type: array
     description: Addresses of the cosignatory accounts.
     items:
-      $ref: "../../../schemas/Address.yml"
+      $ref: "../../../schemas/AddressHex.yml"
   multisigAddresses:
     type: array
     description: Multisig accounts where the account is cosignatory.
     example:
     items:
-      $ref: "../../../schemas/Address.yml"
+      $ref: "../../../schemas/AddressHex.yml"

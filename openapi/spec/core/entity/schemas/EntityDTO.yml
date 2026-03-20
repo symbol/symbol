@@ -1,4 +1,8 @@
 type: object
+description: |
+  Base entity fields shared by blocks, transactions, and other on-chain entities.
+  Extended by VerifiableEntityDTO (signature) and SizePrefixedEntityDTO (size).
+  Used in BlockDTO, TransactionDTO, and EmbeddedTransactionDTO.
 required:
   - signerPublicKey
   - version
@@ -7,10 +11,13 @@ required:
 properties:
   signerPublicKey:
     $ref: "../../../schemas/PublicKey.yml"
+    description: Public key of the account that signed the entity (e.g. block harvester, transaction signer).
   version:
     type: integer
-    description: Entity version.
+    description: Entity version. Indicates the schema variant for serialization and validation.
   network:
     $ref: "./NetworkTypeEnum.yml"
+    description: Network type (mainnet or testnet). Ensures the entity targets the correct network.
   type:
     type: integer
+    description: Entity type identifier (e.g. transaction type code, block type). Determines the entity schema.

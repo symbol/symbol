@@ -5,8 +5,7 @@ required:
   - namespace
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   meta:
     $ref: "./NamespaceMetaDTO.yml"
   namespace:

@@ -4,7 +4,6 @@ required:
   - mosaicRestrictionEntry
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   mosaicRestrictionEntry:
     $ref: "./MosaicAddressRestrictionEntryWrapperDTO.yml"

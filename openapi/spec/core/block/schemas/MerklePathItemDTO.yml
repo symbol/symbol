@@ -1,7 +1,10 @@
 type: object
-description: Each merkle path item is composed of a hash, and a position relative to the proofHash being evaluated.
+description: |
+  A single node in the Merkle proof path. Each item contains a hash and its position
+  (left or right) relative to the proofHash being evaluated.
 properties:
   position:
     $ref: "./PositionEnum.yml"
   hash:
     $ref: "../../../schemas/Hash256.yml"
+    description: Sibling node hash used when recalculating the Merkle root.

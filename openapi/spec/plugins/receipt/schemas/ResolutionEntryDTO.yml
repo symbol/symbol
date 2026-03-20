@@ -7,5 +7,5 @@ properties:
     $ref: "./SourceDTO.yml"
   resolved:
     anyOf:
-      - $ref: "../../../schemas/Address.yml"
+      - $ref: "../../../schemas/AddressHex.yml"
       - $ref: "../../../schemas/MosaicId.yml"

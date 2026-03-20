@@ -1,5 +1,7 @@
 type: object
-description: Merkle tree leaf node.
+description: |
+  Terminal node of a [Patricia Merkle tree](https://docs.symbol.dev/concepts/data-validation.html)
+  used in state proofs. A leaf stores the final path and the associated value (entity state hash).
 required:
   - type
   - path
@@ -9,19 +11,19 @@ required:
   - leafHash
 properties:
   type:
-    description: Merkle tree node type.
+    description: Node type (always leaf).
     $ref: "./MerkleTreeNodeTypeEnum.yml"
   path:
-    description: Leaf path.
+    description: Full path (hex) from root to this leaf.
     type: string
   encodedPath:
-    description: Encoded leaf path.
+    description: Compact-encoded path.
     type: string
   nibbleCount:
-    description: Nibble count.
+    description: Number of nibbles in the path.
     type: integer
   value:
-    description: Leaf value (sha256 hash).
+    description: Leaf value (SHA3-256 hash of the entity state).
     type: string
   leafHash:
     description: Hash of the leaf node.

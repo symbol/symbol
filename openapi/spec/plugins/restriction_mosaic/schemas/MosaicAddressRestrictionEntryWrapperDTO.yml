@@ -16,7 +16,7 @@ properties:
   mosaicId:
     $ref: "../../../schemas/MosaicId.yml"
   targetAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   restrictions:
     type: array
     items:

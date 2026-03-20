@@ -1,7 +1,7 @@
 tags:
   - Restriction Mosaic routes
-summary: Get the mosaic restrictions merkle
-description: Returns the mosaic restrictions merkle for a given composite hash.
+summary: Get the mosaic restrictions Merkle
+description: Returns the mosaic restrictions Merkle for a given composite hash.
 operationId: getMosaicRestrictionsMerkle
 parameters:
   - $ref: "../../../parameters/path/compositeHashPath.yml"

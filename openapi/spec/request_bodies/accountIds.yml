@@ -2,4 +2,15 @@ content:
   application/json:
     schema:
       $ref: "./schemas/accountIds.yml"
+    examples:
+      byPublicKeys:
+        summary: Lookup by public keys
+        value:
+          publicKeys:
+            - AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26
+      byAddresses:
+        summary: Lookup by addresses (Base32)
+        value:
+          addresses:
+            - TADP6C2GVEG654OP5LZI32P2GYJSCMEGQBYB7QY
 required: false

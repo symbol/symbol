@@ -1,5 +1,14 @@
-description: InvalidContent
+description: |
+  The provided argument was not an acceptable input.
+  Returned with HTTP status 400.
+  Typically indicates malformed request body (e.g. invalid JSON) or content that cannot be parsed.
+  The response body contains `code` (e.g. `InvalidContent`) and `message` with a human-readable description.
 content:
   application/json:
     schema:
       $ref: '../schemas/ModelError.yml'
+    examples:
+      invalidJson:
+        value:
+          code: InvalidContent
+          message: "Invalid JSON: Unexpected token 'i', \"invalid json\" is not valid JSON"

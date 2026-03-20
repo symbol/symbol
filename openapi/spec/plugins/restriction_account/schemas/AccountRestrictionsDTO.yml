@@ -7,7 +7,7 @@ properties:
   version:
     $ref: "../../../schemas/StateVersion.yml"
   address:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   restrictions:
     type: array
     items:

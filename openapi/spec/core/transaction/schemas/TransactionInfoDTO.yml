@@ -5,8 +5,7 @@ required:
   - transaction
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   meta:
     anyOf:
       - $ref: "./TransactionMetaDTO.yml"
