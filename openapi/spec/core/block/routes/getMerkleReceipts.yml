@@ -1,29 +1,39 @@
 tags:
   - Block routes
-summary: Get the merkle path for a given a receipt statement hash and block
+summary: Get the Merkle path for a given receipt statement hash and block
 description: |
-  Returns the merkle path for a receipt statement or resolution linked to a block.
-  The merkle path is the minimum number of nodes needed to calculate the merkle root.
+  Returns the [Merkle path](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
+  for a [receipt statement or resolution](https://docs.symbol.dev/concepts/receipt.html) linked to a block.
+  The ``hash`` parameter is the receipt statement hash, not the transaction hash.
+  The Merkle path is the minimum number of nodes needed to calculate the Merkle root.
 
-  Steps to calculate the merkle root:
+  Steps to calculate the Merkle root:
   1. proofHash = hash (leaf).
   2. Concatenate proofHash with the first unprocessed item from the merklePath list as follows:
-  * a) If item.position == left -> proofHash = sha_256(item.hash + proofHash).
-  * b) If item.position == right -> proofHash = sha_256(proofHash+ item.hash).
+  - `left`: the item hash is concatenated before the proofHash (proofHash = sha_256(item.hash + proofHash)).
+  - `right`: the item hash is concatenated after the proofHash (proofHash = sha_256(proofHash + item.hash)).
   3. Repeat 2. for every item in the merklePath list.
   4. Compare if the calculated proofHash equals the one recorded in the
-  block header (block.receiptsHash) to verify if the statement was linked with the block.
+  [block header](https://docs.symbol.dev/concepts/block.html) (`block.receiptsHash`) to verify if the statement was linked with the block.
 operationId: getMerkleReceipts
 parameters:
   - $ref: "../../../parameters/path/heightPath.yml"
   - $ref: "../../../parameters/path/receiptHashPath.yml"
 responses:
   "200":
-    description: success
+    description: Merkle path for the receipt statement successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../../../core/block/schemas/MerkleProofInfoDTO.yml"
+        examples:
+          default:
+            value:
+              merklePath:
+                - position: left
+                  hash: C8FC3FB54FDDFBCE0E8C71224990124E4EEC5AD5D30E592EDFA9524669A23810
+                - position: right
+                  hash: 5E62690AB46E5565E8C0B5B5A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

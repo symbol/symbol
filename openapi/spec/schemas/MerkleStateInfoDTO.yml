@@ -1,6 +1,6 @@
 type: object
 description: |
-  The merkle path information clients can use to proof the state of the given entity.
+  The Merkle path information clients can use to prove the state of the given entity.
 required:
   - raw
   - tree
@@ -8,7 +8,7 @@ properties:
   raw:
     $ref: "./MerkleTreeRaw.yml"
   tree:
-    description: Merkle tree parsed from merkle tree raw.
+    description: Merkle tree parsed from Merkle tree raw.
     type: array
     items:
       anyOf:

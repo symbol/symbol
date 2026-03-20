@@ -1,5 +1,17 @@
-description: InvalidArgument
+description: |
+  The required arguments were missing or unacceptable for the request.
+  Returned with HTTP status 409.
+  The response body contains `code` (e.g. `InvalidArgument`) and `message` with a human-readable description.
 content:
   application/json:
     schema:
       $ref: '../schemas/ModelError.yml'
+    examples:
+      invalidAccountId:
+        value:
+          code: InvalidArgument
+          message: accountId has an invalid format
+      invalidArrayElement:
+        value:
+          code: InvalidArgument
+          message: element in array addresses has an invalid format

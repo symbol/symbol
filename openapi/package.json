@@ -4,7 +4,8 @@
   "description": "OpenAPI Specification of catapult-rest",
   "main": "index.js",
   "scripts": {
-    "test": "redocly lint _build/openapi3.yml",
+    "test": "redocly lint _build/openapi3.yml && npm run verify-links",
+    "verify-links": "markdown-link-check _build/openapi3.yml -c .markdown-link-check.json -q",
     "build": "redocly bundle spec/openapi.yml -o _build/openapi3.yml",
     "postman": "openapi2postmanv2 -s _build/openapi3.yml -o _build/postman.json -p",
     "version": "echo $npm_package_version",
@@ -23,6 +24,7 @@
   "dependencies": {},
   "devDependencies": {
     "@redocly/cli": "^1.25.0",
+    "markdown-link-check": "^3.14.2",
     "openapi-to-postmanv2": "^6.0.0"
   }
 }

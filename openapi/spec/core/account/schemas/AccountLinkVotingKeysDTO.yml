@@ -1,8 +1,10 @@
 type: object
+description: Set of voting keys linked to the account for finalization.
 required:
   - publicKeys
 properties:
   publicKeys:
     type: array
+    description: Array of voting key link entries.
     items:
       $ref: "./AccountLinkVotingKeyDTO.yml"

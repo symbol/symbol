@@ -5,18 +5,31 @@ required:
   - beneficiaryCount
   - rawScore
 description: |
-  Supplementary data stored for importance recalculation.
-  At each importance recalculation, existing buckets are shifted, the working bucket is finalized and a new working bucket is created.
-  Each bucket influences at most five importance recalculations.
+  Supplementary data stored for [importance](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-calculation)
+  recalculation under the PoS+ consensus algorithm. At the end of each importance period 
+  (defined by the `importanceGrouping` network property) the working bucket is finalized, existing buckets are shifted, 
+  and a new working bucket is created. Each bucket influences at most five importance recalculations.
 properties:
   startHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Block height at which this bucket's observation period started.
   totalFeesPaid:
     $ref: "../../../schemas/Amount.yml"
-    description: Fees paid by the account for this bucket.
+    description: |
+      Total transaction fees (in smallest/atomic units) paid by the account during this bucket's period.
+      Used to compute the
+      [Transaction Score (T)](https://docs.symbol.dev/concepts/consensus-algorithm.html#partial-scores)
+      component of the PoS+ importance calculation.
   beneficiaryCount:
     $ref: "../../../schemas/UInt32.yml"
-    description: Number of times the account has been a beneficiary for this bucket.
+    description: |
+      Number of times the account was designated as a node fee beneficiary during this bucket's
+      period. Used to compute the
+      [Node Score (N)](https://docs.symbol.dev/concepts/consensus-algorithm.html#partial-scores)
+      component - accounts that operate nodes accumulate a higher count, increasing their importance.
   rawScore:
     $ref: "../../../schemas/Importance.yml"
-    description: Importance score for this bucket. This is taken into account to calculate the latest account importance.
+    description: |
+      Importance score calculated for this single bucket period, before averaging across buckets.
+      The final effective importance of the account is derived from the scores of the most recent
+      buckets (the smaller of the previous two period scores is used as the harvesting probability).

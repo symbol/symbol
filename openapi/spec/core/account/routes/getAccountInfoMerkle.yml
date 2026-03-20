@@ -1,18 +1,28 @@
 tags:
   - Account routes
-summary: Get account merkle information
-description: Returns the account merkle information.
+summary: Get account Merkle information
+description: |
+  Retrieves the Merkle proof data for a given account.
+  The Merkle path can be used to independently verify that the account state is included
+  in the block state hash.
+
+  The ``accountId`` path parameter accepts either a public key or a Base32-encoded address.
 operationId: getAccountInfoMerkle
 parameters:
   - $ref: "../../../parameters/path/accountIdPath.yml"
 responses:
   "200":
-    description: success
+    description: Account Merkle information successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+        examples:
+          default:
+            value:
+              raw: 00008080DA9B4AF63BE985715EA635AF98E3CF3B0A22F9A2BE1C7DD40B79948AA63E36586E5D2E9D0C089C1C64BC0D42A11ADBD1CD6CDB4B7C294062F55113525A64AE3CFF3F04A7F2A487B42EA89323C4408F82415223ACFEC7DFA7924EFC31A70778AB17A00C3EAFF635F01BB3B474F0AF1BE99FBDA85EEFB209CC7BD158D3540DE3A3F2D1
+              tree: []
   "404":
-    $ref : "../../../responses/ResourceNotFound.yml"
+    $ref: "../../../responses/ResourceNotFound.yml"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

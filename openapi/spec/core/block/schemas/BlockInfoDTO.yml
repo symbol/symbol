@@ -1,12 +1,12 @@
 type: object
+description: Block information including an internal resource identifier, block metadata, and the full block header.
 required:
   - id
   - meta
   - block
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   meta:
     $ref: "./BlockMetaDTO.yml"
   block:

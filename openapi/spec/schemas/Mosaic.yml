@@ -1,4 +1,9 @@
 type: object
+description: |
+  An instance of a [mosaic](https://docs.symbol.dev/concepts/mosaic.html) held by an account
+  or transferred in a transaction. The amount is always expressed in the mosaic's smallest
+  (atomic) unit - e.g. if the mosaic has a divisibility of 6, an amount of `1000000`
+  represents `1.000000` whole units.
 required:
   - id
   - amount
@@ -7,3 +12,6 @@ properties:
     $ref: "./MosaicId.yml"
   amount:
     $ref: "./Amount.yml"
+examples:
+  - id: 0DC67FBE1CAD29E3
+    amount: "1000000"

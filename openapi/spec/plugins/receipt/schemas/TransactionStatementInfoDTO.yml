@@ -6,8 +6,7 @@ required:
 description: Collection of receipts related to a transaction.
 properties:
   id:
-    type: string
-    description: Internal resource identifier.
+    $ref: "../../../schemas/ObjectId.yml"
   meta:
     $ref: "./StatementMetaDTO.yml"
   statement:

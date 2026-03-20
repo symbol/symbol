@@ -1,12 +1,15 @@
 type: object
+description: |
+  Request body for batch account lookup. Provide either ``publicKeys`` or ``addresses``, not both.
+  At least one must be non-empty.
 properties:
   publicKeys:
     type: array
-    description: Array of public keys.
+    description: Array of account public keys.
     items:
       $ref: "../../schemas/PublicKey.yml"
   addresses:
     type: array
-    description: Array of addresses.
+    description: Array of account addresses.
     items:
       $ref: "../../schemas/Address.yml"

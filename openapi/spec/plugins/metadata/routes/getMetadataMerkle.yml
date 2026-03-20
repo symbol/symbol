@@ -1,7 +1,7 @@
 tags:
   - Metadata routes
-summary: Get metadata merkle information
-description: Gets the metadata merkle for a given composite hash.
+summary: Get metadata Merkle information
+description: Gets the metadata Merkle for a given composite hash.
 operationId: getMetadataMerkle
 parameters:
   - $ref: "../../../parameters/path/compositeHashPath.yml"

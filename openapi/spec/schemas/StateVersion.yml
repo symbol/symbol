@@ -1,3 +1,7 @@
 type: integer
-description: The version of the state
-example: 1
+description: |
+  Version of the on-chain state serialization format. Incremented when the storage
+  schema of the entity changes (e.g. new fields are added), allowing the node to
+  deserialize entries written under earlier formats.
+examples:
+  - 1

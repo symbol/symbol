@@ -1,4 +1,7 @@
 type: object
+description: |
+  Account state on the blockchain. Contains the public key, address, balances,
+  importance score, and supplemental keys used for delegated harvesting and finalization.
 required:
   - version
   - address
@@ -15,27 +18,31 @@ properties:
   version:
     $ref: "../../../schemas/StateVersion.yml"
   address:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   addressHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Height of the blockchain when the address was first published.
   publicKey:
     $ref: "../../../schemas/PublicKey.yml"
   publicKeyHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Height of the blockchain when the public key was first published.
   accountType:
     $ref: "./AccountTypeEnum.yml"
   supplementalPublicKeys:
     $ref: "./SupplementalPublicKeysDTO.yml"
   activityBuckets:
     type: array
+    description: Activity buckets used for importance score calculation.
     items:
       $ref: "./ActivityBucketDTO.yml"
   mosaics:
     type: array
-    description: Mosaic units owned.
+    description: Mosaic units owned by the account.
     items:
       $ref: "../../../schemas/Mosaic.yml"
   importance:
     $ref: "../../../schemas/Importance.yml"
   importanceHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Height at which the importance was last recalculated.

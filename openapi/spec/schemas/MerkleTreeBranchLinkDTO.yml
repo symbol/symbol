@@ -1,13 +1,15 @@
 type: object
-description: Merkle tree branch link.
+description: |
+  Child link in a [Merkle tree branch](https://docs.symbol.dev/concepts/data-validation.html)
+  node. Each link points to a child node (branch or leaf) via its hash.
 required:
   - bit
   - link
 properties:
   bit:
-    description: Branch link nibble bit index (hexadecimal).
+    description: Nibble index (0–15) identifying this child slot (hex).
     type: string
   link:
-    description: Branch link hash.
+    description: Hash of the child node.
     $ref: "./Hash256.yml"
     

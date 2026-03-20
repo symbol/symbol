@@ -29,7 +29,7 @@ properties:
   parentId:
     $ref: "../../../schemas/NamespaceId.yml"
   ownerAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   startHeight:
     $ref: "../../../schemas/Height.yml"
   endHeight:

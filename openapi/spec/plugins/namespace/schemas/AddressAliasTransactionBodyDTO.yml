@@ -7,6 +7,6 @@ properties:
   namespaceId:
     $ref: "../../../schemas/NamespaceId.yml"
   address:
-    $ref: "../../../schemas/Address.yml"
+    $ref: "../../../schemas/AddressHex.yml"
   aliasAction:
     $ref: "./AliasActionEnum.yml"

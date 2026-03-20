@@ -1,9 +1,17 @@
 type: object
+description: |
+  Pagination metadata returned with paginated list responses. Indicates the current page
+  and the number of entries per page.
 required:
   - pageNumber
   - pageSize
 properties:
   pageNumber:
     type: integer
+    description: Current page number.
+    minimum: 1
   pageSize:
     type: integer
+    description: Number of entries per page.
+    minimum: 10
+    maximum: 100

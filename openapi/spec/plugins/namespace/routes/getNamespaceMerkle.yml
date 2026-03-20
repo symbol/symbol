@@ -1,7 +1,7 @@
 tags:
   - Namespace routes
-summary: Get namespace merkle information
-description: Gets the namespace merkle for a given namespace identifier.
+summary: Get namespace Merkle information
+description: Gets the namespace Merkle for a given namespace identifier.
 operationId: getNamespaceMerkle
 parameters:
   - $ref: "../../../parameters/path/namespaceIdPath.yml"

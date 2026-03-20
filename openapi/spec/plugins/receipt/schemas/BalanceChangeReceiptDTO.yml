@@ -13,4 +13,4 @@ allOf:
       amount:
         $ref: "../../../schemas/Amount.yml"
       targetAddress:
-        $ref: "../../../schemas/Address.yml"
+        $ref: "../../../schemas/AddressHex.yml"

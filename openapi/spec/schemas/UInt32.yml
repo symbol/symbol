@@ -1,4 +1,8 @@
 type: integer
-format: int64
-description: A number that allows uint 32 values.
-example: 2222212828
+description: |
+  Unsigned 32-bit integer.
+  Represented as integer since it fits in JSON number precision.
+examples:
+  - 0
+  - 1
+  - 2222212828

@@ -1,3 +1,13 @@
 type: string
-description: Determines how hard is to harvest a new block, based on previous blocks.
-example: 100000000000000
+description: |
+  Block difficulty. Determines how hard it is to harvest a new block, based on previous blocks.
+  The initial difficulty is 100'000'000'000'000 (1e14) and remains at this level as long as blocks
+  are generated every ``blockGenerationTargetTime`` seconds (network property).
+  When block generation times deviate from the target, the difficulty is adjusted dynamically
+  in the range of 10'000'000'000'000 (1e13) to 100'000'000'000'000'000 (1e15) to maintain
+  the target block creation rate. See the
+  [Technical Reference](https://symbol.github.io/symbol-technicalref/main.pdf) section 8.1.
+  Represented as a string to preserve precision (unsigned 64-bit integer).
+examples:
+  - "100000000000000"
+  - "26453656336676"

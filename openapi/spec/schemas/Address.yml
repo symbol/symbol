@@ -1,3 +1,12 @@
 type: string
-description: Address encoded using a 32-character set.
-example: TADP6C2GVEG654OP5LZI32P2GYJSCMEGQBYB7QY
+description: |
+  Represents a unique account address in Base32 format. The first character indicates the network
+  (`T` for testnet, `N` for mainnet). Addresses are 39 characters long, Base32-encoded,
+  and include an embedded 3-byte checksum. The node validates this checksum, so an address
+  with even a single altered character will be rejected.
+minLength: 39
+maxLength: 39
+pattern: '^[A-Z2-7]{39}$'
+examples:
+  - TADP6C2GVEG654OP5LZI32P2GYJSCMEGQBYB7QY
+  - NCHEST3QRQS4JZGOO64TH7NFJ2A63YA7TPM5PXI
