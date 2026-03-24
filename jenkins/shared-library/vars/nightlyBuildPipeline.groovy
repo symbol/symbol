@@ -16,11 +16,18 @@ void call(Closure body) {
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
+			choice name: 'BUILD_CONFIGURATION',
+				choices: ['release-public', 'release-private'],
+				description: 'build configuration'
 			choice name: 'ARCHITECTURE',
 				choices: ['arm64', 'amd64'],
 				description: 'Computer architecture'
-			booleanParam name: shouldPublishFailJobStatusName, description: 'true to publish job status if failed', defaultValue: true
-			booleanParam name: 'WAIT_FOR_BUILDS', description: 'true to wait for trigger build to complete', defaultValue: true
+			booleanParam name: shouldPublishFailJobStatusName,
+				description: 'true to publish job status if failed',
+				defaultValue: true
+			booleanParam name: 'WAIT_FOR_BUILDS',
+				description: 'true to wait for trigger build to complete',
+				defaultValue: true
 		}
 
 		agent {
@@ -107,7 +114,7 @@ void triggerAllJobs(
 				String osValue = jobHelper.resolveOperatingSystem(jenkinsfileParameters.operatingSystem)
 				build job: "${fullJobName}", parameters: [
 					string(name: 'OPERATING_SYSTEM', value: osValue),
-					string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
+					string(name: 'BUILD_CONFIGURATION', value: params.BUILD_CONFIGURATION),
 					string(name: 'TEST_MODE', value: 'code-coverage'),
 					string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
 					booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),
