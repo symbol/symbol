@@ -3,8 +3,9 @@ tags:
 summary: Announce a new transaction
 description: |
   Announces a transaction to the network.
-  The [catbuffer library](https://github.com/symbol/symbol/tree/main/catbuffer) defines the protocol to serialize and deserialize Symbol entities.
-  Catbuffers are integrated into [Symbol SDKs](https://docs.symbol.dev/sdk.html). 
+  The [catbuffer library](https://github.com/symbol/symbol/tree/main/catbuffer)
+  defines the protocol to serialize and deserialize Symbol entities.
+  Catbuffers are integrated into [Symbol SDKs](https://docs.symbol.dev/sdk.html).
   It's recommended to use SDKs instead of calling the API endpoint directly to announce transactions.
 operationId: announceTransaction
 requestBody:

@@ -3,10 +3,10 @@ tags:
 summary: Returns circulating currency supply
 description: |
   Returns the current circulating supply of the network currency mosaic.
-  
-  Circulating supply represents the portion of total on-chain supply that is not held in 
+
+  Circulating supply represents the portion of total on-chain supply that is not held in
   designated uncirculating or reserved accounts (e.g. nemesis or treasury accounts).
-  
+
   Data sources:
     - Mosaic supply and divisibility from blockchain state
     - Nemesis signer public key from network properties file

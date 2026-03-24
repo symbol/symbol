@@ -12,4 +12,4 @@ properties:
   link:
     description: Hash of the child node.
     $ref: "./Hash256.yml"
-    
+

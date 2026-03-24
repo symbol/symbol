@@ -5,6 +5,7 @@ OpenAPI specification for catapult-rest.
 ## Requirements
 
 * Node.js 18 LTS or higher
+* Python 3 with the `venv` module available
 
 ## Installation
 
@@ -20,6 +21,13 @@ git clone https://github.com/symbol/symbol-openapi.git
 npm install
 ```
 
+3. If your system Python does not provide `venv` by default, install it first.
+
+```sh
+# Ubuntu / Debian
+sudo apt install python3-venv
+```
+
 ## Commands
 
 ### Build
@@ -32,7 +40,14 @@ npm run build
 
 ### Test
 
-Validate the specification using Redocly CLI.
+Validate the specification using Redocly CLI, `yamllint`, and link checks.
+
+Before running linting or tests for the first time, create the local Python virtual
+environment used by `yamllint`:
+
+```sh
+npm run lint:yaml:setup
+```
 
 ```
 npm test

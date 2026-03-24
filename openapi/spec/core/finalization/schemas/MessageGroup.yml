@@ -14,14 +14,14 @@ properties:
   hashes:
     type: array
     description: |
-      Block hashes voted for at this stage. Ordered by height; the first hash corresponds to ``height``, 
+      Block hashes voted for at this stage. Ordered by height; the first hash corresponds to ``height``,
       subsequent hashes to consecutive block heights.
     items:
       $ref: "../../../schemas/Hash256.yml"
   signatures:
     type: array
     description: |
-      BLS aggregate signatures from the finalizer set attesting to the votes. 
+      BLS aggregate signatures from the finalizer set attesting to the votes.
       Each entry contains ``root`` and ``bottom`` of the Bm tree.
     items:
       $ref: "./BmTreeSignature.yml"
