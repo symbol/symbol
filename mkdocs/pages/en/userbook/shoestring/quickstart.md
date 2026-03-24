@@ -1,9 +1,8 @@
 # Creating and Running a Node
 
-This tutorial shows how to create and start a Symbol node using the <Shoestring:> tool.
+This tutorial shows how to create and start a Symbol <node:> using the <Shoestring:> tool.
 
-The tutorial assumes that Shoestring and its dependencies are already installed.
-See [Installing Shoestring](./install.md).
+The tutorial assumes that Shoestring and its dependencies are already [installed](./install.md).
 
 ## Create a New Node
 
@@ -39,7 +38,7 @@ All commands in this tutorial assume they are executed from this directory.
 
 ### 2. Generate the Network Configuration
 
-The first step is to generate the configuration files required for the node.
+The first step is to generate the default configuration files required for the node.
 
 Run:
 
@@ -47,9 +46,10 @@ Run:
 python3 -m shoestring init --package mainnet config.ini
 ```
 
-This command downloads the configuration package for the selected network and creates the file `config.ini`.
+This command downloads configuration files required to operate on the <mainnet:> network,
+and creates the file `config.ini`.
 
-For testnet nodes, use:
+For <testnet:> nodes, use:
 
 ```bash
 python3 -m shoestring init --package sai config.ini
@@ -70,7 +70,8 @@ Only a few values need to be customized for your node, and they all reside in th
     features = PEER | API
     ```
 
-* The `caCommonName` and `nodeCommonName` are used as Common Names (CN) in the certificates generated for the node.
+* The `caCommonName` and `nodeCommonName` are used as Common Names (CN) in the
+    [certificates](https://en.wikipedia.org/wiki/X.509) generated for the node.
     They do not affect node behavior, but must not be empty for certificate generation to succeed.
 
     For example:
@@ -83,22 +84,22 @@ Only a few values need to be customized for your node, and they all reside in th
 
 ### 4. Configure the Node
 
-An additional configuration file can be used to provide node-specific settings.
+An additional configuration file must be created to provide node-specific settings.
 Without it, the node will not be usable.
 
-Create a new file called `overrides.ini` with the following content:
+Create a new file called `overrides.ini` with the following sections:
 
 ```ini title="overrides.ini"
 [node.localnode]
-host = 127.0.0.1
+host = my-symbol-node.com
 friendlyName = My Symbol Node
 ```
 
-Use the public IP address or hostname of your node as seen by the rest of the network.
-If you use an unreachable host (like `127.0.0.1`), your node will connect to the network but other nodes will not
-interact with it.
+* `host` is the public IP address or hostname of your node as seen by the rest of the network.
+    If you use an unreachable host (like `127.0.0.1`), your node will connect to the network but other nodes will not
+    interact with it.
 
-Use a human-readable name that will appear in node lists.
+* `friendlyName` is the human-readable name that will appear in node lists like <https://symbol.fyi/nodes>.
 
 ### 5. Create the Node Identity
 
@@ -110,8 +111,11 @@ Generate the node key with OpenSSL:
 openssl genpkey -algorithm ed25519 -out ca.key.pem
 ```
 
-This creates a file named `ca.key.pem`, which **must be kept secure**.
-It contains the private key used to generate the node certificates.
+This creates a [PEM file](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) named `ca.key.pem`
+that contains the private key used to generate the node certificates.
+
+This file **must be kept secure**.
+Leave it in this directory for now, it will be removed at a later stage.
 
 ### 6. Create the Node Installation
 

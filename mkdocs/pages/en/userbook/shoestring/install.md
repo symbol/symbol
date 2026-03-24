@@ -119,4 +119,5 @@ pip install --upgrade symbol-shoestring
 
 ## Next Steps
 
-After installing Shoestring, the next step is to [create and start a node](./quickstart.md).
+After installing Shoestring, the next step is to [create and start a node](./quickstart.md) or
+[migrate an existing one](./migrate.md).
