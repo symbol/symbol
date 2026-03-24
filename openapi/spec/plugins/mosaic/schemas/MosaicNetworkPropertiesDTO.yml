@@ -20,7 +20,9 @@ properties:
       - "6"
   mosaicRentalFeeSinkAddressV1:
     $ref: "../../../schemas/Address.yml"
-    description: Legacy address (in Base32 format) of the mosaic rental fee sink. Used before treasury reissuance fork. May be absent on newer networks.
+    description: |
+      Legacy address (in Base32 format) of the mosaic rental fee sink.
+      Used before treasury reissuance fork. May be absent on newer networks.
     examples:
       - NC733XE7DF46Q7QYLIIZBBSCJN2BEEP5FQ6PAYA
   mosaicRentalFeeSinkAddress:

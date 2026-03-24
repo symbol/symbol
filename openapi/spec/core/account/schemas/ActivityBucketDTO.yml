@@ -6,8 +6,8 @@ required:
   - rawScore
 description: |
   Supplementary data stored for [importance](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-calculation)
-  recalculation under the PoS+ consensus algorithm. At the end of each importance period 
-  (defined by the `importanceGrouping` network property) the working bucket is finalized, existing buckets are shifted, 
+  recalculation under the PoS+ consensus algorithm. At the end of each importance period
+  (defined by the `importanceGrouping` network property) the working bucket is finalized, existing buckets are shifted,
   and a new working bucket is created. Each bucket influences at most five importance recalculations.
 properties:
   startHeight:

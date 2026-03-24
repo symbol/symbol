@@ -24,6 +24,6 @@ properties:
     $ref: "../../../schemas/Score.yml"
   latestFinalizedBlock:
     description: |
-      The most recent block that has been made permanent and will never be rolled back. 
+      The most recent block that has been made permanent and will never be rolled back.
       See [finalization](https://docs.symbol.dev/concepts/block.html#finalization).
     $ref: "../schemas/FinalizedBlockDTO.yml"

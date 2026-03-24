@@ -3,10 +3,10 @@ tags:
 summary: Returns total currency supply
 description: |
   Returns the total current on-chain supply of the network currency mosaic.
-  
+
   Data sources:
     - Mosaic supply and divisibility from blockchain state
-  
+
   This value includes both circulating and uncirculating balances and represents
   the full issued supply currently recorded on-chain.
 
@@ -15,7 +15,7 @@ responses:
   "200":
     description: |
       Successful response containing the total currency supply.
-      
+
       The value is expressed in whole units with a fractional part
       determined by the mosaic divisibility and returned as a fixed-decimal string.
     content:
