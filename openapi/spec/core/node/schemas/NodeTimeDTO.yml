@@ -1,4 +1,7 @@
 type: object
+description: |
+  Node time at request/response. Used to calculate transaction deadlines
+  (deadline = node time + desired lifetime).
 required:
   - communicationTimestamps
 properties:

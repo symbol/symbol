@@ -1,22 +1,35 @@
 type: object
+description: |
+  Mosaic plugin settings from network configuration (``/network/properties``).
+  Values from Symbol mainnet.
 properties:
   maxMosaicsPerAccount:
     type: string
     description: Maximum number of mosaics that an account can own.
-    example: 10'000
+    examples:
+      - "1'000"
   maxMosaicDuration:
-    type: string # utils::BlockSpan
-    description: Maximum mosaic duration.
-    example: 3650d
+    type: string
+    description: Maximum mosaic duration (BlockSpan format, e.g. ``3650d`` for 3650 days).
+    examples:
+      - 3650d
   maxMosaicDivisibility:
     type: string
     description: Maximum mosaic divisibility.
-    example: "6"
+    examples:
+      - "6"
+  mosaicRentalFeeSinkAddressV1:
+    $ref: "../../../schemas/Address.yml"
+    description: Legacy address (in Base32 format) of the mosaic rental fee sink. Used before treasury reissuance fork. May be absent on newer networks.
+    examples:
+      - NC733XE7DF46Q7QYLIIZBBSCJN2BEEP5FQ6PAYA
   mosaicRentalFeeSinkAddress:
     $ref: "../../../schemas/Address.yml"
-    description: Address of the mosaic rental fee sink account.
-    example: SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFI
+    description: Address of the mosaic rental fee sink account (receives fees for mosaic creation).
+    examples:
+      - NCVORTEX4XD5IQASZQEHDWUXT33XBOTBMKFDCLI
   mosaicRentalFee:
-    type: string # Amount
-    description: Mosaic rental fee.
-    example: "500"
+    $ref: "../../../schemas/Amount.yml"
+    description: Mosaic rental fee in atomic units (paid to create a new mosaic).
+    examples:
+      - "500000"

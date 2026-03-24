@@ -1,17 +1,20 @@
 type: integer
 description: |
-  A number that defines the different roles the node provides. Possible roles are:
-  * 1 - Peer node.
-  * 2 - Api node.
-  * 4 - Voting node.
-  * 64 - IPv4 compatible node
-  * 128 - IPv6 compatible node.
+  Bitmask of roles the node provides.
+  Individual flags:
+  - ``0``: No roles.
+  - ``1``: Peer node.
+  - ``2``: API node.
+  - ``4``: Voting node.
+  - ``64``: IPv4 compatible node.
+  - ``128``: IPv6 compatible node.
 
-  The values are bitwise added together, Examples:
-  1 = Just Peer.
-  2 = Just Api.
-  3 = Peer and Api node.
-  7 = Peer, Api and Voting node.
-  65 = IPv4 and Peer node.
+  Flags are combined with bitwise OR. Examples:
+  - ``1`` = Peer only.
+  - ``2`` = API only.
+  - ``3`` = Peer and API.
+  - ``7`` = Peer, API and Voting.
+  - ``65`` = IPv4 and Peer.
 
-example: 7
+examples:
+  - 7

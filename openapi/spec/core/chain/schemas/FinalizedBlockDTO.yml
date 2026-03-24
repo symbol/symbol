@@ -1,4 +1,7 @@
 type: object
+description: |
+  A block that has been finalized. It is made permanent and irreversible. Contains the
+  finalization epoch, point, block height, and hash.
 required:
   - finalizationEpoch
   - finalizationPoint
@@ -13,4 +16,3 @@ properties:
     $ref: "../../../schemas/Height.yml"
   hash:
     $ref: "../../../schemas/Hash256.yml"
-  

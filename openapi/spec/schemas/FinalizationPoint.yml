@@ -1,4 +1,7 @@
 type: integer
 format: int64
-description: Finalization point
-example: 0
+description: |
+  Finalization point within an epoch. Each [epoch](https://docs.symbol.dev/concepts/block.html#finalization)
+  is divided into multiple points; blocks are finalized at specific points.
+examples:
+  - 0

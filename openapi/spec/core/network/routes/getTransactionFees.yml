@@ -7,8 +7,17 @@ description: |
 operationId: getTransactionFees
 responses:
   "200":
-    description: success
+    description: Transaction fees successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/TransactionFeesDTO.yml"
+        examples:
+          transactionFees:
+            summary: Mainnet transaction fees example
+            value:
+              averageFeeMultiplier: 103
+              medianFeeMultiplier: 100
+              highestFeeMultiplier: 1136
+              lowestFeeMultiplier: 0
+              minFeeMultiplier: 10

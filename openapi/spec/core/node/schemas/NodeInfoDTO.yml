@@ -1,4 +1,7 @@
 type: object
+description: |
+  Identity and configuration of the connected node: version, public key, network
+  generation hash, roles (peer/api/voting), host, port, and friendly name.
 required:
   - version
   - publicKey
@@ -12,7 +15,8 @@ properties:
   version:
     type: integer
     description: Version of the application.
-    example: 0
+    examples:
+      - 16777993
   publicKey:
     $ref: "../../../schemas/PublicKey.yml"
   networkGenerationHashSeed:
@@ -22,17 +26,19 @@ properties:
   port:
     type: integer
     description: Port used for the communication.
-    example: 7900
+    examples:
+      - 7900
   networkIdentifier:
-    type: integer
-    example: 144
+    $ref: "../../entity/schemas/NetworkTypeEnum.yml"
   friendlyName:
     type: string
     description: Node friendly name.
-    example: api-node-0
+    examples:
+      - api-node-0
   host:
     type: string
     description: Node IP address.
-    example: 127.0.0.1
+    examples:
+      - 127.0.0.1
   nodePublicKey:
     $ref: "../../../schemas/PublicKey.yml"

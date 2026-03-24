@@ -8,10 +8,17 @@ description: |
 operationId: getRentalFees
 responses:
   "200":
-    description: success
+    description: Rental fees successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/RentalFeesDTO.yml"
+        examples:
+          rentalFees:
+            summary: Rental fees example
+            value:
+              effectiveRootNamespaceRentalFeePerBlock: "200"
+              effectiveChildNamespaceRentalFee: "10000000"
+              effectiveMosaicRentalFee: "50000000"
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

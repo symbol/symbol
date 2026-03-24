@@ -23,4 +23,5 @@ responses:
         schema:
           type: string
           pattern: '^\d+\.\d+$'
-          example: "7842928625.000000"
+          examples:
+            - "7842928625.000000"

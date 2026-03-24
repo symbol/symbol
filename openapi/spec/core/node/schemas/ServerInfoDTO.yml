@@ -1,4 +1,7 @@
 type: object
+description: |
+  Version and deployment information for the catapult-rest component running
+  on this node.
 required:
   - serverInfo
 properties:

@@ -2,16 +2,122 @@ tags:
   - Network routes
 summary: Get the network properties
 description: |
-  Returns the content from a catapult-server network configuration file (resources/config-network.properties).
-  To enable this feature, the REST setting "network.propertiesFilePath" must define where the file is located.
-  This is adjustable via the configuration file (rest/resources/rest.json) per REST instance.
+  Returns the content from a catapult-server network configuration file (e.g. ``config-network.properties``).
+  To enable this feature, the REST setting ``apiNode.networkPropertyFilePath`` in the config file (e.g. ``rest.json``)
+  must define where the file is located.
 operationId: getNetworkProperties
 responses:
   "200":
-    description: success
+    description: Network configuration successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/NetworkConfigurationDTO.yml"
+        examples:
+          networkProperties:
+            summary: Example mainnet properties
+            value:
+              network:
+                identifier: mainnet
+                nemesisSignerPublicKey: BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F
+                nodeEqualityStrategy: host
+                generationHashSeed: 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
+                epochAdjustment: 1615853185s
+              chain:
+                enableVerifiableState: true
+                enableVerifiableReceipts: true
+                currencyMosaicId: "0x6BED'913F'A202'23F8"
+                harvestingMosaicId: "0x6BED'913F'A202'23F8"
+                blockGenerationTargetTime: 30s
+                blockTimeSmoothingFactor: "3000"
+                importanceGrouping: "720"
+                importanceActivityPercentage: "5"
+                maxRollbackBlocks: "0"
+                maxDifficultyBlocks: "60"
+                defaultDynamicFeeMultiplier: "100"
+                maxTransactionLifetime: 6h
+                maxBlockFutureTime: 300ms
+                initialCurrencyAtomicUnits: "7'842'928'625'000'000"
+                maxMosaicAtomicUnits: "8'999'999'999'000'000"
+                totalChainImportance: "7'842'928'625'000'000"
+                minHarvesterBalance: "10'000'000'000"
+                maxHarvesterBalance: "50'000'000'000'000"
+                minVoterBalance: "3'000'000'000'000"
+                votingSetGrouping: "1440"
+                maxVotingKeysPerAccount: "3"
+                minVotingKeyLifetime: "112"
+                maxVotingKeyLifetime: "360"
+                harvestBeneficiaryPercentage: "25"
+                harvestNetworkPercentage: "5"
+                harvestNetworkFeeSinkAddressV1: NBUTOBVT5JQDCV6UEPCPFHWWOAOPOCLA5AY5FLI
+                harvestNetworkFeeSinkAddress: NAVORTEX3IPBAUWQBBI3I3BDIOS4AVHPZLCFC7Y
+                maxTransactionsPerBlock: "6'000"
+              plugins:
+                accountlink:
+                  dummy: to trigger plugin load
+                aggregate:
+                  maxTransactionsPerAggregate: "100"
+                  maxCosignaturesPerAggregate: "25"
+                  enableStrictCosignatureCheck: false
+                  enableBondedAggregateSupport: true
+                  maxBondedTransactionLifetime: 48h
+                lockhash:
+                  lockedFundsPerAggregate: "10'000'000"
+                  maxHashLockDuration: 2d
+                locksecret:
+                  maxSecretLockDuration: 365d
+                  minProofSize: "0"
+                  maxProofSize: "1024"
+                metadata:
+                  maxValueSize: "1024"
+                mosaic:
+                  maxMosaicsPerAccount: "1'000"
+                  maxMosaicDuration: 3650d
+                  maxMosaicDivisibility: "6"
+                  mosaicRentalFeeSinkAddressV1: NC733XE7DF46Q7QYLIIZBBSCJN2BEEP5FQ6PAYA
+                  mosaicRentalFeeSinkAddress: NCVORTEX4XD5IQASZQEHDWUXT33XBOTBMKFDCLI
+                  mosaicRentalFee: "500000"
+                multisig:
+                  maxMultisigDepth: "3"
+                  maxCosignatoriesPerAccount: "25"
+                  maxCosignedAccountsPerAccount: "25"
+                namespace:
+                  maxNameSize: "64"
+                  maxChildNamespaces: "100"
+                  maxNamespaceDepth: "3"
+                  minNamespaceDuration: 30d
+                  maxNamespaceDuration: 1825d
+                  namespaceGracePeriodDuration: 30d
+                  reservedRootNamespaceNames: "symbol, symbl, xym, xem, nem, user, account, org, com, biz, net, edu, mil, gov, info"
+                  namespaceRentalFeeSinkAddressV1: NBDTBUD6R32ZYJWDEWLJM4YMOX3OOILHGDUMTSA
+                  namespaceRentalFeeSinkAddress: NCVORTEX4XD5IQASZQEHDWUXT33XBOTBMKFDCLI
+                  rootNamespaceRentalFeePerBlock: "2"
+                  childNamespaceRentalFee: "100000"
+                restrictionaccount:
+                  maxAccountRestrictionValues: "100"
+                restrictionmosaic:
+                  maxMosaicRestrictionValues: "20"
+                transfer:
+                  maxMessageSize: "1024"
+              forkHeights:
+                totalVotingBalanceCalculationFix: "528'000"
+                treasuryReissuance: "689'761"
+                strictAggregateTransactionHash: "1'690'500"
+                skipSecretLockUniquenessChecks: "3'191'538"
+                skipSecretLockExpirations: "3'197'860, 3'197'866"
+                forceSecretLockExpirations: "3'197'458, 3'197'781"
+                uniqueAggregateTransactionHash: "4'759'100"
+              treasuryReissuanceTransactionSignatures:
+                - "0BBEADD37539444D75C09A245102D2B883267925398504623835DCD625290DEE4FA2371341050C49C001DEDD1C9FE241EA4A7DB335B2069FD4DAFF77AF734C03"
+                - "89447704270E8B2F8EED19526587DB58870D90A02ACEF8AE2A54311DEB95C227201CD39662A0229D5746FFB84074EA6C7DD9620A2CE5AA69065C508DC0335201"
+                - "A317F4EB085C8D3D80435669EF54C6C9C9AD9B57165B14CF051F43879D0112E3A79591DD6D469BFAA850891FA2CB601BA58CD1BAEBFF5D84C49179AC7FE14706"
+                - "C0BAE301EC15B514C5685A661BC3E23A6596CE9DC412A83F67A8C8611A4415B1B0447E8C09D2816CAE0D750C4AB1ED8FE9C85C05D448C2114147A2C935030708"
+                - "C478DB6053C639AFC96F5D965159DC95449E5EE69A62E5FA28DF42D85C031B3A131B3AC403D9BFF27E1E64FD8012D05C720F0D2A8654D9F4BC48C8DD2DCEBC03"
+                - "D19BCD440545CF785D88F903141DE794F2D57012509BC224B25BFCA220267D1ADD42182702F50C1A4E95D0F21604E4F9EEEEF329932FCD0C76B43992B0D90B0D"
+                - "FDB98C472D0B98FDD766DA177366DEB2DB0E79721BD73DA96A84622A98932DA75BAA327BA9E23D448C6F25344654A6F17F7734C14D1530B327F911A97B4DE30A"
+              corruptAggregateTransactionHashes:
+                - "26FF5E7174DEEF3147DB25C37C7AE9905157ACBA2D233D40D1F77A65B60D59BC = 3A2F78C2E7B10FF84EB33BF1DD0FD61951F8E3EA3303614D1B20060CD88F6E14"
+                - "2DF1D19B5E68102665D11B3CF3069AB5DFED2E60A7690C8788172E0E5E30B72D = 3B64321593D06FF37B191F52FE31E107A8FDB0116AB5374157F8F415B8C73BE4"
+                - "30FA71E6D1E34DF1E430A07E1B0817BED9A4ED6B0245B7471B0557380A700E1B = AE377EAB7F1970DEC21FF305C39EBDD3ECE413B911EF3E4E11F7DDDC9C9C9748"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

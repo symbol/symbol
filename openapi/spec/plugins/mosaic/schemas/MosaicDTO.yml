@@ -23,7 +23,8 @@ properties:
   revision:
     $ref: "../../../schemas/UInt32.yml"
     description: Number of definitions for the same mosaic.
-    example: 1
+    examples:
+      - 1
   flags:
     $ref: "./MosaicFlagsEnum.yml"
   divisibility:

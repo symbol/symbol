@@ -2,14 +2,30 @@ tags:
   - Network routes
 summary: Returns the inflation distribution schedule
 description: |
-  Retrieves the network inflation table, where each entry specifies a starting block height and the reward amount applied from that height onward.
+  Retrieves the network inflation table, where each entry specifies a starting block height and the reward amount 
+  applied from that height onward.
 operationId: getNetworkInflation
 responses:
   "200":
-    description: success
+    description: Inflation distribution schedule successfully retrieved.
     content:
       application/json:
         schema:
           type: array
+          description: |
+            Inflation schedule: inflection points (height, reward amount) sorted by height.
+            Each entry defines the reward amount in effect from that block height until the next entry.
           items:
-              $ref: "../schemas/NetworkInflationDTO.yml"
+            $ref: "../schemas/NetworkInflationDTO.yml"
+        examples:
+          inflation:
+            summary: Example inflation schedule
+            value:
+              - startHeight: "2"
+                rewardAmount: "0"
+              - startHeight: "5760"
+                rewardAmount: "191997042"
+              - startHeight: "172799"
+                rewardAmount: "183764522"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

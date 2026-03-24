@@ -3,4 +3,5 @@ properties:
   maxValueSize:
     type: string
     description: Maximum metadata value size.
-    example: "1024"
+    examples:
+      - "1024"
