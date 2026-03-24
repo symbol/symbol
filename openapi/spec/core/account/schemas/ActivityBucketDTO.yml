@@ -26,7 +26,7 @@ properties:
       Number of times the account was designated as a node fee beneficiary during this bucket's
       period. Used to compute the
       [Node Score (N)](https://docs.symbol.dev/concepts/consensus-algorithm.html#partial-scores)
-      component - accounts that operate nodes accumulate a higher count, increasing their importance.
+      component. Accounts that operate nodes accumulate a higher count, increasing their importance.
   rawScore:
     $ref: "../../../schemas/Importance.yml"
     description: |

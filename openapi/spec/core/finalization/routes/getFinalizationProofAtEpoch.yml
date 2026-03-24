@@ -1,17 +1,49 @@
 tags:
   - Finalization routes
 summary: Get finalization proof
-description: Gets finalization proof for the greatest height associated with the given epoch.
+description: Returns the finalization proof for the greatest block height associated with the given finalization epoch.
 operationId: getFinalizationProofAtEpoch
 parameters:
   - $ref: "../../../parameters/path/epochPath.yml"
 responses:
   "200":
-    description: success
+    description: Finalization proof successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/FinalizationProofDTO.yml"
+        examples:
+          finalizationProof:
+            summary: Example for epoch 3661
+            value:
+              version: 1
+              finalizationEpoch: 3661
+              finalizationPoint: 68
+              height: "5270348"
+              hash: C219E4BBF8347AE5943BCB4B7D583BE4D7ED55DD6F4D2CD0A018F0D5A6AE0D86
+              messageGroups:
+                - stage: 0
+                  height: "5270348"
+                  hashes:
+                    - C219E4BBF8347AE5943BCB4B7D583BE4D7ED55DD6F4D2CD0A018F0D5A6AE0D86
+                  signatures:
+                    - root:
+                        parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
+                        signature: 8F7E6D5C4B3A2918F7E6D5C4B3A291807F6E5D4C3B2A1908F7E6D5C4B3A291807F6E5D4C3B2A1908F7E6D5C4B3A291807F6E5D4C3B2A19
+                      bottom:
+                        parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
+                        signature: 9E8D7C6B5A49382A1F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C
+                - stage: 1
+                  height: "5270348"
+                  hashes:
+                    - C219E4BBF8347AE5943BCB4B7D583BE4D7ED55DD6F4D2CD0A018F0D5A6AE0D86
+                  signatures:
+                    - root:
+                        parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
+                        signature: 1A2B3C4D5E6F7890A1B2C3D4E5F6078A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6078A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6
+                      bottom:
+                        parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
+                        signature: 2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

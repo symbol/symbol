@@ -1,42 +1,56 @@
 type: object
+description: Namespace plugin configuration.
 properties:
   maxNameSize:
     type: string
     description: Maximum namespace name size.
-    example: "64"
+    examples:
+      - "64"
   maxChildNamespaces:
     type: string
     description: Maximum number of children for a root namespace.
-    example: "500"
+    examples:
+      - "100"
   maxNamespaceDepth:
     type: string
     description: Maximum namespace depth.
-    example: "3"
+    examples:
+      - "3"
   minNamespaceDuration:
     type: string # utils::BlockSpan
     description: Minimum namespace duration.
-    example: 1m
+    examples:
+      - 30d
   maxNamespaceDuration:
     type: string # utils::BlockSpan
     description: Maximum namespace duration.
-    example: 365d
+    examples:
+      - 1825d
   namespaceGracePeriodDuration:
     type: string # utils::BlockSpan
     description: Grace period during which time only the previous owner can renew an expired namespace.
-    example: 2m
+    examples:
+      - 30d
   reservedRootNamespaceNames:
     type: string
-    description: Reserved root namespaces that cannot be claimed.
-    example: xem, nem, user, account, org, com, biz, net, edu, mil, gov, info
+    description: Comma-separated list of reserved root namespace names that cannot be claimed.
+    examples:
+      - "symbol, symbl, xym, xem, nem, user, account, org, com, biz, net, edu, mil, gov, info"
+  namespaceRentalFeeSinkAddressV1:
+    $ref: "../../../schemas/Address.yml"
+    description: Legacy (V1) address (in Base32 format) of the namespace rental fee sink. May be absent on newer networks.
   namespaceRentalFeeSinkAddress:
     $ref: "../../../schemas/Address.yml"
     description: Address of the namespace rental fee sink account.
-    example: SDTZ23JBJZP3GTKKM2P6FYCMXS6RQYPB6R477TQ
+    examples:
+      - NCVORTEX4XD5IQASZQEHDWUXT33XBOTBMKFDCLI
   rootNamespaceRentalFeePerBlock:
-    type: string # Amount
-    description: Root namespace rental fee per block.
-    example: "1"
+    $ref: "../../../schemas/Amount.yml"
+    description: Root namespace rental fee per block in atomic units.
+    examples:
+      - "2"
   childNamespaceRentalFee:
-    type: string # Amount
-    description: Child namespace rental fee.
-    example: "100"
+    $ref: "../../../schemas/Amount.yml"
+    description: Child namespace rental fee in atomic units.
+    examples:
+      - "100000"

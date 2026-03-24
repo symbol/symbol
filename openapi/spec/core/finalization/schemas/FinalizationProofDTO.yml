@@ -1,4 +1,7 @@
 type: object
+description: |
+  Cryptographic proof that a block was finalized. Contains the finalized block identity
+  (epoch, point, height, hash) and message groups (prevote, precommit, count) with BLS signatures.
 required:
   - version
   - finalizationEpoch
@@ -9,6 +12,8 @@ required:
 properties:
   version:
     type: integer
+    description: |
+      Proof format version. Incremented when the binary structure of the finalization proof changes.
   finalizationEpoch:
     $ref: "../../../schemas/FinalizationEpoch.yml"
   finalizationPoint:
@@ -19,5 +24,8 @@ properties:
     $ref: "../../../schemas/Hash256.yml"
   messageGroups:
     type: array
+    description: |
+      Message groups from the finalization voting process: prevote, precommit, and count stages.
+      Each group contains block hashes and BLS signatures from the finalizers attesting to the vote.
     items:
       $ref: "./MessageGroup.yml"

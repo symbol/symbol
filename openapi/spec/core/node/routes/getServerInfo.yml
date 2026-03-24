@@ -5,8 +5,18 @@ description: Returns the version of the running catapult-rest component.
 operationId: getServerInfo
 responses:
   "200":
-    description: success
+    description: Server information successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/ServerInfoDTO.yml"
+        examples:
+          serverInfo:
+            summary: Example REST server and deployment info
+            value:
+              serverInfo:
+                restVersion: "1.0.14"
+                deployment:
+                  deploymentTool: symbol-bootstrap
+                  deploymentToolVersion: "1.0.6"
+                  lastUpdatedDate: "2021-06-02"

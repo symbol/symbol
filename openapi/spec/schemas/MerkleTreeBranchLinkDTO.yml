@@ -7,7 +7,7 @@ required:
   - link
 properties:
   bit:
-    description: Nibble index (0–15) identifying this child slot (hex).
+    description: Nibble index (0 to 15) identifying this child slot (hex).
     type: string
   link:
     description: Hash of the child node.

@@ -1,6 +1,8 @@
 name: epoch
 in: path
-description: Finalization epoch.
+description: |
+  The finalization epoch is a sequential integer. Each epoch groups a set of blocks
+  for finalization voting (interval defined by network config, e.g. 1440 blocks for mainnet).
 required: true
 schema:
   $ref: "../../schemas/FinalizationEpoch.yml"

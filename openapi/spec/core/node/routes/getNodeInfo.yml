@@ -5,8 +5,20 @@ description: Supplies additional information about the application running on a 
 operationId: getNodeInfo
 responses:
   "200":
-    description: success
+    description: Node information successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/NodeInfoDTO.yml"
+        examples:
+          nodeInfo:
+            summary: Example node info
+            value:
+              version: 16777993
+              publicKey: AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26
+              networkGenerationHashSeed: 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
+              roles: 7
+              port: 7900
+              networkIdentifier: 152
+              friendlyName: api-node-0
+              host: "127.0.0.1"

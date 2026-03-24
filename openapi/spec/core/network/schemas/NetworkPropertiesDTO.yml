@@ -4,19 +4,22 @@ properties:
   identifier:
     type: string # NetworkIdentifier
     description: Network identifier.
-    example: testnet
+    examples:
+      - mainnet
   nodeEqualityStrategy:
     $ref: "./NodeIdentityEqualityStrategy.yml"
-    example: host
+    examples:
+      - host
   nemesisSignerPublicKey:
     $ref: "../../../schemas/PublicKey.yml"
-    description: Nemesis public key.
-    example: B4F12E7C9F6946091E2CB8B6D3A12B50D17CCBBF646386EA27CE2946A7423DCF
+    examples:
+      - BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F
   generationHashSeed:
     $ref: "../../../schemas/Hash256.yml"
-    description: Seed for generating Nemesis generation hash.
-    example: 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
+    examples:
+      - 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
   epochAdjustment:
     type: string # utils::TimeSpan
     description: Nemesis epoch time adjustment.
-    example: 1573430400s
+    examples:
+      - 1615853185s

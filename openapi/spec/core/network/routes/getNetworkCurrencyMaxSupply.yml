@@ -22,4 +22,5 @@ responses:
         schema:
           type: string
           pattern: '^\d+\.\d+$'
-          example: "8999999999.000000"
+          examples:
+            - "8999999999.000000"

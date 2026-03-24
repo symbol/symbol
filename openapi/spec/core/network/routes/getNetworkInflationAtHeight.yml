@@ -8,10 +8,16 @@ parameters:
   - $ref: "../../../parameters/path/heightPath.yml"
 responses:
   "200":
-    description: success
+    description: Inflation parameters at the given height successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/NetworkInflationDTO.yml"
+        examples:
+          inflationAtHeight:
+            summary: Inflation at block height 5760
+            value:
+              startHeight: "5760"
+              rewardAmount: "191997042"
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

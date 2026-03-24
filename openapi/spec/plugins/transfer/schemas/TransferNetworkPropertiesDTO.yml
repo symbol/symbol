@@ -3,4 +3,5 @@ properties:
   maxMessageSize:
     type: string
     description: Maximum transaction message size.
-    example: "1024"
+    examples:
+      - "1024"

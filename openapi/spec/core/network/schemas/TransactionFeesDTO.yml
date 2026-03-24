@@ -1,4 +1,8 @@
 type: object
+description: |
+  Fee multiplier statistics over the last ``numBlocksTransactionFeeStats`` blocks:
+  average, median, highest, lowest, and minimum on the connected node.
+  All values are absolute (smallest units).
 required:
   - averageFeeMultiplier
   - medianFeeMultiplier
@@ -8,21 +12,26 @@ required:
 properties:
   averageFeeMultiplier:
     $ref: "../../../schemas/BlockFeeMultiplier.yml"
-    description: Average fee multiplier over the last "numBlocksTransactionFeeStats" on the current Network.
-    example: 1
+    description: Average fee multiplier over the last ``numBlocksTransactionFeeStats`` blocks on the current network.
+    examples:
+      - 103
   medianFeeMultiplier:
     $ref: "../../../schemas/BlockFeeMultiplier.yml"
-    description: Median fee multiplier over the last "numBlocksTransactionFeeStats" on the current Network.
-    example: 1
+    description: Median fee multiplier over the last ``numBlocksTransactionFeeStats`` blocks on the current network.
+    examples:
+      - 100
   highestFeeMultiplier:
     $ref: "../../../schemas/BlockFeeMultiplier.yml"
-    description: Highest fee multiplier over the last "numBlocksTransactionFeeStats" on the current Network.
-    example: 2
+    description: Highest fee multiplier over the last ``numBlocksTransactionFeeStats`` blocks on the current network.
+    examples:
+      - 1136
   lowestFeeMultiplier:
     $ref: "../../../schemas/BlockFeeMultiplier.yml"
-    description: Lowest fee multiplier over the last "numBlocksTransactionFeeStats" on the current Network.
-    example: 0
+    description: Lowest fee multiplier over the last ``numBlocksTransactionFeeStats`` blocks on the current network.
+    examples:
+      - 0
   minFeeMultiplier:
     $ref: "../../../schemas/BlockFeeMultiplier.yml"
-    description: Minimal fee multiplier on the current connected Node.
-    example: 0
+    description: Minimal fee multiplier on the current connected node.
+    examples:
+      - 10

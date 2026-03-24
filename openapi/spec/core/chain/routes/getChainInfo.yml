@@ -1,20 +1,26 @@
 tags:
   - Chain routes
-summary: Get the current information of the chain
+summary: Get chain information
 description: |
-  Returns the current information of the blockchain.
-  
-  The higher the score, the better the chain.
-  During synchronization, nodes try to get the best blockchain in the network.
-
-  The score for a block is derived from its difficulty and the time (in seconds) that has elapsed since the last block:
-
-      block score = difficulty − time elapsed since last block
+  Returns the current state of the blockchain: chain height, chain score, and the
+  latest finalized block.
 operationId: getChainInfo
 responses:
   "200":
-    description: success
+    description: Chain information successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/ChainInfoDTO.yml"
+        examples:
+          chainInfo:
+            summary: Chain info example
+            value:
+              height: "5270371"
+              scoreHigh: "35"
+              scoreLow: "9355904769811254014"
+              latestFinalizedBlock:
+                finalizationEpoch: 3661
+                finalizationPoint: 68
+                height: "5270348"
+                hash: C219E4BBF8347AE5943BCB4B7D583BE4D7ED55DD6F4D2CD0A018F0D5A6AE0D86

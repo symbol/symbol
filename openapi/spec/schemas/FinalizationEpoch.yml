@@ -1,7 +1,7 @@
 type: integer
 format: int64
 description: |
-  [Finalization epoch](https://docs.symbol.dev/concepts/block.html#finalization) - a sequential
+  [Finalization epoch](https://docs.symbol.dev/concepts/block.html#finalization) is a sequential
   integer. Each epoch groups a set of blocks for finalization voting; the interval is defined
   by the `votingSetGrouping` network property (e.g. 1440 blocks, ~12h on mainnet).
 minimum: 1
