@@ -1,6 +1,16 @@
 type: object
+description: |
+  Timestamps from the node's perspective for round-trip time calculation. Used when computing node time offset and
+  transaction deadlines. The difference between them reflects node processing time and can vary with node load.
 properties:
   sendTimestamp:
     $ref: "../../../schemas/Timestamp.yml"
+    description: Node's network time when it sent the response (milliseconds since nemesis block).
   receiveTimestamp:
     $ref: "../../../schemas/Timestamp.yml"
+    description: |
+      Node's network time when it received the client's request (milliseconds since nemesis block).
+      Typically used when computing transaction deadlines.
+examples:
+  - sendTimestamp: "108303181802"
+    receiveTimestamp: "108303181850"

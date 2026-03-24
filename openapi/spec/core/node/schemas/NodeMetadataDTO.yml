@@ -1,4 +1,12 @@
 type: object
+description: |
+  Key-value metadata set by the node operator (e.g. deployment tool, version,
+  custom labels). Keys and values are strings.
 additionalProperties:
   type: string
   description: The value of a user-defined metadata key.
+examples:
+  -
+    deploymentTool: symbol-bootstrap
+    version: 1.0.2
+    nodeName: api-node-0

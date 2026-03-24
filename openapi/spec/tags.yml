@@ -11,7 +11,7 @@
     [mosaic](https://docs.symbol.dev/concepts/mosaic.html) units it owns) and an
     [**importance score**](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-calculation)
     that determines the probability of being selected to harvest the next block. Importance is recalculated
-    periodically using **activity buckets** - rolling data that tracks fees paid, beneficiary counts, and raw
+    periodically using **activity buckets**, which are rolling data that tracks fees paid, beneficiary counts, and raw
     scores over a sliding window of recalculation periods.
 
     Accounts participate in block creation through
@@ -49,7 +49,7 @@
 
     - `Height`: unique, sequential position of the block in the chain. Subsequent blocks differ in height by 1.
     - `Timestamp`: number of milliseconds elapsed since the creation of the first block.
-    - `Difficulty`: block difficulty (initial 1e14); adjusted in range 1e13–1e15 to maintain target block time.
+    - `Difficulty`: block difficulty (initial 1e14); adjusted in range 1e13 to 1e15 to maintain target block time.
     - `Harvester`: [account](https://docs.symbol.dev/concepts/account.html) that created the block; receives
       transaction [fees](https://docs.symbol.dev/concepts/fees.html) and
       [inflation](https://docs.symbol.dev/concepts/inflation.html) rewards.
@@ -63,13 +63,45 @@
       permanent. Once a block is finalized, its transactions become immutable. Clients that rely on immutability
       should only trust finalized blocks.
 - name: Chain routes
+  description: |
+    Chain endpoints provide aggregate information about the blockchain state.
+    The [chain score](https://docs.symbol.dev/concepts/block.html) is used during synchronization:
+    nodes select the chain with the highest score as the canonical one (higher = better chain).
+    The [latest finalized block](https://docs.symbol.dev/concepts/block.html#finalization) is the most recent
+    block that has been made permanent and will never be rolled back.
 - name: Finalization routes
+  description: |
+    [Finalization](https://docs.symbol.dev/concepts/block.html#finalization) is the process that makes
+    blocks permanent on the Symbol blockchain. Once a block is finalized, its transactions become
+    immutable and will never be rolled back.
+
+    Finalization occurs in rounds called **epochs** (e.g. every 1440 blocks, ~12h on mainnet).
+    Each epoch is divided into **finalization points**. Voters (eligible accounts with linked voting keys)
+    emit prevote and precommit messages; when more than 67% of the voting stake agrees, the block
+    is finalized.
+
+    These endpoints return the **finalization proof** which is cryptographic evidence that a block was
+    finalized, including message groups (prevote, precommit, count stages) and BLS aggregate
+    signatures from the voter set.
 - name: Metadata routes
 - name: Mosaic routes
 - name: Multisig routes
 - name: Namespace routes
 - name: Network routes
+  description: |
+    Network endpoints expose configuration and economic parameters of the Symbol blockchain.
+    They return **network properties** (identifier, nemesis keys, epoch adjustment),
+    **chain properties** (block timing, fees, limits), and **plugin properties** (per-feature settings).
+    Additional endpoints provide **currency supply** (total, max, circulating), **inflation** rewards
+    at given block heights, **rental fees** for namespaces and mosaics, and **transaction fees**
+    (average, median, min/max multipliers).
 - name: Node routes
+  description: |
+    Node endpoints return information about the specific REST node you are connected to.
+    They include **node identity** (public key, roles, host, port), **server version** , 
+    **health status**, **storage statistics** (blocks, transactions, accounts),
+    **node time** (for transaction deadline calculation), **unlocked accounts** (harvesting),
+    **connected peers**, and **node metadata** (deployment tool, version).
 - name: Restriction Mosaic routes
 - name: Restriction Account routes
 - name: Receipt routes

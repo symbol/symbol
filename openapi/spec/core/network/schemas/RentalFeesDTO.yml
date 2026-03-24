@@ -1,4 +1,8 @@
 type: object
+description: |
+  Estimated effective rental fees for on-chain resources: root namespace (per block),
+  child namespace, and mosaic creation. All amounts are in **network currency** and expressed
+  in **smallest (atomic) units**.
 required:
   - effectiveRootNamespaceRentalFeePerBlock
   - effectiveChildNamespaceRentalFee
@@ -7,12 +11,15 @@ properties:
   effectiveRootNamespaceRentalFeePerBlock:
     $ref: "../../../schemas/Amount.yml"
     description: Estimated effective rental fee to register/extend a namespace per block.
-    example: 0
+    examples:
+      - 200
   effectiveChildNamespaceRentalFee:
     $ref: "../../../schemas/Amount.yml"
     description: Estimated effective rental fee to create a subnamespace.
-    example: 0
+    examples:
+      - 10000000
   effectiveMosaicRentalFee:
     $ref: "../../../schemas/Amount.yml"
     description: Estimated effective rental fee to create a mosaic.
-    example: 0
+    examples:
+      - 50000000

@@ -1,5 +1,7 @@
 type: string
 description: |
-  Score of the blockchain. During synchronization, nodes try to get the
-  blockchain with highest score in the network.
-example: 1683298087010368306
+  64-bit part of the full 128-bit chain score. The full score is
+  ``(scoreHigh << 64) + scoreLow``. Each block adds ``difficulty − time elapsed since previous block``;
+  the chain score is the sum. During synchronization, nodes select the chain with the highest score.
+examples:
+  - 1683298087010368306

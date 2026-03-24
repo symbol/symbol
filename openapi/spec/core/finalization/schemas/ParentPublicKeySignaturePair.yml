@@ -1,4 +1,5 @@
 type: object
+description: Public key and BLS signature pair from a voter.
 required:
   - parentPublicKey
   - signature

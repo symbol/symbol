@@ -1,4 +1,5 @@
 type: string
+description: Operational status of a service (e.g. API node or database).
 enum:
   - up
   - down

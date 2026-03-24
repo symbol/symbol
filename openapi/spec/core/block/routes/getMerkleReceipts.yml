@@ -25,7 +25,7 @@ responses:
     content:
       application/json:
         schema:
-          $ref: "../../../core/block/schemas/MerkleProofInfoDTO.yml"
+          $ref: "../schemas/MerkleProofInfoDTO.yml"
         examples:
           default:
             value:

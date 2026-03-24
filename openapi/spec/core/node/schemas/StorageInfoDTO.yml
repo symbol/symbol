@@ -1,4 +1,6 @@
 type: object
+description: |
+  Storage statistics: number of blocks, transactions, and accounts stored by the node.
 required:
   - numBlocks
   - numTransactions
@@ -6,13 +8,24 @@ required:
 properties:
   numBlocks:
     type: integer
-    description: Number of blocks stored.
-    example: 245053
+    description: |
+      Number of blocks stored. Under normal operation, this equals the chain height
+      (see chain info). When the node is synchronizing with the network, both values
+      are lower than the network chain height.
+    examples:
+      - 245053
   numTransactions:
     type: integer
-    description: Number of transactions stored.
-    example: 58590
+    description: |
+      Number of confirmed transactions stored, i.e. transactions included in blocks.
+      Excludes unconfirmed transactions in the mempool. For aggregate transactions
+      (e.g. multisig), each inner transaction counts as a separate document.
+    examples:
+      - 58590
   numAccounts:
     type: integer
-    description: Number of accounts created.
-    example: 177
+    description: |
+      Number of accounts with on-chain state, i.e. addresses that have participated
+      in at least one confirmed transaction (e.g. as sender, recipient, or cosigner).
+    examples:
+      - 177

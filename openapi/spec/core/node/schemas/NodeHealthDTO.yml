@@ -1,4 +1,5 @@
 type: object
+description: Status of API node and database services (up/down).
 required:
   - apiNode
   - db

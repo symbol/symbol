@@ -1,12 +1,14 @@
 type: object
+description: |
+  REST component version and deployment metadata.
 required:
   - restVersion
-  - sdkVersion
   - deployment
 properties:
   restVersion:
     type: string
-    example: 1.0.14
+    examples:
+      - 1.0.14
     description: catapult-rest component version.
   deployment:
     $ref: "./DeploymentDTO.yml"

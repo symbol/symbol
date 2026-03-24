@@ -24,4 +24,5 @@ responses:
         schema:
           type: string
           pattern: '^\d+\.\d+$'
-          example: "6351335211.744781"
+          examples:
+            - "6351335211.744781"

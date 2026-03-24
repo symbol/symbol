@@ -1,8 +1,12 @@
 type: object
+description: |
+  Public keys of accounts with [harvesting](https://docs.symbol.dev/concepts/harvesting.html) unlocked.
+  **Only accounts harvesting on the node you are querying** are returned. The scope is limited to this node, not the entire network.
 required:
   - unlockedAccount
 properties:
   unlockedAccount:
     type: array
+    description: Public keys of accounts harvesting on this node.
     items:
       $ref: "../../../schemas/PublicKey.yml"

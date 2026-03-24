@@ -17,7 +17,8 @@ properties:
   depth:
     type: integer
     description: Level of the namespace.
-    example: 1
+    examples:
+      - 1
   level0:
     $ref: "../../../schemas/NamespaceId.yml"
   level1:
