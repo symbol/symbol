@@ -45,7 +45,7 @@ responses:
                     version: 1
                     network: 152
                     type: 33091
-                    signature: 4B408BBEDF25F2AC8E0E44A6E51E3CCBA03885902055F75EB9FF50433532CA44BF9175FDA7502EEE2FC1617126E453A2BD692BAFDAAF06BC8EDEBA7961B3730D
+                    signature: 4B408BBEDF25F2AC8E0E44A6E51E3CCBA03885902055F75EB9FF50433532CA44BF9175FDA7502EEE2FC16...
                     height: "17592"
                     timestamp: "108303181802"
                     difficulty: "100000000000000"

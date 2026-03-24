@@ -3,18 +3,18 @@ tags:
 summary: Returns max currency supply
 description: |
   Returns the maximum possible supply of the network currency mosaic.
-  
+
   Data sources:
     - Maximum supply (`chain.maxMosaicAtomicUnits`) defined in the network properties file
     - Network currency divisibility from blockchain state
-  
+
   This represents the protocol-level supply cap configured for the network currency.
 operationId: getMaxCurrencySupply
 responses:
   "200":
     description: |
       Successful response containing the max currency supply.
-      
+
       The value is expressed in whole units with a fractional part
       determined by the mosaic divisibility and returned as a fixed-decimal string.
     content:

@@ -1,6 +1,6 @@
 type: string
 description: |
-  Indicates how to sort the results: 
+  Indicates how to sort the results:
   - `asc`: ascending
   - `desc`: descending
 enum:

@@ -1,7 +1,7 @@
 type: object
 properties:
   maxTransactionsPerAggregate:
-    type: string # uint32
+    type: string  # uint32
     description: Maximum number of transactions per aggregate.
     examples:
       - "100"
@@ -12,7 +12,9 @@ properties:
       - "25"
   enableStrictCosignatureCheck:
     type: boolean
-    description: Set to true if cosignatures must exactly match component signers. Set to false if cosignatures should be validated externally.
+    description: |
+      Set to true if cosignatures must exactly match component signers. Set to
+      false if cosignatures should be validated externally.
     examples:
       - false
   enableBondedAggregateSupport:
@@ -21,7 +23,7 @@ properties:
     examples:
       - true
   maxBondedTransactionLifetime:
-    type: string # utils::TimeSpan
+    type: string  # utils::TimeSpan
     description: Maximum lifetime a bonded transaction can have before it expires.
     examples:
       - 48h

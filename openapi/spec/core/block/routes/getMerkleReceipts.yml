@@ -14,7 +14,8 @@ description: |
   - `right`: the item hash is concatenated after the proofHash (proofHash = sha_256(proofHash + item.hash)).
   3. Repeat 2. for every item in the merklePath list.
   4. Compare if the calculated proofHash equals the one recorded in the
-  [block header](https://docs.symbol.dev/concepts/block.html) (`block.receiptsHash`) to verify if the statement was linked with the block.
+  [block header](https://docs.symbol.dev/concepts/block.html)
+  (`block.receiptsHash`) to verify if the statement was linked with the block.
 operationId: getMerkleReceipts
 parameters:
   - $ref: "../../../parameters/path/heightPath.yml"

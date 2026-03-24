@@ -4,7 +4,7 @@ summary: Get accounts information
 description: |
   Retrieves account data for multiple accounts in a single request.
   This is the batch equivalent of the single-account endpoint.
-  
+
   The request body accepts either an array of public keys or an array of addresses (not both).
   If both `publicKeys` and `addresses` are provided, the request is invalid and the server returns `409` error.
 operationId: getAccountsInfo

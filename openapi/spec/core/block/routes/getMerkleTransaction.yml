@@ -13,7 +13,8 @@ description: |
   - `right`: the item hash is concatenated after the proofHash (proofHash = sha_256(proofHash + item.hash)).
   3. Repeat 2. for every item in the merklePath list.
   4. Compare if the calculated proofHash equals the one recorded in the
-  [block header](https://docs.symbol.dev/concepts/block.html) (`block.transactionsHash`) to verify if the transaction was included in the block.
+  [block header](https://docs.symbol.dev/concepts/block.html)
+  (`block.transactionsHash`) to verify if the transaction was included in the block.
 operationId: getMerkleTransaction
 parameters:
   - $ref: "../../../parameters/path/heightPath.yml"

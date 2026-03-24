@@ -98,7 +98,7 @@
 - name: Node routes
   description: |
     Node endpoints return information about the specific REST node you are connected to.
-    They include **node identity** (public key, roles, host, port), **server version** , 
+    They include **node identity** (public key, roles, host, port), **server version**,
     **health status**, **storage statistics** (blocks, transactions, accounts),
     **node time** (for transaction deadline calculation), **unlocked accounts** (harvesting),
     **connected peers**, and **node metadata** (deployment tool, version).
