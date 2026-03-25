@@ -1,4 +1,4 @@
-import { SymbolFacade } from 'symbol-sdk/symbol';
+import { Address } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
@@ -67,9 +67,8 @@ try {
 					resolved = entry.resolved;
 			}
 			if (resolved) {
-				const bytes = Uint8Array.from(
-					Buffer.from(resolved, 'hex'));
-				const address = new SymbolFacade.Address(bytes);
+				const address =
+					Address.fromDecodedAddressHexString(resolved);
 				console.log('\nAddress resolution:');
 				console.log('  Unresolved:', statement.unresolved);
 				console.log(`  Resolved:   ${address}`);

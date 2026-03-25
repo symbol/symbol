@@ -38,7 +38,7 @@ transactions are announced and confirmed.
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:18:26', 'js:14:22']) }}
+{{ tutorial.code_snippet(['py:18:26', 'js:15:23']) }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -47,7 +47,7 @@ This account must own the namespace being linked.
 
 ### Defining the Namespace and Target Address
 
-{{ tutorial.code_snippet(['py:28:38', 'js:24:37']) }}
+{{ tutorial.code_snippet(['py:28:38', 'js:25:38']) }}
 
 The code defines:
 
@@ -72,14 +72,14 @@ The code defines:
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:41:59', 'js:40:59']) }}
+{{ tutorial.code_snippet(['py:41:59', 'js:41:60']) }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:61:70', 'js:61:70']) }}
+{{ tutorial.code_snippet(['py:61:70', 'js:62:71']) }}
 
 The address alias transaction specifies:
 
@@ -103,19 +103,19 @@ The address alias transaction specifies:
 
 ### Submitting the Transaction
 
-{{ tutorial.code_snippet(['py:72:91', 'js:72:92']) }}
+{{ tutorial.code_snippet(['py:72:91', 'js:73:93']) }}
 
 The transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:93:111', 'js:94:128']) }}
+{{ tutorial.code_snippet(['py:93:111', 'js:95:129']) }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Verifying the Alias
 
-{{ tutorial.code_snippet(['py:113:126', 'js:130:146']) }}
+{{ tutorial.code_snippet(['py:113:125', 'js:131:146']) }}
 
 To verify the alias was created, the code retrieves the namespace information from the network
 using the <get:/namespaces/{namespaceId}> endpoint.
