@@ -121,7 +121,29 @@ Example use cases:
 
     The account can be transferred again by changing the single cosignatory as many times as needed.
 
-Finally, cosignatories can also be other multisig accounts, enabling flexible, multi-layered authorization models.
+!!! info "Multilevel Multisignature"
+
+    Cosignatories can also be other multisig accounts, enabling flexible, multi-layered authorization models,
+    up to three layers deep.
+    For example:
+
+    ```dot
+    digraph "Multilevel Multisignature Tree" {
+        rankdir="BT";
+        node [fontsize=12];
+        "Multisig Account" [label="Multisig Account\n2 of 2"];
+        "Multisig Cosignatory" [label="Multisig Cosignatory\n1 of 3"];
+
+        "Cosignatory 0" -> "Multisig Account";
+        "Multisig Cosignatory" -> "Multisig Account";
+        "Cosignatory 1" -> "Multisig Cosignatory";
+        "Cosignatory 2" -> "Multisig Cosignatory";
+        "Cosignatory 3" -> "Multisig Cosignatory";
+    }
+    ```
+
+    In the above configuration, operations on the `Multisig Account` always require the signature of `Cosignatory 0` and
+    at least one of the other three cosignatories `1` to `3`.
 
 Bear in mind the following constraints when designing multisignature solutions:
 
