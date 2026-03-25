@@ -121,8 +121,8 @@ try:
 		alias_type = namespace_info['alias']['type']
 		print(f'  Alias type: {alias_type}')
 		if alias_type == 2:  # ADDRESS type
-			aliased_address_hex = namespace_info['alias']['address']
-			aliased_address = Address(bytes.fromhex(aliased_address_hex))
+			aliased_address = Address.from_decoded_address_hex_string(
+				namespace_info['alias']['address'])
 			print(f'  Linked address: {aliased_address}')
 
 	# Send a transfer using the alias instead of a raw address
