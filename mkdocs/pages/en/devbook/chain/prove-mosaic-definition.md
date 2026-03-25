@@ -1,15 +1,14 @@
 ---
-title: Check Mosaic State
+title: Prove Mosaic Definition
 ---
 
-# Checking a Mosaic's State Against the Chain
+# Prove a Mosaic's Definition
 
-Every Symbol <block:> header includes a `stateHash` that covers the full chain state, including all <mosaic:>
-definitions.
-By requesting a <Patricia tree:> proof and verifying it locally, you can confirm that the data a node returns matches
-what is actually recorded on chain, without having to trust the node or run one yourself.
+Every Symbol <block:> header has a `stateHash` that covers the full chain state, including all <mosaic:> definitions.
+By requesting a proof and verifying it locally, you can confirm that the data a node returns matches what is actually
+recorded on chain, without having to trust the node or run one yourself.
 
-This tutorial shows how to fetch a mosaic's properties from the API, serialize them into the same binary format used by
+This tutorial shows how to fetch a mosaic's definition from the API, serialize it into the same binary format used by
 the chain, and verify the result against the block's `stateHash` using a <Patricia tree:> proof.
 
 ## Prerequisites
@@ -17,14 +16,14 @@ the chain, and verify the result against the block's `stateHash` using a <Patric
 Before you start, [set up your development environment](../start/setup.md).
 This tutorial only reads data from the network. No <account:> or <XYM:> balance is required.
 
-Additionally, review how [state hashes](../../textbook/blocks.md#state-hashes) work, in particular the state hash
+Additionally, review how [block hashes](../../textbook/blocks.md#block-hashes) work, in particular the state hash
 section.
 
 ## Full Code
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/prove-mosaic-state', ['py', 'js']) }}
+{{ tutorial.code_full('devbook/chain/prove-mosaic-definition', ['py', 'js']) }}
 
 This example verifies the network's currency mosaic (<XYM:> on mainnet), whose ID is discovered automatically from
 <get:/network/properties>.
@@ -33,7 +32,7 @@ for any mosaic by replacing the ID.
 
 ## Code Explanation
 
-### Fetching the Mosaic Properties
+### Fetching the Mosaic Definition
 
 {{ tutorial.code_snippet(['py:17:33', 'js:29:44']) }}
 
@@ -42,20 +41,27 @@ The `currencyMosaicId` field is a hex string with embedded apostrophes (e.g. `0x
 them before parsing.
 
 The mosaic's full definition is then fetched from <get:/mosaics/{mosaicId}>.
-The response includes all the properties that make up the mosaic's on-chain state: `version`, `id`, `supply`,
+The response includes all the fields that make up the mosaic's definition: `version`, `id`, `supply`,
 `startHeight`, `ownerAddress`, `revision`, `flags`, `divisibility`, and `duration`.
 
 ### Computing the Key and Value Hashes
 
 {{ tutorial.code_snippet(['py:35:53', 'js:46:63']) }}
 
-To verify the mosaic's state, the code must reproduce the exact hash that the chain stores internally.
-This requires serializing all mosaic properties into a binary buffer in the exact field order and sizes defined by the
+To verify the mosaic's definition, the code must reproduce the exact hash that the chain stores internally.
+This requires serializing all fields into a binary buffer in the exact field order and sizes defined by the
 <ser:MosaicEntry> schema, then computing the SHA3-256 hash of the result.
+
+!!! note "Nested structures"
+
+    <ser:MosaicEntry> contains a <ser:MosaicDefinition> structure, which in turn contains a <ser:MosaicProperties>
+    structure.
+    The code serializes fields from all three levels, so the full field list is longer than what `MosaicEntry` alone
+    shows.
 
 The mosaic [sub-cache Patricia tree](../../textbook/blocks.md#state-hash) stores each mosaic as a key-value pair in a
 leaf node.
-The **value** is this hash of the serialized properties.
+The **value** is the hashed value (SHA3-256 of the serialized definition).
 The **key** is computed by hashing just the mosaic ID (8 bytes, little-endian) with SHA3-256, and is used to locate
 the mosaic's leaf node in the tree.
 
@@ -74,11 +80,12 @@ The `stateHashSubCacheMerkleRoots` array contains the individual root hash for e
 
 {{ tutorial.code_snippet(['py:73:97', 'js:81:109']) }}
 
-The <get:/mosaics/{mosaicId}/merkle> endpoint returns the raw path through the mosaic sub-cache
-<Patricia tree:>, from the root down to the leaf that stores the mosaic's hashed value.
-<dy:Merkle.deserializePatriciaTreeNodes> converts this raw binary into a list of tree nodes.
+The <get:/mosaics/{mosaicId}/merkle> endpoint returns the raw path through the mosaic sub-cache, from the root down to
+the leaf that stores the mosaic's hashed value.
+`deserializePatriciaTreeNodes` converts this raw binary into a list of tree nodes.
 
-The code then walks the deserialized path and prints each node for inspection.
+For educational purposes, the code then walks the deserialized path and prints each node for inspection.
+This step is not required for verification, as the SDK handles it internally in the next step.
 Branch nodes show their active links and which [nibble](../../textbook/blocks.md#state-hash) was followed to reach the
 next node.
 The leaf node at the end stores the remaining path nibbles and the hashed value.
@@ -92,7 +99,7 @@ The leaf node at the end stores the remaining path nibbles and the hashed value.
 | Parameter     | Source                                                     | Role                                                 |
 | --------------| -----------------------------------------------------------| ---------------------------------------------------- |
 | `encoded_key` | SHA3-256 of the mosaic ID                                  | Identifies which leaf to look up in the tree         |
-| `hashed_value`| SHA3-256 of the serialized <ser:MosaicEntry>               | The expected value stored in the leaf                |
+| `hashed_value`| SHA3-256 of the serialized definition                      | The expected value stored in the leaf                |
 | `merkle_path` | <get:/mosaics/{mosaicId}/merkle>                           | The chain of branch and leaf nodes from root to leaf |
 | `state_hash`  | `stateHash` from <get:/blocks/{height}>                    | The block header's hash of all chain state           |
 | `roots`       | `stateHashSubCacheMerkleRoots` from <get:/blocks/{height}> | The individual root hash of each sub-cache           |
@@ -107,40 +114,29 @@ The function then verifies the proof in three stages:
 3. **Match the leaf:** Checks that the leaf's value matches `hashed_value` and that the path through the tree
     reconstructs `encoded_key`.
 
-If all checks pass, the result is `0x0001` (`VALID_POSITIVE`), confirming that the mosaic properties returned by the API
-are exactly what is recorded in the chain at the given height.
+If all checks pass, the result is `0x0001` (`VALID_POSITIVE`), confirming that the mosaic definition returned by the API
+is exactly what is recorded in the chain at the given height.
 
-The full set of result codes is:
-
-| Code     | Name                              | Meaning                                                                                                                                                              |
-|----------|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `0x0001` | `VALID_POSITIVE`                  | The entry exists on chain with the expected value.                                                                                                                   |
-| `0x0002` | `VALID_NEGATIVE`                  | The entry does **not** exist on chain.                                                                                                                               |
-| `0x4001` | `INCONCLUSIVE`                    | Negative proof is inconclusive: the tree path ends at a branch node whose link at the next nibble is not empty, so the proof is not deep enough to confirm absence.  |
-| `0x8001` | `STATE_HASH_DOES_NOT_MATCH_ROOTS` | `SHA3-256(roots)` does not match `state_hash`. The block header and sub-cache roots are inconsistent.                                                                |
-| `0x8002` | `UNANCHORED_PATH_TREE`            | The tree path's root node does not hash to any of the sub-cache roots.                                                                                               |
-| `0x8003` | `LEAF_VALUE_MISMATCH`             | The leaf's value does not match `hashed_value`.                                                                                                                      |
-| `0x8004` | `UNLINKED_NODE`                   | A node in the path is not linked by its parent.                                                                                                                      |
-| `0x8005` | `PATH_MISMATCH`                   | The path reconstructed from root to leaf does not match `encoded_key`.                                                                                               |
+See <js:PatriciaMerkleProofResult> for the full set of possible result codes.
 
 !!! warning "Height consistency"
 
-    The mosaic properties, block header, and tree path must all reflect the same chain state.
-    If a new block is confirmed between requests, the mosaic state may have changed and the proof will fail.
+    The mosaic definition, block header, and tree path must all reflect the same chain state.
+    If a new block is confirmed between requests, the state hash will have changed and the proof will fail.
     When this happens, re-fetch all three pieces of data and try again.
-    If the proof still fails after two or three retries, the data itself may be invalid.
+    If the proof still fails after retrying, the node may be serving incorrect data.
 
 ## Output
 
 The following output shows a typical run of the program:
 
 ```text linenums="1" hl_lines="3-14 15 16 19 22-26 27"
---8<-- 'devbook/chain/prove-mosaic-state.log'
+--8<-- 'devbook/chain/prove-mosaic-definition.log'
 ```
 
 Some highlights from the output:
 
-* **Mosaic properties** (lines 3-14): The full mosaic definition as returned by <get:/mosaics/{mosaicId}>, showing all
+* **Mosaic definition** (lines 3-14): The full mosaic definition as returned by <get:/mosaics/{mosaicId}>, showing all
     fields that are serialized for the proof.
 
 * **Hashed value and encoded key** (lines 15-16): The SHA3-256 hashes used as the value and encoded key in the Patricia
@@ -159,7 +155,7 @@ Some highlights from the output:
     See the [state hash](../../textbook/blocks.md#state-hash) diagram in the Textbook for a visual representation
     of this tree structure.
 
-* **Proof result** (line 27): The proof succeeded, confirming that the mosaic data served by the node is identical to
+* **Proof result** (line 27): The proof succeeded, confirming that the mosaic definition served by the node is identical to
     what is stored on chain at height `3220296`.
 
 ## Conclusion
@@ -168,10 +164,10 @@ This tutorial showed how to:
 
 | Step                                                                    | Related documentation                                                     |
 | ----------------------------------------------------------------------- | --------------------------------------------------------------------------|
-| [Fetch mosaic properties](#fetching-the-mosaic-properties)              | <get:/mosaics/{mosaicId}>                                                 |
+| [Fetch mosaic definition](#fetching-the-mosaic-definition)              | <get:/mosaics/{mosaicId}>                                                 |
 | [Compute the key and value hashes](#computing-the-key-and-value-hashes) | <ser:MosaicEntry>                                                         |
 | [Fetch the block state hash](#fetching-the-block-state-hash)            | <get:/chain/info>, <get:/blocks/{height}>                                 |
-| [Fetch the tree path](#fetching-the-tree-path)                          | <get:/mosaics/{mosaicId}/merkle>, <dy:Merkle.deserializePatriciaTreeNodes>|
+| [Fetch the tree path](#fetching-the-tree-path)                          | <get:/mosaics/{mosaicId}/merkle>, `deserializePatriciaTreeNodes`          |
 | [Verify the proof](#verifying-the-proof)                                | <dy:Merkle.provePatriciaMerkle>                                           |
 
 ## Next Steps
