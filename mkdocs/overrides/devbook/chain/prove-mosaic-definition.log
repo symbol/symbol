@@ -1,0 +1,27 @@
+Using node https://reference.symboltest.net:3001
+Currency mosaic ID: 72C0212E67A08BCE
+Fetching mosaic from /mosaics/72C0212E67A08BCE
+{
+  "version": 1,
+  "id": "72C0212E67A08BCE",
+  "supply": "8323465708553682",
+  "startHeight": "1",
+  "ownerAddress": "9889432DE263BB8FE88444A4DA28D3609BD8BB8FAE18AE95",
+  "revision": 1,
+  "flags": 2,
+  "divisibility": 6,
+  "duration": "0"
+}
+Hashed value: DABD58337F1BA84742EE4F0EBDC17BC9C40E07AC3A7C7D5646DD558514162EA8
+Encoded key: 3A4C540D7E6C7DF3E924E9F1B7D468FF771301AF00B0476E2B7E511379BB559E
+Current height: 3220296
+Fetching block from /blocks/3220296
+State hash: BE6796E2F0E57A9F56910F7AC6D50BB730698184AAA29CED9167CFBD3F3C6A78
+Fetching tree path from /mosaics/72C0212E67A08BCE/merkle
+Tree path: 5 nodes
+  [0] branch  links: [0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F]  -> follow 3
+  [1] branch  links: [0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F]  -> follow A
+  [2] branch  links: [0,1,3,4,5,6,7,8,9,A,B,C,D,E,F]  -> follow 4
+  [3] branch  links: [4,5,7,C,E]  -> follow C
+  [4] leaf  path: 540D7E6C7DF3E924E9F1B7D468FF771301AF00B0476E2B7E511379BB559E  value: DABD58337F1BA84742EE4F0EBDC17BC9C40E07AC3A7C7D5646DD558514162EA8
+Mosaic 72C0212E67A08BCE state verified at height 3220296

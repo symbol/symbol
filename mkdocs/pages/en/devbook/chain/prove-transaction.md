@@ -17,7 +17,7 @@ This tutorial shows how to fetch a Merkle proof from the API and verify that a s
 Before you start:
 
 * [Set up your development environment](../start/setup.md).
-* Review how [state hashes](../../textbook/blocks.md#state-hashes) work, in particular the `transactionsHash`
+* Review how [block hashes](../../textbook/blocks.md#block-hashes) work, in particular the `transactionsHash`
     Merkle tree.
 
 This tutorial only reads data from the network. No <account:> or <XYM:> balance is required.
@@ -67,8 +67,8 @@ the minimum set of intermediate hashes needed to recompute the `transactionsHash
 
 Each item in the path contains:
 
-* **hash**: An intermediate hash needed to recompute the next level of the tree.
-* **position**: Whether this hash sits to the `left` or `right` when combined with the previous result.
+* **hash:** An intermediate hash needed to recompute the next level of the tree.
+* **position:** Whether this hash sits to the `left` or `right` when combined with the previous result.
 
 The code converts each item into a pair of hash and boolean (`true` if the hash is on the left), to match the format
 expected by the <dy:Merkle.proveMerkle> function.
