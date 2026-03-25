@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	SymbolFacade,
 	NetworkTimestamp,
+	Address,
 	models,
 	generateNamespaceId
 } from 'symbol-sdk/symbol';
@@ -140,8 +141,8 @@ try {
 	console.log('Namespace information:');
 	console.log(
 		'  Registration type:', namespaceInfo.registrationType);
-	const ownerAddress = new models.Address(
-		Uint8Array.from(Buffer.from(namespaceInfo.ownerAddress, 'hex')));
+	const ownerAddress = Address.fromDecodedAddressHexString(
+		namespaceInfo.ownerAddress);
 	console.log('  Owner address:', ownerAddress.toString());
 	console.log('  Parent ID:', namespaceInfo.parentId);
 	console.log('  Depth:', namespaceInfo.depth);
