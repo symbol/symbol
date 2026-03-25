@@ -1,4 +1,5 @@
 type: object
+description: Array payload used to submit account addresses in Base32 format.
 properties:
   addresses:
     type: array

@@ -13,12 +13,12 @@ properties:
       - true
   currencyMosaicId:
     type: string
-    description: Mosaic id used as primary chain currency.
+    description: Mosaic ID used as primary chain currency.
     examples:
       - "0x6BED'913F'A202'23F8"
   harvestingMosaicId:
     type: string
-    description: Mosaic id used to provide harvesting ability.
+    description: Mosaic ID used to provide harvesting ability.
     examples:
       - "0x6BED'913F'A202'23F8"
   blockGenerationTargetTime:

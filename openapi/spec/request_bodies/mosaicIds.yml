@@ -1,3 +1,4 @@
+description: Request body containing mosaic identifiers.
 content:
   application/json:
     schema:

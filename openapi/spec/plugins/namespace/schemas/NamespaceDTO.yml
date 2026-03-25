@@ -1,4 +1,5 @@
 type: object
+description: State information describing a namespace and its alias configuration.
 required:
   - version
   - registrationType
@@ -16,22 +17,31 @@ properties:
     $ref: "./NamespaceRegistrationTypeEnum.yml"
   depth:
     type: integer
-    description: Level of the namespace.
+    description: |
+      Number of levels present in the namespace path.
+      This matches how many namespace ids are defined across ``level0``, ``level1``, and ``level2``.
     examples:
       - 1
   level0:
     $ref: "../../../schemas/NamespaceId.yml"
+    description: Namespace identifier of the root namespace.
   level1:
     $ref: "../../../schemas/NamespaceId.yml"
+    description: Namespace identifier of the first subnamespace level, when present.
   level2:
     $ref: "../../../schemas/NamespaceId.yml"
+    description: Namespace identifier of the second subnamespace level, when present.
   alias:
     $ref: "./AliasDTO.yml"
   parentId:
     $ref: "../../../schemas/NamespaceId.yml"
+    description: Parent namespace identifier for a subnamespace.
   ownerAddress:
     $ref: "../../../schemas/AddressHex.yml"
+    description: Address of the account that owns the namespace.
   startHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Block height at which the namespace became active.
   endHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Block height at which the namespace expires.

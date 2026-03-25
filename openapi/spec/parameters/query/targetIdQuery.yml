@@ -1,6 +1,6 @@
 name: targetId
 in: query
-description: Filter by namespace or mosaic id.
+description: Filter by namespace or mosaic ID.
 schema:
   # anyOf: MosaicId or NamespaceId
   type: string

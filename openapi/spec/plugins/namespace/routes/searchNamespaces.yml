@@ -1,7 +1,7 @@
 tags:
   - Namespace routes
 summary: Search namespaces
-description: Gets an array of namespaces.
+description: Returns a paginated list of namespaces matching the given criteria.
 operationId: searchNamespaces
 parameters:
   - $ref: "../../../parameters/query/ownerAddressQuery.yml"
@@ -14,10 +14,49 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated list of matching namespaces.
     content:
       application/json:
         schema:
           $ref: "../schemas/NamespacePage.yml"
+        examples:
+          default:
+            value:
+              data:
+                - id: "60574DD2A0A3E6414C039189"
+                  meta:
+                    index: 0
+                    active: true
+                  namespace:
+                    version: 1
+                    registrationType: 0
+                    depth: 1
+                    level0: "A95F1F8A96159516"
+                    alias:
+                      type: 0
+                    parentId: "0000000000000000"
+                    ownerAddress: "68258605CB5ABC592FE691190202CDFD6DDEE659A6BB30B8"
+                    startHeight: "1"
+                    endHeight: "18446744073709551615"
+                - id: "60574DD2A0A3E6414C03918E"
+                  meta:
+                    index: 0
+                    active: true
+                  namespace:
+                    version: 1
+                    registrationType: 1
+                    depth: 2
+                    level0: "A95F1F8A96159516"
+                    level1: "E74B99BA41F4AFEE"
+                    alias:
+                      type: 1
+                      mosaicId: "6BED913FA20223F8"
+                    parentId: "A95F1F8A96159516"
+                    ownerAddress: "68258605CB5ABC592FE691190202CDFD6DDEE659A6BB30B8"
+                    startHeight: "1"
+                    endHeight: "18446744073709551615"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "409":
     $ref : "../../../responses/InvalidArgument.yml"

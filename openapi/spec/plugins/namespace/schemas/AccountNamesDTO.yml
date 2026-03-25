@@ -1,15 +1,17 @@
 type: object
+description: Resolved namespace names linked to a specific account address.
 required:
   - address
   - names
 properties:
   address:
     $ref: "../../../schemas/AddressHex.yml"
+    description: Account address for which namespace names were resolved.
   names:
     type: array
-    description: Account linked namespace names.
-    example:
-      - alias1
-      - alias2
+    description: Namespace names currently linked to the account.
+    examples:
+      - nononon
+      - maromaro1989
     items:
       type: string

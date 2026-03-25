@@ -1,11 +1,12 @@
 type: object
+description: Paginated list of mosaic information objects.
 required:
   - data
   - pagination
 properties:
   data:
     type: array
-    description: Array of mosaics.
+    description: Array of mosaic information objects.
     items:
       $ref: "./MosaicInfoDTO.yml"
   pagination:

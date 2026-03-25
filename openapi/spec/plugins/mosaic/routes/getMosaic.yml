@@ -1,17 +1,33 @@
 tags:
   - Mosaic routes
 summary: Get mosaic information
-description: Gets the mosaic definition for a given mosaic identifier.
+description: |
+  Retrieves the current on-chain state for a mosaic.
+  The response includes the mosaic definition, such as supply, divisibility, owner address, duration, and behavior flags.
 operationId: getMosaic
 parameters:
   - $ref: "../../../parameters/path/mosaicIdPath.yml"
 responses:
   "200":
-    description: success
+    description: Mosaic information successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/MosaicInfoDTO.yml"
+        examples:
+          default:
+            value:
+              id: "69B7F98B80B1371126C487FF"
+              mosaic:
+                version: 1
+                id: "0369A2A323F891F6"
+                supply: "100"
+                startHeight: "5252662"
+                ownerAddress: "6885AAC78AD47CC9D9B57532C9F1C627CC032164E8EF2992"
+                revision: 1
+                flags: 2
+                divisibility: 0
+                duration: "0"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

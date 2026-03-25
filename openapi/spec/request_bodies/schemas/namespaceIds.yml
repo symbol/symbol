@@ -1,4 +1,5 @@
 type: object
+description: Array payload used to submit namespace identifiers.
 properties:
   namespaceIds:
     type: array

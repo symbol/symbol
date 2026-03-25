@@ -7,7 +7,7 @@ properties:
     $ref: "./AccountRestrictionFlagsEnum.yml"
   values:
     type: array
-    description: Address, mosaic id, or transaction type to restrict.
+    description: Address, mosaic ID, or transaction type to restrict.
     items:
       anyOf:
         - $ref: "../../../schemas/UnresolvedAddress.yml"
