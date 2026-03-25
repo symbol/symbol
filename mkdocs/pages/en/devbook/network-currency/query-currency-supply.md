@@ -46,7 +46,7 @@ Each supply value is available through a dedicated endpoint:
     [mosaic rental](../../textbook/mosaics.md#lease-fee), and [namespace rental](../../textbook/namespaces.md#lease-fee)
     fees.
 
-All three endpoints return a plain-text number (not JSON), already expressed in relative units with decimal places
+All three endpoints return a plain-text number (not JSON), already expressed in whole units with decimal places
 (e.g. `8999999999.000000`), not in <divisibility:|atomic> units.
 
 !!! warning "Circulating supply is node-dependent"
