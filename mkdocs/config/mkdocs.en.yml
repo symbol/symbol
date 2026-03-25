@@ -119,6 +119,8 @@ nav:
               - devbook/mosaics/mosaic-metadata.md
               - devbook/mosaics/revoke-mosaic.md
               - devbook/mosaics/mosaic-restrictions.md
+          - Network Currency:
+              - devbook/network-currency/query-currency-supply.md
           - Chain State:
               - devbook/chain/chain-heights.md
               - devbook/chain/prove-transaction.md
