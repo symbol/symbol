@@ -67,7 +67,7 @@ try:
 				if source['primaryId'] <= tx_primary:
 					resolved = entry['resolved']
 			if resolved:
-				address = Address(bytes.fromhex(resolved))
+				address = Address.from_decoded_address_hex_string(resolved)
 				print('\nAddress resolution:')
 				print(f'  Unresolved:  {statement["unresolved"]}')
 				print(f'  Resolved:   {address}')

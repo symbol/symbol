@@ -46,7 +46,7 @@ see [Registering a Root Namespace](./register-root-namespace.md).
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:48:67', 'js:45:65']) }}
+{{ tutorial.code_snippet(['py:48:67', 'js:46:66']) }}
 
 The main difference when registering a subnamespace is in the transaction descriptor:
 
@@ -88,7 +88,7 @@ The transaction is then signed, announced, and confirmed following the same proc
 
 ### Retrieving the Subnamespace
 
-{{ tutorial.code_snippet(['py:110:136', 'js:125:157']) }}
+{{ tutorial.code_snippet(['py:110:135', 'js:126:158']) }}
 
 To verify the subnamespace was registered, the code retrieves it from the network
 using the <get:/namespaces/{namespaceId}> endpoint and displays its properties.

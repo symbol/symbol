@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	SymbolFacade,
 	NetworkTimestamp,
+	Address,
 	models,
 	generateNamespacePath,
 	generateMosaicAliasId
@@ -139,9 +140,8 @@ try {
 	console.log('Alias information:');
 	console.log('  Alias type:', namespaceInfo.alias.type);
 	if (namespaceInfo.alias.type === 2) { // ADDRESS type
-		const aliasedAddress = new models.Address(
-			Uint8Array.from(Buffer.from(
-				namespaceInfo.alias.address, 'hex')));
+		const aliasedAddress = Address.fromDecodedAddressHexString(
+			namespaceInfo.alias.address);
 		console.log('  Linked address:', aliasedAddress.toString());
 	}
 

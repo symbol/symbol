@@ -38,7 +38,7 @@ transactions are announced and confirmed.
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:17:25', 'js:13:21']) }}
+{{ tutorial.code_snippet(['py:17:25', 'js:14:22']) }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -47,14 +47,14 @@ This account will own the registered namespace.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:28:46', 'js:24:43']) }}
+{{ tutorial.code_snippet(['py:28:46', 'js:25:44']) }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:48:60', 'js:45:57']) }}
+{{ tutorial.code_snippet(['py:48:60', 'js:46:58']) }}
 
 The namespace registration transaction specifies:
 
@@ -88,19 +88,19 @@ The namespace registration transaction specifies:
 
 ### Submitting the Transaction
 
-{{ tutorial.code_snippet(['py:62:81', 'js:59:79']) }}
+{{ tutorial.code_snippet(['py:62:81', 'js:60:80']) }}
 
 The transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:83:101', 'js:81:115']) }}
+{{ tutorial.code_snippet(['py:83:101', 'js:82:116']) }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Retrieving the Namespace
 
-{{ tutorial.code_snippet(['py:103:120', 'js:117:138']) }}
+{{ tutorial.code_snippet(['py:103:119', 'js:118:139']) }}
 
 To verify the namespace was registered, the code retrieves it from the network
 using the <get:/namespaces/{namespaceId}> endpoint and displays its properties.

@@ -89,7 +89,7 @@ Each resolution statement contains:
 * **Unresolved:** The namespace alias (encoded as an address) that was used in the transaction.
 * **Resolution entries:** An array mapping the alias to the actual address at the time of confirmation.
 
-{{ tutorial.code_snippet(['py:60:73', 'js:59:78']) }}
+{{ tutorial.code_snippet(['py:60:73', 'js:59:77']) }}
 
 The endpoint returns all address resolution statements for the block.
 The code skips any statement whose `unresolved` field does not match the transaction's `recipientAddress`,
@@ -113,7 +113,7 @@ even if the alias was defined multiple times in the same block.
 
 ### Querying Mosaic Resolution Statements
 
-{{ tutorial.code_snippet(['py:76:99', 'js:81:110']) }}
+{{ tutorial.code_snippet(['py:76:99', 'js:80:109']) }}
 
 The same transaction also used `symbol.xym` as a mosaic alias instead of a raw mosaic ID.
 The code queries the <get:/statements/resolutions/mosaic> endpoint with the same block height to retrieve

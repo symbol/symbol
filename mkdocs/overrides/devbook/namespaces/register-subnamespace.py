@@ -121,8 +121,8 @@ try:
 		print('Namespace information:')
 		reg_type = namespace_info["registrationType"]
 		print(f'  Registration type: {reg_type}')
-		owner_address_hex = bytes.fromhex(namespace_info["ownerAddress"])
-		owner_address = Address(owner_address_hex)
+		owner_address = Address.from_decoded_address_hex_string(
+			namespace_info["ownerAddress"])
 		print(f'  Owner address: {owner_address}')
 		print(f'  Parent ID: {namespace_info["parentId"]}')
 		print(f'  Depth: {namespace_info["depth"]}')
