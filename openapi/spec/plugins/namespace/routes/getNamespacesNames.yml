@@ -1,20 +1,39 @@
 tags:
   - Namespace routes
 summary: Get readable names for a set of namespaces
-description: Returns friendly names for namespaces.
+description: |
+  Resolves human-readable namespace names for namespace identifiers.
+
+  Submit an array of namespace identifiers in the request body. For each matching
+  identifier, the response returns the namespace name. When a matching identifier is
+  a subnamespace, the response will also include its parent namespace entry and parent
+  namespace identifier. Identifiers that cannot be resolved are omitted from the
+  response.
 operationId: getNamespacesNames
 requestBody:
   $ref: "../../../request_bodies/namespaceIds.yml"
 responses:
   "200":
-    description: success
+    description: Namespace names successfully resolved.
     content:
       application/json:
         schema:
           type: array
-          description: Array of namespace names.
+          description: Array of resolved namespace name entries.
           items:
             $ref: "../schemas/NamespaceNameDTO.yml"
+        examples:
+          subnamespaceWithParent:
+            value:
+              - id: "E74B99BA41F4AFEE"
+                name: "xym"
+                parentId: "A95F1F8A96159516"
+              - id: "A95F1F8A96159516"
+                name: "symbol"
+          rootNamespace:
+            value:
+              - id: "A95F1F8A96159516"
+                name: "symbol"
   "400":
     $ref : "../../../responses/InvalidContent.yml"
   "409":

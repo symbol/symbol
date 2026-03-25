@@ -3,7 +3,13 @@ enum:
   - 0
   - 1
 description: |
-  Type of namespace:
-  * 0 - Root namespace.
-  * 1 - Subnamespace.
-example: 0
+  Type of namespace registration.
+  A namespace can either be registered as a top-level root namespace or as a
+  subnamespace under an existing parent namespace.
+
+  - `0`: Root namespace. The namespace has no parent and defines the first level of
+    the namespace path.
+  - `1`: Subnamespace. The namespace is registered under an existing parent
+    namespace and extends the namespace path by one level.
+examples:
+  - 0

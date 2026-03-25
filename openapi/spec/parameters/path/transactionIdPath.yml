@@ -1,6 +1,6 @@
 name: transactionId
 in: path
-description: Transaction id or hash.
+description: Transaction ID or hash.
 required: true
 schema:
   type: string

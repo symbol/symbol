@@ -1,5 +1,9 @@
 name: aliasType
 in: query
-description: Filter by alias type.
+description: |
+  Filter by alias type.
+  - 0: Namespace has no alias.
+  - 1: Namespace is linked to a mosaic ID.
+  - 2: Namespace is linked to an address.
 schema:
   $ref: "../../plugins/namespace/schemas/AliasTypeEnum.yml"

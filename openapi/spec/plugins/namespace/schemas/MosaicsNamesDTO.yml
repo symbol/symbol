@@ -1,9 +1,13 @@
 type: object
+description: |
+  Collection of namespace name resolution results for mosaic identifiers.
+  The response contains one entry per requested mosaic identifier and preserves the
+  request order.
 required:
   - mosaicNames
 properties:
   mosaicNames:
     type: array
-    description: Array of mosaic names.
+    description: Array of namespace name entries resolved for the requested mosaic identifiers in request order.
     items:
       $ref: "./MosaicNamesDTO.yml"

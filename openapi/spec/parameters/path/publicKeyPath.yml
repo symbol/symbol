@@ -1,6 +1,0 @@
-name: publicKey
-in: path
-description: Account public key.
-required: true
-schema:
-  $ref: "../../schemas/PublicKey.yml"

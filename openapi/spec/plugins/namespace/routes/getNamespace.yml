@@ -1,17 +1,35 @@
 tags:
   - Namespace routes
 summary: Get namespace information
-description: Gets the namespace for a given namespace identifier.
+description: Retrieves the current on-chain state for a namespace.
 operationId: getNamespace
 parameters:
   - $ref: "../../../parameters/path/namespaceIdPath.yml"
 responses:
   "200":
-    description: success
+    description: Namespace information successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/NamespaceInfoDTO.yml"
+        examples:
+          default:
+            value:
+              id: "60574DD2A0A3E6414C039189"
+              meta:
+                index: 0
+                active: true
+              namespace:
+                version: 1
+                registrationType: 0
+                depth: 1
+                level0: "A95F1F8A96159516"
+                alias:
+                  type: 0
+                parentId: "0000000000000000"
+                ownerAddress: "68258605CB5ABC592FE691190202CDFD6DDEE659A6BB30B8"
+                startHeight: "1"
+                endHeight: "18446744073709551615"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

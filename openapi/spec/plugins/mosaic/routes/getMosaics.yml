@@ -1,18 +1,22 @@
 tags:
   - Mosaic routes
 summary: Get mosaics information for an array of mosaics
-description: Gets an array of mosaic definition.
+description: |
+  Retrieves the current on-chain state for multiple mosaics.
+  The response includes only mosaics that were found, so its length can be smaller
+  than the number of requested identifiers. Response entries are not guaranteed to
+  preserve the order of the requested identifiers.
 operationId: getMosaics
 requestBody:
   $ref: "../../../request_bodies/mosaicIds.yml"
 responses:
   "200":
-    description: success
+    description: Mosaic information successfully retrieved.
     content:
       application/json:
         schema:
           type: array
-          description: Array of mosaics information.
+          description: Array of found mosaic information objects in server-defined order.
           items:
             $ref: "../schemas/MosaicInfoDTO.yml"
   "400":

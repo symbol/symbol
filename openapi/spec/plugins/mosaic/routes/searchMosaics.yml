@@ -1,7 +1,9 @@
 tags:
   - Mosaic routes
 summary: Search mosaics
-description: Gets an array of mosaics.
+description: |
+  Returns a paginated list of mosaics matching the given criteria.
+  Results can be filtered by mosaic owner address. Standard pagination parameters apply.
 operationId: searchMosaics
 parameters:
   - $ref: "../../../parameters/query/ownerAddressQuery.yml"
@@ -11,10 +13,39 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated list of matching mosaics.
     content:
       application/json:
         schema:
           $ref: "../schemas/MosaicPage.yml"
+        examples:
+          default:
+            value:
+              data:
+                - id: "60574DD2FC6BD03EE3C3F22F"
+                  mosaic:
+                    version: 1
+                    id: "6BED913FA20223F8"
+                    supply: "8519943085765488"
+                    startHeight: "1"
+                    ownerAddress: "68258605CB5ABC592FE691190202CDFD6DDEE659A6BB30B8"
+                    revision: 1
+                    flags: 2
+                    divisibility: 6
+                    duration: "0"
+                - id: "60574DDCFC6BD03EE3C3F536"
+                  mosaic:
+                    version: 1
+                    id: "63078E73FBCC2CAC"
+                    supply: "3800000"
+                    startHeight: "117"
+                    ownerAddress: "6854F763D03307D0281EFC4BB3B4926316F9AEE74EB63EE8"
+                    revision: 1
+                    flags: 3
+                    divisibility: 0
+                    duration: "0"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "409":
     $ref : "../../../responses/InvalidArgument.yml"

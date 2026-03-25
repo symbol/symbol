@@ -1,5 +1,8 @@
 name: registrationType
 in: query
-description: Filter by registration type.
+description: |
+  Filter by namespace registration type.
+  - 0: Root namespace.
+  - 1: Subnamespace.
 schema:
   $ref: "../../plugins/namespace/schemas/NamespaceRegistrationTypeEnum.yml"
