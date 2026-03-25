@@ -4,7 +4,7 @@ summary: Search accounts
 description: |
   Returns a paginated list of accounts matching the given criteria.
 
-  Results can be filtered by account address and mosaic ownership, and ordered by id or balance.
+  Results can be filtered by account address and mosaic ownership, and ordered by ID or balance.
   Standard pagination parameters (``pageSize``, ``pageNumber``, ``offset``, ``order``) apply.
   The ``orderBy`` parameter supports ``id`` and ``balance``; when using ``orderBy=balance``,
   the ``mosaicId`` filter is required. The ``offset`` value must match the ``orderBy`` field.

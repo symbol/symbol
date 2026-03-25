@@ -1,3 +1,4 @@
+description: Request body containing namespace identifiers.
 content:
   application/json:
     schema:

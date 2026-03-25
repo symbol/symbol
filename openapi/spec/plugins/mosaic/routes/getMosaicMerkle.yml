@@ -1,13 +1,18 @@
 tags:
   - Mosaic routes
 summary: Get mosaic Merkle information
-description: Gets the mosaic definition Merkle for a given mosaic identifier.
+description: |
+  Returns the Merkle state proof for a mosaic.
+
+  Clients can use this information to verify that the mosaic state is included in the node's state Merkle tree.
+  See [Data Validation](https://docs.symbol.dev/concepts/data-validation.html) for an overview of Patricia Merkle
+  trees and state proofs on Symbol.
 operationId: getMosaicMerkle
 parameters:
   - $ref: "../../../parameters/path/mosaicIdPath.yml"
 responses:
   "200":
-    description: success
+    description: Mosaic Merkle information successfully retrieved.
     content:
       application/json:
         schema:

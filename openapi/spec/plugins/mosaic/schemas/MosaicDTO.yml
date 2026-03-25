@@ -1,4 +1,5 @@
 type: object
+description: State information describing a mosaic definition.
 required:
   - version
   - id
@@ -16,22 +17,24 @@ properties:
     $ref: "../../../schemas/MosaicId.yml"
   supply:
     $ref: "../../../schemas/Amount.yml"
+    description: Current total supply of the mosaic, expressed in the smallest (atomic) unit.
   startHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Block height at which the mosaic became active.
   ownerAddress:
     $ref: "../../../schemas/AddressHex.yml"
+    description: Address of the account that created the mosaic.
   revision:
     $ref: "../../../schemas/UInt32.yml"
-    description: Number of definitions for the same mosaic.
+    description: |
+      Revision number of the mosaic definition.
+      Starts at 1 when the mosaic is created and increments each time the same mosaic definition is modified.
     examples:
       - 1
   flags:
     $ref: "./MosaicFlagsEnum.yml"
   divisibility:
-    type : integer
-    description: |
-      Determines up to what decimal place the mosaic can be divided.
-      Divisibility of 3 means that a mosaic can be divided into smallest parts of 0.001 mosaics.
-      The divisibility must be in the range of 0 and 6.
+    $ref: "../../../schemas/Divisibility.yml"
   duration:
     $ref: "../../../schemas/BlockDuration.yml"
+    description: Duration of the mosaic in blocks. A value of 0 indicates a non-expiring mosaic.

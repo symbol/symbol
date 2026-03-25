@@ -1,6 +1,6 @@
 name: mosaicId
 in: path
-description: Mosaic identifier.
+description: Mosaic identifier encoded as a 16-character hexadecimal string.
 required: true
 schema:
   $ref: "../../schemas/MosaicId.yml"

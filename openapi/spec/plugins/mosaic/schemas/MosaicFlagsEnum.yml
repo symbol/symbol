@@ -1,9 +1,16 @@
 type: integer
 description: |
-  - 0x00 (none) - No flags present.
-  - 0x01 (supplyMutable) - Mosaic supports supply changes even when mosaic
-    owner owns partial supply.
-  - 0x02 (transferable) - Mosaic supports transfers between arbitrary accounts.
-    When not set, mosaic can only be transferred to and from mosaic owner.
-  - 0x04 (restrictable) - Mosaic supports custom restrictions configured by mosaic owner.
-  - 0x08 (revokable) - Mosaic allows creator to revoke balances from another user.
+  Mosaic flags bitmask. Individual values can be combined.
+  - 0x00 (0 decimal): No flags present.
+  - 0x01 (1 decimal, `supplyMutable`): Mosaic supply can be increased or decreased later.
+  - 0x02 (2 decimal, `transferable`): Mosaic can be transferred between arbitrary accounts.
+    When not set, it can only be transferred to and from the mosaic owner.
+  - 0x04 (4 decimal, `restrictable`): Mosaic supports custom restrictions configured by the mosaic owner.
+  - 0x08 (8 decimal, `revokable`): Mosaic creator can revoke balances from another account.
+  
+  Example: `3` means `0x01 + 0x02`, so the mosaic is both `supplyMutable` and `transferable`.
+examples:
+  - 0
+  - 2
+  - 3
+  - 12

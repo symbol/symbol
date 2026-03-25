@@ -1,6 +1,0 @@
-name: sourceAddress
-in: path
-description: Account address.
-required: true
-schema:
-  $ref: "../../schemas/Address.yml"

@@ -1,13 +1,17 @@
 type: object
+description: Resolved human-readable name for a namespace identifier.
 required:
   - id
   - name
 properties:
   parentId:
     $ref: "../../../schemas/NamespaceId.yml"
+    description: Parent namespace identifier when the resolved namespace is a subnamespace.
   id:
     $ref: "../../../schemas/NamespaceId.yml"
+    description: Namespace identifier that was resolved.
   name:
     type: string
-    description: Namespace name.
-    example: cat
+    description: Human-readable namespace name.
+    examples:
+      - cat

@@ -1,14 +1,19 @@
 type: object
+description: |
+  Resolved namespace names linked to a specific mosaic identifier.
+  An empty ``names`` array means no namespace aliases were resolved for that
+  identifier.
 required:
   - mosaicId
   - names
 properties:
   mosaicId:
     $ref: "../../../schemas/MosaicId.yml"
+    description: Mosaic identifier for which namespace names were resolved.
   names:
     type: array
-    description: Mosaic linked namespace names.
-    example:
+    description: Namespace names currently linked to the mosaic identifier.
+    examples:
       - symbol.xym
     items:
       type: string

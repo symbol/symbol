@@ -1,4 +1,5 @@
 type: object
+description: Namespace information including an internal resource identifier, metadata, and the full namespace state.
 required:
   - id
   - meta

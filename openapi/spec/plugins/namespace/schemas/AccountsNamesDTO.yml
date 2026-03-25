@@ -1,10 +1,10 @@
 type: object
+description: Collection of namespace name resolution results for account addresses.
 required:
   - accountNames
 properties:
   accountNames:
     type: array
-    description: Array of account names.
+    description: Array of namespace name entries resolved for the requested account addresses.
     items:
-
       $ref: "./AccountNamesDTO.yml"

@@ -1,4 +1,5 @@
 type: object
+description: Array payload used to submit mosaic identifiers.
 properties:
   mosaicIds:
     type: array

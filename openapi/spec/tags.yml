@@ -85,8 +85,44 @@
     signatures from the voter set.
 - name: Metadata routes
 - name: Mosaic routes
+  description: |
+    [Mosaics](https://docs.symbol.dev/concepts/mosaic.html) are customizable blockchain assets on Symbol.
+    A mosaic definition specifies its unique identifier, total supply, divisibility, owner, duration, and behavior flags.
+
+    - `Mosaic ID`: unique identifier of a mosaic on Symbol.
+    - `Mosaic definition`: on-chain state that describes the mosaic supply, divisibility, owner, duration, and flags.
+    - `Supply`: total number of mosaic units in existence, expressed in the smallest indivisible / atomic unit.
+    - `Divisibility`: number of decimal places supported by the mosaic, from 0 to 6.
+    - `Duration`: number of blocks for which the mosaic remains active. A value of `0` means the mosaic does not expire.
+    - `Flags`: behavior settings that control supply mutability, transferability, restrictability, and revocability.
+    - `Alias`: namespace alias that can be used to refer to the mosaic instead of its raw mosaic ID.
+
+    The behavior flags determine whether the mosaic supply can change, whether it can be transferred between arbitrary
+    accounts, whether custom restrictions can be applied, and whether the creator can revoke balances from holders.
+
+    Mosaic endpoints return mosaic definitions, paginated mosaic collections, and Merkle proofs for mosaic state.
 - name: Multisig routes
 - name: Namespace routes
+  description: |
+    [Namespaces](https://docs.symbol.dev/concepts/namespace.html) are human-readable names that can represent accounts,
+    mosaics, or hierarchical naming paths on Symbol. A namespace can be either a **root namespace** or a
+    **subnamespace**, and each level is identified by its own namespace id.
+
+    - `Fully-qualified namespace name`: full dot-separated namespace path, for example `symbol.xym`.
+    - `Root namespace`: top-level namespace with no parent.
+    - `Subnamespace`: child namespace registered under another namespace.
+    - `Parent namespace`: direct namespace above a subnamespace in the hierarchy.
+    - `Duration`: number of blocks for which the namespace remains active, represented by its lifetime on-chain.
+    - `Alias`: link from a namespace to an account address or mosaic ID.
+    - `Namespace id`: unique identifier derived from the namespace path and level.
+    - `Active namespace`: namespace whose lifetime includes the current chain height.
+
+    Namespaces can be linked as aliases to an account address or a mosaic ID, making on-chain identifiers easier for
+    humans to recognize. Namespace state also tracks owner, lifetime, hierarchy depth, and whether the namespace is
+    currently active.
+
+    Namespace endpoints return namespace information, alias name resolution for accounts and mosaics, paginated
+    namespace collections, and Merkle proofs for namespace state.
 - name: Network routes
   description: |
     Network endpoints expose configuration and economic parameters of the Symbol blockchain.

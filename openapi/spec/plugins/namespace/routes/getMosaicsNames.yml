@@ -1,17 +1,32 @@
 tags:
   - Namespace routes
 summary: Get readable names for a set of mosaics
-description: Returns friendly names for mosaics.
+description: |
+  Resolves namespace names linked to mosaic identifiers.
+
+  Submit an array of mosaic identifiers in the request body. For each requested
+  mosaic identifier, the response returns one entry in the same order as the request.
+  Each entry contains the namespace names currently linked to that identifier. An
+  empty ``names`` array means no namespace aliases were resolved for that identifier.
 operationId: getMosaicsNames
 requestBody:
   $ref: "../../../request_bodies/mosaicIds.yml"
 responses:
   "200":
-    description: success
+    description: Mosaic names successfully resolved.
     content:
       application/json:
         schema:
           $ref: "../schemas/MosaicsNamesDTO.yml"
+        examples:
+          default:
+            value:
+              mosaicNames:
+                - mosaicId: "6BED913FA20223F8"
+                  names:
+                    - "symbol.xym"
+                - mosaicId: "0DC67FBE1CAD29E3"
+                  names: []
   "400":
     $ref : "../../../responses/InvalidContent.yml"
   "409":
