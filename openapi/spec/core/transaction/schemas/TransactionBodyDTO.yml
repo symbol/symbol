@@ -6,4 +6,4 @@ properties:
   maxFee:
     $ref: "../../../schemas/Amount.yml"
   deadline:
-    $ref: "../../../schemas/BlockDuration.yml"
+    $ref: "../../../schemas/Timestamp.yml"

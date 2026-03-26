@@ -13,7 +13,7 @@ properties:
     type: integer
     minimum: 0
     description: |
-      Internal namespace index used by the backend and Mongo storage to identify and order historical 
-      namespace entries. This value is returned for informational purposes only. 
+      Internal namespace index used by the backend and Mongo storage to identify and order historical
+      namespace entries. This value is returned for informational purposes only.
       API clients should not use it as a pagination cursor; use the standard pagination query parameters (`pageSize`,
       `pageNumber`, `offset`, `order`) instead.

@@ -10,8 +10,7 @@ properties:
   aggregateHash:
     $ref: "../../../schemas/Hash256.yml"
   aggregateId:
-    type: string
-    description: Identifier of the aggregate transaction.
+    $ref: "../../../schemas/ObjectId.yml"
   index:
     type: integer
     description: Transaction index within the aggregate.

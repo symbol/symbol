@@ -1,4 +1,4 @@
 type: string
-format: hex
-description: Restriction key.
-example: 0DC67FBE1CAD29E3
+description: Restriction key returned in stored restriction entries, represented as a decimal string.
+examples:
+  - "790526"

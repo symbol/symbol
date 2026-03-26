@@ -1,5 +1,5 @@
 name: artifactId
 in: query
-description: Mosaic or namespace identifier
+description: Filter by artifact (mosaic or namespace) identifier.
 schema:
   type: string

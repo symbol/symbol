@@ -1,11 +1,12 @@
 type: object
+description: Paginated response containing hash lock entries.
 required:
   - data
   - pagination
 properties:
   data:
     type: array
-    description: Array of hash locks.
+    description: Hash lock entries matching the requested filters.
     items:
       $ref: "./HashLockInfoDTO.yml"
   pagination:

@@ -1,3 +1,10 @@
 type: string
 format: hex
-description: Metadata value. If embedded in a transaction, this is calculated as xor(previous-value, value).
+description: |
+  Metadata value encoded as hex.
+  In metadata transactions, this field contains the new value when no previous value exists.
+  When updating existing metadata, it contains the byte-wise XOR of the previous value and the new value.
+examples:
+  - "333433383334"
+  - "3644363137323642373537333230373337393644363236463643323037303631373237343739"
+  - "3438363537393245"

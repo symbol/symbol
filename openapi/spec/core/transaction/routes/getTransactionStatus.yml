@@ -1,17 +1,31 @@
 tags:
   - Transaction status routes
 summary: Get transaction status
-description: Returns the transaction status for a given hash.
+description: |
+  Returns the current status of the transaction identified by the given transaction hash.
+
+  When checking status after announcing a transaction, it is best to query the same node that received
+  the announce request. If that node rejects the transaction before propagation, only that node may know
+  the detailed rejection reason. Other nodes may not know the transaction at all because it was never propagated.
 operationId: getTransactionStatus
 parameters:
   - $ref: "../../../parameters/path/transactionHashPath.yml"
 responses:
   "200":
-    description: success
+    description: Transaction status successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/TransactionStatusDTO.yml"
+        examples:
+          default:
+            summary: Confirmed transaction status example
+            value:
+              group: "confirmed"
+              code: "Success"
+              hash: "8EF4E8BB3D4F4741D5C4A692E82D3ED197005DF200C2D3C57B00AAD090D0ECF7"
+              deadline: "158608182197"
+              height: "5278957"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

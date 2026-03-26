@@ -1,8 +1,9 @@
 type: object
 required:
   - timestamp
-description: Metadata related to the statment, including block information.
+description: Metadata for a statement containing the block timestamp when it was recorded.
 properties:
   timestamp:
     $ref: "../../../schemas/Timestamp.yml"
+    description: Block timestamp in milliseconds since nemesis block when the statement was recorded.
 

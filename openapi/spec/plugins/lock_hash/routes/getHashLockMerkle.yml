@@ -1,16 +1,41 @@
 tags:
   - Hash Lock routes
 summary: Get hash lock Merkle information
-description: Gets the hash lock Merkle for a given hash.
+description: Returns the state Merkle proof for the hash lock entry associated with the given aggregate bonded transaction hash.
 operationId: getHashLockMerkle
 parameters:
   - $ref: "../../../parameters/path/hashPath.yml"
 responses:
   "200":
-    description: success
+    description: Merkle proof for the hash lock entry successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+        examples:
+          default:
+            summary: Hash lock Merkle state proof example
+            value:
+              raw: 0000FFFF644E8433278BF93C2884FD895E2EE6ECCFB0C42C0E80AA3A762D1CFB...
+              tree:
+                - type: 0
+                  path: ""
+                  encodedPath: "00"
+                  nibbleCount: 0
+                  linkMask: "FFFF"
+                  links:
+                    - bit: "0"
+                      link: "644E8433278BF93C2884FD895E2EE6ECCFB0C42C0E80AA3A762D1CFB5DAC5115"
+                    - bit: "A"
+                      link: "C68CBC18285D6330C6F4DE4F78A1103FFF2B5077D2BE71B46A37A558D19C4D23"
+                    - bit: "F"
+                      link: "5B6FCF527CAC1DE69BA0FC6EC9403E1891A136B80DD67CBE0DF615E6665B5A03"
+                  branchHash: "4BC8081155A51C0288EE58AF84050AB18B3712695489FEC0741C4C2606F8C861"
+                - type: 255
+                  path: "793E37E8616665E4E5DA0CAF388172AB754CEE17FE702019228A996084F6E7"
+                  encodedPath: "20793E37E8616665E4E5DA0CAF388172AB754CEE17FE702019228A996084F6E7"
+                  nibbleCount: 62
+                  value: "F48F12376B7C72F97E1533DE6DDB6F957DAB4F9031F959261AA2C5B655C864AA"
+                  leafHash: "85AA375FCF9F46F82E71126195A6DA0C0DD2F00378C16C7B986C5DDDA15192C6"
   "409":
     $ref : "../../../responses/InvalidArgument.yml"

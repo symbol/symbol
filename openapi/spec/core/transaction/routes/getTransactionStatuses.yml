@@ -1,20 +1,39 @@
 tags:
   - Transaction status routes
 summary: Get transaction statuses
-description: Returns an array of transaction statuses for a given array of transaction hashes.
+description: |
+  Returns the current statuses of the transactions identified by the given array of transaction hashes.
+
+  When checking status after announcing transactions, it is best to query the same node that received
+  the announce request. If that node rejects a transaction before propagation, only that node may know
+  the detailed rejection reason. Other nodes may not know the transaction at all because it was never propagated.
 operationId: getTransactionStatuses
 requestBody:
   $ref: "../../../request_bodies/transactionHashes.yml"
 responses:
   "200":
-    description: success
+    description: Transaction statuses successfully retrieved.
     content:
       application/json:
         schema:
           type: array
-          description: Array of transactions status.
+          description: Transaction statuses matching the requested transaction hashes.
           items:
             $ref: "../schemas/TransactionStatusDTO.yml"
+        examples:
+          default:
+            summary: Batch transaction status example
+            value:
+              - group: "confirmed"
+                code: "Success"
+                hash: "8EF4E8BB3D4F4741D5C4A692E82D3ED197005DF200C2D3C57B00AAD090D0ECF7"
+                deadline: "158608182197"
+                height: "5278957"
+              - group: "confirmed"
+                code: "Success"
+                hash: "F72BFE1424297A026EB36B07DFDA6AD2D8EC62F0095312EF31A8089E2A007B59"
+                deadline: "158608138564"
+                height: "5278956"
   "400":
     $ref: "../../../responses/InvalidContent.yml"
   "409":

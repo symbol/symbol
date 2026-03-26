@@ -1,10 +1,11 @@
 type: object
+description: Base fields shared by all receipt types.
 required:
   - version
   - type
 properties:
   version:
     type: integer
-    description: Version of the receipt.
+    description: Version of the receipt format.
   type:
     $ref: "./ReceiptTypeEnum.yml"

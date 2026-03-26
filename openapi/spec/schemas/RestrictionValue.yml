@@ -1,3 +1,5 @@
 type: string
-description: Restriction value.
-example: 1000
+description: |
+  Numeric value assigned to a mosaic restriction, represented as a decimal string.
+examples:
+  - "1000"

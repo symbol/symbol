@@ -1,11 +1,14 @@
 type: object
+description: One resolved value for an unresolved alias and transaction source.
 required:
   - source
   - resolved
 properties:
   source:
     $ref: "./SourceDTO.yml"
+    description: Transaction source for which the unresolved alias resolved to this value.
   resolved:
     anyOf:
       - $ref: "../../../schemas/AddressHex.yml"
       - $ref: "../../../schemas/MosaicId.yml"
+    description: Concrete address or mosaic ID resolved from the alias for this source.

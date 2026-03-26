@@ -1,4 +1,5 @@
 type: object
+description: Transaction statement containing receipts emitted by a transaction source at a given block height.
 required:
   - height
   - source
@@ -6,11 +7,12 @@ required:
 properties:
   height:
     $ref: "../../../schemas/Height.yml"
+    description: Height of the block that contains the statement.
   source:
     $ref: "./SourceDTO.yml"
   receipts:
     type: array
-    description: Array of receipts.
+    description: Receipts emitted by the transaction source.
     items:
       anyOf:
         - $ref: "./BalanceTransferReceiptDTO.yml"

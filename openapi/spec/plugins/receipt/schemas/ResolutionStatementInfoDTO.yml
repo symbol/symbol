@@ -4,8 +4,7 @@ required:
   - meta
   - statement
 description: |
-  A resolution statement keeps the relation between a namespace alias used in a transaction
-  and the real address or mosaicId.
+  Wrapper object containing one resolution statement and its metadata.
 properties:
   id:
     $ref: "../../../schemas/ObjectId.yml"
