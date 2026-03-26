@@ -8,7 +8,7 @@ This tutorial shows how to retrieve a <namespace:>'s properties and the <mosaic:
 
 ## Prerequisites
 
-This tutorial only reads data from the network. No <account:> is required.
+This tutorial only reads data from the network. No account is required.
 
 Before you start, make sure to [set up your development environment](../start/setup.md).
 
