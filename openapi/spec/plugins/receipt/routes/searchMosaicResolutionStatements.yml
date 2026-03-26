@@ -1,7 +1,12 @@
 tags:
   - Receipt routes
-summary: Get receipts mosaic resolution statements
-description: Gets an array of mosaic resolution statements.
+summary: Search mosaic resolution statements
+description: |
+  Returns a paginated list of mosaic resolution statements.
+  These statements record how an unresolved mosaic alias used in a transaction was resolved to
+  a concrete mosaic ID at a given block height.
+  A statement can contain multiple resolution entries because alias resolution may differ by
+  transaction source within the same block.
 operationId: searchMosaicResolutionStatements
 parameters:
   - $ref: "../../../parameters/query/heightQuery.yml"
@@ -16,6 +21,25 @@ responses:
       application/json:
         schema:
           $ref: "../schemas/ResolutionStatementPage.yml"
+        examples:
+          default:
+            summary: Mosaic resolution statement example
+            value:
+              data:
+                - statement:
+                    height: "5278141"
+                    unresolved: "E74B99BA41F4AFEE"
+                    resolutionEntries:
+                      - source:
+                          primaryId: 1
+                          secondaryId: 0
+                        resolved: "6BED913FA20223F8"
+                  id: "69C3A6057A00AE05231CB3C0"
+                  meta:
+                    timestamp: "158576521276"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

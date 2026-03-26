@@ -1,16 +1,29 @@
 tags:
   - Hash Lock routes
 summary: Get hash lock information
-description: Gets the hash lock for a given hash.
+description: Returns the hash lock entry associated with the given aggregate bonded transaction hash.
 operationId: getHashLock
 parameters:
   - $ref: "../../../parameters/path/hashPath.yml"
 responses:
   "200":
-    description: success
+    description: Hash lock entry successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/HashLockInfoDTO.yml"
+        examples:
+          default:
+            summary: Hash lock entry example
+            value:
+              lock:
+                version: 1
+                ownerAddress: "98F003E1C174E04338C5D436BC7AFB8866A03C0FD7B226E6"
+                mosaicId: "72C0212E67A08BCE"
+                amount: "10000000"
+                endHeight: "1946240"
+                status: 1
+                hash: "E864E2CC4345D1A8CBB05FDCE87F6500D7F1FE557856CB06990CFC82A238421A"
+              id: "69C45B7239C3F3DF2942F2B9"
   "409":
     $ref : "../../../responses/InvalidArgument.yml"

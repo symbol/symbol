@@ -106,7 +106,7 @@
   description: |
     [Namespaces](https://docs.symbol.dev/concepts/namespace.html) are human-readable names that can represent accounts,
     mosaics, or hierarchical naming paths on Symbol. A namespace can be either a **root namespace** or a
-    **subnamespace**, and each level is identified by its own namespace id.
+    **subnamespace**, and each level is identified by its own namespace ID.
 
     - `Fully-qualified namespace name`: full dot-separated namespace path, for example `symbol.xym`.
     - `Root namespace`: top-level namespace with no parent.
@@ -114,7 +114,7 @@
     - `Parent namespace`: direct namespace above a subnamespace in the hierarchy.
     - `Duration`: number of blocks for which the namespace remains active, represented by its lifetime on-chain.
     - `Alias`: link from a namespace to an account address or mosaic ID.
-    - `Namespace id`: unique identifier derived from the namespace path and level.
+    - `Namespace ID`: unique identifier derived from the namespace path and level.
     - `Active namespace`: namespace whose lifetime includes the current chain height.
 
     Namespaces can be linked as aliases to an account address or a mosaic ID, making on-chain identifiers easier for
@@ -141,7 +141,37 @@
 - name: Restriction Mosaic routes
 - name: Restriction Account routes
 - name: Receipt routes
+  description: |
+    [Receipts](https://docs.symbol.dev/concepts/receipt.html) are records produced while confirmed
+    transactions change blockchain state. They are grouped into **transaction statements** and
+    **resolution statements**.
+
+    - `Transaction statement`: groups the receipts emitted for a specific transaction source at a given
+      block height, including balance transfers, balance changes, expirations, and inflation.
+    - `Resolution statement`: records how an unresolved namespace alias used in a transaction was
+      resolved to a concrete address or mosaic ID for a specific source and block.
+    - `Receipt type`: numeric code identifying the kind of receipt returned in a transaction statement.
+    - `Source`: pointer to the transaction and, when relevant, aggregate subtransaction that produced
+      the receipt or resolution entry.
+
+    Receipt endpoints return paginated statement collections that can be filtered by height and other
+    receipt-specific criteria. [Merkle proofs](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
+    for receipt statements are available under Block routes.
 - name: Transaction routes
 - name: Transaction status routes
+  description: |
+    Transaction status endpoints return the current processing state of a transaction identified by its hash.
+    They are useful after announcing a transaction and when tracking whether it is still **unconfirmed**,
+    already **confirmed**, waiting as **partial**, or has **failed** validation.
+
+    These endpoints support single-hash lookup and batch lookup by transaction hashes.
 - name: Hash Lock routes
+  description: |
+    [Hash locks](https://docs.symbol.dev/concepts/aggregate-transaction.html#aggregate-bonded) are temporary
+    deposits locked before announcing an aggregate bonded transaction. They act as an anti-spam mechanism:
+    the lock must be confirmed before the aggregate bonded transaction can be announced, and the locked funds
+    are returned when the aggregate bonded transaction completes.
+
+    Hash lock endpoints return individual lock entries, paginated lock collections, batch lookup results,
+    and Merkle proofs for hash lock state.
 - name: Secret Lock routes

@@ -9,7 +9,7 @@ properties:
   mosaicId:
     $ref: "../../../schemas/UnresolvedMosaicId.yml"
   restrictionKey:
-    $ref: "../../../schemas/RestrictionKey.yml"
+    $ref: "../../../schemas/RestrictionKeyHex.yml"
   previousRestrictionValue:
     $ref: "../../../schemas/RestrictionValue.yml"
   newRestrictionValue:

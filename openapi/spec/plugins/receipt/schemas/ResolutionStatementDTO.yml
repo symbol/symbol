@@ -1,4 +1,5 @@
 type: object
+description: Resolution statement describing how one unresolved alias was resolved at a given block height.
 required:
   - height
   - unresolved
@@ -6,15 +7,18 @@ required:
 properties:
   height:
     $ref: "../../../schemas/Height.yml"
+    description: Height of the block that contains the resolution statement.
   unresolved:
     anyOf:
       - $ref: "../../../schemas/UnresolvedMosaicId.yml"
       - $ref: "../../../schemas/UnresolvedAddress.yml"
+    description: Unresolved alias value used in the transaction before resolution.
   resolutionEntries:
     type: array
     description: |
-      Array of resolution entries linked to the unresolved namespaceId.
-      It is an array instead of a single resolution entry since
-      within one block the resolution might change for different sources due to alias related transactions.
+      Resolution entries linked to the unresolved alias.
+      Multiple entries can be present because the resolved value can change within the same block.
+      This can happen when alias-related transactions in the same block change which address or mosaic id
+      the alias points to, so different transaction sources observe different resolved values.
     items:
       $ref: "./ResolutionEntryDTO.yml"

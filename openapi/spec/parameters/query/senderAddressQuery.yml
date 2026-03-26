@@ -1,5 +1,5 @@
 name: senderAddress
 in: query
-description: Filter by address sending mosaics.
+description: Filter by sender address in Base32.
 schema:
   $ref: "../../schemas/Address.yml"

@@ -1,5 +1,5 @@
 type: object
-description: Receipt stored when network currency mosaics were created due to inflation.
+description: Receipt emitted when new network currency mosaic units are created by inflation.
 allOf:
   - $ref: "./ReceiptDTO.yml"
   - type: object
@@ -9,5 +9,7 @@ allOf:
     properties:
       mosaicId:
         $ref: "../../../schemas/MosaicId.yml"
+        description: Identifier of the network currency mosaic created by inflation.
       amount:
         $ref: "../../../schemas/Amount.yml"
+        description: Amount of mosaic units created by inflation, expressed in the mosaic's smallest (atomic) unit.

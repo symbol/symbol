@@ -6,5 +6,4 @@ properties:
   key:
     $ref: "../../../schemas/RestrictionKey.yml"
   value:
-    type: string
-    description: Restriction value.
+    $ref: "../../../schemas/RestrictionValue.yml"

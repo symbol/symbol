@@ -3,7 +3,7 @@ required:
   - id
   - meta
   - statement
-description: Collection of receipts related to a transaction.
+description: Wrapper object containing one transaction statement and its metadata.
 properties:
   id:
     $ref: "../../../schemas/ObjectId.yml"

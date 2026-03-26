@@ -1,4 +1,5 @@
 type: object
+description: Array wrapper used to request transaction statuses by transaction hash.
 properties:
   hashes:
     type: array

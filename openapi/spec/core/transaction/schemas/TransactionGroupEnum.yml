@@ -1,12 +1,10 @@
 type: string
 description: |
-  A transaction could be classified in the following groups:
-  - `Unconfirmed`: The transaction reached the P2P network. At this point, it is
-    not guaranteed that the transaction will be included in a block.
-  - `Confirmed`: The transaction is included in a block.
-  - `Partial`: The transaction requires to be cosigned by other transaction
-    participants in order to be included in a block.
-  - `Failed`: The transaction did not pass the network validation, and it was rejected.
+  Group that indicates the current processing state of a transaction:
+  - `unconfirmed`: the transaction reached the network but is not yet included in a block.
+  - `confirmed`: the transaction was included in a block.
+  - `partial`: the transaction is waiting for additional cosignatures before it can be confirmed.
+  - `failed`: the transaction was rejected during validation.
 enum:
   - unconfirmed
   - confirmed

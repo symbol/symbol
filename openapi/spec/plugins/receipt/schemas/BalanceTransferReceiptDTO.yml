@@ -1,5 +1,9 @@
 type: object
-description: Receipt stored when a state change that triggered a mosaic transfer.
+description: |
+  Receipt emitted when transaction execution transfers a mosaic balance between accounts.
+  For example, this receipt is emitted when mosaic or namespace rental fees are paid.
+  In that case, the sender address is the account registering the mosaic or namespace, and the
+  recipient address is the configured rental fee sink address.
 allOf:
   - $ref: "./ReceiptDTO.yml"
   - type: object
@@ -11,9 +15,13 @@ allOf:
     properties:
       mosaicId:
         $ref: "../../../schemas/MosaicId.yml"
+        description: Identifier of the transferred mosaic.
       amount:
         $ref: "../../../schemas/Amount.yml"
+        description: Amount of mosaic units transferred, expressed in the mosaic's smallest (atomic) unit.
       senderAddress:
         $ref: "../../../schemas/AddressHex.yml"
+        description: Address from which the mosaic balance was transferred.
       recipientAddress:
         $ref: "../../../schemas/AddressHex.yml"
+        description: Address that received the mosaic balance.
