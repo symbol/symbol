@@ -107,6 +107,7 @@ nav:
           - Namespaces:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
+              - devbook/namespaces/get-namespace-info.md
               - devbook/namespaces/extend-root-namespace.md
               - devbook/namespaces/link-namespace-to-address.md
               - devbook/namespaces/link-namespace-to-mosaic.md
@@ -114,6 +115,7 @@ nav:
               - devbook/namespaces/resolve-namespace-from-receipt.md
           - Mosaics:
               - devbook/mosaics/create-mosaic.md
+              - devbook/mosaics/get-mosaic-info.md
               - devbook/mosaics/change-mosaic-supply.md
               - devbook/mosaics/modify-mosaic-definition.md
               - devbook/mosaics/mosaic-metadata.md
