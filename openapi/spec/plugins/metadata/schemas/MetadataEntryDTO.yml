@@ -6,6 +6,7 @@ required:
   - targetAddress
   - scopedMetadataKey
   - metadataType
+  - valueSize
   - value
 properties:
   version:
@@ -24,7 +25,10 @@ properties:
       - $ref: "../../../schemas/NamespaceId.yml"
   metadataType:
     $ref: "./MetadataTypeEnum.yml"
+  valueSize:
+    type: integer
+    description: Size of the metadata value in bytes.
+    examples:
+      - 6
   value:
-    type: string
-    format: hex
-    description: Metadata value.
+    $ref: "../../../schemas/MetadataValue.yml"

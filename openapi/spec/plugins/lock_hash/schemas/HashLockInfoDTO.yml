@@ -1,9 +1,10 @@
 type: object
+description: Wrapper object containing one hash lock entry and its identifier.
 required:
   - id
   - lock
 properties:
   id:
-    type: string
+    $ref: "../../../schemas/ObjectId.yml"
   lock:
     $ref: "./HashLockEntryDTO.yml"

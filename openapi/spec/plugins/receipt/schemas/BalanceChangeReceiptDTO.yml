@@ -1,5 +1,8 @@
 type: object
-description: Receipt stored when a state change modified an account balance.
+description: |
+  Receipt emitted when transaction execution changes an account mosaic balance.
+  For example, this receipt is emitted when harvesting rewards are credited to the harvester or
+  beneficiary account.
 allOf:
   - $ref: "./ReceiptDTO.yml"
   - type: object
@@ -10,7 +13,10 @@ allOf:
     properties:
       mosaicId:
         $ref: "../../../schemas/MosaicId.yml"
+        description: Identifier of the mosaic whose balance changed.
       amount:
         $ref: "../../../schemas/Amount.yml"
+        description: Amount of mosaic units added to or removed from the balance, expressed in the mosaic's smallest (atomic) unit.
       targetAddress:
         $ref: "../../../schemas/AddressHex.yml"
+        description: Address whose balance was affected.

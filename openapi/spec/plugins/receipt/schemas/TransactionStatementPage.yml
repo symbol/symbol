@@ -1,11 +1,12 @@
 type: object
+description: Paginated response containing transaction statements.
 required:
   - data
   - pagination
 properties:
   data:
     type: array
-    description: Array of transaction statements.
+    description: Transaction statements matching the requested filters.
     items:
       $ref: "./TransactionStatementInfoDTO.yml"
   pagination:

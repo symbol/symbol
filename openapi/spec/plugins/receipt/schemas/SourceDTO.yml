@@ -1,16 +1,26 @@
 type: object
-description: Transaction that triggered the receipt.
+description: Identifies the transaction source that produced the receipt or resolution entry.
 required:
   - primaryId
   - secondaryId
 properties:
   primaryId:
     $ref: "../../../schemas/UInt32.yml"
-    description: Transaction index within the block.
-    example: 1
+    description: |
+      Index of the top-level transaction within the block.
+      A top-level transaction is a transaction that appears directly in the block,
+      not one that is embedded inside an aggregate transaction.
+      Indexing is `1`-based, so the first top-level transaction in the block has `primaryId = 1`.
+      This value can be `0` when the statement does not refer to a specific transaction source.
+      Use this value to locate the block transaction that produced the receipt or resolution entry.
+    examples:
+      - 1
   secondaryId:
     $ref: "../../../schemas/UInt32.yml"
     description: |
-      Transaction index within the aggregate transaction.
-      If the transaction is not an embedded transaction, then the secondary ID is set to 0.
-    example: 0
+      Index of the embedded transaction within the aggregate transaction.
+      Indexing is `1`-based, so the first embedded transaction has `secondaryId = 1`.
+      If the source is not an embedded transaction, this value is `0`.
+      Use this together with `primaryId` to pinpoint the exact embedded transaction inside an aggregate.
+    examples:
+      - 0

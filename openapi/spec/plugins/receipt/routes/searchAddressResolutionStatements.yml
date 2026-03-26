@@ -1,7 +1,12 @@
 tags:
   - Receipt routes
-summary: Get receipts address resolution statements
-description: Gets an array of address resolution statements.
+summary: Search address resolution statements
+description: |
+  Returns a paginated list of address resolution statements.
+  These statements record how an unresolved address alias used in a transaction was resolved to
+  a concrete address at a given block height.
+  A statement can contain multiple resolution entries because alias resolution may differ by
+  transaction source within the same block.
 operationId: searchAddressResolutionStatements
 parameters:
   - $ref: "../../../parameters/query/heightQuery.yml"
@@ -16,6 +21,25 @@ responses:
       application/json:
         schema:
           $ref: "../schemas/ResolutionStatementPage.yml"
+        examples:
+          default:
+            summary: Address resolution statement example
+            value:
+              data:
+                - statement:
+                    height: "5094279"
+                    unresolved: "695DAF6B40CF4A79E9000000000000000000000000000000"
+                    resolutionEntries:
+                      - source:
+                          primaryId: 2
+                          secondaryId: 0
+                        resolved: "68F17F8F3647965E8587F4CADD6B4177213DA8CE3E609EF6"
+                  id: "696F662B7A00AE052314F40D"
+                  meta:
+                    timestamp: "153055150836"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

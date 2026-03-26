@@ -1,4 +1,8 @@
 type: object
+description: |
+  Locked funds deposited before announcing an aggregate bonded transaction.
+  If the aggregate bonded transaction is not completed before the lock expires,
+  the locked funds are credited to the block harvester.
 required:
   - version
   - ownerAddress
@@ -12,13 +16,18 @@ properties:
     $ref: "../../../schemas/StateVersion.yml"
   ownerAddress:
     $ref: "../../../schemas/AddressHex.yml"
+    description: Address of the account that created the hash lock.
   mosaicId:
     $ref: "../../../schemas/MosaicId.yml"
+    description: Identifier of the locked mosaic.
   amount:
     $ref: "../../../schemas/Amount.yml"
+    description: Amount of locked mosaic units, expressed in the mosaic's smallest (atomic) unit.
   endHeight:
     $ref: "../../../schemas/Height.yml"
+    description: Block height at which the hash lock expires if it is not completed earlier.
   status:
     $ref: "../../../schemas/LockStatus.yml"
   hash:
     $ref: "../../../schemas/Hash256.yml"
+    description: Hash of the aggregate bonded transaction associated with the lock.

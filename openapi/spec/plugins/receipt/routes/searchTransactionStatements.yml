@@ -1,7 +1,12 @@
 tags:
   - Receipt routes
 summary: Search transaction statements
-description: Gets an array of transaction statements.
+description: |
+  Returns a paginated list of transaction statements generated while confirmed transactions
+  changed on-chain state.
+  Each statement is grouped by block height and source and contains the receipts produced by
+  transaction execution, including balance transfers, balance changes, expirations, and inflation.
+  Results can be filtered by block height, receipt type, related addresses, and artifact IDs.
 operationId: searchReceipts
 parameters:
   - $ref: "../../../parameters/query/heightQuery.yml"
@@ -23,6 +28,37 @@ responses:
       application/json:
         schema:
           $ref: "../schemas/TransactionStatementPage.yml"
+        examples:
+          default:
+            summary: Transaction statement example
+            value:
+              data:
+                - statement:
+                    height: "5279411"
+                    source:
+                      primaryId: 0
+                      secondaryId: 0
+                    receipts:
+                      - version: 1
+                        type: 8515
+                        targetAddress: "68EC4C4105860CD3D69D4E8FF6183C72EF46637EEAF360CF"
+                        mosaicId: "6BED913FA20223F8"
+                        amount: "75920799"
+                      - version: 1
+                        type: 8515
+                        targetAddress: "682AE8CC97DA1E1052D00851B46C2343A5C054EFCAC4517F"
+                        mosaicId: "6BED913FA20223F8"
+                        amount: "3995831"
+                      - version: 1
+                        type: 20803
+                        mosaicId: "6BED913FA20223F8"
+                        amount: "79916630"
+                  id: "69C43AF97A00AE05231CBE6C"
+                  meta:
+                    timestamp: "158614654107"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":
