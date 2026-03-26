@@ -2,6 +2,8 @@ import json
 import os
 import urllib.request
 
+from symbolchain.sc import MosaicFlags
+
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
@@ -20,7 +22,8 @@ try:
 		print(f'  Supply: {mosaic["supply"]}')
 		divisibility = mosaic['divisibility']
 		print(f'  Divisibility: {divisibility}')
-		print(f'  Flags: {mosaic["flags"]}')
+		flags = MosaicFlags(mosaic['flags'])
+		print(f'  Flags: {flags.value} ({flags.name.lower()})')
 		print(f'  Duration: {mosaic["duration"]}')
 		print(f'  Start height: {mosaic["startHeight"]}')
 		print(f'  Revision: {mosaic["revision"]}')

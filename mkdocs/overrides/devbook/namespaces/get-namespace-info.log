@@ -6,9 +6,9 @@ Namespace information:
   Registration type: 1
   Owner address: TCEUGLPCMO5Y72EEISSNUKGTMCN5RO4PVYMK5FI
   Depth: 2
-  Level 0: A95F1F8A96159516
-  Level 1: E74B99BA41F4AFEE
+  Level 0 ID: A95F1F8A96159516
+  Level 1 ID: E74B99BA41F4AFEE
   Start height: 1
-  End height: 18446744073709551615
+  End height: 18446744073709551615 (0xFFFFFFFFFFFFFFFF)
   Alias type: 1
   Linked mosaic ID: 72C0212E67A08BCE

@@ -1,5 +1,5 @@
 ---
-title: Get Mosaic Info
+title: Get Mosaic Information
 ---
 
 # Getting Mosaic Information
@@ -10,8 +10,9 @@ This tutorial shows how to retrieve a mosaic's properties and any <namespace:> a
 
 ## Prerequisites
 
-This tutorial uses the [Symbol REST API](../reference/rest/symbol.md) without requiring an SDK.
-You only need a way to make HTTP requests.
+This tutorial only reads data from the network. No <account:> is required.
+
+Before you start, make sure to [set up your development environment](../start/setup.md).
 
 ## Full Code
 
@@ -29,25 +30,29 @@ If not set, it defaults to the <XYM:> <mosaic ID:> on testnet (`72C0212E67A08BCE
 
 ### Fetching Mosaic Information
 
-{{ tutorial.code_snippet(['py:12:26', 'js:8:22']) }}
+{{ tutorial.code_snippet(['py:14:29', 'js:11:32']) }}
 
 The <get:/mosaics/{mosaicId}> endpoint retrieves the current properties of a mosaic, including:
 
-* **Supply:** The total number of <divisibility:|atomic> units currently in circulation.
-* **Divisibility:** The number of decimal places the mosaic supports.
+* **Supply:** The total number of [atomic](../../textbook/mosaics.md#divisibility) units currently in circulation.
+    Do not confuse with the [initial supply](../../textbook/mosaics.md#initial-supply).
+* **Divisibility:** The number of <divisibility:|decimal places> the mosaic supports.
     For example, XYM has a divisibility of `6`, meaning 1 XYM equals 1,000,000 atomic units.
 * **Flags:** A bitmask encoding the mosaic's behavior restrictions.
-    Each flag occupies a single bit: `supply_mutable` (1), `transferable` (2),
-    `restrictable` (4), and `revokable` (8).
+    Each flag occupies a single bit:
+    [`supply_mutable`](../../textbook/mosaics.md#supply-mutability) (1),
+    [`transferable`](../../textbook/mosaics.md#transferability) (2),
+    [`restrictable`](../../textbook/mosaics.md#restrictability) (4),
+    and [`revokable`](../../textbook/mosaics.md#revocability) (8).
     Multiple flags combine additively. For example, a value of `6` means `transferable` (2) + `restrictable` (4).
-* **Duration:** The number of blocks the mosaic remains active.
+* **Duration:** The [number of blocks](../../textbook/mosaics.md#duration) the mosaic remains active.
     A value of `0` means the mosaic never expires.
 * **Start height:** The <block:> height at which the mosaic was created.
 * **Revision:** Incremented each time the mosaic definition is modified.
 
 ### Formatting the Supply
 
-{{ tutorial.code_snippet(['py:28:33', 'js:24:31']) }}
+{{ tutorial.code_snippet(['py:31:36', 'js:34:41']) }}
 
 The supply value returned by the API is expressed in <divisibility:|atomic> units.
 To convert it to whole units, the code divides the supply into whole and fractional parts
@@ -57,7 +62,7 @@ For XYM (divisibility `6`), a supply of `8325447775994408` atomic units equals `
 
 ### Fetching Namespace Aliases
 
-{{ tutorial.code_snippet(['py:35:50', 'js:33:48']) }}
+{{ tutorial.code_snippet(['py:38:53', 'js:43:58']) }}
 
 Mosaics can be linked to human-readable namespace aliases.
 The <post:/namespaces/mosaic/names> endpoint accepts mosaic IDs and returns any namespace names currently linked to
@@ -70,7 +75,7 @@ If no namespace is linked, the response indicates that no aliases exist.
 
 The output shown below corresponds to a typical run of the program, querying the XYM mosaic on testnet.
 
-```text hl_lines="5 6 7 8 9 10 11 13 16"
+```text linenums="1" hl_lines="5 6 7 8 9 10 11 13 16"
 --8<-- 'devbook/mosaics/get-mosaic-info.log'
 ```
 
@@ -82,7 +87,7 @@ Some highlights from the output:
 
 * **Divisibility** (line 7): The value `6` means 1 XYM = 1,000,000 (10^6^) atomic units.
 
-* **Flags** (line 8): The value `2` indicates only the `transferable` flag is set.
+* **Flags** (line 8): The value `2` resolves to `transferable`, meaning XYM can be freely sent between accounts.
 
 * **Duration** (line 9): The value `0` means XYM never expires.
 

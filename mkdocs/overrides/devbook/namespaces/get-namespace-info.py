@@ -34,13 +34,14 @@ try:
 		print(f'  Owner address: {owner_address}')
 		depth = int(ns['depth'])
 		print(f'  Depth: {depth}')
-		print(f'  Level 0: {ns["level0"]}')
+		print(f'  Level 0 ID: {ns["level0"]}')
 		if depth >= 2:
-			print(f'  Level 1: {ns["level1"]}')
+			print(f'  Level 1 ID: {ns["level1"]}')
 		if depth == 3 and 'level2' in ns:
-			print(f'  Level 2: {ns["level2"]}')
+			print(f'  Level 2 ID: {ns["level2"]}')
 		print(f'  Start height: {ns["startHeight"]}')
-		print(f'  End height: {ns["endHeight"]}')
+		end_height = int(ns['endHeight'])
+		print(f'  End height: {end_height} (0x{end_height:X})')
 
 		# Display alias information
 		alias = ns['alias']
