@@ -70,11 +70,57 @@ nav:
           - userbook/wallet/install.md
   - 開発者マニュアル:
       - devbook/intro.md
+      - はじめに:
+          - devbook/start/setup.md
+          - devbook/start/hello-world.md
+      - チュートリアル:
+          - アカウント:
+              - devbook/accounts/create-from-private-key.md
+              - devbook/accounts/create-from-mnemonic.md
+              - devbook/accounts/testnet-faucet.md
+              - devbook/accounts/query-balance.md
+              - devbook/accounts/account-metadata.md
+              - devbook/accounts/configure-multisig.md
+              - devbook/accounts/sign-multisig.md
+              - devbook/accounts/account-restrictions.md
+          - トランザクション:
+              - devbook/transactions/transfer.md
+              - devbook/transactions/typed-descriptors.md
+              - devbook/transactions/messages.md
+              - devbook/transactions/monitoring-status.md
+              - devbook/transactions/complete-aggregate.md
+              - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/fee-sponsorship.md
+          - ネームスペース:
+              - devbook/namespaces/register-root-namespace.md
+              - devbook/namespaces/register-subnamespace.md
+              - devbook/namespaces/extend-root-namespace.md
+              - devbook/namespaces/link-namespace-to-address.md
+              - devbook/namespaces/link-namespace-to-mosaic.md
+              - devbook/namespaces/namespace-metadata.md
+              - devbook/namespaces/resolve-namespace-from-receipt.md
+          - モザイク:
+              - devbook/mosaics/create-mosaic.md
+              - devbook/mosaics/change-mosaic-supply.md
+              - devbook/mosaics/modify-mosaic-definition.md
+              - devbook/mosaics/mosaic-metadata.md
+              - devbook/mosaics/revoke-mosaic.md
+              - devbook/mosaics/mosaic-restrictions.md
+          - チェーンの状態:
+              - devbook/chain/chain-heights.md
+              - devbook/chain/prove-transaction.md
+          - Webソケット:
+              - devbook/websockets/listen-new-blocks.md
+              - devbook/websockets/listen-transaction-flow.md
+              - devbook/websockets/listen-bonded-transaction-flow.md
+              - devbook/websockets/listen-transaction-error.md
       - リファレンスガイド:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
           - Java SDK: devbook/reference/java/
           - Symbol REST API: devbook/reference/rest/symbol.md
+          - WebSockets: devbook/reference/websockets/index.md
+
   - 教科書:
       - textbook/intro.md
       - textbook/cryptography.md
