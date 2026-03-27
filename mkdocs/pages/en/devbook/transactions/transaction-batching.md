@@ -148,7 +148,7 @@ The polling loop checks the status every second until the transaction is confirm
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="16 26 30 31 40 44 45 50"
+```text linenums="1" hl_lines="16 26 29 30 40 43 44 50"
 --8<-- 'devbook/transactions/transaction-batching.log'
 ```
 
@@ -157,7 +157,7 @@ Key points in the output:
 * **Line 16** (`"type": 16705`): Identifies this as an `aggregate_complete_transaction_v3`.
 * **Lines 26 and 40** (`"recipient_address"`): The two embedded transfers target different accounts.
   These are the hex-encoded forms of the Base32 addresses printed on lines 4-5.
-* **Lines 30-31 and 44-45** (`"mosaic_id"`, `"amount"`): Each transfer sends XYM (mosaic alias ID
+* **Lines 29-30 and 43-44** (`"mosaic_id"`, `"amount"`): Each transfer sends XYM (mosaic alias ID
   `16666583871264174062`).
   The amounts `5000000` and `3000000` correspond to 5 XYM and 3 XYM (XYM has <divisibility:> 6).
 * **Line 50** (`"cosignatures": []`): Empty because all embedded transactions share the same signer.
