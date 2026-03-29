@@ -49,7 +49,10 @@ namespace catapult { namespace utils {
 		std::vector<BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>::ReaderLockGuard> readLocks;
 		readLocks.reserve(300);
 		for (auto i = 0u; i < 300u; ++i)
-			readLocks.push_back(lock.acquireReader());
+		{
+			auto readLock = lock.acquireReader();
+			readLocks.push_back(readLock);
+		}
 
 		// Assert: reader bits are set and no writer bits are incorrectly set
 		EXPECT_FALSE(lock.isWriterPending());
