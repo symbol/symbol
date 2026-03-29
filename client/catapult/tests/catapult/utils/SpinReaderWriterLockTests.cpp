@@ -51,7 +51,7 @@ namespace catapult { namespace utils {
 		for (auto i = 0u; i < 300u; ++i)
 		{
 			auto readLock = lock.acquireReader();
-			readLocks.push_back(readLock);
+			readLocks.push_back(std::move(readLock));
 		}
 
 		// Assert: reader bits are set and no writer bits are incorrectly set
