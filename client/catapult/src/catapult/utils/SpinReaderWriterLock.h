@@ -30,14 +30,14 @@ namespace catapult { namespace utils {
 	/// Custom reader writer lock implemented by using an atomic that allows multiple readers and a single writer
 	/// and prefers writers.
 	/// \note
-	/// - 65,536 max writers (pending + active combined)
-	/// - 131,072 max readers (1:2 writer-to-reader ratio)
+	/// - 32,768 max writers (pending + active combined)
+	/// - 65,535 max readers
 	template<typename TReaderNotificationPolicy>
 	class BasicSpinReaderWriterLock : private TReaderNotificationPolicy {
 	private:
 		// Bit layout (32-bit atomic):
 		// Bit 31:       [1 bit]  Active writer flag
-		// Bits 30-16:   [15 bits] Pending writer count
+		// Bits 30-16:   [15 bits] Writer count (pending + active)
 		// Bits 15-0:    [16 bits] Active reader count
 
 		static constexpr uint32_t Active_Writer_Flag = 0b10000000000000000000000000000000;
@@ -241,6 +241,10 @@ namespace catapult { namespace utils {
 					continue;
 				}
 
+				// fail fast if reader count is already saturated
+				if ((current & Reader_Mask) == Reader_Mask)
+					CATAPULT_THROW_RUNTIME_ERROR("max reader count reached");
+
 				// try to increment the number of readers by one
 				auto desired = static_cast<uint32_t>(current + Active_Reader_Increment);
 				if (m_value.compare_exchange_strong(current, desired))
@@ -254,8 +258,15 @@ namespace catapult { namespace utils {
 
 		/// Blocks until a writer lock can be acquired.
 		inline WriterLockGuard acquireWriter() {
-			// mark a pending write
-			m_value.fetch_add(Pending_Writer_Increment);
+			// mark a pending write using CAS to guard against overflow
+			uint32_t current = m_value;
+			for (;;) {
+				if ((current & Pending_Writer_Mask) == Pending_Writer_Mask)
+					CATAPULT_THROW_RUNTIME_ERROR("max writer count reached");
+
+				if (m_value.compare_exchange_strong(current, current + Pending_Writer_Increment))
+					break;
+			}
 
 			// wait for exclusive access
 			AcquireWriter(m_value);

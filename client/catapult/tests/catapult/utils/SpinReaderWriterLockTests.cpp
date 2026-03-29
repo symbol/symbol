@@ -41,6 +41,47 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region counter bounds
+
+	TEST(TEST_CLASS, CanAcquireMoreThan256ConcurrentReaderLocks) {
+		// Act: acquire more reader locks than fit in 8 bits (old uint8_t limit)
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		std::vector<BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>::ReaderLockGuard> readLocks;
+		readLocks.reserve(300);
+		for (auto i = 0u; i < 300u; ++i)
+			readLocks.push_back(lock.acquireReader());
+
+		// Assert: reader bits are set and no writer bits are incorrectly set
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_TRUE(lock.isReaderActive());
+
+		// Act: release all
+		readLocks.clear();
+
+		// Assert: lock is clean
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_FALSE(lock.isReaderActive());
+	}
+
+	TEST(TEST_CLASS, CanAcquireMoreThan128SequentialWriterLocks) {
+		// Act: acquire and release more writer locks than fit in 7 bits (old layout limit)
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		for (auto i = 0u; i < 200u; ++i) {
+			auto writeLock = lock.acquireWriter();
+			EXPECT_TRUE(lock.isWriterPending());
+			EXPECT_TRUE(lock.isWriterActive());
+		}
+
+		// Assert: lock is clean after all releases
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_FALSE(lock.isReaderActive());
+	}
+
+	// endregion
+
 	// region basic - read acquire
 
 	TEST(TEST_CLASS, CanAcquireReaderLock) {
