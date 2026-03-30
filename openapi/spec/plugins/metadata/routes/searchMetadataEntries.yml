@@ -1,7 +1,11 @@
 tags:
   - Metadata routes
 summary: Search metadata entries
-description: Returns an array of metadata.
+description: |
+  Returns a paginated list of metadata entries.
+
+  Results can be filtered by source address, target address, scoped metadata key, target ID, and
+  metadata type.
 operationId: searchMetadataEntries
 parameters:
   - $ref: "../../../parameters/query/sourceAddressQuery.yml"
@@ -15,10 +19,40 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated metadata entries matching the supplied filters.
     content:
       application/json:
         schema:
           $ref: "../schemas/MetadataPage.yml"
+        examples:
+          default:
+            summary: Metadata page example
+            value:
+              data:
+                - id: "60574DF2FC6BD03EE3C430C8"
+                  metadataEntry:
+                    version: 1
+                    compositeHash: "86E6D7E0737C78593A015C90F7A0A1EB96BE018437B07C0E5B21BAB1BE462B44"
+                    sourceAddress: "6861442430AE8F9818491ECDB2D5CD2FCE89D975F6EAAB8C"
+                    targetAddress: "6833DE7366A78F3E59951F3C0739ED62ACA31C240E740750"
+                    scopedMetadataKey: "A21659EE4369B298"
+                    targetId: "0000000000000000"
+                    metadataType: 0
+                    valueSize: 6
+                    value: "333433383334"
+                - id: "60574DF6FC6BD03EE3C43EA6"
+                  metadataEntry:
+                    version: 1
+                    compositeHash: "6170AADD9CBD9F9EB23DD4CE208FF830E3595E3A582A6CE826F0A27AEBD3A707"
+                    sourceAddress: "68E81D5B9653DDAF7EF0394CA2505281A601A4042CB5CD5E"
+                    targetAddress: "68E81D5B9653DDAF7EF0394CA2505281A601A4042CB5CD5E"
+                    scopedMetadataKey: "951688612CBDE45D"
+                    targetId: "0000000000000000"
+                    metadataType: 0
+                    valueSize: 38
+                    value: "3644363137323642373537333230373337393644363236463643323037303631373237343739"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "409":
     $ref : "../../../responses/InvalidArgument.yml"

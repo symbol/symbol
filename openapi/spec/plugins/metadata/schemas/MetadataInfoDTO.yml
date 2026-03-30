@@ -1,9 +1,10 @@
 type: object
+description: Metadata information including an internal resource identifier and the full metadata entry state.
 required:
   - id
   - metadataEntry
 properties:
   id:
-    type: string
+    $ref: "../../../schemas/ObjectId.yml"
   metadataEntry:
     $ref: "./MetadataEntryDTO.yml"

@@ -1,16 +1,30 @@
 tags:
   - Metadata routes
 summary: Get metadata information
-description: Gets the metadata for a given composite hash.
+description: Returns the metadata entry associated with the given composite hash.
 operationId: getMetadata
 parameters:
   - $ref: "../../../parameters/path/compositeHashPath.yml"
 responses:
   "200":
-    description: success
+    description: Metadata entry successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/MetadataInfoDTO.yml"
+        examples:
+          default:
+            value:
+              id: "60574DF2FC6BD03EE3C430C8"
+              metadataEntry:
+                version: 1
+                compositeHash: "86E6D7E0737C78593A015C90F7A0A1EB96BE018437B07C0E5B21BAB1BE462B44"
+                sourceAddress: "6861442430AE8F9818491ECDB2D5CD2FCE89D975F6EAAB8C"
+                targetAddress: "6833DE7366A78F3E59951F3C0739ED62ACA31C240E740750"
+                scopedMetadataKey: "A21659EE4369B298"
+                targetId: "0000000000000000"
+                metadataType: 0
+                valueSize: 6
+                value: "333433383334"
   "409":
     $ref : "../../../responses/InvalidArgument.yml"

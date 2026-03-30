@@ -5,3 +5,6 @@ description: |
 required: true
 schema:
   type: string
+  examples:
+    - FeJRJjpsiCJ6QZrHhbpD6N3SynhwhPfca6Fczs9qw2mqLN
+    - Fe8sqcyyVNKDAg12mhJL3M2E8PRmAqTFwpsYu1hoZAt21T

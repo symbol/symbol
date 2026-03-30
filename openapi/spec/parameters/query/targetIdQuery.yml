@@ -5,4 +5,13 @@ schema:
   # anyOf: MosaicId or NamespaceId
   type: string
   format: hex
-  example: 0DC67FBE1CAD29E3
+  minLength: 16
+  maxLength: 16
+  pattern: '^[0-9a-fA-F]{16}$'
+examples:
+  mosaicId:
+    summary: Mosaic identifier
+    value: 0DC67FBE1CAD29E3
+  namespaceId:
+    summary: Namespace identifier
+    value: 85BBEA6CC462B244

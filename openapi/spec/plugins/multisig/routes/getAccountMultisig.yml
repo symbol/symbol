@@ -1,17 +1,70 @@
 tags:
   - Multisig routes
 summary: Get multisig account information
-description: Returns the multisig account information.
+description: |
+  Returns the current multisig state for an account.
+
+  The response includes the approval thresholds for the multisig account, its direct cosignatories,
+  and the multisig accounts where the queried account is itself acting as a cosignatory.
+
+  If the queried account is only a cosignatory, the endpoint still returns `200`, with
+  `minApproval = 0`, `minRemoval = 0`, an empty `cosignatoryAddresses` array, and the related
+  multisig accounts listed in `multisigAddresses`.
+
+  If the account is neither a multisig account nor a cosignatory of any multisig account, the
+  endpoint returns `404`.
 operationId: getAccountMultisig
 parameters:
   - $ref: "../../../parameters/path/addressPath.yml"
 responses:
   "200":
-    description: success
+    description: Multisig state for the requested account.
     content:
       application/json:
         schema:
           $ref: "../schemas/MultisigAccountInfoDTO.yml"
+        examples:
+          multisigAccount:
+            summary: Multisig account
+            value:
+              multisig:
+                version: 1
+                accountAddress: "6834D2D0F0B6100903A139521679C180C991A37C8D18D19C"
+                minApproval: 2
+                minRemoval: 3
+                cosignatoryAddresses:
+                  - "687DF0E0F3DF1676BC447D2A841DEDBE49F2C677E84F04D4"
+                  - "68D4ED1FB9FE1199683D16133A13997A7F6B8916C580E7CC"
+                  - "68DEF23D9466268175B20AA4804C20F9E7E36DDE245B6B81"
+                multisigAddresses: []
+          cosignerOnly:
+            summary: Account that is only a cosignatory
+            value:
+              multisig:
+                version: 1
+                accountAddress: "68C166E1800818246E79D152861D7AA2B00CAD931821738D"
+                minApproval: 0
+                minRemoval: 0
+                cosignatoryAddresses: []
+                multisigAddresses:
+                  - "6808E6B1F56C7EA1409924467213B9CA7EDBD4ED05F0DCD3"
+          multisigAndCosigner:
+            summary: Account that is both a multisig and a cosignatory in multi-level setup
+            value:
+              multisig:
+                version: 1
+                accountAddress: "68D025524A619338C1D257E86D66AF5FE970891C1008269F"
+                minApproval: 2
+                minRemoval: 2
+                cosignatoryAddresses:
+                  - "680E0988E499D50E003EF81AD47C3BFA6A1FF938FEA18CF9"
+                  - "68241F70669BDF712EC5B405C622BAEF85E6001F20C37623"
+                  - "685203500A58DC257F5E007CE33C2150B5453B46DE5F201C"
+                  - "68A38091634ACB8455FB55F0FBD4C4D6C221C7C7A5EF7DD3"
+                multisigAddresses:
+                  - "682AE8CC97DA1E1052D00851B46C2343A5C054EFCAC4517F"
+                  - "688E494F708C25C4E4CE77B933FDA54E81EDE01F9BD9D7DD"
+                  - "68AAE8CC97E5C7D44012CC0871DA979EF770BA61628A312D"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

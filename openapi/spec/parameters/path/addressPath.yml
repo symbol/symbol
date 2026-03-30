@@ -1,6 +1,6 @@
 name: address
 in: path
-description: Account address.
+description: Account address in Base32-encoded format.
 required: true
 schema:
   $ref: "../../schemas/Address.yml"

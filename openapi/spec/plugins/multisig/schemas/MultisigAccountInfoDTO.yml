@@ -1,7 +1,8 @@
 type: object
+description: Multisig account information with the full multisig state.
 required:
   - multisig
 properties:
   multisig:
     $ref: "./MultisigDTO.yml"
-
+    description: Full multisig state for the requested account.

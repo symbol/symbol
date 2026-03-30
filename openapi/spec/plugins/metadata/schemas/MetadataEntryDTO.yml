@@ -1,4 +1,5 @@
 type: object
+description: Full on-chain metadata entry identified by a composite hash.
 required:
   - version
   - compositeHash
@@ -12,14 +13,22 @@ properties:
   version:
     $ref: "../../../schemas/StateVersion.yml"
   compositeHash:
+    description: |
+      Composite hash derived from sourceAddress, targetAddress, scopedMetadataKey, targetId, and metadataType.
+      It uniquely identifies the metadata entry.
     $ref: "../../../schemas/Hash256.yml"
   sourceAddress:
+    description: Hex-encoded address of the account that created the metadata entry.
     $ref: "../../../schemas/AddressHex.yml"
   targetAddress:
+    description: |
+      Hex-encoded address of the target account.
+      For mosaic metadata and namespace metadata, this is the address of the resource owner.
     $ref: "../../../schemas/AddressHex.yml"
   scopedMetadataKey:
     $ref: "../../../schemas/MetadataKey.yml"
   targetId:
+    description: Mosaic or namespace identifier for mosaic metadata or namespace metadata. For account metadata, this value is 0.
     anyOf:
       - $ref: "../../../schemas/MosaicId.yml"
       - $ref: "../../../schemas/NamespaceId.yml"

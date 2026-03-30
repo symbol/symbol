@@ -1,5 +1,7 @@
 type: object
-description: Transaction to create or modify a multisig account.
+description: |
+  Transaction that converts a regular account into a multisig account or modifies an existing
+  multisig account's thresholds and cosignatory set.
 allOf:
   - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
   - $ref: "./MultisigAccountModificationTransactionBodyDTO.yml"
