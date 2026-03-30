@@ -42,20 +42,16 @@ namespace catapult { namespace utils {
 
 		static constexpr uint32_t Active_Writer_Flag = 0b10000000000000000000000000000000;
 
-		// Mask for total writer count bits (pending + active).
+		// Mask for total writer count bits (pending + active)
 		static constexpr uint32_t Writer_Count_Mask = 0b01111111111111110000000000000000;
-		// DEPRECATED: Use Writer_Count_Mask instead. Kept for backward compatibility.
-		static constexpr uint32_t Pending_Writer_Mask = Writer_Count_Mask;
 
 		static constexpr uint32_t Reader_Mask = 0b00000000000000001111111111111111;
 		static constexpr uint32_t Writer_Mask = Writer_Count_Mask | Active_Writer_Flag;
 
 		static constexpr uint32_t Active_Reader_Increment = 0b00000000000000000000000000000001;
 
-		// Increment for total writer count (pending + active).
+		// Increment for total writer count (pending + active)
 		static constexpr uint32_t Writer_Count_Increment = 0b00000000000000010000000000000000;
-		// DEPRECATED: Use Writer_Count_Increment instead. Kept for backward compatibility.
-		static constexpr uint32_t Pending_Writer_Increment = Writer_Count_Increment;
 	private:
 		// region YieldStepper
 
@@ -139,7 +135,7 @@ namespace catapult { namespace utils {
 			explicit WriterLockGuard(std::atomic<uint32_t>& value)
 					: LockGuard([&value]() {
 						// unset the active writer flag
-						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment);
+						value.fetch_sub(Active_Writer_Flag + Writer_Count_Increment);
 					})
 			{}
 
@@ -148,7 +144,7 @@ namespace catapult { namespace utils {
 			WriterLockGuard(std::atomic<uint32_t>& value, bool& isActive)
 					: LockGuard([&value, &isActive]() {
 						// unset the active writer flag and change the writer to a reader
-						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment - Active_Reader_Increment);
+						value.fetch_sub(Active_Writer_Flag + Writer_Count_Increment - Active_Reader_Increment);
 						isActive = false;
 					})
 			{}
@@ -228,7 +224,7 @@ namespace catapult { namespace utils {
 	public:
 		/// Returns \c true if there is a pending (or active) writer.
 		inline bool isWriterPending() const {
-			return isSet(Pending_Writer_Mask);
+			return isSet(Writer_Count_Mask);
 		}
 
 		/// Returns \c true if there is an active writer.
@@ -254,7 +250,7 @@ namespace catapult { namespace utils {
 			uint32_t current = m_value;
 			for (;;) {
 				// wait for any pending writes to complete
-				if (0 != (current & Pending_Writer_Mask)) {
+				if (0 != (current & Writer_Count_Mask)) {
 					stepper.yield();
 					current = m_value;
 					continue;
@@ -300,10 +296,10 @@ namespace catapult { namespace utils {
 			YieldStepper stepper;
 
 			// wait for exclusive access (when there is no active writer and no readers)
-			uint32_t expected = value & Pending_Writer_Mask;
+			uint32_t expected = value & Writer_Count_Mask;
 			while (!value.compare_exchange_strong(expected, expected | Active_Writer_Flag)) {
 				stepper.yield();
-				expected = value & Pending_Writer_Mask;
+				expected = value & Writer_Count_Mask;
 			}
 		}
 
