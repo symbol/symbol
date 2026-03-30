@@ -84,6 +84,24 @@
     finalized, including message groups (prevote, precommit, count stages) and BLS aggregate
     signatures from the voter set.
 - name: Metadata routes
+  description: |
+    [Metadata](https://docs.symbol.dev/concepts/metadata.html) lets accounts attach arbitrary key-value
+    data to three kinds of on-chain resources on Symbol: **accounts**, **mosaics**, and **namespaces**.
+    Each metadata entry is uniquely identified by its source address, target address, metadata type,
+    scoped metadata key, and, for mosaic and namespace metadata, the target artifact id. The derived
+    composite hash can be used as a compact identifier for lookup.
+
+    - `Source address`: account that created the metadata update.
+    - `Target address`: target account for account metadata, or the owner account for mosaic and namespace metadata.
+    - `Scoped metadata key`: 64-bit key assigned by the metadata creator to distinguish metadata entries.
+    - `Metadata type`: whether the metadata entry is attached to an account, mosaic, or namespace.
+    - `Composite hash`: unique identifier derived from the metadata coordinates.
+    - `Metal`: convention for storing chunked binary payloads in metadata entries. See the
+      [metal-on-symbol repository](https://github.com/OPENSPHERE-Inc/metal-on-symbol).
+
+    Metadata endpoints return individual metadata entries, batch lookup results, paginated search
+    results, Merkle proofs for metadata state, and decoded binary payloads stored with the Metal
+    convention.
 - name: Mosaic routes
   description: |
     [Mosaics](https://docs.symbol.dev/concepts/mosaic.html) are customizable blockchain assets on Symbol.
@@ -102,6 +120,22 @@
 
     Mosaic endpoints return mosaic definitions, paginated mosaic collections, and Merkle proofs for mosaic state.
 - name: Multisig routes
+  description: |
+    [Multisig accounts](https://docs.symbol.dev/concepts/multisig-account.html) require approvals
+    from one or more cosignatories before they can act. Symbol uses an **M-of-N** model, where
+    `N` is the number of cosignatories attached to the multisig account and `M` is the minimum
+    number of approvals required for a given action.
+
+    Symbol also supports **multi-level multisig**, where a multisig account can itself act as a
+    cosignatory for another multisig account, up to the network-defined maximum depth
+    (`multisig.maxMultisigDepth = 3` on mainnet and testnet).
+
+    - `Cosignatory`: account that manages a multisig account and can approve aggregate transactions on its behalf.
+    - `Minimum approval`: number of cosignatory approvals required to approve a transaction initiated by the multisig account.
+    - `Minimum removal`: number of cosignatory approvals required to remove a cosignatory from the multisig account.
+
+    These endpoints return the current multisig state for an account, the surrounding multisig graph
+    across multiple levels, and the Merkle proof for the stored multisig state.
 - name: Namespace routes
   description: |
     [Namespaces](https://docs.symbol.dev/concepts/namespace.html) are human-readable names that can represent accounts,

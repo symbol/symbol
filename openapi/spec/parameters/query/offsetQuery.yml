@@ -6,12 +6,10 @@ description: |
   - `orderBy=id`: use the entry's `id` (ObjectId, 24-char hex).
   - `orderBy=height`: use the block height (string, e.g. `"17592"`).
   - `orderBy=balance`: use the mosaic balance amount (string, e.g. `"1000000"`).
-  Not all endpoints support all `orderBy` values; see the endpoint's `orderBy` parameter.
+  
+  Allowed `orderBy` values depend on the endpoint. If `orderBy` is omitted, `id` is used by default.
 
-  The direction depends on `order`:
-  - `order=desc`: returns elements with smaller sort-field values
-    (the "next" page when viewing newest-first).
-  - `order=asc`: returns elements with larger sort-field values
-    (the "next" page when viewing oldest-first).
+  Set `offset` to the sort-field value of the last entry from the previous page. Across pages,
+  this value decreases with `order=desc` and increases with `order=asc`.
 schema:
   type: string

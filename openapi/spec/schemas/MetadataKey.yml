@@ -1,4 +1,7 @@
 type: string
 format: hex
-description: Metadata key scoped to source, target and type expressed.
-example: 0DC67FBE1CAD29E3
+description: 64-bit key assigned by the metadata creator to identify the metadata entry within the source and target context.
+minLength: 16
+maxLength: 16
+examples:
+  - 0DC67FBE1CAD29E3

@@ -1,20 +1,46 @@
 tags:
   - Metadata routes
 summary: Get metadata information for an array of composite hashes
-description: Gets an array of metadata entries for the given composite hashes.
+description: Returns the metadata entries associated with the given composite hashes.
 operationId: getMetadataEntries
 requestBody:
   $ref: "../../../request_bodies/compositeHashes.yml"
 responses:
   "200":
-    description: success
+    description: Metadata entries successfully retrieved.
     content:
       application/json:
         schema:
           type: array
-          description: Array of metadata entries.
+          description: Metadata entries matching the requested composite hashes.
           items:
             $ref: "../schemas/MetadataInfoDTO.yml"
+        examples:
+          default:
+            summary: Batch metadata lookup example
+            value:
+              - id: "60686C2BAE61380D8B12B9C2"
+                metadataEntry:
+                  version: 1
+                  compositeHash: "E2E167BAF96616710A7314C9CD989786BEEF4240CDA4A88E77164CC206B7A613"
+                  sourceAddress: "6820FA72888F9D744B1C722576F29489273DE9495C554905"
+                  targetAddress: "6820FA72888F9D744B1C722576F29489273DE9495C554905"
+                  scopedMetadataKey: "FB811BC42D10A611"
+                  targetId: "E283FC0172C39863"
+                  metadataType: 2
+                  valueSize: 8
+                  value: "3637363237303734"
+              - id: "60574DF2FC6BD03EE3C430C8"
+                metadataEntry:
+                  version: 1
+                  compositeHash: "86E6D7E0737C78593A015C90F7A0A1EB96BE018437B07C0E5B21BAB1BE462B44"
+                  sourceAddress: "6861442430AE8F9818491ECDB2D5CD2FCE89D975F6EAAB8C"
+                  targetAddress: "6833DE7366A78F3E59951F3C0739ED62ACA31C240E740750"
+                  scopedMetadataKey: "A21659EE4369B298"
+                  targetId: "0000000000000000"
+                  metadataType: 0
+                  valueSize: 6
+                  value: "333433383334"
   "400":
     $ref : "../../../responses/InvalidContent.yml"
   "409":

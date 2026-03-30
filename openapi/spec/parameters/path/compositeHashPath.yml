@@ -1,6 +1,6 @@
 name: compositeHash
 in: path
-description: Filter by composite hash.
+description: Composite hash encoded as a 64-character hexadecimal string.
 required: true
 schema:
   $ref: "../../schemas/Hash256.yml"
