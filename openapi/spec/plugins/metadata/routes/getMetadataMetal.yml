@@ -2,9 +2,12 @@ tags:
   - Metadata routes
 summary: Get Metal metadata binary data
 description: |
-  Gets the binary payload stored in a Metal metadata entry.
-  The response content type is determined by the stored data (e.g. image, document).
-  Optional query parameters can override the response headers for content type and filename.
+  Returns the decoded binary payload stored in Metal metadata entries identified by the given metal id.
+  Metal is a convention for storing chunked binary payloads in metadata entries. See the
+  [metal-on-symbol repository](https://github.com/OPENSPHERE-Inc/metal-on-symbol).
+  The response content type is derived from the stored Metal seal when available, or defaults to
+  `application/octet-stream`. Optional query parameters can override the response headers for
+  content type and filename.
 operationId: getMetadataMetal
 parameters:
   - $ref: "../../../parameters/path/metalIdPath.yml"
@@ -14,7 +17,11 @@ parameters:
     required: false
     schema:
       type: string
-      example: "image/png"
+    examples:
+      png:
+        value: "image/png"
+      plainText:
+        value: "text/plain"
   - name: fileName
     in: query
     description: Override the filename in the Content-Disposition header.
@@ -31,12 +38,31 @@ parameters:
 responses:
   "200":
     description: Binary payload of the Metal metadata.
+    headers:
+      Content-Disposition:
+        description: |
+          Indicates whether the payload is returned inline or as an attachment and, when available,
+          includes the resolved filename.
+        schema:
+          type: string
+        examples:
+          inlineSvg:
+            value: 'inline; filename="metal-sample.svg"'
+          attachmentSvg:
+            value: 'attachment; filename="metal-sample.svg"'
+      Content-MetalText:
+        description: |
+          Original decoded Metal seal text associated with the payload, when the payload was stored
+          with a Metal seal.
+        schema:
+          type: string
+        examples:
+          svgSeal:
+            value: '["seal1",384,"image/svg+xml","metal-sample.svg"]'
+          textSeal:
+            value: '["seal1",65,"text/plain","metal-sample.txt"]'
     content:
-      application/octet-stream:
+      "*/*":
         schema:
           type: string
           format: binary
-  "404":
-    $ref: "../../../responses/ResourceNotFound.yml"
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"

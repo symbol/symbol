@@ -1,14 +1,20 @@
 type: object
+description: Multisig graph entries grouped by distance from the requested account.
 required:
   - level
   - multisigEntries
 properties:
   level:
     type: integer
-    description: Level of the multisig account.
-    example: 0
+    description: |
+      Relative graph level.
+      `0` is the requested account, negative levels are multisig accounts for which the requested
+      account acts as a cosignatory, and positive levels are multisig relationships reached through
+      cosignatories.
+    examples:
+      - 0
   multisigEntries:
     type: array
-    description: Array of multisig accounts for this level.
+    description: Multisig state entries discovered at this graph level.
     items:
       $ref: "./MultisigAccountInfoDTO.yml"

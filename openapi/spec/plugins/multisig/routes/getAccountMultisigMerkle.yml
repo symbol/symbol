@@ -1,13 +1,27 @@
 tags:
   - Multisig routes
 summary: Get multisig account Merkle information
-description: Returns the multisig account Merkle information.
+description: |
+  Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
+  for the multisig state entry associated with the requested account.
+
+  If the requested account is a cosignatory, the endpoint returns the Merkle proof for that
+  account's multisig state entry. Cosignatory-only accounts still have a multisig state entry with
+  `minApproval = 0`, `minRemoval = 0`, an empty `cosignatoryAddresses` array, and
+  `multisigAddresses` listing the multisig accounts they can cosign.
+
+  If the requested account is itself a multisig account, the endpoint returns the Merkle proof for
+  that multisig account state entry.
+
+  If the requested account is neither a multisig account nor a cosignatory, the endpoint still
+  returns a Merkle proof response, but it is a negative proof showing that no multisig state entry
+  exists for the supplied address.
 operationId: getAccountMultisigMerkle
 parameters:
   - $ref: "../../../parameters/path/addressPath.yml"
 responses:
   "200":
-    description: success
+    description: Merkle proof for the requested multisig state entry.
     content:
       application/json:
         schema:

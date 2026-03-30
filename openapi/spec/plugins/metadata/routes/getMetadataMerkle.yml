@@ -1,16 +1,41 @@
 tags:
   - Metadata routes
 summary: Get metadata Merkle information
-description: Gets the metadata Merkle for a given composite hash.
+description: Returns the Merkle proof for the metadata state entry associated with the given composite hash.
 operationId: getMetadataMerkle
 parameters:
   - $ref: "../../../parameters/path/compositeHashPath.yml"
 responses:
   "200":
-    description: success
+    description: Merkle proof for the requested metadata state entry.
     content:
       application/json:
         schema:
           $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+        examples:
+          default:
+            summary: Metadata Merkle state proof example
+            value:
+              raw: 0000FFFF57D9DA38D99CB050FA3CB33DAEA3FD0A53E469C090626AEC89E119CF...
+              tree:
+                - type: 0
+                  path: ""
+                  encodedPath: "00"
+                  nibbleCount: 0
+                  linkMask: "FFFF"
+                  links:
+                    - bit: "0"
+                      link: "57D9DA38D99CB050FA3CB33DAEA3FD0A53E469C090626AEC89E119CF78B1061F"
+                    - bit: "A"
+                      link: "4E62C74F9BAA1C70791142597A1558759732CFC7F30D31AAC4E2DAA5AEB22311"
+                    - bit: "F"
+                      link: "DF3254A041D03364D73F04D438FD14763EDB25982315A617CB03B855A6423E09"
+                  branchHash: "29090978661F465191C15D5BBF1FA394C60D891F04B0FFF120BCF04431A590D5"
+                - type: 255
+                  path: "75EC9534D59EF70A6AE2FD3E83657272C97F850281A0024981A2D3DF6E37"
+                  encodedPath: "2075EC9534D59EF70A6AE2FD3E83657272C97F850281A0024981A2D3DF6E37"
+                  nibbleCount: 60
+                  value: "723D89E3E704EA9A55C52FDE1D4F462E1DA57748C9936E3B3D3D26B6EBC5DEDA"
+                  leafHash: "A3AF589E15116C400D545D7BBE8EF52950EE5FBE72B5E7768EFBC565311647B1"
   "409":
     $ref : "../../../responses/InvalidArgument.yml"

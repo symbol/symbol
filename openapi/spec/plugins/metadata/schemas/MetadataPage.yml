@@ -1,4 +1,5 @@
 type: object
+description: Paginated response containing metadata entries.
 required:
   - data
   - pagination

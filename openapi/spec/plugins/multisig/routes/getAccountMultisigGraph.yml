@@ -1,19 +1,99 @@
 tags:
   - Multisig routes
 summary: Get multisig account graph information
-description: Returns the multisig account graph.
+description: |
+  Returns the multisig graph centered on the requested account.
+
+  Level `0` contains the requested account. Negative levels contain multisig accounts for which the
+  queried account acts as a cosignatory. Positive levels contain multisig relationships discovered
+  through the queried account's cosignatories.
+
+  If the requested account is a cosignatory but is not itself managed as a multisig account, the
+  response still includes level `0` for that account. In this case, the level `0` entry has
+  `minApproval = 0`, `minRemoval = 0`, an empty `cosignatoryAddresses` array, and
+  `multisigAddresses` listing the multisig accounts it can cosign.
+
+  If the requested account is neither a multisig account nor a cosignatory of any multisig account,
+  no multisig state entry exists for it and the endpoint returns `404`.
+
+  If the requested account is itself a multisig account, the response includes its multisig state at
+  level `0` together with any reachable negative and positive graph levels.
 operationId: getAccountMultisigGraph
 parameters:
   - $ref: "../../../parameters/path/addressPath.yml"
 responses:
   "200":
-    description: success
+    description: Multisig graph grouped by level around the requested account.
     content:
       application/json:
         schema:
           type: array
           items:
             $ref: "../schemas/MultisigAccountGraphInfoDTO.yml"
+        examples:
+          multiLevel:
+            summary: Multi-level multisig graph
+            value:
+              - level: 0
+                multisigEntries:
+                  - multisig:
+                      version: 1
+                      accountAddress: "688E494F708C25C4E4CE77B933FDA54E81EDE01F9BD9D7DD"
+                      minApproval: 1
+                      minRemoval: 1
+                      cosignatoryAddresses:
+                        - "68D025524A619338C1D257E86D66AF5FE970891C1008269F"
+                      multisigAddresses: []
+              - level: 1
+                multisigEntries:
+                  - multisig:
+                      version: 1
+                      accountAddress: "68D025524A619338C1D257E86D66AF5FE970891C1008269F"
+                      minApproval: 2
+                      minRemoval: 2
+                      cosignatoryAddresses:
+                        - "680E0988E499D50E003EF81AD47C3BFA6A1FF938FEA18CF9"
+                        - "68241F70669BDF712EC5B405C622BAEF85E6001F20C37623"
+                        - "685203500A58DC257F5E007CE33C2150B5453B46DE5F201C"
+                        - "68A38091634ACB8455FB55F0FBD4C4D6C221C7C7A5EF7DD3"
+                      multisigAddresses:
+                        - "682AE8CC97DA1E1052D00851B46C2343A5C054EFCAC4517F"
+                        - "688E494F708C25C4E4CE77B933FDA54E81EDE01F9BD9D7DD"
+                        - "68AAE8CC97E5C7D44012CC0871DA979EF770BA61628A312D"
+              - level: 2
+                multisigEntries:
+                  - multisig:
+                      version: 1
+                      accountAddress: "680E0988E499D50E003EF81AD47C3BFA6A1FF938FEA18CF9"
+                      minApproval: 0
+                      minRemoval: 0
+                      cosignatoryAddresses: []
+                      multisigAddresses:
+                        - "68D025524A619338C1D257E86D66AF5FE970891C1008269F"
+                  - multisig:
+                      version: 1
+                      accountAddress: "68241F70669BDF712EC5B405C622BAEF85E6001F20C37623"
+                      minApproval: 0
+                      minRemoval: 0
+                      cosignatoryAddresses: []
+                      multisigAddresses:
+                        - "68D025524A619338C1D257E86D66AF5FE970891C1008269F"
+                  - multisig:
+                      version: 1
+                      accountAddress: "685203500A58DC257F5E007CE33C2150B5453B46DE5F201C"
+                      minApproval: 0
+                      minRemoval: 0
+                      cosignatoryAddresses: []
+                      multisigAddresses:
+                        - "68D025524A619338C1D257E86D66AF5FE970891C1008269F"
+                  - multisig:
+                      version: 1
+                      accountAddress: "68A38091634ACB8455FB55F0FBD4C4D6C221C7C7A5EF7DD3"
+                      minApproval: 0
+                      minRemoval: 0
+                      cosignatoryAddresses: []
+                      multisigAddresses:
+                        - "68D025524A619338C1D257E86D66AF5FE970891C1008269F"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

@@ -16,3 +16,10 @@ properties:
   message:
     type: string
     description: Human-readable error description. May include the invalid value or resource identifier.
+examples:
+  - code: InvalidContent
+    message: request body could not be parsed
+  - code: ResourceNotFound
+    message: no resource exists with id '999999999999'
+  - code: InvalidArgument
+    message: accountId has an invalid format

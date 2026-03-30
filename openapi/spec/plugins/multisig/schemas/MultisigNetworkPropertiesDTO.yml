@@ -1,17 +1,22 @@
 type: object
+description: Network-level limits that constrain multisig account structure.
 properties:
   maxMultisigDepth:
     type: string
-    description: Maximum number of multisig levels.
+    description: |
+      Maximum multisig depth allowed by the network, measured as the longest cosignatory chain.
+      A regular multisig account with only non-multisig cosignatories has depth `1`.
+      If one of its cosignatories is itself a multisig account, the depth becomes `2`; one more
+      nested multisig level makes it `3`.
     examples:
       - "3"
   maxCosignatoriesPerAccount:
     type: string  # uint32
-    description: Maximum number of cosignatories per account.
+    description: Maximum number of cosignatories that can directly manage a single multisig account.
     examples:
       - "25"
   maxCosignedAccountsPerAccount:
     type: string  # uint32
-    description: Maximum number of accounts a single account can cosign.
+    description: Maximum number of multisig accounts that a single account can cosign.
     examples:
       - "25"
