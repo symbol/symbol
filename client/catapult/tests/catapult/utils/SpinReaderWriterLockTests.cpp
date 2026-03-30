@@ -90,7 +90,10 @@ namespace catapult { namespace utils {
 		std::vector<BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>::ReaderLockGuard> readLocks;
 		readLocks.reserve(65535);
 		for (auto i = 0u; i < 65535u; ++i)
-			readLocks.push_back(lock.acquireReader());
+		{
+			auto readerLock = lock.acquireReader();
+			readLocks.push_back(std::move(readerLock));
+		}
 
 		// Act + Assert: the 65536th acquire must throw
 		EXPECT_THROW(lock.acquireReader(), catapult_runtime_error);
