@@ -6,7 +6,8 @@ title: Transaction Batching
 
 A <complete aggregate transaction:> can bundle multiple transactions from a single account into one atomic operation,
 with one fee and one confirmation.
-This is useful for distributing rewards, splitting payments, or funding several accounts at once.
+
+This is useful for distributing rewards, splitting payments, or funding several accounts at once, for example.
 
 This tutorial shows how to batch two <transfer transactions:> that send <XYM:> to different recipients.
 
@@ -39,6 +40,8 @@ digraph {
 
 Because all embedded transactions share the same signer, no <cosignatures:> are needed.
 The aggregate can be signed and announced by a single account.
+For examples requiring the collection of signatures from multiple accounts, see the
+[Complete Aggregate](./complete-aggregate.md) and [Bonded Aggregate](./bonded-aggregate.md) tutorials.
 
 ## Prerequisites
 
@@ -46,7 +49,7 @@ Before you start, make sure to set up your development environment.
 See [Setting Up a Development Environment](../start/setup.md).
 
 You also need an <account:> with enough <XYM:> to cover the transfers and the transaction fee.
-Although a pre-funded account is provided for convenience, it is not maintained and may run out of funds at any time.
+Although a pre-funded test account is provided for convenience, it is not maintained and may run out of funds at any time.
 
 To use your own account, complete the following steps:
 
@@ -112,7 +115,7 @@ These are inherited from the enclosing aggregate transaction.
 
 The aggregate transaction wraps all embedded transactions:
 
-* **Type:** Use `aggregate_complete_transaction_v3`.
+* **Type:** Use <ser:AggregateCompleteTransactionV3|aggregate_complete_transaction_v3>.
 
 * **Signer public key:** The account that signs the aggregate and pays the transaction fee.
 
@@ -154,12 +157,12 @@ The output shown below corresponds to a typical run of the program.
 
 Key points in the output:
 
-* **Line 16** (`"type": 16705`): Identifies this as an `aggregate_complete_transaction_v3`.
+* **Line 16** (`"type": 16705`): Identifies this as an <ser:AggregateCompleteTransactionV3>.
 * **Lines 26 and 40** (`"recipient_address"`): The two embedded transfers target different accounts.
   These are the hex-encoded forms of the Base32 addresses printed on lines 4-5.
 * **Lines 29-30 and 43-44** (`"mosaic_id"`, `"amount"`): Each transfer sends XYM (mosaic alias ID
   `16666583871264174062`).
-  The amounts `5000000` and `3000000` correspond to 5 XYM and 3 XYM (XYM has <divisibility:> 6).
+  The amounts `5000000` and `3000000` correspond to 5 and 3 XYM because this mosaic has <divisibility:> 6.
 * **Line 50** (`"cosignatures": []`): Empty because all embedded transactions share the same signer.
   No additional signatures are required.
 

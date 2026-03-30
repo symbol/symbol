@@ -155,7 +155,7 @@ The example creates two <transfer transactions:> for the swap:
 
 Once the embedded transactions are prepared, create the complete aggregate transaction that wraps them:
 
-* **Type:** Use `aggregate_complete_transaction_v3`.
+* **Type:** Use <ser:AggregateCompleteTransactionV3|aggregate_complete_transaction_v3>.
 
 * **Signer public key:** The account initiating the aggregate.
   This account announces the transaction and pays the transaction fee.
@@ -257,7 +257,7 @@ The output shown below corresponds to a typical run of the program.
 Key points in the output:
 
 * **Line 10** (`"signature": "0000..."`): Shows all zeros initially because the transaction hasn't been signed yet.
-* **Line 14** (`"type": 16705`): Indicates this is an `aggregate_complete_transaction_v3`.
+* **Line 14** (`"type": 16705`): Indicates this is an <ser:AggregateCompleteTransactionV3>.
 * **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
 * **Line 48** (`"cosignatures": []`): Initially empty. Account B's cosignature is added before announcement.
     Note how Account A's signature is only needed once, even though it appears as signer in both the aggregate and the
