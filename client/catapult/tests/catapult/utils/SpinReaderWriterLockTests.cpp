@@ -91,8 +91,8 @@ namespace catapult { namespace utils {
 		readLocks.reserve(65535);
 		for (auto i = 0u; i < 65535u; ++i)
 		{
-			auto readerLock = lock.acquireReader();
-			readLocks.push_back(std::move(readerLock));
+			auto readLock = lock.acquireReader();
+			readLocks.push_back(std::move(readLock));
 		}
 
 		// Act + Assert: the 65536th acquire must throw
