@@ -41,13 +41,21 @@ namespace catapult { namespace utils {
 		// Bits 15-0:    [16 bits] Active reader count
 
 		static constexpr uint32_t Active_Writer_Flag = 0b10000000000000000000000000000000;
-		static constexpr uint32_t Pending_Writer_Mask = 0b01111111111111110000000000000000;
+
+		// Mask for total writer count bits (pending + active).
+		static constexpr uint32_t Writer_Count_Mask = 0b01111111111111110000000000000000;
+		// DEPRECATED: Use Writer_Count_Mask instead. Kept for backward compatibility.
+		static constexpr uint32_t Pending_Writer_Mask = Writer_Count_Mask;
+
 		static constexpr uint32_t Reader_Mask = 0b00000000000000001111111111111111;
-		static constexpr uint32_t Writer_Mask = Pending_Writer_Mask | Active_Writer_Flag;
+		static constexpr uint32_t Writer_Mask = Writer_Count_Mask | Active_Writer_Flag;
 
 		static constexpr uint32_t Active_Reader_Increment = 0b00000000000000000000000000000001;
-		static constexpr uint32_t Pending_Writer_Increment = 0b00000000000000010000000000000000;
 
+		// Increment for total writer count (pending + active).
+		static constexpr uint32_t Writer_Count_Increment = 0b00000000000000010000000000000000;
+		// DEPRECATED: Use Writer_Count_Increment instead. Kept for backward compatibility.
+		static constexpr uint32_t Pending_Writer_Increment = Writer_Count_Increment;
 	private:
 		// region YieldStepper
 
