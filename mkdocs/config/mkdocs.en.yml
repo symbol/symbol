@@ -103,6 +103,7 @@ nav:
               - devbook/transactions/monitoring-status.md
               - devbook/transactions/complete-aggregate.md
               - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/transaction-batching.md
               - devbook/transactions/fee-sponsorship.md
           - Namespaces:
               - devbook/namespaces/register-root-namespace.md
