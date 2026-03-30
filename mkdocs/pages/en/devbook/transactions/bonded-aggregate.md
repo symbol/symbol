@@ -153,7 +153,7 @@ The example creates two <transfer transactions:> for the swap:
 
 Once the embedded transactions are prepared, create the bonded aggregate transaction that wraps them:
 
-* **Type:** Use `aggregate_bonded_transaction_v3`.
+* **Type:** Use <ser:AggregateBondedTransactionV3|aggregate_bonded_transaction_v3>.
 
 * **Signer public key:** The account initiating the aggregate.
   This account announces the transaction and pays the transaction fee.
@@ -300,7 +300,7 @@ The output shown below corresponds to a typical run of the program.
 
 Key points in the output:
 
-* **Line 14** (`"type": 16961`): Indicates this is an `aggregate_bonded_transaction_v3`.
+* **Line 14** (`"type": 16961`): Indicates this is an <ser:AggregateBondedTransactionV3>.
 * **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
 * **Line 48** (`"cosignatures": []`): Initially empty. Cosignatures are submitted on-chain after announcement.
 * **Line 51** (`Bonded aggregate transaction hash:`): The hash of the bonded aggregate, required for creating the hash
