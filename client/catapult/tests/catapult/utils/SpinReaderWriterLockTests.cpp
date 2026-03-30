@@ -96,7 +96,7 @@ namespace catapult { namespace utils {
 		}
 
 		// Act + Assert: the 65536th acquire must throw
-		EXPECT_THROW(lock.acquireReader(), catapult_runtime_error);
+		EXPECT_THROW({ std::ignore = lock.acquireReader(); }, catapult_runtime_error);
 
 		// Assert: lock state is still intact after the throw attempt
 		EXPECT_FALSE(lock.isWriterPending());
