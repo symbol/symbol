@@ -186,8 +186,19 @@ namespace catapult { namespace utils {
 			WriterLockGuard promoteToWriter() {
 				markActiveWriter();
 
-				// mark a pending write by changing the reader to a writer
-				m_value.fetch_add(Pending_Writer_Increment - Active_Reader_Increment);
+				// mark a pending write by changing the reader to a writer using CAS to guard against overflow
+				YieldStepper stepper;
+				uint32_t current = m_value;
+				for (;;) {
+					if ((current & Writer_Count_Mask) == Writer_Count_Mask)
+						CATAPULT_THROW_RUNTIME_ERROR("max writer count (32767) reached");
+
+					auto desired = current + Writer_Count_Increment - Active_Reader_Increment;
+					if (m_value.compare_exchange_strong(current, desired))
+						break;
+
+					stepper.yield();
+				}
 
 				// wait for exclusive access
 				AcquireWriter(m_value);
@@ -251,7 +262,7 @@ namespace catapult { namespace utils {
 
 				// fail fast if reader count is already saturated
 				if ((current & Reader_Mask) == Reader_Mask)
-					CATAPULT_THROW_RUNTIME_ERROR("max reader count reached");
+					CATAPULT_THROW_RUNTIME_ERROR("max reader count (65535) reached");
 
 				// try to increment the number of readers by one
 				auto desired = static_cast<uint32_t>(current + Active_Reader_Increment);
@@ -267,13 +278,16 @@ namespace catapult { namespace utils {
 		/// Blocks until a writer lock can be acquired.
 		inline WriterLockGuard acquireWriter() {
 			// mark a pending write using CAS to guard against overflow
+			YieldStepper stepper;
 			uint32_t current = m_value;
 			for (;;) {
-				if ((current & Pending_Writer_Mask) == Pending_Writer_Mask)
-					CATAPULT_THROW_RUNTIME_ERROR("max writer count reached");
+				if ((current & Writer_Count_Mask) == Writer_Count_Mask)
+					CATAPULT_THROW_RUNTIME_ERROR("max writer count (32767) reached");
 
-				if (m_value.compare_exchange_strong(current, current + Pending_Writer_Increment))
+				if (m_value.compare_exchange_strong(current, current + Writer_Count_Increment))
 					break;
+
+				stepper.yield();
 			}
 
 			// wait for exclusive access

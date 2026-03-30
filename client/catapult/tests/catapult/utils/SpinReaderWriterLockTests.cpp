@@ -22,6 +22,7 @@
 #include "catapult/utils/SpinReaderWriterLock.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
+#include <vector>
 
 namespace catapult { namespace utils {
 
@@ -81,6 +82,23 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isWriterPending());
 		EXPECT_FALSE(lock.isWriterActive());
 		EXPECT_FALSE(lock.isReaderActive());
+	}
+
+	TEST(TEST_CLASS, AcquireReaderThrowsWhenReaderCountSaturated) {
+		// Arrange: fill reader count to its maximum (65535 = Reader_Mask = 0xFFFF)
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		std::vector<BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>::ReaderLockGuard> readLocks;
+		readLocks.reserve(65535);
+		for (auto i = 0u; i < 65535u; ++i)
+			readLocks.push_back(lock.acquireReader());
+
+		// Act + Assert: the 65536th acquire must throw
+		EXPECT_THROW(lock.acquireReader(), catapult_runtime_error);
+
+		// Assert: lock state is still intact after the throw attempt
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_TRUE(lock.isReaderActive());
 	}
 
 	// endregion
