@@ -210,7 +210,7 @@ namespace catapult { namespace utils {
 				m_isWriterActive = true;
 			}
 
-#ifdef GTEST_VERSION_MAJOR
+#ifdef GOOGLETEST_INCLUDE_GTEST_GTEST_H_
 		public:
 #else
 		private:

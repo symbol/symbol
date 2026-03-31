@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include <vector>
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
-#include <vector>
+#include "catapult/utils/SpinReaderWriterLock.h"
 
 namespace catapult { namespace utils {
 
