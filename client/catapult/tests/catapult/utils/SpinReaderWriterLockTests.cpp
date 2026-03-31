@@ -302,8 +302,8 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isWriterActive());
 		EXPECT_FALSE(lock.isReaderActive());
 	}
-	// endregion
 
+	// endregion
 
 	// region lock traits
 
