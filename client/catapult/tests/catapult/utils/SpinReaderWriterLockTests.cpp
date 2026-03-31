@@ -19,14 +19,22 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include <vector>
+#include "catapult/utils/SpinReaderWriterLock.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include <vector>
 
 namespace catapult { namespace utils {
 
 #define TEST_CLASS SpinReaderWriterLockTests
+
+    // Expose private fields of BasicSpinReaderWriterLock
+	template<typename TReaderNotificationPolicy>
+	struct SpinReaderWriterLockTestAccessor {
+		static std::atomic<uint32_t>& _v(BasicSpinReaderWriterLock<TReaderNotificationPolicy>& lock) {
+			return lock.m_value;
+		}
+	};
 
 	// region basic - unlocked
 
@@ -283,11 +291,12 @@ namespace catapult { namespace utils {
 
 		// Act  : mimic acquire path till saturation
 		// Note : we can't spawn as many threads on commodity hw
+		auto& value = SpinReaderWriterLockTestAccessor<NoOpReaderNotificationPolicy>::mvalueRef(lock);
 		for (auto i = 0u; i < Max_Writer_Count; ++i) {
-			uint32_t current = lock.m_value;
+			uint32_t current = value;
 			for (;;) {
 				auto desired = current + Writer_Count_Increment;
-				if (lock.m_value.compare_exchange_strong(current, desired))
+				if (value.compare_exchange_strong(current, desired))
 					break;
 			}
 		}

@@ -53,6 +53,9 @@ namespace catapult { namespace utils {
 		// Increment for total writer count (pending + active)
 		static constexpr uint32_t Writer_Count_Increment = 0b00000000000000010000000000000000;
 
+        // For use in tests only
+		friend class SpinReaderWriterLockTestAccessor<TReaderNotificationPolicy>;
+
 	private:
 		// region YieldStepper
 
@@ -210,11 +213,7 @@ namespace catapult { namespace utils {
 				m_isWriterActive = true;
 			}
 
-#ifdef GOOGLETEST_INCLUDE_GTEST_GTEST_H_
-		public:
-#else
 		private:
-#endif
 			std::atomic<uint32_t>& m_value;
 			bool m_isWriterActive;
 		};
