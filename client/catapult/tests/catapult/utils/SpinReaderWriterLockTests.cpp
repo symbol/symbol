@@ -19,9 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#define private public
 #include "catapult/utils/SpinReaderWriterLock.h"
-#undef private
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 #include <vector>
@@ -283,7 +281,7 @@ namespace catapult { namespace utils {
 		constexpr auto Writer_Count_Mask = 0x7FFF0000u;
 		constexpr auto Max_Writer_Count = Writer_Count_Mask / Writer_Count_Increment;
 
-		auto& value = lock.m_value;
+		auto& value = SpinReaderWriterLockTestAccessor<NoOpReaderNotificationPolicy>::value(lock);
 		for (auto i = 0u; i < Max_Writer_Count; ++i) {
 			uint32_t current = value;
 			for (;;) {

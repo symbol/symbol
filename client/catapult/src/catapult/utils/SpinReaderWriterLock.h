@@ -52,6 +52,11 @@ namespace catapult { namespace utils {
 
 		// Increment for total writer count (pending + active)
 		static constexpr uint32_t Writer_Count_Increment = 0b00000000000000010000000000000000;
+
+#ifdef GTEST_VERSION_MAJOR
+		friend class SpinReaderWriterLockTestAccessor<TReaderNotificationPolicy>;
+#endif
+
 	private:
 		// region YieldStepper
 
@@ -306,6 +311,15 @@ namespace catapult { namespace utils {
 	private:
 		std::atomic<uint32_t> m_value;
 	};
+
+#ifdef GTEST_VERSION_MAJOR
+	template<typename TReaderNotificationPolicy>
+	class SpinReaderWriterLockTestAccessor {
+		static std::atomic<uint32_t>& value(BasicSpinReaderWriterLock<TReaderNotificationPolicy>& lock) {
+			return lock.m_value;
+		}
+	};
+#endif
 
 	/// No-op reader notification policy.
 	struct NoOpReaderNotificationPolicy {
