@@ -27,6 +27,10 @@
 
 namespace catapult { namespace utils {
 
+    // Forward declaration for test accessor.
+	template<typename TReaderNotificationPolicy>
+	struct SpinReaderWriterLockTestAccessor;
+
 	/// Custom reader writer lock implemented by using an atomic that allows multiple readers and a single writer
 	/// and prefers writers.
 	/// \note
@@ -54,7 +58,7 @@ namespace catapult { namespace utils {
 		static constexpr uint32_t Writer_Count_Increment = 0b00000000000000010000000000000000;
 
 		// For use in tests only
-		friend class SpinReaderWriterLockTestAccessor<TReaderNotificationPolicy>;
+		friend struct SpinReaderWriterLockTestAccessor<TReaderNotificationPolicy>;
 
 	private:
 		// region YieldStepper
