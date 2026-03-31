@@ -19,7 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#define private public
 #include "catapult/utils/SpinReaderWriterLock.h"
+#undef private
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 #include <vector>
@@ -276,15 +278,12 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, AcquireWriterThrowsWhenWriterCountSaturated) {
 		// Arrange: fill writer count to its maximum (32767 = Writer_Count_Mask = 0x7FFF0000) using CAS increments
 		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
-		static_assert(sizeof(BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>) == sizeof(std::atomic<uint32_t>));
 
-		constexpr uint32_t Writer_Count_Increment = 0x00010000u;
-		constexpr uint32_t Writer_Count_Mask = 0x7FFF0000u;
-		constexpr uint32_t Max_Writer_Count = Writer_Count_Mask / Writer_Count_Increment;
+		constexpr auto Writer_Count_Increment = 0x00010000u;
+		constexpr auto Writer_Count_Mask = 0x7FFF0000u;
+		constexpr auto Max_Writer_Count = Writer_Count_Mask / Writer_Count_Increment;
 
-		// Act : mimic the acquisition path as we can't effectively
-		//       spawn enough threads to saturate the writer count
-		auto& value = *reinterpret_cast<std::atomic<uint32_t>*>(&lock);
+		auto& value = lock.m_value;
 		for (auto i = 0u; i < Max_Writer_Count; ++i) {
 			uint32_t current = value;
 			for (;;) {
