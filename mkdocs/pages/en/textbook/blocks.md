@@ -51,6 +51,18 @@ All blocks that follow are created through a process called <harvesting:>, Symbo
 blockchains.
 Harvesters validate transactions and add them to the chain, receiving transaction fees as a reward.
 
+## Network Time
+
+Network Time
+:   Symbol defines time as the number of milliseconds elapsed since the creation of its first block,
+    known as the <Nemesis block:> (or Genesis block, for the rest of blockchains).
+
+    All timestamps are calculated relative to this origin.
+
+UTC timestamps can be obtained by adding the Nemesis block's UNIX timestamp,
+which is `2021-03-16T00:06:25Z` for <mainnet:>.
+For other networks, it can be retrieved from the network properties.
+
 ## Block Structure
 
 Each block in the Symbol blockchain contains a combination of metadata and transaction data, including:
