@@ -1,0 +1,17 @@
+Using node https://reference.symboltest.net:3001
+Block height: 3222290
+Signer: TAEJLGM3HFHSWEBISOOPGHFQYENKKGTNPZR4MGQ
+Beneficiary: TACLHA4QM3AHTVYMD4ON5BHRMA2E5P5EXRETKBY
+Network sink: TBC3AX4TMSYWTCWR6LDHPKWQQL7KPCOMHECN2II
+Inflation reward: 113.474978 XYM
+
+Reward distribution:
+  Harvester: 79.455446 XYM
+  Harvester: TCOADQ4OCZYUF3SVIC6LYLSMQI2DWJIF4DU4EHA
+  Network sink (5%): 5.675388 XYM
+  Beneficiary (25%): 28.376944 XYM
+
+Summary:
+  Total block reward: 113.507778 XYM
+  Inflation: 113.474978 XYM
+  Transaction fees: 0.032800 XYM

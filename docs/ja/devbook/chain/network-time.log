@@ -1,0 +1,7 @@
+Using node https://whydah.symbolmain.net:3001
+Fetching network properties from /network/properties
+Fetching current network time from /node/time
+
+Nemesis time (UTC): 2021-03-16T00:06:25.000Z
+Network time (ms since Nemesis): 159102619442
+Network time (UTC): 2026-03-31T11:16:44.442Z
