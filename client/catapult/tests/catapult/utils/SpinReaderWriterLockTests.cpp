@@ -281,12 +281,13 @@ namespace catapult { namespace utils {
 		constexpr auto Writer_Count_Mask = 0x7FFF0000u;
 		constexpr auto Max_Writer_Count = Writer_Count_Mask / Writer_Count_Increment;
 
-		auto& value = SpinReaderWriterLockTestAccessor<NoOpReaderNotificationPolicy>::value(lock);
+		// Act  : mimic acquire path till saturation
+		// Note : we can't spawn as many threads on commodity hw
 		for (auto i = 0u; i < Max_Writer_Count; ++i) {
-			uint32_t current = value;
+			uint32_t current = lock.m_value;
 			for (;;) {
 				auto desired = current + Writer_Count_Increment;
-				if (value.compare_exchange_strong(current, desired))
+				if (lock.m_value.compare_exchange_strong(current, desired))
 					break;
 			}
 		}
