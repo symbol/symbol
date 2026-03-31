@@ -27,7 +27,7 @@
 
 namespace catapult { namespace utils {
 
-    // Forward declaration for test accessor.
+	// Forward declaration for test accessor
 	template<typename TReaderNotificationPolicy>
 	struct SpinReaderWriterLockTestAccessor;
 
