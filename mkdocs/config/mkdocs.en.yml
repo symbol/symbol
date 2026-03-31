@@ -127,6 +127,7 @@ nav:
               - devbook/network-currency/query-block-rewards.md
           - Chain State:
               - devbook/chain/chain-heights.md
+              - devbook/chain/network-time.md
               - devbook/chain/prove-transaction.md
               - devbook/chain/prove-mosaic-definition.md
           - WebSockets:
