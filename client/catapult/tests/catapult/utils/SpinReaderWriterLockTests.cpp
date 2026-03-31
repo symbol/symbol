@@ -273,6 +273,35 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(lock.isReaderActive());
 	}
 
+	TEST(TEST_CLASS, AcquireWriterThrowsWhenWriterCountSaturated) {
+		// Arrange: fill writer count to its maximum (32767 = Writer_Count_Mask = 0x7FFF0000) using CAS increments
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		static_assert(sizeof(BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>) == sizeof(std::atomic<uint32_t>));
+
+		constexpr uint32_t Writer_Count_Increment = 0x00010000u;
+		constexpr uint32_t Writer_Count_Mask = 0x7FFF0000u;
+		constexpr uint32_t Max_Writer_Count = Writer_Count_Mask / Writer_Count_Increment;
+
+		// Act : mimic the acquisition path as we can't effectively
+		//       spawn enough threads to saturate the writer count
+		auto& value = *reinterpret_cast<std::atomic<uint32_t>*>(&lock);
+		for (auto i = 0u; i < Max_Writer_Count; ++i) {
+			uint32_t current = value;
+			for (;;) {
+				auto desired = current + Writer_Count_Increment;
+				if (value.compare_exchange_strong(current, desired))
+					break;
+			}
+		}
+
+		// Act + Assert: the next acquire must throw
+		EXPECT_THROW({ std::ignore = lock.acquireWriter(); }, catapult_runtime_error);
+
+		// Assert: lock state is still intact after the throw attempt
+		EXPECT_TRUE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_FALSE(lock.isReaderActive());
+	}
 	// endregion
 
 
