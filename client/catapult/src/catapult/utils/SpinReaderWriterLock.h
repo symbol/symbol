@@ -53,7 +53,7 @@ namespace catapult { namespace utils {
 		// Increment for total writer count (pending + active)
 		static constexpr uint32_t Writer_Count_Increment = 0b00000000000000010000000000000000;
 
-        // For use in tests only
+		// For use in tests only
 		friend class SpinReaderWriterLockTestAccessor<TReaderNotificationPolicy>;
 
 	private:

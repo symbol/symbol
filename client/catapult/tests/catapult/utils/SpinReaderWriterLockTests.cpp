@@ -28,7 +28,7 @@ namespace catapult { namespace utils {
 
 #define TEST_CLASS SpinReaderWriterLockTests
 
-    // Expose private fields of BasicSpinReaderWriterLock
+	// Expose private fields of BasicSpinReaderWriterLock
 	template<typename TReaderNotificationPolicy>
 	struct SpinReaderWriterLockTestAccessor {
 		static std::atomic<uint32_t>& _v(BasicSpinReaderWriterLock<TReaderNotificationPolicy>& lock) {
