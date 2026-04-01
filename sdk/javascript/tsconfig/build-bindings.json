@@ -17,7 +17,11 @@
         "declarationDir": "../ts",
 
         "checkJs": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+
+        "types": ["mocha", "node"],
+        "strict": false,
+        "rootDir": ".."
     },
      "include": ["../src/**/*.js", "../test/**/*.js", "../vectors/**/*.js"]
 }

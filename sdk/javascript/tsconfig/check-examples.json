@@ -15,7 +15,9 @@
         "noEmit": true,
 
         "checkJs": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+
+        "strict": false
     },
      "include": ["../examples/**/*.js"]
 }
