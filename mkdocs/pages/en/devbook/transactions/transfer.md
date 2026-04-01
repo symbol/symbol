@@ -35,6 +35,13 @@ but applications will probably want to use more fine-grained control.
 
 ## Code Explanation
 
+### Setting Up the Account
+
+{{ tutorial.code_snippet(['py:15:17', 'js:12:15']) }}
+
+The signer account is loaded from the `SIGNER_PRIVATE_KEY` environment variable.
+If not provided, a test key is used as default.
+
 ### Fetching Network Time
 
 {{ tutorial.code_snippet(['py:22:29', 'js:20:28']) }}

@@ -12,8 +12,8 @@ from symbolchain.sc import Amount
 NODE_URL = 'https://reference.symboltest.net:3001'
 print(f'Using node {NODE_URL}')
 
-SIGNER_PRIVATE_KEY = (
-	'EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
+	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 
 facade = SymbolFacade('testnet')
