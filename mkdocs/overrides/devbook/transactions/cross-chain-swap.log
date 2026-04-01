@@ -1,0 +1,86 @@
+Using Symbol node https://reference.symboltest.net:3001
+Using Ethereum RPC https://ethereum-sepolia-rpc.publicnode.com
+Alice Symbol address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Bob Symbol address: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
+Alice ETH address: 0x8019119CD3f852B65820F0Cf0d7FA0957BEd23E2
+Bob ETH address: 0xa5507aa9a7080d5916ABab889876A0910d1Ac328
+
+--- Alice: Generate proof and hashlock ---
+Proof (hex): a37eb40a549f29938fe14cddcae32d5e92bb518545a5ca76e304074249e8a17f
+Secret (double SHA-256): 5605117eef0a905ce214b9a74afaa6b28f1ce1d0d66e12fe493fb44de7ac8f9d
+
+--- Alice: Lock ETH on Ethereum ---
+Ethereum timelock (Unix): 1775235084
+Lock TX hash: c68081694feb23433ba9a2cdf32f492846fadef09ce901f697ed4fe61bce20b1
+Lock confirmed in block 10561817
+HTLC contract ID: a8eaf1b28d898064dd0ec9374695e7b468939dbcda6c44e4b43e8f48d3b44521
+
+--- Bob: Create secret lock on Symbol ---
+Hashlock from chain: 5605117eef0a905ce214b9a74afaa6b28f1ce1d0d66e12fe493fb44de7ac8f9d
+Lock duration: 5760 blocks
+Fetching current network time from /node/time
+  Network time: 107725431902 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Built secret lock transaction:
+{
+  "signature": "CA37E9B2...4030760C",
+  "signer_public_key": "D04AB232742BB4AB3A1368BD4615E4E6D0224AB71A016BAF8520A332C9778737",
+  "version": 1,
+  "network": 152,
+  "type": 16722,
+  "fee": "20900",
+  "deadline": "107732631902",
+  "recipient_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+  "secret": "5605117EEF0A905CE214B9A74AFAA6B28F1CE1D0D66E12FE493FB44DE7AC8F9D",
+  "mosaic": {
+    "mosaic_id": "16666583871264174062",
+    "amount": "1000000"
+  },
+  "duration": "5760",
+  "hash_algorithm": 2
+}
+Secret lock transaction hash: 9A3BF5325156D82C752B9B145C3EF766F7B125CD1F4F02A4AFAC06BC96859E93
+Announcing secret lock to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for Secret lock to reach confirmed status...
+  Transaction status: not yet available
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Secret lock confirmed in 15 seconds
+
+--- Alice: Claim XYM on Symbol ---
+Fetching current network time from /node/time
+  Network time: 107725453707 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Built secret proof transaction:
+{
+  "signature": "1038A127...51099902",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16978,
+  "fee": "21900",
+  "deadline": "107732653707",
+  "recipient_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+  "secret": "5605117EEF0A905CE214B9A74AFAA6B28F1CE1D0D66E12FE493FB44DE7AC8F9D",
+  "hash_algorithm": 2,
+  "proof": "a37eb40a549f29938fe14cddcae32d5e92bb518545a5ca76e304074249e8a17f"
+}
+Secret proof transaction hash: 7DE0E21795A91157FA7D522B86F99A28031A02D46BEE70C8E500800017C0CA64
+Announcing secret proof to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for Secret proof to reach confirmed status...
+  Transaction status: not yet available
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+Secret proof confirmed in 12 seconds
+
+--- Bob: Withdraw ETH on Ethereum ---
+Fetching proof from /transactions/confirmed/7DE0E21795A91157FA7D522B86F99A28031A02D46BEE70C8E500800017C0CA64
+Proof from chain: a37eb40a549f29938fe14cddcae32d5e92bb518545a5ca76e304074249e8a17f
+Withdraw TX hash: f12594341b946eef60c34e0ed6bf53b7c5ea8c49776bad8e734f64978b3db415
+Withdraw confirmed in block 10561821
+
+--- Cross-chain swap complete ---
