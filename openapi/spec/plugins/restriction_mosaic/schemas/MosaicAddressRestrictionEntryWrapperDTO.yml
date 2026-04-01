@@ -1,4 +1,5 @@
 type: object
+description: Wrapper object containing one mosaic address restriction entry.
 required:
   - version
   - compositeHash
@@ -10,14 +11,18 @@ properties:
   version:
     $ref: "../../../schemas/StateVersion.yml"
   compositeHash:
+    description: Composite hash uniquely identifying the mosaic restriction entry.
     $ref: "../../../schemas/Hash256.yml"
   entryType:
     $ref: "./MosaicRestrictionEntryTypeEnum.yml"
   mosaicId:
+    description: Mosaic identifier for which the restrictions are defined.
     $ref: "../../../schemas/MosaicId.yml"
   targetAddress:
+    description: Hex-encoded address to which the restrictions apply.
     $ref: "../../../schemas/AddressHex.yml"
   restrictions:
+    description: Address-specific restriction values associated with the mosaic and target address.
     type: array
     items:
       $ref: "./MosaicAddressRestrictionEntryDTO.yml"

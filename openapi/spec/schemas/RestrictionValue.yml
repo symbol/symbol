@@ -1,5 +1,7 @@
 type: string
 description: |
-  Numeric value assigned to a mosaic restriction, represented as a decimal string.
+  Unsigned 64-bit value associated with a mosaic restriction key, represented as a decimal string.
+  For address restrictions, it is the value assigned to the target address;
+  for global restrictions, it is the threshold evaluated with the restriction type.
 examples:
   - "1000"

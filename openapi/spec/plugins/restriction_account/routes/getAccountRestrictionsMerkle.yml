@@ -1,18 +1,20 @@
 tags:
   - Restriction Account routes
-summary: Get the account restrictions Merkle
-description: Returns the account restrictions Merkle for a given address.
+summary: Get account restrictions Merkle information
+description: |
+  Returns the Merkle state proof for the account restriction entry associated with the given account address.
+  If no account restriction entry exists for the supplied address, the endpoint still returns a
+  Merkle proof response, but it is a negative proof showing that no account restriction state entry
+  exists for the requested address.
 operationId: getAccountRestrictionsMerkle
 parameters:
   - $ref: "../../../parameters/path/addressPath.yml"
 responses:
   "200":
-    description: success
+    description: Merkle proof for the requested account restriction entry.
     content:
       application/json:
         schema:
           $ref: "../../../schemas/MerkleStateInfoDTO.yml"
-  "404":
-    $ref: "../../../responses/ResourceNotFound.yml"
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

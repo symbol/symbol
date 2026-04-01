@@ -1,5 +1,5 @@
 type: object
-description: Generic Mosaic Restriction
+description: Wrapper object containing one mosaic restriction entry, either a global restriction or an address restriction.
 anyOf:
   - $ref: "./MosaicAddressRestrictionDTO.yml"
   - $ref: "./MosaicGlobalRestrictionDTO.yml"

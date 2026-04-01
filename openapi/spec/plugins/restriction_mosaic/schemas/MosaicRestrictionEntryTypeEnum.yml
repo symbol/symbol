@@ -3,5 +3,6 @@ enum:
   - 0
   - 1
 description: |
-  - 0 - Mosaic address restriction.
-  - 1 - Mosaic global restriction.
+  Mosaic restriction entry type:
+  - `0`: address restriction entry for a specific target account
+  - `1`: global restriction entry defining the rule for the mosaic

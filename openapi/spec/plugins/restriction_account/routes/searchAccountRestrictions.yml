@@ -1,7 +1,7 @@
 tags:
   - Restriction Account routes
 summary: Search account restrictions
-description: Returns an array of account restrictions.
+description: Returns a paginated list of account restriction entries, optionally filtered by account address.
 operationId: searchAccountRestrictions
 parameters:
   - $ref: "../../../parameters/query/addressQuery.yml"
@@ -11,12 +11,35 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated list of matching account restriction entries.
     content:
       application/json:
         schema:
           $ref: "../schemas/AccountRestrictionsPage.yml"
-  "404":
-    $ref: "../../../responses/ResourceNotFound.yml"
+        examples:
+          default:
+            summary: Account restriction page example
+            value:
+              data:
+                - accountRestrictions:
+                    version: 1
+                    address: "684B80B56E930FAF2DD952E63DD034B9EC0E5439F6196364"
+                    restrictions:
+                      - restrictionFlags: 1
+                        values:
+                          - "680F3542F0103E36AF5EEF1E2FAB5D199B0AD47159DAD050"
+                          - "68253F5D6A03DC39E8F628AAA6C063E0FCD474215C145EA5"
+                          - "683321DB2D735B4FE7FDCC2DA7B0A442CBBB186E88DDA6D8"
+                          - "6850BF88C6DA53EA098D50705D0168B449A5A2D2044BA552"
+                          - "689C9301CD9F59475682785095E9BFD504F83824C3FC422A"
+                          - "68A065A209A7328BE21E25D5309C6B7B85248DACCAE8F10F"
+                          - "68F80702DAD8923A04D4AF9C4AE42F6FD7C31E954354D5BF"
+                          - "68FCBD1838167E6A0029E3F8F823862DC6963AFDCA7AF7D7"
+                      - restrictionFlags: 16385
+                        values:
+                          - "683A285DFCCDE394FF4E07D9B61EAA7E12ADA35043A5F760"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

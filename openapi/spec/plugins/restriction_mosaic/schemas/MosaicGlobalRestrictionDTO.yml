@@ -1,4 +1,5 @@
 type: object
+description: Wrapper object containing one mosaic global restriction entry and its identifier.
 required:
   - id
   - mosaicRestrictionEntry

@@ -1,17 +1,46 @@
 tags:
   - Restriction Mosaic routes
-summary: Get the mosaic restrictions
-description: Returns the mosaic restrictions for a composite hash.
+summary: Get mosaic restrictions
+description: Returns the mosaic restriction entry associated with the given composite hash.
 operationId: getMosaicRestrictions
 parameters:
   - $ref: "../../../parameters/path/compositeHashPath.yml"
 responses:
   "200":
-    description: success
+    description: Mosaic restriction entry successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/MosaicRestrictionDTO.yml"
+        examples:
+          globalRestriction:
+            summary: Mosaic global restriction entry example
+            value:
+              mosaicRestrictionEntry:
+                version: 1
+                compositeHash: "3D71569A2E74A60C406DE0A3C44DE7A15D326ACD4DF98460BEE85EBC3E836797"
+                entryType: 1
+                mosaicId: "613E6D0FC11F4530"
+                restrictions:
+                  - key: "14694524492525660186"
+                    restriction:
+                      referenceMosaicId: "0000000000000000"
+                      restrictionValue: "1"
+                      restrictionType: 1
+              id: "62F0B155426600566085BB41"
+          addressRestriction:
+            summary: Mosaic address restriction entry example
+            value:
+              mosaicRestrictionEntry:
+                version: 1
+                compositeHash: "BC5A22D08F5E48263B4711B926A459C9C48EAC3E5D4D63E9B2413768E2EB453A"
+                entryType: 0
+                mosaicId: "613E6D0FC11F4530"
+                targetAddress: "6827E508C5BB821AAB4541547D0307278DE378846AB824D7"
+                restrictions:
+                  - key: "14694524492525660186"
+                    value: "1"
+              id: "62F0B29C426600566085BCE4"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

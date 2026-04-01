@@ -1,4 +1,5 @@
 type: object
+description: One account restriction rule consisting of restriction flags and the restricted values.
 required:
   - restrictionFlags
   - values
@@ -7,7 +8,9 @@ properties:
     $ref: "./AccountRestrictionFlagsEnum.yml"
   values:
     type: array
-    description: Address, mosaic ID, or transaction type to restrict.
+    description: |
+      Restricted values matched by this rule.
+      The value type depends on `restrictionFlags` and can be an address, mosaic ID, or transaction type.
     items:
       anyOf:
         - $ref: "../../../schemas/UnresolvedAddress.yml"

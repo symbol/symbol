@@ -1,11 +1,12 @@
 type: object
+description: Paginated response containing account restriction entries.
 required:
   - data
   - pagination
 properties:
   data:
     type: array
-    description: Array of account restrictions.
+    description: Account restriction entries matching the requested filters.
     items:
       $ref: "./AccountRestrictionsInfoDTO.yml"
   pagination:
