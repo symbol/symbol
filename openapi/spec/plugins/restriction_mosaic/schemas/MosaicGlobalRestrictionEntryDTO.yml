@@ -1,4 +1,5 @@
 type: object
+description: Global mosaic restriction rule associated with a restriction key.
 required:
   - key
   - restriction

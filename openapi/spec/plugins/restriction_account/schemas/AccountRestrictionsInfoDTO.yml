@@ -1,4 +1,5 @@
 type: object
+description: Wrapper object containing one account restriction entry.
 required:
   - accountRestrictions
 properties:

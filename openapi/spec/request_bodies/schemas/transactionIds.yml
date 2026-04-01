@@ -5,6 +5,6 @@ properties:
     description: Array of transaction identifiers.
     items:
       type: string
-    example:
+    examples:
       - 59B8DA0F0CB2720001103922
       - 59B8D8E60CB2720001103904

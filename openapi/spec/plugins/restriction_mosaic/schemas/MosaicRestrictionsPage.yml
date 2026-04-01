@@ -1,4 +1,5 @@
 type: object
+description: Paginated list of mosaic restriction entries.
 required:
   - data
   - pagination

@@ -1,4 +1,6 @@
 type: string
-description: Restriction key returned in stored restriction entries, represented as a decimal string.
+description: |
+  Creator-defined 64-bit numeric identifier of a mosaic restriction, scoped to a mosaic.
+  It can be derived from a human-readable name by hashing it, and is represented as a decimal string in stored restriction entries.
 examples:
   - "790526"

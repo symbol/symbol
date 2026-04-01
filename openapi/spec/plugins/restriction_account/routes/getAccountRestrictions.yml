@@ -1,17 +1,28 @@
 tags:
   - Restriction Account routes
-summary: Get the account restrictions
-description: Returns the account restrictions for a given address.
+summary: Get account restrictions
+description: Returns the account restriction entry associated with the given account address.
 operationId: getAccountRestrictions
 parameters:
   - $ref: "../../../parameters/path/addressPath.yml"
 responses:
   "200":
-    description: success
+    description: Account restriction entry successfully retrieved.
     content:
       application/json:
         schema:
           $ref: "../schemas/AccountRestrictionsInfoDTO.yml"
+        examples:
+          default:
+            summary: Account restriction entry example
+            value:
+              accountRestrictions:
+                version: 1
+                address: "6861442430AE8F9818491ECDB2D5CD2FCE89D975F6EAAB8C"
+                restrictions:
+                  - restrictionFlags: 32769
+                    values:
+                      - "6833DE7366A78F3E59951F3C0739ED62ACA31C240E740750"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":
