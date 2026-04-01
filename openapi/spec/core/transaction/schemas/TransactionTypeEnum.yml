@@ -26,29 +26,29 @@ enum:
   - 16977
   - 16724
 description: |
-  Type of transaction:
-  * 0x414C (16716 decimal) - AccountKeyLinkTransaction.
-  * 0x4243 (16963 decimal) - VrfKeyLinkTransaction.
-  * 0x4143 (16707 decimal) - VotingKeyLinkTransaction.
-  * 0x424C (16972 decimal) - NodeKeyLinkTransaction.
-  * 0x4141 (16705 decimal) - AggregateCompleteTransaction.
-  * 0x4241 (16961 decimal) - AggregateBondedTransaction.
-  * 0x414D (16717 decimal) - MosaicDefinitionTransaction.
-  * 0x424D (16973 decimal) - MosaicSupplyChangeTransaction.
-  * 0x434D (17229 decimal) - MosaicSupplyRevocationTransaction.
-  * 0x414E (16718 decimal) - NamespaceRegistrationTransaction.
-  * 0x424E (16974 decimal) - AddressAliasTransaction.
-  * 0x434E (17230 decimal) - MosaicAliasTransaction.
-  * 0x4144 (16708 decimal) - AccountMetadataTransaction.
-  * 0x4244 (16964 decimal) - MosaicMetadataTransaction.
-  * 0x4344 (17220 decimal) - NamespaceMetadataTransaction.
-  * 0x4155 (16725 decimal) - MultisigAccountModificationTransaction.
-  * 0x4148 (16712 decimal) - HashLockTransaction.
-  * 0x4152 (16722 decimal) - SecretLockTransaction.
-  * 0x4252 (16978 decimal) - SecretProofTransaction.
-  * 0x4150 (16720 decimal) - AccountAddressRestrictionTransaction.
-  * 0x4250 (16976 decimal) - AccountMosaicRestrictionTransaction.
-  * 0x4350 (17232 decimal) - AccountOperationRestrictionTransaction.
-  * 0x4151 (16721 decimal) - MosaicGlobalRestrictionTransaction.
-  * 0x4251 (16977 decimal) - MosaicAddressRestrictionTransaction.
-  * 0x4154 (16724 decimal) - TransferTransaction.
+  Transaction type identifier:
+  - `0x414C` (`16716`): `AccountKeyLinkTransaction`
+  - `0x4243` (`16963`): `VrfKeyLinkTransaction`
+  - `0x4143` (`16707`): `VotingKeyLinkTransaction`
+  - `0x424C` (`16972`): `NodeKeyLinkTransaction`
+  - `0x4141` (`16705`): `AggregateCompleteTransaction`
+  - `0x4241` (`16961`): `AggregateBondedTransaction`
+  - `0x414D` (`16717`): `MosaicDefinitionTransaction`
+  - `0x424D` (`16973`): `MosaicSupplyChangeTransaction`
+  - `0x434D` (`17229`): `MosaicSupplyRevocationTransaction`
+  - `0x414E` (`16718`): `NamespaceRegistrationTransaction`
+  - `0x424E` (`16974`): `AddressAliasTransaction`
+  - `0x434E` (`17230`): `MosaicAliasTransaction`
+  - `0x4144` (`16708`): `AccountMetadataTransaction`
+  - `0x4244` (`16964`): `MosaicMetadataTransaction`
+  - `0x4344` (`17220`): `NamespaceMetadataTransaction`
+  - `0x4155` (`16725`): `MultisigAccountModificationTransaction`
+  - `0x4148` (`16712`): `HashLockTransaction`
+  - `0x4152` (`16722`): `SecretLockTransaction`
+  - `0x4252` (`16978`): `SecretProofTransaction`
+  - `0x4150` (`16720`): `AccountAddressRestrictionTransaction`
+  - `0x4250` (`16976`): `AccountMosaicRestrictionTransaction`
+  - `0x4350` (`17232`): `AccountOperationRestrictionTransaction`
+  - `0x4151` (`16721`): `MosaicGlobalRestrictionTransaction`
+  - `0x4251` (`16977`): `MosaicAddressRestrictionTransaction`
+  - `0x4154` (`16724`): `TransferTransaction`

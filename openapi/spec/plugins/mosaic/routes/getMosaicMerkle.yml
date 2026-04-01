@@ -2,9 +2,11 @@ tags:
   - Mosaic routes
 summary: Get mosaic Merkle information
 description: |
-  Returns the Merkle state proof for a mosaic.
+  Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof) for a mosaic.
 
   Clients can use this information to verify that the mosaic state is included in the node's state Merkle tree.
+  If the supplied mosaic ID does not exist, the endpoint still returns a Merkle proof response,
+  but it is a negative proof showing that no mosaic state entry exists for the requested mosaic ID.
   See [Data Validation](https://docs.symbol.dev/concepts/data-validation.html) for an overview of Patricia Merkle
   trees and state proofs on Symbol.
 operationId: getMosaicMerkle
@@ -17,7 +19,5 @@ responses:
       application/json:
         schema:
           $ref: "../../../schemas/MerkleStateInfoDTO.yml"
-  "404":
-    $ref: "../../../responses/ResourceNotFound.yml"
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

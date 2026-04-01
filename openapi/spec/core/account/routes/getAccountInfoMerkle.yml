@@ -5,6 +5,10 @@ description: |
   Retrieves the Merkle proof data for a given account.
   The Merkle path can be used to independently verify that the account state is included
   in the block state hash.
+  
+  If no account state entry exists for the supplied account ID, the endpoint still returns a
+  Merkle proof response, but it is a negative proof showing that no account state entry exists
+  for the requested account.
 
   The ``accountId`` path parameter accepts either a public key or a Base32-encoded address.
 operationId: getAccountInfoMerkle
@@ -22,7 +26,5 @@ responses:
             value:
               raw: 00008080DA9B4AF63BE985715EA635AF98E3CF3B0A22F9A2BE1C7DD40B79948AA63E36586E5D2E9D0C089C1C64BC0D42...
               tree: []
-  "404":
-    $ref: "../../../responses/ResourceNotFound.yml"
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

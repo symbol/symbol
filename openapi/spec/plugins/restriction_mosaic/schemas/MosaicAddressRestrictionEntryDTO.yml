@@ -1,4 +1,5 @@
 type: object
+description: Address-specific mosaic restriction value associated with a restriction key.
 required:
   - key
   - value

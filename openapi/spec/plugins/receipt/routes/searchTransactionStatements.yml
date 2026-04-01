@@ -59,7 +59,5 @@ responses:
               pagination:
                 pageNumber: 1
                 pageSize: 10
-  "404":
-    $ref: "../../../responses/ResourceNotFound.yml"
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

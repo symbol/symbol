@@ -26,5 +26,7 @@ responses:
                 metadataType: 0
                 valueSize: 6
                 value: "333433383334"
+  "404":
+    $ref : "../../../responses/ResourceNotFound.yml"
   "409":
     $ref : "../../../responses/InvalidArgument.yml"
