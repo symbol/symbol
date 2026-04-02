@@ -4,18 +4,18 @@ title: 蛇口 (Faucet) からの通貨の入手
 
 # 蛇口 (Faucet) からのテストネット通貨の入手
 
-Symbol <testnet:> では、テスト目的で開発者の <accounts:> に <XYM:> を無料で配布する「蛇口 (Faucet)」を提供しています。このガイドでは、ウェブベースの Faucet を使用してテストネットの通貨を請求する方法を説明します。
+Symbol [テストネット](default:テストネット) では、テスト目的で開発者の [アカウント](default:アカウント) に <XYM:> を無料で配布する「蛇口 (Faucet)」を提供しています。このガイドでは、ウェブベースの Faucet を使用してテストネットの通貨を請求する方法を説明します。
 
 !!! note "メモ"
     テストネットの XYM には実質的な価値はありません。これは、実際の通貨を使用せずに Symbol の機能を試せるようにするために存在しています。
 
-    <mainnet:> の XYM が必要な場合は、[取引所](https://coinmarketcap.com/currencies/symbol/#Markets) を通じて購入する必要があります。
+    [メインネット](default:メインネット) の XYM が必要な場合は、[取引所](https://coinmarketcap.com/currencies/symbol/#Markets) を通じて購入する必要があります。
 
 ## 前提条件
 
 開始する前に、以下を確認してください。
 
-- 資金を受け取るためのテストネット <account:> を、[コード](../accounts/create-from-private-key.md) または [ウォレットを使用して](../../userbook/wallet/create-account.md) 作成していること。
+- 資金を受け取るためのテストネット [アカウント](default:アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
 - Faucet で本人確認を行うための 𝕏 アカウントを持っていること。
 
 ## テストネット資金を請求する方法
@@ -61,7 +61,7 @@ Symbol <testnet:> では、テスト目的で開発者の <accounts:> に <XYM:>
 
 エクスプローラーには、承認状態を含むトランザクションの詳細が表示されます。通常のネットワーク条件下では、トランザクションは概ね1分以内に承認されます。
 
-<wallet:> を設定している場合は、そこから転送を監視することもできます。
+[ウォレット](default:ウォレット) を設定している場合は、そこから転送を監視することもできます。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
