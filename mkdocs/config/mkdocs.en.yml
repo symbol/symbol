@@ -103,10 +103,12 @@ nav:
               - devbook/transactions/monitoring-status.md
               - devbook/transactions/complete-aggregate.md
               - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/transaction-batching.md
               - devbook/transactions/fee-sponsorship.md
           - Namespaces:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
+              - devbook/namespaces/get-namespace-info.md
               - devbook/namespaces/extend-root-namespace.md
               - devbook/namespaces/link-namespace-to-address.md
               - devbook/namespaces/link-namespace-to-mosaic.md
@@ -114,14 +116,20 @@ nav:
               - devbook/namespaces/resolve-namespace-from-receipt.md
           - Mosaics:
               - devbook/mosaics/create-mosaic.md
+              - devbook/mosaics/get-mosaic-info.md
               - devbook/mosaics/change-mosaic-supply.md
               - devbook/mosaics/modify-mosaic-definition.md
               - devbook/mosaics/mosaic-metadata.md
               - devbook/mosaics/revoke-mosaic.md
               - devbook/mosaics/mosaic-restrictions.md
+          - Network Currency:
+              - devbook/network-currency/query-currency-supply.md
+              - devbook/network-currency/query-block-rewards.md
           - Chain State:
               - devbook/chain/chain-heights.md
+              - devbook/chain/network-time.md
               - devbook/chain/prove-transaction.md
+              - devbook/chain/prove-mosaic-definition.md
           - WebSockets:
               - devbook/websockets/listen-new-blocks.md
               - devbook/websockets/listen-transaction-flow.md

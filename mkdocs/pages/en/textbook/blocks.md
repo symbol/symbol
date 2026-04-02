@@ -51,6 +51,18 @@ All blocks that follow are created through a process called <harvesting:>, Symbo
 blockchains.
 Harvesters validate transactions and add them to the chain, receiving transaction fees as a reward.
 
+## Network Time
+
+Network Time
+:   Symbol defines time as the number of milliseconds elapsed since the creation of its first block,
+    known as the <Nemesis block:> (or Genesis block, for the rest of blockchains).
+
+    All timestamps are calculated relative to this origin.
+
+UTC timestamps can be obtained by adding the Nemesis block's UNIX timestamp,
+which is `2021-03-16T00:06:25Z` for <mainnet:>.
+For other networks, it can be retrieved from the network properties.
+
 ## Block Structure
 
 Each block in the Symbol blockchain contains a combination of metadata and transaction data, including:
@@ -60,7 +72,7 @@ Each block in the Symbol blockchain contains a combination of metadata and trans
 | **Height**              | The block's position in the chain, starting from 1 for the <nemesis block:>.<br/>Each new block has a height one greater than its predecessor.        |
 | **Timestamp**           | Milliseconds elapsed since <nemesis block:>, strictly increasing for each block.<br/>Average time between blocks is kept close to 30s.                |
 | **Previous block hash** | <Hash:> of the previous block. If its contents were tampered with, this hash would change, breaking the chain and invalidating all subsequent blocks. |
-| **State hashes**        | [Hashes](default:Hash) summarizing the block's transaction list, generated receipts, and the resulting state after processing.                        |
+| **Block hashes**        | [Hashes](default:Hash) summarizing the block's transaction list, generated receipts, and the resulting state after processing.                        |
 | **Fee multiplier**      | A multiplier set by the block harvester that determines how fees are calculated for each transaction in the block, based on their size in bytes.      |
 | **Transactions**        | A list of valid transactions included in the block. Each transaction is independently verified before being accepted into the block.                  |
 | **Receipts**            | A set of records automatically generated during block processing to reflect internal changes not captured by transactions themselves.                 |
@@ -164,7 +176,7 @@ verifiability.
 
 </div>
 
-## State Hashes
+## Block Hashes
 
 Each block header contains three <hashes:> that represent different aspects of the block:
 
@@ -175,7 +187,7 @@ Each block header contains three <hashes:> that represent different aspects of t
 These hashes let any node independently verify a block's contents without trusting the source.
 If a block is tampered with, the corresponding hash will not match, and the block will be rejected.
 
-### Transaction hash
+### Transaction Hash
 
 Merkle tree
 :   A [binary tree](https://en.wikipedia.org/wiki/Binary_tree) where each leaf node holds a data hash, and each parent
@@ -219,19 +231,19 @@ If the result matches the block's transaction hash, **T2** is proven to be part 
 Each level of the tree halves the number of nodes, so a proof requires only log₂(n) hashes.
 For a block with 16 transactions, only 4 hashes are needed instead of 16 full transaction payloads.
 
-### Receipts hash
+### Receipts Hash
 
 The receipts hash is computed the same way as the transaction hash, using a <Merkle tree:> built from the block's
 receipt statements instead of transactions.
 
-### State hash
+### State Hash
 
 Patricia tree
 :   A [trie-based](https://en.wikipedia.org/wiki/Trie) structure where keys are encoded as paths through the tree.
     Unlike a <Merkle tree:>, a Patricia tree supports proofs of both existence and non-existence.
 
 The state hash represents the entire chain state after processing the block.
-Symbol maintains separate <Patricia trees:> for each type of on-chain data:
+Symbol maintains separate <Patricia trees:> for each type of on-chain data, called _sub-caches_:
 
 * Account balances, keys, and importance scores
 * Mosaic definitions and properties
@@ -244,6 +256,65 @@ Symbol maintains separate <Patricia trees:> for each type of on-chain data:
 Each Patricia tree has its own root hash.
 The state hash is computed as `SHA3-256(root₁ || root₂ || ... || rootₙ)`, a single hash over the concatenated roots
 of all sub-caches.
+
+For example, to prove that a mosaic had a particular definition in a certain block, the hash of the definition must be
+present in the tree.
+Locating hashes inside Patricia trees is very efficient due to their properties:
+
+* The mosaic's ID is hashed with SHA3-256 to obtain its _encoded key_ (`3A4C...` in the diagram).
+* Each _nibble_ (half-byte, one hex digit) of this key indicates which branch to follow at each level of the tree.
+* If a final leaf is reached, it contains the hash of the definition of the mosaic.
+
+```dot
+digraph PatriciaProof {
+    rankdir=BT;
+    node [shape=box fontsize=10];
+    edge [arrowsize=0.7];
+
+    stateHash [label="stateHash\nSHA3-256(root₁ || root₂ || ... || rootₙ)" penwidth=3];
+
+    root1 [label="accounts root"];
+    root2 [label="mosaics root\n[16 links]" penwidth=3];
+    root3 [label="namespaces root"];
+    rootN [label="..." shape=none];
+
+    root1 -> stateHash;
+    root2 -> stateHash;
+    root3 -> stateHash;
+    rootN -> stateHash;
+
+    b1 [label="[16 links]" penwidth=3];
+    b2 [label="[15 links]" penwidth=3];
+    b3 [label="[5 links]" penwidth=3];
+    other1 [label="..." shape=none];
+    other2 [label="..." shape=none];
+    other3 [label="..." shape=none];
+    leaf [label="path: 540D7E...559E\nvalue: H(mosaic)" penwidth=3 style=filled fillcolor=lightyellow];
+
+    b1 -> root2 [label="3" penwidth=2];
+    other1 -> root2;
+    b2 -> b1 [label="A" penwidth=2];
+    other2 -> b1;
+    b3 -> b2 [label="4" penwidth=2];
+    other3 -> b2;
+    leaf -> b3 [label="C" penwidth=2];
+}
+```
+
+Each branch node has up to 16 links (one per nibble value `0`–`F`), each pointing to a child node.
+Each node also carries a **path**: a compressed sequence of nibbles from the encoded key,
+shared by all entries below it.
+In the example above the branch nodes have empty paths, but a node might carry a long path that skips many nibbles at
+once when there are no other entries that would require branching at those positions.
+The full encoded key is reconstructed by concatenating each followed nibble and node path from root to leaf:
+`3` + `A` + `4` + `C` + leaf path `540D7E...559E` = `3A4C540D7E...559E`.
+
+The leaf stores the SHA3-256 hash of the mosaic definition (the _hashed value_).
+
+Verification links the proof back to the block header in two steps.
+First, it checks that the sub-cache roots hash to the block's state hash, confirming they are genuine.
+Then, it checks that the root of the proof tree is one of those sub-cache roots.
+If both checks pass and the leaf's value matches the expected hash, the entry is proven to exist on chain.
 
 Because this hash captures the full chain state, two nodes that agree on a block's state hash are guaranteed to have
 identical views of every account, mosaic, and namespace at that height.

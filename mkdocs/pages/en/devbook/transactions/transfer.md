@@ -35,46 +35,20 @@ but applications will probably want to use more fine-grained control.
 
 ## Code Explanation
 
+### Setting Up the Account
+
+{{ tutorial.code_snippet(['py:15:17', 'js:12:15']) }}
+
+The signer account is loaded from the `SIGNER_PRIVATE_KEY` environment variable.
+If not provided, a test key is used as default.
+
 ### Fetching Network Time
 
 {{ tutorial.code_snippet(['py:22:29', 'js:20:28']) }}
 
 Transactions on Symbol must include a deadline, which defines how long the network should attempt to confirm the
 transaction before discarding it.
-Deadlines are expressed in absolute network time, so the first step is to fetch the current network time from a <node:>.
-
-??? info "What is the network time?"
-    Symbol defines time as the number of seconds elapsed since the creation of its first block,
-    known as the <Nemesis block:> (or Genesis block, for the rest of blockchains).
-
-    All transaction deadlines and timestamps are calculated relative to this origin.
-
-    If you want to display timestamps in a more human-friendly way such as UTC, you need to add the timestamp of the
-    Nemesis block, which you can retrieve from the network properties:
-
-    === ":simple-python: Python"
-
-        ```py
-        properties_path = '/network/properties'
-        print(f'Fetching network properties from {properties_path}')
-        with urllib.request.urlopen(f'{NODE_URL}{properties_path}') as response:
-            response_json = json.loads(response.read().decode())
-            epoch_adjustment = datetime.datetime.fromtimestamp(
-                int(response_json['network']['epochAdjustment'].rstrip('s')))
-            print(f'  Nemesis timestamp: {epoch_adjustment}')
-        ```
-
-    === ":simple-javascript: JavaScript"
-
-        ```js
-        const propertiesPath = '/network/properties';
-        console.log('Fetching network properties from', propertiesPath);
-        const propertiesResponse = await fetch(`${NODE_URL}${propertiesPath}`);
-        const propertiesJSON = await propertiesResponse.json();
-        const epochAdjustment = new Date(parseInt(
-          propertiesJSON['network']['epochAdjustment']) * 1000);
-        console.log('  Nemesis timestamp:', epochAdjustment);
-        ```
+Deadlines are expressed in <network time:>, so the first step is to fetch the current network time from a <node:>.
 
 If a transaction's deadline is earlier than the current network time or more than two hours in the future,
 the transaction will be rejected.
