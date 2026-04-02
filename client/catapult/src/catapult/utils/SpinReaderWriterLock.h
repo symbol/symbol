@@ -25,11 +25,14 @@
 #include <atomic>
 #include <thread>
 
-namespace catapult { namespace utils {
+namespace catapult {
+	namespace utils {
+		template<typename TReaderNotificationPolicy>
+		struct SpinReaderWriterLockTestAccessor;
+	}
+}
 
-	// Forward declaration for test accessor
-	template<typename TReaderNotificationPolicy>
-	struct SpinReaderWriterLockTestAccessor;
+namespace catapult { namespace utils {
 
 	/// Custom reader writer lock implemented by using an atomic that allows multiple readers and a single writer
 	/// and prefers writers.
