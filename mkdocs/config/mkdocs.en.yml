@@ -105,6 +105,7 @@ nav:
               - devbook/transactions/bonded-aggregate.md
               - devbook/transactions/transaction-batching.md
               - devbook/transactions/fee-sponsorship.md
+              - devbook/transactions/atomic-swap.md
           - Namespaces:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
