@@ -16,7 +16,7 @@ title: モザイクの作成
 
 * 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
-* モザイクを作成するための [アカウント] (default: アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
+* モザイクを作成するための [アカウント](default: アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
 * トランザクション手数料とレンタル手数料を支払うための [XYM](default: XYM) を入手していること。
     [蛇口 (Faucet) からのテストネット通貨の入手](../accounts/testnet-faucet.md) を参照してください。
 
