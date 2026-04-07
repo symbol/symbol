@@ -4,7 +4,7 @@ title: 新しいブロック
 
 # 新しいブロックのリスニング
 
-<ws:block> と <ws:finalizedBlock> WebSocket チャネルは、新しい [ブロック] (default: ブロック) が生成されたとき、または [ファイナライズ](../../textbook/consensus.md#finalization) されたときにリアルタイムの通知を送信します。
+<ws:block> と <ws:finalizedBlock> WebSocket チャネルは、新しい [ブロック](default: ブロック) が生成されたとき、または [ファイナライズ](../../textbook/consensus.md#finalization) されたときにリアルタイムの通知を送信します。
 <get:/chain/info> エンドポイントをポーリングする場合と比較して、WebSocket は API 呼び出しを繰り返すオーバーヘッドなしに、更新が発生した瞬間にプッシュします。
 
 このチュートリアルでは、両方のチャネルをサブスクライブし、到着した各更新を表示する方法を説明します。
@@ -34,7 +34,7 @@ title: 新しいブロック
 
 {{ tutorial.code_full('devbook/websockets/listen-new-blocks', ['py', 'js']) }}
 
-このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード] (default: ノード) を設定します。
+このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
 WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き換え、 `/ws` を追加することで `NODE_URL` から派生します。
 
@@ -86,7 +86,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 チェーンの高さは、新しいブロックが生成されるたびに増加します。
 ファイナライズは通常、ブロック生成の10〜20分後に行われるため、ファイナライズされた高さはチェーンの先端（最新高）より遅れます。
 
-[投票ノード] (default: 投票ノード) がこのプロセスをどのように推進するかについての詳細は、テキストブックの [コンセンサス](../../textbook/consensus.md) セクションを参照してください。
+[投票ノード](default: 投票ノード) がこのプロセスをどのように推進するかについての詳細は、テキストブックの [コンセンサス](../../textbook/consensus.md) セクションを参照してください。
 
 ### 終了時のサブスクライブ解除
 
@@ -101,3 +101,23 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ```text linenums="1" hl_lines="2 3 4 5 8 11"
 --8<-- 'devbook/websockets/listen-new-blocks.log'
+```
+
+出力の主なポイント:
+
+* **接続** (2行目): `wss://` URL への WebSocket 接続が確立され、サーバーは一意の `uid` を返します。
+* **サブスクリプション** (3-4行目): `block` チャネルと `finalizedBlock` チャネルの両方がサブスクライブされます。
+* **新しいブロック** (5-7行目、9-10行目): 新しいブロックの通知が約30秒ごとに届きます。
+* **ファイナライズ** (8行目): ファイナライズラウンドが完了すると、一度に複数のブロックをカバーするファイナライズ通知が届きます。
+* **サブスクライブ解除** (11行目): `Ctrl+C` を押すと、コードは両方のチャネルのサブスクライブを解除します。
+
+## 結論
+
+このチュートリアルでは、以下の方法を説明しました。
+
+| ステップ | 関連ドキュメント |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [block チャネルのサブスクライブ](#_5) | <ws:block> |
+| [finalized チャネルのサブスクライブ](#_5) | <ws:finalizedBlock> |
+| [ブロックメッセージの処理](#_6) | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO) |
+| [ファイナライズメッセージの処理](#_6) | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) |
