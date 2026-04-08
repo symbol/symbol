@@ -91,7 +91,7 @@ digraph "Multisignature Tree" {
 
 - `transactions`: 埋め込みトランザクションのリスト。この例では1つだけですが、いくつでも含めることができます。
 
-簡単にするため、このチュートリアルでは [アグリゲートコンプリートトランザクション] (default:アグリゲートコンプリートトランザクション) を使用します。
+簡単にするため、このチュートリアルでは [アグリゲートコンプリートトランザクション](default:アグリゲートコンプリートトランザクション) を使用します。
 詳細については、[コンプリート](../transactions/complete-aggregate.md) および [ボンデッド](../transactions/bonded-aggregate.md) アグリゲートトランザクションのチュートリアルを参照してください。
 
 最後に、連署者によってアグリゲートトランザクションに署名が行われます。
@@ -143,5 +143,5 @@ digraph "Multisignature Tree" {
 
 | ステップ | 関連ドキュメント |
 |-----------------------------------------------------------------------|----------------------------------------------|
-| [転送を埋め込みトランザクションにラップする](#トランザクションの構築) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [適切な場所に署名を付加する](#トランザクションの構築) | <dy:SymbolFacade.signTransaction> |
+| [転送トランザクションを埋め込みトランザクションにラップする](#_7) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [適切な場所に署名を付加する](#_7) | <dy:SymbolFacade.signTransaction> |

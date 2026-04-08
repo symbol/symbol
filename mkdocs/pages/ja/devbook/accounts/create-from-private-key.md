@@ -23,7 +23,7 @@ title: 秘密鍵からの作成
 {{ tutorial.code_snippet(['py:5:6', 'js:5:6']) }}
 
 <dy:SymbolFacade> は、Symbolの暗号化処理とネットワークユーティリティへのアクセスを提供します。
-<addresses:> などのネットワーク固有の値が正しく生成されるように、ネットワーク名（`testnet` または `mainnet`）を指定して初期化します。
+[アドレス](default:アドレス) などのネットワーク固有の値が正しく生成されるように、ネットワーク名（`testnet` または `mainnet`）を指定して初期化します。
 
 ### 秘密鍵の定義
 
@@ -68,10 +68,10 @@ title: 秘密鍵からの作成
 
 | ステップ | 関連ドキュメント |
 | ------------------------------------------------------------- | ---------------------------------------- |
-| [秘密鍵の読み込む](#秘密鍵の定義) | <dy:PrivateKey> |
-| [ランダムな秘密鍵の作成](#秘密鍵の定義) | <dy:PrivateKey.random> |
-| [公開鍵の取得](#アカウントの作成) | <dy:KeyPair.publicKey> |
-| [アドレスの取得](#アカウントの作成) | <dy:network.publicKeyToAddress> |
+| [秘密鍵の読み込む](#_6) | <dy:PrivateKey> |
+| [ランダムな秘密鍵の作成](#_6) | <dy:PrivateKey.random> |
+| [公開鍵の取得](#_7) | <dy:KeyPair.publicKey> |
+| [アドレスの取得](#_7) | <dy:network.publicKeyToAddress> |
 
 ## 次のステップ
 

@@ -161,8 +161,8 @@ title: ネームスペースのモザイクへのリンク
 
 | ステップ | 関連ドキュメント |
 | ----------------------------------------------------------------- | --------------------------------------------- |
-| [ネームスペース ID を生成する](#ネームスペースとターゲットモザイクの定義) | <dy:IdGenerator.generateNamespacePath> |
-| [モザイクエイリアストランザクションを構築する](#トランザクションの構築) | <dy:SymbolTransactionFactory.create> |
-| [エイリアスを検証する](#エイリアスの検証) | <get:/namespaces/{namespaceId}> |
-| [転送内でエイリアスを使用する](#エイリアスの使用) | <dy:IdGenerator.generateMosaicAliasId> |
-| [モザイク解決レシートを照会する](#エイリアスの使用) | <get:/statements/resolutions/mosaic> |
+| [ネームスペース ID を生成する](#_6) | <dy:IdGenerator.generateNamespacePath> |
+| [モザイクエイリアストランザクションを構築する](#_8) | <dy:SymbolTransactionFactory.create> |
+| [エイリアスを検証する](#_10) | <get:/namespaces/{namespaceId}> |
+| [転送内でエイリアスを使用する](#_11) | <dy:IdGenerator.generateMosaicAliasId> |
+| [モザイク解決レシートを照会する](#_11) | <get:/statements/resolutions/mosaic> |

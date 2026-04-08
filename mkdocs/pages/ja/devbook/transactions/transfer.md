@@ -210,11 +210,11 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 | ステップ | 関連ドキュメント |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [有効期限情報の取得](#ネットワーク時間の取得) | <get:/node/time> |
-| [手数料情報の取得](#推奨手数料の取得) | <get:/network/fees/transaction> |
-| [トランザクションの作成](#転送トランザクションの作成) | <dy:SymbolTransactionFactory.create> |
-| [トランザクションの署名](#署名とシリアライズ) | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
-| [トランザクションのアナウンス](#トランザクションのアナウンス) | <put:/transactions> |
-| [承認の待機](#承認の待機) | <get:/transactionStatus/{hash}> |
+| [有効期限情報の取得](#_5) | <get:/node/time> |
+| [手数料情報の取得](#_6) | <get:/network/fees/transaction> |
+| [トランザクションの作成](#_7) | <dy:SymbolTransactionFactory.create> |
+| [トランザクションの署名](#_8) | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
+| [トランザクションのアナウンス](#_9) | <put:/transactions> |
+| [承認の待機](#_10) | <get:/transactionStatus/{hash}> |
 
 他のトランザクションタイプも、同じ一般的なプロセスに従います。

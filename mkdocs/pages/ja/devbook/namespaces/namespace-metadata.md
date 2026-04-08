@@ -212,7 +212,7 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 | ステップ | 関連ドキュメント |
 |--------------------------------------------------------------------------------------------------|----------------------------------------------|
-| [メタデータのキーと値の定義](#メタデータの定義) | <dy:Metadata.metadataGenerateKey> |
-| [ネームスペースメタデータトランザクションの作成](#埋め込みネームスペースメタデータトランザクションの作成) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [メタデータの取得](#メタデータの取得) | <get:/metadata> |
-| [既存のメタデータの変更](#既存のメタデータの変更) | <dy:Metadata.metadataUpdateValue> |
+| [メタデータのキーと値の定義](#_7) | <dy:Metadata.metadataGenerateKey> |
+| [ネームスペースメタデータトランザクションの作成](#_8) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [メタデータの取得](#_11) | <get:/metadata> |
+| [既存のメタデータの変更](#_12) | <dy:Metadata.metadataUpdateValue> |

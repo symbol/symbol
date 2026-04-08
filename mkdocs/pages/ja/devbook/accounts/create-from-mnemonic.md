@@ -105,6 +105,6 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 | ステップ | 関連ドキュメント |
 | -----------------------------------------------------------  | ----------------------------------------------------------------------------------------------- |
-| [ランダムなニーモニックを作成する](#ニーモニックの定義) | <dy:Bip32.random> |
-| [ニーモニックからアカウントを導出させる](#ルートノードの導出) | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, および <dy:Bip32Node.derivePath> |
-| [アカウントの鍵ペアを取得する](#アカウントの作成) | <dy:SymbolFacade.bip32NodeToKeyPair>, <dy:network.publicKeyToAddress> |
+| [ランダムなニーモニックを作成する](#_6) | <dy:Bip32.random> |
+| [ニーモニックからアカウントを導出させる](#_7) | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, および <dy:Bip32Node.derivePath> |
+| [アカウントの鍵ペアを取得する](#_9) | <dy:SymbolFacade.bip32NodeToKeyPair>, <dy:network.publicKeyToAddress> |

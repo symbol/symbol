@@ -191,6 +191,6 @@ title: アカウント制限の追加
 
 | ステップ | 関連ドキュメント |
 |------------------------------------------------------------------------------------|----------------------------------------------|
-| [現在の制限設定の取得](#制限状態の検出) | <get:/restrictions/account/{address}> |
-| [制限の有効化](#制限の有効化) | <ser:AccountAddressRestrictionTransactionV1> |
-| [制限の解除](#制限の解除) | <ser:AccountAddressRestrictionTransactionV1> |
+| [現在の制限設定の取得](#_7) | <get:/restrictions/account/{address}> |
+| [制限の有効化](#_8) | <ser:AccountAddressRestrictionTransactionV1> |
+| [制限の解除](#_9) | <ser:AccountAddressRestrictionTransactionV1> |
