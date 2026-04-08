@@ -68,6 +68,15 @@ nav:
       - userbook/intro.md
       - Symbol デスクトップウォレット:
           - userbook/wallet/install.md
+          - プロファイル:
+              - userbook/wallet/create-profile.md
+              - userbook/wallet/import-profile.md
+              - userbook/wallet/export-profile.md
+              - userbook/wallet/delete-profile.md
+          - アカウント:
+              - userbook/wallet/create-account.md
+              - userbook/wallet/import-account.md
+              - userbook/wallet/delete-account.md
   - 開発者マニュアル:
       - devbook/intro.md
       - はじめに:
