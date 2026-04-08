@@ -23,7 +23,7 @@ def iterate_count(id):
 			num_done = num_done + iterate_count(c)
 		prog = num_done / num_total
 	else:
-		prog = 1 if status[id] == 'Done' else 0
+		prog = 1 if status[id] == 'Done' or status[id] == 'Archived' else 0
 	percentage[id] = prog
 	return prog
 
