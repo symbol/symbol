@@ -128,7 +128,7 @@ digraph {
 {{ tutorial.code_snippet(['py:95:110', 'js:96:111']) }}
 
 アグリゲートは <dy:SymbolFacade.signTransaction> で署名され、 <dy:SymbolTransactionFactory.attachSignature> を使用してペイロードにシリアライズされます。
-署名されたペイロードはその後、[転送トランザクション](./transfer.md) チュートリアルで説明されている通常のトランザクションと同じプロセスに従って、 <put:/transactions> エンドポイントを使用して [ノード](defaul:ノード) にアナウンスされます。
+署名されたペイロードはその後、[転送トランザクション](./transfer.md) チュートリアルで説明されている通常のトランザクションと同じプロセスに従って、 <put:/transactions> エンドポイントを使用して [ノード](default:ノード) にアナウンスされます。
 
 ### 承認の待機
 
