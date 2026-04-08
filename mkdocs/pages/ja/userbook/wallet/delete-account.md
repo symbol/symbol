@@ -1,65 +1,64 @@
 ---
-title: Deleting an Account
+title: アカウントの削除
 ---
 
-# Deleting an Account from a Profile
+# プロファイルからのアカウントの削除
 
-This page explains how to delete an existing <account:> from a <profile:> in the Symbol Desktop Wallet.
+このページでは、Symbol Desktop Walletの <profile:|プロファイル> から既存の <account:|アカウント> を削除する方法を説明します。
 
-This action removes the account from the profile, but it does not remove the account from the blockchain.
-If you have backed up the account’s private key, you can import it again later.
+この操作により、アカウントはプロファイルから削除されますが、ブロックチェーンからアカウントが削除されるわけではありません。
+アカウントの秘密鍵をバックアップしている場合は、後で再度インポートすることができます。
 
-!!! warning
-    If the account’s private key has not been backed up, access to any funds or assets it contains
-    **will be permanently lost**.
+!!! warning "警告"
+    アカウントの秘密鍵がバックアップされていない場合、それに含まれる資金や資産へのアクセスは**永久に失われます**。
 
-    Make sure the account is empty or properly backed up before deleting it!
+    削除する前に、アカウントが空であるか、適切にバックアップされていることを確認してください！
 
-## Prerequisites
+## 前提条件
 
-* Make sure you have installed the Symbol Desktop Wallet.  
-If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+* Symbol Desktop Wallet がインストールされていることを確認してください。  
+まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
 
-* You must already have a profile set up and logged in.  
-See [Creating a Profile](./create-profile.md) or [Importing a Profile](./import-profile.md) if needed.
+* すでにプロファイルが設定され、ログインしている必要があります。  
+必要に応じて、[プロファイルの作成](./create-profile.md) または [プロファイルのインポート](./import-profile.md) を参照してください。
 
-## How to Delete an Account
+## アカウントの削除方法
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
-Go to the **Accounts** tab in the Symbol Desktop Wallet.
+Symbol Desktop Wallet の **Accounts** （アカウント）タブに移動します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/delete-account-1.jpg") }}
-Click on the account you want to delete in the list on the left.
+左側のリストから、削除したいアカウントをクリックします。
 
-The currently selected account is the one with a colored icon.
+現在選択されているアカウントは、色付きのアイコンで表示されます。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/delete-account-2.jpg") }}
-Click the **Delete Account** button in the **Account Information** panel.
+**Account Information** （アカウント情報）パネルにある **Delete Account** （アカウントの削除）ボタンをクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/delete-account-3.jpg") }}
-In the confirmation dialog, check the box to confirm that you want to delete the account.
+確認ダイアログで、アカウントを削除することを確認するためのチェックボックスをオンにします。
 
-Then click **Confirm**.
+その後、 **Confirm** （確認）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/delete-account-4.jpg") }}
-Enter your profile password to authorize the deletion, and click **Confirm** again.
+プロファイルのパスワードを入力して削除を承認し、再度 **Confirm** （確認）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 
-The deleted account will no longer appear in the list of managed accounts.
+削除されたアカウントは、管理対象アカウントのリストに表示されなくなります。
 
-![Account successfully deleted](screenshots/delete-account-5.jpg)
+![正常に削除されたアカウント](screenshots/delete-account-5.jpg)
 
-## Next Steps
+## 次のステップ
 
-* [Import the account again](./import-account.md) using the private key, if you have a backup.
-* [Create a new account](./create-account.md).
+* バックアップがある場合は、秘密鍵を使用して [アカウントを再度インポート](./import-account.md) します。
+* [新しいアカウントの作成](./create-account.md) を行います。

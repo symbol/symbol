@@ -1,65 +1,65 @@
 ---
-title: Importing an Account
+title: アカウントのインポート
 ---
 
-# Importing an Existing Account
+# 既存のアカウントのインポート
 
-This page explains how to add an existing <account:> to your profile by importing its private key.  
-Imported accounts are not derived from the profile’s <mnemonic phrase:>, so they must be backed up separately.
+このページでは、秘密鍵をインポートして既存の <account:|アカウント> をプロファイルに追加する方法を説明します。  
+インポートされたアカウントはプロファイルの <mnemonic phrase:|ニーモニックフレーズ> から派生したものではないため、個別にバックアップする必要があります。
 
-You might want to import an account if:
+以下の場合にアカウントのインポートが必要になることがあります。
 
-* You created it in another wallet or on another device.
-* You are recovering an account that was not generated from your profile's seed.
+* 別のウォレットまたは別のデバイスで作成した場合。
+* プロファイルのシードから生成されていないアカウントを復元する場合。
 
-## Prerequisites
+## 前提条件
 
-* Make sure you have installed the Symbol Desktop Wallet.  
-If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+* Symbol Desktop Wallet がインストールされていることを確認してください。  
+まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
 
-* You must already have a profile set up and logged in.  
-See [Creating a Profile](./create-profile.md) or [Importing a Profile](./import-profile.md) if needed.
+* すでにプロファイルが設定され、ログインしている必要があります。  
+必要に応じて、[プロファイルの作成](./create-profile.md) または [プロファイルのインポート](./import-profile.md) を参照してください。
 
-## How to Import an Account
+## アカウントのインポート方法
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
-From the wallet’s main screen, go to the **Accounts** tab.
+ウォレットのメイン画面から、 **Accounts** （アカウント）タブに移動します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-account-1.jpg") }}
-Click **:material-plus-circle: Add an account** at the bottom of the screen.
+画面下部の **:material-plus-circle: Add an account** （アカウントの追加）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/import-account-2.jpg") }}
-In the **Select the Type of Account** dropdown, choose **"I want to import an existing account private key"**.
+**Select the Type of Account** （アカウントの種類を選択）ドロップダウンで、 **"I want to import an existing account private key"** （既存のアカウントの秘密鍵をインポートする）を選択します。
 
-Enter a name in the **New Account Name** field to help you recognize the account later.
+後でアカウントを識別できるように、 **New Account Name** （新しいアカウント名）フィールドに名前を入力します。
 
-Paste the private key into the **Enter Your Private Key** field.
+**Enter Your Private Key** （秘密鍵を入力）フィールドに秘密鍵を貼り付けます。
 
-Enter your profile password into the **Password** field to authorize the import.
+インポートを承認するために、 **Password** （パスワード）フィールドにプロファイルのパスワードを入力します。
 
-Then click **Confirm** to import the account.
+その後、 **Confirm** （確認）をクリックしてアカウントをインポートします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 
-The imported account will be added to your list of managed accounts, in the **Private key accounts** section.
+インポートされたアカウントは、 **Private key accounts** （秘密鍵アカウント）セクションの管理対象アカウントのリストに追加されます。
 
-![New account created](screenshots/import-account-3.jpg)
+![インポートされた新しいアカウント](screenshots/import-account-3.jpg)
 
-!!! warning
-    Imported accounts are not recoverable from your <mnemonic phrase:>.
+!!! warning "警告"
+    インポートされたアカウントは、 <mnemonic phrase:|ニーモニックフレーズ> から復元することはできません。
 
-    Be sure to back up your profile now so their private keys are included in the <paper wallet:>.
+    これらの秘密鍵が <paper wallet:|ペーパーウォレット> に含まれるように、必ずすぐにプロファイルをバックアップしてください。
 
-## Next Steps
+## 次のステップ
 
-You can now:
+これで、以下のことが可能になります。
 
-* [Export the profile](./export-profile.md) to back up both seed and imported accounts in a single paper wallet.
-* Use the imported account to receive and send transactions.
+* [プロファイルのエクスポート](./export-profile.md) を行い、単一のペーパーウォレットにシードアカウントとインポートされたアカウントの両方をバックアップする。
+* インポートされたアカウントを使用して、トランザクションの送受信を行う。

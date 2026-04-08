@@ -1,72 +1,67 @@
 ---
-title: Creating an Account
+title: アカウントの作成
 ---
 
-# Creating a New Account
+# 新しいアカウントの作成
 
-This page explains how to add a new <account:> to an existing <profile:> in the Symbol Desktop Wallet.  
-You can manage multiple accounts within the same profile, all protected by a single password.
+このページでは、Symbol Desktop Wallet の既存の <profile:|プロファイル> に新しい <account:|アカウント> を追加する方法を説明します。
+同じプロファイル内で複数のアカウントを管理でき、それらはすべて単一のパスワードで保護されます。
 
-This is useful if you want to organize assets or separate different use cases, for example.
+これは、資産を整理したり、異なるユースケースを分離したりする場合などに役立ちます。
 
-Creating accounts does not require spending any currency, and new accounts will not be reflected on the blockchain
-until they participate in a transaction.
+アカウントの作成に通貨を消費する必要はありません。また、新しいアカウントは、トランザクションに参加するまでブロックチェーン上には反映されません。
 
-## Prerequisites
+## 前提条件
 
-* Make sure you have installed the Symbol Desktop Wallet.  
-If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+* Symbol Desktop Wallet がインストールされていることを確認してください。
+まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
 
-* You must already have a profile set up and logged in.  
-See [Creating a Profile](./create-profile.md) or [Importing a Profile](./import-profile.md) if needed.
+* すでにプロファイルが設定され、ログインしている必要があります。
+必要に応じて、[プロファイルの作成](./create-profile.md) または [プロファイルのインポート](./import-profile.md) を参照してください。
 
-## How to Create a New Account
+## 新しいアカウントの作成方法
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
-From the wallet’s main screen, go to the **Accounts** tab.
+ウォレットのメイン画面から、 **Accounts** （アカウント）タブに移動します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-account-1.jpg") }}
-Click **:material-plus-circle: Add an account** at the bottom of the screen.
+画面下部の **:material-plus-circle: Add an account** （アカウントの追加）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-account-2.jpg") }}
-Configure the new account by filling out the form.
+フォームに入力して、新しいアカウントを設定します。
 
-Leave the default option selected in **Select the Type of Account**:
-**"I want to create a seed account for my profile"**.
+**Select the Type of Account** （アカウントの種類を選択）では、デフォルトのオプションである
+**"I want to create a seed account for my profile"** （プロファイルのシードアカウントを作成する）を選択したままにします。
 
-Enter a name in the **New Account Name** field.  
-This label will help you recognize the account later.
+**New Account Name** （新しいアカウント名）フィールドに名前を入力します。
+このラベルは、後でアカウントを識別するのに役立ちます。
 
-In the **Password** field, enter your profile password to authorize the operation.
+**Password** （パスワード）フィールドにプロファイルのパスワードを入力して、操作を承認します。
 
-Then click **Confirm** to create the account.
+その後、 **Confirm** （確認）をクリックしてアカウントを作成します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 
-The new account will be generated from your profile’s mnemonic phrase and added to your list of managed accounts,
-in the **Seed accounts** section.
+新しいアカウントはプロファイルのニーモニックフレーズから生成され、 **Seed accounts** （シードアカウント）セクションの管理対象アカウントのリストに追加されます。
 
-![New account created](screenshots/create-account-3.jpg)
+![作成された新しいアカウント](screenshots/create-account-3.jpg)
 
-Since this is a seed account, it can always be regenerated from any backup of the mnemonic phrase,
-so its private key does not need to be backed up independently.
+これはシードアカウントであるため、ニーモニックフレーズのバックアップからいつでも再生成できます。したがって、その秘密鍵を個別にバックアップする必要はありません。
 
-[Imported accounts](./import-account.md), on the other hand, are not derived from the mnemonic phrase
-and must have their private keys backed up separately to avoid losing access.
+一方、[インポートされたアカウント](./import-account.md) はニーモニックフレーズから派生したものではないため、アクセスできなくなるのを防ぐために、秘密鍵を個別にバックアップする必要があります。
 
-[Exporting a profile](./export-profile.md) will back up both seed accounts and imported accounts in a
-single <paper wallet:>.
+[プロファイルのエクスポート](./export-profile.md) を行うと、シードアカウントとインポートされたアカウントの両方が1つの <paper wallet:|ペーパーウォレット> にバックアップされます。
 
-## Next Steps
+## 次のステップ
 
-You can now:
+これで、以下のことが可能になります。
 
-* Share the new account’s address to receive funds.
-* Use the account to send <transactions:> or interact with Symbol features like <mosaics:> and namespaces.
+* 新しいアカウントのアドレスを共有して資金を受け取る。
+* アカウントを使用して <transactions:|トランザクション> を送信したり、 <mosaics:|モザイク> やネームスペースなどのSymbolの機能とやり取りする。

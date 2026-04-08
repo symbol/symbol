@@ -1,52 +1,56 @@
-# Deleting a Profile
+---
+title: プロファイルの削除
+---
 
-This page explains how to permanently delete a <profile:> from the Symbol Desktop Wallet.  
-This action removes access to all <accounts:> managed by that profile on this device.
+# プロファイルの削除
 
-!!! note
-    You are only deleting **your access** to the accounts.  
-    The accounts themselves, along with any assets they contain, remain on the blockchain.  
-    If the <private keys:> to those accounts have been copied elsewhere, the assets can still be accessed from another device or wallet.
+このページでは、Symbol Desktop Walletから <profile:|プロファイル> を完全に削除する方法を説明します。  
+この操作を行うと、このデバイス上でそのプロファイルによって管理されているすべての <accounts:|アカウント> へのアクセスが削除されます。
 
-If you only want to switch to a different profile, you do not need to delete the current one.  
-The wallet supports multiple profiles. You can simply log out and log into another profile, or create a new one.
+!!! note "メモ"
+    あなたはアカウントへの **自分のアクセス** のみを削除しています。  
+    アカウント自体、およびそこに含まれるすべての資産は、ブロックチェーン上に残ります。  
+    これらのアカウントの <private keys:|秘密鍵> が別の場所にコピーされている場合、他のデバイスやウォレットから引き続き資産にアクセスすることができます。
 
-## Prerequisites
+別のプロファイルに切り替えたいだけの場合は、現在のプロファイルを削除する必要はありません。  
+ウォレットは複数のプロファイルをサポートしています。単にログアウトして別のプロファイルにログインするか、新しく作成することができます。
 
-* Make sure you have installed the Symbol Desktop Wallet.  
-If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+## 前提条件
 
-* If you want to keep access to the accounts from the profile you are deleting,
-    [export the profile](./export-profile.md) first and store the backup in a safe location.
+* Symbol Desktop Wallet がインストールされていることを確認してください。  
+まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
 
-## How to Delete a Profile
+* 削除するプロファイルのアカウントへのアクセスを維持したい場合は、
+    まず [プロファイルのエクスポート](./export-profile.md) を行い、バックアップを安全な場所に保管してください。
+
+## プロファイルの削除方法
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
 
 {{ tutorial.step_begin("screenshots/delete-profile-0.jpg") }}
-From the wallet’s main screen, click the **:material-cog: Settings** button in the top-right corner.
+ウォレットのメイン画面で、右上隅にある **:material-cog: Settings** （設定）ボタンをクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/delete-profile-1.jpg") }}
-Click **Delete Profile**.
+**Delete Profile** （プロファイルの削除）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/delete-profile-2.jpg") }}
-Confirm that you want to delete the profile.
+プロファイルを削除することを確認します。
 
-This action cannot be undone.  
-Make sure you have a backup before proceeding.
+この操作は元に戻すことはできません。  
+続行する前に、バックアップがあることを確認してください。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 
-After the profile is deleted, you will be taken to the login screen.
+プロファイルが削除されると、ログイン画面に移動します。
 
-## Next Steps
+## 次のステップ
 
-After deleting the profile, you can:
+プロファイルを削除した後、以下のことが可能です。
 
-* [Create a new profile](./create-profile.md) to start fresh.
-* [Import an existing profile](./import-profile.md) using a saved backup.
+* [新しいプロファイルの作成](./create-profile.md) を行い、新しく始める。
+* 保存したバックアップを使用して [既存のプロファイルのインポート](./import-profile.md) を行う。

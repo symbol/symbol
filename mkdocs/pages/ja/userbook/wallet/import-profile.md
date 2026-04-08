@@ -1,88 +1,88 @@
 ---
-title: Importing a Profile
+title: プロファイルのインポート
 ---
 
-# Importing an Existing Profile
+# 既存のプロファイルのインポート
 
-This page explains how to restore an **existing** <profile:> from a previous installation of the Symbol Desktop Wallet, or from another compatible wallet.  
-To learn what a profile is, or to create a new one from scratch, follow the [Creating a Profile](./create-profile.md) tutorial instead.
+このページでは、以前にインストールした Symbol Desktop Wallet、または他の互換性のあるウォレットから、**既存の** <profile:|プロファイル> を復元する方法を説明します。  
+プロファイルとは何かを知りたい場合、またはゼロから新しく作成したい場合は、代わりに [プロファイルの作成](./create-profile.md) チュートリアルを参照してください。
 
-## Prerequisites
+## 前提条件
 
-* Make sure you have installed the Symbol Desktop Wallet.  
-If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+* Symbol Desktop Wallet がインストールされていることを確認してください。  
+まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
 
-* Make sure you understand what is a <profile:>.
+* <profile:|プロファイル> とは何かを理解していることを確認してください。
 
-* You will need the <mnemonic phrase:> for the profile you want to restore.  
-Check the documentation for the wallet you used to create it.  
-If the profile was originally created in the Symbol Desktop Wallet, see the [Exporting a Profile](./export-profile.md) tutorial for instructions.
+* 復元したいプロファイルの <mnemonic phrase:|ニーモニックフレーズ> が必要になります。  
+プロファイルを最初に作成した際に使用したウォレットのドキュメントを確認してください。  
+プロファイルが元々 Symbol Desktop Wallet で作成されたものである場合は、手順について [プロファイルのエクスポート](./export-profile.md) チュートリアルを参照してください。
 
-## How to Import an Existing Profile
+## 既存のプロファイルのインポート方法
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-0.jpg") }}
-Open the Symbol Desktop Wallet and click **Create a new profile?**
+Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロファイルを作成しますか？）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/import-profile-1.jpg") }}
-Select **Import Profile**.
+**Import Profile** （プロファイルのインポート）を選択します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/import-profile-2.jpg") }}
-Fill in your profile details:
+プロファイルの詳細を入力します。
 
-Give your profile a name.  
-This is just for your own reference to help you keep multiple profiles organized.
+プロファイルに名前を付けます。  
+これは、複数のプロファイルを整理するための単なる参照用です。
 
-Select the network type (usually `Mainnet`).
+ネットワークタイプ（通常は `Mainnet` ）を選択します。
 
-Enter and confirm a password.
+パスワードを入力して確認します。
 
-Optionally, add a password hint.
+オプションで、パスワードのヒントを追加します。
 
-Click **Next**.
+**Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/import-profile-3.jpg") }}
-Enter the mnemonic phrase for the profile you want to restore.
+復元したいプロファイルのニーモニックフレーズを入力します。
 
-This is the secret phrase you received when you first created the profile.  
-Make sure the words are in the correct order and separated by spaces.  
-The **Next** button will remain disabled until the phrase is valid.
+これは、プロファイルを最初に作成したときに受け取ったシークレットフレーズです。  
+単語が正しい順序であり、スペースで区切られていることを確認してください。  
+フレーズが有効になるまで、 **Next** （次へ）ボタンは無効のままです。
 
-Click **Next**.
+**Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/import-profile-4.jpg") }}
-Select which accounts to restore.
+復元するアカウントを選択します。
 
-The wallet will scan the mnemonic for associated accounts and let you choose which ones to include in the profile.
+ウォレットはニーモニックをスキャンして関連するアカウントを検索し、プロファイルに含めるアカウントを選択できるようにします。
 
-Some of these accounts may have never been used.
-To help you decide which ones to recover, their current XYM balances are shown.
+これらのアカウントの中には、一度も使用されたことがないものもあるかもしれません。
+どのアカウントを復元するかを決定するのに役立つように、現在のXYM残高が表示されます。
 
-You can add any accounts you do not select now at a later time.  
-See the [Creating an Account](./create-account.md) tutorial.
+ここで選択しなかったアカウントは、後から追加することができます。  
+[アカウントの作成](./create-account.md) チュートリアルを参照してください。
 
-Click **Next** when you are done selecting accounts.
+アカウントの選択が完了したら、 **Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/import-profile-5.jpg") }}
-Read the safety tips, accept the Terms and Conditions, and click **Finish**.
+安全に関するヒントを読み、利用規約に同意して、 **Finish** （完了）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 
-You will be taken to the main screen of the wallet:
+ウォレットのメイン画面に移動します。
 
-![Profile created successfully](screenshots/create-profile-8.jpg)
+![プロファイルの作成成功](screenshots/create-profile-8.jpg)
 
-## Next Steps
+## 次のステップ
 
-Your imported profile is now ready to use.
+これで、インポートしたプロファイルを使用する準備が整いました。
 
-* To learn how to add more accounts to the profile, see [Creating an Account](./create-account.md).
+* プロファイルにさらにアカウントを追加する方法については、[アカウントの作成](./create-account.md) を参照してください。

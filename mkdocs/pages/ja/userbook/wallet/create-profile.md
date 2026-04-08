@@ -1,116 +1,117 @@
 ---
-title: Creating a Profile
+title: プロファイルの作成
 ---
 
-# Creating a New Profile
+# 新しいプロファイルの作成
 
-This page explains what a wallet profile is and how to create a **new** one from scratch.  
-If you have a backup of a previous profile and want to restore it, follow the [Importing a Profile](./import-profile.md) tutorial instead.
+このページでは、ウォレットのプロファイルとは何か、そして**新しい**プロファイルをゼロから作成する方法を説明します。  
+以前のプロファイルのバックアップがあり、それを復元したい場合は、代わりに [プロファイルのインポート](./import-profile.md) チュートリアルを参照してください。
 
-## What Is a Profile
+## プロファイルとは
 
-Profile
-:   A password-protected container that stores multiple <accounts:> on a given device,
-    similar to how profiles work in a browser or operating system.
+プロファイル (Profile)
+:   ブラウザやオペレーティングシステムのプロファイルと同じように、特定のデバイス上で複数の <accounts:|アカウント> を保存する、パスワードで保護されたコンテナ。
 
-The Symbol Desktop Wallet is an <HD Wallet:>, which means it can generate multiple accounts from a single <mnemonic phrase:>.  
-This phrase, also called a seed, is unique to each profile and created during setup.
+Symbol Desktop Wallet は <HD Wallet:|HDウォレット> です。つまり、単一の <mnemonic phrase:|ニーモニックフレーズ> から複数のアカウントを生成できます。  
+シードとも呼ばれるこのフレーズは、各プロファイルに固有のものであり、セットアップ中に作成されます。
 
-Each profile includes:
 
-* The mnemonic phrase, from which account keys can be derived.
-* The list of managed accounts, both derived from the phrase and imported externally.
-* Network settings, such as whether the profile uses <mainnet:> or <testnet:>.
-* A password to protect access and encrypt the profile contents.
-* Optional metadata, such as a profile name and password hint, for user convenience.
 
-Profiles help keep things organized and separate, and you can have multiple profiles on the same machine.
-For example, one for personal use and one for work, each with its own accounts and settings.
+各プロファイルには以下が含まれます。
 
-## Prerequisites
+* アカウントの鍵を派生させることができるニーモニックフレーズ。
+* フレーズから派生したものと外部からインポートされたものの両方を含む、管理対象アカウントのリスト。
+* プロファイルが <mainnet:|メインネット> または <testnet:|テストネット> のどちらを使用するかなどのネットワーク設定。
+* アクセスを保護し、プロファイルの内容を暗号化するためのパスワード。
+* ユーザーの利便性のための、プロファイル名やパスワードのヒントなどのオプションのメタデータ。
 
-* Make sure you have installed the Symbol Desktop Wallet.  
-If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+プロファイルは物事を整理して分離しておくのに役立ち、同じマシン上に複数のプロファイルを持つことができます。
+例えば、個人用と仕事用で、それぞれに独自のアカウントと設定を持たせることができます。
 
-## How to Create a Profile
+## 前提条件
 
-Follow these steps to create a new profile in the Symbol Desktop Wallet:
+* Symbol Desktop Wallet がインストールされていることを確認してください。  
+まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
+
+## プロファイルの作成方法
+
+Symbol Desktop Wallet で新しいプロファイルを作成するには、以下の手順に従います。
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-0.jpg") }}
-Open the Symbol Desktop Wallet and click **Create a new profile?**
+Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロファイルを作成しますか？）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-1.jpg") }}
-Click **Create Mnemonic**.
+**Create Mnemonic** （ニーモニックの作成）をクリックします。
 
-To create a new profile, you need a new seed, which will generate the accounts in your profile.  
-The wallet will generate a unique secret phrase (also called a mnemonic) for you.
+新しいプロファイルを作成するには、プロファイル内のアカウントを生成するための新しいシードが必要です。  
+ウォレットが、あなたのために一意のシークレットフレーズ（ニーモニックとも呼ばれます）を生成します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-2.jpg") }}
-Fill in your profile details:
+プロファイルの詳細を入力します。
 
-Give your profile a name.  
-This is just for your own reference to help you keep multiple profiles organized.
+プロファイルに名前を付けます。  
+これは、複数のプロファイルを整理するための単なる参照用です。
 
-Select the network type (usually `Mainnet`).
+ネットワークタイプ（通常は `Mainnet` ）を選択します。
 
-Enter and confirm a password.
+パスワードを入力して確認します。
 
-Optionally, add a password hint.  
-This hint can help jog your memory if you forget the password.
+オプションで、パスワードのヒントを追加します。  
+このヒントは、パスワードを忘れた場合に思い出すのに役立ちます。
 
-Click **Next**.
+**Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-3.jpg") }}
-Move your mouse around the screen until the progress bar reaches 100%.
+プログレスバーが 100% になるまで、画面上でマウスを動かします。
 
-This motion is used as a source of randomness (entropy) to help generate a truly unique secret phrase.  
-It ensures that no two users will ever end up with the same phrase by chance.
+この動きは、真に一意のシークレットフレーズを生成するためのランダム性のソース（エントロピー）として使用されます。  
+これにより、偶然に2人のユーザーが同じフレーズになることは決してありません。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-4.jpg") }}
-Click **Display mnemonic words** to view your secret phrase.
+**Display mnemonic words** （ニーモニック単語を表示）をクリックして、シークレットフレーズを表示します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-5.jpg") }}
-Click the copy button :octicons-copy-24: to save the phrase.
+コピーボタン :octicons-copy-24: をクリックしてフレーズを保存します。
 
-Paste the phrase somewhere secret and secure, such as an encrypted notes app or a password manager.
+暗号化されたメモアプリやパスワードマネージャーなど、秘密で安全な場所にフレーズを貼り付けます。
 
-Ideally, also copy the phrase by hand onto a piece of paper and store it in a safe place.  
-Avoid keeping it only on a digital device, which could be lost or compromised.
+理想的には、フレーズを手書きで紙に書き写し、安全な場所に保管してください。  
+紛失や不正アクセスの恐れがあるため、デジタルデバイス上のみに保管することは避けてください。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-6.jpg") }}
-Confirm the phrase by selecting the words in the correct order. Click **Next** when finished.
+正しい順序で単語を選択してフレーズを確認します。完了したら **Next** （次へ）をクリックします。
 
-This step checks that you have written down the phrase correctly and in the right order.
+このステップでは、フレーズを正しい順序で正確に書き留めているかを確認します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-7.jpg") }}
-Read the safety tips, accept the Terms and Conditions, and click **Finish**.
+安全に関するヒントを読み、利用規約に同意して、 **Finish** （完了）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 
-You will be taken to the main screen of the wallet:
+ウォレットのメイン画面に移動します。
 
-![Profile created successfully](screenshots/create-profile-8.jpg)
+![プロファイルの作成成功](screenshots/create-profile-8.jpg)
 
-A first account has already been generated from the seed phrase, so you can start working right away.  
-For example, you can share the account’s address to receive funds.
+最初のアカウントはすでにシードフレーズから生成されているため、すぐに作業を開始できます。  
+例えば、アカウントのアドレスを共有して資金を受け取ることができます。
 
-If you go to the **Accounts** tab, you will see this account is named **Seed Account 1**.
-You can create more accounts later, and they will be derived from the same seed.
+**Accounts** （アカウント）タブに移動すると、このアカウントの名前が **Seed Account 1** であることがわかります。
+後でさらにアカウントを作成することができ、それらは同じシードから派生します。
 
-## Next Steps
+## 次のステップ
 
-Your new profile is now ready to use.
+これで、新しいプロファイルを使用する準備が整いました。
 
-* To learn how to add more accounts to the profile, see [Creating an Account](./create-account.md).
+* プロファイルにさらにアカウントを追加する方法については、[アカウントの作成](./create-account.md) を参照してください。

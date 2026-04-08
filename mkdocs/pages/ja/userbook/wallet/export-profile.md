@@ -1,75 +1,77 @@
-# Exporting a Profile
+---
+title: プロファイルのエクスポート
+---
 
-This page explains how to export a <profile:> and all the accounts it contains from the Symbol Desktop Wallet.  
-Exporting a profile allows you to create a backup or use the same accounts on another device by [importing the profile](./import-profile.md) there.
+# プロファイルのエクスポート
 
-The Symbol Desktop Wallet exports profiles as paper wallets:
+このページでは、Symbol Desktop Walletから <profile:|プロファイル> とそれに含まれるすべてのアカウントをエクスポートする方法を説明します。  
+プロファイルをエクスポートすることで、バックアップを作成したり、別のデバイスに[プロファイルをインポート](./import-profile.md)して同じアカウントを使用したりすることができます。
 
-Paper Wallet
-:   A printable document containing information to restore a wallet profile and all its accounts.
+Symbol Desktop Walletは、プロファイルをペーパーウォレットとしてエクスポートします。
 
-    The information is intended to be printed on paper and may include QR codes, <private keys:>,
-    <mnemonic phrases:>, or all of them.
+ペーパーウォレット (Paper Wallet)
+:   ウォレットのプロファイルとそれに含まれるすべてのアカウントを復元するための情報を含む、印刷可能なドキュメント。
 
-    Paper wallets are less convenient than digital backups because the information must be entered manually.  
-    However, they are more secure because they are not stored or accessed online.
+    この情報は紙に印刷することを目的としており、QRコード、 <private keys:|秘密鍵> 、 <mnemonic phrases:|ニーモニックフレーズ> 、またはそのすべてが含まれる場合があります。
 
-## Prerequisites
+    情報は手動で入力する必要があるため、ペーパーウォレットはデジタルバックアップよりも利便性に劣ります。  
+    ただし、オンラインで保存されたりアクセスされたりすることがないため、より安全です。
 
-* Make sure you have installed the Symbol Desktop Wallet.  
-If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+## 前提条件
 
-* You must already have a profile set up in the Symbol Desktop Wallet, either by [creating a new one](./create-profile.md) or [importing an existing one](./import-profile.md).
+* Symbol Desktop Walletがインストールされていることを確認してください。  
+まだインストールしていない場合は、[ウォレットのインストール](./install.md)ガイドを参照してください。
 
-## How to Export a Profile
+* [新しいプロファイルの作成](./create-profile.md) または [既存のプロファイルのインポート](./import-profile.md) によって、Symbol Desktop Walletにすでにプロファイルが設定されている必要があります。
+
+## プロファイルのエクスポート方法
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-0.jpg") }}
-Open the Symbol Desktop Wallet and log in to the profile you want to export.
+Symbol Desktop Walletを開き、エクスポートしたいプロファイルにログインします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
-Select the **Accounts** tab.
+**Accounts** （アカウント）タブを選択します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-2.jpg") }}
-Click **:material-download: Backup Profile**.
+**:material-download: Backup Profile** （プロファイルのバックアップ）をクリックします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-3.jpg") }}
-Enter your profile password to confirm access.
+プロファイルのパスワードを入力してアクセスを確認します。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-4.jpg") }}
-Click the **:material-download: Download** button.
+**:material-download: Download** （ダウンロード）ボタンをクリックします。
 
-You will receive a PDF document containing a <paper wallet:>.  
-This document should be printed and then deleted from your device for security.
+<paper wallet:|ペーパーウォレット> を含むPDFドキュメントがダウンロードされます。  
+セキュリティのため、このドキュメントは印刷した後にデバイスから削除してください。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-5.jpg") }}
-This image shows an example of a paper wallet containing an exported <mnemonic phrase:>.
+この画像は、エクスポートされた <mnemonic phrase:|ニーモニックフレーズ> を含むペーパーウォレットの例を示しています。
 
-You can use this phrase to restore all accounts derived from it.
+このフレーズを使用して、それから派生したすべてのアカウントを復元できます。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/export-profile-6.jpg") }}
-This image shows an example of a paper wallet containing an individual account.
+この画像は、個別のアカウントを含むペーパーウォレットの例を示しています。
 
-The account may have been generated from a mnemonic phrase or imported directly from a <private key:>.
+このアカウントは、ニーモニックフレーズから生成されたか、 <private key:|秘密鍵> から直接インポートされた可能性があります。
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
 
-## Next Steps
+## 次のステップ
 
-All the accounts in your profile are now safely backed up in the paper wallet.
+これで、プロファイル内のすべてのアカウントがペーパーウォレットに安全にバックアップされました。
 
-You can:
+以下のことが可能です。
 
-* Keep the backup in a safe place in case you ever need to restore access.
-* Follow the [Importing a Profile](./import-profile.md) tutorial to restore it on a new device or
-    installation of the Symbol Desktop Wallet.
+* アクセスを復元する必要が生じた場合に備えて、バックアップを安全な場所に保管する。
+* 新しいデバイスや新しくインストールしたSymbol Desktop Walletで復元するには、[プロファイルのインポート](./import-profile.md) チュートリアルに従う。
