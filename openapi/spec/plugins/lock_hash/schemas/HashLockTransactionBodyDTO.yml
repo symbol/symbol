@@ -1,4 +1,5 @@
 type: object
+description: Hash lock transaction body that locks mosaics as a prerequisite for announcing an aggregate bonded transaction.
 required:
   - mosaicId
   - amount

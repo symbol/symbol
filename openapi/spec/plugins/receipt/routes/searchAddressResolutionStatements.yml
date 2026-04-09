@@ -16,7 +16,7 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated list of address resolution statements.
     content:
       application/json:
         schema:

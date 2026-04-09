@@ -1,6 +1,8 @@
 name: pageSize
 in: query
-description: Select the number of entries to return.
+description: |
+  Select the number of entries to return per page.
+  Values outside the allowed range are clamped to the schema minimum or maximum.
 schema:
   type: integer
   minimum: 10

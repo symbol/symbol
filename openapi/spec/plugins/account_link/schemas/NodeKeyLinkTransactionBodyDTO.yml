@@ -1,4 +1,5 @@
 type: object
+description: Node key link transaction body that links or unlinks a remote node public key.
 required:
   - linkedPublicKey
   - linkAction

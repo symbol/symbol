@@ -26,7 +26,7 @@ enum:
   - 16977
   - 16724
 description: |
-  Transaction type identifier:
+  Numeric transaction type identifiers used on transaction payloads and search filters:
   - `0x414C` (`16716`): `AccountKeyLinkTransaction`
   - `0x4243` (`16963`): `VrfKeyLinkTransaction`
   - `0x4143` (`16707`): `VotingKeyLinkTransaction`

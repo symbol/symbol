@@ -14,6 +14,7 @@ properties:
     description: Hash of the transaction.
   deadline:
     $ref: "../../../schemas/Timestamp.yml"
+    description: Deadline specified by the transaction, expressed in milliseconds since the creation of the nemesis (first) block.
   height:
     $ref: "../../../schemas/Height.yml"
     description: Block height at which the transaction was confirmed, when available.

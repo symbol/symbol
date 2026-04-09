@@ -2,7 +2,8 @@ type: string
 format: hex
 description: |
   Metadata value encoded as hex.
-  In metadata transactions, this field contains the new value when no previous value exists.
+  In metadata transactions, this field carries the metadata value update payload.
+  When no previous value exists, it contains the new value.
   When updating existing metadata, it contains the byte-wise XOR of the previous value and the new value.
 examples:
   - "333433383334"

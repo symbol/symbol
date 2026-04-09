@@ -1,5 +1,5 @@
 type: object
-description: Transaction to create or modify a multisig account.
+description: Transaction to create or modify metadata attached to an account.
 allOf:
   - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
   - $ref: "./AccountMetadataTransactionBodyDTO.yml"

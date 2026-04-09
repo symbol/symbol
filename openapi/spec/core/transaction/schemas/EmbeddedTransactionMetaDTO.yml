@@ -1,4 +1,7 @@
 type: object
+description: |
+  Metadata for an embedded transaction entry returned by the transaction endpoints.
+  These fields identify the parent aggregate transaction and the embedded transaction's position inside it.
 required:
   - height
   - aggregateHash
@@ -6,15 +9,24 @@ required:
   - index
 properties:
   height:
-    $ref: "../../../schemas/Height.yml"
+    $ref: "../../../schemas/TransactionMetaHeight.yml"
+    description: |
+      Height of the block that contains the parent aggregate transaction.
+      For embedded transactions returned from partial aggregate transactions, this value is ``"0"``.
   aggregateHash:
     $ref: "../../../schemas/Hash256.yml"
+    description: Hash of the parent aggregate transaction.
   aggregateId:
     $ref: "../../../schemas/ObjectId.yml"
+    description: Database record ID of the parent aggregate transaction.
   index:
     type: integer
-    description: Transaction index within the aggregate.
+    description: Embedded transaction index within the parent aggregate transaction.
   timestamp:
     $ref: "../../../schemas/Timestamp.yml"
+    description: |
+      Timestamp of the block that contains the parent aggregate transaction,
+      in milliseconds since the creation of the nemesis (first) block.
   feeMultiplier:
     $ref: "../../../schemas/BlockFeeMultiplier.yml"
+    description: Fee multiplier of the block that contains the parent aggregate transaction.

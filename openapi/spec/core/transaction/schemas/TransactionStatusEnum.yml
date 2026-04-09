@@ -324,8 +324,8 @@ description: |
     because specified previous value is nonzero.
   - `Failure_RestrictionMosaic_Max_Restrictions_Exceeded`: Validation failed
     because the maximum number of restrictions would be exceeded.
-  * Failure_RestrictionMosaic_Cannot_Delete_Nonexistent_Restriction -
-    Validation failed because nonexistent restriction cannot be deleted.
+  - `Failure_RestrictionMosaic_Cannot_Delete_Nonexistent_Restriction` - Validation failed
+    because nonexistent restriction cannot be deleted.
   - `Failure_RestrictionMosaic_Unknown_Global_Restriction`: Validation failed because required global restriction does not exist.
   - `Failure_RestrictionMosaic_Invalid_Global_Restriction`: Validation failed because mosaic has invalid global restriction.
   - `Failure_RestrictionMosaic_Account_Unauthorized`: Validation failed because account lacks proper permissions to move mosaic.

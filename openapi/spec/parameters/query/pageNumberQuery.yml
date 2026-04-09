@@ -1,6 +1,12 @@
 name: pageNumber
 in: query
-description: Filter by page number.
+description: |
+  Page number for numbered pagination (1-based).
+
+  Numbered and cursor pagination can be combined, but this is not recommended because the semantics
+  are harder to reason about. For cursor-style flows, keep `pageNumber=1` and advance pages by
+  updating only `offset`. For numbered pagination flows, omit `offset` and advance pages by
+  incrementing `pageNumber`.
 schema:
   type: integer
   minimum: 1

@@ -2,6 +2,6 @@ name: toTransferAmount
 in: query
 description: |
   Requires providing the `transferMosaicId` filter.
-  Only transfer transactions with a transfer amount of the provided mosaic ID, lesser or equal than this amount are returned.
+  Only transfer transactions with an amount less than or equal to this value for the specified mosaic ID are returned.
 schema:
   $ref: "../../schemas/Amount.yml"

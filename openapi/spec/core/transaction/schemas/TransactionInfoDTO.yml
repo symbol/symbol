@@ -1,4 +1,11 @@
 type: object
+description: |
+  Transaction record returned by transaction lookup and search endpoints.
+  
+  The same wrapper is used for confirmed, unconfirmed, and partial transaction groups. The exact
+  ``meta`` shape depends on whether the returned entry is a top-level transaction or an embedded
+  transaction inside an aggregate. When an aggregate transaction is retrieved by ID or hash, REST can
+  also expand its embedded transactions under ``transaction.transactions``.
 required:
   - id
   - meta
@@ -7,10 +14,17 @@ properties:
   id:
     $ref: "../../../schemas/ObjectId.yml"
   meta:
+    description: |
+      Metadata for the returned transaction entry.
+      Top-level entries use ``TransactionMetaDTO``. Embedded entries use ``EmbeddedTransactionMetaDTO``.
     anyOf:
       - $ref: "./TransactionMetaDTO.yml"
       - $ref: "./EmbeddedTransactionMetaDTO.yml"
   transaction:
+    description: |
+      Concrete transaction payload represented by one of the listed transaction DTOs.
+      For aggregate transaction lookups, REST can populate ``transaction.transactions`` with the
+      embedded transaction records linked to that aggregate.
     anyOf:
       - $ref: "../../../plugins/account_link/schemas/AccountKeyLinkTransactionDTO.yml"
       - $ref: "../../../plugins/account_link/schemas/EmbeddedAccountKeyLinkTransactionDTO.yml"

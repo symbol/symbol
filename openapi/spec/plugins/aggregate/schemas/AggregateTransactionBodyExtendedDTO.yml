@@ -1,4 +1,7 @@
 type: object
+description: |
+  Extended aggregate transaction body that, in addition to aggregate-level fields, also includes the
+  embedded transactions contained in the aggregate.
 allOf:
   - $ref: "./AggregateTransactionBodyDTO.yml"
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionBodyDTO.yml"

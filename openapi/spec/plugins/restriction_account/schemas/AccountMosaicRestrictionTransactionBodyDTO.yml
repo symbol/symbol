@@ -1,4 +1,5 @@
 type: object
+description: Account mosaic restriction transaction body that updates the allowed or blocked mosaic ID list.
 required:
   - restrictionFlags
   - restrictionAdditions
