@@ -142,7 +142,15 @@ export default class TransactionFactory {
 	 */
 	static attachSignature(transaction, signature) {
 		transaction.signature = new sc.Signature(signature.bytes);
+		return TransactionFactory.toJson(transaction);
+	}
 
+	/**
+	 * Generates a JSON representation of transaction that can be sent to a node.
+	 * @param {sc.Transaction} transaction Transaction object.
+	 * @returns {string} JSON transaction payload.
+	 */
+	static toJson(transaction) {
 		const transactionBuffer = transaction.serialize();
 		const hexPayload = uint8ToHex(transactionBuffer);
 		const jsonPayload = `{"payload": "${hexPayload}"}`;

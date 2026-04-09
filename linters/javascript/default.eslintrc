@@ -90,6 +90,12 @@ rules:
   - object: true
     array: false
 
+  jsdoc/reject-any-type:
+  - off
+
+  jsdoc/reject-function-type:
+  - off
+
   import/order:
     - error
     - newlines-between: never

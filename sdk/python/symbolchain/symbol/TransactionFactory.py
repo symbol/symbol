@@ -69,7 +69,11 @@ class TransactionFactory:
 	def attach_signature(transaction, signature):
 		"""Attaches a signature to a transaction."""
 		transaction.signature = sc.Signature(signature.bytes)
+		return TransactionFactory.to_json(transaction)
 
+	@staticmethod
+	def to_json(transaction):
+		"""Generates a JSON representation of transaction that can be sent to a node."""
 		transaction_buffer = transaction.serialize()
 		hex_payload = hexlify(transaction_buffer).decode('utf8').upper()
 		json_payload = f'{{"payload": "{hex_payload}"}}'
