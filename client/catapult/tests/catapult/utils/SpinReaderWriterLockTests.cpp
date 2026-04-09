@@ -22,10 +22,19 @@
 #include "catapult/utils/SpinReaderWriterLock.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
+#include <vector>
 
 namespace catapult { namespace utils {
 
 #define TEST_CLASS SpinReaderWriterLockTests
+
+	// Expose private fields of BasicSpinReaderWriterLock
+	template<typename TReaderNotificationPolicy>
+	struct SpinReaderWriterLockTestAccessor {
+		static std::atomic<uint32_t>& _v(BasicSpinReaderWriterLock<TReaderNotificationPolicy>& lock) {
+			return lock.m_value;
+		}
+	};
 
 	// region basic - unlocked
 
@@ -206,6 +215,110 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(lock.isWriterPending());
 		EXPECT_TRUE(lock.isWriterActive());
 		EXPECT_FALSE(lock.isReaderActive());
+	}
+
+	// endregion
+
+	// region counter bounds
+
+	namespace {
+		constexpr auto Writer_Count_Mask = 0x7FFF0000u;
+
+		void SaturateWriterCount(BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>& lock, uint32_t extraFlags = 0) {
+			auto& value = SpinReaderWriterLockTestAccessor<NoOpReaderNotificationPolicy>::_v(lock);
+			value.store(Writer_Count_Mask | extraFlags);
+		}
+	}
+
+	TEST(TEST_CLASS, CanAcquireMoreThan256ConcurrentReaderLocks) {
+		// Act: acquire more reader locks than fit in 8 bits (old uint8_t limit)
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		std::vector<BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>::ReaderLockGuard> readLocks;
+		readLocks.reserve(300);
+		for (auto i = 0u; i < 300u; ++i)
+		{
+			auto readLock = lock.acquireReader();
+			readLocks.push_back(std::move(readLock));
+		}
+
+		// Assert: reader bits are set and no writer bits are incorrectly set
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_TRUE(lock.isReaderActive());
+
+		// Act: release all
+		readLocks.clear();
+
+		// Assert: lock is clean
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_FALSE(lock.isReaderActive());
+	}
+
+	TEST(TEST_CLASS, CanAcquireMoreThan128SequentialWriterLocks) {
+		// Act: acquire and release more writer locks than fit in 7 bits (old layout limit)
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		for (auto i = 0u; i < 200u; ++i) {
+			auto writeLock = lock.acquireWriter();
+			EXPECT_TRUE(lock.isWriterPending());
+			EXPECT_TRUE(lock.isWriterActive());
+		}
+
+		// Assert: lock is clean after all releases
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_FALSE(lock.isReaderActive());
+	}
+
+	TEST(TEST_CLASS, AcquireReaderThrowsWhenReaderCountSaturated) {
+		// Arrange: fill reader count to its maximum (65535 = Reader_Mask = 0xFFFF)
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		std::vector<BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy>::ReaderLockGuard> readLocks;
+		readLocks.reserve(65535);
+		for (auto i = 0u; i < 65535u; ++i)
+		{
+			auto readLock = lock.acquireReader();
+			readLocks.push_back(std::move(readLock));
+		}
+
+		// Act + Assert: the 65536th acquire must throw
+		auto tryLockFunc = [&lock]() { lock.acquireReader(); };
+		EXPECT_THROW(tryLockFunc(), catapult_runtime_error);
+
+		// Assert: lock state is still intact after the throw attempt
+		EXPECT_FALSE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_TRUE(lock.isReaderActive());
+	}
+
+	TEST(TEST_CLASS, AcquireWriterThrowsWhenWriterCountSaturated) {
+		// Arrange: force writer count bits to 32767 (full Writer_Count_Mask).
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		SaturateWriterCount(lock);
+
+		// Act + Assert: next writer acquire must fail before CAS increment.
+		auto tryLockFunc = [&lock]() { lock.acquireWriter(); };
+		EXPECT_THROW(tryLockFunc(), catapult_runtime_error);
+
+		// Assert: state remains unchanged.
+		EXPECT_TRUE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_FALSE(lock.isReaderActive());
+	}
+
+	TEST(TEST_CLASS, PromoteToWriterThrowsWhenWriterCountSaturated) {
+		// Arrange: hold one reader and saturate writer count bits.
+		BasicSpinReaderWriterLock<NoOpReaderNotificationPolicy> lock;
+		auto readLock = lock.acquireReader();
+		SaturateWriterCount(lock, 0x00000001);
+
+		// Act + Assert: promotion must fail before converting reader to writer.
+		EXPECT_THROW(readLock.promoteToWriter(), catapult_runtime_error);
+
+		// Assert: the original reader is still active and no active writer exists.
+		EXPECT_TRUE(lock.isWriterPending());
+		EXPECT_FALSE(lock.isWriterActive());
+		EXPECT_TRUE(lock.isReaderActive());
 	}
 
 	// endregion
