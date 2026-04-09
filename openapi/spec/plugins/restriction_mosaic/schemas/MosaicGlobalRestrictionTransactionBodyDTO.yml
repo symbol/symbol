@@ -1,4 +1,5 @@
 type: object
+description: Mosaic global restriction transaction body that defines the rule and reference value for a restriction key.
 required:
   - mosaicId
   - referenceMosaicId

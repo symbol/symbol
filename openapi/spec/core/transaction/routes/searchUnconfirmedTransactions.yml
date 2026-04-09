@@ -1,7 +1,16 @@
 tags:
   - Transaction routes
 summary: Search unconfirmed transactions
-description: Returns an array of unconfirmed transactions.
+description: |
+  Returns a paginated list of unconfirmed transactions matching the supplied filters.
+
+  Use this endpoint for transactions accepted by a node but not yet included in a block.
+  Use ``searchConfirmedTransactions`` for on-chain transactions, and use
+  ``searchPartialTransactions`` for aggregate bonded transactions waiting for cosignatures.
+
+  For cursor-style pagination on this endpoint, set ``offset`` to the ``id`` of the last transaction
+  from the previous page. For general pagination strategy guidance, see the ``offset`` and
+  ``pageNumber`` query parameter descriptions.
 operationId: searchUnconfirmedTransactions
 parameters:
   - $ref: "../../../parameters/query/addressQuery.yml"
@@ -21,10 +30,37 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Page of unconfirmed transactions.
     content:
       application/json:
         schema:
           $ref: "../schemas/TransactionPage.yml"
+        examples:
+          default:
+            summary: Example response with an unconfirmed transaction
+            value:
+              data:
+                - meta:
+                    height: "0"
+                    hash: "031FE3A39574F2AC073ACC107A18F175F74ADD0A9CE6C4C5B26AA220986662F0"
+                    merkleComponentHash: "031FE3A39574F2AC073ACC107A18F175F74ADD0A9CE6C4C5B26AA220986662F0"
+                    index: 0
+                  transaction:
+                    size: 176
+                    signature: "25163A3D6607C900841DC3BF23C5054D47F75D87C22E4143616AA9225D3853DD60FF8DC314DCAC4911CB261B..."
+                    signerPublicKey: "A6977B7FF4C3354EFC9393F7EC6F0FBD85A2A649A0B50A06A6A5452629B28006"
+                    version: 1
+                    network: 104
+                    type: 16724
+                    maxFee: "17600"
+                    deadline: "159220199218"
+                    recipientAddress: "68F17F8F3647965E8587F4CADD6B4177213DA8CE3E609EF6"
+                    mosaics:
+                      - id: "6BED913FA20223F8"
+                        amount: "1000000"
+                  id: "69CD5C452976BBB47C19E584"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

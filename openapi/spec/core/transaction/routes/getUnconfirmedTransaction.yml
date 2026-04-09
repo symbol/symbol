@@ -1,17 +1,48 @@
 tags:
   - Transaction routes
 summary: Get unconfirmed transaction information
-description: Returns unconfirmed transaction information given a transactionId or hash.
+description: |
+  Returns one unconfirmed transaction identified by the path value.
+  An unconfirmed transaction is accepted by a node and pending inclusion in a block.
+
+  The path accepts either the transaction ID assigned by the node or the transaction hash.
+  Both values are returned by transaction retrieval and search endpoints, for example
+  ``GET /transactions/unconfirmed`` and ``GET /transactions/unconfirmed/{transactionId}``.
+
+  Use this endpoint while a transaction is accepted by a node but not yet included in a block.
+  Use ``getConfirmedTransaction`` once it is confirmed on-chain, and use ``getPartialTransaction``
+  for aggregate bonded transactions waiting for cosignatures.
 operationId: getUnconfirmedTransaction
 parameters:
   - $ref: "../../../parameters/path/transactionIdPath.yml"
 responses:
   "200":
-    description: success
+    description: Unconfirmed transaction information.
     content:
       application/json:
         schema:
           $ref: "../schemas/TransactionInfoDTO.yml"
+        examples:
+          aggregateTransaction:
+            summary: Example unconfirmed transaction response
+            value:
+              meta:
+                height: "0"
+                hash: "E5D72BEE9EF4BFD1F44757E8929E5434E9213DDB63A1783AA061086F2054D719"
+                merkleComponentHash: "E5D72BEE9EF4BFD1F44757E8929E5434E9213DDB63A1783AA061086F2054D719"
+                index: 0
+              transaction:
+                size: 328
+                signature: "862748DA2628D09C0D53EF937DC0FB8A52388B287368D105F287320153D1B4B372F0B20A82A5B695FE73BFFEFFCD..."
+                signerPublicKey: "D3078EDE1559AF366629C81E33CBB2859187A682EADC338C7F79E228959A2CC4"
+                version: 3
+                network: 152
+                type: 16705
+                maxFee: "32800"
+                deadline: "107828961814"
+                transactionsHash: "96596CE7C3DF325418D75014A37606DC5E7D6840D9181D434F29BD9D0655D2C3"
+                cosignatures: []
+              id: "69CD73E4C72A61F64A178158"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

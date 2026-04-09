@@ -1,5 +1,5 @@
 name: signerPublicKey
 in: query
-description: Filter by public key of the account signing the entity.
+description: Filter transactions by the public key of the signing account.
 schema:
   $ref: "../../schemas/PublicKey.yml"

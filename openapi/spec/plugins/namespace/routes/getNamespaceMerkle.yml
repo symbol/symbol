@@ -2,8 +2,11 @@ tags:
   - Namespace routes
 summary: Get namespace Merkle information
 description: |
-  Returns the Merkle state proof for a namespace.
+  Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof) for a namespace.
+
   Clients can use this information to verify that the namespace state is included in the node's state Merkle tree.
+  If the supplied namespace ID does not exist, the endpoint still returns a Merkle proof response,
+  but it is a negative proof showing that no namespace state entry exists for the requested namespace ID.
   See [Data Validation](https://docs.symbol.dev/concepts/data-validation.html) for an overview of Patricia Merkle
   trees and state proofs on Symbol.
 operationId: getNamespaceMerkle
@@ -40,7 +43,5 @@ responses:
                   nibbleCount: 62
                   value: "F48F12376B7C72F97E1533DE6DDB6F957DAB4F9031F959261AA2C5B655C864AA"
                   leafHash: "85AA375FCF9F46F82E71126195A6DA0C0DD2F00378C16C7B986C5DDDA15192C6"
-  "404":
-    $ref: "../../../responses/ResourceNotFound.yml"
   "409":
     $ref: "../../../responses/InvalidArgument.yml"

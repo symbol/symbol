@@ -2,21 +2,37 @@ tags:
   - Transaction routes
 summary: Announce a new transaction
 description: |
-  Announces a transaction to the network.
-  The [catbuffer library](https://github.com/symbol/symbol/tree/main/catbuffer)
-  defines the protocol to serialize and deserialize Symbol entities.
-  Catbuffers are integrated into [Symbol SDKs](https://docs.symbol.dev/sdk.html).
-  It's recommended to use SDKs instead of calling the API endpoint directly to announce transactions.
+  Broadcasts a signed transaction to the network through this node.
+
+  The request must contain the serialized transaction payload in hexadecimal form. Transactions are
+  normally created and signed client-side with a [Symbol SDK](https://docs.symbol.dev/sdk.html) and
+  then announced with this endpoint.
+  
+  The [catbuffer library](https://github.com/symbol/symbol/tree/main/catbuffer) defines the binary
+  serialization format used by Symbol entities.
+
+  Acceptance by this node does not mean the transaction is already part of the blockchain. The
+  transaction still needs to be validated and confirmed by the network.
+  
+  To verify the final result, query ``GET /transactionStatus/{hash}`` on the same node that received
+  the announce request. If that node drops the transaction before propagation, other nodes may not know
+  the transaction at all and can return ``404`` for the same hash. Transaction status availability is not guaranteed
+  indefinitely: failed statuses are stored in a capped collection and may be evicted as new entries arrive.
 operationId: announceTransaction
 requestBody:
   $ref: "../../../request_bodies/transactionPayload.yml"
 responses:
   "202":
-    description: success
+    description: Transaction accepted for processing and broadcast by the node.
     content:
       application/json:
         schema:
           $ref: "../schemas/AnnounceTransactionInfoDTO.yml"
+        examples:
+          success:
+            summary: Transaction packet pushed to the node
+            value:
+              message: "packet 9 was pushed to the network via /transactions"
   "400":
     $ref: "../../../responses/InvalidContent.yml"
   "409":

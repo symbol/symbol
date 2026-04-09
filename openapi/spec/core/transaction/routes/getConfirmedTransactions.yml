@@ -1,20 +1,54 @@
 tags:
   - Transaction routes
-summary: Get confirmed trasactions information
-description: Returns confirmed transactions information for a given array of transactionIds.
+summary: Get confirmed transactions information
+description: |
+  Returns confirmed transactions for the list of identifiers in the request body.
+  Each request item can be either a transaction ID assigned by the node or a transaction hash.
+  Both values are returned by transaction retrieval and search endpoints, for example
+  ``GET /transactions/confirmed`` and ``GET /transactions/confirmed/{transactionId}``.
+
+  Use this endpoint when you need on-chain data for multiple transactions in one call.
+  Use ``getUnconfirmedTransactions`` for transactions still pending in a node pool, and
+  use ``getPartialTransactions`` for aggregate bonded transactions waiting for cosignatures.
 operationId: getConfirmedTransactions
 requestBody:
   $ref: "../../../request_bodies/transactionIds.yml"
 responses:
   "200":
-    description: success
+    description: Confirmed transaction information for the requested identifiers.
     content:
       application/json:
         schema:
           type: array
-          description: Array of transactions information.
+          description: Array of confirmed transaction entries.
           items:
             $ref: "../schemas/TransactionInfoDTO.yml"
+        examples:
+          default:
+            summary: Example confirmed transaction batch response
+            value:
+              - meta:
+                  height: "5299379"
+                  hash: "399724B8F6EBA9327D84B52B39BD6B6B1CD07819DEEE633F3AB9BDC9A305B930"
+                  merkleComponentHash: "215CA36FDB4FA94796DE931FAA68C97C855D69770CF0CAED0AC4D7E460580844"
+                  index: 0
+                  timestamp: "159214132791"
+                  feeMultiplier: 128
+                transaction:
+                  size: 368
+                  signature: "0C34EA160F07070DAED62E734EAE734D1DFBD78499486A09561094551946DE3BAF79317AA000718724255C67BE..."
+                  signerPublicKey: "B93B3931652DF080F1699F0EA14C6C760075785981C034AD4F435AC1EBEDA137"
+                  version: 3
+                  network: 104
+                  type: 16961
+                  maxFee: "47200"
+                  deadline: "159221254067"
+                  transactionsHash: "2C4946AB5EAD0224CBF43EE1432A06833243892CD27FE3B6CD0797E959CA5DC7"
+                  cosignatures:
+                    - version: "0"
+                      signerPublicKey: "3AB7AF84CC38E4E112F840ABD31866BD83AD5BCE765F31F84601D35799B9FFF4"
+                      signature: "07BBD3BD1EBFDDE9B771F646278DEAEA245ED8FA66800169EE533377884F76816DEEDA8A8319EC838930DC..."
+                id: "69CD60B02976BBB47C19E5D9"
   "400":
     $ref: "../../../responses/InvalidContent.yml"
   "409":

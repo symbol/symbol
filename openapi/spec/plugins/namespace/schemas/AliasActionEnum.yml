@@ -3,7 +3,8 @@ enum:
   - 0
   - 1
 description: |
-  Alias action:
-  * 0 - Unlink alias.
-  * 1 - Link alias.
-example: 0
+  Alias link action:
+  - `0`: Unlink the namespace from the current address or mosaic.
+  - `1`: Link the namespace to the specified address or mosaic.
+examples:
+  - 0

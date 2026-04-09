@@ -1,0 +1,9 @@
+type: integer
+description: |
+  Change in metadata value size, in bytes.
+  Positive values increase the stored value size, negative values decrease it.
+minimum: -32768
+maximum: 32767
+examples:
+  - 6
+  - -2

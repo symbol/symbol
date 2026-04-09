@@ -1,4 +1,5 @@
 type: object
+description: Account key link transaction body that links or unlinks a remote account public key.
 required:
   - linkedPublicKey
   - linkAction

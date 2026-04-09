@@ -1,3 +1,4 @@
+description: Request body containing transaction IDs or hashes to retrieve in batch.
 content:
   application/json:
     schema:

@@ -1,3 +1,4 @@
 type: object
+description: Transaction payload embedded inside an aggregate transaction.
 allOf:
   - $ref: "../../entity/schemas/EntityDTO.yml"

@@ -1,6 +1,13 @@
 type: object
+description: |
+  Wrapper object used to announce one signed transaction payload.
+required:
+  - payload
 properties:
   payload:
     type: string
-    description: Transaction payload in hexadecimal format.
-    example: "00112233445566778899AABBCCDDEEFF"
+    description: |
+      Signed transaction payload encoded as a hexadecimal string.
+      To obtain this value, use your SDK's transaction serialization. See the announce endpoint description for more SDK links.
+    examples:
+    - "CE000000000000003CA4BBA1CFF24DEA27FD659AA48334DB71FF2E377F641E52773959C58B8A3F77E1255762A39097716FCA94CD55FFE..."

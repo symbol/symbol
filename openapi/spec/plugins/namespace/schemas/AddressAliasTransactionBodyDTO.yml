@@ -1,4 +1,5 @@
 type: object
+description: Address alias transaction body that links or unlinks a namespace to an address.
 required:
   - namespaceId
   - address

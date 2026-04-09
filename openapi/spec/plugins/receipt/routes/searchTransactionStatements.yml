@@ -3,11 +3,11 @@ tags:
 summary: Search transaction statements
 description: |
   Returns a paginated list of transaction statements generated while confirmed transactions
-  changed on-chain state.
+  change on-chain state.
   Each statement is grouped by block height and source and contains the receipts produced by
   transaction execution, including balance transfers, balance changes, expirations, and inflation.
   Results can be filtered by block height, receipt type, related addresses, and artifact IDs.
-operationId: searchReceipts
+operationId: searchTransactionStatements
 parameters:
   - $ref: "../../../parameters/query/heightQuery.yml"
   - $ref: "../../../parameters/query/fromHeightQuery.yml"
@@ -23,7 +23,7 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Paginated list of transaction statements.
     content:
       application/json:
         schema:

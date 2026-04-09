@@ -1,4 +1,7 @@
 type: object
+description: |
+  Account metadata transaction body with the target account, metadata key, and metadata value
+  update.
 required:
   - targetAddress
   - scopedMetadataKey
@@ -11,10 +14,8 @@ properties:
   scopedMetadataKey:
     $ref: "../../../schemas/MetadataKey.yml"
   valueSizeDelta:
-    type: integer
-    description: Change in value size in bytes.
+    $ref: "../../../schemas/MetadataValueSizeDelta.yml"
   valueSize:
-    $ref: "../../../schemas/UInt32.yml"
-    description: Value size in bytes.
+    $ref: "../../../schemas/MetadataValueSize.yml"
   value:
     $ref: "../../../schemas/MetadataValue.yml"

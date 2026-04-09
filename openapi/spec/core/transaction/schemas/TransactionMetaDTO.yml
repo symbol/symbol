@@ -1,4 +1,17 @@
 type: object
+description: |
+  Metadata for a top-level (non-embedded) transaction entry returned by the transaction endpoints.
+  For confirmed transactions, these fields describe the transaction's position in the block and the
+  proof-related hashes associated with that block entry.
+
+  For unconfirmed top-level transactions, REST returns:
+  - ``height`` = ``"0"``
+  - ``index`` = ``0``
+  - ``hash`` = transaction hash
+  - ``merkleComponentHash`` = transaction hash
+
+  Block-derived fields such as ``timestamp`` and ``feeMultiplier`` are not present until the transaction
+  is included in a block.
 required:
   - height
   - hash
@@ -6,15 +19,27 @@ required:
   - index
 properties:
   height:
-    $ref: "../../../schemas/Height.yml"
+    $ref: "../../../schemas/TransactionMetaHeight.yml"
+    description: Height of the block that contains the transaction. For unconfirmed top-level transactions, this value is ``"0"``.
   hash:
     $ref: "../../../schemas/Hash256.yml"
+    description: Hash of the top-level transaction.
   merkleComponentHash:
     $ref: "../../../schemas/Hash256.yml"
+    description: |
+      Merkle component hash of the top-level transaction used in block transaction proofs.
+      For unconfirmed top-level transactions, this value matches ``hash``.
   index:
     type: integer
-    description: Transaction index within the block.
+    description: |
+      Transaction index within the block. For unconfirmed top-level transactions, this value is ``0``.
   timestamp:
     $ref: "../../../schemas/Timestamp.yml"
+    description: |
+      Timestamp of the block that contains the transaction, in milliseconds since the creation of the
+      nemesis (first) block. This field is absent for unconfirmed top-level transactions.
   feeMultiplier:
     $ref: "../../../schemas/BlockFeeMultiplier.yml"
+    description: |
+      Fee multiplier of the block that contains the transaction.
+      This field is absent for unconfirmed top-level transactions.

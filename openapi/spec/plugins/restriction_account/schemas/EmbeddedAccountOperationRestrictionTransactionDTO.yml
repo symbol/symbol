@@ -1,4 +1,5 @@
 type: object
+description: Embedded transaction variant of ``AccountOperationRestrictionTransactionDTO``.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./AccountOperationRestrictionTransactionBodyDTO.yml"
