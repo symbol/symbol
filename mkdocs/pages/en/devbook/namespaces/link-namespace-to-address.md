@@ -125,7 +125,7 @@ specified address.
 
 ### Using the Alias
 
-{{ tutorial.code_snippet(['py:128:151', 'js:148:181']) }}
+{{ tutorial.code_snippet(['py:128:147', 'js:148:169']) }}
 
 Once the namespace is linked to an address, the namespace can be used in place of the address in transactions.
 The code demonstrates creating a <transfer transaction:> using the alias as the recipient address instead of
@@ -133,16 +133,10 @@ the full hexadecimal address.
 
 For simplicity, this example creates the transaction but does not announce it or wait for its confirmation.
 
-To use a namespace as a recipient address, the namespace ID must be encoded into a 24-byte address.
-The namespace ID is obtained using the last component, as described in the
-[previous section](#defining-the-namespace-and-target-address).
-
-At this level, the SDK does not expose a dedicated helper for this operation, so the encoding is done manually
-with the following structure:
-
-* **Byte 0:** Network byte with alias flag set (`network_identifier | 0x01`)
-* **Bytes 1-8:** Namespace ID in little-endian byte order
-* **Bytes 9-23:** Zero padding
+To use a namespace as a recipient address, the namespace ID is converted into a 24-byte address using
+<dy:Address.fromNamespaceId>.
+As described in the [previous section](#defining-the-namespace-and-target-address), the last component of the
+namespace path is used as the namespace ID.
 
 For more details on how to announce transfer transactions, see the
 [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -195,4 +189,5 @@ This tutorial showed how to:
 | [Generate namespace ID](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath>        |
 | [Build an address alias transaction](#building-the-transaction)     | <dy:SymbolTransactionFactory.create>          |
 | [Verify the alias](#verifying-the-alias)                            | <get:/namespaces/{namespaceId}>               |
+| [Use the alias in a transfer](#using-the-alias)                     | <dy:Address.fromNamespaceId>                  |
 | [Query address resolution receipts](#using-the-alias)               | <get:/statements/resolutions/address>         |

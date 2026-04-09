@@ -8,7 +8,7 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.Network import NetworkTimestamp
 from symbolchain.symbol.IdGenerator import (
 	generate_namespace_path, generate_mosaic_alias_id)
-from symbolchain.sc import Amount
+from symbolchain.sc import Amount, NamespaceId
 from symbolchain.symbol.Network import Address
 
 NODE_URL = os.getenv(
@@ -128,14 +128,10 @@ try:
 	# Send a transfer using the alias instead of a raw address
 	print(f'Using alias in transfer: {namespace_name}')
 
-	# Encode the namespace ID as a recipient address (24 bytes)
-	# Byte 0: network byte (Network Identifier | 0x01 to indicate alias)
-	# Bytes 1-8: namespace ID in little-endian
-	# Bytes 9-23: zero padding
+	# Encode the namespace ID as a recipient address
 	recipient_id = generate_namespace_path(namespace_name)[-1]
-	recipient_address = Address(
-		bytes([facade.network.identifier | 0x01]) +
-		recipient_id.to_bytes(8, 'little') + bytes(15))
+	recipient_address = Address.from_namespace_id(
+		NamespaceId(recipient_id), facade.network.identifier)
 
 	transfer_tx = facade.transaction_factory.create({
 		'type': 'transfer_transaction_v1',
