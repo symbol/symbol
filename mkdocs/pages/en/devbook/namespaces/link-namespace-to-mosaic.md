@@ -135,6 +135,8 @@ and does not announce the transaction or wait for its confirmation.
 
 To use a namespace as a mosaic ID, the namespace name is converted to its mosaic alias ID using
 <dy:IdGenerator.generateMosaicAliasId>.
+As described in the [previous section](#defining-the-namespace-and-target-mosaic), the last component of the
+namespace path is used as the namespace ID.
 
 For more details on how to announce transfer transactions, see the
 [Transfer Transaction](../transactions/transfer.md) tutorial.
