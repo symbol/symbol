@@ -1,0 +1,10 @@
+type: string
+description: |
+  Height of the block containing the referenced transaction or parent aggregate transaction.
+  Returned as a decimal string. The value is ``"0"`` when the transaction is not included in a
+  block yet, for example for unconfirmed transactions and partial aggregate transactions.
+pattern: '^(0|[1-9][0-9]*)$'
+examples:
+  - "0"
+  - "1"
+  - "17592"

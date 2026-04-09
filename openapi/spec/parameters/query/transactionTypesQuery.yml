@@ -7,5 +7,6 @@ style: form
 explode: true
 schema:
   type: array
+  description: Array of transaction type identifiers to match.
   items:
     $ref: "../../core/transaction/schemas/TransactionTypeEnum.yml"

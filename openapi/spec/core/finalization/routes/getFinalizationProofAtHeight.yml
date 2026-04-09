@@ -1,6 +1,6 @@
 tags:
   - Finalization routes
-summary: Get finalization proof
+summary: Get finalization proof at height
 description: Returns the finalization proof for the block at the given height.
 operationId: getFinalizationProofAtHeight
 parameters:

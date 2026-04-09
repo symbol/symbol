@@ -1,6 +1,6 @@
 tags:
   - Network routes
-summary: Returns the inflation distribution data at specific height
+summary: Returns the inflation distribution data at a specific height
 description: |
   Retrieves network inflation parameters at a given block height.
 operationId: getNetworkInflationAtHeight

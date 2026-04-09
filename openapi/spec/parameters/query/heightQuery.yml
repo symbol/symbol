@@ -1,6 +1,8 @@
 name: height
 in: query
 description: |
-  Filter by block height. Sequential block position in the chain; starts at 1 and increments by one.
+  Filter by height.
+  The exact meaning depends on the endpoint, for example block height for blocks or inclusion height for
+  confirmed transactions.
 schema:
   $ref: "../../schemas/Height.yml"

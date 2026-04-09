@@ -1,4 +1,5 @@
 type: object
+description: Account operation restriction transaction body that updates the allowed or blocked transaction type list.
 required:
   - restrictionFlags
   - restrictionAdditions

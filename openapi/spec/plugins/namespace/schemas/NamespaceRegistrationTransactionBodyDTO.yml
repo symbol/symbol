@@ -1,4 +1,5 @@
 type: object
+description: Namespace registration transaction body for creating a root namespace or a child namespace.
 required:
   - id
   - registrationType

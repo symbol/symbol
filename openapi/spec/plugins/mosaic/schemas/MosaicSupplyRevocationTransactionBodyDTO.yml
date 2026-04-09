@@ -1,4 +1,5 @@
 type: object
+description: Mosaic supply revocation transaction body with the source account, mosaic, and revoked amount.
 required:
   - sourceAddress
   - mosaicId

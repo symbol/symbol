@@ -1,4 +1,5 @@
 type: object
+description: Voting key link transaction body that links or unlinks a voting key for a finalization epoch range.
 required:
   - linkedPublicKey
   - startEpoch

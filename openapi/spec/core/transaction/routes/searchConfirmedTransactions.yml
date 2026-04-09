@@ -2,10 +2,18 @@ tags:
   - Transaction routes
 summary: Search confirmed transactions
 description: |
-  Returns an array of confirmed transactions.
-  If a transaction was announced with an alias rather than an address, the
-  address that will be considered when querying is the one that
-  was resolved from the alias at confirmation time.
+  Returns a paginated list of confirmed transactions matching the supplied filters.
+
+  Use this endpoint when you need on-chain transactions only (already included in blocks).
+  Use ``searchUnconfirmedTransactions`` for transactions that are still pending in a node pool, and
+  use ``searchPartialTransactions`` for aggregate bonded transactions waiting for cosignatures.
+
+  If a transaction was announced with an alias rather than an address, the address considered during
+  filtering is the one resolved from that alias at confirmation time.
+
+  For cursor-style pagination on this endpoint, set ``offset`` to the ``id`` of the last transaction
+  from the previous page. For general pagination strategy guidance, see the ``offset`` and
+  ``pageNumber`` query parameter descriptions.
 operationId: searchConfirmedTransactions
 parameters:
   - $ref: "../../../parameters/query/addressQuery.yml"
@@ -25,10 +33,101 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Page of confirmed transactions.
     content:
       application/json:
         schema:
           $ref: "../schemas/TransactionPage.yml"
+        examples:
+          topLevelOnly:
+            summary: Example response with embedded set to false
+            value:
+              data:
+                - meta:
+                    height: "1"
+                    hash: "96285C7EB0622892F4F67772DB2E030E4FDDBF389CAF164790CA846D8280EA1A"
+                    merkleComponentHash: "96285C7EB0622892F4F67772DB2E030E4FDDBF389CAF164790CA846D8280EA1A"
+                    index: 6505
+                    timestamp: "0"
+                    feeMultiplier: 0
+                  transaction:
+                    size: 176
+                    signature: "86499F4AF09ED620D961C0A2CD5D22400A632E360F7FA23EA5D62C2B60A63E00EE1F34455657C1C72FA597D..."
+                    signerPublicKey: "BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F"
+                    version: 1
+                    network: 104
+                    type: 16724
+                    maxFee: "0"
+                    deadline: "1"
+                    recipientAddress: "68338CA70482DF1658E60BBC4657C1D74A2E5827FEF4DC37"
+                    mosaics:
+                      - id: "E74B99BA41F4AFEE"
+                        amount: "24441954321"
+                  id: "60574DCDA0A3E6414C032983"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
+          includingEmbedded:
+            summary: Example response with embedded set to true
+            value:
+              data:
+                - meta:
+                    height: "5299119"
+                    hash: "E4D08A928C14038E34482EFBC5BC213B481FCB6212F3302968565B96E81963D6"
+                    merkleComponentHash: "E59CEFF103FA692C2AEFCBEAAE75B0609C860E5B47BF9A05BCDA1AC1B11099B3"
+                    index: 0
+                    timestamp: "159206499627"
+                    feeMultiplier: 100
+                  transaction:
+                    size: 712
+                    signature: "E6ACAA3328B6DE2650918FC24360F70D3AD8B65C7CD139815A453D37B3F22C21D7A32ED98E1CECA924C..."
+                    signerPublicKey: "0544EA984581DBF1C0A98F14231F83AAAFC4F26E09DB035CE0C99737DE4E1DD7"
+                    version: 3
+                    network: 104
+                    type: 16961
+                    maxFee: "71200"
+                    deadline: "159213671557"
+                    transactionsHash: "C8E3AD4E745AC47D688337EF4E23A9238600D41771E68EA1783A33E50A67F8DC"
+                    cosignatures:
+                      - version: "0"
+                        signerPublicKey: "DD8710269484573DB6C497B6722B6B8A5D1136305C16CD81313F899CD792FCA5"
+                        signature: "F29AC6AF8FB7EE85535927502253B04A3EA934A60AB57F39C30EBFFE72D9F52A3F42173A6D9BDEC8..."
+                    transactions:
+                      - meta:
+                          height: "5299119"
+                          aggregateHash: "E4D08A928C14038E34482EFBC5BC213B481FCB6212F3302968565B96E81963D6"
+                          aggregateId: "69CD42DF2976BBB47C19E3AE"
+                          index: 1
+                          timestamp: "159206499627"
+                          feeMultiplier: 100
+                        transaction:
+                          signerPublicKey: "88F44BBD37BE0F98A7F06B6D958E0A8807F05A9A14F5DE408012E2AA6E2A84DE"
+                          version: 1
+                          network: 104
+                          type: 16724
+                          recipientAddress: "68E5AC45A655D1F08C4D13825DA9D9822C89080F5ADCAAD1"
+                          message: "011F102526858BE43F4CBA54E9F62E80B22830DEB5FA180431ED4633701D2ABC0C6129D1719C087BCE1C23..."
+                          mosaics: []
+                        id: "69CD42DF2976BBB47C19E3B0"
+                  id: "69CD42DF2976BBB47C19E3AE"
+                - meta:
+                    height: "5299119"
+                    aggregateHash: "E4D08A928C14038E34482EFBC5BC213B481FCB6212F3302968565B96E81963D6"
+                    aggregateId: "69CD42DF2976BBB47C19E3AE"
+                    index: 1
+                    timestamp: "159206499627"
+                    feeMultiplier: 100
+                  transaction:
+                    signerPublicKey: "88F44BBD37BE0F98A7F06B6D958E0A8807F05A9A14F5DE408012E2AA6E2A84DE"
+                    version: 1
+                    network: 104
+                    type: 16724
+                    recipientAddress: "68E5AC45A655D1F08C4D13825DA9D9822C89080F5ADCAAD1"
+                    message: "011F102526858BE43F4CBA54E9F62E80B22830DEB5FA180431ED4633701D2ABC0C6129D1719C087BCE1C23..."
+                    mosaics: []
+                  id: "69CD42DF2976BBB47C19E3B0"
+              pagination:
+                pageNumber: 1
+                pageSize: 100
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

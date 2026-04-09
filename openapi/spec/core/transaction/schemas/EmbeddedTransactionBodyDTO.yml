@@ -1,4 +1,5 @@
 type: object
+description: Wrapper for embedded transactions carried inside an aggregate transaction.
 required:
   - transactions
 properties:

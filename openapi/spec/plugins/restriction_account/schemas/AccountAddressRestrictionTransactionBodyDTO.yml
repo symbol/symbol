@@ -1,4 +1,5 @@
 type: object
+description: Account address restriction transaction body that updates the allowed or blocked address list.
 required:
   - restrictionFlags
   - restrictionAdditions

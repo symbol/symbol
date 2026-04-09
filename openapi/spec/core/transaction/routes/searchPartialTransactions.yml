@@ -1,7 +1,16 @@
 tags:
   - Transaction routes
 summary: Search partial transactions
-description: Returns an array of partial transactions.
+description: |
+  Returns a paginated list of partial transactions matching the supplied filters.
+
+  Use this endpoint for aggregate bonded transactions that still wait for required cosignatures.
+  Use ``searchUnconfirmedTransactions`` for non-partial pending transactions, and
+  use ``searchConfirmedTransactions`` once transactions are confirmed on-chain.
+
+  For cursor-style pagination on this endpoint, set ``offset`` to the ``id`` of the last transaction
+  from the previous page. For general pagination strategy guidance, see the ``offset`` and
+  ``pageNumber`` query parameter descriptions.
 operationId: searchPartialTransactions
 parameters:
   - $ref: "../../../parameters/query/addressQuery.yml"
@@ -21,10 +30,75 @@ parameters:
   - $ref: "../../../parameters/query/orderQuery.yml"
 responses:
   "200":
-    description: success
+    description: Page of partial transactions.
     content:
       application/json:
         schema:
           $ref: "../schemas/TransactionPage.yml"
+        examples:
+          topLevelOnly:
+            summary: Example response with partial aggregate bonded transactions
+            value:
+              data:
+                - meta:
+                    height: "0"
+                    hash: "E7FACE48AA997C6249D49C9BE4F30A0F8DB898BF266D578D06C8372CF0012305"
+                    merkleComponentHash: "0000000000000000000000000000000000000000000000000000000000000000"
+                    index: 0
+                  transaction:
+                    size: 248
+                    signature: "416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C..."
+                    signerPublicKey: "FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049"
+                    version: 3
+                    network: 152
+                    type: 16961
+                    maxFee: "45600"
+                    deadline: "107989381281"
+                    transactionsHash: "4C88E5297F38E158CAEFDB2674138E581553630F7CAA08C14920688F392F6557"
+                    cosignatures: []
+                  id: "69CD5FAFC72A61F64A177DFC"
+              pagination:
+                pageNumber: 1
+                pageSize: 10
+          includingEmbedded:
+            summary: Example response with embedded set to true
+            value:
+              data:
+                - meta:
+                    height: "0"
+                    hash: "E7FACE48AA997C6249D49C9BE4F30A0F8DB898BF266D578D06C8372CF0012305"
+                    merkleComponentHash: "0000000000000000000000000000000000000000000000000000000000000000"
+                    index: 0
+                  transaction:
+                    size: 248
+                    signature: "416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C..."
+                    signerPublicKey: "FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049"
+                    version: 3
+                    network: 152
+                    type: 16961
+                    maxFee: "45600"
+                    deadline: "107989381281"
+                    transactionsHash: "4C88E5297F38E158CAEFDB2674138E581553630F7CAA08C14920688F392F6557"
+                    cosignatures: []
+                  id: "69CD5FAFC72A61F64A177DFC"
+                - meta:
+                    height: "0"
+                    aggregateHash: "E7FACE48AA997C6249D49C9BE4F30A0F8DB898BF266D578D06C8372CF0012305"
+                    aggregateId: "69CD5FAFC72A61F64A177DFC"
+                    index: 0
+                  transaction:
+                    signerPublicKey: "FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049"
+                    version: 1
+                    network: 152
+                    type: 16725
+                    minRemovalDelta: 1
+                    minApprovalDelta: 1
+                    addressAdditions:
+                      - "98F5D0F176F14A39D523A8FD787D9C8F30CF4C838969411D"
+                    addressDeletions: []
+                  id: "69CD5FAFC72A61F64A177DFD"
+              pagination:
+                pageNumber: 1
+                pageSize: 20
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -1,5 +1,5 @@
 name: toHeight
 in: query
-description: Only blocks with height smaller or equal than this one are returned.
+description: Only transactions at or below this block height are returned.
 schema:
   $ref: "../../schemas/Height.yml"

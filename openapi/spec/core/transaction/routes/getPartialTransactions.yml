@@ -1,20 +1,68 @@
 tags:
   - Transaction routes
-summary: Get partial trasactions information
-description: Returns partial transactions information for a given array of transactionIds.
+summary: Get information about partial transactions
+description: |
+  Returns partial transactions for the list of identifiers in the request body. Partial
+  transactions are aggregate bonded transactions waiting for the remaining cosignatures.
+
+  Each request item can be either a transaction ID assigned by the node or a transaction hash.
+  Both values are returned by transaction retrieval and search endpoints, for example
+  ``GET /transactions/partial`` and ``GET /transactions/partial/{transactionId}``.
+
+  Use this endpoint for aggregate bonded transactions that still wait for required cosignatures.
+  Use ``getUnconfirmedTransactions`` for non-partial pending transactions accepted by a node but not
+  yet included in a block, and use ``getConfirmedTransactions`` once transactions are confirmed on-chain.
 operationId: getPartialTransactions
 requestBody:
   $ref: "../../../request_bodies/transactionIds.yml"
 responses:
   "200":
-    description: success
+    description: Partial transaction information for the requested identifiers.
     content:
       application/json:
         schema:
           type: array
-          description: Array of transactions information.
+          description: Array of partial transaction entries.
           items:
             $ref: "../schemas/TransactionInfoDTO.yml"
+        examples:
+          default:
+            summary: Example partial transaction batch response
+            value:
+              - meta:
+                  height: "0"
+                  hash: "D304E55AFE3CAC0D86F78A708570FADDF41490981D8242C043A12EDE90225409"
+                  merkleComponentHash: "0000000000000000000000000000000000000000000000000000000000000000"
+                  index: 0
+                transaction:
+                  size: 264
+                  signature: "C17FEC2639C3BEE110C11FA199AC96C29D41A502B3E90F0E879FD00AB0BEBC2BEA27CFD006CEA1E6E12AE4D3D1..."
+                  signerPublicKey: "C46AA9E7F1953C8EC9E20CEE783378CE556C01648B3C9CC185FBA6ACFDB8AC9E"
+                  version: 3
+                  network: 152
+                  type: 16961
+                  maxFee: "43732"
+                  deadline: "107964975712"
+                  transactionsHash: "CDB1283FFAC65D16C0756EF55276C2715DEFC8606518FA60A2D6C3DC4AE902FB"
+                  cosignatures: []
+                id: "69CD0083C72A61F64A176E3A"
+              - meta:
+                  height: "0"
+                  hash: "E7FACE48AA997C6249D49C9BE4F30A0F8DB898BF266D578D06C8372CF0012305"
+                  merkleComponentHash: "0000000000000000000000000000000000000000000000000000000000000000"
+                  index: 0
+                transaction:
+                  size: 248
+                  signature: "416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7CAB..."
+                  signerPublicKey: "FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049"
+                  version: 3
+                  network: 152
+                  type: 16961
+                  maxFee: "45600"
+                  deadline: "107989381281"
+                  transactionsHash: "4C88E5297F38E158CAEFDB2674138E581553630F7CAA08C14920688F392F6557"
+                  cosignatures: []
+                id: "69CD5FAFC72A61F64A177DFC"
   "400":
     $ref: "../../../responses/InvalidContent.yml"
   "409":

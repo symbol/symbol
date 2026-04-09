@@ -1,3 +1,7 @@
+description: |
+  Request body for transaction announcement.
+
+  Contains one signed transaction payload serialized in hexadecimal form.
 content:
   application/json:
     schema:

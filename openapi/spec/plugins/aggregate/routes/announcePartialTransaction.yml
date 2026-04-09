@@ -1,17 +1,35 @@
 tags:
   - Transaction routes
 summary: Announce an aggregate bonded transaction
-description: Announces an aggregate bonded transaction to the network.
+description: |
+  Broadcasts a signed aggregate bonded transaction to the network through this node.
+
+  The request must contain the serialized aggregate bonded transaction payload in hexadecimal form.
+  Transactions are normally created and signed client-side with a [Symbol SDK](https://docs.symbol.dev/sdk.html)
+  and then announced with this endpoint.
+
+  Acceptance by this node does not mean the transaction is already part of the blockchain. The
+  transaction still needs to be validated and confirmed by the network.
+  
+  To verify the final result, query ``GET /transactionStatus/{hash}`` on the same node that received
+  the announce request. If that node drops the transaction before propagation, other nodes may not
+  know the transaction at all and can return ``404`` for the same hash. Transaction status availability is not guaranteed
+  indefinitely: failed statuses are stored in a capped collection and may be evicted as new entries arrive.
 operationId: announcePartialTransaction
 requestBody:
   $ref: "../../../request_bodies/transactionPayload.yml"
 responses:
   "202":
-    description: success
+    description: Aggregate bonded transaction accepted for processing and broadcast by the node.
     content:
       application/json:
         schema:
           $ref: "../../../core/transaction/schemas/AnnounceTransactionInfoDTO.yml"
+        examples:
+          success:
+            summary: Partial transaction packet pushed to the node
+            value:
+              message: "packet 256 was pushed to the network via /transactions/partial"
   "400":
     $ref: "../../../responses/InvalidContent.yml"
   "409":

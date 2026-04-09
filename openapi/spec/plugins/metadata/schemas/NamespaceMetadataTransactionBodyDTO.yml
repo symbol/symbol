@@ -1,8 +1,11 @@
 type: object
+description: |
+  Namespace metadata transaction body with the target namespace, metadata key, and metadata value
+  update.
 required:
   - targetAddress
   - scopedMetadataKey
-  - targetMosaicId
+  - targetNamespaceId
   - valueSizeDelta
   - valueSize
   - value
@@ -14,10 +17,8 @@ properties:
   targetNamespaceId:
     $ref: "../../../schemas/NamespaceId.yml"
   valueSizeDelta:
-    type: integer
-    description: Change in value size in bytes.
+    $ref: "../../../schemas/MetadataValueSizeDelta.yml"
   valueSize:
-    $ref: "../../../schemas/UInt32.yml"
-    description: Value size in bytes.
+    $ref: "../../../schemas/MetadataValueSize.yml"
   value:
     $ref: "../../../schemas/MetadataValue.yml"

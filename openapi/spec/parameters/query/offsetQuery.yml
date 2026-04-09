@@ -11,5 +11,10 @@ description: |
 
   Set `offset` to the sort-field value of the last entry from the previous page. Across pages,
   this value decreases with `order=desc` and increases with `order=asc`.
+
+  Numbered and cursor pagination can be combined, but this is not recommended because the semantics
+  are harder to reason about. For cursor-style flows, keep `pageNumber=1` and advance pages by
+  updating only `offset`. For numbered pagination flows, omit `offset` and advance pages by
+  incrementing `pageNumber`.
 schema:
   type: string

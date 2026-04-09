@@ -1,4 +1,5 @@
 type: object
+description: Embedded transaction record returned from aggregate transaction payloads.
 required:
   - id
   - meta
@@ -9,6 +10,7 @@ properties:
   meta:
     $ref: "./EmbeddedTransactionMetaDTO.yml"
   transaction:
+    description: Concrete embedded transaction payload represented by one of the listed transaction DTOs.
     anyOf:
       - $ref: "../../../plugins/account_link/schemas/EmbeddedAccountKeyLinkTransactionDTO.yml"
       - $ref: "../../../plugins/account_link/schemas/EmbeddedNodeKeyLinkTransactionDTO.yml"

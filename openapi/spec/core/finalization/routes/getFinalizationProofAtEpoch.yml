@@ -1,6 +1,6 @@
 tags:
   - Finalization routes
-summary: Get finalization proof
+summary: Get finalization proof at epoch
 description: Returns the finalization proof for the greatest block height associated with the given finalization epoch.
 operationId: getFinalizationProofAtEpoch
 parameters:

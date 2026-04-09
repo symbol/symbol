@@ -1,4 +1,5 @@
 type: object
+description: Mosaic address restriction transaction body that sets a restriction value for a target address and key.
 required:
   - mosaicId
   - restrictionKey

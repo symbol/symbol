@@ -6,4 +6,3 @@ description: |
 enum:
   - asc
   - desc
-default: desc

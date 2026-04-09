@@ -35,9 +35,6 @@ properties:
   metadataType:
     $ref: "./MetadataTypeEnum.yml"
   valueSize:
-    type: integer
-    description: Size of the metadata value in bytes.
-    examples:
-      - 6
+    $ref: "../../../schemas/MetadataValueSize.yml"
   value:
     $ref: "../../../schemas/MetadataValue.yml"

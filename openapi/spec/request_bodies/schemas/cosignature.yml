@@ -1,10 +1,18 @@
 type: object
+description: Wrapper object containing the detached cosignature fields required to cosign an aggregate bonded transaction.
+required:
+  - parentHash
+  - signature
+  - signerPublicKey
+  - version
 properties:
   parentHash:
     $ref: "../../schemas/Hash256.yml"
+    description: Hash of the parent aggregate bonded transaction being cosigned.
   signature:
     $ref: "../../schemas/Signature.yml"
   signerPublicKey:
     $ref: "../../schemas/PublicKey.yml"
+    description: Public key of the cosigner creating the cosignature.
   version:
     $ref: "../../schemas/CosignatureVersion.yml"
