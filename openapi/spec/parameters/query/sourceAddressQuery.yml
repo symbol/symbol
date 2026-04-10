@@ -1,5 +1,5 @@
 name: sourceAddress
 in: query
-description: Filter by address sending the metadata entry.
+description: Filter by address sending the metadata entry (include).
 schema:
   $ref: "../../schemas/Address.yml"
