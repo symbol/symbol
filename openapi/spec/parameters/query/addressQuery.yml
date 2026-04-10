@@ -9,7 +9,7 @@ description: |
   - account restriction search: matches the restricted account address
   - hash lock and secret lock search: matches the lock owner address
 
-  On transaction search endpoints, this filter cannot be combined with ``recipientAddress`` and
-  ``signerPublicKey``.
+  On transaction search endpoints, this filter cannot be combined with `recipientAddress` and
+  `signerPublicKey`.
 schema:
   $ref: "../../schemas/Address.yml"

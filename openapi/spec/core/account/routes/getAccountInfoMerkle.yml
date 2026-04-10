@@ -10,7 +10,7 @@ description: |
   Merkle proof response, but it is a negative proof showing that no account state entry exists
   for the requested account.
 
-  The ``accountId`` path parameter accepts either a public key or a Base32-encoded address.
+  The `accountId` path parameter accepts either a public key or a Base32-encoded address.
 operationId: getAccountInfoMerkle
 parameters:
   - $ref: "../../../parameters/path/accountIdPath.yml"

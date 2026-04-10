@@ -5,15 +5,15 @@ description: |
   Returns a paginated list of confirmed transactions matching the supplied filters.
 
   Use this endpoint when you need on-chain transactions only (already included in blocks).
-  Use ``searchUnconfirmedTransactions`` for transactions that are still pending in a node pool, and
-  use ``searchPartialTransactions`` for aggregate bonded transactions waiting for cosignatures.
+  Use `searchUnconfirmedTransactions` for transactions that are still pending in a node pool, and
+  use `searchPartialTransactions` for aggregate bonded transactions waiting for cosignatures.
 
   If a transaction was announced with an alias rather than an address, the address considered during
   filtering is the one resolved from that alias at confirmation time.
 
-  For cursor-style pagination on this endpoint, set ``offset`` to the ``id`` of the last transaction
-  from the previous page. For general pagination strategy guidance, see the ``offset`` and
-  ``pageNumber`` query parameter descriptions.
+  For cursor-style pagination on this endpoint, set `offset` to the `id` of the last transaction
+  from the previous page. For general pagination strategy guidance, see the `offset` and
+  `pageNumber` query parameter descriptions.
 operationId: searchConfirmedTransactions
 parameters:
   - $ref: "../../../parameters/query/addressQuery.yml"

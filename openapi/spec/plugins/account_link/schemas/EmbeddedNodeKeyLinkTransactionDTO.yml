@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``NodeKeyLinkTransactionDTO``.
+description: Embedded transaction variant of `NodeKeyLinkTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./NodeKeyLinkTransactionBodyDTO.yml"

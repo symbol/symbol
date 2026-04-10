@@ -5,12 +5,12 @@ description: |
   proof-related hashes associated with that block entry.
 
   For unconfirmed top-level transactions, REST returns:
-  - ``height`` = ``"0"``
-  - ``index`` = ``0``
-  - ``hash`` = transaction hash
-  - ``merkleComponentHash`` = transaction hash
+  - `height` = `"0"`
+  - `index` = `0`
+  - `hash` = transaction hash
+  - `merkleComponentHash` = transaction hash
 
-  Block-derived fields such as ``timestamp`` and ``feeMultiplier`` are not present until the transaction
+  Block-derived fields such as `timestamp` and `feeMultiplier` are not present until the transaction
   is included in a block.
 required:
   - height
@@ -20,7 +20,7 @@ required:
 properties:
   height:
     $ref: "../../../schemas/TransactionMetaHeight.yml"
-    description: Height of the block that contains the transaction. For unconfirmed top-level transactions, this value is ``"0"``.
+    description: Height of the block that contains the transaction. For unconfirmed top-level transactions, this value is `"0"`.
   hash:
     $ref: "../../../schemas/Hash256.yml"
     description: Hash of the top-level transaction.
@@ -28,11 +28,11 @@ properties:
     $ref: "../../../schemas/Hash256.yml"
     description: |
       Merkle component hash of the top-level transaction used in block transaction proofs.
-      For unconfirmed top-level transactions, this value matches ``hash``.
+      For unconfirmed top-level transactions, this value matches `hash`.
   index:
     type: integer
     description: |
-      Transaction index within the block. For unconfirmed top-level transactions, this value is ``0``.
+      Transaction index within the block. For unconfirmed top-level transactions, this value is `0`.
   timestamp:
     $ref: "../../../schemas/Timestamp.yml"
     description: |

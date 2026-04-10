@@ -2,7 +2,7 @@ name: type
 in: query
 description: |
   Filter by transaction type (include).
-  To match multiple transaction types, add more query parameters like: ``type=16974&type=16718``.
+  To match multiple transaction types, add more query parameters like: `type=16974&type=16718`.
 style: form
 explode: true
 schema:

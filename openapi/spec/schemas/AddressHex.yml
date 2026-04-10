@@ -1,7 +1,7 @@
 type: string
 description: |
   Address encoded as a 48-character hexadecimal string (24 bytes).
-  The REST API returns addresses in this format. For Base32-encoded addresses (39 chars) see ``Address``.
+  The REST API returns addresses in this format. For Base32-encoded addresses (39 chars) see `Address`.
 pattern: '^[0-9a-fA-F]+$'
 minLength: 48
 maxLength: 48

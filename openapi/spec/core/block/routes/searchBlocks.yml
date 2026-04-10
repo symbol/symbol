@@ -4,10 +4,10 @@ summary: Search blocks
 description: |
   Returns a paginated list of blocks matching the given criteria.
 
-  Results can be filtered by harvester (``signerPublicKey``), beneficiary address,
-  and timestamp range. Standard pagination parameters (``pageSize``, ``pageNumber``,
-  ``offset``, ``order``) apply.
-  The ``orderBy`` parameter supports ``id`` and ``height``. The ``offset`` value must match the ``orderBy`` field.
+  Results can be filtered by harvester (`signerPublicKey`), `beneficiaryAddress`,
+  and timestamp range. Standard pagination parameters (`pageSize`, `pageNumber`,
+  `offset`, `order`) apply.
+  The `orderBy` parameter supports `id` and `height`. The `offset` value must match the `orderBy` field.
 operationId: searchBlocks
 parameters:
   - $ref: "../../../parameters/query/signerPublicKeyQuery.yml"

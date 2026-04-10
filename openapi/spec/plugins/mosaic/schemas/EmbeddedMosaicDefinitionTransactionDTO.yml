@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``MosaicDefinitionTransactionDTO``.
+description: Embedded transaction variant of `MosaicDefinitionTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./MosaicDefinitionTransactionBodyDTO.yml"

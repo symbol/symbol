@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``TransferTransactionDTO``.
+description: Embedded transaction variant of `TransferTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./TransferTransactionBodyDTO.yml"

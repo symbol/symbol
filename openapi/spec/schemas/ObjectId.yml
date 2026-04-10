@@ -1,7 +1,7 @@
 type: string
 description: |
   Unique identifier of the object in the node's database (MongoDB ObjectId).
-  Used as the ``offset`` parameter value for cursor-based pagination.
+  Used as the `offset` parameter value for cursor-based pagination.
 minLength: 24
 maxLength: 24
 pattern: '^[0-9a-fA-F]+$'

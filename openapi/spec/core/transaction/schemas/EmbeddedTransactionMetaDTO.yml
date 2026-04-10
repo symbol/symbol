@@ -12,7 +12,7 @@ properties:
     $ref: "../../../schemas/TransactionMetaHeight.yml"
     description: |
       Height of the block that contains the parent aggregate transaction.
-      For embedded transactions returned from partial aggregate transactions, this value is ``"0"``.
+      For embedded transactions returned from partial aggregate transactions, this value is `"0"`.
   aggregateHash:
     $ref: "../../../schemas/Hash256.yml"
     description: Hash of the parent aggregate transaction.

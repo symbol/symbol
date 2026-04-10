@@ -4,20 +4,20 @@ summary: Retrieve node metadata
 description: |
   Gets the node metadata information that has been set by the node operator.
 
-  **How to set:** Add a top-level ``nodeMetadata`` object in the REST server JSON configuration
+  **How to set:** Add a top-level `nodeMetadata` object in the REST server JSON configuration
   file. Example:
 
   ```json
   {
     "nodeMetadata": {
-      "deploymentTool": "symbol-bootstrap",
+      "deploymentTool": "symbol-shoestring",
       "version": "1.0.0",
       "customLabel": "my-node"
     }
   }
   ```
 
-  The entire ``nodeMetadata`` object is served as-is; add any key-value pairs to personalize
+  The entire `nodeMetadata` object is served as-is; add any key-value pairs to personalize
   your node.
 operationId: getNodeMetadata
 responses:
@@ -29,8 +29,8 @@ responses:
           $ref: "../schemas/NodeMetadataDTO.yml"
         examples:
           nodeMetadata:
-            summary: Example node metadata (symbol-bootstrap)
+            summary: Example node metadata (symbol-shoestring)
             value:
-              deploymentTool: symbol-bootstrap
+              deploymentTool: symbol-shoestring
               version: "1.0.2"
               nodeName: api-node-0

@@ -5,7 +5,7 @@ description: |
   Retrieves account data for a given account identifier.
   The response contains the account state including balance, importance, public key, linked keys, and activity buckets.
 
-  The ``accountId`` path parameter accepts either a public key or a Base32-encoded address.
+  The `accountId` path parameter accepts either a public key or a Base32-encoded address.
 operationId: getAccountInfo
 parameters:
   - $ref: "../../../parameters/path/accountIdPath.yml"

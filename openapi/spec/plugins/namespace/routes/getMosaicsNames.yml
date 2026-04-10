@@ -7,7 +7,7 @@ description: |
   Submit an array of mosaic identifiers in the request body. For each requested
   mosaic identifier, the response returns one entry in the same order as the request.
   Each entry contains the namespace names currently linked to that identifier. An
-  empty ``names`` array means no namespace aliases were resolved for that identifier.
+  empty `names` array means no namespace aliases were resolved for that identifier.
 operationId: getMosaicsNames
 requestBody:
   $ref: "../../../request_bodies/mosaicIds.yml"

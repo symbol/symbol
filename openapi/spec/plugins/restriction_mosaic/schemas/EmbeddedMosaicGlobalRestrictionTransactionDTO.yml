@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``MosaicGlobalRestrictionTransactionDTO``.
+description: Embedded transaction variant of `MosaicGlobalRestrictionTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./MosaicGlobalRestrictionTransactionBodyDTO.yml"

@@ -17,6 +17,6 @@ responses:
               serverInfo:
                 restVersion: "1.0.14"
                 deployment:
-                  deploymentTool: symbol-bootstrap
-                  deploymentToolVersion: "1.0.6"
-                  lastUpdatedDate: "2021-06-02"
+                  deploymentTool: symbol-shoestring
+                  deploymentToolVersion: "1.0.0"
+                  lastUpdatedDate: "2025-06-02"

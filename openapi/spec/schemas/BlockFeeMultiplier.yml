@@ -8,11 +8,11 @@ description: |
 
   The effective fee for a transaction is:
 
-  ``effectiveFee = transaction.size × block.feeMultiplier``
+  `effectiveFee = transaction.size × block.feeMultiplier`
 
   Node owners can configure the fee multiplier to any non-negative value (including zero).
   For transaction senders, the median fee multiplier over recent blocks is available
-  via ``/network/fees/transaction``; using ``medianFeeMultiplier`` or higher
+  via `/network/fees/transaction`; using `medianFeeMultiplier` or higher
   improves chances of inclusion. See the [fees documentation](https://docs.symbol.dev/concepts/fees.html).
 examples:
   - 0

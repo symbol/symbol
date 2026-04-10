@@ -2,7 +2,7 @@ type: string
 description: |
   Block difficulty. Determines how hard it is to harvest a new block, based on previous blocks.
   The initial difficulty is 100'000'000'000'000 (1e14) and remains at this level as long as blocks
-  are generated every ``blockGenerationTargetTime`` seconds (network property).
+  are generated every `blockGenerationTargetTime` seconds (network property).
   When block generation times deviate from the target, the difficulty is adjusted dynamically
   in the range of 10'000'000'000'000 (1e13) to 100'000'000'000'000'000 (1e15) to maintain
   the target block creation rate. See the
