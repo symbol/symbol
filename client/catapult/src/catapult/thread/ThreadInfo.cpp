@@ -20,43 +20,62 @@
 **/
 
 #include "ThreadInfo.h"
-#include "catapult/utils/Logging.h"
 #ifdef _WIN32
-#include <windows.h>
+#include <array>
+#include <cstring>
 #else
 #include <errno.h>
 #include <pthread.h>
 #endif
+#include <string>
+#include <tuple>
 
 namespace catapult { namespace thread {
 
-	size_t GetMaxThreadNameLength() {
-#ifdef _WIN32
-		return 63; // arbitrary max
-#elif defined(__APPLE__)
-		return 63;
+	/*
+	* Windows and Apple platforms support thread names up to 64 characters,
+	* while Linux (glibc) supports up to 16 characters
+	* Note this value does not include the NUL-terminator.
+	*/
+#if defined(_WIN32) || defined(__APPLE__)
+    constexpr std::size_t kMaxThreadNameLength = 63;
 #else
-		return 15;
+    constexpr std::size_t kMaxThreadNameLength = 15;
 #endif
+
+	size_t GetMaxThreadNameLength() {
+        return kMaxThreadNameLength;
 	}
 
 	namespace {
 #ifdef _WIN32
-		// add pthread shims using tls
-		thread_local std::string t_threadName;
+		
+		thread_local std::array<char, kMaxThreadNameLength + /*NUL-terminator*/ 1> t_threadName = {'\0'};
 
 		int pthread_self() {
 			return 0;
 		}
 
 		int pthread_setname_np(const char* name) {
-			t_threadName = name;
+			/*
+			* We've already truncated the name to fit the maximum length in SetThreadName, 
+			* so we can safely copy it here without worrying about truncation.
+            * We automatically include the NUL-terminator in the copy length.
+			*/
+			auto copyLength = std::strlen(name) + 1;
+			std::memcpy(t_threadName.data(), name, copyLength);
 			return 0;
 		}
 
 		int pthread_getname_np(int, char* name, size_t len) {
-			std::memcpy(name, t_threadName.c_str(), len);
-			name[len - 1] = '\0';
+			if (!name || 0 == len)
+				return 1;
+			/*
+			* From GetThreadName we already know `name` is a null terminated array of 
+			* at least kMaxThreadNameLength characters. We can safely copy it the
+            * whole content of t_threadName, which is also null terminated.
+			*/
+            std::memcpy(name, t_threadName.data(), kMaxThreadNameLength);
 			return 0;
 		}
 #elif !defined(__APPLE__)
@@ -68,16 +87,18 @@ namespace catapult { namespace thread {
 	}
 
 	void SetThreadName(const std::string& name) {
+        if (name.empty())
+			return;
+
 		auto truncatedName = name.substr(0, GetMaxThreadNameLength());
-		pthread_setname_np(truncatedName.c_str());
+		std::ignore = pthread_setname_np(truncatedName.c_str());
 	}
 
 	std::string GetThreadName() {
 #if defined(__APPLE__) || defined(__GLIBC__) || defined(_WIN32)
-		std::string name;
-		name.resize(GetMaxThreadNameLength() + 1); // include space for NUL-terminator
-		pthread_getname_np(pthread_self(), &name[0], name.size());
-		return name.substr(0, name.find_first_of('\0'));
+        std::string ret(kMaxThreadNameLength, char(0)); // pre-allocate buffer for name retrieval
+		std::ignore = pthread_getname_np(pthread_self(), &ret[0], ret.size());
+		return std::string(ret.c_str());
 #else
 		// musl libc (from alpine) defines __GNU_SOURCE__ but it only has pthread_setname_np
 		return std::string();
