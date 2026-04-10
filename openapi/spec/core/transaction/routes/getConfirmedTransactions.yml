@@ -36,7 +36,7 @@ responses:
                   feeMultiplier: 128
                 transaction:
                   size: 368
-                  signature: "0C34EA160F07070DAED62E734EAE734D1DFBD78499486A09561094551946DE3BAF79317AA000718724255C67BE..."
+                  signature: "0C34EA160F07070DAED62E734EAE734D1DFBD78499486A09561094551946DE3BAF79317AA000718724255C67BE"
                   signerPublicKey: "B93B3931652DF080F1699F0EA14C6C760075785981C034AD4F435AC1EBEDA137"
                   version: 3
                   network: 104
@@ -47,7 +47,7 @@ responses:
                   cosignatures:
                     - version: "0"
                       signerPublicKey: "3AB7AF84CC38E4E112F840ABD31866BD83AD5BCE765F31F84601D35799B9FFF4"
-                      signature: "07BBD3BD1EBFDDE9B771F646278DEAEA245ED8FA66800169EE533377884F76816DEEDA8A8319EC838930DC..."
+                      signature: "07BBD3BD1EBFDDE9B771F646278DEAEA245ED8FA66800169EE533377884F76816DEEDA8A8319EC838930DC"
                 id: "69CD60B02976BBB47C19E5D9"
   "400":
     $ref: "../../../responses/InvalidContent.yml"

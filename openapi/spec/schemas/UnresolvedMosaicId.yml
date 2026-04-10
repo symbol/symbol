@@ -1,5 +1,7 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
+minLength: 16
+maxLength: 16
 description: |
   Unresolved mosaic identifier.
   If the most significant bit of byte 0 is set, the value contains a namespace ID alias

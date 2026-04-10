@@ -52,7 +52,7 @@ responses:
                     feeMultiplier: 0
                   transaction:
                     size: 176
-                    signature: "86499F4AF09ED620D961C0A2CD5D22400A632E360F7FA23EA5D62C2B60A63E00EE1F34455657C1C72FA597D..."
+                    signature: "86499F4AF09ED620D961C0A2CD5D22400A632E360F7FA23EA5D62C2B60A63E00EE1F34455657C1C72FA597D"
                     signerPublicKey: "BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F"
                     version: 1
                     network: 104
@@ -80,7 +80,7 @@ responses:
                     feeMultiplier: 100
                   transaction:
                     size: 712
-                    signature: "E6ACAA3328B6DE2650918FC24360F70D3AD8B65C7CD139815A453D37B3F22C21D7A32ED98E1CECA924C..."
+                    signature: "E6ACAA3328B6DE2650918FC24360F70D3AD8B65C7CD139815A453D37B3F22C21D7A32ED98E1CECA924C"
                     signerPublicKey: "0544EA984581DBF1C0A98F14231F83AAAFC4F26E09DB035CE0C99737DE4E1DD7"
                     version: 3
                     network: 104
@@ -91,7 +91,7 @@ responses:
                     cosignatures:
                       - version: "0"
                         signerPublicKey: "DD8710269484573DB6C497B6722B6B8A5D1136305C16CD81313F899CD792FCA5"
-                        signature: "F29AC6AF8FB7EE85535927502253B04A3EA934A60AB57F39C30EBFFE72D9F52A3F42173A6D9BDEC8..."
+                        signature: "F29AC6AF8FB7EE85535927502253B04A3EA934A60AB57F39C30EBFFE72D9F52A3F42173A6D9BDEC8"
                     transactions:
                       - meta:
                           height: "5299119"
@@ -106,7 +106,7 @@ responses:
                           network: 104
                           type: 16724
                           recipientAddress: "68E5AC45A655D1F08C4D13825DA9D9822C89080F5ADCAAD1"
-                          message: "011F102526858BE43F4CBA54E9F62E80B22830DEB5FA180431ED4633701D2ABC0C6129D1719C087BCE1C23..."
+                          message: "011F102526858BE43F4CBA54E9F62E80B22830DEB5FA180431ED4633701D2ABC0C6129D1719C087BCE1C23"
                           mosaics: []
                         id: "69CD42DF2976BBB47C19E3B0"
                   id: "69CD42DF2976BBB47C19E3AE"
@@ -123,7 +123,7 @@ responses:
                     network: 104
                     type: 16724
                     recipientAddress: "68E5AC45A655D1F08C4D13825DA9D9822C89080F5ADCAAD1"
-                    message: "011F102526858BE43F4CBA54E9F62E80B22830DEB5FA180431ED4633701D2ABC0C6129D1719C087BCE1C23..."
+                    message: "011F102526858BE43F4CBA54E9F62E80B22830DEB5FA180431ED4633701D2ABC0C6129D1719C087BCE1C23"
                     mosaics: []
                   id: "69CD42DF2976BBB47C19E3B0"
               pagination:

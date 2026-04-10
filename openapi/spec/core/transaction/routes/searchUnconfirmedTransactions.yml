@@ -47,7 +47,7 @@ responses:
                     index: 0
                   transaction:
                     size: 176
-                    signature: "25163A3D6607C900841DC3BF23C5054D47F75D87C22E4143616AA9225D3853DD60FF8DC314DCAC4911CB261B..."
+                    signature: "25163A3D6607C900841DC3BF23C5054D47F75D87C22E4143616AA9225D3853DD60FF8DC314DCAC4911CB261B2"
                     signerPublicKey: "A6977B7FF4C3354EFC9393F7EC6F0FBD85A2A649A0B50A06A6A5452629B28006"
                     version: 1
                     network: 104

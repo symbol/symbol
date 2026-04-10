@@ -1,5 +1,5 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
 description: 64-bit key assigned by the metadata creator to identify the metadata entry within the source and target context.
 minLength: 16
 maxLength: 16

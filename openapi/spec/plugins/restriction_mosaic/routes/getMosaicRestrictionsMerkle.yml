@@ -20,7 +20,7 @@ responses:
           default:
             summary: Mosaic restriction Merkle state proof example
             value:
-              raw: 0000FFFF57D9DA38D99CB050FA3CB33DAEA3FD0A53E469C090626AEC89E119CF...
+              raw: 0000FFFF57D9DA38D99CB050FA3CB33DAEA3FD0A53E469C090626AEC89E119CF
               tree:
                 - type: 0
                   path: ""

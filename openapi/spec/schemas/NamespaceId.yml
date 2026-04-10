@@ -1,11 +1,10 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
 description: |
   Unique [namespace](https://docs.symbol.dev/concepts/namespaces.html) identifier.
   A 64-bit unsigned integer derived from the namespace name and its parent namespace ID,
   encoded as a 16-character hexadecimal string.
 minLength: 16
 maxLength: 16
-pattern: '^[0-9a-fA-F]{16}$'
 examples:
   - 85BBEA6CC462B244

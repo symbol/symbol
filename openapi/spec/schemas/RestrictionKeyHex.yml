@@ -1,5 +1,7 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
+minLength: 16
+maxLength: 16
 description: Restriction key represented as a 64-bit hexadecimal value.
 examples:
   - 0DC67FBE1CAD29E3

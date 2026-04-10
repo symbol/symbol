@@ -1,5 +1,5 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
 description: |
   Serialized Patricia Merkle tree in compact hex format, as returned by the server.
   Used for [state proofs](https://docs.symbol.dev/concepts/data-validation.html) to verify
