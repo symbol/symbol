@@ -14,6 +14,12 @@ Paper Wallet
     Paper wallets are less convenient than digital backups because the information must be entered manually.  
     However, they are more secure because they are not stored or accessed online.
 
+!!! danger "Keep your paper wallet secure"
+
+    Anyone with access to your paper wallet has full control over all accounts it contains.
+
+    Store it in a secure location and **never share it with anyone**, neither digitally nor in printed form.
+
 ## Prerequisites
 
 * Make sure you have installed the Symbol Desktop Wallet.  
@@ -63,6 +69,14 @@ The account may have been generated from a mnemonic phrase or imported directly 
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
+
+!!! danger "Keep your paper wallet secret"
+
+    The images shown above correspond to empty test accounts and are for illustration purposes only.
+
+    Anyone with access to your paper wallet has full control over all accounts it contains.
+
+    **Never share your paper wallet with anyone**, neither digitally nor in printed form.
 
 ## Next Steps
 
