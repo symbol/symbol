@@ -1,8 +1,7 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
 description: 32-byte voting public key used for finalization voting.
 minLength: 64
 maxLength: 64
-pattern: '^[0-9a-fA-F]{64}$'
 examples:
   - 4EDDA97C991A0BF44E0570B0BA0E0F7F1CE821A799726888734F28DDCCE8C591

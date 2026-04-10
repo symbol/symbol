@@ -1,5 +1,7 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
+minLength: 32
+maxLength: 32
 description: |
   16-byte (32 hex characters) VRF proof verification hash. Part of the block's
   [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof),

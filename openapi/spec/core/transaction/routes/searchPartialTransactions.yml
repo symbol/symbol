@@ -47,7 +47,7 @@ responses:
                     index: 0
                   transaction:
                     size: 248
-                    signature: "416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C..."
+                    signature: "416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C"
                     signerPublicKey: "FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049"
                     version: 3
                     network: 152
@@ -71,7 +71,7 @@ responses:
                     index: 0
                   transaction:
                     size: 248
-                    signature: "416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C..."
+                    signature: "416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C"
                     signerPublicKey: "FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049"
                     version: 3
                     network: 152
