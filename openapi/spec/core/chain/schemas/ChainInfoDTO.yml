@@ -3,7 +3,7 @@ description: |
   Chain state: block height, chain score, and the latest finalized block (most recent
   block made permanent; it will never be rolled back).
   The chain score is the sum of all block scores in the chain; each block contributes
-  ``difficulty − time elapsed since previous block``. Higher score = better chain.
+  `difficulty − time elapsed since previous block`. Higher score = better chain.
   Used during synchronization to select the canonical chain when forks exist.
 required:
   - height
@@ -16,7 +16,7 @@ properties:
   scoreHigh:
     description: |
       High 64 bits of the 128-bit chain score. The full score is
-      ``(scoreHigh << 64) + scoreLow``. Split because JSON has no native 128-bit integer;
+      `(scoreHigh << 64) + scoreLow`. Split because JSON has no native 128-bit integer;
       the sum of millions of block scores (difficulty ~1e13 to 1e15) exceeds 64 bits.
     $ref: "../../../schemas/Score.yml"
   scoreLow:

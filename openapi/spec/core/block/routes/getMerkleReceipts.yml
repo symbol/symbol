@@ -4,7 +4,7 @@ summary: Get the Merkle path for a given receipt statement hash and block
 description: |
   Returns the [Merkle path](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
   for a [receipt statement or resolution](https://docs.symbol.dev/concepts/receipt.html) linked to a block.
-  The ``hash`` parameter is the receipt statement hash, not the transaction hash.
+  The `hash` parameter is the receipt statement hash, not the transaction hash.
   The Merkle path is the minimum number of nodes needed to calculate the Merkle root.
 
   Steps to calculate the Merkle root:

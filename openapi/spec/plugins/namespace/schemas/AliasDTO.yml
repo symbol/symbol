@@ -1,7 +1,7 @@
 type: object
 description: |
   Alias currently linked to the namespace.
-  Depending on ``type``, the namespace either has no alias, points to a mosaic ID, or points to an account address.
+  Depending on `type`, the namespace either has no alias, points to a mosaic ID, or points to an account address.
 required:
   - type
 properties:
@@ -9,7 +9,7 @@ properties:
     $ref: "./AliasTypeEnum.yml"
   mosaicId:
     $ref: "../../../schemas/MosaicId.yml"
-    description: Mosaic identifier linked by the namespace when ``type`` is ``1``.
+    description: Mosaic identifier linked by the namespace when `type` is `1`.
   address:
     $ref: "../../../schemas/AddressHex.yml"
-    description: Account address linked by the namespace when ``type`` is ``2``.
+    description: Account address linked by the namespace when `type` is `2`.

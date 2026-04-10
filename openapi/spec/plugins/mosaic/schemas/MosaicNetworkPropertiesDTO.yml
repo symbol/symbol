@@ -1,6 +1,6 @@
 type: object
 description: |
-  Mosaic plugin settings from network configuration (``/network/properties``).
+  Mosaic plugin settings from network configuration (`/network/properties`).
   Values from Symbol mainnet.
 properties:
   maxMosaicsPerAccount:
@@ -10,7 +10,7 @@ properties:
       - "1'000"
   maxMosaicDuration:
     type: string
-    description: Maximum mosaic duration (BlockSpan format, e.g. ``3650d`` for 3650 days).
+    description: Maximum mosaic duration (BlockSpan format, e.g. `3650d` for 3650 days).
     examples:
       - 3650d
   maxMosaicDivisibility:

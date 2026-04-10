@@ -2,8 +2,8 @@ tags:
   - Network routes
 summary: Get transaction fees information
 description: |
-  Returns the average, median, highest, and lowest fee multiplier over the last ``numBlocksTransactionFeeStats`` blocks.
-  The setting ``numBlocksTransactionFeeStats`` is adjustable in the REST configuration file (``rest.json``) per REST instance.
+  Returns the average, median, highest, and lowest fee multiplier over the last `numBlocksTransactionFeeStats` blocks.
+  The setting `numBlocksTransactionFeeStats` is adjustable in the REST configuration file (`rest.json`) per REST instance.
 operationId: getTransactionFees
 responses:
   "200":

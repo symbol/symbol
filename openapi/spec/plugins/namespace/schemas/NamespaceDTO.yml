@@ -19,7 +19,7 @@ properties:
     type: integer
     description: |
       Number of levels present in the namespace path.
-      This matches how many namespace IDs are defined across ``level0``, ``level1``, and ``level2``.
+      This matches how many namespace IDs are defined across `level0`, `level1`, and `level2`.
     examples:
       - 1
   level0:

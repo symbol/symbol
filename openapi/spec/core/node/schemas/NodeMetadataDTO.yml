@@ -7,6 +7,6 @@ additionalProperties:
   description: The value of a user-defined metadata key.
 examples:
   -
-    deploymentTool: symbol-bootstrap
+    deploymentTool: symbol-shoestring
     version: 1.0.2
     nodeName: api-node-0

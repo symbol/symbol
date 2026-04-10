@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``NamespaceRegistrationTransactionDTO``.
+description: Embedded transaction variant of `NamespaceRegistrationTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./NamespaceRegistrationTransactionBodyDTO.yml"

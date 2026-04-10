@@ -1,7 +1,7 @@
 type: string
 description: |
   64-bit part of the full 128-bit chain score. The full score is
-  ``(scoreHigh << 64) + scoreLow``. Each block adds ``difficulty − time elapsed since previous block``;
+  `(scoreHigh << 64) + scoreLow`. Each block adds `difficulty − time elapsed since previous block`;
   the chain score is the sum. During synchronization, nodes select the chain with the highest score.
 examples:
   - 1683298087010368306
