@@ -1,7 +1,7 @@
 type: object
 description: |
   Resolved namespace names linked to a specific mosaic identifier.
-  An empty ``names`` array means no namespace aliases were resolved for that
+  An empty `names` array means no namespace aliases were resolved for that
   identifier.
 required:
   - mosaicId

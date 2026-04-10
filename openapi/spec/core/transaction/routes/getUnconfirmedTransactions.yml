@@ -7,11 +7,11 @@ description: |
 
   Each request item can be either a transaction ID assigned by the node or a transaction hash.
   Both values are returned by transaction retrieval and search endpoints, for example
-  ``GET /transactions/unconfirmed`` and ``GET /transactions/unconfirmed/{transactionId}``.
+  `GET /transactions/unconfirmed` and `GET /transactions/unconfirmed/{transactionId}`.
 
   Use this endpoint when checking multiple transactions that are accepted by a node but not yet
-  included in a block. Use ``getConfirmedTransactions`` for on-chain transactions, and
-  use ``getPartialTransactions`` for aggregate bonded transactions waiting for cosignatures.
+  included in a block. Use `getConfirmedTransactions` for on-chain transactions, and
+  use `getPartialTransactions` for aggregate bonded transactions waiting for cosignatures.
 operationId: getUnconfirmedTransactions
 requestBody:
   $ref: "../../../request_bodies/transactionIds.yml"

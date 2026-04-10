@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``MosaicSupplyRevocationTransactionDTO``.
+description: Embedded transaction variant of `MosaicSupplyRevocationTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./MosaicSupplyRevocationTransactionBodyDTO.yml"

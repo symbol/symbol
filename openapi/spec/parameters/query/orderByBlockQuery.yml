@@ -1,6 +1,6 @@
 name: orderBy
 in: query
 description: |
-  Sort responses by the property set. Defaults to ``id`` when not specified.
+  Sort responses by the property set. Defaults to `id` when not specified.
 schema:
   $ref: "../../core/block/schemas/BlockOrderByEnum.yml"

@@ -7,11 +7,11 @@ description: |
 
   The path accepts either the transaction ID assigned by the node or the transaction hash.
   Both values are returned by transaction retrieval and search endpoints, for example
-  ``GET /transactions/partial`` and ``GET /transactions/partial/{transactionId}``.
+  `GET /transactions/partial` and `GET /transactions/partial/{transactionId}`.
 
   Use this endpoint for aggregate bonded transactions before they are fully cosigned.
-  Use ``getUnconfirmedTransaction`` for non-partial transactions that are in a node's unconfirmed pool,
-  and use ``getConfirmedTransaction`` once the transaction is confirmed on-chain.
+  Use `getUnconfirmedTransaction` for non-partial transactions that are in a node's unconfirmed pool,
+  and use `getConfirmedTransaction` once the transaction is confirmed on-chain.
 operationId: getPartialTransaction
 parameters:
   - $ref: "../../../parameters/path/transactionIdPath.yml"

@@ -2,8 +2,8 @@ type: object
 description: |
   Block header data. Contains the height, timestamp, difficulty, VRF proof,
   hashes linking to the previous block, transactions, receipts, and state,
-  as well as the beneficiary address and fee multiplier.
-  The harvester is identified by `signerPublicKey`; `beneficiaryAddress` is the optional reward recipient.
+  plus `feeMultiplier` and optional `beneficiaryAddress` (reward recipient).
+  The harvester is identified by `signerPublicKey`.
 allOf:
   - $ref: "../../entity/schemas/SizePrefixedEntityDTO.yml"
   - $ref: "../../entity/schemas/VerifiableEntityDTO.yml"

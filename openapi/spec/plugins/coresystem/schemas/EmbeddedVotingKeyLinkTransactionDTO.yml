@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``VotingKeyLinkTransactionDTO``.
+description: Embedded transaction variant of `VotingKeyLinkTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./VotingKeyLinkTransactionBodyDTO.yml"

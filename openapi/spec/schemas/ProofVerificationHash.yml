@@ -5,7 +5,7 @@ maxLength: 32
 description: |
   16-byte (32 hex characters) VRF proof verification hash. Part of the block's
   [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof),
-  together with ``proofGamma`` and ``proofScalar``.
+  together with `proofGamma` and `proofScalar`.
   The harvester generates this proof using its VRF private key; the verification hash
   allows anyone with the VRF public key to verify that the proof was correctly computed
   without revealing the private key.

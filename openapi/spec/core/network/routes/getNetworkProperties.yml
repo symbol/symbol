@@ -2,8 +2,8 @@ tags:
   - Network routes
 summary: Get the network properties
 description: |
-  Returns the content from a catapult-server network configuration file (e.g. ``config-network.properties``).
-  To enable this feature, the REST setting ``apiNode.networkPropertyFilePath`` in the config file (e.g. ``rest.json``)
+  Returns the content from a catapult-server network configuration file (e.g. `config-network.properties`).
+  To enable this feature, the REST setting `apiNode.networkPropertyFilePath` in the config file (e.g. `rest.json`)
   must define where the file is located.
 operationId: getNetworkProperties
 responses:

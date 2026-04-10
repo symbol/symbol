@@ -1,5 +1,5 @@
 type: object
-description: Embedded transaction variant of ``AccountMetadataTransactionDTO``.
+description: Embedded transaction variant of `AccountMetadataTransactionDTO`.
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
   - $ref: "./AccountMetadataTransactionBodyDTO.yml"

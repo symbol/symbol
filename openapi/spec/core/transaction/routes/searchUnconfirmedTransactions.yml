@@ -5,12 +5,12 @@ description: |
   Returns a paginated list of unconfirmed transactions matching the supplied filters.
 
   Use this endpoint for transactions accepted by a node but not yet included in a block.
-  Use ``searchConfirmedTransactions`` for on-chain transactions, and use
-  ``searchPartialTransactions`` for aggregate bonded transactions waiting for cosignatures.
+  Use `searchConfirmedTransactions` for on-chain transactions, and use
+  `searchPartialTransactions` for aggregate bonded transactions waiting for cosignatures.
 
-  For cursor-style pagination on this endpoint, set ``offset`` to the ``id`` of the last transaction
-  from the previous page. For general pagination strategy guidance, see the ``offset`` and
-  ``pageNumber`` query parameter descriptions.
+  For cursor-style pagination on this endpoint, set `offset` to the `id` of the last transaction
+  from the previous page. For general pagination strategy guidance, see the `offset` and
+  `pageNumber` query parameter descriptions.
 operationId: searchUnconfirmedTransactions
 parameters:
   - $ref: "../../../parameters/query/addressQuery.yml"
