@@ -1,5 +1,5 @@
 name: level0
 in: query
-description: Filter by the root namespace identifier.
+description: Filter by the root namespace identifier (include).
 schema:
   $ref: "../../schemas/NamespaceId.yml"

@@ -1,6 +1,6 @@
 name: height
 in: path
-description: Filter by block height. Sequential block position in the chain; starts at 1 and increments by one.
+description: Filter by block height (include). Sequential block position in the chain; starts at 1 and increments by one.
 required: true
 schema:
   $ref: "../../schemas/Height.yml"

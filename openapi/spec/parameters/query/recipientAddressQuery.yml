@@ -1,5 +1,5 @@
 name: recipientAddress
 in: query
-description: Filter transactions by recipient address in Base32 format.
+description: Filter transactions by recipient address in Base32 format (include).
 schema:
   $ref: "../../schemas/Address.yml"

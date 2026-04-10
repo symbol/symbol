@@ -1,8 +1,8 @@
 name: receiptType
 in: query
 description: |
-  Filter by receipt type code.
-  To filter by multiple receipt types, repeat the query parameter, for example: `receiptType=8515&receiptType=20803`.
+  Filter by receipt type code (include).
+  To match multiple receipt types, repeat the query parameter, for example: `receiptType=8515&receiptType=20803`.
 style: form
 explode: true
 schema:

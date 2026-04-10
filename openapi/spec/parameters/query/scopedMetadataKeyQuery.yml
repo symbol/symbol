@@ -1,5 +1,5 @@
 name: scopedMetadataKey
 in: query
-description: Filter by metadata key.
+description: Filter by metadata key (include).
 schema:
   $ref: "../../schemas/MetadataKey.yml"

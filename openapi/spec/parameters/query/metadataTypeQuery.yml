@@ -1,7 +1,7 @@
 name: metadataType
 in: query
 description: |
-  Filter by metadata type:
+  Filter by metadata type (include):
   - `0`: Account metadata
   - `1`: Mosaic metadata
   - `2`: Namespace metadata

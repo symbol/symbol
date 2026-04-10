@@ -1,5 +1,5 @@
 name: targetAddress
 in: query
-description: Filter by target address in Base32.
+description: Filter by target address in Base32 (include).
 schema:
   $ref: "../../schemas/Address.yml"

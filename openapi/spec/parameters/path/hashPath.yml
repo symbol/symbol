@@ -1,6 +1,6 @@
 name: hash
 in: path
-description: Filter by hash.
+description: Filter by hash (include).
 required: true
 schema:
   $ref: "../../schemas/Hash256.yml"

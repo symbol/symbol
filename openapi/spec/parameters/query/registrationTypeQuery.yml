@@ -1,7 +1,7 @@
 name: registrationType
 in: query
 description: |
-  Filter by namespace registration type.
+  Filter by namespace registration type (include).
   - 0: Root namespace.
   - 1: Subnamespace.
 schema:

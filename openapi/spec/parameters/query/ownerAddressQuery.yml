@@ -1,5 +1,5 @@
 name: ownerAddress
 in: query
-description: Filter by owner address in Base32 format.
+description: Filter by owner address in Base32 format (include).
 schema:
   $ref: "../../schemas/Address.yml"
