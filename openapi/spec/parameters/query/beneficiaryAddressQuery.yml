@@ -1,5 +1,5 @@
 name: beneficiaryAddress
-description: Filter by beneficiary address.
+description: Filter by beneficiary address (include).
 in: query
 schema:
   $ref: "../../schemas/Address.yml"

@@ -1,11 +1,10 @@
 name: address
 in: query
 description: |
-  Filter by address in Base32 format.
+  Filter by address (include), in Base32 format.
 
   The exact meaning depends on the endpoint:
-  - transaction search: returns transactions involving the address, meaning the address is considered
-    as the sender, recipient, or cosigner
+  - transaction search: returns transactions where the address appears as the sender, recipient, or cosigner
   - account search: matches the account address
   - account restriction search: matches the restricted account address
   - hash lock and secret lock search: matches the lock owner address

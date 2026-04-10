@@ -1,7 +1,7 @@
 name: height
 in: query
 description: |
-  Filter by height.
+  Filter by height (include).
   The exact meaning depends on the endpoint, for example block height for blocks or inclusion height for
   confirmed transactions.
 schema:
