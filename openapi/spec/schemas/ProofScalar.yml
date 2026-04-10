@@ -1,5 +1,7 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
+minLength: 64
+maxLength: 64
 description: |
   32-byte (64 hex characters) VRF proof scalar. Part of the block's
   [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof).

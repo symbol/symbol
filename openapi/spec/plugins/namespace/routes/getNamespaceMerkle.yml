@@ -22,7 +22,7 @@ responses:
         examples:
           default:
             value:
-              raw: 0000FFFF644E8433278BF93C2884FD895E2EE6ECCFB0C42C0E80AA3A762D1CFB...
+              raw: 0000FFFF644E8433278BF93C2884FD895E2EE6ECCFB0C42C0E80AA3A762D1CFB
               tree:
                 - type: 0
                   path: ""

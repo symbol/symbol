@@ -36,7 +36,7 @@ responses:
                   index: 0
                 transaction:
                   size: 328
-                  signature: "862748DA2628D09C0D53EF937DC0FB8A52388B287368D105F287320153D1B4B372F0B20A82A5B695FE73BFFEFF..."
+                  signature: "862748DA2628D09C0D53EF937DC0FB8A52388B287368D105F287320153D1B4B372F0B20A82A5B695FE73BFFEFF"
                   signerPublicKey: "D3078EDE1559AF366629C81E33CBB2859187A682EADC338C7F79E228959A2CC4"
                   version: 3
                   network: 152

@@ -1,5 +1,5 @@
 type: string
-format: hex
+pattern: '^[0-9a-fA-F]+$'
 description: |
   Metadata value encoded as hex.
   In metadata transactions, this field carries the metadata value update payload.

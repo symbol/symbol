@@ -1,8 +1,7 @@
 type: string
 description: 256-bit hash encoded as a 64-character hexadecimal string.
-format: hex
+pattern: '^[0-9a-fA-F]+$'
 minLength: 64
 maxLength: 64
-pattern: '^[0-9a-fA-F]{64}$'
 examples:
   - C8FC3FB54FDDFBCE0E8C71224990124E4EEC5AD5D30E592EDFA9524669A23810

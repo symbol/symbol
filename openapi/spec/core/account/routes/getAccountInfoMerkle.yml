@@ -24,7 +24,7 @@ responses:
         examples:
           default:
             value:
-              raw: 00008080DA9B4AF63BE985715EA635AF98E3CF3B0A22F9A2BE1C7DD40B79948AA63E36586E5D2E9D0C089C1C64BC0D42...
+              raw: 00008080DA9B4AF63BE985715EA635AF98E3CF3B0A22F9A2BE1C7DD40B79948AA63E36586E5D2E9D0C089C1C64BC0D42
               tree: []
   "409":
     $ref: "../../../responses/InvalidArgument.yml"
