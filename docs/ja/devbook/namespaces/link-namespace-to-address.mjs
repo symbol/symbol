@@ -148,23 +148,11 @@ try {
 	// Send a transfer using the alias instead of a raw address
 	console.log('Using alias in transfer:', namespaceName);
 
-	// Encode the namespace ID as a recipient address (24 bytes)
-	// Byte 0: network byte (Network Identifier | 0x01 to indicate alias)
-	// Bytes 1-8: namespace ID in little-endian
-	// Bytes 9-23: zero padding
+	// Encode the namespace ID as a recipient address
 	const recipientPath = generateNamespacePath(namespaceName);
 	const recipientId = recipientPath[recipientPath.length - 1];
-	const recipientBytes = new Uint8Array(24);
-	recipientBytes[0] = facade.network.identifier | 0x01;
-	// Convert namespace ID to little-endian bytes
-	const recipientIdBytes = new Uint8Array(8);
-	for (let i = 0; i < 8; i++) {
-		recipientIdBytes[i] = Number(
-			(recipientId >> BigInt(i * 8)) & 0xFFn);
-	}
-	recipientBytes.set(recipientIdBytes, 1);
-	// Bytes 9-23 are already zero-filled
-	const recipientAddress = new SymbolFacade.Address(recipientBytes);
+	const recipientAddress = Address.fromNamespaceId(
+		new models.NamespaceId(recipientId), facade.network.identifier);
 
 	const transferTx = facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
