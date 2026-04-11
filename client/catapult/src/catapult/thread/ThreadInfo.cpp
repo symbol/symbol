@@ -20,11 +20,11 @@
 **/
 
 #include "ThreadInfo.h"
-#include <cstring>
-
 #ifdef _WIN32
 #include <array>
-#else
+#endif
+#include <cstring>
+#ifndef _WIN32
 #include <errno.h>
 #include <pthread.h>
 #endif
