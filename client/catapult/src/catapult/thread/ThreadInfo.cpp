@@ -31,7 +31,6 @@
 namespace catapult { namespace thread {
 
 	namespace {
-
 #if defined(PTHREAD_MAX_NAMELEN_NP)
 		constexpr std::size_t kMaxThreadNameBytes = PTHREAD_MAX_NAMELEN_NP;
 #elif defined(__APPLE__)
