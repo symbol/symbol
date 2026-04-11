@@ -35,12 +35,10 @@ namespace catapult { namespace thread {
 		constexpr std::size_t kMaxThreadNameBytes = PTHREAD_MAX_NAMELEN_NP;
 #elif defined(__APPLE__)
 		constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator
-#elif defined(__linux__) && HAVE_PTHREAD_SETNAME_NP
+#elif defined(__linux__)
 		constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
 #elif defined(_WIN32)
 		constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator (arbitrary choice)
-#define HAVE_PTHREAD_SETNAME_NP 1 // We provide our own implementation of pthread_setname_np on Windows
-#define HAVE_PTHREAD_GETNAME_NP 1 // We provide our own implementation of pthread_getname_np on Windows
 #elif defined(__GLIBC__)
 		constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
 #else
@@ -100,13 +98,12 @@ namespace catapult { namespace thread {
 
 #if defined(HAVE_PTHREAD_SET_NAME_NP) && HAVE_PTHREAD_SET_NAME_NP
 		std::ignore = pthread_set_name_np(::pthread_self(), truncatedName.data());
-#elif defined(HAVE_PTHREAD_SETNAME_NP) && HAVE_PTHREAD_SETNAME_NP
-#if defined(__APPLE__) || defined(_WIN32)
+#elif defined(__APPLE__) || defined(_WIN32)
 		std::ignore = pthread_setname_np(truncatedName.data());
 #else
 		std::ignore = pthread_setname_np(pthread_self(), truncatedName.c_str());
 #endif
-#endif
+
 	}
 
 	std::string GetThreadName() {
@@ -116,16 +113,16 @@ namespace catapult { namespace thread {
 
 		char buffer[kMaxThreadNameBytes] = { '\0' };
 		ret.reserve(kMaxThreadNameBytes);
-#if defined(HAVE_PTHREAD_GETNAME_NP) && HAVE_PTHREAD_GETNAME_NP
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 		if (0 == pthread_getname_np(pthread_self(), buffer, sizeof(buffer))) {
 			ret.append(buffer, buffer + std::strlen(buffer));
 		}
 
 #elif defined(HAVE_PTHREAD_GET_NAME_NP) && HAVE_PTHREAD_GET_NAME_NP
-			pthread_get_name_np(pthread_self(), buffer, sizeof(buffer));
-			ret.append(buffer, buffer + std::strlen(buffer));
+		pthread_get_name_np(pthread_self(), buffer, sizeof(buffer));
+		ret.append(buffer, buffer + std::strlen(buffer));
 #endif
-			return ret;
-		}
+		return ret;
 	}
+}
 }
