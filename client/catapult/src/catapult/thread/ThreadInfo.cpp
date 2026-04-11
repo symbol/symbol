@@ -24,8 +24,8 @@
 #include <array>
 #endif
 #include <cstring>
+#include <tuple>
 #ifndef _WIN32
-#include <errno.h>
 #include <pthread.h>
 #endif
 
