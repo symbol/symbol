@@ -27,11 +27,11 @@
 #include <errno.h>
 #include <pthread.h>
 #endif
-#include <string>
-#include <tuple>
 
 namespace catapult { namespace thread {
+
 	namespace {
+
 #if defined(PTHREAD_MAX_NAMELEN_NP)
 		constexpr std::size_t kMaxThreadNameBytes = PTHREAD_MAX_NAMELEN_NP;
 #elif defined(__APPLE__)
@@ -50,7 +50,7 @@ namespace catapult { namespace thread {
 
 #ifdef _WIN32
 
-		thread_local std::array<char, kMaxThreadNameBytes> t_threadName = { '\0' };
+		thread_local std::array<char, kMaxThreadNameBytes> t_threadName{ '\0' };
 
 		constexpr int pthread_self() {
 			return 0;
