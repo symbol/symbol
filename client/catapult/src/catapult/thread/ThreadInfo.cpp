@@ -40,8 +40,6 @@ namespace catapult { namespace thread {
 		constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
 #elif defined(_WIN32)
 		constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator (arbitrary choice)
-#elif defined(__GLIBC__)
-		constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
 #else
 		constexpr std::size_t kMaxThreadNameBytes = 0; // Disable thread naming on unsupported platforms
 #endif
