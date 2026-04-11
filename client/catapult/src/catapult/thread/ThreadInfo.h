@@ -25,7 +25,7 @@
 namespace catapult { namespace thread {
 
 	/// Gets the maximum supported thread name length (excluding NUL-terminator).
-	std::size_t GetMaxThreadNameLength();
+	size_t GetMaxThreadNameLength();
 
 	/// Sets a thread \a name in a platform-dependent way.
 	/// \note Depending on platform capabilities, the name might be truncated.

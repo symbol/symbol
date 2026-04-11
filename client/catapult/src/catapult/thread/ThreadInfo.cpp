@@ -80,7 +80,7 @@ namespace catapult { namespace thread {
 #endif
 	}
 
-	std::size_t GetMaxThreadNameLength() {
+	size_t GetMaxThreadNameLength() {
 		return kMaxThreadNameBytes ? kMaxThreadNameBytes - 1 : 0;
 	}
 
@@ -88,7 +88,7 @@ namespace catapult { namespace thread {
 		if (name.empty())
 			return;
 
-		const std::size_t maxLength = GetMaxThreadNameLength();
+		const size_t maxLength = GetMaxThreadNameLength();
 		if (0 == maxLength)
 			return;
 
