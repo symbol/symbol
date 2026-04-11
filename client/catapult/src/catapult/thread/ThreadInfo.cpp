@@ -31,28 +31,26 @@
 #include <tuple>
 
 namespace catapult { namespace thread {
-
 	namespace {
-
 #if defined(PTHREAD_MAX_NAMELEN_NP)
-        constexpr std::size_t kMaxThreadNameBytes = PTHREAD_MAX_NAMELEN_NP;
+		constexpr std::size_t kMaxThreadNameBytes = PTHREAD_MAX_NAMELEN_NP;
 #elif defined(__APPLE__)
-        constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator
+		constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator
 #elif defined(__linux__) && HAVE_PTHREAD_SETNAME_NP
-        constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
+		constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
 #elif defined(_WIN32)
-        constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator (arbitrary choice)
+		constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator (arbitrary choice)
 #define HAVE_PTHREAD_SETNAME_NP 1 // We provide our own implementation of pthread_setname_np on Windows
 #define HAVE_PTHREAD_GETNAME_NP 1 // We provide our own implementation of pthread_getname_np on Windows
 #elif defined(__GLIBC__)
-        constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
+		constexpr std::size_t kMaxThreadNameBytes = 16; // Including the null terminator
 #else
-        constexpr std::size_t kMaxThreadNameBytes = 0; // Disable thread naming on unsupported platforms
+		constexpr std::size_t kMaxThreadNameBytes = 0; // Disable thread naming on unsupported platforms
 #endif
 
 #ifdef _WIN32
-		
-		thread_local std::array<char, kMaxThreadNameBytes> t_threadName = {'\0'};
+
+		thread_local std::array<char, kMaxThreadNameBytes> t_threadName = { '\0' };
 
 		constexpr int pthread_self() {
 			return 0;
@@ -60,12 +58,12 @@ namespace catapult { namespace thread {
 
 		int pthread_setname_np(const char* name) {
 			/*
-			* We've already truncated the name to fit the maximum length in SetThreadName, 
+			* We've already truncated the name to fit the maximum length in SetThreadName,
 			* so we can safely copy it here without worrying about truncation.
-            * We automatically include the NUL-terminator in the copy length.
+			* We automatically include the NUL-terminator in the copy length.
 			*/
-			auto copyLength = std::strlen(name) + 1;
-			std::memcpy(t_threadName.data(), name, copyLength);
+			auto bytesCount = std::strlen(name) + 1;
+			std::memcpy(t_threadName.data(), name, bytesCount);
 			return 0;
 		}
 
@@ -73,11 +71,11 @@ namespace catapult { namespace thread {
 			if (!name || 0 == len)
 				return 1;
 			/*
-			* From GetThreadName we already know `name` is a null terminated array of 
+			* From GetThreadName we already know `name` is a null terminated array of
 			* at least kMaxThreadNameBytes characters. We can safely copy it the
-            * whole content of t_threadName, which is also null terminated.
+			* whole content of t_threadName, which is also null terminated.
 			*/
-            std::memcpy(name, t_threadName.data(), kMaxThreadNameBytes);
+			std::memcpy(name, t_threadName.data(), kMaxThreadNameBytes);
 			return 0;
 		}
 
@@ -89,15 +87,15 @@ namespace catapult { namespace thread {
 	}
 
 	void SetThreadName(const std::string& name) {
-        if (name.empty())
+		if (name.empty())
 			return;
 
 		const std::size_t maxLength = GetMaxThreadNameLength();
 		if (0 == maxLength)
 			return;
 
-        /// We truncate from the front of the name to preserve any unique suffixes, 
-		/// which are often more useful for debugging than a common prefix.
+		// We truncate from the front of the name to preserve any unique suffixes,
+		// which are often more useful for debugging than a common prefix.
 		auto startOffset = name.size() > maxLength ? name.size() - maxLength : 0;
 		auto truncatedName = name.substr(startOffset, maxLength);
 
@@ -107,26 +105,28 @@ namespace catapult { namespace thread {
 #if defined(__APPLE__) || defined(_WIN32)
 		std::ignore = pthread_setname_np(truncatedName.data());
 #else
-        std::ignore = pthread_setname_np(pthread_self(), truncatedName.c_str());
+		std::ignore = pthread_setname_np(pthread_self(), truncatedName.c_str());
 #endif
 #endif
 	}
 
 	std::string GetThreadName() {
-        std::string ret;
-        if (0 == kMaxThreadNameBytes)
+		std::string ret;
+		if (0 == kMaxThreadNameBytes)
 			return ret;
 
 		char buffer[kMaxThreadNameBytes] = { '\0' };
-        ret.reserve(kMaxThreadNameBytes);
+		ret.reserve(kMaxThreadNameBytes);
 #if defined(HAVE_PTHREAD_GETNAME_NP) && HAVE_PTHREAD_GETNAME_NP
-        if (0 == pthread_getname_np(pthread_self(), buffer, sizeof(buffer))) {
-            ret.append(buffer, buffer + std::strlen(buffer));
+		if (0 == pthread_getname_np(pthread_self(), buffer, sizeof(buffer))) {
+			ret.append(buffer, buffer + std::strlen(buffer));
 		}
+
 #elif defined(HAVE_PTHREAD_GET_NAME_NP) && HAVE_PTHREAD_GET_NAME_NP
-		pthread_get_name_np(pthread_self(), buffer, sizeof(buffer));
-		ret.append(buffer, buffer + std::strlen(buffer));
+			pthread_get_name_np(pthread_self(), buffer, sizeof(buffer));
+			ret.append(buffer, buffer + std::strlen(buffer));
 #endif
-        return ret;
+			return ret;
+		}
 	}
-}}
+}
