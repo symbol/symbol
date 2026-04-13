@@ -106,7 +106,7 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 {{ tutorial.code_snippet(['py:67:86', 'js:63:85']) }}
 
-変更トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます [cite: 4, 78]。
+変更トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
 {{ tutorial.code_snippet(['py:88:106', 'js:87:121']) }}
 
@@ -116,7 +116,7 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 {{ tutorial.code_snippet(['py:108:121', 'js:123:136']) }}
 
-変更が適用されたことを確認するために、コードは <get:/mosaics/{mosaicId}> エンドポイントを使用してネットワークからモザイクを取得し、更新されたプロパティを表示します [cite: 7, 77]。
+変更が適用されたことを確認するために、コードは <get:/mosaics/{mosaicId}> エンドポイントを使用してネットワークからモザイクを取得し、更新されたプロパティを表示します。
 
 レスポンスが成功すれば、モザイクが期待通りのフラグ値を持っていることが確認されます。
 
