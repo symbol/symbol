@@ -8,17 +8,20 @@ hide:
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@scalar/api-reference/dist/style.css" />
 <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
 <script>
+  const container = document.getElementById('scalar-api-reference');
   let scalarInstance = null;
+  let isRendering = false;
   const observer = new MutationObserver(() => {
-    // Recreate if theme changes
+    if (isRendering) return;
     renderScalar();
   });
   function renderScalar() {
+    isRendering = true;
     if (scalarInstance) {
       observer.disconnect();
       scalarInstance.destroy();
     }
-    scalarInstance = Scalar.createApiReference('#scalar-api-reference', {
+    scalarInstance = Scalar.createApiReference(container, {
       url: new URL('../openapi-symbol.yml', window.location.href).toString(),
       slug: 'openapi-symbol',
       title: 'Symbol REST API',
@@ -34,6 +37,7 @@ hide:
       hideDarkModeToggle: true,
       forceDarkModeState: document.body.getAttribute('data-md-color-scheme') === 'slate' ? 'dark' : 'light',
       onLoaded: () => {
+        isRendering = false;
         observer.observe(document.body, {
           attributes: true,
           attributeFilter: ['data-md-color-scheme']
