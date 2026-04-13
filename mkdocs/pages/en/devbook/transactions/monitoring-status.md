@@ -75,7 +75,7 @@ The response includes:
     | `partial`     | For <bonded aggregate transactions:> waiting for <cosignatures:>.                |
 
 * **Code:** A status code providing more details (for example, `Success` or specific error codes).
-    See the [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) schema for all possible
+    See the [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) schema for all possible
     values.
 * **Hash:** The transaction hash being monitored.
 * **Deadline:** The transaction's deadline in network time.
@@ -100,7 +100,7 @@ If the transaction status group is `failed`, the function raises an error with t
 Common reasons include insufficient balance, invalid <signature:|signatures>, or deadline expiration.
 Failed transactions are rejected during validation and will not be included in a block.
 
-See [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) for all possible codes.
+See [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) for all possible codes.
 
 ### Handling Unknown Status
 
@@ -166,8 +166,8 @@ This tutorial showed how to:
 | Step                                                       | Related documentation                                                            |
 | ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | [Query the status endpoint](#querying-the-status-endpoint) | <get:/transactionStatus/{hash}>                                                  |
-| [Check for confirmation](#checking-for-confirmation)       | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
-| [Check for failure](#checking-for-failure)                 | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [Check for confirmation](#checking-for-confirmation)       | [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) |
+| [Check for failure](#checking-for-failure)                 | [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) |
 
 ## Next steps
 

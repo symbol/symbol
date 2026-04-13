@@ -67,7 +67,7 @@ The inflation schedule is defined in the network configuration and decreases ove
 
 To see how the total reward (inflation + transaction fees) was distributed, the code queries the
 <get:/statements/transaction> endpoint filtered by
-[`receiptType=8515`](../reference/rest/symbol.md#model-ReceiptTypeEnum) (`Harvest_Fee`), which returns the exact amount
+[`receiptType=8515`](../reference/rest/symbol.md#model/ReceiptTypeEnum) (`Harvest_Fee`), which returns the exact amount
 each participant received for harvesting the block.
 
 !!! note "Receipt type filter"
