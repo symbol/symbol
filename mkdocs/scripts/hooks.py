@@ -174,7 +174,7 @@ def page_markdown_rest(content, page, config, files):
 			return f'**INVALID PATH `{method}:{path}`**'
 		spec = spec[method]
 		summary = spec['summary']
-		r = f'[`{path}`&nbsp;`{method.upper()}`{{.rest-method .rest-method-{method}}}](site:/devbook/reference/rest/symbol#operations-{spec['tags'][0].replace(' ', '_')}-{spec['operationId']} "{summary}")'
+		r = f'[`{path}`&nbsp;`{method.upper()}`{{.rest-method .rest-method-{method}}}](site:/devbook/reference/rest/symbol#tag/{spec['tags'][0].replace(' ', '_')}/{spec['operationId']} "{summary}")'
 		return r
 
 	content = re.sub(r'<(get|put|post):([^>]*)>', path_formatter, content)
