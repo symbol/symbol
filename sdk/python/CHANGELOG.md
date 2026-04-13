@@ -9,13 +9,13 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ### Added
 - add support for Python 3.14
-- add toJson function which constructs a JSON transaction representation of a transaction. This is useful for Multisig transactions.
-- add generateMosaicRestrictionKey function which generates mosaic restriction key from a string.
-- add Address.isAlias method to check if an address is an alias.
-- add isMosaicAlias function to check if a mosaic id is an alias.
+- add to_json function which constructs a JSON transaction representation of a transaction. This is useful for Multisig transactions.
+- add generate_mosaic_restriction_key function which generates mosaic restriction key from a string.
+- add Address.is_alias method to check if an address is an alias.
+- add is_mosaic_alias function to check if a mosaic id is an alias.
 
 ### Fixed
-- validate name passed to generateNamespaceId does not contain namespace separator
+- validate name passed to generate_namespace_id does not contain namespace separator
 
 ## [3.3.0] - 23-Sept-2025
 
