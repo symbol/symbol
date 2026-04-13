@@ -46,7 +46,7 @@ title: セットアップ
 
 ## 次のステップ
 
-* [Hello World アプリケーションの作成](./hello-world.md) へ進む [ 105]
+* [Hello World アプリケーションの作成](./hello-world.md) へ進む
 
 <style>
 .md-typeset .tabbed-labels a {

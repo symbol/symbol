@@ -137,7 +137,7 @@ nav:
           - Symbol REST API: devbook/reference/rest/symbol.md
           - WebSockets: devbook/reference/websockets/index.md
 
-  - 教科書:
+  - テキストブック:
       - textbook/intro.md
       - textbook/cryptography.md
       - textbook/accounts.md

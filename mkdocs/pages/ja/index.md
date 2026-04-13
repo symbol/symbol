@@ -29,7 +29,7 @@ disable_actions: true
 <div class="card">
 <a href="textbook/intro/index.html" class="textbook">
   <div></div>
-  <h2>教科書</h2>
+  <h2>テキストブック</h2>
   <p>仕組みを学びます</p>
 </a>
 </div>
