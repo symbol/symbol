@@ -9829,7 +9829,7 @@ validates incoming transactions, and participates in consensus and block creatio
 <p>If a transaction's deadline is earlier than the current network time or more than two hours in the future,
 the transaction will be rejected.
 To avoid this, you need to know the current network time before constructing the transaction, using the
-<a href="/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.</p>
+<a href="/en/devbook/reference/rest/symbol#tag/Node_routes/getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.</p>
 <p>However, applications do not need to query the network time before every transaction.
 It can be fetched once and then adjusted using the local system clock when needed.
 This provides a good balance between accuracy and performance.</p>
@@ -9884,7 +9884,7 @@ If it is too high, the sender wastes funds.
 In addition, each node may enforce a minimum fee threshold for incoming transactions.</p>
 <p>The optimal fee depends on the current state of the network,
 particularly the number of transactions being submitted and the fees they are offering.
-To support fee estimation, Symbol provides the <a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>
+To support fee estimation, Symbol provides the <a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>
 endpoint that returns a <em>recommended fee multiplier</em> based on recent transaction activity.</p>
 <p>The final fee is calculated by multiplying the recommended multiplier by the transaction's size in bytes.
 This ensures that larger transactions pay proportionally more while smaller ones remain cost-effective.</p>
@@ -10120,7 +10120,7 @@ JSON payload ready to be submitted directly to a node for announcement.</p>
 </div>
 </div>
 </div>
-<p>Announcing a transaction is a simple request to the <a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> endpoint of any Symbol <a class="mkdocs-ezglossary-link"
+<p>Announcing a transaction is a simple request to the <a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> endpoint of any Symbol <a class="mkdocs-ezglossary-link"
 	id="04f45c087747a4a6bb181ee846879d12"
 	title="An API node exposes a public REST interface that allows external clients
 such as wallets, explorers, and applications to interact with the network."
@@ -10284,7 +10284,7 @@ Polling is used here for illustration purposes, but it is not the recommended ap
 <p>In addition, the logic for checking transaction status is reusable.
 It can be moved into a utility function or module, since it is needed after announcing every transaction.</p>
 </div>
-<p>The snippet above repeatedly queries the <a href="/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint using the hash of the submitted
+<p>The snippet above repeatedly queries the <a href="/en/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint using the hash of the submitted
 transaction.
 The response may take one of several forms:</p>
 <ul>
@@ -10347,11 +10347,11 @@ You should see the transaction move through the confirmation process in real tim
 <tbody>
 <tr>
 <td><a href="#fetching-network-time">Obtain deadline information</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Node_routes/getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-recommended-fees">Obtain fee information</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#creating-a-transfer-transaction">Create a transaction</a></td>
@@ -10389,11 +10389,11 @@ When unset, descriptor arrays will be presumed to be already sorted."
 </tr>
 <tr>
 <td><a href="#announcing-the-transaction">Announce the transaction</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
 </tr>
 <tr>
 <td><a href="#waiting-for-confirmation">Wait for confirmation</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 </tbody>
 </table>

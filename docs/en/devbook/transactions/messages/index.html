@@ -10246,7 +10246,7 @@ The recipient's public key and address are derived from their private key.</p>
 <div class="admonition note">
 <p class="admonition-title">Retrieving public keys</p>
 <p>When only the address is known, you can retrieve the public key from the network using the
-<a href="/en/devbook/reference/rest/symbol#operations-Account_routes-getAccountInfo" title="Get account information"><code>/accounts/{accountId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.
+<a href="/en/devbook/reference/rest/symbol#tag/Account_routes/getAccountInfo" title="Get account information"><code>/accounts/{accountId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.
 An account's public key becomes available only after it has broadcast at least one transaction.</p>
 </div>
 <h3 id="sending-a-plain-text-message">Sending a Plain Text Message<a class="headerlink" href="#sending-a-plain-text-message" title="Anchor link to this section for reference">⚓︎</a></h3>
@@ -10409,7 +10409,7 @@ all embedded transactions are accepted or none are."
 </div>
 </div>
 <p>After announcing the transaction, the <code>retrieve_confirmed_transaction</code> helper function polls the
-<a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>  endpoint until the transaction is confirmed.</p>
+<a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>  endpoint until the transaction is confirmed.</p>
 <p>The confirmed transaction contains the message as a hex string.
 To retrieve the original message, it converts the hex string to bytes and decodes it as UTF-8.</p>
 <h3 id="sending-an-encrypted-message">Sending an Encrypted Message<a class="headerlink" href="#sending-an-encrypted-message" title="Anchor link to this section for reference">⚓︎</a></h3>

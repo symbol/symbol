@@ -9380,7 +9380,7 @@ Then it adds them together to obtain the current time in standard UTC.</p>
 </div>
 </div>
 </div>
-<p>The Nemesis block creation time is a fixed network property and can be retrieved using the <a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>
+<p>The Nemesis block creation time is a fixed network property and can be retrieved using the <a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>
 endpoint.
 The returned value (<code>epochAdjustment</code>), after removing the <code>s</code> suffix and converting it to an integer, is a
 <a href="https://en.wikipedia.org/wiki/Unix_time">UNIX timestamp</a>.
@@ -9426,7 +9426,7 @@ For Symbol's <a class="mkdocs-ezglossary-link"
 </div>
 </div>
 </div>
-<p>The current network time, as understood by the queried node, is obtained using the <a href="/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.
+<p>The current network time, as understood by the queried node, is obtained using the <a href="/en/devbook/reference/rest/symbol#tag/Node_routes/getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.
 Nodes in the network are typically synchronized, so they return similar times.</p>
 <p>The actual property queried is <code>communicationTimestamps.receiveTimestamp</code>, which represents the time at which the
 request was received by the node.</p>
@@ -9512,11 +9512,11 @@ If you are using the Symbol SDK, <span markdown class="dylink"><input type="radi
 <tbody>
 <tr>
 <td><a href="#fetch-nemesis-timestamp">Obtain the Nemesis timestamp</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetch-current-network-time">Obtain the current network time</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Node_routes/getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#conversion">Combine both</a></td>

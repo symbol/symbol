@@ -9783,7 +9783,7 @@ You can use <code>TRANSACTION_HASH</code> to analyze a different transaction.</p
 </div>
 </div>
 </div>
-<p>The confirmed transaction is fetched from the <a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint using its hash.</p>
+<p>The confirmed transaction is fetched from the <a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint using its hash.</p>
 <p>The response includes a <code>meta</code> object with the <a class="mkdocs-ezglossary-link"
 	id="09706c290ed5db9f1bc79981cfe38f55"
 	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
@@ -9939,7 +9939,7 @@ by inspecting bit 63 (the highest bit) of its 64-bit value:</p>
 </div>
 </div>
 <p>Using the block height from the transaction metadata, the code queries the
-<a href="/en/devbook/reference/rest/symbol#operations-Receipt_routes-searchAddressResolutionStatements" title="Get receipts address resolution statements"><code>/statements/resolutions/address</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint to retrieve the address resolution statements for that block.</p>
+<a href="/en/devbook/reference/rest/symbol#tag/Receipt_routes/searchAddressResolutionStatements" title="Search address resolution statements"><code>/statements/resolutions/address</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint to retrieve the address resolution statements for that block.</p>
 <p>Each resolution statement contains:</p>
 <ul>
 <li><strong>Height:</strong> The block where the resolution occurred.</li>
@@ -10160,7 +10160,7 @@ even if the alias was defined multiple times in the same block.</p>
 </div>
 </div>
 <p>The same transaction also used <code>symbol.xym</code> as a mosaic alias instead of a raw mosaic ID.
-The code queries the <a href="/en/devbook/reference/rest/symbol#operations-Receipt_routes-searchMosaicResolutionStatements" title="Get receipts mosaic resolution statements"><code>/statements/resolutions/mosaic</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint with the same block height to retrieve
+The code queries the <a href="/en/devbook/reference/rest/symbol#tag/Receipt_routes/searchMosaicResolutionStatements" title="Search mosaic resolution statements"><code>/statements/resolutions/mosaic</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint with the same block height to retrieve
 the mosaic resolution statements.</p>
 <p>As with the address resolution, the code skips statements whose <code>unresolved</code> field does not match the aliased
 mosaic IDs from the transaction.</p>
@@ -10243,7 +10243,7 @@ The same matching logic applies: the last entry whose <code>primaryId</code> is 
 <div class="admonition note">
 <p class="admonition-title">Resolution statements only contain numeric IDs</p>
 <p>Resolution statements contain mosaic IDs, not human-readable names like <code>symbol.xym</code>.
-To retrieve the readable name from an ID, use <a href="/en/devbook/reference/rest/symbol#operations-Namespace_routes-getNamespacesNames" title="Get readable names for a set of namespaces"><code>/namespaces/names</code>&nbsp;<code class="rest-method rest-method-post">POST</code></a>.</p>
+To retrieve the readable name from an ID, use <a href="/en/devbook/reference/rest/symbol#tag/Namespace_routes/getNamespacesNames" title="Get readable names for a set of namespaces"><code>/namespaces/names</code>&nbsp;<code class="rest-method rest-method-post">POST</code></a>.</p>
 </div>
 </li>
 </ul>
@@ -10259,15 +10259,15 @@ To retrieve the readable name from an ID, use <a href="/en/devbook/reference/res
 <tbody>
 <tr>
 <td><a href="#retrieving-the-confirmed-transaction">Retrieve a confirmed transaction</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#querying-address-resolution-statements">Query address resolutions</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Receipt_routes-searchAddressResolutionStatements" title="Get receipts address resolution statements"><code>/statements/resolutions/address</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Receipt_routes/searchAddressResolutionStatements" title="Search address resolution statements"><code>/statements/resolutions/address</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#querying-mosaic-resolution-statements">Query mosaic resolutions</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Receipt_routes-searchMosaicResolutionStatements" title="Get receipts mosaic resolution statements"><code>/statements/resolutions/mosaic</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Receipt_routes/searchMosaicResolutionStatements" title="Search mosaic resolution statements"><code>/statements/resolutions/mosaic</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 </tbody>
 </table>

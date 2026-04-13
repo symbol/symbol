@@ -9644,7 +9644,7 @@ Finally, it derives the transaction fees by subtracting inflation from the total
 <p>The snippet retrieves the block header using the <code>NODE_URL</code> and <code>BLOCK_HEIGHT</code> environment variables to select the API
 node and the target block.
 If not set, they default to the reference testnet node and block <code>3222290</code>.</p>
-<p>The <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns the block header, which includes the <code>signerPublicKey</code> and the
+<p>The <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns the block header, which includes the <code>signerPublicKey</code> and the
 <code>beneficiaryAddress</code> designated by the node operator.
 The beneficiary address is needed later to identify beneficiary receipts.</p>
 <h3 id="fetching-the-network-sink-address">Fetching the Network Sink Address<a class="headerlink" href="#fetching-the-network-sink-address" title="Anchor link to this section for reference">⚓︎</a></h3>
@@ -9684,7 +9684,7 @@ The beneficiary address is needed later to identify beneficiary receipts.</p>
 </div>
 </div>
 </div>
-<p>The <code>harvestNetworkFeeSinkAddress</code> is fetched from <a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> and needed later to identify sink receipts.
+<p>The <code>harvestNetworkFeeSinkAddress</code> is fetched from <a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> and needed later to identify sink receipts.
 Since the property is in base32 format and receipt addresses are hex-encoded, the SDK's <code>Address</code> class converts it
 to hex for comparison.</p>
 <h3 id="fetching-the-inflation-reward">Fetching the Inflation Reward<a class="headerlink" href="#fetching-the-inflation-reward" title="Anchor link to this section for reference">⚓︎</a></h3>
@@ -9720,7 +9720,7 @@ to hex for comparison.</p>
 </div>
 </div>
 </div>
-<p>The <a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkInflationAtHeight" title="Returns the inflation distribution data at specific height"><code>/network/inflation/at/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns the inflation reward amount for the given block height.
+<p>The <a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkInflationAtHeight" title="Returns the inflation distribution data at a specific height"><code>/network/inflation/at/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns the inflation reward amount for the given block height.
 This value is in <a class="mkdocs-ezglossary-link"
 	id="e79df87a6cd8bd061c2f0d12ce6f23f8"
 	title="This property defines how many decimal places a mosaic quantity can have.
@@ -9856,8 +9856,8 @@ Higher values allow fractional units."
 </div>
 </div>
 <p>To see how the total reward (inflation + transaction fees) was distributed, the code queries the
-<a href="/en/devbook/reference/rest/symbol#operations-Receipt_routes-searchReceipts" title="Search transaction statements"><code>/statements/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint filtered by
-<a href="../../reference/rest/symbol/#model-ReceiptTypeEnum"><code>receiptType=8515</code></a> (<code>Harvest_Fee</code>), which returns the exact amount
+<a href="/en/devbook/reference/rest/symbol#tag/Receipt_routes/searchTransactionStatements" title="Search transaction statements"><code>/statements/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint filtered by
+<a href="../../reference/rest/symbol/#model/ReceiptTypeEnum"><code>receiptType=8515</code></a> (<code>Harvest_Fee</code>), which returns the exact amount
 each participant received for harvesting the block.</p>
 <div class="admonition note">
 <p class="admonition-title">Receipt type filter</p>
@@ -9874,7 +9874,7 @@ In that case only two receipts are created (harvester + sink) instead of three.<
 <p class="admonition-title">Why not use the block's <code>signerPublicKey</code>?</p>
 <p>Harvesters typically sign blocks with a <a href="../../../textbook/harvesting/">remote key</a> rather than their main key.
 In that case, the block's <code>signerPublicKey</code> does not correspond to the harvester's main address.
-The remote key can be resolved by querying <a href="/en/devbook/reference/rest/symbol#operations-Account_routes-getAccountInfo" title="Get account information"><code>/accounts/{accountId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> with the signer key and following its
+The remote key can be resolved by querying <a href="/en/devbook/reference/rest/symbol#tag/Account_routes/getAccountInfo" title="Get account information"><code>/accounts/{accountId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> with the signer key and following its
 <code>supplementalPublicKeys.linked.publicKey</code> to the main account.
 However, this link reflects the current account state and may have changed since the block was harvested.
 Receipts are the reliable source.</p>
@@ -9984,19 +9984,19 @@ bytes multiplied by the block header's <code>feeMultiplier</code>.</p>
 <tbody>
 <tr>
 <td><a href="#fetching-block-information">Fetch block information</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-the-network-sink-address">Fetch network sink address</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-the-inflation-reward">Fetch inflation reward</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkInflationAtHeight" title="Returns the inflation distribution data at specific height"><code>/network/inflation/at/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkInflationAtHeight" title="Returns the inflation distribution data at a specific height"><code>/network/inflation/at/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#querying-the-reward-distribution">Query reward distribution</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Receipt_routes-searchReceipts" title="Search transaction statements"><code>/statements/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Receipt_routes/searchTransactionStatements" title="Search transaction statements"><code>/statements/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 </tbody>
 </table>
@@ -10022,7 +10022,7 @@ bytes multiplied by the block header's <code>feeMultiplier</code>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 25, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 13, 2026</span>
   </span>
 
     
@@ -10042,12 +10042,13 @@ bytes multiplied by the block header's <code>feeMultiplier</code>.</p>
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
-        <a href="mailto:zero4862@pm.me">zero</a>
+        <a href="mailto:zero4862@pm.me">zero</a>, 
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
     </nav>
   </span>
 

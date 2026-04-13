@@ -9565,7 +9565,7 @@ The mosaic ID is derived deterministically from the creator's address and a nonc
 </div>
 </div>
 </div>
-<p>The <a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint retrieves the current properties of a mosaic, including:</p>
+<p>The <a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint retrieves the current properties of a mosaic, including:</p>
 <ul>
 <li><strong>Supply:</strong> The total number of <a href="../../../textbook/mosaics/#divisibility">atomic</a> units currently in circulation.
     Do not confuse with the <a href="../../../textbook/mosaics/#initial-supply">initial supply</a>.</li>
@@ -9714,7 +9714,7 @@ using the mosaic's divisibility.</p>
 </div>
 </div>
 <p>Mosaics can be linked to human-readable namespace aliases.
-The <a href="/en/devbook/reference/rest/symbol#operations-Namespace_routes-getMosaicsNames" title="Get readable names for a set of mosaics"><code>/namespaces/mosaic/names</code>&nbsp;<code class="rest-method rest-method-post">POST</code></a> endpoint accepts mosaic IDs and returns any namespace names currently linked to
+The <a href="/en/devbook/reference/rest/symbol#tag/Namespace_routes/getMosaicsNames" title="Get readable names for a set of mosaics"><code>/namespaces/mosaic/names</code>&nbsp;<code class="rest-method rest-method-post">POST</code></a> endpoint accepts mosaic IDs and returns any namespace names currently linked to
 them.</p>
 <p>A mosaic can have multiple namespace aliases if different namespaces link to the same mosaic.
 If no namespace is linked, the response indicates that no aliases exist.</p>
@@ -9789,11 +9789,11 @@ divisibility.</p>
 <tbody>
 <tr>
 <td><a href="#fetching-mosaic-information">Fetch mosaic properties</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-namespace-aliases">Fetch namespace aliases</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Namespace_routes-getMosaicsNames" title="Get readable names for a set of mosaics"><code>/namespaces/mosaic/names</code>&nbsp;<code class="rest-method rest-method-post">POST</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Namespace_routes/getMosaicsNames" title="Get readable names for a set of mosaics"><code>/namespaces/mosaic/names</code>&nbsp;<code class="rest-method rest-method-post">POST</code></a></td>
 </tr>
 </tbody>
 </table>

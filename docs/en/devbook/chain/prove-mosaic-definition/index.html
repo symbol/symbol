@@ -9749,7 +9749,7 @@ section.</p>
 	title="The native currency of the Symbol blockchain."
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> on mainnet), whose ID is discovered automatically from
-<a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.
+<a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.
 The currency mosaic is a convenient choice because it exists on every Symbol network, but the same process works
 for any mosaic by replacing the ID.</p>
 <h2 id="code-explanation">Code Explanation<a class="headerlink" href="#code-explanation" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -9828,10 +9828,10 @@ for any mosaic by replacing the ID.</p>
 </div>
 </div>
 </div>
-<p>The code starts by fetching the network currency mosaic ID from <a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.
+<p>The code starts by fetching the network currency mosaic ID from <a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getNetworkProperties" title="Get the network properties"><code>/network/properties</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.
 The <code>currencyMosaicId</code> field is a hex string with embedded apostrophes (e.g. <code>0x72C0212E'67A08BCE</code>), so the code strips
 them before parsing.</p>
-<p>The mosaic's full definition is then fetched from <a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.
+<p>The mosaic's full definition is then fetched from <a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.
 The response includes all the fields that make up the mosaic's definition: <code>version</code>, <code>id</code>, <code>supply</code>,
 <code>startHeight</code>, <code>ownerAddress</code>, <code>revision</code>, <code>flags</code>, <code>divisibility</code>, and <code>duration</code>.</p>
 <h3 id="computing-the-key-and-value-hashes">Computing the Key and Value Hashes<a class="headerlink" href="#computing-the-key-and-value-hashes" title="Anchor link to this section for reference">⚓︎</a></h3>
@@ -10021,8 +10021,8 @@ the mosaic's leaf node in the tree.</p>
 </div>
 </div>
 </div>
-<p>The code fetches the current chain height from <a href="/en/devbook/reference/rest/symbol#operations-Chain_routes-getChainInfo" title="Get chain information"><code>/chain/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, then uses it to retrieve the corresponding block
-header from <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.</p>
+<p>The code fetches the current chain height from <a href="/en/devbook/reference/rest/symbol#tag/Chain_routes/getChainInfo" title="Get chain information"><code>/chain/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, then uses it to retrieve the corresponding block
+header from <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.</p>
 <p>The block's <code>stateHash</code> field is the SHA3-256 hash of all sub-cache Merkle roots concatenated together.
 The <code>stateHashSubCacheMerkleRoots</code> array contains the individual root hash for each sub-cache
 (accounts, mosaics, namespaces, and so on).</p>
@@ -10143,7 +10143,7 @@ The <code>stateHashSubCacheMerkleRoots</code> array contains the individual root
 </div>
 </div>
 </div>
-<p>The <a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaicMerkle" title="Get mosaic Merkle information"><code>/mosaics/{mosaicId}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns the raw path through the mosaic sub-cache, from the root down to
+<p>The <a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaicMerkle" title="Get mosaic Merkle information"><code>/mosaics/{mosaicId}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns the raw path through the mosaic sub-cache, from the root down to
 the leaf that stores the mosaic's hashed value.
 <code>deserializePatriciaTreeNodes</code> converts this raw binary into a list of tree nodes.</p>
 <p>For educational purposes, the code then walks the deserialized path and prints each node for inspection.
@@ -10231,17 +10231,17 @@ Merkle node path is ordered from root to leaf, where each element is either Bran
 </tr>
 <tr>
 <td><code>merkle_path</code></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaicMerkle" title="Get mosaic Merkle information"><code>/mosaics/{mosaicId}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaicMerkle" title="Get mosaic Merkle information"><code>/mosaics/{mosaicId}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 <td>The chain of branch and leaf nodes from root to leaf</td>
 </tr>
 <tr>
 <td><code>state_hash</code></td>
-<td><code>stateHash</code> from <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><code>stateHash</code> from <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 <td>The block header's hash of all chain state</td>
 </tr>
 <tr>
 <td><code>roots</code></td>
-<td><code>stateHashSubCacheMerkleRoots</code> from <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><code>stateHashSubCacheMerkleRoots</code> from <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 <td>The individual root hash of each sub-cache</td>
 </tr>
 </tbody>
@@ -10329,7 +10329,7 @@ If the proof still fails after retrying, the node may be serving incorrect data.
 <p>Some highlights from the output:</p>
 <ul>
 <li>
-<p><strong>Mosaic definition</strong> (lines 3-14): The full mosaic definition as returned by <a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, showing all
+<p><strong>Mosaic definition</strong> (lines 3-14): The full mosaic definition as returned by <a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, showing all
     fields that are serialized for the proof.</p>
 </li>
 <li>
@@ -10368,7 +10368,7 @@ If the proof still fails after retrying, the node may be serving incorrect data.
 <tbody>
 <tr>
 <td><a href="#fetching-the-mosaic-definition">Fetch mosaic definition</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaic" title="Get mosaic information"><code>/mosaics/{mosaicId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#computing-the-key-and-value-hashes">Compute the key and value hashes</a></td>
@@ -10380,11 +10380,11 @@ If the proof still fails after retrying, the node may be serving incorrect data.
 </tr>
 <tr>
 <td><a href="#fetching-the-block-state-hash">Fetch the block state hash</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Chain_routes-getChainInfo" title="Get chain information"><code>/chain/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Chain_routes/getChainInfo" title="Get chain information"><code>/chain/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-the-tree-path">Fetch the tree path</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Mosaic_routes-getMosaicMerkle" title="Get mosaic Merkle information"><code>/mosaics/{mosaicId}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, <code>deserializePatriciaTreeNodes</code></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Mosaic_routes/getMosaicMerkle" title="Get mosaic Merkle information"><code>/mosaics/{mosaicId}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>, <code>deserializePatriciaTreeNodes</code></td>
 </tr>
 <tr>
 <td><a href="#verifying-the-proof">Verify the proof</a></td>

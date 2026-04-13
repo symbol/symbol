@@ -9398,8 +9398,8 @@ For a list of available mainnet nodes, see <a href="https://symbol.fyi/nodes">sy
 </div>
 <p>Each supply value is available through a dedicated endpoint:</p>
 <ul>
-<li><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getMaxCurrencySupply" title="Returns max currency supply"><code>/network/currency/supply/max</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>: the hard cap for XYM, as configured in the network properties.</li>
-<li><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getTotalCurrencySupply" title="Returns total currency supply"><code>/network/currency/supply/total</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>: the total amount of XYM minted to date.
+<li><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getMaxCurrencySupply" title="Returns max currency supply"><code>/network/currency/supply/max</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>: the hard cap for XYM, as configured in the network properties.</li>
+<li><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getTotalCurrencySupply" title="Returns total currency supply"><code>/network/currency/supply/total</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>: the total amount of XYM minted to date.
     New XYM is minted gradually through <a class="mkdocs-ezglossary-link"
 	id="dcc1fec93eb9ec2d4374a8bd2582a473"
 	title="A small amount of XYM that is freshly minted with each new block to reward the node that creates it.
@@ -9412,7 +9412,7 @@ and disappearing entirely after 105 years."
 	title="A block records a set of transactions and other state changes that occurred at a specific point in time."
 	name="_:Block"
 	href="../../../textbook/blocks/#d8d197f74217a4d5592af902262cb05b">block</a>.</li>
-<li><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getCirculatingCurrencySupply" title="Returns circulating currency supply"><code>/network/currency/supply/circulating</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>: the total supply minus the balances held by the nemesis account,
+<li><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getCirculatingCurrencySupply" title="Returns circulating currency supply"><code>/network/currency/supply/circulating</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>: the total supply minus the balances held by the nemesis account,
     treasury accounts, and the sink accounts that collect <a href="../../../textbook/harvesting/#sink">harvest</a>,
     <a href="../../../textbook/mosaics/#lease-fee">mosaic rental</a>, and <a href="../../../textbook/namespaces/#lease-fee">namespace rental</a>
     fees.</li>
@@ -9502,15 +9502,15 @@ as opposed to transactions on the mainnet."
 <tbody>
 <tr>
 <td><a href="#fetching-supply-values">Fetch maximum supply</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getMaxCurrencySupply" title="Returns max currency supply"><code>/network/currency/supply/max</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getMaxCurrencySupply" title="Returns max currency supply"><code>/network/currency/supply/max</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-supply-values">Fetch total supply</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getTotalCurrencySupply" title="Returns total currency supply"><code>/network/currency/supply/total</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getTotalCurrencySupply" title="Returns total currency supply"><code>/network/currency/supply/total</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-supply-values">Fetch circulating supply</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getCirculatingCurrencySupply" title="Returns circulating currency supply"><code>/network/currency/supply/circulating</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getCirculatingCurrencySupply" title="Returns circulating currency supply"><code>/network/currency/supply/circulating</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#deriving-additional-metrics">Derive additional metrics</a></td>

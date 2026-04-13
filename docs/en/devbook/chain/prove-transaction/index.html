@@ -9596,7 +9596,7 @@ If not set, a known transaction from block <code>55</code> of the Symbol testnet
 </div>
 </div>
 </div>
-<p>The code fetches the confirmed transaction from the <a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.</p>
+<p>The code fetches the confirmed transaction from the <a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.</p>
 <p>The <code>meta.height</code> field is the block height where the transaction was confirmed, needed in the following step to
 retrieve the block header.</p>
 <p>The response also contains the <code>merkleComponentHash</code>, which is the leaf hash used in the block's Merkle tree.
@@ -9665,7 +9665,7 @@ public keys of the cosignatories.</p>
 </div>
 </div>
 </div>
-<p>The <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns block metadata, including the <code>transactionsHash</code> field.
+<p>The <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns block metadata, including the <code>transactionsHash</code> field.
 This hash is the root of the Merkle tree built from the
 <code>merkleComponentHash</code> of each transaction in the block.</p>
 <p>The code wraps the hex string in a <code>Hash256</code> object, which is the format expected by the <span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
@@ -9753,7 +9753,7 @@ Merkle hash chain path is ordered from leaf to root, where each element is Merkl
 </div>
 </div>
 </div>
-<p>The <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getMerkleTransaction" title="Get the Merkle path for a given transaction and block"><code>/blocks/{height}/transactions/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns a <strong>Merkle proof path</strong>:
+<p>The <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getMerkleTransaction" title="Get the Merkle path for a given transaction and block"><code>/blocks/{height}/transactions/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns a <strong>Merkle proof path</strong>:
 the minimum set of intermediate hashes needed to recompute the <code>transactionsHash</code> starting from the
 <code>merkleComponentHash</code> (one per level of the Merkle tree).</p>
 <p>Each item in the path contains:</p>
@@ -9930,15 +9930,15 @@ If the computed root matches the block's <code>transactionsHash</code>, the tran
 <p>Some highlights from the output:</p>
 <ul>
 <li>
-<p><strong>Transaction metadata</strong> (lines 5-6): The JSON response from <a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> includes
+<p><strong>Transaction metadata</strong> (lines 5-6): The JSON response from <a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> includes
     the block <code>height</code> and <code>merkleComponentHash</code> needed for the proof.</p>
 </li>
 <li>
-<p><strong>Block transactions hash</strong> (lines 15): The JSON response from <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> includes the <code>transactionsHash</code>,
+<p><strong>Block transactions hash</strong> (lines 15): The JSON response from <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> includes the <code>transactionsHash</code>,
     which is the Merkle root for all transactions confirmed in that block.</p>
 </li>
 <li>
-<p><strong>Merkle path length</strong> (lines 39): The JSON response from <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getMerkleTransaction" title="Get the Merkle path for a given transaction and block"><code>/blocks/{height}/transactions/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>
+<p><strong>Merkle path length</strong> (lines 39): The JSON response from <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getMerkleTransaction" title="Get the Merkle path for a given transaction and block"><code>/blocks/{height}/transactions/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>
     contains <code>4</code> entries, meaning the tree has 4 levels and the block contains up to 2⁴ = 16 transactions.</p>
 </li>
 <li>
@@ -9960,15 +9960,15 @@ If the computed root matches the block's <code>transactionsHash</code>, the tran
 <tbody>
 <tr>
 <td><a href="#fetching-the-confirmed-transaction">Fetch confirmed transaction</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-the-block-header">Fetch the block header</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#fetching-the-merkle-proof-path">Fetch the Merkle proof path</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getMerkleTransaction" title="Get the Merkle path for a given transaction and block"><code>/blocks/{height}/transactions/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getMerkleTransaction" title="Get the Merkle path for a given transaction and block"><code>/blocks/{height}/transactions/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#verifying-the-proof">Verify the proof</a></td>
@@ -9986,7 +9986,7 @@ Merkle hash chain path is ordered from leaf to root, where each element is Merkl
 </tbody>
 </table>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Anchor link to this section for reference">⚓︎</a></h2>
-<p>The same process can be used to prove receipts by using the <a href="/en/devbook/reference/rest/symbol#operations-Block_routes-getMerkleReceipts" title="Get the Merkle path for a given receipt statement hash and block"><code>/blocks/{height}/statements/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint
+<p>The same process can be used to prove receipts by using the <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getMerkleReceipts" title="Get the Merkle path for a given receipt statement hash and block"><code>/blocks/{height}/statements/{hash}/merkle</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint
 and verifying against the block <code>receiptsHash</code> instead.</p>
 
 

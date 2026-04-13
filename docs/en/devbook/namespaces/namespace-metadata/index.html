@@ -10347,7 +10347,7 @@ or the transaction adding the metadata will be rejected.</p>
 </div>
 </div>
 </div>
-<p>Network time and recommended fees are fetched from <a href="/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> and <a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> respectively,
+<p>Network time and recommended fees are fetched from <a href="/en/devbook/reference/rest/symbol#tag/Node_routes/getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> and <a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> respectively,
 following the process described in the <a href="../../transactions/transfer/">Transfer Transaction</a> tutorial.</p>
 <h3 id="defining-the-metadata">Defining the Metadata<a class="headerlink" href="#defining-the-metadata" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Each namespace metadata entry is uniquely identified by:</p>
@@ -10747,7 +10747,7 @@ tutorial.</p>
 </div>
 </div>
 </div>
-<p>To retrieve the current value of a metadata entry, the code uses the <a href="/en/devbook/reference/rest/symbol#operations-Metadata_routes-searchMetadataEntries" title="Search metadata entries"><code>/metadata</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint
+<p>To retrieve the current value of a metadata entry, the code uses the <a href="/en/devbook/reference/rest/symbol#tag/Metadata_routes/searchMetadataEntries" title="Search metadata entries"><code>/metadata</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint
 with filters for <code>sourceAddress</code>, <code>targetAddress</code>, <code>scopedMetadataKey</code>, <code>targetId</code> (the namespace ID), and
 <code>metadataType</code> (<code>2</code> for namespace metadata).</p>
 <p>The endpoint returns the list of entries matching the filters, which in this case contains a single item.</p>
@@ -11151,7 +11151,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
 </tr>
 <tr>
 <td><a href="#retrieving-metadata">Retrieve metadata</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Metadata_routes-searchMetadataEntries" title="Search metadata entries"><code>/metadata</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Metadata_routes/searchMetadataEntries" title="Search metadata entries"><code>/metadata</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#modifying-existing-metadata">Modify existing metadata</a></td>

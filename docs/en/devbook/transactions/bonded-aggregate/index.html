@@ -10744,7 +10744,7 @@ If using your own keys, ensure Account A has XYM and Account B holds a custom mo
 </div>
 </div>
 </div>
-<p>Network time and recommended fees are fetched from <a href="/en/devbook/reference/rest/symbol#operations-Node_routes-getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> and <a href="/en/devbook/reference/rest/symbol#operations-Network_routes-getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> respectively,
+<p>Network time and recommended fees are fetched from <a href="/en/devbook/reference/rest/symbol#tag/Node_routes/getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> and <a href="/en/devbook/reference/rest/symbol#tag/Network_routes/getTransactionFees" title="Get transaction fees information"><code>/network/fees/transaction</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> respectively,
 following the process described in the <a href="../transfer/">Transfer Transaction</a> tutorial.</p>
 <h3 id="creating-embedded-transactions">Creating Embedded Transactions<a class="headerlink" href="#creating-embedded-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_4_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
@@ -11264,7 +11264,7 @@ It must be confirmed before the bonded aggregate can be announced.</p>
 </div>
 </div>
 </div>
-<p>Once the hash lock is confirmed, the bonded aggregate is announced to <a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-announcePartialTransaction" title="Announce an aggregate bonded transaction"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> using the
+<p>Once the hash lock is confirmed, the bonded aggregate is announced to <a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/announcePartialTransaction" title="Announce an aggregate bonded transaction"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> using the
 <code>announce_transaction</code> helper.</p>
 <p>The <a class="mkdocs-ezglossary-link"
 	id="3664580921bf4a83f9707adacca78109"
@@ -11388,7 +11388,7 @@ cosignatures.</p>
 </div>
 <p>Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable on-chain
 coordination.</p>
-<p>First, Account B polls <a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-searchPartialTransactions" title="Search partial transactions"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> with the <code>address</code> parameter to find transactions waiting for its
+<p>First, Account B polls <a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/searchPartialTransactions" title="Search partial transactions"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> with the <code>address</code> parameter to find transactions waiting for its
 signature.
 This returns a list of partial transactions involving Account B.</p>
 <p>This example looks for a specific transaction hash because both accounts run in the same script.
@@ -11448,7 +11448,7 @@ their content.</p>
 </div>
 </div>
 <p>Once a transaction is found, Account B uses its hash to fetch the full details (including embedded transactions) from
-<a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getPartialTransaction" title="Get partial transaction information"><code>/transactions/partial/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.</p>
+<a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getPartialTransaction" title="Get partial transaction information"><code>/transactions/partial/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.</p>
 <p>Before cosigning, Account B should verify that the embedded transactions match the expected operations.
 This example simply logs the number of embedded transactions, but it could also check amounts,
 recipients, and mosaics to ensure the swap terms are correct.</p>
@@ -11552,7 +11552,7 @@ This is required for bonded aggregates because the cosigner submits directly to 
 <li><strong>Parent hash:</strong> The hash of the bonded transaction being cosigned.</li>
 </ul>
 <p>The cosignature payload is submitted using the <code>announce_transaction</code> helper function to
-<a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceCosignatureTransaction" title="Announce a cosignature transaction"><code>/transactions/cosignature</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a>.
+<a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/announceCosignatureTransaction" title="Announce a cosignature transaction"><code>/transactions/cosignature</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a>.
 The network validates the cosignature and attaches it to the partial transaction.</p>
 <p>Once enough cosignatures are collected to satisfy all embedded transactions,
 the network automatically processes the bonded aggregate and includes it in a block.</p>
@@ -11585,7 +11585,7 @@ the network automatically processes the bonded aggregate and includes it in a bl
 </div>
 </div>
 </div>
-<p>The <code>wait_for_status</code> helper function polls <a href="/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> until the transaction is confirmed or fails.</p>
+<p>The <code>wait_for_status</code> helper function polls <a href="/en/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> until the transaction is confirmed or fails.</p>
 <p>If all required cosignatures are collected before the deadline, the transaction confirms, both transfers execute,
 and the hash lock deposit is returned to Account A.</p>
 <p>If the deadline expires or any cosignature is invalid, the transaction fails and the deposit is forfeited.</p>
@@ -11845,19 +11845,19 @@ When unset, descriptor arrays will be presumed to be already sorted."
 	id="e0ddca0a115e59bbb67619152b4a9e31"
 	title="Creates a transaction from a transaction descriptor."
 	name="js:SymbolTransactionFactory.create"
-	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span><br/><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span><br/><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
 </tr>
 <tr>
 <td><a href="#announcing-the-bonded-transaction">Announce bonded transaction</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-announcePartialTransaction" title="Announce an aggregate bonded transaction"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/announcePartialTransaction" title="Announce an aggregate bonded transaction"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
 </tr>
 <tr>
 <td><a href="#recovering-the-transaction">Recover the transaction</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-searchPartialTransactions" title="Search partial transactions"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/searchPartialTransactions" title="Search partial transactions"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#verifying-the-transaction">Verify the transaction</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-getPartialTransaction" title="Get partial transaction information"><code>/transactions/partial/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/getPartialTransaction" title="Get partial transaction information"><code>/transactions/partial/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 <tr>
 <td><a href="#cosigning-the-transaction">Cosign the transaction</a></td>
@@ -11869,11 +11869,11 @@ When unset, descriptor arrays will be presumed to be already sorted."
 	id="0de2f378700b9444659355c8c8a68758"
 	title="Cosigns a Symbol transaction hash."
 	name="js:SymbolFacade.cosignTransactionHash"
-	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#cosigntransactionhash">SymbolFacade.cosignTransactionHash</a></code></label></span><br/><a href="/en/devbook/reference/rest/symbol#operations-Transaction_routes-announceCosignatureTransaction" title="Announce a cosignature transaction"><code>/transactions/cosignature</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
+	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#cosigntransactionhash">SymbolFacade.cosignTransactionHash</a></code></label></span><br/><a href="/en/devbook/reference/rest/symbol#tag/Transaction_routes/announceCosignatureTransaction" title="Announce a cosignature transaction"><code>/transactions/cosignature</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a></td>
 </tr>
 <tr>
 <td><a href="#waiting-for-confirmation">Wait for confirmation</a></td>
-<td><a href="/en/devbook/reference/rest/symbol#operations-Transaction_status_routes-getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
+<td><a href="/en/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></td>
 </tr>
 </tbody>
 </table>
