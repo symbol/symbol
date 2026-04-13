@@ -1,11 +1,12 @@
 name: accountId
 in: path
-description: Account identifier. Accepts either a public key or a Base32-encoded address.
+description: |
+  Account public key as 64 hexadecimal characters, or account address as 39 Base32
+  (network prefix `T` for testnet, `N` for mainnet).
 required: true
 schema:
-  oneOf:
-    - $ref: "../../schemas/PublicKey.yml"
-    - $ref: "../../schemas/Address.yml"
+  type: string
+  pattern: '^(?:[0-9a-fA-F]{64}|[A-Z2-7]{39})$'
 examples:
   testnetAddress:
     summary: Testnet address (Base32, prefix T)

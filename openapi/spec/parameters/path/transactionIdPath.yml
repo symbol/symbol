@@ -1,6 +1,15 @@
 name: transactionId
 in: path
-description: Transaction ID assigned by the node or transaction hash.
+description: |
+  Transaction hash (64 hexadecimal characters) or node-assigned transaction ID (16 hexadecimal characters).
 required: true
 schema:
   type: string
+  pattern: '^(?:[0-9a-fA-F]{64}|[0-9a-fA-F]{16})$'
+examples:
+  transactionHash:
+    summary: Transaction hash (hex)
+    value: 73C5E3F46E2D24A3A1B9959DD62A42A54A0882F3DF2D72A6917C57C67D7A5B8A
+  transactionId:
+    summary: Database transaction ID
+    value: 0DC67FBE1CAD29E3
