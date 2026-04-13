@@ -45,7 +45,7 @@ hide:
       }
     })
   };
-  renderScalar();
+  window.addEventListener('load', renderScalar);
 </script>
 <style>
 #scalar-api-reference {
