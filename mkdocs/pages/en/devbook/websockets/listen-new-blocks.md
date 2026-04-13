@@ -74,14 +74,14 @@ Each subscription message includes the `uid` received during the connection step
 The code listens for incoming messages until the program is interrupted.
 Each message includes a `topic` field identifying the channel and a `data` object with the event payload.
 
-For `block` messages, the payload follows the [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO) schema.
+For `block` messages, the payload follows the [BlockInfoDTO](../reference/rest/symbol.md#model/BlockInfoDTO) schema.
 This tutorial uses two of them to identify each block:
 
 * `data.block.height`: The height of the new block.
 * `data.meta.hash`: The hash of the new block.
 
 For `finalizedBlock` messages, the payload follows the
-[FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) schema.
+[FinalizedBlockDTO](../reference/rest/symbol.md#model/FinalizedBlockDTO) schema.
 This tutorial uses:
 
 * `data.height`: The finalized block height.
@@ -128,5 +128,5 @@ This tutorial showed how to:
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | [Subscribe to block channel](#subscribing-to-channels)     | <ws:block>                                                                     |
 | [Subscribe to finalized channel](#subscribing-to-channels) | <ws:finalizedBlock>                                                            |
-| [Handle block messages](#handling-messages)                | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO)                 |
-| [Handle finalized messages](#handling-messages)            | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO)       |
+| [Handle block messages](#handling-messages)                | [BlockInfoDTO](../reference/rest/symbol.md#model/BlockInfoDTO)                 |
+| [Handle finalized messages](#handling-messages)            | [FinalizedBlockDTO](../reference/rest/symbol.md#model/FinalizedBlockDTO)       |

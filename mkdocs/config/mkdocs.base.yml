@@ -63,7 +63,6 @@ plugins:
     sort_authors_by: contribution
     exclude:
       - devbook/reference/*
-  swagger-ui-tag: {}  # Allow embedding OpenAPI specs
   glightbox:
     auto_caption: false
     caption_position: left

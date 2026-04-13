@@ -128,7 +128,7 @@ regular <put:/transactions> endpoint).
 Account B listens for incoming messages and dispatches them by channel.
 The message schemas are the same as in the [regular transaction flow](./listen-transaction-flow.md) tutorial,
 except for `cosignature` messages, which follow the
-[CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO) schema
+[CosignatureDTO](../reference/rest/symbol.md#model/CosignatureDTO) schema
 and do not include the `meta.hash` field used by other channels.
 
 The key action happens on `partialAdded`: when the hash matches the expected aggregate,
@@ -181,6 +181,6 @@ This tutorial showed how to:
 | [Subscribe to partialAdded](#account-b-connecting-and-subscribing-to-channels)              | <ws:partialAdded&#47;{address}>                                             |
 | [Subscribe to partialRemoved](#account-b-connecting-and-subscribing-to-channels)            | <ws:partialRemoved&#47;{address}>                                           |
 | [Subscribe to cosignature](#account-b-connecting-and-subscribing-to-channels)               | <ws:cosignature&#47;{address}>                                              |
-| [Handle transaction messages](#account-b-handling-websocket-messages-and-cosigning)         | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO)  |
-| [Handle cosignature messages](#account-b-handling-websocket-messages-and-cosigning)         | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO)          |
+| [Handle transaction messages](#account-b-handling-websocket-messages-and-cosigning)         | [TransactionInfoDTO](../reference/rest/symbol.md#model/TransactionInfoDTO)  |
+| [Handle cosignature messages](#account-b-handling-websocket-messages-and-cosigning)         | [CosignatureDTO](../reference/rest/symbol.md#model/CosignatureDTO)          |
 | [Submit cosignatures on partialAdded](#account-b-handling-websocket-messages-and-cosigning) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |

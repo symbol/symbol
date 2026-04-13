@@ -100,12 +100,12 @@ The hash is computed locally so it can be matched against the incoming WebSocket
 {{ tutorial.code_snippet(['py:75:96', 'js:69:93']) }}
 
 The code announces the transaction and then listens for incoming messages.
-Each message follows the [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) schema
+Each message follows the [TransactionStatusDTO](../reference/rest/symbol.md#model/TransactionStatusDTO) schema
 and contains:
 
 * **hash:** The hash of the rejected transaction.
 * **code:** The error code explaining why the transaction was rejected.
-    See the [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) schema for all possible
+    See the [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) schema for all possible
     values.
 
 When the received hash matches the announced transaction, the program prints the error code and exits.
@@ -140,4 +140,4 @@ This tutorial showed how to:
 |------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
 | [Subscribe to status channel](#subscribing-to-the-status-channel)            | <ws:status&#47;{address}>                                                      |
 | [Trigger a rejection](#building-and-signing-an-invalid-transfer-transaction) | [Transfer Transaction](../transactions/transfer.md)                            |
-| [Handle error messages](#announcing-and-waiting-for-the-error)               | [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) |
+| [Handle error messages](#announcing-and-waiting-for-the-error)               | [TransactionStatusDTO](../reference/rest/symbol.md#model/TransactionStatusDTO) |

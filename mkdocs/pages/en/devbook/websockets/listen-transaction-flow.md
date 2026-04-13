@@ -123,7 +123,7 @@ The code announces the transaction and then listens for incoming messages, print
 Each message includes a `topic` field identifying the channel and a `data` object with the event payload.
 
 For `confirmedAdded` and `unconfirmedAdded` messages, the payload follows the
-[TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) schema.
+[TransactionInfoDTO](../reference/rest/symbol.md#model/TransactionInfoDTO) schema.
 For `unconfirmedRemoved` messages, the payload contains only the transaction hash (`meta.hash`).
 
 When a `confirmedAdded` message arrives whose hash matches the announced transaction, the program prints a confirmation
@@ -168,7 +168,7 @@ This tutorial showed how to:
 | [Subscribe to unconfirmedAdded](#subscribing-to-channels)               | <ws:unconfirmedAdded&#47;{address}>                                        |
 | [Subscribe to unconfirmedRemoved](#subscribing-to-channels)             | <ws:unconfirmedRemoved&#47;{address}>                                      |
 | [Subscribe to confirmedAdded](#subscribing-to-channels)                 | <ws:confirmedAdded&#47;{address}>                                          |
-| [Handle transaction messages](#announcing-and-waiting-for-confirmation) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
+| [Handle transaction messages](#announcing-and-waiting-for-confirmation) | [TransactionInfoDTO](../reference/rest/symbol.md#model/TransactionInfoDTO) |
 
 ## Next Steps
 

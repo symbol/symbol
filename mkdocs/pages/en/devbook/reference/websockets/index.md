@@ -55,7 +55,7 @@ ws:block
 
 === "Response body"
 
-    [BlockInfoDTO](../rest/symbol.md#model-BlockInfoDTO)
+    [BlockInfoDTO](../rest/symbol.md#model/BlockInfoDTO)
 
 ### `finalizedBlock`
 
@@ -75,7 +75,7 @@ ws:finalizedBlock
 
 === "Response body"
 
-    [FinalizedBlockDTO](../rest/symbol.md#model-FinalizedBlockDTO)
+    [FinalizedBlockDTO](../rest/symbol.md#model/FinalizedBlockDTO)
 
 ### `confirmedAdded`
 
@@ -94,7 +94,7 @@ ws:confirmedAdded&#47;{address}
 
 === "Response body"
 
-    [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
+    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
 
 ### `unconfirmedAdded`
 
@@ -118,7 +118,7 @@ has all required cosigners and changes its state from `partial` to `unconfirmed`
 
 === "Response body"
 
-    [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
+    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
 
 ### `unconfirmedRemoved`
 
@@ -160,7 +160,7 @@ ws:partialAdded&#47;{address}
 
 === "Response body"
 
-    [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
+    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
 
 ### `partialRemoved`
 
@@ -204,7 +204,7 @@ ws:cosignature&#47;{address}
 
 === "Response body"
 
-    [CosignatureDTO](../rest/symbol.md#model-CosignatureDTO)
+    [CosignatureDTO](../rest/symbol.md#model/CosignatureDTO)
 
 ### `status`
 
@@ -223,4 +223,4 @@ ws:status&#47;{address}
 
 === "Response body"
 
-    [TransactionStatusDTO](../rest/symbol.md#model-TransactionStatusDTO)
+    [TransactionStatusDTO](../rest/symbol.md#model/TransactionStatusDTO)
