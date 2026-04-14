@@ -2,7 +2,7 @@ type: object
 description: Network related configuration properties.
 properties:
   identifier:
-    type: string # NetworkIdentifier
+    type: string  # NetworkIdentifier
     description: Network identifier.
     examples:
       - mainnet
@@ -19,7 +19,7 @@ properties:
     examples:
       - 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
   epochAdjustment:
-    type: string # utils::TimeSpan
+    type: string  # utils::TimeSpan
     description: Nemesis epoch time adjustment.
     examples:
       - 1615853185s

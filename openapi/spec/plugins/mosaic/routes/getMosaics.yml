@@ -20,6 +20,6 @@ responses:
           items:
             $ref: "../schemas/MosaicInfoDTO.yml"
   "400":
-    $ref : "../../../responses/InvalidContent.yml"
+    $ref: "../../../responses/InvalidContent.yml"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

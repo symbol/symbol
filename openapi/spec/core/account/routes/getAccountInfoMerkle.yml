@@ -5,7 +5,7 @@ description: |
   Retrieves the Merkle proof data for a given account.
   The Merkle path can be used to independently verify that the account state is included
   in the block state hash.
-  
+
   If no account state entry exists for the supplied account ID, the endpoint still returns a
   Merkle proof response, but it is a negative proof showing that no account state entry exists
   for the requested account.

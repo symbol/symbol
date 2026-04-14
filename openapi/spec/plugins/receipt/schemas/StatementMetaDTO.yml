@@ -6,4 +6,3 @@ properties:
   timestamp:
     $ref: "../../../schemas/Timestamp.yml"
     description: Block timestamp in milliseconds since nemesis block when the statement was recorded.
-

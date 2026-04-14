@@ -27,6 +27,6 @@ responses:
                 valueSize: 6
                 value: "333433383334"
   "404":
-    $ref : "../../../responses/ResourceNotFound.yml"
+    $ref: "../../../responses/ResourceNotFound.yml"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

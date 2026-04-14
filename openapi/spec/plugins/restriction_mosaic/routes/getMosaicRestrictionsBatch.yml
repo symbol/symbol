@@ -42,6 +42,6 @@ responses:
                       value: "1"
                 id: "62F0B29C426600566085BCE4"
   "400":
-    $ref : "../../../responses/InvalidContent.yml"
+    $ref: "../../../responses/InvalidContent.yml"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -35,6 +35,6 @@ responses:
               - id: "A95F1F8A96159516"
                 name: "symbol"
   "400":
-    $ref : "../../../responses/InvalidContent.yml"
+    $ref: "../../../responses/InvalidContent.yml"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

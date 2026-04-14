@@ -17,17 +17,17 @@ properties:
     examples:
       - "3"
   minNamespaceDuration:
-    type: string # utils::BlockSpan
+    type: string  # utils::BlockSpan
     description: Minimum namespace duration.
     examples:
       - 30d
   maxNamespaceDuration:
-    type: string # utils::BlockSpan
+    type: string  # utils::BlockSpan
     description: Maximum namespace duration.
     examples:
       - 1825d
   namespaceGracePeriodDuration:
-    type: string # utils::BlockSpan
+    type: string  # utils::BlockSpan
     description: Grace period during which time only the previous owner can renew an expired namespace.
     examples:
       - 30d

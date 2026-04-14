@@ -2,7 +2,7 @@ extends:
   - minimal
 
 rules:
-  no-ambiguous-paths: off
+  no-ambiguous-paths: "off"
 
 apis:
   main:

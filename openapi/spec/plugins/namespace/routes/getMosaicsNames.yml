@@ -28,6 +28,6 @@ responses:
                 - mosaicId: "0DC67FBE1CAD29E3"
                   names: []
   "400":
-    $ref : "../../../responses/InvalidContent.yml"
+    $ref: "../../../responses/InvalidContent.yml"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

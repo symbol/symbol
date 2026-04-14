@@ -34,4 +34,4 @@ responses:
                 pageNumber: 1
                 pageSize: 10
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

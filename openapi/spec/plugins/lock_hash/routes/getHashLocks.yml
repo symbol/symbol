@@ -29,6 +29,6 @@ responses:
                   hash: "E864E2CC4345D1A8CBB05FDCE87F6500D7F1FE557856CB06990CFC82A238421A"
                 id: "69C45B7239C3F3DF2942F2B9"
   "400":
-    $ref : "../../../responses/InvalidContent.yml"
+    $ref: "../../../responses/InvalidContent.yml"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

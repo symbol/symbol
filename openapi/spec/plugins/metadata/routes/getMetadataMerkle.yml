@@ -38,4 +38,4 @@ responses:
                   value: "723D89E3E704EA9A55C52FDE1D4F462E1DA57748C9936E3B3D3D26B6EBC5DEDA"
                   leafHash: "A3AF589E15116C400D545D7BBE8EF52950EE5FBE72B5E7768EFBC565311647B1"
   "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -14,4 +14,3 @@ externalDocs:
 servers:
   - url: https://reference.symboltest.net:3001
     description: Testnet node
-
