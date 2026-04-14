@@ -11,7 +11,7 @@ description: |
   This represents the protocol-level supply cap configured for the network currency.
 operationId: getMaxCurrencySupply
 responses:
-  "200":
+  '200':
     description: |
       Successful response containing the max currency supply.
 
@@ -21,6 +21,6 @@ responses:
       text/plain:
         schema:
           type: string
-          pattern: '^\d+\.\d+$'
+          pattern: ^\d+\.\d+$
           examples:
-            - "8999999999.000000"
+            - '8999999999.000000'

@@ -4,7 +4,7 @@ properties:
     type: string  # Amount
     description: Amount that has to be locked per aggregate in partial cache.
     examples:
-      - "10'000'000"
+      - 10'000'000
   maxHashLockDuration:
     type: string  # utils::BlockSpan
     description: Maximum number of blocks for which a hash lock can exist.

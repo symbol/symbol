@@ -8,6 +8,6 @@ properties:
     type: array
     description: Array of account information objects.
     items:
-      $ref: "./AccountInfoDTO.yml"
+      $ref: ./AccountInfoDTO.yml
   pagination:
-    $ref: "../../../schemas/Pagination.yml"
+    $ref: ../../../schemas/Pagination.yml

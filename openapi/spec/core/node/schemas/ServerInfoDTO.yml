@@ -6,4 +6,4 @@ required:
   - serverInfo
 properties:
   serverInfo:
-    $ref: "./ServerDTO.yml"
+    $ref: ./ServerDTO.yml

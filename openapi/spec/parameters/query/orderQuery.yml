@@ -5,4 +5,4 @@ description: |
   If the request does not specify `orderBy`, REST returns the collection ordered by id.
   The default sort direction depends on the endpoint implementation.
 schema:
-  $ref: "../../schemas/Order.yml"
+  $ref: ../../schemas/Order.yml

@@ -10,4 +10,4 @@ properties:
     type: array
     description: Array of namespace name entries resolved for the requested mosaic identifiers in request order.
     items:
-      $ref: "./MosaicNamesDTO.yml"
+      $ref: ./MosaicNamesDTO.yml

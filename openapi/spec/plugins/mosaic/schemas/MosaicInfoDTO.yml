@@ -5,6 +5,6 @@ required:
   - mosaic
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   mosaic:
-    $ref: "./MosaicDTO.yml"
+    $ref: ./MosaicDTO.yml

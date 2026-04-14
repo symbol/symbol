@@ -7,7 +7,7 @@ description: |
   Only accounts holding at least the minimum harvesting balance (`minHarvesterBalance` network
   property) receive a non-zero score. Decimal value between 0 and 1 (inclusive).
   Minimum: 0. Maximum: 1.
-pattern: '^(0|1|0\.[0-9]+|1\.0*)$'
+pattern: ^(0|1|0\.[0-9]+|1\.0*)$
 examples:
-  - "0"
-  - "0.010263666447108395"
+  - '0'
+  - '0.010263666447108395'

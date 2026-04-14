@@ -13,7 +13,7 @@ description: |
     - Uncirculating account public keys defined in rest.json (`uncirculatingAccountPublicKeys`)
 operationId: getCirculatingCurrencySupply
 responses:
-  "200":
+  '200':
     description: |
       Successful response containing the circulating currency supply.
 
@@ -23,6 +23,6 @@ responses:
       text/plain:
         schema:
           type: string
-          pattern: '^\d+\.\d+$'
+          pattern: ^\d+\.\d+$
           examples:
-            - "6351335211.744781"
+            - '6351335211.744781'

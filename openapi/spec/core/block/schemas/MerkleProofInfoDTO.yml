@@ -5,4 +5,4 @@ properties:
     type: array
     description: List of complementary Merkle path items needed to recalculate the Merkle root.
     items:
-      $ref: "./MerklePathItemDTO.yml"
+      $ref: ./MerklePathItemDTO.yml

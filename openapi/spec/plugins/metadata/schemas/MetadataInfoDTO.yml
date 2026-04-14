@@ -5,6 +5,6 @@ required:
   - metadataEntry
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   metadataEntry:
-    $ref: "./MetadataEntryDTO.yml"
+    $ref: ./MetadataEntryDTO.yml

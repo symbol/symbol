@@ -1,5 +1,5 @@
 type: string
-pattern: '^[0-9a-fA-F]+$'
+pattern: ^[0-9a-fA-F]+$
 description: |
   Unresolved address encoded as a 48-character hexadecimal string (24 bytes).
   If bit 0 of byte 0 is not set, the value represents a regular address.

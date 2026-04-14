@@ -5,6 +5,6 @@ required:
   - restriction
 properties:
   key:
-    $ref: "../../../schemas/RestrictionKey.yml"
+    $ref: ../../../schemas/RestrictionKey.yml
   restriction:
-    $ref: "./MosaicGlobalRestrictionEntryRestrictionDTO.yml"
+    $ref: ./MosaicGlobalRestrictionEntryRestrictionDTO.yml

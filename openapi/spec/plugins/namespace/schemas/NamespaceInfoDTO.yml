@@ -6,8 +6,8 @@ required:
   - namespace
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   meta:
-    $ref: "./NamespaceMetaDTO.yml"
+    $ref: ./NamespaceMetaDTO.yml
   namespace:
-    $ref: "./NamespaceDTO.yml"
+    $ref: ./NamespaceDTO.yml

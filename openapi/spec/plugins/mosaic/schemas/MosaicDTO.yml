@@ -12,29 +12,29 @@ required:
   - duration
 properties:
   version:
-    $ref: "../../../schemas/StateVersion.yml"
+    $ref: ../../../schemas/StateVersion.yml
   id:
-    $ref: "../../../schemas/MosaicId.yml"
+    $ref: ../../../schemas/MosaicId.yml
   supply:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Current total supply of the mosaic, expressed in the smallest (atomic) unit.
   startHeight:
-    $ref: "../../../schemas/Height.yml"
+    $ref: ../../../schemas/Height.yml
     description: Block height at which the mosaic became active.
   ownerAddress:
-    $ref: "../../../schemas/AddressHex.yml"
+    $ref: ../../../schemas/AddressHex.yml
     description: Address of the account that created the mosaic.
   revision:
-    $ref: "../../../schemas/UInt32.yml"
+    $ref: ../../../schemas/UInt32.yml
     description: |
       Revision number of the mosaic definition.
       Starts at 1 when the mosaic is created and increments each time the same mosaic definition is modified.
     examples:
       - 1
   flags:
-    $ref: "./MosaicFlagsEnum.yml"
+    $ref: ./MosaicFlagsEnum.yml
   divisibility:
-    $ref: "../../../schemas/Divisibility.yml"
+    $ref: ../../../schemas/Divisibility.yml
   duration:
-    $ref: "../../../schemas/BlockDuration.yml"
+    $ref: ../../../schemas/BlockDuration.yml
     description: Duration of the mosaic in blocks. A value of 0 indicates a non-expiring mosaic.

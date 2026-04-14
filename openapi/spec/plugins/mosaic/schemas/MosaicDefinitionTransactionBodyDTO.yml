@@ -8,15 +8,15 @@ required:
   - divisibility
 properties:
   id:
-    $ref: "../../../schemas/MosaicId.yml"
+    $ref: ../../../schemas/MosaicId.yml
   duration:
-    $ref: "../../../schemas/BlockDuration.yml"
+    $ref: ../../../schemas/BlockDuration.yml
   nonce:
-    $ref: "../../../schemas/UInt32.yml"
+    $ref: ../../../schemas/UInt32.yml
     description: Random nonce used to generate the mosaic ID.
     examples:
       - 0
   flags:
-    $ref: "./MosaicFlagsEnum.yml"
+    $ref: ./MosaicFlagsEnum.yml
   divisibility:
-    $ref: "../../../schemas/Divisibility.yml"
+    $ref: ../../../schemas/Divisibility.yml

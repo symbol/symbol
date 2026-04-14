@@ -5,10 +5,10 @@ required:
   - name
 properties:
   parentId:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
     description: Parent namespace identifier when the resolved namespace is a subnamespace.
   id:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
     description: Namespace identifier that was resolved.
   name:
     type: string

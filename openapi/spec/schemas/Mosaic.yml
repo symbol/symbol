@@ -9,9 +9,9 @@ required:
   - amount
 properties:
   id:
-    $ref: "./MosaicId.yml"
+    $ref: ./MosaicId.yml
   amount:
-    $ref: "./Amount.yml"
+    $ref: ./Amount.yml
 examples:
   - id: 0DC67FBE1CAD29E3
-    amount: "1000000"
+    amount: '1000000'

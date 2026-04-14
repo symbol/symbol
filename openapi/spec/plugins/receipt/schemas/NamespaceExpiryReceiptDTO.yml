@@ -1,11 +1,11 @@
 type: object
 description: Receipt emitted when a namespace reaches the end of its lifetime and expires.
 allOf:
-  - $ref: "./ReceiptDTO.yml"
+  - $ref: ./ReceiptDTO.yml
   - type: object
     required:
       - artifactId
     properties:
       artifactId:
-        $ref: "../../../schemas/NamespaceId.yml"
+        $ref: ../../../schemas/NamespaceId.yml
         description: Identifier of the expired namespace.

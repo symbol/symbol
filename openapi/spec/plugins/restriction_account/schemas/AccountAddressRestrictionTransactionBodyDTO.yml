@@ -6,14 +6,14 @@ required:
   - restrictionDeletions
 properties:
   restrictionFlags:
-    $ref: "./AccountRestrictionFlagsEnum.yml"
+    $ref: ./AccountRestrictionFlagsEnum.yml
   restrictionAdditions:
     type: array
     description: Account restriction additions.
     items:
-      $ref: "../../../schemas/UnresolvedAddress.yml"
+      $ref: ../../../schemas/UnresolvedAddress.yml
   restrictionDeletions:
     type: array
     description: Account restriction deletions.
     items:
-      $ref: "../../../schemas/UnresolvedAddress.yml"
+      $ref: ../../../schemas/UnresolvedAddress.yml

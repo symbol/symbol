@@ -20,20 +20,20 @@ description: |
   indefinitely: failed statuses are stored in a capped collection and may be evicted as new entries arrive.
 operationId: announceTransaction
 requestBody:
-  $ref: "../../../request_bodies/transactionPayload.yml"
+  $ref: ../../../request_bodies/transactionPayload.yml
 responses:
-  "202":
+  '202':
     description: Transaction accepted for processing and broadcast by the node.
     content:
       application/json:
         schema:
-          $ref: "../schemas/AnnounceTransactionInfoDTO.yml"
+          $ref: ../schemas/AnnounceTransactionInfoDTO.yml
         examples:
           success:
             summary: Transaction packet pushed to the node
             value:
-              message: "packet 9 was pushed to the network via /transactions"
-  "400":
-    $ref: "../../../responses/InvalidContent.yml"
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"
+              message: packet 9 was pushed to the network via /transactions
+  '400':
+    $ref: ../../../responses/InvalidContent.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

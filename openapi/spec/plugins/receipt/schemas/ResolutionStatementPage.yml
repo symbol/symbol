@@ -8,6 +8,6 @@ properties:
     type: array
     description: Resolution statements matching the requested filters.
     items:
-      $ref: "./ResolutionStatementInfoDTO.yml"
+      $ref: ./ResolutionStatementInfoDTO.yml
   pagination:
-    $ref: "../../../schemas/Pagination.yml"
+    $ref: ../../../schemas/Pagination.yml

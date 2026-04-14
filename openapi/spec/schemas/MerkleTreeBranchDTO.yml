@@ -13,7 +13,7 @@ required:
 properties:
   type:
     description: Node type (always branch).
-    $ref: "./MerkleTreeNodeTypeEnum.yml"
+    $ref: ./MerkleTreeNodeTypeEnum.yml
   path:
     description: Path prefix (hex) from root to this branch.
     type: string
@@ -30,7 +30,7 @@ properties:
     description: Child links (max 16, one per nibble).
     type: array
     items:
-      $ref: "./MerkleTreeBranchLinkDTO.yml"
+      $ref: ./MerkleTreeBranchLinkDTO.yml
   branchHash:
     description: Hash of the branch node.
-    $ref: "./Hash256.yml"
+    $ref: ./Hash256.yml

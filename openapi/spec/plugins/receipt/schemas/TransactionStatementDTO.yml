@@ -6,17 +6,17 @@ required:
   - receipts
 properties:
   height:
-    $ref: "../../../schemas/Height.yml"
+    $ref: ../../../schemas/Height.yml
     description: Height of the block that contains the statement.
   source:
-    $ref: "./SourceDTO.yml"
+    $ref: ./SourceDTO.yml
   receipts:
     type: array
     description: Receipts emitted by the transaction source.
     items:
       anyOf:
-        - $ref: "./BalanceTransferReceiptDTO.yml"
-        - $ref: "./BalanceChangeReceiptDTO.yml"
-        - $ref: "./NamespaceExpiryReceiptDTO.yml"
-        - $ref: "./MosaicExpiryReceiptDTO.yml"
-        - $ref: "./InflationReceiptDTO.yml"
+        - $ref: ./BalanceTransferReceiptDTO.yml
+        - $ref: ./BalanceChangeReceiptDTO.yml
+        - $ref: ./NamespaceExpiryReceiptDTO.yml
+        - $ref: ./MosaicExpiryReceiptDTO.yml
+        - $ref: ./InflationReceiptDTO.yml

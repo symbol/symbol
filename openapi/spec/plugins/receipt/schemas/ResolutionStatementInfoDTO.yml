@@ -7,8 +7,8 @@ description: |
   Wrapper object containing one resolution statement and its metadata.
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   meta:
-    $ref: "./StatementMetaDTO.yml"
+    $ref: ./StatementMetaDTO.yml
   statement:
-    $ref: "./ResolutionStatementDTO.yml"
+    $ref: ./ResolutionStatementDTO.yml

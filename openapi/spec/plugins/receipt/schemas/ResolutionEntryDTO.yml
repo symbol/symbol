@@ -5,10 +5,10 @@ required:
   - resolved
 properties:
   source:
-    $ref: "./SourceDTO.yml"
+    $ref: ./SourceDTO.yml
     description: Transaction source for which the unresolved alias resolved to this value.
   resolved:
     anyOf:
-      - $ref: "../../../schemas/AddressHex.yml"
-      - $ref: "../../../schemas/MosaicId.yml"
+      - $ref: ../../../schemas/AddressHex.yml
+      - $ref: ../../../schemas/MosaicId.yml
     description: Concrete address or mosaic ID resolved from the alias for this source.

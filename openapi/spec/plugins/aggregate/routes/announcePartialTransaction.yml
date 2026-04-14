@@ -17,20 +17,20 @@ description: |
   indefinitely: failed statuses are stored in a capped collection and may be evicted as new entries arrive.
 operationId: announcePartialTransaction
 requestBody:
-  $ref: "../../../request_bodies/transactionPayload.yml"
+  $ref: ../../../request_bodies/transactionPayload.yml
 responses:
-  "202":
+  '202':
     description: Aggregate bonded transaction accepted for processing and broadcast by the node.
     content:
       application/json:
         schema:
-          $ref: "../../../core/transaction/schemas/AnnounceTransactionInfoDTO.yml"
+          $ref: ../../../core/transaction/schemas/AnnounceTransactionInfoDTO.yml
         examples:
           success:
             summary: Partial transaction packet pushed to the node
             value:
-              message: "packet 256 was pushed to the network via /transactions/partial"
-  "400":
-    $ref: "../../../responses/InvalidContent.yml"
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"
+              message: packet 256 was pushed to the network via /transactions/partial
+  '400':
+    $ref: ../../../responses/InvalidContent.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

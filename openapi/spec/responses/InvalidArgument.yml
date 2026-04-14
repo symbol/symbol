@@ -5,7 +5,7 @@ description: |
 content:
   application/json:
     schema:
-      $ref: '../schemas/ModelError.yml'
+      $ref: ../schemas/ModelError.yml
     examples:
       invalidAccountId:
         value:

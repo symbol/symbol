@@ -5,5 +5,5 @@ description: |
 content:
   application/json:
     schema:
-      $ref: "./schemas/transactionPayload.yml"
+      $ref: ./schemas/transactionPayload.yml
 required: true

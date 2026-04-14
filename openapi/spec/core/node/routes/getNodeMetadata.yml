@@ -21,16 +21,16 @@ description: |
   your node.
 operationId: getNodeMetadata
 responses:
-  "200":
+  '200':
     description: Node metadata successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/NodeMetadataDTO.yml"
+          $ref: ../schemas/NodeMetadataDTO.yml
         examples:
           nodeMetadata:
             summary: Example node metadata (symbol-shoestring)
             value:
               deploymentTool: symbol-shoestring
-              version: "1.0.2"
+              version: 1.0.2
               nodeName: api-node-0

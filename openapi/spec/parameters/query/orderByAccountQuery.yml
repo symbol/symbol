@@ -4,5 +4,5 @@ description: |
   Sort responses by the property set.
   If `balance` option is selected, the request must define the `mosaicId` filter.
 schema:
-  $ref: "../../core/account/schemas/AccountOrderByEnum.yml"
+  $ref: ../../core/account/schemas/AccountOrderByEnum.yml
   default: id

@@ -6,12 +6,12 @@ required:
   - resolutionEntries
 properties:
   height:
-    $ref: "../../../schemas/Height.yml"
+    $ref: ../../../schemas/Height.yml
     description: Height of the block that contains the resolution statement.
   unresolved:
     anyOf:
-      - $ref: "../../../schemas/UnresolvedMosaicId.yml"
-      - $ref: "../../../schemas/UnresolvedAddress.yml"
+      - $ref: ../../../schemas/UnresolvedMosaicId.yml
+      - $ref: ../../../schemas/UnresolvedAddress.yml
     description: Unresolved alias value used in the transaction before resolution.
   resolutionEntries:
     type: array
@@ -21,4 +21,4 @@ properties:
       This can happen when alias-related transactions in the same block change which address or mosaic id
       the alias points to, so different transaction sources observe different resolved values.
     items:
-      $ref: "./ResolutionEntryDTO.yml"
+      $ref: ./ResolutionEntryDTO.yml

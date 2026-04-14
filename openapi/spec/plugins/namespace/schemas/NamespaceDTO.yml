@@ -12,9 +12,9 @@ required:
   - endHeight
 properties:
   version:
-    $ref: "../../../schemas/StateVersion.yml"
+    $ref: ../../../schemas/StateVersion.yml
   registrationType:
-    $ref: "./NamespaceRegistrationTypeEnum.yml"
+    $ref: ./NamespaceRegistrationTypeEnum.yml
   depth:
     type: integer
     description: |
@@ -23,25 +23,25 @@ properties:
     examples:
       - 1
   level0:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
     description: Namespace identifier of the root namespace.
   level1:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
     description: Namespace identifier of the first subnamespace level, when present.
   level2:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
     description: Namespace identifier of the second subnamespace level, when present.
   alias:
-    $ref: "./AliasDTO.yml"
+    $ref: ./AliasDTO.yml
   parentId:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
     description: Parent namespace identifier for a subnamespace.
   ownerAddress:
-    $ref: "../../../schemas/AddressHex.yml"
+    $ref: ../../../schemas/AddressHex.yml
     description: Address of the account that owns the namespace.
   startHeight:
-    $ref: "../../../schemas/Height.yml"
+    $ref: ../../../schemas/Height.yml
     description: Block height at which the namespace became active.
   endHeight:
-    $ref: "../../../schemas/Height.yml"
+    $ref: ../../../schemas/Height.yml
     description: Block height at which the namespace expires.

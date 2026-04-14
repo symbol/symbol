@@ -4,12 +4,12 @@ summary: Get the current network type of the chain
 description: Returns the current network type.
 operationId: getNetworkType
 responses:
-  "200":
+  '200':
     description: Network type successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/NetworkTypeDTO.yml"
+          $ref: ../schemas/NetworkTypeDTO.yml
         examples:
           mainnet:
             summary: Mainnet

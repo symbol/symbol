@@ -4,6 +4,6 @@ required:
   - mosaicRestrictionEntry
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   mosaicRestrictionEntry:
-    $ref: "./MosaicAddressRestrictionEntryWrapperDTO.yml"
+    $ref: ./MosaicAddressRestrictionEntryWrapperDTO.yml

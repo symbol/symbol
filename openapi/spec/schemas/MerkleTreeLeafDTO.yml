@@ -12,7 +12,7 @@ required:
 properties:
   type:
     description: Node type (always leaf).
-    $ref: "./MerkleTreeNodeTypeEnum.yml"
+    $ref: ./MerkleTreeNodeTypeEnum.yml
   path:
     description: Full path (hex) from root to this leaf.
     type: string
@@ -27,4 +27,4 @@ properties:
     type: string
   leafHash:
     description: Hash of the leaf node.
-    $ref: "./Hash256.yml"
+    $ref: ./Hash256.yml

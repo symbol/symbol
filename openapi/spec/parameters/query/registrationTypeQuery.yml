@@ -5,4 +5,4 @@ description: |
   - 0: Root namespace.
   - 1: Subnamespace.
 schema:
-  $ref: "../../plugins/namespace/schemas/NamespaceRegistrationTypeEnum.yml"
+  $ref: ../../plugins/namespace/schemas/NamespaceRegistrationTypeEnum.yml

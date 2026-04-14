@@ -5,6 +5,6 @@ required:
   - value
 properties:
   key:
-    $ref: "../../../schemas/RestrictionKey.yml"
+    $ref: ../../../schemas/RestrictionKey.yml
   value:
-    $ref: "../../../schemas/RestrictionValue.yml"
+    $ref: ../../../schemas/RestrictionValue.yml
