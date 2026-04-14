@@ -192,6 +192,10 @@ def on_page_markdown(content, page, config, files):
 	content = page_markdown_ws(content, page, config, files)
 	return content
 
+class ignoreRESTAnchors(logging.Filter):
+	def filter(self, record):
+		return not re.search(r'reference/rest/symbol.md.*does not contain an anchor', record.msg)
+
 def on_startup(*args, **kwargs):
 	"""
 	Add the mkdocs folder to PYTHONPATH, so custom modules like the CATS lexer are found.
@@ -202,6 +206,9 @@ def on_startup(*args, **kwargs):
 		sys.path.insert(0, project_root)
 	# Make this noisy plugin shut up a bit
 	mkdocs.plugins.get_plugin_logger('mkdocs_site_urls').setLevel(logging.WARNING)
+	# Silence messages about missing anchors in links to the REST reference guide because that's a dynamic page
+	pagesLog = logging.getLogger('mkdocs.structure.pages')
+	pagesLog.addFilter(ignoreRESTAnchors())
 
 def on_nav(nav, config, files):
 	"""
