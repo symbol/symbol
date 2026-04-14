@@ -2,32 +2,32 @@
 title: ブロック報酬の照会
 ---
 
-# ブロック報酬の照会
+# ブロック報酬の照会 {: #querying-block-rewards }
 
 Symbol上の各[ブロック](default:ブロック)は、[インフレーション](default:インフレーション)と、そのブロックで収集された[トランザクション](default:トランザクション)手数料からなる報酬を生成します。
 この報酬はその後、[ハーベスタ](default:ハーベスティング)、ノードの受益者（ベネフィシャリー）、およびネットワークのシンクアカウントの間で[分配](../../textbook/harvesting.md#reward-distribution)されます。
 
 このチュートリアルでは、任意のブロックの報酬を照会し、[レシート](default:レシート)を使用してアカウント間の分配の内訳を確認する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、[開発環境をセットアップ](../start/setup.md)してください。
 
 このチュートリアルはネットワークからデータを読み取るだけです。[アカウント](default:アカウント)や[XYM](default:XYM)の残高は必要ありません。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/network-currency/query-block-rewards', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
 コードは、ブロックの署名者キー、受益者およびネットワークのシンクアドレスを、インフレーション額とともに取得します。
 次に、ブロックのハーベストレシートを照会し、アドレスを比較して各受取人をラベル付けし、消去法によってハーベスターを特定します。
 最後に、合計からインフレーションを差し引くことでトランザクション手数料を導き出します。
 
-### ブロック情報の取得
+### ブロック情報の取得 {: #fetching-block-information }
 
 {{ tutorial.code_snippet(['py:15:26', 'js:13:23']) }}
 
@@ -37,14 +37,14 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 <get:/blocks/{height}> エンドポイントは、ブロックヘッダーを返します。これには、ノードオペレーターによって指定された `signerPublicKey` および `beneficiaryAddress` が含まれます。
 受益者アドレスは、後で受益者のレシートを特定するために必要になります。
 
-### ネットワークシンクアドレスの取得
+### ネットワークシンクアドレスの取得 {: #fetching-the-network-sink-address }
 
 {{ tutorial.code_snippet(['py:28:34', 'js:25:31']) }}
 
 `harvestNetworkFeeSinkAddress` は <get:/network/properties> から取得され、後でシンクレシートを特定するために必要になります。
 このプロパティは base32 形式であり、レシートのアドレスは16進数エンコードされているため、比較のために SDK の `Address` クラスを使用して16進数に変換します。
 
-### インフレーション報酬の取得
+### インフレーション報酬の取得 {: #fetching-the-inflation-reward }
 
 {{ tutorial.code_snippet(['py:36:42', 'js:33:37']) }}
 
@@ -53,7 +53,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 インフレーションスケジュールはネットワーク設定で定義されており、時間の経過とともに減少します。
 
-### 報酬の分配の照会
+### 報酬の分配の照会 {: #querying-the-reward-distribution }
 
 {{ tutorial.code_snippet(['py:44:72', 'js:39:67']) }}
 
@@ -78,7 +78,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 すべての `Harvest_Fee` レシートの合計は、ブロック報酬の合計（インフレーション + トランザクション手数料）と等しくなります。
 
-### 手数料の内訳の計算
+### 手数料の内訳の計算 {: #calculating-the-fee-breakdown }
 
 {{ tutorial.code_snippet(['py:74:79', 'js:69:74']) }}
 
@@ -87,7 +87,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 あるいは、各トランザクションの有効な手数料（バイト単位のサイズにブロックヘッダーの `feeMultiplier` を掛けたもの）を合計することで、手数料の合計を計算することもできます。
 
-## 出力
+## 出力 {: #output }
 
 以下の出力は、ブロック 3,222,290 の報酬を照会する典型的な実行例を示しています。
 
@@ -107,13 +107,13 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 * **概要** (15-17行目): ブロック報酬の合計は、すべての Harvest_Fee レシートの合計です。
 インフレーション部分はネットワーク設定から得られ、トランザクション手数料（0.032800 XYM）は合計報酬とインフレーションの差額です。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | --- | --- |
-| [ブロック情報の取得](#_5) | <get:/blocks/{height}> |
-| [ネットワークシンクアドレスの取得](#_6) | <get:/network/properties> |
-| [インフレーション報酬の取得](#_7) | <get:/network/inflation/at/{height}> |
-| [報酬の分配の照会](#_8) | <get:/statements/transaction> |
+| [ブロック情報の取得](#fetching-block-information) | <get:/blocks/{height}> |
+| [ネットワークシンクアドレスの取得](#fetching-the-network-sink-address) | <get:/network/properties> |
+| [インフレーション報酬の取得](#fetching-the-inflation-reward) | <get:/network/inflation/at/{height}> |
+| [報酬の分配の照会](#querying-the-reward-distribution) | <get:/statements/transaction> |

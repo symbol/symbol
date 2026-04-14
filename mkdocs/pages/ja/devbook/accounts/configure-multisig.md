@@ -2,7 +2,7 @@
 title: マルチシグの設定
 ---
 
-# マルチシグアカウントの設定
+# マルチシグアカウントの設定 {: #configuring-a-multisignature-account }
 
 [マルチシグアカウント](default: マルチシグアカウント)（「マルチシグ」とも呼ばれます）は、それ単体ではトランザクションを開始できません。代わりに、「連署者（cosignatory）」アカウントがトランザクションを作成し、マルチシグアカウントに代わって署名を行います。
 
@@ -30,7 +30,7 @@ digraph "Multisignature Tree" {
     マルチシグアカウントは任意の順序で設定できます。
     ただし、一度アカウントがマルチシグに変換されると、そのアカウント自身でトランザクションに署名することはできなくなり、その時点で設定されている連署者に完全に従う必要があります。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -43,23 +43,23 @@ digraph "Multisignature Tree" {
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために [転送トランザクション](../transactions/transfer.md) のチュートリアルを、[アグリゲートトランザクション](default:アグリゲートトランザクション) の仕組みを理解するために [アグリゲートコンプリートトランザクション](../transactions/complete-aggregate.md) のチュートリアルを復習してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/accounts/configure-multisig', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
 コードは、2つのヘルパー関数の定義から始まります。
 トランザクションのアナウンス方法や承認の追跡方法の詳細については、[転送トランザクション](../transactions/transfer.md) のチュートリアルを参照してください。その他のヘルパー関数については、以下のセクションで説明します。
 
-その後、チュートリアルは [必要な鍵の設定](#_5)、[現在のネットワーク状態の取得](#_6)、およびマルチシグアカウントの [現在の設定の検出](#_7) へと進みます。
+その後、チュートリアルは [必要な鍵の設定](#setting-up-the-accounts)、[現在のネットワーク状態の取得](#fetching-network-time-and-fees)、およびマルチシグアカウントの [現在の設定の検出](#detecting-the-multisig) へと進みます。
 
-アカウントがすでにマルチシグとして設定されているかどうかに応じて、状況に合わせて [有効化](#_8) または [無効化](#_9) するためのトランザクションが作成されます。
-最後に、トランザクションが [アナウンスおよび承認](#_10) されます。
+アカウントがすでにマルチシグとして設定されているかどうかに応じて、状況に合わせて [有効化](#enabling-the-multisig) または [無効化](#disabling-the-multisig) するためのトランザクションが作成されます。
+最後に、トランザクションが [アナウンスおよび承認](#submitting-the-aggregate-transaction) されます。
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-accounts }
 
 {{ tutorial.code_snippet(['py:157:177', 'js:167:190']) }}
 
@@ -78,13 +78,13 @@ digraph "Multisignature Tree" {
 
 上記のスニペットは、後で使用するために各アカウントの [キーペア](default:キーペア) と [アドレス](default:アドレス) を派生させて保存します。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:180:198', 'js:193:211']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### マルチシグの検出
+### マルチシグの検出 {: #detecting-the-multisig }
 
 以下の関数は、<get:/account/{address}/multisig> エンドポイントを使用して、指定されたアドレスの現在の連署者リストを取得します。
 アカウントがマルチシグとして設定されていない、または一度も使用されていない場合、関数は空のリストを返します。
@@ -97,7 +97,7 @@ digraph "Multisignature Tree" {
 
 マルチシグの有効化と無効化の唯一の違いは、作成されるトランザクションとそれに署名するアカウントです（次の2つのセクションで説明します）。
 
-### マルチシグの有効化
+### マルチシグの有効化 {: #enabling-the-multisig }
 
 連署者の追加や削除を含む、アカウントのマルチシグ設定へのすべての変更は、<ser:MultisigAccountModificationTransactionV1> を使用して行われます。これは**必ず** [アグリゲートトランザクション](default: アグリゲートトランザクション) 内に埋め込まれる必要があります。
 
@@ -118,7 +118,7 @@ digraph "Multisignature Tree" {
     これにより、例えば通常のトランザクションの承認よりも、連署者の削除（より機微なガバナンス操作）に多くの署名を要求するといった設定が可能です。
 
 - `address_additions`: アカウントに追加される連署者のアドレスリスト。
-    `cosignatory_addresses` 変数は [アカウントの設定](#_5) で準備したものです。
+    `cosignatory_addresses` 変数は [アカウントの設定](#setting-up-the-accounts) で準備したものです。
 
 !!! note "安全対策"
 
@@ -148,7 +148,7 @@ digraph "Multisignature Tree" {
 
 **一度アカウントのマルチシグが有効になると、そのアカウント自身の署名は不要になります。そのアカウントに関わるすべてのトランザクションには、代わりに設定された連署者の署名が必要となります。**
 
-### マルチシグの無効化
+### マルチシグの無効化 {: #disabling-the-multisig }
 
 マルチシグ設定を無効にするには、すべての連署者を削除する必要があります。プロセスは有効化と似ていますが、2つの大きな違いがあります。連署者は1人ずつ削除しなければならないことと、マルチシグアカウント自体がトランザクションに署名できないことです。
 
@@ -161,7 +161,7 @@ digraph "Multisignature Tree" {
 最初のトランザクションは、承認または削除のデルタを変更せずに `cosignatory_addresses[1]` を削除します。これは、まだ1人の連署者が残っており、署名が依然として必要だからです。
 
 2番目のトランザクションは、最後に残った連署者を削除し、 `min_approval_delta` と `min_removal_delta` の両方を `-1` に設定します。
-この時点で、両方のフィールドの現在の値は [有効化](#マルチシグの有効化) ステップで設定された `1` であり、希望する値は `0` であるため、デルタは `-1` になります。
+この時点で、両方のフィールドの現在の値は [有効化](#enabling-the-multisig) ステップで設定された `1` であり、希望する値は `0` であるため、デルタは `-1` になります。
 
 その後、両方の埋め込みトランザクションはアグリゲートトランザクションにラップされ、署名されます。
 
@@ -175,13 +175,13 @@ digraph "Multisignature Tree" {
 
 連署者は、両方が同等の権限を持っているため、逆の順序で削除することもできました。唯一の違いは、どのアカウントがトランザクションに署名し、手数料を支払うかです。
 
-### アグリゲートトランザクションの送信
+### アグリゲートトランザクションの送信 {: #submitting-the-aggregate-transaction }
 
 最後のステップは、構築されたトランザクションをアナウンスし、[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているように承認を待つことです。
 
 {{ tutorial.code_snippet(['py:217:221', 'js:233:239']) }}
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な2つの実行結果に対応しています。
 
@@ -214,13 +214,13 @@ digraph "Multisignature Tree" {
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 |------------------------------------------------------------------------|------------------------------------------------|
-| [現在のマルチシグ設定の取得](#_7) | <get:/account/{address}/multisig> |
-| [マルチシグアカウントの有効化](#_8) | <ser:MultisigAccountModificationTransactionV1> |
-| [マルチシグアカウントの無効化](#_9) | <ser:MultisigAccountModificationTransactionV1> |
+| [現在のマルチシグ設定の取得](#detecting-the-multisig) | <get:/account/{address}/multisig> |
+| [マルチシグアカウントの有効化](#enabling-the-multisig) | <ser:MultisigAccountModificationTransactionV1> |
+| [マルチシグアカウントの無効化](#disabling-the-multisig) | <ser:MultisigAccountModificationTransactionV1> |
 | 設定を埋め込みトランザクションにラップする | <dy:SymbolTransactionFactory.createEmbedded> |

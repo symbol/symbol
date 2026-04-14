@@ -2,21 +2,21 @@
 title: モザイク定義の証明
 ---
 
-# モザイク定義の証明
+# モザイク定義の証明 {: #prove-a-mosaic's-definition }
 
 Symbol のすべての [ブロック](default: ブロック) ヘッダーには、すべての [モザイク](default: モザイク) 定義を含むチェーン状態全体をカバーする `stateHash` があります。
 証明（Proof）を要求し、ローカルで検証することで、ノードを信頼したり自分でノードを運用したりすることなく、ノードが返すデータが実際にチェーンに記録されているものと一致することを確認できます。
 
 このチュートリアルでは、API からモザイク定義を取得し、チェーンで使用されているのと同じバイナリ形式にシリアライズし、 [パトリシアツリー](default:パトリシアツリー) の証明を使用してブロックの `stateHash` と照合して結果を検証する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、 [開発環境をセットアップ](../start/setup.md) してください。
 このチュートリアルはネットワークからデータを読み取るだけです。 [アカウント](default: アカウント) や [XYM](default: XYM) の残高は必要ありません。
 
 さらに、 [ブロックハッシュ](../../textbook/blocks.md#block-hashes) （特にステートハッシュのセクション）の仕組みを確認してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -25,9 +25,9 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 この例では、 <get:/network/properties> から自動的に検出された ID を持つ、ネットワークの通貨モザイク（[メインネット](default: メインネット) では [XYM](default: XYM) ）を検証します。
 通貨モザイクはすべての Symbol ネットワークに存在するため便利な選択肢ですが、ID を置き換えればどのモザイクでも同じプロセスが機能します。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### モザイク定義の取得
+### モザイク定義の取得 {: #fetching-the-mosaic-definition }
 
 {{ tutorial.code_snippet(['py:17:33', 'js:29:44']) }}
 
@@ -37,7 +37,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 その後、モザイクの完全な定義が <get:/mosaics/{mosaicId}> から取得されます。
 レスポンスには、モザイクの定義を構成するすべてのフィールド（ `version` 、 `id` 、 `supply` 、 `startHeight` 、 `ownerAddress` 、 `revision` 、 `flags` 、 `divisibility` 、 `duration` ）が含まれています。
 
-### キーと値のハッシュの計算
+### キーと値のハッシュの計算 {: #computing-the-Key-and-value-hashes }
 
 {{ tutorial.code_snippet(['py:35:53', 'js:46:63']) }}
 
@@ -53,7 +53,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 **値（value）** はハッシュ化された値（シリアライズされた定義の SHA3-256）です。
 **キー（key）** はモザイク ID （8バイト、リトルエンディアン）のみを SHA3-256 でハッシュ化することで計算され、ツリー内のモザイクのリーフノードを見つけるために使用されます。
 
-### ブロックステートハッシュの取得
+### ブロックステートハッシュの取得 {: #fetching-the-block-state-hash }
 
 {{ tutorial.code_snippet(['py:55:71', 'js:65:79']) }}
 
@@ -62,7 +62,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 ブロックの `stateHash` フィールドは、連結されたすべてのサブキャッシュマークルルートの SHA3-256 ハッシュです。
 `stateHashSubCacheMerkleRoots` 配列には、各サブキャッシュ（アカウント、モザイク、ネームスペースなど）の個々のルートハッシュが含まれています。
 
-### ツリーパスの取得
+### ツリーパスの取得 {: #fetching-the-tree-path }
 
 {{ tutorial.code_snippet(['py:73:97', 'js:81:109']) }}
 
@@ -76,7 +76,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 
 
-### 証明の検証
+### 証明の検証 {: #verifying-the-proof }
 
 {{ tutorial.code_snippet(['py:99:107', 'js:111:121']) }}
 
@@ -108,7 +108,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
     これが発生した場合は、3つのデータをすべて再取得してやり直してください。
     再試行しても証明に失敗する場合、ノードが誤ったデータを提供している可能性があります。
 
-## 出力
+## 出力 {: #output }
 
 以下の出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -134,19 +134,19 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 * **証明結果** (27行目): 証明が成功し、ノードが提供するモザイク定義が高さ `3220296` でチェーンに保存されているものと同一であることが確認されました。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | ----------------------------------------------------------------------- | --------------------------------------------------------------------------|
-| [モザイク定義の取得](#_5) | <get:/mosaics/{mosaicId}> |
-| [キーと値のハッシュの計算](#_6) | <ser:MosaicEntry> |
-| [ブロックステートハッシュの取得](#_7) | <get:/chain/info>、 <get:/blocks/{height}> |
-| [ツリーパスの取得](#_8) | <get:/mosaics/{mosaicId}/merkle>、 `deserializePatriciaTreeNodes` |
-| [証明の検証](#_9) | <dy:Merkle.provePatriciaMerkle> |
+| [モザイク定義の取得](#fetching-the-mosaic-definition) | <get:/mosaics/{mosaicId}> |
+| [キーと値のハッシュの計算](#fetching-the-block-state-hash) | <ser:MosaicEntry> |
+| [ブロックステートハッシュの取得](#fetching-the-block-state-hash) | <get:/chain/info>、 <get:/blocks/{height}> |
+| [ツリーパスの取得](#fetching-the-tree-path) | <get:/mosaics/{mosaicId}/merkle>、 `deserializePatriciaTreeNodes` |
+| [証明の検証](#verifying-the-proof) | <dy:Merkle.provePatriciaMerkle> |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 同じ手法は、モザイクだけでなく、ステートハッシュ内の任意の [サブキャッシュ](../../textbook/blocks.md#state-hash) にも適用されます。
 

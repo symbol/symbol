@@ -2,13 +2,13 @@
 title: モザイク供給量の変更
 ---
 
-# モザイク供給量の変更
+# モザイク供給量の変更 {: #changing-mosaic-supply }
 
 `supply_mutable`（供給量可変）フラグを有効にして作成された [モザイク](default: モザイク) は、作成後に総供給量を増加または減少させることができます。
 
 このチュートリアルでは、モザイクの供給量を変更する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を準備してください。
 
@@ -19,7 +19,7 @@ title: モザイク供給量の変更
 
 詳細については、テキストブックの [供給量可変](../../textbook/mosaics.md#supply-mutability) を参照してください。
 
-## 供給量の増加（ミント）
+## 供給量の増加（ミント） {: #increasing-supply-(minting) }
 
 新しいユニットをミント（鋳造）するには、モザイクの作成チュートリアルの [モザイク供給量変更トランザクションの構築](./create-mosaic.md#building-the-mosaic-supply-change-transaction) ステップを以下のパラメータで再利用します。
 
@@ -29,7 +29,7 @@ title: モザイク供給量の変更
 
 新しいユニットは、モザイク作成者のアカウント残高に追加されます。
 
-## 供給量の減少（バーン）
+## 供給量の減少（バーン） {: #decreasing-supply-(burning) }
 
 既存のユニットをバーン（焼却）するには、同じ `mosaic_supply_change_transaction_v1` タイプを以下のパラメータで使用します。
 

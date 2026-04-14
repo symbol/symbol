@@ -2,17 +2,17 @@
 title: ネームスペース情報の取得
 ---
 
-# ネームスペース情報の取得
+# ネームスペース情報の取得 {: #getting-namespace-information }
 
 このチュートリアルでは、 [ネームスペース](default:ネームスペース)のプロパティと、それが指し示す [モザイク](default:モザイク)または[アカウント](default:アカウント)を取得する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 このチュートリアルはネットワークからデータを読み取るだけです。アカウントは必要ありません。
 
 開始する前に、[開発環境のセットアップ](../start/setup.md)を済ませておいてください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -24,9 +24,9 @@ title: ネームスペース情報の取得
 `NAMESPACE_NAME` 環境変数は、照会するネームスペースを指定します。
 設定されていない場合は、ネットワークのネイティブ通貨である <XYM:> にリンクされたネームスペース `symbol.xym` がデフォルトで設定されます。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### ネームスペースIDの生成
+### ネームスペースIDの生成 {: #generating-the-namespace-id }
 
 {{ tutorial.code_snippet(['py:16:20', 'js:11:15']) }}
 
@@ -34,7 +34,7 @@ title: ネームスペース情報の取得
 この関数は、 `symbol.xym` のような完全修飾名を受け取り、それを `.` で分割し、階層の各レベルのネームスペースIDの配列を返します。
 最後の要素は、最も深いネームスペースのIDです。
 
-### ネームスペース情報の取得
+### ネームスペース情報の取得 {: #fetching-namespace-information }
 
 {{ tutorial.code_snippet(['py:22:44', 'js:17:46']) }}
 
@@ -54,7 +54,7 @@ title: ネームスペース情報の取得
 
 * **Start and end heights (開始および終了ブロック高):** [ネームスペースが有効](../../textbook/namespaces.md#_5)な [ブロック](default:ブロック) の範囲。
 
-### エイリアスの確認
+### エイリアスの確認 {: #checking-the-alias }
 
 {{ tutorial.code_snippet(['py:46:58', 'js:48:59']) }}
 
@@ -65,7 +65,7 @@ title: ネームスペース情報の取得
 * **Alias type 1 (エイリアスタイプ 1):** ネームスペースはモザイクにリンクされています。レスポンスにはリンクされた [モザイクID](default:モザイクID) が含まれます。
 * **Alias type 2 (エイリアスタイプ 2):** ネームスペースはアカウントにリンクされています。レスポンスにはリンクされた [アドレス](default:アドレス) が含まれます。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、テストネット上の `symbol.xym` ネームスペースを照会する、プログラムの典型的な実行結果に対応しています。
 
@@ -90,12 +90,12 @@ title: ネームスペース情報の取得
 
 * **Alias** (13-14行目): エイリアスタイプ `1` は、ネームスペースがXYMモザイク（ `72C0212E67A08BCE` ）にリンクされていることを確認します。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | ------------------------------------------------------------- | -------------------------------------- |
-| [ネームスペースIDの生成](#id) | <dy:IdGenerator.generateNamespacePath> |
-| [ネームスペースプロパティの取得](#_5) | <get:/namespaces/{namespaceId}> |
-| [ネームスペースエイリアスの確認](#_6) | <get:/namespaces/{namespaceId}> |
+| [ネームスペースIDの生成](#generating-the-namespace-id) | <dy:IdGenerator.generateNamespacePath> |
+| [ネームスペースプロパティの取得](#fetching-namespace-information) | <get:/namespaces/{namespaceId}> |
+| [ネームスペースエイリアスの確認](#checking-the-alias) | <get:/namespaces/{namespaceId}> |

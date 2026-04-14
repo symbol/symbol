@@ -2,13 +2,13 @@
 title: トランザクション包含の証明
 ---
 
-# ブロックへのトランザクション包含の証明
+# ブロックへのトランザクション包含の証明 {: #proving-a-Transaction's-inclusion-in-a-block }
 
 Symbolの各 [ブロック](default:ブロック) は、その [トランザクション](default: トランザクション) を [マークルツリー](default:マークルツリー) （Merkle tree）に記録します。そのルート（根）である `transactionsHash` は、ブロックヘッダーに保存されます。ブロックの全トランザクションをダウンロードすることなく、このルートに対してトランザクションを検証することで、そのトランザクションがブロックに含まれていることを証明できます。
 
 このチュートリアルでは、APIからマークル証明（Merkle proof）を取得し、特定のトランザクションがブロックの一部であることを検証する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に：
 
@@ -17,7 +17,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 このチュートリアルではネットワークからのデータの読み取りのみを行います。 [アカウント](default:アカウント) や [XYM](default:XYM) の残高は必要ありません。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -25,9 +25,9 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 このスニペットは、証明するトランザクションの [ハッシュ](default:ハッシュ) を `TRANSACTION_HASH` 環境変数から読み取ります。設定されていない場合は、Symbolテストネットのブロック `55` にある既知のトランザクションがデフォルトとして使用されます。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### 承認済みトランザクションの取得
+### 承認済みトランザクションの取得 {: #fetching-the-confirmed-transaction }
 
 {{ tutorial.code_snippet(['py:17:26', 'js:13:22']) }}
 
@@ -37,7 +37,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 レスポンスには `merkleComponentHash` も含まれています。これはブロックのマークルツリーで使用されるリーフ（葉）ハッシュです。通常のトランザクションでは、この値はトランザクションハッシュと等しくなります。 [アグリゲートトランザクション](default: アグリゲートトランザクション) の場合、トランザクションハッシュと連署者の公開鍵を連結したものの SHA3-256 ハッシュとして計算されます。
 
-### ブロックヘッダーの取得
+### ブロックヘッダーの取得 {: #fetching-the-block-header }
 
 {{ tutorial.code_snippet(['py:28:39', 'js:24:35']) }}
 
@@ -45,7 +45,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 コードは16進文字列を `Hash256` オブジェクトにラップします。これは <dy:Merkle.proveMerkle> 関数が期待する形式です。
 
-### マークル証明パスの取得
+### マークル証明パスの取得 {: #fetching-the-merkle-proof-path }
 
 {{ tutorial.code_snippet(['py:41:56', 'js:37:53']) }}
 
@@ -58,7 +58,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 コードは各項目をハッシュとブール値（ハッシュが左側の場合は `true` ）のペアに変換し、 <dy:Merkle.proveMerkle> 関数が期待する形式に合わせます。
 
-### 証明の検証
+### 証明の検証 {: #verifying-the-proof }
 
 {{ tutorial.code_snippet(['py:58:70', 'js:55:67']) }}
 
@@ -66,7 +66,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています：
 
@@ -86,13 +86,13 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 エクスプローラーでトランザクションやそのブロックを調査するには、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) にアクセスし、トランザクションハッシュまたはブロック高を入力してください。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました：
 
 | ステップ | 関連ドキュメント |
 | ------------------------------------------------------------------ | ------------------------------------------------- |
-| [承認済みトランザクションの取得](#_5) | <get:/transactions/confirmed/{transactionId}> |
-| [ブロックヘッダーの取得](#_6) | <get:/blocks/{height}> |
-| [マークル証明パスの取得](#_7) | <get:/blocks/{height}/transactions/{hash}/merkle> |
-| [証明の検証](#_8) | <dy:Merkle.proveMerkle> |
+| [承認済みトランザクションの取得](#fetching-the-confirmed-transaction) | <get:/transactions/confirmed/{transactionId}> |
+| [ブロックヘッダーの取得](#fetching-the-block-header) | <get:/blocks/{height}> |
+| [マークル証明パスの取得](#fetching-the-merkle-proof-path) | <get:/blocks/{height}/transactions/{hash}/merkle> |
+| [証明の検証](#verifying-the-proof) | <dy:Merkle.proveMerkle> |

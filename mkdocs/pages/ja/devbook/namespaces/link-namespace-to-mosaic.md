@@ -2,13 +2,13 @@
 title: ネームスペースのモザイクへのリンク
 ---
 
-# ネームスペースのモザイクへのリンクと解除
+# ネームスペースのモザイクへのリンクと解除 {: #linking-and-unlinking-namespaces-to-mosaics }
 
 [ネームスペース](default:ネームスペース) は [モザイク](default:モザイク) にリンクさせることができます。これにより、トランザクションにおいて長い16進数のモザイクIDの代わりに、人間が読み取り可能なエイリアス（別名）を使用できるようになります。
 
 このチュートリアルでは、ネームスペースをモザイク識別子にリンクする方法と、不要になった際にリンクを解除する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -25,15 +25,15 @@ title: ネームスペースのモザイクへのリンク
 !!! info "ネームスペースとモザイクの両方の所有権が必要"
     ネームスペースとモザイクの両方を所有しているアカウントのみが、それらをリンクさせることができます。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/namespaces/link-namespace-to-mosaic', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-account }
 
 {{ tutorial.code_snippet(['py:17:25', 'js:14:22']) }}
 
@@ -41,7 +41,7 @@ title: ネームスペースのモザイクへのリンク
 署名者のアドレスは公開鍵から派生します。
 このアカウントは、リンクされるネームスペースとモザイクの両方を所有している必要があります。
 
-### ネームスペースとターゲットモザイクの定義
+### ネームスペースとターゲットモザイクの定義 {: #defining-the-namespace-and-target-mosaic }
 
 {{ tutorial.code_snippet(['py:27:35', 'js:24:35']) }}
 
@@ -63,13 +63,13 @@ title: ネームスペースのモザイクへのリンク
 
 * **モザイク ID:** ネームスペースが指し示す先のモザイクの16進数識別子。 `MOSAIC_ID` 環境変数から読み込まれます。設定されていない場合は、デフォルトのテスト用モザイクIDが使用されます。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:38:56', 'js:38:57']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### トランザクションの構築
+### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet(['py:58:67', 'js:59:68']) }}
 
@@ -91,7 +91,7 @@ title: ネームスペースのモザイクへのリンク
     リンク解除プロセスによってネームスペースやモザイク自体が削除されるわけではなく、それらの関連付けのみが削除されます。
     リンク解除後、そのネームスペースは別のモザイクやアドレスにリンクさせることができます。
 
-### トランザクションの送信
+### トランザクションの送信 {: #submitting-the-transaction }
 
 {{ tutorial.code_snippet(['py:69:88', 'js:70:90']) }}
 
@@ -101,7 +101,7 @@ title: ネームスペースのモザイクへのリンク
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
-### エイリアスの検証
+### エイリアスの検証 {: #verifying-the-alias }
 
 {{ tutorial.code_snippet(['py:110:122', 'js:128:141']) }}
 
@@ -109,7 +109,7 @@ title: ネームスペースのモザイクへのリンク
 
 レスポンスにはエイリアスタイプ（ `mosaic` ）とリンクされたモザイクIDが含まれ、ネームスペースが指定したモザイクを指していることが確認されます。
 
-### エイリアスの使用
+### エイリアスの使用 {: #using-the-alias }
 
 {{ tutorial.code_snippet(['py:124:144', 'js:143:162']) }}
 
@@ -119,7 +119,7 @@ title: ネームスペースのモザイクへのリンク
 簡単にするため、この例ではモザイクを送信者自身のアドレスに送り返しており、トランザクションのアナウンスや承認の待機は行いません。
 
 ネームスペースをモザイクIDとして使用するには、ネームスペース名を <dy:IdGenerator.generateMosaicAliasId> を使用してモザイクエイリアスIDに変換します。
-[前のセクション](#_6)で説明したように、ネームスペースパスの最後のコンポーネントがネームスペースIDとして使用されます。
+[前のセクション](#defining-the-namespace-and-target-mosaic)で説明したように、ネームスペースパスの最後のコンポーネントがネームスペースIDとして使用されます。
 
 転送トランザクションのアナウンス方法の詳細については、[転送トランザクション](../transactions/transfer.md) チュートリアルを参照してください。
 
@@ -132,7 +132,7 @@ title: ネームスペースのモザイクへのリンク
     解決レシートは <get:/statements/resolutions/mosaic> エンドポイントを使用して照会できます。
     レシートの詳細については、テキストブックの [解決ステートメント](../../textbook/blocks.md#解決ステートメント) セクションを参照してください。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -151,19 +151,19 @@ title: ネームスペースのモザイクへのリンク
 * **エイリアスの使用** (36行目): モザイク配列内でエイリアスを使用して転送トランザクションが作成されており、完全なモザイクIDの代わりに使用できることが実証されています。
 
     !!! note "異なるモザイク ID"
-        転送で使用されているモザイクIDが元のモザイクIDと異なるのは、それがモザイクID自体ではなく [エンコードされたネームスペース ID](#エイリアスの使用) であるためです。
+        転送で使用されているモザイクIDが元のモザイクIDと異なるのは、それがモザイクID自体ではなく [エンコードされたネームスペース ID](#using-the-alias) であるためです。
         ネットワークはトランザクションを処理する際に、エイリアスをリンクされたモザイクに解決します。
 
 
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | ----------------------------------------------------------------- | --------------------------------------------- |
-| [ネームスペース ID を生成する](#_6) | <dy:IdGenerator.generateNamespacePath> |
-| [モザイクエイリアストランザクションを構築する](#_8) | <dy:SymbolTransactionFactory.create> |
-| [エイリアスを検証する](#_10) | <get:/namespaces/{namespaceId}> |
-| [転送内でエイリアスを使用する](#_11) | <dy:IdGenerator.generateMosaicAliasId> |
-| [モザイク解決レシートを照会する](#_11) | <get:/statements/resolutions/mosaic> |
+| [ネームスペース ID を生成する](#defining-the-namespace-and-target-mosaic) | <dy:IdGenerator.generateNamespacePath> |
+| [モザイクエイリアストランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
+| [エイリアスを検証する](#verifying-the-alias) | <get:/namespaces/{namespaceId}> |
+| [転送内でエイリアスを使用する](#using-the-alias) | <dy:IdGenerator.generateMosaicAliasId> |
+| [モザイク解決レシートを照会する](#using-the-alias) | <get:/statements/resolutions/mosaic> |

@@ -2,7 +2,7 @@
 title: レシートからのネームスペース解決
 ---
 
-# レシートからのネームスペース解決
+# レシートからのネームスペース解決 {: #resolving-a-namespace-from-a-receipt }
 
 [ネームスペース](default:ネームスペース) のエイリアスは [時間の経過とともに変更される](../../textbook/namespaces.md#duration) 可能性があるため、ネームスペースの現在の値が [トランザクション](default: トランザクション) 承認時の値と一致しない場合があります。
 
@@ -12,27 +12,27 @@ title: レシートからのネームスペース解決
 
 
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、 [開発環境をセットアップ](../start/setup.md) してください。
 
 このチュートリアルではネットワークからのデータの読み取りのみを行います。トランザクションの送信は行わないため、 [アカウント](default:アカウント) や [XYM](default:XYM) の残高は必要ありません。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/namespaces/resolve-namespace-from-receipt', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### トランザクションハッシュの定義
+### トランザクションハッシュの定義 {: #defining-the-transaction-hash }
 
 {{ tutorial.code_snippet(['py:11:14', 'js:7:10']) }}
 
 コードは、生のアドレスやモザイクIDの代わりにネームスペースエイリアスを使用した、承認済みトランザクションのハッシュを定義します。この ハッシュは `TRANSACTION_HASH` 環境変数から読み取られ、デフォルトでは Symbol [テストネット](default:テストネット) 上の既知のトランザクションが使用されます。
 
-### 承認済みトランザクションの取得
+### 承認済みトランザクションの取得 {: #retrieving-the-confirmed-transaction }
 
 {{ tutorial.code_snippet(['py:17:29', 'js:13:26']) }}
 
@@ -58,7 +58,7 @@ title: レシートからのネームスペース解決
 * ビットが `1` の場合、値は [ネームスペースのモザイクへのリンク](./link-namespace-to-mosaic.md#エイリアスの使用) チュートリアルで説明されているように、モザイクエイリアスとして使用されるネームスペースIDです。
 * ビットが `0` の場合、値は通常のモザイクIDであり、解決は不要です。
 
-### アドレス解決ステートメントの照会
+### アドレス解決ステートメントの照会 {: #querying-address-resolution-statements }
 
 {{ tutorial.code_snippet(['py:48:58', 'js:46:57']) }}
 
@@ -83,7 +83,7 @@ title: レシートからのネームスペース解決
 
 分析対象のトランザクションの解決された値を特定するために、コードは `primaryId` がトランザクションの `primaryId` 以下である最後のエントリを見つけます。これが、エイリアスが現在何を指しているかに関係なく、また同じブロック内でエイリアスが複数回定義されたとしても、ネットワークがその特定のトランザクションに使用した値です。
 
-### モザイク解決ステートメントの照会
+### モザイク解決ステートメントの照会 {: #querying-mosaic-resolution-statements }
 
 {{ tutorial.code_snippet(['py:76:99', 'js:81:110']) }}
 
@@ -93,7 +93,7 @@ title: レシートからのネームスペース解決
 
 レスポンスはアドレス解決と同じ構造に従いますが、 `resolved` フィールドにはアドレスではなくモザイクIDが含まれます。同じ照合ロジックが適用され、 `primaryId` がトランザクションの `primaryId` 以下である最後のエントリが解決されたモザイクIDを与えます。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -113,12 +113,12 @@ title: レシートからのネームスペース解決
     !!! note "解決ステートメントには数値IDのみが含まれます"
         解決ステートメントにはモザイクIDが含まれ、 `symbol.xym` のような人間が読み取り可能な名前は含まれません。IDから読み取り可能な名前を取得するには、 <post:/namespaces/names> を使用してください。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました：
 
 | ステップ | 関連ドキュメント |
 | :--- | :--- |
-| [承認済みトランザクションの取得](#_6) | <get:/transactions/confirmed/{transactionId}> |
-| [アドレス解決の照会](#_7) | <get:/statements/resolutions/address> |
-| [モザイク解決の照会](#_8) | <get:/statements/resolutions/mosaic> |
+| [承認済みトランザクションの取得](#retrieving-the-confirmed-transaction) | <get:/transactions/confirmed/{transactionId}> |
+| [アドレス解決の照会](#querying-address-resolution-statements) | <get:/statements/resolutions/address> |
+| [モザイク解決の照会](#querying-mosaic-resolution-statements) | <get:/statements/resolutions/mosaic> |

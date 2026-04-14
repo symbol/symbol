@@ -2,7 +2,7 @@
 title: ネームスペースメタデータの追加
 ---
 
-# ネームスペースへのメタデータの追加
+# ネームスペースへのメタデータの追加 {: #adding-metadata-to-a-namespace }
 
 [ネームスペース](default: ネームスペース) は、[アカウント](default:アカウント) や [モザイク](default:モザイク) と同様に、キーと値のペアとして [メタデータ](default:メタデータ) を保存できます。
 
@@ -24,7 +24,7 @@ digraph {
 }
 ```
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -37,17 +37,17 @@ digraph {
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために [転送トランザクション](../transactions/transfer.md) チュートリアルを、[アグリゲートトランザクション](default: アグリゲートトランザクション) の仕組みを理解するために [アグリゲートコンプリートトランザクション](../transactions/complete-aggregate.md) チュートリアルを復習しておいてください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/namespaces/namespace-metadata', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
 このチュートリアルでは、ネームスペースに新しいメタデータを追加し、その後そのメタデータを更新する方法を実演します。
 
-### アカウントとネームスペースのセットアップ
+### アカウントとネームスペースのセットアップ {: #setting-up-the-account-and-namespace }
 
 {{ tutorial.code_snippet(['py:54:68', 'js:52:67']) }}
 
@@ -62,13 +62,13 @@ digraph {
 
     作成方法については [ルートネームスペースの登録](./register-root-namespace.md) を参照してください。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:71:89', 'js:70:88']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### メタデータの定義
+### メタデータの定義 {: #defining-the-metadata }
 
 各ネームスペースメタデータエントリは、以下の4つによって一意に識別されます。
 
@@ -96,7 +96,7 @@ digraph {
 
     各エントリは独立しており、最初に作成したアカウントのみが更新できます。
 
-### 埋め込みネームスペースメタデータトランザクションの作成
+### 埋め込みネームスペースメタデータトランザクションの作成 {: #creating-the-embedded-namespace-metadata-transaction }
 
 {{ tutorial.code_snippet(['py:99:112', 'js:98:112']) }}
 
@@ -125,9 +125,9 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 * **値:** バイト形式のメタデータ内容。
     新しいメタデータを作成する場合は、生の値を指定します。
-    更新する場合は、計算された値を指定します（[既存のメタデータの変更](#既存のメタデータの変更) セクションで説明します）。
+    更新する場合は、計算された値を指定します（[既存のメタデータの変更](#modifying-existing-metadata) セクションで説明します）。
 
-### アグリゲートトランザクションの構築
+### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction }
 
 {{ tutorial.code_snippet(['py:114:124', 'js:114:124']) }}
 
@@ -140,13 +140,13 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
     オンチェーンで連署を収集する詳細については、[アグリゲートボンデッドトランザクション](../transactions/bonded-aggregate.md) チュートリアルを参照してください。
 
-### アグリゲートトランザクションの送信
+### アグリゲートトランザクションの送信 {: #submitting-the-aggregate-transaction }
 
 {{ tutorial.code_snippet(['py:126:135', 'js:126:137']) }}
 
 アグリゲートトランザクションは、[アグリゲートコンプリートトランザクションの作成](../transactions/complete-aggregate.md#building-the-aggregate-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
-### メタデータの取得
+### メタデータの取得 {: #retrieving-metadata }
 
 {{ tutorial.code_snippet(['py:140:158', 'js:142:163']) }}
 
@@ -154,7 +154,7 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 エンドポイントはフィルタに一致するエントリのリストを返します。この例では単一のアイテムが含まれます。
 
-### 既存のメタデータの変更
+### 既存のメタデータの変更 {: #modifying-existing-metadata }
 
 {{ tutorial.code_snippet(['py:160:177', 'js:165:183']) }}
 
@@ -177,13 +177,13 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 !!! tip "ヒント"
     メタデータエントリを削除するには、`value_size_delta` を現在の値の長さの負の値に設定し、現在の値を `value` として提供します。XOR によって空の結果が生成され、ネットワークからエントリが削除されます。
 
-[最初のメタデータ作成](#アグリゲートトランザクションの構築) と同様に、このメタデータの変更はアグリゲートトランザクションにラップされ、署名してアナウンスされます。
+[最初のメタデータ作成](#building-the-aggregate-transaction) と同様に、このメタデータの変更はアグリゲートトランザクションにラップされ、署名してアナウンスされます。
 
 {{ tutorial.code_snippet(['py:179:201', 'js:185:210']) }}
 
 
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -206,13 +206,13 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 トランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 |--------------------------------------------------------------------------------------------------|----------------------------------------------|
-| [メタデータのキーと値の定義](#_7) | <dy:Metadata.metadataGenerateKey> |
-| [ネームスペースメタデータトランザクションの作成](#_8) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [メタデータの取得](#_11) | <get:/metadata> |
-| [既存のメタデータの変更](#_12) | <dy:Metadata.metadataUpdateValue> |
+| [メタデータのキーと値の定義](#defining-the-metadata) | <dy:Metadata.metadataGenerateKey> |
+| [ネームスペースメタデータトランザクションの作成](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [メタデータの取得](#retrieving-metadata) | <get:/metadata> |
+| [既存のメタデータの変更](#modifying-existing-metadata) | <dy:Metadata.metadataUpdateValue> |

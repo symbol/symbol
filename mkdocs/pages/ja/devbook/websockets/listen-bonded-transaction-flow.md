@@ -2,7 +2,7 @@
 title: ボンデッドトランザクションフロー
 ---
 
-# ボンデッドトランザクションフローのリスニング
+# ボンデッドトランザクションフローのリスニング {: #listening-to-bonded-transaction-flow }
 
 [アグリゲートボンデッドトランザクション](default: アグリゲートボンデッドトランザクション) は、通常の [トランザクション](default: トランザクション) よりも複雑なライフサイクルをたどります。
 アナウンス後、ネットワークが必要なすべての参加者から [連署](default: 連署) を受け取る `partial`状態に入ります。
@@ -14,7 +14,7 @@ title: ボンデッドトランザクションフロー
 
 
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、開発環境がセットアップされていることを確認してください。
 [開発環境のセットアップ](../start/setup.md) を参照してください。
@@ -45,7 +45,7 @@ title: ボンデッドトランザクションフロー
 * スワップのためにアカウント B が所有するモザイクを作成します。
   [モザイクの作成](../mosaics/create-mosaic.md) を参照してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -56,9 +56,9 @@ title: ボンデッドトランザクションフロー
 実際には、それぞれの役割は別々のマシンの別々のプログラムとして実行され、すべての連署者は開始者がアグリゲートボンデッドを送信する前にすでにリスニング状態（待ち受け状態）になっている必要があります。
 このチュートリアルでは、簡略化のため両方の役割を1つのスクリプトにまとめています。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### アカウント A: アカウントの設定
+### アカウント A: アカウントの設定 {: #account-a-setting-up-accounts }
 
 {{ tutorial.code_snippet(['py:18:35', 'js:14:31']) }}
 
@@ -69,7 +69,7 @@ title: ボンデッドトランザクションフロー
 自身の鍵を使用する場合は、アカウント A が XYM を持ち、アカウント B がスワップ用のカスタムモザイクを保持していることを確認してください。
 アドレスは、ファサードのネットワーク設定を使用して公開鍵から派生します。
 
-### アカウント A: アグリゲートの構築とハッシュロックのアナウンス
+### アカウント A: アグリゲートの構築とハッシュロックのアナウンス {: #account-a-building-the-aggregate-and-announcing-the-hash-lock }
 
 {{ tutorial.code_snippet(['py:56:170', 'js:47:162']) }}
 
@@ -77,7 +77,7 @@ title: ボンデッドトランザクションフロー
 
 唯一の違いは、ハッシュロックを確認するために <get:/transactionStatus/{hash}> をポーリングする代わりに、このチュートリアルでは [トランザクションフローのリスニング](./listen-transaction-flow.md) チュートリアルで説明されているものと同じアプローチに従って WebSocket を使用することです。
 
-### アカウント B: 接続とチャネルのサブスクライブ
+### アカウント B: 接続とチャネルのサブスクライブ {: #account-b-connecting-and-subscribing-to-channels }
 
 {{ tutorial.code_snippet(['py:171:193', 'js:164:189']) }}
 
@@ -92,13 +92,13 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 * <ws:partialRemoved&#47;{address}>: ボンデッドアグリゲートが `partial` 状態を抜けたとき（すべての連署が収集されたか、期限が切れたとき）に通知します。
 * <ws:cosignature&#47;{address}>: 部分的トランザクションに連署が追加されたときに通知します。
 
-### アカウント A: ボンデッドアグリゲートのアナウンス
+### アカウント A: ボンデッドアグリゲートのアナウンス {: #account-a-announcing-the-bonded-aggregate }
 
 {{ tutorial.code_snippet(['py:194:203', 'js:257:267']) }}
 
 アカウント B のサブスクライブが完了すると、アカウント A は通常の <put:/transactions> エンドポイントではなく、 <put:/transactions/partial> にボンデッドアグリゲートをアナウンスします。
 
-### アカウント B: WebSocket メッセージの処理と連署
+### アカウント B: WebSocket メッセージの処理と連署 {: #account-b-handling-websocket-messages-and-cosigning }
 
 {{ tutorial.code_snippet(['py:205:258', 'js:191:255']) }}
 
@@ -117,13 +117,13 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 5. `unconfirmedRemoved`: トランザクションが未承認プールを抜けます。
 6. `confirmedAdded`: トランザクションがブロック内で承認されます。
 
-### アカウント B: チャネルのサブスクライブ解除
+### アカウント B: チャネルのサブスクライブ解除 {: #account-b-unsubscribing-from-channels }
 
 {{ tutorial.code_snippet(['py:259:265', 'js:269:274']) }}
 
 承認後、アカウント B は接続を閉じる前に、すべてのチャネルのサブスクライブ解除メッセージを送信します。
 
-## 出力
+## 出力 {: #output }
 
 ```text linenums="1" hl_lines="2-3 6 7 8-14 15 16-22"
 --8<-- 'devbook/websockets/listen-bonded-transaction-flow.log'
@@ -139,15 +139,15 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 * **連署** (16-18行目): アグリゲートが `partialAdded` に入り、アカウント B が連署を送信し、 `cosignature` チャネルがそれを受信したことを確認します。
 * **承認** (19-22行目): 完全に署名されたトランザクションが未承認プールに入り（ `unconfirmedAdded` ）、 `partial` 状態を抜け（ `partialRemoved` ）、 `unconfirmedRemoved` を経て、最後に `confirmedAdded` になります。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 |---------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [partialAdded をサブスクライブする](#_b) | <ws:partialAdded&#47;{address}> |
-| [partialRemoved をサブスクライブする](#_b) | <ws:partialRemoved&#47;{address}> |
-| [cosignature をサブスクライブする](#_b) | <ws:cosignature&#47;{address}> |
-| [トランザクションメッセージを処理する](#アカウント-b-websocket-メッセージの処理と連署) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
-| [連署メッセージを処理する](#_b-websocket) | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO) |
-| [partialAdded で連署を送信する](#_b-websocket) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |
+| [partialAdded をサブスクライブする](#account-b-connecting-and-subscribing-to-channels) | <ws:partialAdded&#47;{address}> |
+| [partialRemoved をサブスクライブする](#account-b-connecting-and-subscribing-to-channels) | <ws:partialRemoved&#47;{address}> |
+| [cosignature をサブスクライブする](#account-b-connecting-and-subscribing-to-channels) | <ws:cosignature&#47;{address}> |
+| [トランザクションメッセージを処理する](#account-b-handling-websocket-messages-and-cosigning) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
+| [連署メッセージを処理する](#account-b-handling-websocket-messages-and-cosigning) | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO) |
+| [partialAdded で連署を送信する](#account-b-handling-websocket-messages-and-cosigning) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |

@@ -2,32 +2,32 @@
 title: ニーモニックからの作成
 ---
 
-# ニーモニックからのアカウント作成
+# ニーモニックからのアカウント作成 {: #creating-accounts-from-mnemonics }
 
 このチュートリアルでは、[ニーモニックフレーズ](default: ニーモニックフレーズ)（単に「ニーモニック」とも呼ばれます）を使用して、Symbolブロックチェーンの [アカウント](default: アカウント) を作成する方法を説明します。
 
 この手法は、単一のシードから複数のアカウントを管理するために、[HDウォレット](default:HDウォレット)（階層的決定性ウォレット）が一般的に使用されます。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開発環境のセットアップがまだ完了していない場合は、[開発環境のセットアップ](../start/setup.md) から始めてください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/accounts/create-from-mnemonic', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### ファサードの初期化
+### ファサードの初期化 {: #initializing-the-facade }
 
 {{ tutorial.code_snippet(['py:5:6', 'js:5:6']) }}
 
 <dy:SymbolFacade> は、Symbolの暗号化操作とネットワークユーティリティへのアクセスを提供します。
 [アドレス](default:アドレス) などのネットワーク固有の値が正しく生成されるように、ネットワーク名（`testnet` または `mainnet`）を指定して初期化されます。
 
-### ニーモニックの定義
+### ニーモニックの定義 {: #defining-a-mnemonic }
 
 {{ tutorial.code_snippet(['py:8:16', 'js:8:17']) }}
 
@@ -44,7 +44,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
     ニーモニックは誰とも共有せず、常に安全な場所に保管してください。
 
-### ルートノードの導出
+### ルートノードの導出 {: #deriving-the-root-node }
 
 {{ tutorial.code_snippet(['py:18:23', 'js:19:24']) }}
 
@@ -63,7 +63,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 この例では、パスワードは `PASSWORD` 環境変数から読み込まれます。
 設定されていない場合、スニペットはデフォルトのものを使用します。
 
-### 子アカウントの導出
+### 子アカウントの導出 {: #deriving-the-child-account }
 
 {{ tutorial.code_snippet(['py:25:27', 'js:26:28']) }}
 
@@ -77,7 +77,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 別のインデックス（例: `1`、`2`、`3`、...）を使用することで、追加のアカウントを派生させることができます。
 各インデックスは、完全に異なるアカウントを生成します。
 
-### アカウントの作成
+### アカウントの作成 {: #creating-the-account }
 
 {{ tutorial.code_snippet(['py:29:38', 'js:30:39']) }}
 
@@ -88,7 +88,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 2. **アドレスの導出:** <dy:network.publicKeyToAddress> は、公開鍵を [アドレス](default:アドレス) （アカウントを識別するための、より短く人間が読みやすいネットワーク固有の識別子）に変換します。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -99,12 +99,12 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 環境変数を指定せずにコードを実行するたびに、異なるランダムなニーモニックとアカウントが生成されます。
 同じニーモニックとパスワードが提供されれば、指定されたアカウントインデックスに対して常に同じアカウントが派生します。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | -----------------------------------------------------------  | ----------------------------------------------------------------------------------------------- |
-| [ランダムなニーモニックを作成する](#_6) | <dy:Bip32.random> |
-| [ニーモニックからアカウントを導出させる](#_7) | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, および <dy:Bip32Node.derivePath> |
-| [アカウントの鍵ペアを取得する](#_9) | <dy:SymbolFacade.bip32NodeToKeyPair>, <dy:network.publicKeyToAddress> |
+| [ランダムなニーモニックを作成する](#defining-a-mnemonic) | <dy:Bip32.random> |
+| [ニーモニックからアカウントを導出させる](#deriving-the-root-node) | <dy:Bip32.fromMnemonic) | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, および <dy:Bip32Node.derivePath> |
+| [アカウントの鍵ペアを取得する](#creating-the-account) | <dy:SymbolFacade.bip32NodeToKeyPair>, <dy:network.publicKeyToAddress> |

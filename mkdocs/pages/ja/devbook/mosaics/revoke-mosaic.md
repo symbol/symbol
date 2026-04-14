@@ -2,13 +2,13 @@
 title: モザイクの回収（リボーク）
 ---
 
-# モザイクの回収（リボーク）
+# モザイクの回収（リボーク） {: #revoking-a-mosaic }
 
 `revokable`（回収可能）フラグを設定して作成された [モザイク](default:モザイク) は、作成者が任意のアカウントからモザイクを回収し、自身の [アカウント](default: アカウント) 残高に戻すことができます。これは、契約条項の執行、未使用トークンの回収、または誤った配布の修正に役立ちます。
 
 このチュートリアルでは、他のアカウントからモザイクを回収する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -25,15 +25,15 @@ title: モザイクの回収（リボーク）
 
 回収可能性の詳細については、テキストブックの [回収可能性](../../textbook/mosaics.md#回収可能性) を参照してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/mosaics/revoke-mosaic', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-accounts }
 
 {{ tutorial.code_snippet(['py:25:40', 'js:21:40']) }}
 
@@ -46,20 +46,20 @@ title: モザイクの回収（リボーク）
 `MOSAIC_ID` 環境変数は、回収するモザイクの16進数識別子を指定します 。
 アカウントが保持しているモザイクを一覧表示するには、[アカウント残高の照会](../accounts/query-balance.md) を参照してください 。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:43:61', 'js:43:61']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します 。
 
-### 初期残高の確認
+### 初期残高の確認 {: #checking-initial-balance }
 
 {{ tutorial.code_snippet(['py:65:69', 'js:65:70']) }}
 
 回収を行う前に、ヘルパー関数 `get_account_mosaics` が <get:/accounts/{accountId}> エンドポイントからソースアカウントの対象モザイクの現在残高を取得します 。
 これにより、回収後の結果と比較するための基準が得られます 。
 
-### 回収トランザクションの構築
+### 回収トランザクションの構築 {: #building-the-revocation-transaction }
 
 {{ tutorial.code_snippet(['py:74:84', 'js:75:85']) }}
 
@@ -81,7 +81,7 @@ title: モザイクの回収（リボーク）
     数量はソースアカウントの全残高と一致する必要はありません 。
     単一のトランザクションで、ソースの現在の保有量までの任意の数量を回収できます 。
 
-### 回収の送信
+### 回収の送信 {: #submitting-the-revocation }
 
 {{ tutorial.code_snippet(['py:86:106', 'js:87:104']) }}
 
@@ -91,14 +91,14 @@ title: モザイクの回収（リボーク）
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます 。
 
-### 回収の検証
+### 回収の検証 {: #verifying-the-revocation }
 
 {{ tutorial.code_snippet(['py:129:133', 'js:142:147']) }}
 
 回収を検証するために、ヘルパー関数 `get_account_mosaics` がソースアカウントの残高を再度取得します 。
-残高は [初期残高](#_7) よりも回収量分だけ少なくなっているはずです 。
+残高は [初期残高](#checking-initial-balance) よりも回収量分だけ少なくなっているはずです 。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています 。
 
@@ -124,12 +124,12 @@ title: モザイクの回収（リボーク）
 
 
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | -------------------------------------------------------------------------- | ------------------------------------ |
-| [アカウント残高を確認する](#_7) | <get:/accounts/{accountId}> |
-| [モザイクユニットを回収する](#_8) | <dy:SymbolTransactionFactory.create> |
-| [回収を検証する](#_9) | <get:/accounts/{accountId}> |
+| [アカウント残高を確認する](#checking-initial-balance) | <get:/accounts/{accountId}> |
+| [モザイクユニットを回収する](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create> |
+| [回収を検証する](#verifying-the-revocation) | <get:/accounts/{accountId}> |

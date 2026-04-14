@@ -2,7 +2,7 @@
 title: モザイクの作成
 ---
 
-# モザイクの作成
+# モザイクの作成 {: #creating-a-mosaic }
 
 [モザイク](default: モザイク) は、通貨、コレクターズアイテム、アクセス権などをSymbolブロックチェーン上の資産を表します。
 他のプラットフォームのトークンとは異なり、Symbolのモザイクはプロトコルレベルで直接サポートされているため、使用するために追加のコーディングは必要ありません。
@@ -10,7 +10,7 @@ title: モザイクの作成
 
 このチュートリアルでは、モザイクを作成し、その初期供給量をミント（鋳造）する方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -22,20 +22,20 @@ title: モザイクの作成
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために、[転送トランザクション](../transactions/transfer.md) のチュートリアルを復習しておいてください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/mosaics/create-mosaic', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
 モザイクの作成には、2つのトランザクションをアナウンスする必要があります。
 
 1. モザイクとそのプロパティを登録するための **モザイク定義** トランザクション。
 2. 初期ユニットをミントするための **モザイク供給量変更** トランザクション。
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-account }
 
 {{ tutorial.code_snippet(['py:50:59', 'js:50:58']) }}
 
@@ -43,13 +43,13 @@ title: モザイクの作成
 署名者の [アドレス](default: アドレス) は [公開鍵](default:公開鍵) から派生します。
 このアカウントが作成されたモザイクを所有することになります。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:62:80', 'js:61:79']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### モザイク定義トランザクションの構築
+### モザイク定義トランザクションの構築 {: #building-the-mosaic-definition-transaction }
 
 {{ tutorial.code_snippet(['py:85:100', 'js:84:100']) }}
 
@@ -93,14 +93,14 @@ title: モザイクの作成
 
 !!! note "レンタル手数料"
 
-    標準の [トランザクション手数料](#ネットワーク時間と手数料の取得) に加えて、モザイクの作成には [XYM](default: XYM) で支払う一回限りのレンタル手数料が必要です。
+    標準の [トランザクション手数料](#fetching-network-time-and-fees) に加えて、モザイクの作成には [XYM](default: XYM) で支払う一回限りのレンタル手数料が必要です。
 
     トランザクション手数料とは異なり、レンタル手数料はトランザクションリクエストには **含まれません**。
     モザイク定義トランザクションが承認されると、ネットワークによって署名者のアカウントから自動的に差し引かれます。
 
     レンタル手数料の額は、 <get:/network/fees/rental> エンドポイント（ `effectiveMosaicRentalFee` プロパティ）から照会できます。
 
-### モザイク定義の送信
+### モザイク定義の送信 {: #submitting-the-mosaic-definition }
 
 {{ tutorial.code_snippet(['py:102:113', 'js:102:115']) }}
 
@@ -108,7 +108,7 @@ title: モザイクの作成
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
-### モザイク供給量変更トランザクションの構築
+### モザイク供給量変更トランザクションの構築 {: #building-the-mosaic-supply-change-transaction }
 
 {{ tutorial.code_snippet(['py:118:126', 'js:120:129']) }}
 
@@ -123,7 +123,7 @@ title: モザイクの作成
 * **Delta (差分):** 追加する絶対単位の数。
     モザイクの [可分性](../../textbook/mosaics.md#divisibility) が `2` であるため、デルタを `10000` にすると、整数単位では `100.00` になります ($10000 / 10^2$)。
 
-### 供給量変更の送信
+### 供給量変更の送信 {: #submitting-the-supply-change }
 
 {{ tutorial.code_snippet(['py:128:140', 'js:131:143']) }}
 
@@ -137,7 +137,7 @@ title: モザイクの作成
 
 `supply_mutable` フラグがなくても、所有者が供給量全体を保持している限り、供給量の変更は許可されます。ユニットがいずれかの他のアカウントに配布されると、供給量は恒久的に固定されます。
 
-### モザイクの取得
+### モザイクの取得 {: #retrieving-the-mosaic }
 
 {{ tutorial.code_snippet(['py:145:156', 'js:148:159']) }}
 
@@ -147,7 +147,7 @@ title: モザイクの作成
 
 
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -172,18 +172,18 @@ title: モザイクの作成
 
 出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | ------------------------------------------------------------------------ | ------------------------------------ |
-| [モザイクIDを生成する](#_7) | <dy:IdGenerator.generateMosaicId> |
-| [モザイクを定義する](#_7) | <dy:SymbolTransactionFactory.create> |
-| [モザイク供給量をミントする](#_9) | <dy:SymbolTransactionFactory.create> |
-| [モザイクを取得する](#_11) | <get:/mosaics/{mosaicId}> |
+| [モザイクIDを生成する](#building-the-mosaic-definition-transaction) | <dy:IdGenerator.generateMosaicId> |
+| [モザイクを定義する](#building-the-mosaic-definition-transaction) | <dy:SymbolTransactionFactory.create> |
+| [モザイク供給量をミントする](#building-the-mosaic-supply-change-transaction) | <dy:SymbolTransactionFactory.create> |
+| [モザイクを取得する](#retrieving-the-mosaic) | <get:/mosaics/{mosaicId}> |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 モザイクを作成したので、以下のことができます。
 

@@ -2,15 +2,15 @@
 title: ルートネームスペースの登録
 ---
 
-# ルートネームスペースの登録
+# ルートネームスペースの登録 {: #registering-a-root-namespace }
 
 [ネームスペース](default: ネームスペース) は、[アカウント](default: アカウント) や [モザイク](default:モザイク) に対して人間が読み取り可能なエイリアス（別名）を提供します。これにより、長いアドレスや16進数のモザイクIDの代わりに使用することができます。
 
 このチュートリアルでは、[ルートネームスペース](default:ネームスペース) を登録し、そのレンタル [有効期間](../../textbook/namespaces.md#duration) を設定する方法を説明します。
 
-一度登録した後は、[次のステップ](#_12) で説明するように、ネームスペースをモザイクやアカウントにリンクするための追加ステップが必要です。
+一度登録した後は、[次のステップ](#next-steps) で説明するように、ネームスペースをモザイクやアカウントにリンクするための追加ステップが必要です。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -22,15 +22,15 @@ title: ルートネームスペースの登録
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために、[転送トランザクション](../transactions/transfer.md) のチュートリアルを復習しておいてください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/namespaces/register-root-namespace', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-account }
 
 {{ tutorial.code_snippet(['py:17:25', 'js:13:21']) }}
 
@@ -38,13 +38,13 @@ title: ルートネームスペースの登録
 署名者の [アドレス](default:アドレス) は [公開鍵](default:公開鍵) から派生します。
 このアカウントが、登録されたネームスペースを所有することになります。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:28:46', 'js:24:43']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### トランザクションの構築
+### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet(['py:48:60', 'js:45:57']) }}
 
@@ -65,14 +65,14 @@ title: ルートネームスペースの登録
 
 !!! note "ネームスペースレンタル手数料"
 
-    標準の [トランザクション手数料](#ネットワーク時間と手数料の取得) に加えて、ネームスペースの登録には、要求された期間に比例した [レンタル手数料](../../textbook/namespaces.md#lease-fee) が必要です。
+    標準の [トランザクション手数料](#fetching-network-time-and-fees) に加えて、ネームスペースの登録には、要求された期間に比例した [レンタル手数料](../../textbook/namespaces.md#lease-fee) が必要です。
 
     トランザクション手数料とは異なり、レンタル手数料はトランザクションリクエストには **含まれません**。
     登録トランザクションが承認されると、ネットワークによって **トランザクション署名者のアカウント** から自動的に計算され、差し引かれます。
 
     レンタル手数料の額は、 <get:/network/fees/rental> エンドポイントを使用して事前に計算できます。
 
-### トランザクションの送信
+### トランザクションの送信 {: #submitting-the-transaction }
 
 {{ tutorial.code_snippet(['py:62:81', 'js:59:79']) }}
 
@@ -82,7 +82,7 @@ title: ルートネームスペースの登録
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
-### ネームスペースの取得
+### ネームスペースの取得 {: #retrieving-the-namespace }
 
 {{ tutorial.code_snippet(['py:103:120', 'js:117:138']) }}
 
@@ -96,9 +96,9 @@ title: ルートネームスペースの登録
 !!! info "ネームスペースは登録されましたが、まだリンクされていません"
 
     ネームスペースが [モザイク](default:モザイク) や [アカウント](default:アカウント) のエイリアスとして機能するとき、初めて有用なものとなります。
-    [次のステップ](#_12) のガイドを使用して、ネームスペースを識別子にリンクしてください。
+    [次のステップ](#next-steps) のガイドを使用して、ネームスペースを識別子にリンクしてください。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -128,17 +128,17 @@ title: ルートネームスペースの登録
 
 
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 |-------------------------------------------------------------------------|--------------------------------------|
-| [ネームスペース ID を生成する](#_7) | <dy:IdGenerator.generateNamespaceId> |
-| [ネームスペース登録トランザクションを構築する](#_7) | <dy:SymbolTransactionFactory.create> |
-| [ネームスペースを取得する](#_9) | <get:/namespaces/{namespaceId}> |
+| [ネームスペース ID を生成する](#building-the-transaction) | <dy:IdGenerator.generateNamespaceId> |
+| [ネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
+| [ネームスペースを取得する](#retrieving-the-namespace) | <get:/namespaces/{namespaceId}> |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 ルートネームスペースを作成したので、以下のことができます。
 

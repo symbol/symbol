@@ -2,7 +2,7 @@
 title: アカウントメタデータの追加
 ---
 
-# アカウントへのメタデータの追加
+# アカウントへのメタデータの追加 {: #adding-metadata-to-an-account }
 
 [アカウント](default:アカウント) は、[モザイク](default:モザイク) や [ネームスペース](default:ネームスペース) と同様に、キーと値のペアとして [メタデータ](default:メタデータ) を保存できます。
 
@@ -24,7 +24,7 @@ digraph {
 }
 ```
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -36,17 +36,17 @@ digraph {
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために [転送トランザクション](../transactions/transfer.md) のチュートリアルを、[アグリゲートトランザクション](default: アグリゲートトランザクション) の仕組みを理解するために [アグリゲートコンプリートトランザクション](../transactions/complete-aggregate.md) のチュートリアルを復習してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/accounts/account-metadata', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
 このチュートリアルでは、アカウントに新しいメタデータを追加し、その後そのメタデータを更新する方法を実演します。
 
-### アカウントのセットアップ
+### アカウントのセットアップ {: #setting-up-the-account }
 
 {{ tutorial.code_snippet(['py:53:61', 'js:51:59']) }}
 
@@ -56,13 +56,13 @@ digraph {
 このチュートリアルでは、署名者が自身のアカウントにメタデータを追加します。
 別のアカウントにメタデータを追加する場合は、対象となるアカウントがトランザクションに連署する必要があります。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:64:82', 'js:62:80']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### メタデータの定義
+### メタデータの定義 {: #defining-the-metadata}
 
 各アカウントメタデータエントリは、以下の3つによって一意に識別されます。
 
@@ -90,7 +90,7 @@ digraph {
 
     各エントリは独立しており、最初に作成したアカウントのみが更新できます。
 
-### 埋め込みアカウントメタデータトランザクションの作成
+### 埋め込みアカウントメタデータトランザクションの作成 {: #creating-the-embedded-account-metadata-transaction }
 
 {{ tutorial.code_snippet(['py:92:104', 'js:90:103']) }}
 
@@ -120,9 +120,9 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
 * **値:** バイト形式のメタデータ内容。
     新しいメタデータを作成する場合は、生の値を指定します。
-    更新する場合は、計算された値を指定します（[既存のメタデータの変更](#既存のメタデータの変更) セクションで説明します）。
+    更新する場合は、計算された値を指定します（[既存のメタデータの変更](#modifying-existing-metadata) セクションで説明します）。
 
-### アグリゲートトランザクションの構築
+### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction }
 
 {{ tutorial.code_snippet(['py:106:116', 'js:105:115']) }}
 
@@ -136,13 +136,13 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
     オンチェーンで連署を収集する詳細については、[アグリゲートボンデッドトランザクション](../transactions/bonded-aggregate.md) のチュートリアルを参照してください。
 
-### アグリゲートトランザクションの送信
+### アグリゲートトランザクションの送信 {: #submitting-the-aggregate-transaction }
 
 {{ tutorial.code_snippet(['py:118:127', 'js:117:128']) }}
 
 アグリゲートトランザクションは、[アグリゲートコンプリートトランザクションの作成](../transactions/complete-aggregate.md#building-the-aggregate-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
-### メタデータの取得
+### メタデータの取得 {: #retrieving-metadata }
 
 {{ tutorial.code_snippet(['py:132:149', 'js:133:150']) }}
 
@@ -150,7 +150,7 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
 エンドポイントはフィルタに一致するエントリのリストを返します。この例では単一のアイテムが含まれます。
 
-### 既存のメタデータの変更
+### 既存のメタデータの変更 {: #modifying-existing-metadata }
 
 {{ tutorial.code_snippet(['py:151:165', 'js:152:167']) }}
 
@@ -174,11 +174,11 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
     メタデータエントリを削除するには、`value_size_delta` を現在の値の長さの負の値に設定し、現在の値を `value` として提供します。XOR によって空の結果が生成され、ネットワークからエントリが削除されます。
 
-[最初のメタデータ作成](#アグリゲートトランザクションの構築) と同様に、このメタデータの変更はアグリゲートトランザクションにラップされ、署名してアナウンスされます。
+[最初のメタデータ作成](#building-the-aggregate-transaction) と同様に、このメタデータの変更はアグリゲートトランザクションにラップされ、署名してアナウンスされます。
 
 {{ tutorial.code_snippet(['py:167:189', 'js:169:194']) }}
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -205,7 +205,7 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
 | ステップ | 関連ドキュメント |
 |-----------------------------------------------------------------------------------------------|----------------------------------------------|
-| [メタデータのキーと値の定義](#_7) | <dy:Metadata.metadataGenerateKey> |
-| [アカウントメタデータトランザクションの作成](#_8) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [メタデータの取得](#_11) | <get:/metadata> |
-| [既存のメタデータの変更](#_12) | <dy:Metadata.metadataUpdateValue> |
+| [メタデータのキーと値の定義](#defining-the-metadata) | <dy:Metadata.metadataGenerateKey> |
+| [アカウントメタデータトランザクションの作成](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [メタデータの取得](#retrieving-metadata) | <get:/metadata> |
+| [既存のメタデータの変更](#modifying-existing-metadata) | <dy:Metadata.metadataUpdateValue> |

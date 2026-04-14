@@ -2,7 +2,7 @@
 title: 通貨供給量の照会
 ---
 
-# 通貨供給量の照会
+# 通貨供給量の照会 {: #querying-currency-supply }
 
 取引所や市場データアグリゲーターは、時価総額やトークン指標を表示するために正確な供給量の数値を必要とします。
 
@@ -10,12 +10,12 @@ Symbolネットワークは、専用のRESTエンドポイントを通じて、�
 
 このチュートリアルでは、それぞれの値を照会し、それらから追加の指標を導き出す方法を説明します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 このチュートリアルでは、SDKを必要とせずに[Symbol REST API](../reference/rest/symbol.md)を使用します。
 HTTPリクエストを行う方法さえあれば実行可能です。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -29,9 +29,9 @@ HTTPリクエストを行う方法さえあれば実行可能です。
     本番環境の供給量データについては、 `NODE_URL` を[メインネット](default:メインネット)ノードに設定してください。
     利用可能なメインネットノードのリストについては、[symbol.fyi/nodes](https://symbol.fyi/nodes)を参照してください。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### 供給量の値の取得
+### 供給量の値の取得 {: #fetching-supply-values }
 
 
 
@@ -50,7 +50,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
     非循環アカウントのリストは各ノードオペレーターによって（ノードの `rest.json` ファイル内で）設定されるため、異なるノードが異なる循環供給量の値を報告する可能性があります。
     供給量データを統合する場合は、[デフォルト設定](https://github.com/symbol/symbol/blob/dev/client/rest/resources/rest.json)を持つ信頼できるノードを照会するようにしてください。
 
-### 追加の指標の導出
+### 追加の指標の導出 {: #deriving-additional-metrics }
 
 {{ tutorial.code_snippet(['py:25:29', 'js:21:25']) }}
 
@@ -59,7 +59,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 * **Non-circulating (非循環):** 総供給量と循環供給量の差。
 * **Unminted (未発行):** 最大供給量と総供給量の差。今後発行される予定の残りのXYMを表します。
 
-## 出力
+## 出力 {: #output }
 
 以下の出力は、通貨供給量を照会する典型的な実行例を示しています。
 
@@ -81,16 +81,16 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 * 未発行 (unminted) の値は、インフレーション報酬を通じて徐々に発行される残りのXYMを示しています。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ                                                      | 関連ドキュメント documentation                      |
 | ----------------------------------------------------------| ------------------------------------------ |
-| [最大供給量の取得](#_5)           | <get:/network/currency/supply/max>         |
-| [総供給量の取得](#_5)             | <get:/network/currency/supply/total>       |
-| [循環供給量の取得](#_5)       | <get:/network/currency/supply/circulating> |
-| [追加の指標の導出](#_6) | -                                          |
+| [最大供給量の取得](#fetching-supply-values)           | <get:/network/currency/supply/max>         |
+| [総供給量の取得](#fetching-supply-values)             | <get:/network/currency/supply/total>       |
+| [循環供給量の取得](#fetching-supply-values)       | <get:/network/currency/supply/circulating> |
+| [追加の指標の導出](#deriving-additional-metrics) | -                                          |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 特定のアカウントのXYM残高を確認するには、[アカウント残高の照会](../accounts/query-balance.md) チュートリアルを参照してください。

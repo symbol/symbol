@@ -2,7 +2,7 @@
 title: トランザクションステータス
 ---
 
-# トランザクションステータスの監視
+# トランザクションステータスの監視 {: #monitoring-transaction-status }
 
 Symbol ネットワークに [トランザクション](default: トランザクション) をアナウンスした後、それが [ブロック](default: ブロック) に含まれるまでは未承認の状態が続きます。
 
@@ -15,12 +15,12 @@ Symbol ネットワークに [トランザクション](default: トランザク
     最終的な状態は [ファイナライズ](default: ファイナライズ) であり、これはブロックがネットワークによってファイナライズされた後にのみ発生します。
     それまでは、 [ロールバック](default: ロールバック) が発生する可能性がまだあります。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 このチュートリアルでは、SDK を必要とせずに [Symbol REST API](../reference/rest/symbol.md) を使用します。
 HTTP リクエストを行う方法さえあれば実行可能です。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 このチュートリアルでは、トランザクションのステータスを確認するためにポーリングを使用します。
 ここでは説明の目的でポーリングを使用していますが、本番環境のアプリケーションには推奨されるアプローチではありません。
@@ -33,9 +33,9 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API ノードを設定します。
 値が指定されない場合は、デフォルト値が使用されます。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### トランザクションハッシュの特定
+### トランザクションハッシュの特定 {: #finding-the-transaction-hash }
 
 {{ tutorial.code_snippet(['py:13:16', 'js:7:8']) }}
 
@@ -47,7 +47,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 実際には、トランザクションに署名した直後にこのハッシュを取得し（例については [転送チュートリアル](./transfer.md) を参照）、そのステータスを追跡するために使用します。
 
-### ステータスエンドポイントへの照会
+### ステータスエンドポイントへの照会 {: #querying-the-status-endpoint }
 
 {{ tutorial.code_snippet(['py:21:57', 'js:12:55']) }}
 
@@ -79,14 +79,14 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 
 
-### 承認の確認
+### 承認の確認 {: #checking-for-confirmation }
 
 {{ tutorial.code_snippet(['py:59:62', 'js:57:61']) }}
 
 レスポンスを解析した後、関数は `group` フィールドを確認します。
 それが `confirmed` の場合、トランザクションは [ハーベスティング](default: ハーベスティング) を通じて正常に[ブロック](default:ブロック)に含まれており、関数は正常に終了します。
 
-### 失敗の確認
+### 失敗の確認 {: #checking-for-failure }
 
 {{ tutorial.code_snippet(['py:64:71', 'js:63:69']) }}
 
@@ -97,7 +97,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 すべての可能なコードについては、 [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) を参照してください。
 
-### 不明なステータスの処理
+### 不明なステータスの処理 {: #handling-unknown-status }
 
 {{ tutorial.code_snippet(['py:73:80', 'js:71:80']) }}
 
@@ -107,14 +107,14 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 その他のエラー（接続の問題や失敗したトランザクションなど）については、関数は直ちに例外を再発生させます。
 
-### 試行間の待機
+### 試行間の待機 {: #waiting-between-attempts }
 
 {{ tutorial.code_snippet(['py:82:84', 'js:82:87']) }}
 
 ポーリングの試行間に、関数は設定可能な遅延時間（デフォルト：2秒）だけ待機します。
 これにより、ノードへのリクエストの過負荷を防ぎ、ネットワーク処理のための時間を確保します。
 
-### タイムアウトの処理
+### タイムアウトの処理 {: #handling-timeouts }
 
 {{ tutorial.code_snippet(['py:86:89', 'js:90:95']) }}
 
@@ -126,7 +126,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 * ユーザーへの警告
 * 調査のための問題のログ記録
 
-## 出力
+## 出力 {: #output }
 
 以下の出力は、トランザクションが未承認から承認済みへと移行する様子を監視する典型的な実行例を示しています。
 
@@ -148,17 +148,17 @@ Symbol ネットワークでは、ブロックは通常30秒ごとに生成さ�
 
 ネットワークの観点からトランザクションを確認するには、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) にアクセスし、トランザクションハッシュを検索してください。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| [ステータスエンドポイントへの照会](#_6) | <get:/transactionStatus/{hash}> |
-| [承認の確認](#_7) | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
-| [失敗の確認](#_8) | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [ステータスエンドポイントへの照会](#querying-the-status-endpoint) | <get:/transactionStatus/{hash}> |
+| [承認の確認](#checking-for-confirmation) | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [失敗の確認](#checking-for-failure) | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 本番環境のアプリケーションでは、以下の改善を検討してください。
 

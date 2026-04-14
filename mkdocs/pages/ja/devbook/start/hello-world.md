@@ -2,7 +2,7 @@
 title: Hello World
 ---
 
-# Hello World
+# Hello World {: #hello-world }
 
 このチュートリアルでは、以下を行う最小限のプログラムを記述することで、Symbol SDK のインストールが正しく機能しているかを確認する方法を説明します。
 
@@ -11,17 +11,17 @@ title: Hello World
 
 アカウント、鍵、 トランザクションは必要ありません。基本的な SDK 呼び出しと REST リクエストのみを使用します。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 まだ完了していない場合は、[開発環境のセットアップ](../start/setup.md) から始めてください。 
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/start/hello-world', ['py', 'js']) }}
 
-### SDK の呼び出し
+### SDK の呼び出し {: #making-sdk-calls }
 
 {{ tutorial.code_snippet(['py:7:11', 'js:6:10']) }}
 
@@ -34,7 +34,7 @@ title: Hello World
 <dy:NetworkTimestampDatetimeConverter.toDatetime> メソッドは、ネットワークタイムスタンプを UTC の日時に変換します。
 `0` （ジェネシスタイムスタンプ）を渡すことで、ジェネシスブロックが生成された瞬間、つまりネットワークの開始日を取得できます。
 
-### ノードからの情報取得
+### ノードからの情報取得 {: #retrieving-information-from-a-node }
 
 {{ tutorial.code_snippet(['py:13:27', 'js:12:28']) }}
 
@@ -45,7 +45,7 @@ Symbolブロックチェーンとの対話は、ネットワーク状態の照�
 
 このリクエストには秘密鍵や認証は必要ありません。環境が正しくセットアップされ、ネットワークに到達できることを確認するためのシンプルで効果的なテストとなります。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -53,7 +53,7 @@ Symbolブロックチェーンとの対話は、ネットワーク状態の照�
 --8<-- 'devbook/start/hello-world.log'
 ```
 
-## 結論
+## 結論 {: #conclusion }
 
 上記の出力が得られれば、準備は完了です。
 Symbol SDK にアクセスでき、Symbol API ノードへの到達に成功しました。

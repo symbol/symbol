@@ -2,7 +2,7 @@
 title: トランザクションフロー
 ---
 
-# トランザクションフローのリスニング
+# トランザクションフローのリスニング {: #listening-to-transaction-flow }
 
 Symbolは、特定の[アカウント](default: アカウント) に対する[トランザクション](default: トランザクション) が承認プロセスを進む際に、リアルタイムの通知を送信するWebSocketチャネルを提供しています。
 <get:/transactionStatus/{hash}> エンドポイントをポーリングする場合と比較して、WebSocketはAPI呼び出しを繰り返すオーバーヘッドなしに、更新が発生した瞬間にプッシュします。
@@ -13,7 +13,7 @@ Symbolは、特定の[アカウント](default: アカウント) に対する[�
 
     ポーリングベースのアプローチについては、[トランザクションステータスの監視](../transactions/monitoring-status.md) チュートリアルを参照してください。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -39,7 +39,7 @@ Symbolは、特定の[アカウント](default: アカウント) に対する[�
     このチュートリアルでは、Node.js 22以降で利用可能なネイティブの `WebSocket` APIを使用します。
     追加のパッケージは必要ありません。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -49,9 +49,9 @@ Symbolは、特定の[アカウント](default: アカウント) に対する[�
 値が指定されない場合は、デフォルト値が使用されます。
 WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え、 `/ws` を追加することで `NODE_URL` から派生します。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### 監視対象アドレスと署名者の設定
+### 監視対象アドレスと署名者の設定 {: #setting-up-the-monitored-address-and-signer }
 
 {{ tutorial.code_snippet(['py:16:27', 'js:9:17']) }}
 
@@ -64,7 +64,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 これらの環境変数のいずれかが提供されない場合、チュートリアルは同じアカウントに対応するデフォルト値を提供します。
 
-### WebSocketへの接続
+### WebSocketへの接続 {: #connecting-to-the-websocket }
 
 {{ tutorial.code_snippet(['py:31:35', 'js:20:28']) }}
 
@@ -73,7 +73,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 接続プロトコルの詳細については、[WebSocket リファレンス](../reference/websockets/index.md) を参照してください。
 
-### チャネルのサブスクライブ
+### チャネルのサブスクライブ {: #subscribing-to-channels }
 
 {{ tutorial.code_snippet(['py:37:48', 'js:30:40']) }}
 
@@ -85,7 +85,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 各サブスクリプションメッセージには、接続ステップで受信した `uid` と、監視対象アドレスを含む完全なチャネル名が含まれます。
 
-### 転送トランザクションの構築と署名
+### 転送トランザクションの構築と署名 {: #building-and-signing-a-transfer-transaction }
 
 {{ tutorial.code_snippet(['py:50:75', 'js:42:65']) }}
 
@@ -95,7 +95,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 トランザクションは通常通り構築されます。ネットワーク時間と手数料乗数を取得し、トランザクション記述子を作成して[署名](default: 署名) します。
 [ハッシュ](default: ハッシュ) はローカルで計算されるため、後で受信するWebSocketメッセージと照合することができます。
 
-### アナウンスと承認の待機
+### アナウンスと承認の待機 {: #announcing-and-waiting-for-confirmation }
 
 {{ tutorial.code_snippet(['py:77:98', 'js:67:95']) }}
 
@@ -121,13 +121,13 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 
 
-### チャネルのサブスクライブ解除
+### チャネルのサブスクライブ解除 {: #unsubscribing-from-channels }
 
 {{ tutorial.code_snippet(['py:100:106', 'js:97:102']) }}
 
 承認後、コードは接続を閉じる前に3つすべてのチャネルのサブスクライブ解除メッセージを送信します。
 
-## 出力
+## 出力 {: #output }
 
 ```text linenums="1" hl_lines="2 3 4-6 7 8-10 11 12"
 --8<-- 'devbook/websockets/listen-transaction-flow.log'
@@ -143,17 +143,17 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 * **承認** (11行目): `confirmedAdded` からのハッシュがアナウンスされたトランザクションと一致し、成功が確認されます。
 * **サブスクライブ解除** (12行目): コードはすべてのチャネルのサブスクライブを解除します。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 |-------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [unconfirmedAdded のサブスクライブ](#_6) | <ws:unconfirmedAdded&#47;{address}> |
-| [unconfirmedRemoved のサブスクライブ](#_6) | <ws:unconfirmedRemoved&#47;{address}> |
-| [confirmedAdded のサブスクライブ](#_6) | <ws:confirmedAdded&#47;{address}> |
-| [トランザクションメッセージの処理](#_8) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
+| [unconfirmedAdded のサブスクライブ](#subscribing-to-channels) | <ws:unconfirmedAdded&#47;{address}> |
+| [unconfirmedRemoved のサブスクライブ](#subscribing-to-channels) | <ws:unconfirmedRemoved&#47;{address}> |
+| [confirmedAdded のサブスクライブ](#subscribing-to-channels) | <ws:confirmedAdded&#47;{address}> |
+| [トランザクションメッセージの処理](#announcing-and-waiting-for-confirmation) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 拒否されたトランザクションとそのエラーコードを検出するには、[トランザクションエラーのリスニング](listen-transaction-error.md) チュートリアルを参照してください。

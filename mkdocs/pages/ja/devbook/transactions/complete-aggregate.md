@@ -2,7 +2,7 @@
 title: アグリゲートコンプリートトランザクション
 ---
 
-# アグリゲートコンプリートトランザクションの作成
+# アグリゲートコンプリートトランザクションの作成 {: #creating-a-complete-aggregate-transaction }
 
 このチュートリアルでは、[アグリゲートコンプリートトランザクション](default:アグリゲートコンプリートトランザクション) を使用してアセットスワップを作成する方法を説明します。
 
@@ -48,7 +48,7 @@ digraph {
 
     オフチェーンでの調整が実用的でない場合は、代わりに [アグリゲートボンデッドトランザクション](default: アグリゲートボンデッドトランザクション)を使用してください。これにより、オンチェーンで連署を追加できるようになります。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、開発環境がセットアップされていることを確認してください。
 [開発環境のセットアップ](../start/setup.md) を参照してください。
@@ -66,7 +66,7 @@ digraph {
 
 さらに、トランザクションがどのようにアナウンスされ、承認されるかを理解するために [転送トランザクション](./transfer.md) チュートリアルを確認してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -78,9 +78,9 @@ digraph {
 
 実際には、それぞれの役割は別々のマシンの別々のプログラムとして動作します。このチュートリアルでは複数者が関与するケースを実演しますが、簡略化のため両方の役割を1つのスクリプトにまとめています。
 
-## アカウント A: 開始者のワークフロー
+## アカウント A: 開始者のワークフロー {: #account-a-initiator-workflow }
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-accounts }
 
 {{ tutorial.code_snippet(['py:16:37', 'js:13:31']) }}
 
@@ -91,13 +91,13 @@ digraph {
 
 両方のアカウントのアドレスは、ファサードのネットワーク設定を使用して公開鍵から派生します。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:39:57', 'js:34:52']) }}
 
 ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### 埋め込みトランザクションの作成
+### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
 {{ tutorial.code_snippet(['py:59:80', 'js:54:77']) }}
 
@@ -120,7 +120,7 @@ digraph {
 
     自身のアカウントを使用する場合は、アカウント B がカスタムモザイクを保持していることを確認し、コード内のモザイク ID を更新してください。
 
-### アグリゲートトランザクションの構築
+### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction}
 
 {{ tutorial.code_snippet(['py:82:97', 'js:79:96']) }}
 
@@ -139,7 +139,7 @@ digraph {
 
 手数料は、アグリゲートの総サイズに基づいて計算されます。これには、すべての埋め込みトランザクションと、1つの連署（104バイト）用に予約されたスペースが含まれます。
 
-### トランザクションの署名
+### トランザクションの署名 {: #signing-the-transaction }
 
 {{ tutorial.code_snippet(['py:99:111', 'js:98:112']) }}
 
@@ -151,9 +151,9 @@ digraph {
 
     すべての埋め込みトランザクションが同じ署名者を共有する場合（1つのアカウントからの複数の操作をバッチ処理する場合）、連署は **不要** です。アグリゲートは署名後すぐにアナウンスでき、手数料計算で連署用のスペースを予約する必要もありません。
 
-## アカウント B: 連署者のワークフロー
+## アカウント B: 連署者のワークフロー {: #account-b-cosigner-workflow }
 
-### 検証と連署
+### 検証と連署 {: #verifying-and-cosigning }
 
 {{ tutorial.code_snippet(['py:113:126', 'js:114:131']) }}
 
@@ -165,15 +165,15 @@ digraph {
 
     連署する前に必ずトランザクション内容を検査してください。連署は拘束力を持ち、取り消すことはできません。
 
-## アカウント A: アナウンスと承認
+## アカウント A: アナウンスと承認 {: #account-a-announcing-and-confirming }
 
-### 連署の収集
+### 連署の収集 {: #collecting-the-cosignature }
 
 {{ tutorial.code_snippet(['py:128:134', 'js:133:139']) }}
 
 アカウント A はアカウント B の連署を受け取り、トランザクションオブジェクトの `cosignatures` 配列に追加し、アナウンス用のペイロードを再構築します。
 
-### トランザクションのアナウンス
+### トランザクションのアナウンス {: #announcing-the-transaction }
 
 トランザクションのアナウンス準備が整ったので、通常のアグリゲートではないトランザクションと同じプロセスに従います。
 
@@ -183,7 +183,7 @@ digraph {
 
 ノードは、トランザクションを受け入れる前に、必要なすべての署名が存在し有効であることを検証します。検証に合格すると、トランザクションは [未承認トランザクションプール](default: 未承認トランザクションプール) に追加され、他のノードにブロードキャストされます。
 
-### 承認の待機
+### 承認の待機 {: #waiting-for-confirmation }
 
 {{ tutorial.code_snippet(['py:151:171', 'js:155:179']) }}
 
@@ -193,7 +193,7 @@ digraph {
 
 
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -213,19 +213,19 @@ digraph {
 
 アグリゲートトランザクションは、ネットワークによって単一のアトミックな単位として扱われます。スワップは完全に実行されるか、トランザクション全体が失敗してアセットが一切転送されないかのどちらかとなります。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 |-----------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [埋め込みトランザクションの作成](#_6) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [アグリゲートの構築](#_7) | <dy:SymbolTransactionFactory.create> |
-| [トランザクションの署名](#_8) | <dy:SymbolFacade.signTransaction> |
-| [検証と連署](#_9) | <dy:SymbolFacade.cosignTransaction> |
-| [連署の収集](#_10) | <dy:SymbolTransactionFactory.attachSignature> |
+| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [アグリゲートの構築](#building-the-aggregate-transaction) | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [トランザクションの署名](#signing-the-transaction) | <dy:SymbolFacade.signTransaction> |
+| [検証と連署](#verifying-and-cosigning) | <dy:SymbolFacade.cosignTransaction> |
+| [連署の収集](#collecting-the-cosignature) | <dy:SymbolTransactionFactory.attachSignature> |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 * **1つのアカウントからの一括処理**: すべての取引で署名者が同じであり、連署が必要ない場合、より簡単な手順について[トランザクションの一括処理](./transaction-batching.md)を参照してください。
 * **手数料のスポンサー**: [他のアカウントの代理でのトランザクション手数料の支払い](./fee-sponsorship.md) チュートリアルを使用して、あるアカウントが別のアカウントの代わりにトランザクション手数料を支払えるようにします。

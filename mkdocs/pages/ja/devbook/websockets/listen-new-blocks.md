@@ -2,7 +2,7 @@
 title: 新しいブロック
 ---
 
-# 新しいブロックのリスニング
+# 新しいブロックのリスニング {: #listening-to-new-blocks }
 
 <ws:block> と <ws:finalizedBlock> WebSocket チャネルは、新しい [ブロック](default: ブロック) が生成されたとき、または [ファイナライズ](../../textbook/consensus.md#finalization) されたときにリアルタイムの通知を送信します。
 <get:/chain/info> エンドポイントをポーリングする場合と比較して、WebSocket は API 呼び出しを繰り返すオーバーヘッドなしに、更新が発生した瞬間にプッシュします。
@@ -13,7 +13,7 @@ title: 新しいブロック
 
     ポーリングベースのアプローチについては、[チェーンとファイナライズの最新高の照会](../chain/chain-heights.md) チュートリアルを参照してください。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 === ":simple-python: Python"
 
@@ -28,7 +28,7 @@ title: 新しいブロック
     このチュートリアルでは、Node.js 22 以降で利用可能なネイティブの `WebSocket` API を使用します。
     追加のパッケージは必要ありません。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -40,9 +40,9 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 プログラムは `Ctrl+C` で中断されるまで実行され、接続を閉じる前にサブスクライブ解除のステップをトリガーします。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### WebSocket への接続
+### WebSocket への接続 {: #connecting-to-the-websocket }
 
 {{ tutorial.code_snippet(['py:13:17', 'js:7:16']) }}
 
@@ -51,7 +51,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 接続プロトコルの詳細については、[WebSocket リファレンス](../reference/websockets/index.md) を参照してください。
 
-### チャネルのサブスクライブ
+### チャネルのサブスクライブ {: #subscribing-to-channels }
 
 
 
@@ -64,7 +64,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 各サブスクリプションメッセージには、接続ステップで受信した `uid` とチャネル名が含まれます。
 
-### メッセージの処理
+### メッセージの処理 {: #handling-messages }
 
 {{ tutorial.code_snippet(['py:29:48', 'js:26:50']) }}
 
@@ -88,14 +88,14 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 [投票ノード](default: 投票ノード) がこのプロセスをどのように推進するかについての詳細は、テキストブックの [コンセンサス](../../textbook/consensus.md) セクションを参照してください。
 
-### 終了時のサブスクライブ解除
+### 終了時のサブスクライブ解除 {: #unsubscribing-on-exit }
 
 {{ tutorial.code_snippet(['py:50:57', 'js:52:60']) }}
 
 プログラムが中断されたとき（ `Ctrl+C` ）、コードは接続を閉じる前に両方のチャネルのサブスクライブ解除メッセージを送信します。
 これにより、ノードからのクリーンな切断が保証されます。
 
-## 出力
+## 出力 {: #output }
 
 以下の出力は、新しいブロックとファイナライズイベントをリスニングする典型的な実行例を示しています。
 
@@ -111,13 +111,13 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 * **ファイナライズ** (8行目): ファイナライズラウンドが完了すると、一度に複数のブロックをカバーするファイナライズ通知が届きます。
 * **サブスクライブ解除** (11行目): `Ctrl+C` を押すと、コードは両方のチャネルのサブスクライブを解除します。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [block チャネルのサブスクライブ](#_5) | <ws:block> |
-| [finalized チャネルのサブスクライブ](#_5) | <ws:finalizedBlock> |
-| [ブロックメッセージの処理](#_6) | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO) |
-| [ファイナライズメッセージの処理](#_6) | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) |
+| [block チャネルのサブスクライブ](#subscribing-to-channels) | <ws:block> |
+| [finalized チャネルのサブスクライブ](#subscribing-to-channels) | <ws:finalizedBlock> |
+| [ブロックメッセージの処理](#handling-messages) | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO) |
+| [ファイナライズメッセージの処理](#handling-messages) | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) |

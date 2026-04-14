@@ -2,7 +2,7 @@
 title: 転送
 ---
 
-# 転送トランザクションの作成
+# 転送トランザクションの作成 {: #creating-a-transfer-transaction }
 
 [転送トランザクション](default:転送トランザクション) は、Symbol における最も基本的なトランザクションのタイプです。
 これを使用すると、ある [アカウント](default:アカウント) から別のアカウントへ <XYM:> やその他の任意の [モザイク](default:モザイク) を送信でき、オプションでメッセージを含めることも可能です。
@@ -10,7 +10,7 @@ title: 転送
 このチュートリアルでは、転送トランザクションを作成、署名、およびアナウンスし、その後トランザクションが承認されるまでステータスをポーリングする方法を説明します。
 現在の時間や手数料など、必要なトランザクションパラメータは、最新の値を使用するためにネットワークから取得されます。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -22,7 +22,7 @@ title: 転送
 * トランザクション手数料と転送額を支払うための <XYM:> を入手していること。
     [蛇口 (Faucet) からの通貨の入手](../accounts/testnet-faucet.md) を参照してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -30,16 +30,16 @@ title: 転送
 
 コード全体は、単純なエラー処理を提供するために単一の `try` ブロックでラップされていますが、実際のアプリケーションではより詳細な制御が必要になるでしょう。
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### アカウントのセットアップ
+### アカウントのセットアップ {: #setting-up-the-account }
 
 {{ tutorial.code_snippet(['py:15:17', 'js:12:15']) }}
 
 署名者アカウントは、 `SIGNER_PRIVATE_KEY` 環境変数から読み込まれます。
 指定されていない場合は、デフォルトでテストキーが使用されます。
 
-### ネットワーク時間の取得
+### ネットワーク時間の取得 {: #fetching-network-time }
 
 {{ tutorial.code_snippet(['py:22:29', 'js:20:28']) }}
 
@@ -83,7 +83,7 @@ Symbol の トランザクション には、有効期限（deadline）を含め
 ただし、アプリケーションはトランザクションごとにネットワーク時間を照会する必要はありません。
 一度取得すれば、必要に応じてローカルのシステムクロックを使用して調整できます。これにより、精度とパフォーマンスのバランスが得られます。
 
-### 推奨手数料の取得
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet(['py:31:39', 'js:30:38']) }}
 
@@ -103,7 +103,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 上記のスニペットは、推奨乗数（ `medianFeeMultiplier` ）とノードの最小乗数（ `minFeeMultiplier` ）の大きい方を取得し、トランザクションのサイズが判明した後に使用できるように保存します。
 
-### トランザクションの構築
+### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet({
   'py': { 'range': [41, 54] },
@@ -142,7 +142,7 @@ Symbol の トランザクションは、ノードにトランザクションを
     トランザクションには、オプションで自由形式のメッセージを含めることができます。
     [転送トランザクションでのメッセージの送信](./messages.md) で、その方法を説明しています。
 
-### 署名とシリアライズ
+### 署名とシリアライズ {: #signing-and-serializing }
 
 {{ tutorial.code_snippet(['py:56:61', 'js:54:59']) }}
 
@@ -153,7 +153,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 <dy:SymbolTransactionFactory.attachSignature> は、署名をトランザクションに追加し、アナウンスのためにノードに直接送信できる状態の JSON ペイロードにシリアライズします。
 
-### トランザクションのアナウンス
+### トランザクションのアナウンス {: #announcing-the-transaction }
 
 {{ tutorial.code_snippet(['py:63:73', 'js:61:69']) }}
 
@@ -165,7 +165,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 トランザクションが実際に受け入れられ、ブロックに含まれたことを確認するには、次のステップで示すように、そのステータスを個別に監視する必要があります。
 
-### 承認の待機
+### 承認の待機 {: #waiting-for-confirmation }
 
 {{ tutorial.code_snippet(['py:75:96', 'js:71:116']) }}
 
@@ -193,7 +193,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 コードは、最初のステータス確認を実行する **前に** 最初の待機を行っていることに注目してください。
 これにより、アナウンス後にノードがトランザクションの処理を開始するための時間が確保されます。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -211,17 +211,17 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [有効期限情報の取得](#_5) | <get:/node/time> |
-| [手数料情報の取得](#_6) | <get:/network/fees/transaction> |
-| [トランザクションの作成](#_7) | <dy:SymbolTransactionFactory.create> |
-| [トランザクションの署名](#_8) | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
-| [トランザクションのアナウンス](#_9) | <put:/transactions> |
-| [承認の待機](#_10) | <get:/transactionStatus/{hash}> |
+| [有効期限情報の取得](#fetching-network-time) | <get:/node/time> |
+| [手数料情報の取得](#fetching-recommended-fees) | <get:/network/fees/transaction> |
+| [トランザクションの作成](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
+| [トランザクションの署名](#signing-and-serializing) | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
+| [トランザクションのアナウンス](#announcing-the-transaction) | <put:/transactions> |
+| [承認の待機](#waiting-for-confirmation) | <get:/transactionStatus/{hash}> |
 
 他のトランザクションタイプも、同じ一般的なプロセスに従います。

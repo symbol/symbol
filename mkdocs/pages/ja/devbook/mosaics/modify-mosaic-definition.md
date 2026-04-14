@@ -2,7 +2,7 @@
 title: モザイク定義の変更
 ---
 
-# モザイク定義の変更
+# モザイク定義の変更 {: #modifying-a-mosaic-definition }
 
 ネットワーク上に [モザイク](default:モザイク) のユニットが存在しない限り、作成者は同じ識別子を使用して2回目の定義トランザクションを送信することで、その定義プロパティ（フラグ、可分性、および有効期間）を変更できます。
 
@@ -20,7 +20,7 @@ title: モザイク定義の変更
     既存のモザイクを修正するよりも、[新しいモザイクを作成する](./change-mosaic-supply.md) 方が簡単です。
     修正の仕組みを理解しておくことは、モザイクの定義がいつ編集できなくなるかを知るために重要です。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -33,15 +33,15 @@ title: モザイク定義の変更
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために、[転送トランザクション](../transactions/transfer.md) のチュートリアルを復習してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/mosaics/modify-mosaic-definition', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-account }
 
 {{ tutorial.code_snippet(['py:16:24', 'js:13:21']) }}
 
@@ -49,18 +49,18 @@ title: モザイク定義の変更
 署名者の [アドレス](default:アドレス) は [公開鍵](default:公開鍵) から派生します。
 この [アカウント](default:アカウント) は、そのモザイクの元の作成者である必要があります。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:27:47', 'js:24:42']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### 変更トランザクションの構築
+### 変更トランザクションの構築 {: #building-the-modification-transaction }
 
 モザイク定義を変更するには、現在の値（フラグ、可分性、有効期間）を知る必要があります。なぜなら、ネットワークはそれらを置き換えるのではなく、トランザクション内の値と組み合わせるからです。
 モザイクの情報は <get:/mosaics/{mosaicId}> エンドポイントを使用して取得するか、[Symbol エクスプローラー](https://testnet.symbol.fyi/) で検索できます。
 
-このチュートリアルでは、前のチュートリアルでモザイクが [作成および取得](./create-mosaic.md#モザイクの取得) された直後であるため、現在の値は既知であると仮定します。
+このチュートリアルでは、前のチュートリアルでモザイクが [作成および取得](./create-mosaic.md#retrieving-the-mosaic) された直後であるため、現在の値は既知であると仮定します。
 
 {{ tutorial.code_snippet(['py:49:65', 'js:44:61']) }}
 
@@ -73,7 +73,7 @@ title: モザイク定義の変更
 
 * **フラグ** は、現在のフラグと XOR（排他的論理和）演算されます。
     すでにアクティブなフラグを設定すると削除され、アクティブでないフラグを設定すると追加されます。
-    利用可能な各フラグの説明については、[モザイク定義トランザクションの構築](./create-mosaic.md#モザイク定義トランザクションの構築) を参照してください。
+    利用可能な各フラグの説明については、[モザイク定義トランザクションの構築](./create-mosaic.md#building-the-mosaic-definition-transaction) を参照してください。
 * **可分性** は、現在の可分性と XOR 演算されます。
     結果の値は `0` から `6` の間である必要があります。
 * **有効期間** は、現在の残り期間に加算されます。
@@ -82,7 +82,7 @@ title: モザイク定義の変更
     無期限のモザイク（期間 `0`）は、有効期間を変更できません。
     結果の期間は 10,512,000 ブロック（約10年）を超えることはできません。
 
-この例では、既存のモザイクはフラグ `transferable restrictable`（[数値](./create-mosaic.md#結論) `6`）を持っています。
+この例では、既存のモザイクはフラグ `transferable restrictable`（[数値](./create-mosaic.md#conclusion) `6`）を持っています。
 変更によって `flags: 'revokable'`（数値 `8`）を設定します。
 XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictable revokable` に対応します。
 
@@ -99,10 +99,10 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 !!! note "レンタル手数料"
 
     モザイクの作成時と同様に、変更時にも [XYM](default: XYM) で支払う [レンタル手数料](../../textbook/mosaics.md#lease-fee) が全額発生します。
-    これは、標準の [トランザクション手数料](#_6) に加えて、毎回発生する固定の手数料です。
+    これは、標準の [トランザクション手数料](#fetching-network-time-and-fees) に加えて、毎回発生する固定の手数料です。
     レンタル手数料の額は <get:/network/fees/rental> エンドポイント（ `effectiveMosaicRentalFee` プロパティ）から照会できます。
 
-### 変更の送信
+### 変更の送信 {: #submitting-the-modification }
 
 {{ tutorial.code_snippet(['py:67:86', 'js:63:85']) }}
 
@@ -112,7 +112,7 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
-### モザイクの取得
+### モザイクの取得 {: #retrieving-the-mosaic }
 
 {{ tutorial.code_snippet(['py:108:121', 'js:123:136']) }}
 
@@ -120,7 +120,7 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 レスポンスが成功すれば、モザイクが期待通りのフラグ値を持っていることが確認されます。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -144,12 +144,12 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 | --------------------------------------------------------------------------- | ------------------------------------ |
-| [モザイクIDを生成する](#_6) | <dy:IdGenerator.generateMosaicId> |
-| [モザイクフラグを変更する](#_6) | <dy:SymbolTransactionFactory.create> |
-| [更新されたモザイクを検証する](#_9) | <get:/mosaics/{mosaicId}> |
+| [モザイクIDを生成する](#building-the-modification-transaction) | <dy:IdGenerator.generateMosaicId> |
+| [モザイクフラグを変更する](#building-the-modification-transaction) | <dy:SymbolTransactionFactory.create> |
+| [更新されたモザイクを検証する](#retrieving-the-mosaic) | <get:/mosaics/{mosaicId}> |

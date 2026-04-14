@@ -2,7 +2,7 @@
 title: 蛇口 (Faucet) からの通貨の入手
 ---
 
-# 蛇口 (Faucet) からのテストネット通貨の入手
+# 蛇口 (Faucet) からのテストネット通貨の入手 {: #getting-testnet-funds-from-the-faucet }
 
 Symbol [テストネット](default:テストネット) では、テスト目的で開発者の [アカウント](default:アカウント) に <XYM:> を無料で配布する「蛇口 (Faucet)」を提供しています。このガイドでは、ウェブベースの Faucet を使用してテストネットの通貨を請求する方法を説明します。
 
@@ -11,14 +11,14 @@ Symbol [テストネット](default:テストネット) では、テスト目的
 
     [メインネット](default:メインネット) の XYM が必要な場合は、[取引所](https://coinmarketcap.com/currencies/symbol/#Markets) を通じて購入する必要があります。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
 - 資金を受け取るためのテストネット [アカウント](default:アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
 - Faucet で本人確認を行うための 𝕏 アカウントを持っていること。
 
-## テストネット資金を請求する方法
+## テストネット資金を請求する方法 {: #how-to-claim-testnet-funds }
 
 {% import 'tutorial.jinja2' as tutorial %}
 
@@ -66,7 +66,7 @@ Symbol [テストネット](default:テストネット) では、テスト目的
 
 {{ tutorial.list_end() }}
 
-## Faucet への通貨の返却
+## Faucet への通貨の返却 {: #returning-funds-to-the-faucet }
 
 テストが終了したら、未使用の XYM を Faucet に返却することを検討してください。Faucet のアドレスは、資金を送ってきたアドレスと同じです。
 
@@ -74,6 +74,6 @@ Symbol [テストネット](default:テストネット) では、テスト目的
 
 さらに良い方法として、テスト用のトランザクションの送信先として Faucet アドレスを使用してみてください。これにより、他の開発者のために Faucet の在庫を維持しながら、トランザクション送信の練習をすることができます。
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 [転送トランザクションの送信](../transactions/transfer.md) を試してみませんか？

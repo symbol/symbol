@@ -2,7 +2,7 @@
 title: アグリゲートボンデッドトランザクション
 ---
 
-# アグリゲートボンデッドトランザクションの作成
+# アグリゲートボンデッドトランザクションの作成 {: #creating-a-bonded-aggregate-transaction }
 
 このチュートリアルでは、[アグリゲートボンデッドトランザクション](default:アグリゲートボンデッドトランザクション) を使用してアセットスワップを作成する方法を説明します。
 
@@ -50,7 +50,7 @@ digraph {
 
     当事者がオフチェーンで通信して署名を交換できる場合、[アグリゲートコンプリートトランザクション](default: アグリゲートコンプリートトランザクション) を使用すれば、このデポジットは不要です。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、開発環境がセットアップされていることを確認してください。
 [開発環境のセットアップ](../start/setup.md) を参照してください。
@@ -66,7 +66,7 @@ digraph {
 
 さらに、トランザクションがどのようにアナウンスされ、承認されるかを理解するために [転送トランザクション](./transfer.md) のチュートリアルを確認してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -78,9 +78,9 @@ digraph {
 
 コード全体は、単純なエラー処理を提供するために単一の `try` ブロックでラップされていますが、実際のアプリケーションではより詳細な制御が必要になるでしょう。
 
-## アカウント A: 開始者のワークフロー
+## アカウント A: 開始者のワークフロー {: #account-a-initiator-workflow }
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-accounts }
 
 {{ tutorial.code_snippet(['py:62:82', 'js:76:94']) }}
 
@@ -92,13 +92,13 @@ digraph {
 
 両方のアカウントのアドレスは、ファサードのネットワーク設定を使用して公開鍵から派生します。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:85:103', 'js:97:115']) }}
 
 [転送トランザクション](./transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### 埋め込みトランザクションの作成
+### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
 {{ tutorial.code_snippet(['py:105:126', 'js:117:140']) }}
 
@@ -123,7 +123,7 @@ digraph {
 
     自身のアカウントを使用する場合は、アカウント B がカスタムモザイクを保持していることを確認し、コード内のモザイク ID を更新してください。
 
-### アグリゲートトランザクションの構築
+### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction }
 
 {{ tutorial.code_snippet(['py:128:144', 'js:142:159']) }}
 
@@ -145,7 +145,7 @@ digraph {
 
 手数料は、アグリゲートの総サイズに基づいて計算されます。これには、すべての埋め込みトランザクションと、1つの連署（104バイト）用に予約されたスペースが含まれます。
 
-### ボンデッドトランザクションの署名
+### ボンデッドトランザクションの署名 {: #signing-the-bonded-transaction }
 
 {{ tutorial.code_snippet(['py:146:154', 'js:161:170']) }}
 
@@ -153,7 +153,7 @@ digraph {
 
 このハッシュは、次のステップであるハッシュロックトランザクションの作成に必要です。
 
-### ハッシュロックの作成
+### ハッシュロックの作成 {: #creating-the-hash-lock }
 
 {{ tutorial.code_snippet(['py:156:182', 'js:172:201']) }}
 
@@ -173,7 +173,7 @@ digraph {
 
 その後、`wait_for_status` ヘルパー関数が承認されるまでトランザクションステータスをポーリングします。
 
-### ボンデッドトランザクションのアナウンス
+### ボンデッドトランザクションのアナウンス {: #announcing-the-bonded-transaction }
 
 {{ tutorial.code_snippet(['py:184:192', 'js:203:210']) }}
 
@@ -181,9 +181,9 @@ digraph {
 
 [ノード](default:ノード) はトランザクションを検証し、有効なハッシュロックが存在することを確認して、それを「部分的（partial）」な状態に置きます。`wait_for_status` ヘルパーはこの状態に達するまでトランザクションを監視し、その時点で連署を収集できるようになります。
 
-## アカウント B: 連署者のワークフロー
+## アカウント B: 連署者のワークフロー {: #account-b-cosigner-workflow }
 
-### トランザクションの復元
+### トランザクションの復元 {: #recovering-the-transaction }
 
 {{ tutorial.code_snippet(['py:194:217', 'js:212:238']) }}
 
@@ -193,7 +193,7 @@ digraph {
 
 この例では、両方のアカウントが同じスクリプトで動作しているため、特定のトランザクションハッシュを探しています。実際には、アカウント B はポーリングによって保留中のトランザクションを発見し、その内容に基づいてどれに連署するかを決定します。
 
-### トランザクションの検証
+### トランザクションの検証 {: #verifying-the-transaction }
 
 {{ tutorial.code_snippet(['py:219:229', 'js:240:250']) }}
 
@@ -205,7 +205,7 @@ digraph {
 
     連署する前に必ずトランザクション内容を検査してください。連署は拘束力を持ち、取り消すことはできません。
 
-### トランザクションへの連署
+### トランザクションへの連署 {: #cosigning-the-transaction }
 
 {{ tutorial.code_snippet(['py:231:246', 'js:252:268']) }}
 
@@ -224,7 +224,7 @@ digraph {
 
 すべての埋め込みトランザクションを満たすのに十分な連署が収集されると、ネットワークは自動的にボンデッドアグリゲートを処理し、ブロックに含めます。
 
-### 承認の待機
+### 承認の待機 {: #waiting-for-confirmation }
 
 {{ tutorial.code_snippet(['py:248:252', 'js:270:274']) }}
 
@@ -236,7 +236,7 @@ digraph {
 
 
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -258,23 +258,23 @@ digraph {
 
 アグリゲートトランザクションは、ネットワークによって単一のアトミックな単位として扱われます。スワップは完全に実行される（アカウント A がカスタムモザイクを受け取り、アカウント B が XYM を受け取る）か、トランザクション全体が失敗してアセットが一切転送されないかのどちらかとなります。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました：
 
 | ステップ | 関連ドキュメント |
 | ----------------------------------------------------------------------------| ------------------------------------------------------------------------------------|
-| [埋め込みトランザクションの作成](#_6) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [アグリゲートの構築](#_7) | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [ボンデッドトランザクションの署名](#_8) | <dy:SymbolFacade.signTransaction> |
-| [ハッシュロックの作成](#_9) | <dy:SymbolTransactionFactory.create><br/><put:/transactions> |
-| [ボンデッドトランザクションのアナウンス](#_10) | <put:/transactions/partial> |
-| [トランザクションの復元](#_11) | <get:/transactions/partial> |
-| [トランザクションの検証](#_12) | <get:/transactions/partial/{transactionId}> |
-| [トランザクションへの連署](#_13) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |
-| [承認の待機](#_14) | <get:/transactionStatus/{hash}> |
+| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [アグリゲートの構築](#building-the-aggregate-transaction) | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [ボンデッドトランザクションの署名](#signing-the-bonded-transaction) | <dy:SymbolFacade.signTransaction> |
+| [ハッシュロックの作成](#creating-the-hash-lock) | <dy:SymbolTransactionFactory.create><br/><put:/transactions> |
+| [ボンデッドトランザクションのアナウンス](#announcing-the-bonded-transaction) | <put:/transactions/partial> |
+| [トランザクションの復元](#recovering-the-transaction) | <get:/transactions/partial> |
+| [トランザクションの検証](#verifying-the-transaction) | <get:/transactions/partial/{transactionId}> |
+| [トランザクションへの連署](#cosigning-the-transaction) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |
+| [承認の待機](#waiting-for-confirmation) | <get:/transactionStatus/{hash}> |
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 * **WebSocket による監視:** ポーリングの代わりに、[ボンデッドトランザクションフローのリスニング](../websockets/listen-bonded-transaction-flow.md) チュートリアルを使用してリアルタイム通知を使用します。
 * **手数料のスポンサー:** [他のアカウントの代理でのトランザクション手数料の支払い](./fee-sponsorship.md) チュートリアルを使用して、あるアカウントが別のアカウントの代わりに手数料を支払えるようにします。

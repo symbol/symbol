@@ -2,7 +2,7 @@
 title: アカウント制限の追加
 ---
 
-# アカウントへの制限の追加
+# アカウントへの制限の追加 {: #adding-restrictions-to-an-account }
 
 アカウントは、以下の項目に対して制限を課すことができます。
 
@@ -26,7 +26,7 @@ title: アカウント制限の追加
 
     アカウント制限はアカウントがインタラクションできるモザイクを制限でき、モザイク制限はモザイクとインタラクションできるアカウントを制限できるため、概念的な重複が混乱の元となることがよくあります。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -38,31 +38,31 @@ title: アカウント制限の追加
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために、[転送トランザクション](../transactions/transfer.md) のチュートリアルを復習してください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/accounts/account-restrictions', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
 コードは、2つのヘルパー関数の定義から始まります。
 トランザクションのアナウンス方法や承認の追跡方法の詳細については、[転送トランザクション](../transactions/transfer.md) のチュートリアルを参照してください。その他のヘルパー関数については、以下のセクションで説明します。
 
 その後、チュートリアルは以下の手順で進みます。
 
-- [必要な鍵の設定](#_5)
-- [現在のネットワーク状態の取得](#_6)
-- [現在の制限状態の検出](#_7)
+- [必要な鍵の設定](#setting-up-the-accounts)
+- [現在のネットワーク状態の取得](#fetching-network-time-and-fees)
+- [現在の制限状態の検出](#detecting-the-restriction-state)
 
 アカウントがすでに制限されているかどうかに応じて、以下のいずれかのトランザクションが作成されます。
 
-- [制限の有効化](#_8)
-- [制限の解除](#_9)
+- [制限の有効化](#enabling-the-restriction)
+- [制限の解除](#removing-the-restriction)
 
-その後、トランザクションは [アナウンスおよび承認](#_10) され、最後に [テスト転送](#_11) が送信されます。
+その後、トランザクションは [アナウンスおよび承認](#submitting-the-transaction) され、最後に [テスト転送](#sending-a-test-transfer) が送信されます。
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-accounts }
 
 {{ tutorial.code_snippet(['py:105:113', 'js:111:119']) }}
 
@@ -73,13 +73,13 @@ title: アカウント制限の追加
 
 この段階で、許可されたアドレスも設定されます。制限によって、後に送信トランザクションはこのアドレスのみに限定されます。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:116:134', 'js:122:140']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### 制限状態の検出
+### 制限状態の検出 {: #detecting-the-restriction-state }
 
 以下の関数は、<get:/restrictions/account/{address}> エンドポイントを使用して、指定されたアドレスに適用されている現在のアカウント制限を取得します。制限が設定されていない場合、関数は空のリストを返します。
 
@@ -91,7 +91,7 @@ title: アカウント制限の追加
 
 アカウントに複数の制限が設定されている場合、エンドポイントから返された最初の制限のみが削除されます。このチュートリアルの範囲内では、そのような状況は発生しないはずです。
 
-### 制限の有効化
+### 制限の有効化 {: #enabling-the-restriction }
 
 アカウントがインタラクションできるアドレスのリストを制限するには、<ser:AccountAddressRestrictionTransactionV1> を使用します。
 
@@ -121,7 +121,7 @@ title: アカウント制限の追加
 
     この例では、リストには許可されたアドレスのみが含まれます。
 
-### 制限の解除
+### 制限の解除 {: #removing-the-restriction }
 
 制限を無効にするには、設定されているフラグとリストされたアドレスの両方をクリアする必要があります。
 
@@ -133,13 +133,13 @@ title: アカウント制限の追加
 
 <dy:Address.fromDecodedAddressHexString> メソッドは、REST API から返される16進文字列形式を、トランザクション構築時に期待されるアドレス表現に変換します。
 
-### トランザクションの送信
+### トランザクションの送信 {: #submitting-the-transaction }
 
 構築されたトランザクションは、[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されている通り、署名、アナウンス、承認されます。
 
 {{ tutorial.code_snippet(['py:148:154', 'js:157:164']) }}
 
-### テスト転送の送信
+### テスト転送の送信 {: #sending-a-test-transfer }
 
 その後、未承認のアドレスに対してテスト用の転送が試行されます。
 
@@ -151,7 +151,7 @@ title: アカウント制限の追加
 
 このプロセスは、両方のトランザクションを単一の [アグリゲートトランザクション](default: アグリゲートトランザクション) に組み込んで一緒にアナウンスすることで最適化できます。
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な2つの実行結果に対応しています。
 
@@ -185,12 +185,12 @@ title: アカウント制限の追加
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-## 結論
+## 結論 {: # }
 
 このチュートリアルでは、以下の方法を説明しました。
 
 | ステップ | 関連ドキュメント |
 |------------------------------------------------------------------------------------|----------------------------------------------|
-| [現在の制限設定の取得](#_7) | <get:/restrictions/account/{address}> |
-| [制限の有効化](#_8) | <ser:AccountAddressRestrictionTransactionV1> |
-| [制限の解除](#_9) | <ser:AccountAddressRestrictionTransactionV1> |
+| [現在の制限設定の取得](#detecting-the-restriction-state) | <get:/restrictions/account/{address}> |
+| [制限の有効化](#enabling-the-restriction) | <ser:AccountAddressRestrictionTransactionV1> |
+| [制限の解除](#removing-the-restriction) | <ser:AccountAddressRestrictionTransactionV1> |

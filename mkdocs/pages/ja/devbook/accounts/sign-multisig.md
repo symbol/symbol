@@ -2,7 +2,7 @@
 title: マルチシグでの署名
 ---
 
-# マルチシグアカウントからのトランザクション署名
+# マルチシグアカウントからのトランザクション署名 {: #signing-a-transaction-from-a -multisignature-account }
 
 このチュートリアルでは、[転送トランザクションの作成](../transactions/transfer.md) チュートリアルと同様に、[アカウント](default: アカウント) から自身へ 1 [XYM](default: XYM) を転送します。
 
@@ -23,7 +23,7 @@ digraph "Multisignature Tree" {
 }
 ```
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 開始する前に、以下を確認してください。
 
@@ -33,19 +33,19 @@ digraph "Multisignature Tree" {
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために [転送トランザクション](../transactions/transfer.md) チュートリアルを、[アグリゲートトランザクション](default: アグリゲートトランザクション) の仕組みを理解するために [アグリゲートコンプリートトランザクション](../transactions/complete-aggregate.md) のチュートリアルを復習しておいてください。
 
-## 完全なコード
+## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
 {{ tutorial.code_full('devbook/accounts/sign-multisig', ['py', 'js']) }}
 
-## コード解説
+## コード解説 {: #code-explanation }
 
 一般的に、マルチシグアカウントの代理でトランザクションに署名するには、必要な連署を提供する [アグリゲートトランザクション](default:アグリゲートトランザクション) でラップするだけで済みます。
 
 このチュートリアルでは、転送の起点となるマルチシグアカウントを署名者として、転送内容を含む [埋め込みトランザクション](default:埋め込みトランザクション) を構築します。その後、トランザクションを承認できるアカウントである連署者が署名した [アグリゲートコンプリートトランザクション](default:アグリゲートコンプリートトランザクション) で、その転送トランザクションをラップします。
 
-### アカウントの設定
+### アカウントの設定 {: #setting-up-the-accounts }
 
 {{ tutorial.code_snippet(['py:16:27', 'js:12:21']) }}
 
@@ -63,13 +63,13 @@ digraph "Multisignature Tree" {
 
 上記のスニペットは、後で使用するために各アカウントの [キーペア](default:キーペア) を派生させて保存します。
 
-### ネットワーク時間と手数料の取得
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
 {{ tutorial.code_snippet(['py:32:49', 'js:26:44']) }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### トランザクションの構築
+### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet(['py:51:62', 'js:46:56']) }}
 
@@ -102,9 +102,9 @@ digraph "Multisignature Tree" {
 
     他のマルチシグ構成では、より多くの署名が必要になる場合があります。その場合、 <dy:SymbolFacade.signTransaction> ではなく <dy:SymbolFacade.cosignTransaction> を使用して署名を付加します。
 
-    例については [マルチシグアカウントの設定](./configure-multisig.md#マルチシグの有効化) チュートリアルを参照してください。
+    例については [マルチシグアカウントの設定](./configure-multisig.md) チュートリアルを参照してください。
 
-### アグリゲートトランザクションの送信
+### アグリゲートトランザクションの送信 {: #submitting-the-aggregate-transaction }
 
 最後のステップは、[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているように、トランザクションをアナウンスして承認を待つことです。
 
@@ -118,7 +118,7 @@ digraph "Multisignature Tree" {
 | Aggregate Ineligible Cosignatories | 署名者が連署者リストに含まれていない。 |
 | Consumer Batch Signature Not Verifiable | アグリゲートトランザクションに付加された署名が、その `signer_public_key` と一致しない。 |
 
-## 出力
+## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
@@ -135,7 +135,7 @@ digraph "Multisignature Tree" {
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-## 結論
+## 結論 {: #conclusion }
 
 このチュートリアルは機能的には [転送トランザクション](../transactions/transfer.md) チュートリアルと同じですが、送信元アカウントとして [マルチシグアカウント] (default:マルチシグアカウント) を使用しています。
 
@@ -143,5 +143,5 @@ digraph "Multisignature Tree" {
 
 | ステップ | 関連ドキュメント |
 |-----------------------------------------------------------------------|----------------------------------------------|
-| [転送トランザクションを埋め込みトランザクションにラップする](#_7) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [適切な場所に署名を付加する](#_7) | <dy:SymbolFacade.signTransaction> |
+| [転送トランザクションを埋め込みトランザクションにラップする](#building-the-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [適切な場所に署名を付加する](#building-the-transaction) | <dy:SymbolFacade.signTransaction> |

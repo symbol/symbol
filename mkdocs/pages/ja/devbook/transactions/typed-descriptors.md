@@ -2,7 +2,7 @@
 title: 型付き記述子
 ---
 
-# JavaScriptで型付き記述子を使用してトランザクションを作成する
+# JavaScriptで型付き記述子を使用してトランザクションを作成する {: #creating-transactions-using-typed-descriptors-in-javascript }
 
 ネットワークとのやり取りのほとんどはトランザクションを通じて行われるため、[トランザクション](default:トランザクション) はSymbolブロックチェーンの基本的な要素です。これにより、[XYM](default:XYM)やその他の[モザイク](default:モザイク)を、任意でメッセージを添えて、ある[アカウント](default:アカウント)から別のアカウントへ送信することができます。
 
@@ -24,11 +24,11 @@ title: 型付き記述子
 
     [完全なチュートリアルコードをダウンロードする]({{ config.repo_url }}/raw/refs/heads/{{config.extra.symbol.branch}}/mkdocs/overrides/devbook/transactions/transfer.typed.mjs){ .source-link }
 
-## 作成プロセス
+## 作成プロセス {: #creation-process }
 
 トランザクションは、トランザクション記述子の作成とトランザクション自体の作成という2つのステップで、型安全な方法で作成されます。
 
-### 記述子の作成
+### 記述子の作成 {: #creating-the-descriptor }
 
 === "JavaScript"
 
@@ -42,7 +42,7 @@ title: 型付き記述子
 
 そのような記述子が利用可能な場合、チュートリアルは常に関連するリファレンスページとこのガイドの両方にリンクします。
 
-### トランザクションの作成
+### トランザクションの作成 {: #creating-the-transaction }
 
 === "JavaScript"
 
