@@ -95,9 +95,7 @@ namespace catapult { namespace thread {
 		auto startOffset = name.size() > maxLength ? name.size() - maxLength : 0;
 		auto truncatedName = name.substr(startOffset, maxLength);
 
-#if defined(HAVE_PTHREAD_SET_NAME_NP) && HAVE_PTHREAD_SET_NAME_NP
-		std::ignore = pthread_set_name_np(::pthread_self(), truncatedName.data());
-#elif defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_WIN32)
 		std::ignore = pthread_setname_np(truncatedName.data());
 #else
 		std::ignore = pthread_setname_np(pthread_self(), truncatedName.c_str());
