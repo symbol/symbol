@@ -154,8 +154,13 @@ extra:
         - sc
         - nc
         - NemFacade
+        - facade
+        - external
+        - Ordered
+        - SharedKey
       ignore-folders:
         - nem
+        - impl
     class-remaps:
       SymbolTransactionFactory: TransactionFactory
     global-namespaces:
