@@ -26,14 +26,14 @@ import { expect } from 'chai';
 describe('zmqUtils', () => {
 	const createMockZsocket = () => {
 		const zsocket = {
-			monitorParamGroups: [],
+			numMonitorCalls: 0,
 			numUnmonitorCalls: 0,
 			numCloseCalls: 0,
 			emittedEventNames: [],
 			eventHandlers: {}
 		};
 
-		zsocket.monitor = (interval, numEvents) => { zsocket.monitorParamGroups.push({ interval, numEvents }); };
+		zsocket.monitor = () => { ++zsocket.numMonitorCalls; };
 		zsocket.unmonitor = () => { ++zsocket.numUnmonitorCalls; };
 		zsocket.close = () => { ++zsocket.numCloseCalls; };
 
@@ -51,7 +51,7 @@ describe('zmqUtils', () => {
 	};
 
 	describe('prepareZsocket', () => {
-		const zmqConfig = { connectTimeout: 10000, monitorInterval: 150 };
+		const zmqConfig = { connectTimeout: 10000 };
 
 		const prepareDefaultZsocket = zsocket => {
 			zmqUtils.prepareZsocket(zsocket, zmqConfig, test.createMockLogger());
@@ -62,7 +62,7 @@ describe('zmqUtils', () => {
 		};
 
 		const assertZsocketIsOpen = zsocket => {
-			expect(zsocket.monitorParamGroups).to.deep.equal([{ interval: 150, numEvents: 0 }]);
+			expect(zsocket.numMonitorCalls).to.equal(1);
 			expect(zsocket.numUnmonitorCalls).to.equal(0);
 			expect(zsocket.numCloseCalls).to.equal(0);
 			expect(zsocket.emittedEventNames).to.deep.equal([]);
@@ -92,12 +92,12 @@ describe('zmqUtils', () => {
 				const zsocket = createMockZsocket();
 				const logger = test.createMockLogger();
 				const monitorEventNames = [
-					'connect', 'connect_delay', 'connect_retry',
-					'listen', 'bind_error',
-					'accept', 'accept_error',
-					'close', 'close_error',
+					'connect', 'connect:delay', 'connect:retry',
+					'bind', 'bind:error',
+					'accept', 'accept:error',
+					'close', 'close:error',
 					'disconnect',
-					'monitor_error'
+					'monitor:error'
 				];
 
 				// Act:
@@ -204,7 +204,7 @@ describe('zmqUtils', () => {
 		it('closes socket on connect timeout', () => {
 			// Arrange:
 			const zsocket = createMockZsocket();
-			zmqUtils.prepareZsocket(zsocket, { connectTimeout: 0, monitorInterval: 150 }, test.createMockLogger());
+			zmqUtils.prepareZsocket(zsocket, { connectTimeout: 0 }, test.createMockLogger());
 
 			// Act: wait for the timeout
 			return new Promise(resolve => {
@@ -219,7 +219,7 @@ describe('zmqUtils', () => {
 		it('only calls close once when explicit close is followed by timeout', () => {
 			// Arrange:
 			const zsocket = createMockZsocket();
-			zmqUtils.prepareZsocket(zsocket, { connectTimeout: 0, monitorInterval: 150 }, test.createMockLogger());
+			zmqUtils.prepareZsocket(zsocket, { connectTimeout: 0 }, test.createMockLogger());
 
 			// Act: explicitly close the socket
 			zsocket.close();
@@ -237,7 +237,7 @@ describe('zmqUtils', () => {
 		it('clears connect timer on successful connect', () => {
 			// Arrange:
 			const zsocket = createMockZsocket();
-			zmqUtils.prepareZsocket(zsocket, { connectTimeout: 0, monitorInterval: 150 }, test.createMockLogger());
+			zmqUtils.prepareZsocket(zsocket, { connectTimeout: 0 }, test.createMockLogger());
 
 			// Act: simulate a connect
 			cancelConnectTimer(zsocket);

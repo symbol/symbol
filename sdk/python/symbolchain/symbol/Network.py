@@ -41,10 +41,15 @@ class Address(ByteArray):
 	def to_namespace_id(self):
 		"""Attempts to convert this address into a namespace id."""
 
-		if not self.bytes[0] & 0x01:
+		if not self.is_alias():
 			return None
 
 		return NamespaceId(int.from_bytes(self.bytes[1:9], 'little'))
+
+	def is_alias(self):
+		"""Determines if this address is an alias."""
+
+		return 0 != (self.bytes[0] & 0x01)
 
 	def __str__(self):
 		return base64.b32encode(self.bytes + bytes(0)).decode('utf8')[0:-1]

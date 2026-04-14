@@ -19,24 +19,23 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import zmq from 'zeromq';
 import EventEmitter from 'events';
 
 const logAllMonitorEvents = (zsocket, throttle, logger) => {
 	const eventNameLevelPairs = {
 		connect: 'info',
-		connect_delay: 'debug',
-		connect_retry: 'info',
+		'connect:delay': 'debug',
+		'connect:retry': 'debug',
 
-		listen: 'debug',
-		bind_error: 'error',
+		bind: 'debug',
+		'bind:error': 'error',
 		accept: 'debug',
-		accept_error: 'error',
+		'accept:error': 'error',
 		close: 'info',
-		close_error: 'error',
+		'close:error': 'error',
 		disconnect: 'warn',
 
-		monitor_error: 'error'
+		'monitor:error': 'error'
 	};
 
 	const createLogHandler = (name, level) => {
@@ -62,7 +61,7 @@ const logAllMonitorEvents = (zsocket, throttle, logger) => {
 export default {
 	/**
 	 * Prepares a zmq socket for a connection.
-	 * @param {zmq.Socket} zsocket Zmq socket.
+	 * @param {ZmqSocketWrapper} zsocket Zmq socket.
 	 * @param {object} zmqConfig Zmq configuration.
 	 * @param {logger} logger Level-based logger object.
 	 */
@@ -89,7 +88,7 @@ export default {
 		// log all monitor events
 		logAllMonitorEvents(zsocket, zmqConfig.monitorLoggingThrottle, logger);
 
-		// zmq js still forwards errors to error event that need to be handled
+		// zmq js still forwards errors to the error event that needs to be handled
 		zsocket.on('error', err => {
 			closeWithError('error from zsocket', err);
 		});
@@ -103,8 +102,8 @@ export default {
 			clearTimeout(connectTimeoutTimerId);
 		});
 
-		// enable monitoring (0 => read all events each interval)
-		zsocket.monitor(zmqConfig.monitorInterval, 0);
+		// enable monitoring
+		zsocket.monitor();
 	},
 
 	/**

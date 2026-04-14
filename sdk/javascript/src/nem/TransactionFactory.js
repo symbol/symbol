@@ -125,9 +125,17 @@ export default class TransactionFactory {
 	 */
 	static attachSignature(transaction, signature) {
 		transaction.signature = new nc.Signature(signature.bytes);
+		return TransactionFactory.toJson(transaction);
+	}
 
+	/**
+	 * Generates a JSON representation of transaction that can be sent to a node.
+	 * @param {nc.Transaction} transaction Transaction object.
+	 * @returns {string} JSON transaction payload.
+	 */
+	static toJson(transaction) {
 		const transactionHex = uint8ToHex(this.toNonVerifiableTransaction(transaction).serialize());
-		const signatureHex = signature.toString();
+		const signatureHex = transaction.signature.toString();
 		const jsonPayload = `{"data":"${transactionHex}", "signature":"${signatureHex}"}`;
 		return jsonPayload;
 	}

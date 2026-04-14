@@ -19,6 +19,9 @@ def generate_mosaic_id(owner_address, nonce):
 
 def generate_namespace_id(name, parent_namespace_id=0):
 	"""Generates a namespace id from a name and an optional parent namespace id."""
+	if '.' in name:
+		raise ValueError(f'\'name\' cannot contain \'.\'; if {name} is a namepace path, consider using generate_namespace_path')
+
 	hasher = hashlib.sha3_256()
 	hasher.update(parent_namespace_id.to_bytes(8, 'little'))
 	hasher.update(name.encode('utf8'))
@@ -31,6 +34,11 @@ def generate_namespace_id(name, parent_namespace_id=0):
 def generate_mosaic_alias_id(fully_qualified_name):
 	"""Generates a mosaic id from a fully qualified mosaic alias name."""
 	return generate_namespace_path(fully_qualified_name)[-1]
+
+
+def is_mosaic_alias(mosaic_id):
+	"""Determines if mosaic_id is an alias."""
+	return 0 != (mosaic_id & NAMESPACE_FLAG)
 
 
 def is_valid_namespace_name(name):

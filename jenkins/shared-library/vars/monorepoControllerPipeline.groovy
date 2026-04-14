@@ -12,6 +12,9 @@ void call(Closure body) {
 			choice name: 'OPERATING_SYSTEM',
 				choices: jenkinsfileParams.operatingSystem ?: ['ubuntu'],
 				description: 'Run on specific OS'
+			choice name: 'BUILD_CONFIGURATION',
+				choices: ['release-public', 'release-private'],
+				description: 'build configuration'
 			choice name: 'ARCHITECTURE',
 				choices: ['arm64', 'amd64'],
 				description: 'Computer architecture'
@@ -149,7 +152,7 @@ void triggerJobs(String branchName) {
 				build job: "${fullJobName}", parameters: [
 					gitParameter(name: 'MANUAL_GIT_BRANCH', value: branchName),
 					string(name: 'OPERATING_SYSTEM', value: osValue ?: 'ubuntu'),
-					string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
+					string(name: 'BUILD_CONFIGURATION', value: params.BUILD_CONFIGURATION),
 					string(name: 'TEST_MODE', value: 'code-coverage'),
 					string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
 					booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),

@@ -47,6 +47,9 @@ const generateMosaicId = (ownerAddress, nonce) => {
  * @returns {bigint} Computed namespace id.
  */
 const generateNamespaceId = (name, parentNamespaceId = 0n) => {
+	if (name.includes('.'))
+		throw Error(`'name' cannot contain '.'; if ${name} is a namepace path, consider using generateNamespacePath'`);
+
 	const hasher = sha3_256.create();
 	hasher.update(uint32ToBytes(Number(parentNamespaceId & 0xFFFFFFFFn)));
 	hasher.update(uint32ToBytes(Number((parentNamespaceId >> 32n) & 0xFFFFFFFFn)));
@@ -56,6 +59,13 @@ const generateNamespaceId = (name, parentNamespaceId = 0n) => {
 	const result = digestToBigInt(digest);
 	return result | NAMESPACE_FLAG;
 };
+
+/**
+ * Determines if mosaicId is an alias.
+ * @param {bigint} mosaicId Mosaic id to check.
+ * @returns {boolean} true if the specified mosaic id is an alias.
+ */
+const isMosaicAlias = mosaicId => 0n !== (mosaicId & NAMESPACE_FLAG);
 
 /**
  * Returns true if a name is a valid namespace name.
@@ -108,6 +118,7 @@ const generateMosaicAliasId = fullyQualifiedName => {
 export {
 	generateMosaicId,
 	generateNamespaceId,
+	isMosaicAlias,
 	isValidNamespaceName,
 	generateNamespacePath,
 	generateMosaicAliasId
