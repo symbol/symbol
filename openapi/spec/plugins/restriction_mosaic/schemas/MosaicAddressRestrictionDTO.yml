@@ -1,0 +1,9 @@
+type: object
+required:
+  - id
+  - mosaicRestrictionEntry
+properties:
+  id:
+    $ref: "../../../schemas/ObjectId.yml"
+  mosaicRestrictionEntry:
+    $ref: "./MosaicAddressRestrictionEntryWrapperDTO.yml"

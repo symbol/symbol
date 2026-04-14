@@ -1,0 +1,25 @@
+type: object
+description: |
+  Importance block extending the regular block header with additional fields
+  related to importance recalculation and finalization voting eligibility.
+allOf:
+  - $ref: "./BlockDTO.yml"
+  - type: object
+    required:
+      - votingEligibleAccountsCount
+      - harvestingEligibleAccountsCount
+      - totalVotingBalance
+      - previousImportanceBlockHash
+    properties:
+      votingEligibleAccountsCount:
+        $ref: ../../../schemas/UInt32.yml
+        description: Number of accounts eligible for finalization voting at this block.
+      harvestingEligibleAccountsCount:
+        $ref: ../../../schemas/UInt64.yml
+        description: Number of accounts eligible for harvesting at this block.
+      totalVotingBalance:
+        $ref: "../../../schemas/Amount.yml"
+        description: Total balance (in smallest/atomic units) eligible for finalization voting.
+      previousImportanceBlockHash:
+        $ref: "../../../schemas/Hash256.yml"
+        description: Hash of the previous importance block.

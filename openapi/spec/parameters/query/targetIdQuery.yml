@@ -1,0 +1,16 @@
+name: targetId
+in: query
+description: Filter by namespace or mosaic ID (include).
+schema:
+  # anyOf: MosaicId or NamespaceId
+  type: string
+  pattern: '^[0-9a-fA-F]+$'
+  minLength: 16
+  maxLength: 16
+examples:
+  mosaicId:
+    summary: Mosaic identifier
+    value: 0DC67FBE1CAD29E3
+  namespaceId:
+    summary: Namespace identifier
+    value: 85BBEA6CC462B244

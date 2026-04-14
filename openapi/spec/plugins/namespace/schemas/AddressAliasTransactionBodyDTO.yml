@@ -1,0 +1,13 @@
+type: object
+description: Address alias transaction body that links or unlinks a namespace to an address.
+required:
+  - namespaceId
+  - address
+  - aliasAction
+properties:
+  namespaceId:
+    $ref: "../../../schemas/NamespaceId.yml"
+  address:
+    $ref: "../../../schemas/AddressHex.yml"
+  aliasAction:
+    $ref: "./AliasActionEnum.yml"

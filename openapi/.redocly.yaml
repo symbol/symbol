@@ -1,0 +1,9 @@
+extends:
+  - minimal
+
+rules:
+  no-ambiguous-paths: off
+
+apis:
+  main:
+    root: spec/openapi.yml

@@ -1,0 +1,10 @@
+type: object
+description: Mosaic information including an internal resource identifier and the full mosaic state.
+required:
+  - id
+  - mosaic
+properties:
+  id:
+    $ref: "../../../schemas/ObjectId.yml"
+  mosaic:
+    $ref: "./MosaicDTO.yml"

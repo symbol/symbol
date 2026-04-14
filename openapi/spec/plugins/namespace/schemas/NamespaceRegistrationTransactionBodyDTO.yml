@@ -1,0 +1,18 @@
+type: object
+description: Namespace registration transaction body for creating a root namespace or a child namespace.
+required:
+  - id
+  - registrationType
+  - name
+properties:
+  duration:
+    $ref: "../../../schemas/BlockDuration.yml"
+  parentId:
+    $ref: "../../../schemas/NamespaceId.yml"
+  id:
+    $ref: "../../../schemas/NamespaceId.yml"
+  registrationType:
+    $ref: "./NamespaceRegistrationTypeEnum.yml"
+  name:
+    type: string
+    description: Namespace name.

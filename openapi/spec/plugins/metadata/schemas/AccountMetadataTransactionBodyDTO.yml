@@ -1,0 +1,21 @@
+type: object
+description: |
+  Account metadata transaction body with the target account, metadata key, and metadata value
+  update.
+required:
+  - targetAddress
+  - scopedMetadataKey
+  - valueSizeDelta
+  - valueSize
+  - value
+properties:
+  targetAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
+  scopedMetadataKey:
+    $ref: "../../../schemas/MetadataKey.yml"
+  valueSizeDelta:
+    $ref: "../../../schemas/MetadataValueSizeDelta.yml"
+  valueSize:
+    $ref: "../../../schemas/MetadataValueSize.yml"
+  value:
+    $ref: "../../../schemas/MetadataValue.yml"

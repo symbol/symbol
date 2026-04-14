@@ -1,0 +1,10 @@
+type: integer
+enum:
+  - 0
+  - 1
+description: |
+  Alias link action:
+  - `0`: Unlink the namespace from the current address or mosaic.
+  - `1`: Link the namespace to the specified address or mosaic.
+examples:
+  - 0

@@ -1,0 +1,13 @@
+type: object
+description: Mosaic alias transaction body that links or unlinks a namespace to a mosaic.
+required:
+  - namespaceId
+  - mosaicId
+  - aliasAction
+properties:
+  namespaceId:
+    $ref: "../../../schemas/NamespaceId.yml"
+  mosaicId:
+    $ref: "../../../schemas/MosaicId.yml"
+  aliasAction:
+    $ref: "./AliasActionEnum.yml"

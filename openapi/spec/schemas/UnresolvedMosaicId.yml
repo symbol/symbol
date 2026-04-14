@@ -1,0 +1,11 @@
+type: string
+pattern: '^[0-9a-fA-F]+$'
+minLength: 16
+maxLength: 16
+description: |
+  Unresolved mosaic identifier.
+  If the most significant bit of byte 0 is set, the value contains a namespace ID alias
+  instead of a concrete mosaic ID.
+examples:
+  - 85BBEA6CC462B244
+  - 941299B2B7E1291C

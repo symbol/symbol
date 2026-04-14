@@ -1,0 +1,6 @@
+type: string
+description: |
+  Version of a detached cosignature attached to an aggregate bonded transaction.
+  Returned and submitted as a string because the value is encoded as an unsigned integer.
+examples:
+  - "0"

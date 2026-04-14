@@ -1,0 +1,19 @@
+type: object
+description: Account mosaic restriction transaction body that updates the allowed or blocked mosaic ID list.
+required:
+  - restrictionFlags
+  - restrictionAdditions
+  - restrictionDeletions
+properties:
+  restrictionFlags:
+    $ref: "./AccountRestrictionFlagsEnum.yml"
+  restrictionAdditions:
+    type: array
+    description: Account restriction additions.
+    items:
+      $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  restrictionDeletions:
+    type: array
+    description: Account restriction deletions.
+    items:
+      $ref: "../../../schemas/UnresolvedMosaicId.yml"

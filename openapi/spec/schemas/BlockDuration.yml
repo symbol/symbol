@@ -1,0 +1,4 @@
+type: string
+description: Duration expressed in number of blocks.
+examples:
+  - "200"

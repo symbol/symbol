@@ -1,0 +1,20 @@
+name: offset
+in: query
+description: |
+  Cursor for pagination. Provide the value of the sort field (`orderBy`) from the
+  last entry of the previous page. **The offset type must match `orderBy`:**
+  - `orderBy=id`: use the entry's `id` (ObjectId, 24-char hex).
+  - `orderBy=height`: use the block height (string, e.g. `"17592"`).
+  - `orderBy=balance`: use the mosaic balance amount (string, e.g. `"1000000"`).
+  
+  Allowed `orderBy` values depend on the endpoint. If `orderBy` is omitted, `id` is used by default.
+
+  Set `offset` to the sort-field value of the last entry from the previous page. Across pages,
+  this value decreases with `order=desc` and increases with `order=asc`.
+
+  Numbered and cursor pagination can be combined, but this is not recommended because the semantics
+  are harder to reason about. For cursor-style flows, keep `pageNumber=1` and advance pages by
+  updating only `offset`. For numbered pagination flows, omit `offset` and advance pages by
+  incrementing `pageNumber`.
+schema:
+  type: string

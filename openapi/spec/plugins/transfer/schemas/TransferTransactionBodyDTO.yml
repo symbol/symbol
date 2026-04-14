@@ -1,0 +1,17 @@
+type: object
+description: Transfer transaction body with the recipient, transferred mosaics, and optional message.
+required:
+  - recipientAddress
+  - mosaics
+properties:
+  recipientAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
+  mosaics:
+    type: array
+    description: |
+      Array of mosaics sent to the recipient.
+    items:
+      $ref: "../../../schemas/UnresolvedMosaic.yml"
+  message:
+    type: string
+    description: Optional transfer message payload, encoded as a hexadecimal string.

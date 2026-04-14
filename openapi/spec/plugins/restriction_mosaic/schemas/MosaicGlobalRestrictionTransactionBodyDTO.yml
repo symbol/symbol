@@ -1,0 +1,25 @@
+type: object
+description: Mosaic global restriction transaction body that defines the rule and reference value for a restriction key.
+required:
+  - mosaicId
+  - referenceMosaicId
+  - restrictionKey
+  - previousRestrictionValue
+  - newRestrictionValue
+  - previousRestrictionType
+  - newRestrictionType
+properties:
+  mosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  referenceMosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  restrictionKey:
+    $ref: "../../../schemas/RestrictionKeyHex.yml"
+  previousRestrictionValue:
+    $ref: "../../../schemas/RestrictionValue.yml"
+  newRestrictionValue:
+    $ref: "../../../schemas/RestrictionValue.yml"
+  previousRestrictionType:
+    $ref: "./MosaicRestrictionTypeEnum.yml"
+  newRestrictionType:
+    $ref: "./MosaicRestrictionTypeEnum.yml"

@@ -1,0 +1,16 @@
+type: object
+description: Hash lock transaction body that locks mosaics as a prerequisite for announcing an aggregate bonded transaction.
+required:
+  - mosaicId
+  - amount
+  - duration
+  - hash
+properties:
+  mosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  amount:
+    $ref: "../../../schemas/Amount.yml"
+  duration:
+    $ref: "../../../schemas/BlockDuration.yml"
+  hash:
+    $ref: "../../../schemas/Hash256.yml"

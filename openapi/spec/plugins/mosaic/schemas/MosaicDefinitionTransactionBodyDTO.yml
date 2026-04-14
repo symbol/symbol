@@ -1,0 +1,22 @@
+type: object
+description: Mosaic definition transaction body with the mosaic ID inputs and immutable configuration values.
+required:
+  - id
+  - duration
+  - nonce
+  - flags
+  - divisibility
+properties:
+  id:
+    $ref: "../../../schemas/MosaicId.yml"
+  duration:
+    $ref: "../../../schemas/BlockDuration.yml"
+  nonce:
+    $ref: "../../../schemas/UInt32.yml"
+    description: Random nonce used to generate the mosaic ID.
+    examples:
+      - 0
+  flags:
+    $ref: "./MosaicFlagsEnum.yml"
+  divisibility:
+    $ref: "../../../schemas/Divisibility.yml"

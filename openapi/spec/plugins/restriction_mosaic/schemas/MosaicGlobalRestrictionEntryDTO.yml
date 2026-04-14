@@ -1,0 +1,10 @@
+type: object
+description: Global mosaic restriction rule associated with a restriction key.
+required:
+  - key
+  - restriction
+properties:
+  key:
+    $ref: "../../../schemas/RestrictionKey.yml"
+  restriction:
+    $ref: "./MosaicGlobalRestrictionEntryRestrictionDTO.yml"

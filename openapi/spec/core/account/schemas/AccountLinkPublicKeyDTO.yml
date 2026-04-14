@@ -1,0 +1,7 @@
+type: object
+description: Public key linked to the account for a supplemental role (linked, node, or VRF).
+required:
+  - publicKey
+properties:
+  publicKey:
+    $ref: "../../../schemas/PublicKey.yml"

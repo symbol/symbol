@@ -1,0 +1,7 @@
+type: object
+properties:
+  maxMosaicRestrictionValues:
+    type: string
+    description: Maximum number of mosaic restriction values.
+    examples:
+      - "20"

@@ -1,0 +1,13 @@
+type: object
+description: |
+  Supplemental public keys linked to the account for delegated harvesting, node linking,
+  VRF key derivation, and finalization voting.
+properties:
+  linked:
+    $ref: "./AccountLinkPublicKeyDTO.yml"
+  node:
+    $ref: "./AccountLinkPublicKeyDTO.yml"
+  vrf:
+    $ref: "./AccountLinkPublicKeyDTO.yml"
+  voting:
+    $ref: "./AccountLinkVotingKeysDTO.yml"

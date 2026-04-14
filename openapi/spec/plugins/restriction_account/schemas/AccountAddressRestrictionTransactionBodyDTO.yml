@@ -1,0 +1,19 @@
+type: object
+description: Account address restriction transaction body that updates the allowed or blocked address list.
+required:
+  - restrictionFlags
+  - restrictionAdditions
+  - restrictionDeletions
+properties:
+  restrictionFlags:
+    $ref: "./AccountRestrictionFlagsEnum.yml"
+  restrictionAdditions:
+    type: array
+    description: Account restriction additions.
+    items:
+      $ref: "../../../schemas/UnresolvedAddress.yml"
+  restrictionDeletions:
+    type: array
+    description: Account restriction deletions.
+    items:
+      $ref: "../../../schemas/UnresolvedAddress.yml"

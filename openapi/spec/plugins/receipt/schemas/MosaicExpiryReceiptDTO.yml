@@ -1,0 +1,11 @@
+type: object
+description: Receipt emitted when a mosaic reaches the end of its lifetime and expires.
+allOf:
+  - $ref: "./ReceiptDTO.yml"
+  - type: object
+    required:
+      - artifactId
+    properties:
+      artifactId:
+        $ref: "../../../schemas/MosaicId.yml"
+        description: Identifier of the expired mosaic.

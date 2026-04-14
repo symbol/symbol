@@ -1,0 +1,11 @@
+type: string
+pattern: '^[0-9a-fA-F]+$'
+description: |
+  Metadata value encoded as hex.
+  In metadata transactions, this field carries the metadata value update payload.
+  When no previous value exists, it contains the new value.
+  When updating existing metadata, it contains the byte-wise XOR of the previous value and the new value.
+examples:
+  - "333433383334"
+  - "3644363137323642373537333230373337393644363236463643323037303631373237343739"
+  - "3438363537393245"

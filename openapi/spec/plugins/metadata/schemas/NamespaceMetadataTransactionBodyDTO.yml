@@ -1,0 +1,24 @@
+type: object
+description: |
+  Namespace metadata transaction body with the target namespace, metadata key, and metadata value
+  update.
+required:
+  - targetAddress
+  - scopedMetadataKey
+  - targetNamespaceId
+  - valueSizeDelta
+  - valueSize
+  - value
+properties:
+  targetAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
+  scopedMetadataKey:
+    $ref: "../../../schemas/MetadataKey.yml"
+  targetNamespaceId:
+    $ref: "../../../schemas/NamespaceId.yml"
+  valueSizeDelta:
+    $ref: "../../../schemas/MetadataValueSizeDelta.yml"
+  valueSize:
+    $ref: "../../../schemas/MetadataValueSize.yml"
+  value:
+    $ref: "../../../schemas/MetadataValue.yml"

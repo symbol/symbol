@@ -1,0 +1,13 @@
+type: object
+description: Paginated transaction search result.
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of transactions.
+    items:
+      $ref: "./TransactionInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

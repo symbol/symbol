@@ -1,0 +1,18 @@
+type: integer
+enum:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+description: |
+  Comparison operator used to evaluate a mosaic global restriction rule.
+  - `0` (`NONE`) - Uninitialized value indicating no restriction.
+  - `1` (`EQ`) - Allow if the compared value is equal to the restriction value.
+  - `2` (`NE`) - Allow if the compared value is not equal to the restriction value.
+  - `3` (`LT`) - Allow if the compared value is less than the restriction value.
+  - `4` (`LE`) - Allow if the compared value is less than or equal to the restriction value.
+  - `5` (`GT`) - Allow if the compared value is greater than the restriction value.
+  - `6` (`GE`) - Allow if the compared value is greater than or equal to the restriction value.

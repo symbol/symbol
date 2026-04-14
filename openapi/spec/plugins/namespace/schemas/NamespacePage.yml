@@ -1,0 +1,13 @@
+type: object
+description: Paginated list of namespace information entries.
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of namespace information entries.
+    items:
+      $ref: "./NamespaceInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

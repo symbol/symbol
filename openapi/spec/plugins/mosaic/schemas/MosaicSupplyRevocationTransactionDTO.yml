@@ -1,0 +1,5 @@
+type: object
+description: Transaction that allows the mosaic creator to revoke some balance from a user.
+allOf:
+  - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
+  - $ref: "./MosaicSupplyRevocationTransactionBodyDTO.yml"

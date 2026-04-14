@@ -1,0 +1,14 @@
+type: object
+required:
+  - version
+  - address
+  - restrictions
+properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
+  address:
+    $ref: "../../../schemas/AddressHex.yml"
+  restrictions:
+    type: array
+    items:
+      $ref: "./AccountRestrictionDTO.yml"

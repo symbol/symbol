@@ -1,0 +1,10 @@
+type: object
+description: Public key and BLS signature pair from a voter.
+required:
+  - parentPublicKey
+  - signature
+properties:
+  parentPublicKey:
+    $ref: "../../../schemas/PublicKey.yml"
+  signature:
+    $ref: "../../../schemas/Signature.yml"

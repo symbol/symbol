@@ -1,0 +1,24 @@
+type: object
+description: |
+  Mosaic metadata transaction body with the target mosaic, metadata key, and metadata value
+  update.
+required:
+  - targetAddress
+  - scopedMetadataKey
+  - targetMosaicId
+  - valueSizeDelta
+  - valueSize
+  - value
+properties:
+  targetAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
+  scopedMetadataKey:
+    $ref: "../../../schemas/MetadataKey.yml"
+  targetMosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  valueSizeDelta:
+    $ref: "../../../schemas/MetadataValueSizeDelta.yml"
+  valueSize:
+    $ref: "../../../schemas/MetadataValueSize.yml"
+  value:
+    $ref: "../../../schemas/MetadataValue.yml"

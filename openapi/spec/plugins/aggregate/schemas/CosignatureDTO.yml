@@ -1,0 +1,12 @@
+type: object
+allOf:
+  - $ref: "../../../core/entity/schemas/VerifiableEntityDTO.yml"
+  - type: object
+    required:
+      - signerPublicKey
+      - version
+    properties:
+      version:
+        $ref: "../../../schemas/CosignatureVersion.yml"
+      signerPublicKey:
+        $ref: "../../../schemas/PublicKey.yml"

@@ -1,0 +1,5 @@
+name: transferMosaicId
+in: query
+description: Filter transfer transactions by the mosaic ID in the transfer payload (include).
+schema:
+  $ref: "../../schemas/MosaicId.yml"

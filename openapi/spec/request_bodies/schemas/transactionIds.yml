@@ -1,0 +1,13 @@
+type: object
+description: Wrapper object containing transaction identifiers for batch transaction lookup.
+required:
+  - transactionIds
+properties:
+  transactionIds:
+    type: array
+    description: Array of transaction IDs or transaction hashes.
+    items:
+      type: string
+    examples:
+      - 59B8DA0F0CB2720001103922
+      - 59B8D8E60CB2720001103904

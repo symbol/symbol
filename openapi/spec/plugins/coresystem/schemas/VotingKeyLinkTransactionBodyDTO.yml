@@ -1,0 +1,16 @@
+type: object
+description: Voting key link transaction body that links or unlinks a voting key for a finalization epoch range.
+required:
+  - linkedPublicKey
+  - startEpoch
+  - endEpoch
+  - linkAction
+properties:
+  linkedPublicKey:
+    $ref: "../../../schemas/VotingKey.yml"
+  startEpoch:
+    $ref: "../../../schemas/FinalizationEpoch.yml"
+  endEpoch:
+    $ref: "../../../schemas/FinalizationEpoch.yml"
+  linkAction:
+    $ref: "../../../schemas/LinkActionEnum.yml"

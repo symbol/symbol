@@ -1,0 +1,8 @@
+type: object
+description: Array payload used to submit mosaic identifiers.
+properties:
+  mosaicIds:
+    type: array
+    description: Array of mosaic identifiers.
+    items:
+      $ref: "../../schemas/MosaicId.yml"

@@ -1,0 +1,6 @@
+description: Request body for announcing one detached cosignature for an aggregate bonded transaction.
+content:
+  application/json:
+    schema:
+      $ref: "./schemas/cosignature.yml"
+required: true

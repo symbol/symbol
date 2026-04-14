@@ -1,0 +1,13 @@
+type: object
+description: Paginated response containing metadata entries.
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of metadata entries.
+    items:
+      $ref: "./MetadataInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

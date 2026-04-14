@@ -1,0 +1,13 @@
+type: object
+description: Mosaic supply revocation transaction body with the source account, mosaic, and revoked amount.
+required:
+  - sourceAddress
+  - mosaicId
+  - amount
+properties:
+  sourceAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
+  mosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  amount:
+    $ref: "../../../schemas/Amount.yml"

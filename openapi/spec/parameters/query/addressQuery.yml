@@ -1,0 +1,15 @@
+name: address
+in: query
+description: |
+  Filter by address (include), in Base32 format.
+
+  The exact meaning depends on the endpoint:
+  - transaction search: returns transactions where the address appears as the sender, recipient, or cosigner
+  - account search: matches the account address
+  - account restriction search: matches the restricted account address
+  - hash lock and secret lock search: matches the lock owner address
+
+  On transaction search endpoints, this filter cannot be combined with `recipientAddress` and
+  `signerPublicKey`.
+schema:
+  $ref: "../../schemas/Address.yml"

@@ -1,0 +1,19 @@
+type: object
+description: Account operation restriction transaction body that updates the allowed or blocked transaction type list.
+required:
+  - restrictionFlags
+  - restrictionAdditions
+  - restrictionDeletions
+properties:
+  restrictionFlags:
+    $ref: "./AccountRestrictionFlagsEnum.yml"
+  restrictionAdditions:
+    type: array
+    description: Account restriction additions.
+    items:
+      $ref: "../../../core/transaction/schemas/TransactionTypeEnum.yml"
+  restrictionDeletions:
+    type: array
+    description: Account restriction deletions.
+    items:
+      $ref: "../../../core/transaction/schemas/TransactionTypeEnum.yml"

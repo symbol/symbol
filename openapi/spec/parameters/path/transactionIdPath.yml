@@ -1,0 +1,13 @@
+name: transactionId
+in: path
+description: Transaction ID assigned by the node or transaction hash.
+required: true
+schema:
+  type: string
+examples:
+  transactionHash:
+    summary: Transaction hash (hex)
+    value: 73C5E3F46E2D24A3A1B9959DD62A42A54A0882F3DF2D72A6917C57C67D7A5B8A
+  transactionId:
+    summary: Database transaction id
+    value: 0DC67FBE1CAD29E3

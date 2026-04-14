@@ -1,0 +1,36 @@
+type: object
+description: Current multisig state of an account.
+required:
+  - version
+  - accountAddress
+  - minApproval
+  - minRemoval
+  - cosignatoryAddresses
+  - multisigAddresses
+properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
+  accountAddress:
+    $ref: "../../../schemas/AddressHex.yml"
+  minApproval:
+    $ref: "../../../schemas/UInt32.yml"
+    description: Minimum number of cosignatory approvals required to approve a transaction for the multisig account.
+    examples:
+      - 2
+  minRemoval:
+    $ref: "../../../schemas/UInt32.yml"
+    description: Minimum number of cosignatory approvals required to remove a cosignatory from the multisig account.
+    examples:
+      - 1
+  cosignatoryAddresses:
+    type: array
+    description: Direct cosignatory addresses that manage this multisig account.
+    items:
+      $ref: "../../../schemas/AddressHex.yml"
+  multisigAddresses:
+    type: array
+    description: Multisig account addresses where this account acts as a cosignatory.
+    examples:
+      - []
+    items:
+      $ref: "../../../schemas/AddressHex.yml"

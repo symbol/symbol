@@ -1,0 +1,7 @@
+type: object
+properties:
+  maxValueSize:
+    type: string
+    description: Maximum metadata value size.
+    examples:
+      - "1024"

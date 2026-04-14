@@ -1,0 +1,15 @@
+type: object
+description: |
+  Aggregate transaction body with the hash of embedded transactions and the cosignatures attached to
+  the aggregate transaction.
+required:
+  - transactionsHash
+  - cosignatures
+properties:
+  transactionsHash:
+    $ref: "../../../schemas/Hash256.yml"
+  cosignatures:
+    type: array
+    description: Array of transaction cosignatures.
+    items:
+      $ref: "./CosignatureDTO.yml"

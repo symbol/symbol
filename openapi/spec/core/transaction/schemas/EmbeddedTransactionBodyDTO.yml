@@ -1,0 +1,10 @@
+type: object
+description: Wrapper for embedded transactions carried inside an aggregate transaction.
+required:
+  - transactions
+properties:
+  transactions:
+    type: array
+    description: Array of transactions initiated by different accounts.
+    items:
+      $ref: "../../../core/transaction/schemas/EmbeddedTransactionInfoDTO.yml"

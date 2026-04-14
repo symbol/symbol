@@ -1,0 +1,13 @@
+type: object
+description: Mosaic supply change transaction body with the target mosaic, supply delta, and direction.
+required:
+  - mosaicId
+  - delta
+  - action
+properties:
+  mosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  delta:
+    $ref: "../../../schemas/Amount.yml"
+  action:
+    $ref: "./MosaicSupplyChangeActionEnum.yml"

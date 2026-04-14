@@ -1,0 +1,5 @@
+type: string
+description: |
+  Unsigned 64-bit integer represented as a decimal string. Encoded as a string to preserve precision.
+examples:
+  - "123456"

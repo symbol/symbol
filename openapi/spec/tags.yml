@@ -1,0 +1,265 @@
+- name: Account routes
+  description: |
+    Accounts are the central entities on the Symbol blockchain. An
+    [account](https://docs.symbol.dev/concepts/account.html) is a key pair (private and public key)
+    associated with a mutable state stored on-chain. Each account is uniquely identified by an
+    [**address**](https://docs.symbol.dev/concepts/cryptography.html#address) derived from its public key,
+    encoded in Base32 format (39 characters). The **public key** is recorded on-chain with the first issued transaction
+    and remains empty until then.
+
+    An account's on-chain state includes its **balance** (the set of
+    [mosaic](https://docs.symbol.dev/concepts/mosaic.html) units it owns) and an
+    [**importance score**](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-calculation)
+    that determines the probability of being selected to harvest the next block. Importance is recalculated
+    periodically using **activity buckets**, which are rolling data that tracks fees paid, beneficiary counts, and raw
+    scores over a sliding window of recalculation periods.
+
+    Accounts participate in block creation through
+    [harvesting](https://docs.symbol.dev/concepts/harvesting.html). An eligible account (one that meets the
+    minimum balance threshold) can harvest directly, or it can
+    [delegate harvesting](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) to a
+    **remote account** (proxy) that signs blocks on its behalf. The **account type** field reflects this
+    relationship:
+    - `0`: Unlinked account, not participating in harvesting delegation.
+    - `1`: Balance-holding account (harvester) that is linked to a remote proxy account.
+    - `2`: Remote proxy account that signs blocks on behalf of a linked balance-holding account.
+    - `3`: Remote-harvester-eligible account that is currently unlinked.
+
+    To enable [remote](https://docs.symbol.dev/concepts/harvesting.html#remote-harvesting) or
+    [delegated](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) harvesting, the main
+    account links a set of **supplemental public keys**:
+    - `Linked key`: public key of the remote proxy account
+      ([AccountKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#accountkeylinktransaction)).
+    - `Node key`: public key used for TLS sessions with the node
+      ([NodeKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#nodekeylinktransaction));
+      required only for delegated harvesting.
+    - `VRF key`: key used to randomize harvester selection
+      ([VrfKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#vrfkeylinktransaction));
+      required for all harvesting types.
+    - `Voting keys`: keys used for block
+      [finalization](https://docs.symbol.dev/concepts/block.html#finalization) voting
+      ([VotingKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#votingkeylinktransaction));
+      each key is valid for a defined range of finalization epochs.
+- name: Block routes
+  description: |
+    [Blocks](https://docs.symbol.dev/concepts/block.html) are the units of the Symbol blockchain. Each block
+    contains a list of confirmed [transactions](https://docs.symbol.dev/concepts/transaction.html) and is signed
+    by a [harvester](https://docs.symbol.dev/concepts/harvesting.html) account selected by the
+    [consensus algorithm](https://docs.symbol.dev/concepts/consensus-algorithm.html).
+
+    - `Height`: unique, sequential position of the block in the chain. Subsequent blocks differ in height by 1.
+    - `Timestamp`: number of milliseconds elapsed since the creation of the first block.
+    - `Difficulty`: block difficulty (initial 1e14); adjusted in range 1e13 to 1e15 to maintain target block time.
+    - `Harvester`: [account](https://docs.symbol.dev/concepts/account.html) that created the block; receives
+      transaction [fees](https://docs.symbol.dev/concepts/fees.html) and
+      [inflation](https://docs.symbol.dev/concepts/inflation.html) rewards.
+    - `Beneficiary address`: optional account designated by the harvester to receive
+      [the block reward](https://docs.symbol.dev/concepts/harvesting.html#rewards).
+    - `Fee multiplier`: multiplier applied to transaction size to calculate the
+      [effective fee](https://docs.symbol.dev/concepts/fees.html).
+    - `Importance block`: a special block type that additionally records voting-eligible account count,
+      harvesting-eligible account count, total voting balance, and the previous importance block hash.
+    - `Finalization` ([docs](https://docs.symbol.dev/concepts/block.html#finalization)): the process that makes blocks
+      permanent. Once a block is finalized, its transactions become immutable. Clients that rely on immutability
+      should only trust finalized blocks.
+- name: Chain routes
+  description: |
+    Chain endpoints provide aggregate information about the blockchain state.
+    The [chain score](https://docs.symbol.dev/concepts/block.html) is used during synchronization:
+    nodes select the chain with the highest score as the canonical one (higher = better chain).
+    The [latest finalized block](https://docs.symbol.dev/concepts/block.html#finalization) is the most recent
+    block that has been made permanent and will never be rolled back.
+- name: Finalization routes
+  description: |
+    [Finalization](https://docs.symbol.dev/concepts/block.html#finalization) is the process that makes
+    blocks permanent on the Symbol blockchain. Once a block is finalized, its transactions become
+    immutable and will never be rolled back.
+
+    Finalization occurs in rounds called **epochs** (e.g. every 1440 blocks, ~12h on mainnet).
+    Each epoch is divided into **finalization points**. Voters (eligible accounts with linked voting keys)
+    emit prevote and precommit messages; when more than 67% of the voting stake agrees, the block
+    is finalized.
+
+    These endpoints return the **finalization proof** which is cryptographic evidence that a block was
+    finalized, including message groups (prevote, precommit, count stages) and BLS aggregate
+    signatures from the voter set.
+- name: Metadata routes
+  description: |
+    [Metadata](https://docs.symbol.dev/concepts/metadata.html) lets accounts attach arbitrary key-value
+    data to three kinds of on-chain resources on Symbol: **accounts**, **mosaics**, and **namespaces**.
+    Each metadata entry is uniquely identified by its source address, target address, metadata type,
+    scoped metadata key, and, for mosaic and namespace metadata, the target artifact id. The derived
+    composite hash can be used as a compact identifier for lookup.
+
+    - `Source address`: account that created the metadata update.
+    - `Target address`: target account for account metadata, or the owner account for mosaic and namespace metadata.
+    - `Scoped metadata key`: 64-bit key assigned by the metadata creator to distinguish metadata entries.
+    - `Metadata type`: whether the metadata entry is attached to an account, mosaic, or namespace.
+    - `Composite hash`: unique identifier derived from the metadata coordinates.
+    - `Metal`: convention for storing chunked binary payloads in metadata entries. See the
+      [metal-on-symbol repository](https://github.com/OPENSPHERE-Inc/metal-on-symbol).
+
+    Metadata endpoints return individual metadata entries, batch lookup results, paginated search
+    results, Merkle proofs for metadata state, and decoded binary payloads stored with the Metal
+    convention.
+- name: Mosaic routes
+  description: |
+    [Mosaics](https://docs.symbol.dev/concepts/mosaic.html) are customizable blockchain assets on Symbol.
+    A mosaic definition specifies its unique identifier, total supply, divisibility, owner, duration, and behavior flags.
+
+    - `Mosaic ID`: unique identifier of a mosaic on Symbol.
+    - `Mosaic definition`: on-chain state that describes the mosaic supply, divisibility, owner, duration, and flags.
+    - `Supply`: total number of mosaic units in existence, expressed in the smallest indivisible / atomic unit.
+    - `Divisibility`: number of decimal places supported by the mosaic, from 0 to 6.
+    - `Duration`: number of blocks for which the mosaic remains active. A value of `0` means the mosaic does not expire.
+    - `Flags`: behavior settings that control supply mutability, transferability, restrictability, and revocability.
+    - `Alias`: namespace alias that can be used to refer to the mosaic instead of its raw mosaic ID.
+
+    The behavior flags determine whether the mosaic supply can change, whether it can be transferred between arbitrary
+    accounts, whether custom restrictions can be applied, and whether the creator can revoke balances from holders.
+
+    Mosaic endpoints return mosaic definitions, paginated mosaic collections, and Merkle proofs for mosaic state.
+- name: Multisig routes
+  description: |
+    [Multisig accounts](https://docs.symbol.dev/concepts/multisig-account.html) require approvals
+    from one or more cosignatories before they can act. Symbol uses an **M-of-N** model, where
+    `N` is the number of cosignatories attached to the multisig account and `M` is the minimum
+    number of approvals required for a given action.
+
+    Symbol also supports **multi-level multisig**, where a multisig account can itself act as a
+    cosignatory for another multisig account, up to the network-defined maximum depth
+    (`multisig.maxMultisigDepth = 3` on mainnet and testnet).
+
+    - `Cosignatory`: account that manages a multisig account and can approve aggregate transactions on its behalf.
+    - `Minimum approval`: number of cosignatory approvals required to approve a transaction initiated by the multisig account.
+    - `Minimum removal`: number of cosignatory approvals required to remove a cosignatory from the multisig account.
+
+    These endpoints return the current multisig state for an account, the surrounding multisig graph
+    across multiple levels, and the Merkle proof for the stored multisig state.
+- name: Namespace routes
+  description: |
+    [Namespaces](https://docs.symbol.dev/concepts/namespace.html) are human-readable names that can represent accounts,
+    mosaics, or hierarchical naming paths on Symbol. A namespace can be either a **root namespace** or a
+    **subnamespace**, and each level is identified by its own namespace ID.
+
+    - `Fully-qualified namespace name`: full dot-separated namespace path, for example `symbol.xym`.
+    - `Root namespace`: top-level namespace with no parent.
+    - `Subnamespace`: child namespace registered under another namespace.
+    - `Parent namespace`: direct namespace above a subnamespace in the hierarchy.
+    - `Duration`: number of blocks for which the namespace remains active, represented by its lifetime on-chain.
+    - `Alias`: link from a namespace to an account address or mosaic ID.
+    - `Namespace ID`: unique identifier derived from the namespace path and level.
+    - `Active namespace`: namespace whose lifetime includes the current chain height.
+
+    Namespaces can be linked as aliases to an account address or a mosaic ID, making on-chain identifiers easier for
+    humans to recognize. Namespace state also tracks owner, lifetime, hierarchy depth, and whether the namespace is
+    currently active.
+
+    Namespace endpoints return namespace information, alias name resolution for accounts and mosaics, paginated
+    namespace collections, and Merkle proofs for namespace state.
+- name: Network routes
+  description: |
+    Network endpoints expose configuration and economic parameters of the Symbol blockchain.
+    They return **network properties** (identifier, nemesis keys, epoch adjustment),
+    **chain properties** (block timing, fees, limits), and **plugin properties** (per-feature settings).
+    Additional endpoints provide **currency supply** (total, max, circulating), **inflation** rewards
+    at given block heights, **rental fees** for namespaces and mosaics, and **transaction fees**
+    (average, median, min/max multipliers).
+- name: Node routes
+  description: |
+    Node endpoints return information about the specific REST node you are connected to.
+    They include **node identity** (public key, roles, host, port), **server version**,
+    **health status**, **storage statistics** (blocks, transactions, accounts),
+    **node time** (for transaction deadline calculation), **unlocked accounts** (harvesting),
+    **connected peers**, and **node metadata** (deployment tool, version).
+- name: Restriction Mosaic routes
+  description: |
+    [Mosaic restrictions](https://docs.symbol.dev/concepts/mosaic-restriction.html) define rule
+    sets that control how a mosaic can be transferred on Symbol. They are commonly used with
+    restrictable mosaics to enforce compliance or access rules.
+    Mosaic restrictions are stored as two entry types: global restrictions and address restrictions.
+
+    - `Global restriction`: the rule defined for a mosaic. It says what restriction key is checked,
+      what value is expected, and how the comparison is performed.
+    - `Address restriction`: the value assigned to one specific account for a given mosaic and
+      restriction key.
+
+    A global restriction defines the rule, and an address restriction provides the account-specific
+    value that is checked against that rule.
+
+    - `Restriction key`: 64-bit identifier that links related global and address restrictions.
+    - `Entry type`: tells whether the returned entry is a global restriction entry or an
+      address-specific restriction entry.
+
+    Restriction mosaic endpoints return individual restriction entries, batch lookup results,
+    paginated search results, and Merkle proofs for mosaic restriction state.
+- name: Restriction Account routes
+  description: |
+    [Account restrictions](https://docs.symbol.dev/concepts/account-restriction.html) define
+    rule sets that limit which transactions an account can send to or receive from other accounts
+    on Symbol. Depending on the applied restriction flags, these rules can allow or block incoming
+    transactions from specific addresses, incoming transactions containing specific mosaic IDs,
+    outgoing transactions to specific addresses, and outgoing transactions of specific transaction
+    types.
+
+    Restriction account endpoints return individual account restriction entries, batch lookup
+    results, paginated search results, and Merkle proofs for account restriction state.
+- name: Receipt routes
+  description: |
+    [Receipts](https://docs.symbol.dev/concepts/receipt.html) are records produced while confirmed
+    transactions change blockchain state. They are grouped into **transaction statements** and
+    **resolution statements**.
+
+    - `Transaction statement`: groups the receipts emitted for a specific transaction source at a given
+      block height, including balance transfers, balance changes, expirations, and inflation.
+    - `Resolution statement`: records how an unresolved namespace alias used in a transaction was
+      resolved to a concrete address or mosaic ID for a specific source and block.
+    - `Receipt type`: numeric code identifying the kind of receipt returned in a transaction statement.
+    - `Source`: pointer to the transaction and, when relevant, aggregate subtransaction that produced
+      the receipt or resolution entry.
+
+    Receipt endpoints return paginated statement collections that can be filtered by height and other
+    receipt-specific criteria. [Merkle proofs](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
+    for receipt statements are available under Block routes.
+- name: Transaction routes
+  description: |
+    Transaction announcement, lookup, and search. [Transactions](https://docs.symbol.dev/concepts/transaction.html)
+    are signed payloads announced to the network and, after validation, may become part of the chain.
+
+    - **Transaction hash**: 64-character hexadecimal identifier used for status lookup and as one way
+      to retrieve a transaction record.
+    - **Transaction ID**: node database record identifier used by some lookup and pagination flows.
+    - **Confirmed transaction**: a transaction included in a block.
+    - **Unconfirmed transaction**: a transaction accepted by a node but not yet included in a block.
+    - **Partial transaction**: an aggregate bonded transaction waiting for the remaining cosignatures.
+
+    These endpoints announce serialized transactions, retrieve single or multiple transaction
+    records, and search paginated transaction collections.
+- name: Transaction status routes
+  description: |
+    Transaction status endpoints return the current processing state of a transaction identified by its hash.
+    They are useful after announcing a transaction and when tracking whether it is still **unconfirmed**,
+    already **confirmed**, waiting as **partial**, or has **failed** validation.
+
+    These endpoints support single-hash lookup and batch lookup by transaction hashes.
+- name: Hash Lock routes
+  description: |
+    [Hash locks](https://docs.symbol.dev/concepts/aggregate-transaction.html#aggregate-bonded) are temporary
+    deposits locked before announcing an aggregate bonded transaction. They act as an anti-spam mechanism:
+    the lock must be confirmed before the aggregate bonded transaction can be announced, and the locked funds
+    are returned when the aggregate bonded transaction completes.
+
+    Hash lock endpoints return individual lock entries, paginated lock collections, batch lookup results,
+    and Merkle proofs for hash lock state.
+- name: Secret Lock routes
+  description: |
+    [Secret locks](https://docs.symbol.dev/guides/secretlock/index.html) temporarily lock
+    mosaics for a recipient until either a matching proof is announced or the lock expires.
+    They are used for hash-time-locked workflows such as cross-chain swaps and other conditional
+    transfers.
+
+    Each secret lock is identified by a composite hash and includes the owner account, recipient
+    account, locked mosaic and amount, hash algorithm, secret, end height, and lock status.
+
+    Secret lock endpoints return individual lock entries, paginated lock collections, batch lookup
+    results, and Merkle proofs for secret lock state.

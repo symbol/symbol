@@ -1,0 +1,13 @@
+type: object
+description: Namespace information including an internal resource identifier, metadata, and the full namespace state.
+required:
+  - id
+  - meta
+  - namespace
+properties:
+  id:
+    $ref: "../../../schemas/ObjectId.yml"
+  meta:
+    $ref: "./NamespaceMetaDTO.yml"
+  namespace:
+    $ref: "./NamespaceDTO.yml"

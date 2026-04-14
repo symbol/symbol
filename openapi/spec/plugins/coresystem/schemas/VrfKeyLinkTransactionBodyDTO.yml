@@ -1,0 +1,10 @@
+type: object
+description: VRF key link transaction body that links or unlinks a VRF public key.
+required:
+  - linkedPublicKey
+  - linkAction
+properties:
+  linkedPublicKey:
+    $ref: "../../../schemas/PublicKey.yml"
+  linkAction:
+    $ref: "../../../schemas/LinkActionEnum.yml"

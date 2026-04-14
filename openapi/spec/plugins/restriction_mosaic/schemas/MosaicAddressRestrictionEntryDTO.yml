@@ -1,0 +1,10 @@
+type: object
+description: Address-specific mosaic restriction value associated with a restriction key.
+required:
+  - key
+  - value
+properties:
+  key:
+    $ref: "../../../schemas/RestrictionKey.yml"
+  value:
+    $ref: "../../../schemas/RestrictionValue.yml"

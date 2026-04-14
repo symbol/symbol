@@ -1,0 +1,19 @@
+type: object
+description: Mosaic address restriction transaction body that sets a restriction value for a target address and key.
+required:
+  - mosaicId
+  - restrictionKey
+  - previousRestrictionValue
+  - newRestrictionValue
+  - targetAddress
+properties:
+  mosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  restrictionKey:
+    $ref: "../../../schemas/RestrictionKeyHex.yml"
+  previousRestrictionValue:
+    $ref: "../../../schemas/RestrictionValue.yml"
+  newRestrictionValue:
+    $ref: "../../../schemas/RestrictionValue.yml"
+  targetAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
