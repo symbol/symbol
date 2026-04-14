@@ -73,6 +73,7 @@ Once all dependencies are installed:
 ### Build Flow
 
 All MkDocs hooks are in the `scripts/hooks.py` file.
+The `on_pre_build` hook copies the YAML spec file from `/openapi` to `devbook/reference/rest`.
 
 Plugins:
 
@@ -90,8 +91,6 @@ Plugins:
 * MkDocStrings: Generates API docs for different languages using handlers.
     * Unfortunately, only the Python handler is useful to us. The TypeScript handler is not mature and there is no Java handler.
     * Uses templates in `templates/mkdocstrings/python/material` to add term definitions.
-* swagger-ui-tag: Allows embedding OpenAPI specs in docs.
-    * The `on_pre_build` hook copies the YAML spec file from `/openapi` to `devbook/reference/rest`.
 * gen_files: Plugin that executes Python scripts that can create new files and add them to navigation.
     * `scripts/gen_ref_pages_py.py`:
         * Creates `devbook/reference/py/*.md` Python API files.
