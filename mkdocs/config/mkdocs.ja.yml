@@ -99,6 +99,7 @@ nav:
               - devbook/transactions/monitoring-status.md
               - devbook/transactions/complete-aggregate.md
               - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/transaction-batching.md
               - devbook/transactions/fee-sponsorship.md
           - ネームスペース:
               - devbook/namespaces/register-root-namespace.md
@@ -135,6 +136,7 @@ nav:
           - TypeScript SDK: devbook/reference/ts/
           - Java SDK: devbook/reference/java/
           - Symbol REST API: devbook/reference/rest/symbol.md
+          - Serialization: devbook/reference/serialization/index.md
           - WebSockets: devbook/reference/websockets/index.md
 
   - テキストブック:
