@@ -2,12 +2,12 @@
 title: プロファイルのインポート
 ---
 
-# 既存のプロファイルのインポート
+# 既存のプロファイルのインポート {: #importing-an-existing-profile }
 
 このページでは、以前にインストールした Symbol Desktop Wallet、または他の互換性のあるウォレットから、**既存の** [プロファイル](default:プロファイル) を復元する方法を説明します。  
 プロファイルとは何かを知りたい場合、またはゼロから新しく作成したい場合は、代わりに [プロファイルの作成](./create-profile.md) チュートリアルを参照してください。
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 * Symbol Desktop Wallet がインストールされていることを確認してください。  
 まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
@@ -18,7 +18,7 @@ title: プロファイルのインポート
 プロファイルを最初に作成した際に使用したウォレットのドキュメントを確認してください。  
 プロファイルが Symbol Desktop Wallet で作成されたものである場合は、手順について [プロファイルのエクスポート](./export-profile.md) チュートリアルを参照してください。
 
-## 既存のプロファイルのインポート方法
+## 既存のプロファイルのインポート方法 {: #how-to-import-an-existing-profile }
 
 {% import 'tutorial.jinja2' as tutorial %}
 
@@ -81,7 +81,7 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 
 ![プロファイルの作成成功](screenshots/create-profile-8.jpg)
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 これで、インポートしたプロファイルを使用する準備が整いました。
 

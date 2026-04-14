@@ -2,7 +2,7 @@
 title: アカウントの削除
 ---
 
-# プロファイルからのアカウントの削除
+# プロファイルからのアカウントの削除 {: #deleting-an-account-from-a-profile }
 
 このページでは、Symbol Desktop Walletの [プロファイル](default:プロファイル) から既存の [アカウント](default:アカウント) を削除する方法を説明します。
 
@@ -14,7 +14,7 @@ title: アカウントの削除
 
     削除する前に、アカウントが空であるか、適切にバックアップされていることを確認してください！
 
-## 前提条件
+## 前提条件 {: #prerequisites }
 
 * Symbol Desktop Wallet がインストールされていることを確認してください。  
 まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
@@ -22,7 +22,7 @@ title: アカウントの削除
 * すでにプロファイルが設定され、ログインしている必要があります。  
 必要に応じて、[プロファイルの作成](./create-profile.md) または [プロファイルのインポート](./import-profile.md) を参照してください。
 
-## アカウントの削除方法
+## アカウントの削除方法 {: #how-to-delete-an-account }
 
 {% import 'tutorial.jinja2' as tutorial %}
 
@@ -58,7 +58,7 @@ Symbol Desktop Wallet の **Accounts** （アカウント）タブに移動し�
 
 ![正常に削除されたアカウント](screenshots/delete-account-5.jpg)
 
-## 次のステップ
+## 次のステップ {: #next-steps }
 
 * バックアップがある場合は、秘密鍵を使用して [アカウントを再度インポート](./import-account.md) します。
 * [新しいアカウントの作成](./create-account.md) を行います。
