@@ -66,20 +66,21 @@ describe('process', () => {
 			});
 		});
 
-		if ('' === loggingFileContents) {
+		const expectedFullMessage = `message: '${expectedMessage}'`;
+		if (!loggingFileContents.includes(expectedFullMessage)) {
 			// pause and retry if log hasn't been flushed to disk yet
-			await sleep(100);
+			await sleep(1000);
 			await assertMessageLoggedExact(loggingFilename, expectedMessage);
 			return;
 		}
 
 		// assert expected log message is included
-		expect(loggingFileContents.includes(`message: '${expectedMessage}'`)).to.equal(true);
+		expect(loggingFileContents.includes(expectedFullMessage)).to.equal(true);
 	};
 
 	afterEach(async () => {
 		// unregister the logging transports configured by runProcess
-		// there is a race condtion (transports shouldn't be closed before they are flushed)
+		// there is a race condition (transports shouldn't be closed before they are flushed)
 		// so, add a small pause before and after clear
 		await sleep(100);
 		winston.clear();

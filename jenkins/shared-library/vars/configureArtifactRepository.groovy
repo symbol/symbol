@@ -10,6 +10,9 @@ void call(String environments, Boolean isPublicGitHubRepo) {
 			if ('javascript' == environment && fileExists('package-lock.json')) {
 				// remove package-lock.json file since the hashes will not match private repository
 				sh('rm -f package-lock.json')
+
+				// remove ^ and ~ from package.json to prevent npm from installing latest versions which can cause issues
+				sh('sed -i \'s/"[\\^~]/"/g\' package.json')
 			}
 		}
 	}

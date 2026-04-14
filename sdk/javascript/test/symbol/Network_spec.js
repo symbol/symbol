@@ -90,6 +90,15 @@ describe('Address (Symbol)', () => {
 		// Assert:
 		expect(address.toString()).to.equal('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA');
 	});
+
+	it('can detect alias', () => {
+		// Assert: 8th bit unset => false
+		expect(new Address('TAHDK276IAUE4TE4KMWLFVJGB5WV7QBJ2NOS2YQ').isAlias()).to.equal(false);
+		expect(new Address('TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA').isAlias()).to.equal(false);
+
+		// - 8th bit set => true
+		expect(new Address('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA').isAlias()).to.equal(true);
+	});
 });
 
 describe('Network (Symbol)', () => {

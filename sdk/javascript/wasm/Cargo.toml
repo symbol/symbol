@@ -16,14 +16,14 @@ wasm-bindgen = "0.2.63"
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.6", optional = true }
 
-sha3 = "0.10.2"
+sha3 = "0.11.0"
 js-sys = "0.3.59"
 
 # dalek deps
 
 curve25519-dalek = { version = "4", default-features = false }
 hex = { version = "0.4.3", features = ["serde"] }
-sha2 = { version = "0.10", default-features = false }
+sha2 = { version = "0.11", default-features = false }
 subtle = "2.5.0"
 zeroize = "1.5.7"
 

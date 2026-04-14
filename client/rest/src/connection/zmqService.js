@@ -21,10 +21,98 @@
 
 import zmqUtils from './zmqUtils.js';
 import zmq from 'zeromq';
+import EventEmitter from 'events';
+
+/**
+ * Wrapper for a zmq socket that provides an exception-safe interface.
+ */
+class ZmqSocketWrapper extends EventEmitter {
+	/**
+	 * Creates an instance of ZmqSocketWrapper.
+	 * @param {string} key Socket key.
+	 * @param {function} subscriberFactory Subscriber factory.
+	 */
+	constructor(key, subscriberFactory) {
+		super();
+		this.key = key;
+		this.innerSocket = subscriberFactory ? subscriberFactory() : new zmq.Subscriber();
+		this.innerSocket.linger = 0;
+		this.eventsLoopActive = false;
+	}
+
+	/**
+	 * Connects the socket to the given address.
+	 * @param {string} address Address to connect.
+	 */
+	connect(address) {
+		this.innerSocket.connect(address);
+	}
+
+	/**
+	 * Subscribes to the given filter.
+	 * @param {string} filter Filter.
+	 */
+	subscribe(filter) {
+		this.innerSocket.subscribe(filter);
+		const startMessaging = async () => {
+			try {
+				while (!this.innerSocket.closed) {
+					const frames = await this.innerSocket.receive(); // eslint-disable-line no-await-in-loop
+					this.emit('message', ...frames);
+				}
+			} catch (err) {
+				if (!this.innerSocket.closed)
+					this.emit('message:error', err);
+			}
+		};
+		startMessaging();
+	}
+
+	/**
+	 * Starts monitoring the socket for events and emits them.
+	 */
+	monitor() {
+		this.eventsLoopActive = true;
+		const startMonitoring = async () => {
+			try {
+				while (this.eventsLoopActive) {
+					const event = await this.innerSocket.events.receive(); // eslint-disable-line no-await-in-loop
+					const eventName = event.type;
+					const eventValue = eventName.endsWith('error') && event.error ? event.error.errno : event.value;
+					this.emit(eventName, eventValue, event.address);
+				}
+			} catch (err) {
+				if (this.eventsLoopActive)
+					this.emit('monitor:error', err);
+			}
+		};
+		startMonitoring();
+	}
+
+	/**
+	 * Stops monitoring the socket for events.
+	 */
+	unmonitor() {
+		this.eventsLoopActive = false;
+	}
+
+	/**
+	 * Closes the socket and ignores any errors.
+	 */
+	close() {
+		this.eventsLoopActive = false;
+		try {
+			this.innerSocket.close();
+		} catch (err) {
+			// ignore errors during close
+		}
+	}
+}
+
+export { ZmqSocketWrapper };
 
 const createZmqSocket = (key, zmqConfig, logger, currentSocketCount) => {
-	const zsocket = zmq.socket('sub');
-	zsocket.key = key;
+	const zsocket = new ZmqSocketWrapper(key, () => new zmq.Subscriber());
 	zmqUtils.prepareZsocket(zsocket, zmqConfig, logger);
 
 	zsocket.connect(`tcp://${zmqConfig.host}:${zmqConfig.port}`);

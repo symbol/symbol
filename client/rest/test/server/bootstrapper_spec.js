@@ -105,6 +105,13 @@ const addRestRoutes = server => {
 			next();
 			return undefined;
 		});
+
+		// text/plain endpoints (e.g. supply)
+		server[method]('/network/currency/supply/circulating', (req, res, next) => {
+			res.setHeader('content-type', 'text/plain');
+			res.send('12345.678');
+			next();
+		});
 	});
 };
 
@@ -418,13 +425,40 @@ describe('server (bootstrapper)', () => {
 					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
 				}));
 
-			it('rejects request with invalid accept header', () => makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, method)
+			it('rejects text/plain for application/json endpoint', () => makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, method)
 				.header('Accept', 'text/plain')
 				.expectStatus(406)
 				.end((headers, body) => {
 					// Assert:
+					assertPayloadHeaders(headers, 75, methodOptions);
+					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only application/json' });
+				}));
+
+			it('rejects application/json for text/plain endpoint', () => makeWrappedJsonRequest('/network/currency/supply/circulating', method)
+				.header('Accept', 'application/json')
+				.expectStatus(406)
+				.end((headers, body) => {
+					// Assert:
 					assertPayloadHeaders(headers, 69, methodOptions);
-					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Server accepts: application/json' });
+					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only text/plain' });
+				}));
+
+			it('rejects unsupported accept type', () => makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, method)
+				.header('Accept', 'application/xml')
+				.expectStatus(406)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 75, methodOptions);
+					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only application/json' });
+				}));
+
+			it('accepts text/plain for text/plain endpoint', () => makeWrappedJsonRequest('/network/currency/supply/circulating', method)
+				.header('Accept', 'text/plain')
+				.expectStatus(200)
+				.end((headers, body) => {
+					// Assert:
+					expect(headers['content-type']).to.include('text/plain');
+					expect(body).to.equal(12345.678);
 				}));
 
 			// endregion
@@ -794,7 +828,7 @@ describe('server (bootstrapper)', () => {
 		const registerRoute = (server, route) => {
 			// create a zmq service that supports only basic (non-transaction) models
 			const config = {
-				host: '127.0.0.1', port: ports.mq, connectTimeout: 1000, monitorInterval: 50
+				host: '127.0.0.1', port: ports.mq, connectTimeout: 1000
 			};
 			const channelDescriptors = new MessageChannelBuilder().build();
 			const zmqService = createZmqConnectionService(config, channelDescriptors, test.createMockLogger());
@@ -825,25 +859,26 @@ describe('server (bootstrapper)', () => {
 			return { numTotalClients: options, messageIds };
 		};
 
-		const createBoundZsocket = () => {
-			const zsocket = zmq.socket('pub');
-			zsocket.bindSync(`tcp://127.0.0.1:${ports.mq}`);
+		const createBoundZsocket = async () => {
+			const zsocket = new zmq.Publisher();
+			zsocket.linger = 0;
+			await zsocket.bind(`tcp://127.0.0.1:${ports.mq}`);
 			return zsocket;
 		};
 
 		const publishBlock = (zsocket, buffer) => {
 			// publish the block buffer to the block topic after short delay to allow subscribers to finish attaching
-			setTimeout(() => {
+			setTimeout(async () => {
 				test.log('publishing block data');
-				zsocket.send([Buffer.of(0x49, 0x6A, 0xCA, 0x80, 0xE4, 0xD8, 0xF2, 0x9F), buffer]);
+				await zsocket.send([Buffer.of(0x49, 0x6A, 0xCA, 0x80, 0xE4, 0xD8, 0xF2, 0x9F), buffer]);
 			}, delays.publish);
 		};
 
-		const createClientSockets = (route, emitter, options, handlers) => {
+		const createClientSockets = async (route, emitter, options, handlers) => {
 			const { numTotalClients, messageIds } = extractBasicClientOptionValues(options);
 
 			//  bind to a publisher if one is not provided
-			const zsocket = options.zsocket || createBoundZsocket();
+			const zsocket = options.zsocket || await createBoundZsocket();
 			const sockets = [];
 
 			const curryMessageCallback = (ws, id) => messageJson => {
@@ -936,7 +971,7 @@ describe('server (bootstrapper)', () => {
 		it('handles single subscription', () => runSingleRouteTest(1));
 		it('handles multiple subscriptions to same route', () => runSingleRouteTest(3));
 
-		it('handles multiple subscriptions to different routes', () => new Promise(resolve => {
+		it('handles multiple subscriptions to different routes', async () => {
 			// Arrange: set up the server with two ws routes
 			const server = createWebSocketServer();
 			const emitter1 = registerRoute(server, '/ws/block1');
@@ -947,29 +982,34 @@ describe('server (bootstrapper)', () => {
 				numAllConnectedHandlers: 0,
 				numAllMessagesHandlers: 0
 			};
-			const customHandlers = {
-				onAllConnected: zsocket => {
-					// - push to the mq only when both websockets are connected
-					if (2 === ++counts.numAllConnectedHandlers)
-						createHandlers(server, resolve).onAllConnected(zsocket);
-				},
-				onAllMessages: (zsocket, sockets) => {
-					// - close the server only when messages from both websockets are received and processed
-					if (2 === ++counts.numAllMessagesHandlers)
-						createHandlers(server, resolve).onAllMessages(zsocket, sockets);
-				}
-			};
 
 			// - bind to a zsocket
-			const zsocket = createBoundZsocket();
+			const boundZsocket = await createBoundZsocket();
 
-			// Act + Assert: create two client websockets pointed to different routes
-			// (the routes themselves are meaningless and both will get the same data; the single push above pushes to both routes)
-			// (the only difference is that the set of connections and ids are per-route, which is why both connections will have id 1)
-			const createOptions = () => ({ numClients: 1, messageIds: new Set([1]), zsocket });
-			createClientSockets('/ws/block1', emitter1, createOptions(), Object.assign(createHandlers(server, resolve), customHandlers));
-			createClientSockets('/ws/block2', emitter2, createOptions(), Object.assign(createHandlers(server, resolve), customHandlers));
-		}));
+			return new Promise(resolve => {
+				const customHandlers = {
+					onAllConnected: zsocket => {
+						// - push to the mq only when both websockets are connected
+						if (2 === ++counts.numAllConnectedHandlers)
+							createHandlers(server, resolve).onAllConnected(zsocket);
+					},
+					onAllMessages: (zsocket, sockets) => {
+						// - close the server only when messages from both websockets are received and processed
+						if (2 === ++counts.numAllMessagesHandlers)
+							createHandlers(server, resolve).onAllMessages(zsocket, sockets);
+					}
+				};
+
+				// Act + Assert: create two client websockets pointed to different routes
+				// (the routes themselves are meaningless and both will get the same data; the single push above pushes to both routes)
+				// (the only difference is that the set of connections and ids are per-route, which is why both connections will have id 1)
+				const createOptions = () => ({ numClients: 1, messageIds: new Set([1]), zsocket: boundZsocket });
+				const handlers1 = Object.assign(createHandlers(server, resolve), customHandlers);
+				const handlers2 = Object.assign(createHandlers(server, resolve), customHandlers);
+				createClientSockets('/ws/block1', emitter1, createOptions(), handlers1);
+				createClientSockets('/ws/block2', emitter2, createOptions(), handlers2);
+			});
+		});
 
 		// endregion
 

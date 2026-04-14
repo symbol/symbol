@@ -76,12 +76,20 @@ export class Address extends ByteArray {
 	 * @returns {NamespaceId|undefined} Namespace id if this adresss is an alias, undefined otherwise.
 	 */
 	toNamespaceId() {
-		if (!(this.bytes[0] & 0x01))
+		if (!this.isAlias())
 			return undefined;
 
 		const idBytes = this.bytes.slice(1, 9); // slice because namespace id is unaligned
 		const ids = new BigUint64Array(idBytes.buffer);
 		return new NamespaceId(ids[0]);
+	}
+
+	/**
+	 * Determines if this address is an alias.
+	 * @returns {boolean} true if this address is an alias.
+	 */
+	isAlias() {
+		return 0 !== (this.bytes[0] & 0x01);
 	}
 
 	/**

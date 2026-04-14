@@ -111,6 +111,26 @@ class BasicTransactionFactoryTest(BasicTransactionFactoryExSignatureTest):
 
 	# endregion
 
+	# region to_json
+
+	def test_can_create_transaction_json_representation(self):
+		# Arrange:
+		factory = self.create_factory()
+		transaction = self.create_transaction(factory)({
+			'type': self.transaction_type_name(),
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY
+		})
+		signature = TestUtils.random_byte_array(Signature)
+		factory.attach_signature(transaction, signature)
+
+		# Act:
+		transaction_payload = factory.to_json(transaction)
+
+		# Assert:
+		self.assert_signature(transaction, signature, transaction_payload)
+
+	# endregion
+
 	@abstractmethod
 	def assert_signature(self, transaction, signature, signed_transaction_payload):
 		pass

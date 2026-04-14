@@ -89,5 +89,26 @@ export const runBasicTransactionFactoryTests = ( // eslint-disable-line import/p
 		});
 
 		// endregion
+
+		// region toJson
+
+		it('can create transaction json representation', () => {
+			// Arrange:
+			const factory = testDescriptor.createFactory();
+			const transaction = testDescriptor.createTransaction(factory)({
+				type: transactionTypeName,
+				signerPublicKey: TEST_SIGNER_PUBLIC_KEY
+			});
+			const signature = new Signature(crypto.randomBytes(Signature.SIZE));
+			factory.constructor.attachSignature(transaction, signature);
+
+			// Act:
+			const transactionPayload = factory.constructor.toJson(transaction);
+
+			// Assert:
+			testDescriptor.assertSignature(transaction, signature, transactionPayload);
+		});
+
+		// endregion
 	}
 };

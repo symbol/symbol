@@ -77,6 +77,14 @@ class AddressTest(BasicAddressTest, unittest.TestCase):
 		# Assert:
 		self.assertEqual(Address('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA'), address)
 
+	def test_is_alias_only_returns_true_for_aliases(self):
+		# Assert: 8th bit unset => False
+		self.assertFalse(Address('TAHDK276IAUE4TE4KMWLFVJGB5WV7QBJ2NOS2YQ').is_alias())
+		self.assertFalse(Address('TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA').is_alias())
+
+		# - 8th bit set => True
+		self.assertTrue(Address('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA').is_alias())
+
 
 class NetworkTest(BasicNetworkTest, unittest.TestCase):
 	def get_test_descriptor(self):
