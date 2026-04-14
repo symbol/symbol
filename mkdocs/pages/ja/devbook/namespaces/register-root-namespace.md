@@ -76,7 +76,7 @@ title: ルートネームスペースの登録
 
 {{ tutorial.code_snippet(['py:62:81', 'js:59:79']) }}
 
-トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#アナウンス) と同じプロセスに従って署名され、アナウンスされます。
+トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
 {{ tutorial.code_snippet(['py:83:101', 'js:81:115']) }}
 

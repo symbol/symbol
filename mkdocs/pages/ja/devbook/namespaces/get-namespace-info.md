@@ -42,7 +42,7 @@ title: ネームスペース情報の取得
 
 * **Registration type (登録タイプ):** 値 `0` は [ルートネームスペース](default:ルートネームスペース)を示し、 `1` は [サブネームスペース](default:サブネームスペース) を示します。
 
-* **Owner address (所有者アドレス):** [ネームスペースを登録した](../../textbook/namespaces.md#_8)アカウント。
+* **Owner address (所有者アドレス):** [ネームスペースを登録した](../../textbook/namespaces.md#ownership)アカウント。
 
 * **Depth (深さ):** ネームスペース階層のレベル数。
     例えば、 `foo` の深さは `1` 、 `foo.bar` の深さは `2` 、 `foo.bar.baz` の深さは `3` です。
@@ -52,13 +52,13 @@ title: ネームスペース情報の取得
 * **Levels (レベル):** 階層の各レベルのネームスペースID。
     `level0` は常にルートネームスペースIDです。より深い階層の場合は `level1` および `level2` が表示されます。
 
-* **Start and end heights (開始および終了ブロック高):** [ネームスペースが有効](../../textbook/namespaces.md#_5)な [ブロック](default:ブロック) の範囲。
+* **Start and end heights (開始および終了ブロック高):** [ネームスペースが有効](../../textbook/namespaces.md#duration)な [ブロック](default:ブロック) の範囲。
 
 ### エイリアスの確認 {: #checking-the-alias }
 
 {{ tutorial.code_snippet(['py:46:58', 'js:48:59']) }}
 
-ネームスペース階層の各レベルは、独自の[エイリアス](../../textbook/namespaces.md#_7)を持つことができる独立したネームスペースです。
+ネームスペース階層の各レベルは、独自の[エイリアス](../../textbook/namespaces.md#linking)を持つことができる独立したネームスペースです。
 レスポンスには、照会されたレベルのエイリアス情報が含まれており、モザイクまたはアカウントのどちらにリンクされているかを示します。
 
 * **Alias type 0 (エイリアスタイプ 0):** エイリアスはリンクされていません。

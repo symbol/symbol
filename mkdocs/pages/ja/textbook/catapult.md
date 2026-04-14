@@ -1,4 +1,4 @@
-# Catapult
+# Catapult {: #catapult }
 
 !!! image inline end ""
 
@@ -29,7 +29,7 @@ Catapult は [モザイク](default:モザイク)、[ネームスペース](defa
 構成とプラグインの組み合わせによって複数のネットワークを駆動できる
 汎用ブロックチェーンエンジンとして機能します。
 
-## 設計原則
+## 設計原則 {: #design-principles }
 
 Catapult はモジュール性、パフォーマンス、信頼性に重点を置いて設計されました。
 このアーキテクチャにより、ネットワークはコンセンサスの中核を変更することなく進化でき、
@@ -53,10 +53,10 @@ Catapult はモジュール性、パフォーマンス、信頼性に重点を�
 
 * **関心の分離**：
     Catapult エンジンはプロトコル実行のみに集中し、
-    [REST ゲートウェイ](./nodes.md#rest)、[SDK](default:SDK)、
-    および [データベース](./nodes.md#_2) が外部アクセスとデータインデックス化を担当します。
+    [REST ゲートウェイ](./nodes.md#rest-gateway)、[SDK](default:SDK)、
+    および [データベース](./nodes.md#node-structure) が外部アクセスとデータインデックス化を担当します。
 
-## ノード内での役割
+## ノード内での役割 {: #role-within-the-node }
 
 Catapult は各 Symbol ノードの中心となるプロセスであり、
 ブロックチェーンの状態を維持し、トランザクションを検証し、
@@ -66,20 +66,21 @@ Catapult は各 Symbol ノードの中心となるプロセスであり、
 
 Catapult は以下の要素と連携します。
 
-* [REST ゲートウェイ](./nodes.md#rest)：
+* [REST ゲートウェイ](./nodes.md#rest-gateway)：
     ブロックチェーンデータへの HTTP アクセスとトランザクション送信を提供します。
 
-* [データベース](./nodes.md#_2)：
+* [データベース](./nodes.md#node-structure
+)：
     ブロックチェーンの状態を保存し、高速なクエリを実現します。
 
 * [ピアノード](default:ピアノード)：
     Symbol プロトコルを実装する他ノードと通信し、[コンセンサス](default:コンセンサス) に参加します。
 
 一般的なアプリケーションでは、Catapult と直接通信する必要はありません。
-通常は [REST ゲートウェイ](./nodes.md#rest) を通じて、
+通常は [REST ゲートウェイ](./nodes.md#rest-gateway) を通じて、
 もしくは [SDK](default:SDK) 経由でやり取りを行います。
 
-## プラグインモデル
+## プラグインモデル {: #plugin-model }
 
 Catapult はチューリング完全なスマートコントラクトシステムではなく、
 プラグインおよび拡張アーキテクチャを中心に設計されています。
@@ -113,7 +114,7 @@ Catapult では２種類の拡張メカニズムが用意されている。
     拡張機能はノード単位で設定でき、ネットワーク互換性を損なうことなく
     ノードの動作をカスタマイズできます。
 
-## 拡張性と設定
+## 拡張性と設定 {: #extensibility-and-configuration }
 
 Catapult は、Symbol のパブリックブロックチェーンからプライベート・コンソーシアム型ネットワークまで、様々なネットワークを立ち上げることができます。
 その動作のほとんどはネットワークパラメータとノードレベルのオプションの設定ファイルによって定義されます。
@@ -142,7 +143,7 @@ Catapult は、Symbol のパブリックブロックチェーンからプライ�
     [symbol/networks](https://github.com/symbol/networks/tree/mainnet/resources)
     リポジトリで公開されています。
 
-## 発展と継承
+## 発展と継承 {: #evolution-and-legacy }
 
 Catapult は NEM ブロックチェーンの次世代実装として開発され、
 当初は _NEM 2.0_ と呼ばれていました。

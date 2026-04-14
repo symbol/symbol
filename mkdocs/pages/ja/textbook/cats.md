@@ -1,4 +1,4 @@
-# CATS DSL
+# CATS DSL {: #cats-dsl }
 
 CATS
 :   **CATS DSL**（ユーモラスな再帰頭字語として **Compact Affinitized Transfer Schema**、
@@ -35,7 +35,7 @@ Java 向けのジェネレータも開発中です（２０２５年６月時点
 １つの CATS ファイルは４つのトップレベルキーワードから構成されています：`import`、`using`、`enum`、`struct`。
 それぞれについて以下で説明します。
 
-## `import`
+## `import` {: #import }
 
 CATS ファイルは `import` 文を使って他の CATS ファイルを読み込むことができます。
 これによりスキーマ定義をモジュール化し、再利用しやすくできます。
@@ -48,7 +48,7 @@ import "other.cats"
 
 インポートされるファイル名は、パーサーに渡されたインクルードパスを基準に解決されます。
 
-## `using`
+## `using` {: #using }
 
 `using` 文は組み込みプリミティブ型に対する**型エイリアス**を定義します。
 これらのエイリアスはパーサーおよびジェネレータにおいて独立した型として扱われるため、
@@ -87,7 +87,7 @@ using Height = uint64
 using Weight = uint64
 ```
 
-## `enum`
+## `enum` {: #enum }
 
 `enum` 文は**列挙型**を定義します。
 列挙型は、整数型を基盤とする名前付き定数の集合です。
@@ -113,7 +113,7 @@ enum TransportMode : uint32
     SKY = 0x0004
 ```
 
-### 列挙型の属性
+### 列挙型の属性 {: #enum-attributes }
 
 列挙型には振る舞いを変更する属性を付与できます。
 各属性は `@` で始まり、列挙型宣言の直前の行に記述します。
@@ -137,7 +137,7 @@ enum TransportMode : uint32
     個々のフラグをビット AND で検査したりすることができることを
     ジェネレータに伝えます。
 
-## `struct`
+## `struct` {: #struct }
 
 `struct` 文は、名前付きフィールドの集合として**構造化されたバイナリレイアウト**を定義します。
 
@@ -162,7 +162,7 @@ struct Vehicle
     wheel_count = uint8
 ```
 
-### 修飾子
+### 修飾子 {: #modifiers }
 
 CATS は次の修飾子をサポートします。
 
@@ -175,7 +175,7 @@ CATS は次の修飾子をサポートします。
 
 いずれの修飾子も指定されない場合、その構造体はそのまま生成結果に含まれます。
 
-### 特別なフィールドコンストラクタ
+### 特別なフィールドコンストラクタ {: #special-field-constructors }
 
 フィールドは型の代わりに、特別なコンストラクタを使って宣言することもできます。
 
@@ -216,7 +216,7 @@ CATS は次の修飾子をサポートします。
         car = Car
     ```
 
-### 条件付きフィールド
+### 条件付きフィールド {: #conditional-fields }
 
 フィールドは、別のフィールドの値に基づいて**条件付き**で存在させることができます。
 これは、他言語における共用体（union）に類似した、排他的なレイアウトを表現する際に有用です。
@@ -250,7 +250,7 @@ struct Vehicle
     buoyancy = uint32 if SEA equals transport_mode
 ```
 
-### 配列フィールド
+### 配列フィールド {: #array-fields }
 
 CATS は、すべての要素が同じ型である固定長配列および可変長配列の両方をサポートします。
 
@@ -284,7 +284,7 @@ CATS は、すべての要素が同じ型である固定長配列および可変
 * 特殊キーワード `__FILL__`
     構造体の末尾まで配列を伸ばすことを示します。
 
-    この場合、構造体には `@size` 属性（[後述](#_7)）が必要であり、
+    この場合、構造体には `@size` 属性（[後述](#struct-attributes)）が必要であり、
     構造体全体のバイトサイズを保持するフィールドを参照します。
 
     ```cats
@@ -302,7 +302,7 @@ CATS は、すべての要素が同じ型である固定長配列および可変
 
     そうでない場合、パーサーはバイト列から要素数を正しく判断できません。
 
-#### 配列フィールドの属性
+#### 配列フィールドの属性 {: #array-field-attributes }
 
 配列フィールドには、サイズ管理やアラインメント、並べ替えを制御する属性を付けることができます。
 
@@ -330,7 +330,7 @@ CATS は、すべての要素が同じ型である固定長配列および可変
         vehicles = array(Vehicle, __FILL__)
     ```
 
-### インライン
+### インライン {: #inlines }
 
 構造体は `inline` 修飾子を使って、別の構造体の中に**インライン展開**できます。
 これにより、ある構造体のフィールドをネストせずに直接別の構造体へ埋め込むことができます。
@@ -391,7 +391,7 @@ struct Car
     その他のフィールドは、その名前にプレフィックスとアンダースコアが付いた名前に変更されます。
     上の例では、`size` は `friendly_name_size` になります。
 
-### 構造体の属性
+### 構造体の属性 {: #struct-attributes }
 
 構造体には、コードジェネレータへのヒントやレイアウト上の動作に影響を与える属性を付与できます。
 属性は `@` で始まり、`struct` 宣言の直前に記述します。
@@ -433,7 +433,7 @@ struct Car
 
 定数 `TRANSPORT_MODE` は `Vehicle` を拡張する任意の構造体で定義できます。
 
-### 整数フィールドの属性
+### 整数フィールドの属性 {: #integer-field-attributes }
 
 整数フィールドは次の属性をサポートします。
 
@@ -449,7 +449,7 @@ struct Car
         vehicle = Vehicle
     ```
 
-## コメント
+## コメント {: #comments }
 
 `#` で始まる行はコメントとして扱われます。
 
@@ -460,10 +460,10 @@ struct Car
 例：
 
 ```cats
-# This comment is ignored
+# This comment is ignored {: #this-comment-is-ignored }
 
-# This comment is included as documentation
-# and will be associated with the `Height` alias.
+# This comment is included as documentation {: #this-comment-is-included-as-documentation }
+# and will be associated with the `Height` alias. {: #and-will-be-associated-with-the-height-alias }
 using Height = uint64
 ```
 

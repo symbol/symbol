@@ -13,7 +13,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 開始する前に：
 
 * [開発環境をセットアップ](../start/setup.md) してください。
-* [ブロックハッシュ](../../textbook/blocks.md#ステートハッシュ) の仕組み、特に `transactionsHash` マークルツリーについて復習しておいてください。
+* [ブロックハッシュ](../../textbook/blocks.md#block-hashes) の仕組み、特に `transactionsHash` マークルツリーについて復習しておいてください。
 
 このチュートリアルではネットワークからのデータの読み取りのみを行います。 [アカウント](default:アカウント) や [XYM](default:XYM) の残高は必要ありません。
 
