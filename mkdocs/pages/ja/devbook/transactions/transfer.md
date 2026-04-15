@@ -149,7 +149,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 トランザクションが作成されたら、署名するアカウントの秘密鍵を使用して署名する必要があります。
 署名により、トランザクションが本物であり、送信者によって承認されていることが保証されます。
 
-<dy:SymbolFacade.signTransaction> は、16 進数文字列としてエンコードされた<signature:>を返します。
+<dy:SymbolFacade.signTransaction> は、16 進数文字列としてエンコードされた[署名](default:署名) を返します。
 
 <dy:SymbolTransactionFactory.attachSignature> は、署名をトランザクションに追加し、アナウンスのためにノードに直接送信できる状態の JSON ペイロードにシリアライズします。
 
