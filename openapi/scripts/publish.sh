@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
 VERSION="$(node -p "require('./package.json').version")"
@@ -17,8 +17,10 @@ npm run version:pack
 
 echo "Artifacts prepared:"
 echo " - _build/openapi3.yml"
+echo " - _build/openapi3.json"
 echo " - _build/postman.json"
 echo " - ${OUTPUT_DIR}/openapi3.yml"
+echo " - ${OUTPUT_DIR}/openapi3.json"
 echo " - ${OUTPUT_DIR}/postman.json"
 
 if [[ -n "${OPENAPI_RELEASE_CREATE_GH:-}" ]]; then
@@ -30,6 +32,7 @@ if [[ -n "${OPENAPI_RELEASE_CREATE_GH:-}" ]]; then
 	echo "Creating GitHub release ${TAG}"
 	gh release create "${TAG}" \
 		"_build/openapi3.yml" \
+		"_build/openapi3.json" \
 		"_build/postman.json" \
 		--title "OpenAPI ${VERSION}" \
 		--notes "Automated OpenAPI artifact release from monorepo."

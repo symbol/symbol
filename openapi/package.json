@@ -8,11 +8,11 @@
     "lint": "npm run lint:openapi",
     "test": "npm run verify-links",
     "verify-links": "markdown-link-check _build/openapi3.yml -c .markdown-link-check.json -q",
-    "build": "redocly bundle spec/openapi.yml -o _build/openapi3.yml",
+    "build": "redocly bundle spec/openapi.yml -o _build/openapi3.yml && redocly bundle spec/openapi.yml -o _build/openapi3.json",
     "postman": "openapi2postmanv2 -s _build/openapi3.yml -o _build/postman.json -p",
     "version": "echo $npm_package_version",
-    "version:prepare": "mkdir _build/v$npm_package_version && cp -r _build/template/. _build/v$npm_package_version",
-    "version:pack": "cp _build/openapi3.yml _build/postman.json _build/v$npm_package_version"
+    "version:prepare": "mkdir -p _build/v$npm_package_version",
+    "version:pack": "cp _build/openapi3.yml _build/openapi3.json _build/postman.json _build/v$npm_package_version"
   },
   "repository": {
     "type": "git",
