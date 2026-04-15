@@ -1,4 +1,4 @@
-# Catapult {: #catapult }
+# Catapult
 
 !!! image inline end ""
 

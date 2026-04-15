@@ -1,4 +1,4 @@
-# 用語集 {: #glossary }
+# 用語集
 
 AMA
 :   Ask Me Anything（何でも質問会）。オープンな質疑応答セッション。

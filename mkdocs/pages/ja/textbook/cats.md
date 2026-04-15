@@ -1,4 +1,4 @@
-# CATS DSL {: #cats-dsl }
+# CATS DSL
 
 CATS
 :   **CATS DSL**（ユーモラスな再帰頭字語として **Compact Affinitized Transfer Schema**、
