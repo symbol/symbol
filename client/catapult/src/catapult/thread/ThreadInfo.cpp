@@ -44,7 +44,7 @@ namespace catapult { namespace thread {
 			* and directly set the thread name for the current thread.
 			*/
 			return pthread_setname_np(name);
-        }
+		}
 
 #elif defined(__GLIBC__)
 
@@ -95,7 +95,7 @@ namespace catapult { namespace thread {
 	void SetThreadName(const std::string& name) {
 
 		const size_t maxLength = GetMaxThreadNameLength();
-        if (name.size() <= maxLength) {
+		if (name.size() <= maxLength) {
 			std::ignore = pthread_setname_np(pthread_self(), name.c_str());
 			return;
 		}
@@ -103,20 +103,20 @@ namespace catapult { namespace thread {
 		// We truncate from the front of the name to preserve any unique suffixes,
 		// which are often more useful for debugging than a common prefix.
 		auto startOffset = name.size() > maxLength ? name.size() - maxLength : 0;
-        auto truncatedName = name.substr(startOffset);
+		auto truncatedName = name.substr(startOffset);
 		std::ignore = pthread_setname_np(pthread_self(), truncatedName.c_str());
 	}
 
 	void SetThreadName() {
 		std::ignore = pthread_setname_np(pthread_self(), "");
-    }
+	}
 
 	std::string GetThreadName() {
 		char buffer[kMaxThreadNameBytes] = { '\0' };
 		if (0 == pthread_getname_np(pthread_self(), buffer, sizeof(buffer))) {
-            return std::string(buffer, buffer + std::strlen(buffer));
+			return std::string(buffer, buffer + std::strlen(buffer));
 		}
-        return {};
+		return {};
 	}
 }
 }

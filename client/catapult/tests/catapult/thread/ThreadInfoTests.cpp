@@ -28,8 +28,8 @@ namespace catapult { namespace thread {
 #define TEST_CLASS ThreadInfoTests
 
 	TEST(TEST_CLASS, CanSetSelfThreadName) {
-        // Act:
-        EXPECT_STREQ("", GetThreadName().c_str());
+		// Act:
+		EXPECT_STREQ("", GetThreadName().c_str());
 
 		// Arrange:
 		SetThreadName("Self thread");
@@ -54,9 +54,9 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, CanSetLongTruncatedThreadName) {
 		// Arrange:
-        std::string nameSuffix = "_SUFFIX";
+		std::string nameSuffix = "_SUFFIX";
 		std::string providedThreadName = std::string(2 * GetMaxThreadNameLength(), 'x') + nameSuffix;
-        std::string expectedThreadName = providedThreadName.substr(providedThreadName.size() - GetMaxThreadNameLength());
+		std::string expectedThreadName = providedThreadName.substr(providedThreadName.size() - GetMaxThreadNameLength());
 		std::string returnedThreadName;
 		std::thread([&providedThreadName, &returnedThreadName] {
 			// Act:
