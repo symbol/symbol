@@ -179,7 +179,7 @@ class HeaderParser:
 
 		for raw_line in input_stream:
 			line = raw_line.decode('utf8')
-			line = line.strip('\r\n')
+			line = line.strip('\n')
 
 			pprev = prev
 			prev = temp
