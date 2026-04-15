@@ -13,25 +13,19 @@ digraph CrossChainOverview {
     rankdir="LR";
     fontsize=12;
 
-    subgraph clusterSwap {
-        label="Cross-Chain Swap";
-        tooltip="Cross-Chain Swap";
-        subgraph clusterChainA {
-            label="Chain A";
-            tooltip="Chain A";
-            style=dashed;
-            AliceA [label="Alice" tooltip="Alice"];
-            BobA [label="Bob" tooltip="Bob"];
-            AliceA -> BobA [label="Token A"];
-        }
-        subgraph clusterChainB {
-            label="Chain B";
-            tooltip="Chain B";
-            style=dashed;
-            AliceB [label="Alice" tooltip="Alice"];
-            BobB [label="Bob" tooltip="Bob"];
-            AliceB -> BobB [label="Token B" dir=back];
-        }
+    subgraph clusterChainB {
+        label="Chain B";
+        tooltip="Chain B";
+        AliceB [label="Alice" tooltip="Alice"];
+        BobB [label="Bob" tooltip="Bob"];
+        AliceB -> BobB [label="Token B" dir=back];
+    }
+    subgraph clusterChainA {
+        label="Chain A";
+        tooltip="Chain A";
+        AliceA [label="Alice" tooltip="Alice"];
+        BobA [label="Bob" tooltip="Bob"];
+        AliceA -> BobA [label="Token A"];
     }
 }
 ```
