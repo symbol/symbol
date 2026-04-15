@@ -31,6 +31,9 @@ namespace catapult { namespace thread {
 	/// \note Depending on platform capabilities, the name might be truncated.
 	void SetThreadName(const std::string& name);
 
+	/// Sets an empty thread name in a platform-dependent way.
+	void SetThreadName();
+
 	/// Gets a thread name in a platform-dependent way.
 	std::string GetThreadName();
 }}
