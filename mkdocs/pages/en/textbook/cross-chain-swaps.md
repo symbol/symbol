@@ -67,62 +67,60 @@ The swap proceeds in four steps:
 
 ```graphviz neato timelock-windows.svg
 digraph TimelockWindows {
-    node [fontsize=14];
+    node [fontsize=24 shape=point width=0];
+    edge [arrowhead=none];
     pad=0.5;
 
     // Alice's lock bar (Chain A - longer, top)
-    A_start [label="" shape=point pos="0,5!" width=0.1];
-    A_end [label="" shape=point pos="12,5!" width=0.1];
-    A_start -> A_end [style=bold penwidth=3 arrowhead=none];
-    A_label [label="Alice's lock on Chain A (longer timelock)"
-        shape=plaintext pos="6,5.3!" fontsize=14];
+    A_start [pos="0,5!" width=0.2];
+    A_end [pos="12,5!" width=0.2];
+    A_start -> A_end [style=bold penwidth=5];
+    A_label [label="Alice's lock on Chain A (longer timelock)" shape=plaintext pos="6,5.3!"];
 
     // Timelock Difference (between Bob's expiry and Alice's expiry)
-    TG_start [label="" shape=point pos="7,3.5!" width=0.1];
-    TG_end [label="" shape=point pos="12,3.5!" width=0.1];
-    TG_start -> TG_end [style=dashed penwidth=2 arrowhead=none];
-    TG_label [label="Timelock Difference"
-        shape=plaintext pos="9.5,3.8!" fontsize=14];
+    TG_start [pos="7,3.5!" width=0.2];
+    TG_end [pos="12,3.5!" width=0.2];
+    TG_start -> TG_end [style=dashed penwidth=5];
+    TG_label [label="Timelock Difference" shape=plaintext pos="9.5,3.8!"];
 
     // Bob's lock bar (Chain B - shorter)
-    B_start [label="" shape=point pos="1,2!" width=0.1];
-    B_end [label="" shape=point pos="7,2!" width=0.1];
-    B_start -> B_end [style=bold penwidth=3 arrowhead=none];
-    B_label [label="Bob's lock on Chain B (shorter timelock)"
-        shape=plaintext pos="4,2.3!" fontsize=14];
+    B_start [pos="1,2!" width=0.2];
+    B_end [pos="7,2!" width=0.2];
+    B_start -> B_end [style=bold penwidth=5];
+    B_label [label="Bob's lock on Chain B (shorter timelock)" shape=plaintext pos="4,2.3!"];
 
     // Vertical ticks
-    T1_top [label="" shape=point pos="0,5!" width=0];
-    T1_bot [label="" shape=point pos="0,0.8!" width=0];
-    T1_top -> T1_bot [arrowhead=none style=dotted];
+    T1_top [pos="0,5!"];
+    T1_bot [pos="0,0.8!"];
+    T1_top -> T1_bot [style=dotted];
 
-    T2_top [label="" shape=point pos="1,2!" width=0];
-    T2_bot [label="" shape=point pos="1,0.8!" width=0];
-    T2_top -> T2_bot [arrowhead=none style=dotted];
+    T2_top [pos="1,2!"];
+    T2_bot [pos="1,0.8!"];
+    T2_top -> T2_bot [style=dotted];
 
-    T3_top [label="" shape=point pos="6,2!" width=0];
-    T3_bot [label="" shape=point pos="6,0.8!" width=0];
-    T3_top -> T3_bot [arrowhead=none style=dotted];
+    T3_top [pos="5,2!"];
+    T3_bot [pos="5,0.8!"];
+    T3_top -> T3_bot [style=dotted];
 
-    T4_top [label="" shape=point pos="7,2!" width=0];
-    T4_bot [label="" shape=point pos="7,0.8!" width=0];
-    T4_top -> T4_bot [arrowhead=none style=dotted];
+    T4_top [pos="7,2!"];
+    T4_bot [pos="7,0.8!"];
+    T4_top -> T4_bot [style=dotted];
 
-    T5_top [label="" shape=point pos="10,5!" width=0];
-    T5_bot [label="" shape=point pos="10,0.8!" width=0];
-    T5_top -> T5_bot [arrowhead=none style=dotted];
+    T5_top [pos="10,5!"];
+    T5_bot [pos="10,0.8!"];
+    T5_top -> T5_bot [style=dotted];
 
-    T6_top [label="" shape=point pos="12,5!" width=0];
-    T6_bot [label="" shape=point pos="12,0.8!" width=0];
-    T6_top -> T6_bot [arrowhead=none style=dotted];
+    T6_top [pos="12,5!"];
+    T6_bot [pos="12,0.8!"];
+    T6_top -> T6_bot [style=dotted];
 
     // Labels below
-    L1 [label="1. Alice\nlocks" shape=plaintext pos="0,0.2!" fontsize=13];
-    L2 [label="2. Bob\nlocks" shape=plaintext pos="1,0.2!" fontsize=13];
-    L3 [label="3. Alice\nreveals proof" shape=plaintext pos="6,0.2!" fontsize=13];
-    L4 [label="Bob's timelock\nexpires" shape=plaintext pos="7,0.2!" fontsize=13];
-    L5 [label="4. Bob\nwithdraws" shape=plaintext pos="10,0.2!" fontsize=13];
-    L6 [label="Alice's timelock\nexpires" shape=plaintext pos="12,0.2!" fontsize=13];
+    L1 [label="1.\nAlice\nlocks" shape=plaintext pos="0,0.2!"];
+    L2 [label="2.\nBob\nlocks" shape=plaintext pos="1,0.2!"];
+    L3 [label="3. Alice\nclaims and\nreveals proof" shape=plaintext pos="5,0.2!"];
+    L4 [label="Bob's\ntimelock\nexpires" shape=plaintext pos="7,0.2!"];
+    L5 [label="4. Bob\nclaims\n " shape=plaintext pos="10,0.2!"];
+    L6 [label="Alice's\ntimelock\nexpires" shape=plaintext pos="12,0.2!"];
 }
 ```
 
