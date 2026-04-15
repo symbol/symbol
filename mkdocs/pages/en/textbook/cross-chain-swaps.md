@@ -38,7 +38,7 @@ the swap coordinates operations across two independent chains.
 Symbol follows the [Hashed TimeLock Contract](https://en.bitcoin.it/wiki/Hash_Time_Locked_Contracts) (HTLC) protocol
 to create a trustless environment for the decentralized exchange of assets.
 
-HTLC uses two mechanisms to eliminate counterparty risk:
+HTLC uses two mechanisms to provide trustless swaps:
 
 Hashlock
 :   A cryptographic hash of a secret value called the _proof_.
