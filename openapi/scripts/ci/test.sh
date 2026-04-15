@@ -2,4 +2,4 @@
 
 set -ex
 
-npm run verify-links
+npm run test
