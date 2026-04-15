@@ -8,29 +8,29 @@
       
       
       
-        <link rel="canonical" href="https://docs.symboltest.net/en/devbook/reference/py/SharedKey/">
+        <link rel="canonical" href="https://docs.symboltest.net/en/devbook/reference/py/symbol/Restriction/">
       
       
-        <link rel="prev" href="../RuleBasedTransactionFactory/">
+        <link rel="prev" href="../Network/">
       
       
-        <link rel="next" href="../TransactionDescriptorProcessor/">
+        <link rel="next" href="../TransactionFactory/">
       
       
-      <link rel="icon" href="../../../../assets/images/favicon.ico">
+      <link rel="icon" href="../../../../../assets/images/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
-        <title>SharedKey - Symbol Docs WIP 🚧</title>
+        <title>Restriction - Symbol Docs WIP 🚧</title>
       
     
     
 
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -60,20 +60,20 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/extra.css">
     
       <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
     
     
-   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
     .gslide-desc { color: #666; user-select: text; }
@@ -86,7 +86,7 @@
     .gdesc-inner { font-size: 0.75rem; }
     body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
     body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
-    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -105,7 +105,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sharedkey" class="md-skip">
+        <a href="#restriction" class="md-skip">
           Skip to content
         </a>
       
@@ -121,7 +121,7 @@
 	<nav class="md-header__inner md-grid" aria-label="Header">
 		<a href="https://docs.symboltest.net" title="Symbol Docs WIP 🚧" class="md-header__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
 			
-  <img src="../../../../assets/images/symbol-logo.svg" alt="logo">
+  <img src="../../../../../assets/images/symbol-logo.svg" alt="logo">
 
 		</a>
 		<label class="md-header__button md-icon" for="__drawer">
@@ -141,7 +141,7 @@
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg>
 						
 						
-							SharedKey
+							Restriction
 						
 					</span>
 				</div>
@@ -200,7 +200,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/en/devbook/reference/py/SharedKey/" hreflang="en" class="md-select__link">
+						<a href="/en/devbook/reference/py/symbol/Restriction/" hreflang="en" class="md-select__link">
 							English
 						</a>
 					</li>
@@ -208,7 +208,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/ja/devbook/reference/py/SharedKey/" hreflang="ja" class="md-select__link">
+						<a href="/ja/devbook/reference/py/symbol/Restriction/" hreflang="ja" class="md-select__link">
 							日本語
 						</a>
 					</li>
@@ -290,7 +290,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../../../.." class="md-tabs__link">
         
   
     
@@ -309,7 +309,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../../userbook/intro/" class="md-tabs__link">
+        <a href="../../../../../userbook/intro/" class="md-tabs__link">
           
   
   User Manual
@@ -329,7 +329,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../intro/" class="md-tabs__link">
+        <a href="../../../../intro/" class="md-tabs__link">
           
   
   Developer Manual
@@ -347,7 +347,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../../textbook/intro/" class="md-tabs__link">
+        <a href="../../../../../textbook/intro/" class="md-tabs__link">
           
   
   Textbook
@@ -382,7 +382,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="https://docs.symboltest.net" title="Symbol Docs WIP 🚧" class="md-nav__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
       
-  <img src="../../../../assets/images/symbol-logo.svg" alt="logo">
+  <img src="../../../../../assets/images/symbol-logo.svg" alt="logo">
 
     </a>
     Symbol Docs WIP 🚧
@@ -401,7 +401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -459,7 +459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/intro/" class="md-nav__link">
+      <a href="../../../../../userbook/intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -518,7 +518,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/install/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/install/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -577,7 +577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/create-profile/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/create-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -598,7 +598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/import-profile/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/import-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -619,7 +619,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/export-profile/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/export-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -640,7 +640,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/delete-profile/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/delete-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -707,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/create-account/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/create-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -728,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/import-account/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/import-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -749,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/delete-account/" class="md-nav__link">
+      <a href="../../../../../userbook/wallet/delete-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -786,7 +786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/security/" class="md-nav__link">
+      <a href="../../../../../userbook/security/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -857,7 +857,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../intro/" class="md-nav__link">
+      <a href="../../../../intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -916,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../start/setup/" class="md-nav__link">
+      <a href="../../../../start/setup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -937,7 +937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../start/hello-world/" class="md-nav__link">
+      <a href="../../../../start/hello-world/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1042,7 +1042,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/create-from-private-key/" class="md-nav__link">
+      <a href="../../../../accounts/create-from-private-key/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1063,7 +1063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/create-from-mnemonic/" class="md-nav__link">
+      <a href="../../../../accounts/create-from-mnemonic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1084,7 +1084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/testnet-faucet/" class="md-nav__link">
+      <a href="../../../../accounts/testnet-faucet/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1105,7 +1105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/query-balance/" class="md-nav__link">
+      <a href="../../../../accounts/query-balance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1126,7 +1126,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/account-metadata/" class="md-nav__link">
+      <a href="../../../../accounts/account-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1147,7 +1147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/configure-multisig/" class="md-nav__link">
+      <a href="../../../../accounts/configure-multisig/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1168,7 +1168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/sign-multisig/" class="md-nav__link">
+      <a href="../../../../accounts/sign-multisig/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1189,7 +1189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/account-restrictions/" class="md-nav__link">
+      <a href="../../../../accounts/account-restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1256,7 +1256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/transfer/" class="md-nav__link">
+      <a href="../../../../transactions/transfer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1277,7 +1277,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/typed-descriptors/" class="md-nav__link">
+      <a href="../../../../transactions/typed-descriptors/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1298,7 +1298,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/messages/" class="md-nav__link">
+      <a href="../../../../transactions/messages/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1319,7 +1319,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/monitoring-status/" class="md-nav__link">
+      <a href="../../../../transactions/monitoring-status/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1340,7 +1340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/complete-aggregate/" class="md-nav__link">
+      <a href="../../../../transactions/complete-aggregate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1361,7 +1361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/bonded-aggregate/" class="md-nav__link">
+      <a href="../../../../transactions/bonded-aggregate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1382,7 +1382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/transaction-batching/" class="md-nav__link">
+      <a href="../../../../transactions/transaction-batching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1403,7 +1403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/fee-sponsorship/" class="md-nav__link">
+      <a href="../../../../transactions/fee-sponsorship/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1470,7 +1470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/register-root-namespace/" class="md-nav__link">
+      <a href="../../../../namespaces/register-root-namespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1491,7 +1491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/register-subnamespace/" class="md-nav__link">
+      <a href="../../../../namespaces/register-subnamespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1512,7 +1512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/get-namespace-info/" class="md-nav__link">
+      <a href="../../../../namespaces/get-namespace-info/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1533,7 +1533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/extend-root-namespace/" class="md-nav__link">
+      <a href="../../../../namespaces/extend-root-namespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1554,7 +1554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/link-namespace-to-address/" class="md-nav__link">
+      <a href="../../../../namespaces/link-namespace-to-address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1575,7 +1575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/link-namespace-to-mosaic/" class="md-nav__link">
+      <a href="../../../../namespaces/link-namespace-to-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1596,7 +1596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/namespace-metadata/" class="md-nav__link">
+      <a href="../../../../namespaces/namespace-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1617,7 +1617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
+      <a href="../../../../namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1684,7 +1684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/create-mosaic/" class="md-nav__link">
+      <a href="../../../../mosaics/create-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1705,7 +1705,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/get-mosaic-info/" class="md-nav__link">
+      <a href="../../../../mosaics/get-mosaic-info/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1726,7 +1726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/change-mosaic-supply/" class="md-nav__link">
+      <a href="../../../../mosaics/change-mosaic-supply/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1747,7 +1747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/modify-mosaic-definition/" class="md-nav__link">
+      <a href="../../../../mosaics/modify-mosaic-definition/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1768,7 +1768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/mosaic-metadata/" class="md-nav__link">
+      <a href="../../../../mosaics/mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1789,7 +1789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/revoke-mosaic/" class="md-nav__link">
+      <a href="../../../../mosaics/revoke-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1810,7 +1810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/mosaic-restrictions/" class="md-nav__link">
+      <a href="../../../../mosaics/mosaic-restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1877,7 +1877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../network-currency/query-currency-supply/" class="md-nav__link">
+      <a href="../../../../network-currency/query-currency-supply/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1898,7 +1898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../network-currency/query-block-rewards/" class="md-nav__link">
+      <a href="../../../../network-currency/query-block-rewards/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1965,7 +1965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/chain-heights/" class="md-nav__link">
+      <a href="../../../../chain/chain-heights/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1986,7 +1986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/network-time/" class="md-nav__link">
+      <a href="../../../../chain/network-time/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2007,7 +2007,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/prove-transaction/" class="md-nav__link">
+      <a href="../../../../chain/prove-transaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2028,7 +2028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/prove-mosaic-definition/" class="md-nav__link">
+      <a href="../../../../chain/prove-mosaic-definition/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2095,7 +2095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-new-blocks/" class="md-nav__link">
+      <a href="../../../../websockets/listen-new-blocks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2116,7 +2116,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-transaction-flow/" class="md-nav__link">
+      <a href="../../../../websockets/listen-transaction-flow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2137,7 +2137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-bonded-transaction-flow/" class="md-nav__link">
+      <a href="../../../../websockets/listen-bonded-transaction-flow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2158,7 +2158,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-transaction-error/" class="md-nav__link">
+      <a href="../../../../websockets/listen-transaction-error/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2315,7 +2315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AccountDescriptorRepository/" class="md-nav__link">
+      <a href="../../AccountDescriptorRepository/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2336,7 +2336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ArrayHelpers/" class="md-nav__link">
+      <a href="../../ArrayHelpers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2357,7 +2357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BaseValue/" class="md-nav__link">
+      <a href="../../BaseValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2378,7 +2378,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Bip32/" class="md-nav__link">
+      <a href="../../Bip32/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2399,7 +2399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BlockchainSettings/" class="md-nav__link">
+      <a href="../../BlockchainSettings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2420,7 +2420,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BufferReader/" class="md-nav__link">
+      <a href="../../BufferReader/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2441,7 +2441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BufferWriter/" class="md-nav__link">
+      <a href="../../BufferWriter/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2462,7 +2462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ByteArray/" class="md-nav__link">
+      <a href="../../ByteArray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2483,7 +2483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Cipher/" class="md-nav__link">
+      <a href="../../Cipher/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2504,7 +2504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CodeWordsEncoder/" class="md-nav__link">
+      <a href="../../CodeWordsEncoder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2525,7 +2525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CryptoTypes/" class="md-nav__link">
+      <a href="../../CryptoTypes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2546,7 +2546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../DiceMnemonicGenerator/" class="md-nav__link">
+      <a href="../../DiceMnemonicGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2567,7 +2567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Network/" class="md-nav__link">
+      <a href="../../Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2588,7 +2588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../NetworkTimestamp/" class="md-nav__link">
+      <a href="../../NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2609,7 +2609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../NodeDescriptorRepository/" class="md-nav__link">
+      <a href="../../NodeDescriptorRepository/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2630,28 +2630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Ordered/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Ordered
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../PrivateKeyStorage/" class="md-nav__link">
+      <a href="../../PrivateKeyStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2672,7 +2651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../QrSignatureStorage/" class="md-nav__link">
+      <a href="../../QrSignatureStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2693,7 +2672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../QrStorage/" class="md-nav__link">
+      <a href="../../QrStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2714,7 +2693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../RuleBasedTransactionFactory/" class="md-nav__link">
+      <a href="../../RuleBasedTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2732,41 +2711,10 @@
                 
   
   
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    SharedKey
-  </span>
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
   
   
     <li class="md-nav__item">
-      <a href="../TransactionDescriptorProcessor/" class="md-nav__link">
+      <a href="../../TransactionDescriptorProcessor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2787,7 +2735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Transforms/" class="md-nav__link">
+      <a href="../../Transforms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2818,10 +2766,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_24" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_22" >
         
           
-          <label class="md-nav__link" for="__nav_3_4_1_1_24" id="__nav_3_4_1_1_24_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_4_1_1_22" id="__nav_3_4_1_1_22_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -2832,8 +2780,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_24_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4_1_1_24">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_22_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1_22">
             <span class="md-nav__icon md-icon"></span>
             external
           </label>
@@ -2846,28 +2794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../external/__init__/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    external
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../external/ed25519/" class="md-nav__link">
+      <a href="../../external/ed25519/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2906,10 +2833,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_25" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_23" >
         
           
-          <label class="md-nav__link" for="__nav_3_4_1_1_25" id="__nav_3_4_1_1_25_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_4_1_1_23" id="__nav_3_4_1_1_23_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -2920,8 +2847,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_25_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4_1_1_25">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_23_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1_23">
             <span class="md-nav__icon md-icon"></span>
             facade
           </label>
@@ -2934,28 +2861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../facade/__init__/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    facade
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../facade/BatchOperations/" class="md-nav__link">
+      <a href="../../facade/BatchOperations/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2976,7 +2882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../facade/SymbolFacade/" class="md-nav__link">
+      <a href="../../facade/SymbolFacade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3004,96 +2910,8 @@
   
   
   
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_26" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_4_1_1_26" id="__nav_3_4_1_1_26_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    impl
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_26_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4_1_1_26">
-            <span class="md-nav__icon md-icon"></span>
-            impl
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../impl/__init__/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    impl
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../impl/CipherHelpers/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    CipherHelpers
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../ripemd160/" class="md-nav__link">
+      <a href="../../ripemd160/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3111,6 +2929,8 @@
                 
   
   
+    
+  
   
   
     
@@ -3120,14 +2940,14 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_28" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1_25" checked>
         
           
-          <label class="md-nav__link" for="__nav_3_4_1_1_28" id="__nav_3_4_1_1_28_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_4_1_1_25" id="__nav_3_4_1_1_25_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -3138,8 +2958,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_28_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4_1_1_28">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_4_1_1_25_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_1_1_25">
             <span class="md-nav__icon md-icon"></span>
             symbol
           </label>
@@ -3152,7 +2972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/IdGenerator/" class="md-nav__link">
+      <a href="../IdGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3173,7 +2993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/KeyPair/" class="md-nav__link">
+      <a href="../KeyPair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3194,7 +3014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/Merkle/" class="md-nav__link">
+      <a href="../Merkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3215,7 +3035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/MessageEncoder/" class="md-nav__link">
+      <a href="../MessageEncoder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3236,7 +3056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/Metadata/" class="md-nav__link">
+      <a href="../Metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3257,7 +3077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/Network/" class="md-nav__link">
+      <a href="../Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3275,18 +3095,69 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../symbol/SharedKey/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Restriction
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    SharedKey
+    Restriction
   </span>
   
 
       </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#symbolchain.symbol.Restriction.mosaic_restriction_generate_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mosaic_restriction_generate_key
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -3299,7 +3170,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/TransactionFactory/" class="md-nav__link">
+      <a href="../TransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3320,7 +3191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symbol/VotingKeysGenerator/" class="md-nav__link">
+      <a href="../VotingKeysGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3441,7 +3312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Bip32/classes/Bip32/" class="md-nav__link">
+      <a href="../../../ts/Bip32/classes/Bip32/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3462,7 +3333,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Bip32/classes/Bip32Node/" class="md-nav__link">
+      <a href="../../../ts/Bip32/classes/Bip32Node/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3529,7 +3400,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/classes/Network/" class="md-nav__link">
+      <a href="../../../ts/Network/classes/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3550,7 +3421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/classes/NetworkLocator/" class="md-nav__link">
+      <a href="../../../ts/Network/classes/NetworkLocator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3609,7 +3480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/AddressConstructable/" class="md-nav__link">
+      <a href="../../../ts/Network/type-aliases/AddressConstructable/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3630,7 +3501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/Constructable/" class="md-nav__link">
+      <a href="../../../ts/Network/type-aliases/Constructable/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3651,7 +3522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/EncodedSizeAccessor/" class="md-nav__link">
+      <a href="../../../ts/Network/type-aliases/EncodedSizeAccessor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3726,7 +3597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/NetworkTimestamp/classes/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../ts/NetworkTimestamp/classes/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3747,7 +3618,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/NetworkTimestamp/classes/NetworkTimestampDatetimeConverter/" class="md-nav__link">
+      <a href="../../../ts/NetworkTimestamp/classes/NetworkTimestampDatetimeConverter/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3814,7 +3685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/BaseValue/" class="md-nav__link">
+      <a href="../../../ts/index/classes/BaseValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3835,7 +3706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/ByteArray/" class="md-nav__link">
+      <a href="../../../ts/index/classes/ByteArray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3856,7 +3727,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/Hash256/" class="md-nav__link">
+      <a href="../../../ts/index/classes/Hash256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3877,7 +3748,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/PrivateKey/" class="md-nav__link">
+      <a href="../../../ts/index/classes/PrivateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3898,7 +3769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/PublicKey/" class="md-nav__link">
+      <a href="../../../ts/index/classes/PublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3919,7 +3790,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/SharedKey256/" class="md-nav__link">
+      <a href="../../../ts/index/classes/SharedKey256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3940,7 +3811,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/Signature/" class="md-nav__link">
+      <a href="../../../ts/index/classes/Signature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3999,7 +3870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/bytesToBigInt/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/bytesToBigInt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4020,7 +3891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/bytesToInt/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/bytesToInt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4041,7 +3912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/deepCompare/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/deepCompare/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4062,7 +3933,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/hexToUint8/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/hexToUint8/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4083,7 +3954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/intToBytes/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/intToBytes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4104,7 +3975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/isHexString/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/isHexString/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4125,7 +3996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/tryParseUint/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/tryParseUint/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4146,7 +4017,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/uint8ToHex/" class="md-nav__link">
+      <a href="../../../ts/index/namespaces/utils/functions/uint8ToHex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4259,7 +4130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/MessageEncoder/classes/default/" class="md-nav__link">
+      <a href="../../../ts/symbol/MessageEncoder/classes/default/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4318,7 +4189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/MessageEncoder/type-aliases/TryDecodeResult/" class="md-nav__link">
+      <a href="../../../ts/symbol/MessageEncoder/type-aliases/TryDecodeResult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4355,7 +4226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Address/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/Address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4376,7 +4247,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/KeyPair/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/KeyPair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4397,7 +4268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Network/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4418,7 +4289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4439,7 +4310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolAccount/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/SymbolAccount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4460,7 +4331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolFacade/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/SymbolFacade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4481,7 +4352,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolPublicAccount/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/SymbolPublicAccount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4502,7 +4373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolTransactionFactory/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/SymbolTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4523,7 +4394,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Verifier/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/Verifier/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4544,7 +4415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/VotingKeysGenerator/" class="md-nav__link">
+      <a href="../../../ts/symbol/classes/VotingKeysGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4565,7 +4436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateMosaicAliasId/" class="md-nav__link">
+      <a href="../../../ts/symbol/functions/generateMosaicAliasId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4586,7 +4457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateMosaicId/" class="md-nav__link">
+      <a href="../../../ts/symbol/functions/generateMosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4607,7 +4478,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateNamespaceId/" class="md-nav__link">
+      <a href="../../../ts/symbol/functions/generateNamespaceId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4628,7 +4499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateNamespacePath/" class="md-nav__link">
+      <a href="../../../ts/symbol/functions/generateNamespacePath/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4649,7 +4520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/isValidNamespaceName/" class="md-nav__link">
+      <a href="../../../ts/symbol/functions/isValidNamespaceName/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4670,7 +4541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/metadataGenerateKey/" class="md-nav__link">
+      <a href="../../../ts/symbol/functions/metadataGenerateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4691,7 +4562,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/metadataUpdateValue/" class="md-nav__link">
+      <a href="../../../ts/symbol/functions/metadataUpdateValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4750,7 +4621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/BranchNode/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/classes/BranchNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4771,7 +4642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/LeafNode/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/classes/LeafNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4792,7 +4663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/MerkleHashBuilder/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/classes/MerkleHashBuilder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4813,7 +4684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/PatriciaMerkleProofResult/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/classes/PatriciaMerkleProofResult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4834,7 +4705,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/TreeNode/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/classes/TreeNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4855,7 +4726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/deserializePatriciaTreeNodes/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/functions/deserializePatriciaTreeNodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4876,7 +4747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/proveMerkle/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/functions/proveMerkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4897,7 +4768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/provePatriciaMerkle/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/functions/provePatriciaMerkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4956,7 +4827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/type-aliases/MerklePart/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/type-aliases/MerklePart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4977,7 +4848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/type-aliases/PatriciaTreePath/" class="md-nav__link">
+      <a href="../../../ts/symbol/merkle/type-aliases/PatriciaTreePath/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5052,7 +4923,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5073,7 +4944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5094,7 +4965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5115,7 +4986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5136,7 +5007,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5157,7 +5028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5178,7 +5049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5199,7 +5070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5220,7 +5091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5241,7 +5112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5262,7 +5133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5283,7 +5154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5304,7 +5175,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/CosignatureDescriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/CosignatureDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5325,7 +5196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5346,7 +5217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5367,7 +5238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5388,7 +5259,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5409,7 +5280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5430,7 +5301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicDescriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5451,7 +5322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5472,7 +5343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5493,7 +5364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5514,7 +5385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5535,7 +5406,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5556,7 +5427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5577,7 +5448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5598,7 +5469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5619,7 +5490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5640,7 +5511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5661,7 +5532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5682,7 +5553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5703,7 +5574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5724,7 +5595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5791,7 +5662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5812,7 +5683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5833,7 +5704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AccountMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5854,7 +5725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5875,7 +5746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5896,7 +5767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountRestrictionFlags/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AccountRestrictionFlags/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5917,7 +5788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Address/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5938,7 +5809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AddressAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5959,7 +5830,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressResolutionEntry/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AddressResolutionEntry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5980,7 +5851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressResolutionStatement/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AddressResolutionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6001,7 +5872,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6022,7 +5893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV2/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6043,7 +5914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6064,7 +5935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6085,7 +5956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6106,7 +5977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6127,7 +5998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AliasAction/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/AliasAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6148,7 +6019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Amount/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Amount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6169,7 +6040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Block/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Block/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6190,7 +6061,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockDuration/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/BlockDuration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6211,7 +6082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockFactory/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/BlockFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6232,7 +6103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockFeeMultiplier/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/BlockFeeMultiplier/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6253,7 +6124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockStatement/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/BlockStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6274,7 +6145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockType/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/BlockType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6295,7 +6166,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Cosignature/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Cosignature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6316,7 +6187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/DetachedCosignature/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/DetachedCosignature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6337,7 +6208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Difficulty/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Difficulty/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6358,7 +6229,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6379,7 +6250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6400,7 +6271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6421,7 +6292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6442,7 +6313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6463,7 +6334,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6484,7 +6355,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6505,7 +6376,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6526,7 +6397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6547,7 +6418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6568,7 +6439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6589,7 +6460,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6610,7 +6481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6631,7 +6502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6652,7 +6523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6673,7 +6544,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6694,7 +6565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6715,7 +6586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6736,7 +6607,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6757,7 +6628,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6778,7 +6649,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransaction/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedTransaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6799,7 +6670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransactionFactory/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6820,7 +6691,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6841,7 +6712,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6862,7 +6733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6883,7 +6754,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationEpoch/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/FinalizationEpoch/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6904,7 +6775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationPoint/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/FinalizationPoint/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6925,7 +6796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationRound/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/FinalizationRound/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6946,7 +6817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizedBlockHeader/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/FinalizedBlockHeader/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6967,7 +6838,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/HarvestFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/HarvestFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6988,7 +6859,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Hash256/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Hash256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7009,7 +6880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Hash512/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Hash512/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7030,7 +6901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/HashLockTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/HashLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7051,7 +6922,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Height/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Height/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7072,7 +6943,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Importance/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Importance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7093,7 +6964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ImportanceBlockV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ImportanceBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7114,7 +6985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ImportanceHeight/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ImportanceHeight/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7135,7 +7006,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/InflationReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/InflationReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7156,7 +7027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LinkAction/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LinkAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7177,7 +7048,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashAlgorithm/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LockHashAlgorithm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7198,7 +7069,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7219,7 +7090,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7240,7 +7111,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7261,7 +7132,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7282,7 +7153,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7303,7 +7174,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7324,7 +7195,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Mosaic/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7345,7 +7216,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7366,7 +7237,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7387,7 +7258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7408,7 +7279,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicExpiredReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicExpiredReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7429,7 +7300,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicFlags/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicFlags/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7450,7 +7321,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7471,7 +7342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicId/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7492,7 +7363,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7513,7 +7384,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicNonce/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicNonce/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7534,7 +7405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7555,7 +7426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicResolutionEntry/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicResolutionEntry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7576,7 +7447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicResolutionStatement/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicResolutionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7597,7 +7468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRestrictionKey/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicRestrictionKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7618,7 +7489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRestrictionType/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicRestrictionType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7639,7 +7510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeAction/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7660,7 +7531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7681,7 +7552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7702,7 +7573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7723,7 +7594,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceDeletedReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NamespaceDeletedReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7744,7 +7615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceExpiredReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NamespaceExpiredReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7765,7 +7636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceId/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NamespaceId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7786,7 +7657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7807,7 +7678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7828,7 +7699,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRegistrationType/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NamespaceRegistrationType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7849,7 +7720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7870,7 +7741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NemesisBlockV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NemesisBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7891,7 +7762,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NetworkType/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NetworkType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7912,7 +7783,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7933,7 +7804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NormalBlockV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/NormalBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7954,7 +7825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofGamma/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ProofGamma/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7975,7 +7846,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofScalar/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ProofScalar/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7996,7 +7867,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofVerificationHash/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ProofVerificationHash/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8017,7 +7888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/PublicKey/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/PublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8038,7 +7909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Receipt/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Receipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8059,7 +7930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptFactory/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ReceiptFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8080,7 +7951,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptSource/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ReceiptSource/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8101,7 +7972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptType/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/ReceiptType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8122,7 +7993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/SecretLockTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/SecretLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8143,7 +8014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/SecretProofTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/SecretProofTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8164,7 +8035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Signature/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Signature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8185,7 +8056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Timestamp/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Timestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8206,7 +8077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Transaction/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/Transaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8227,7 +8098,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionFactory/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/TransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8248,7 +8119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionStatement/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/TransactionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8269,7 +8140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionType/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/TransactionType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8290,7 +8161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransferTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/TransferTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8311,7 +8182,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedAddress/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/UnresolvedAddress/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8332,7 +8203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedMosaic/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/UnresolvedMosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8353,7 +8224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedMosaicId/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/UnresolvedMosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8374,7 +8245,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8395,7 +8266,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VotingPublicKey/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/VotingPublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8416,7 +8287,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8437,7 +8308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VrfProof/" class="md-nav__link">
+      <a href="../../../ts/symbol/namespaces/models/classes/VrfProof/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8482,7 +8353,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rest/symbol/" class="md-nav__link">
+      <a href="../../../rest/symbol/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8503,7 +8374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../serialization/" class="md-nav__link">
+      <a href="../../../serialization/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8524,7 +8395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../websockets/" class="md-nav__link">
+      <a href="../../../websockets/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8598,7 +8469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/intro/" class="md-nav__link">
+      <a href="../../../../../textbook/intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8619,7 +8490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cryptography/" class="md-nav__link">
+      <a href="../../../../../textbook/cryptography/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8640,7 +8511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/accounts/" class="md-nav__link">
+      <a href="../../../../../textbook/accounts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8661,7 +8532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/consensus/" class="md-nav__link">
+      <a href="../../../../../textbook/consensus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8682,7 +8553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/transactions/" class="md-nav__link">
+      <a href="../../../../../textbook/transactions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8703,7 +8574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/transfer_transactions/" class="md-nav__link">
+      <a href="../../../../../textbook/transfer_transactions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8724,7 +8595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/mosaics/" class="md-nav__link">
+      <a href="../../../../../textbook/mosaics/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8745,7 +8616,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/namespaces/" class="md-nav__link">
+      <a href="../../../../../textbook/namespaces/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8766,7 +8637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/blocks/" class="md-nav__link">
+      <a href="../../../../../textbook/blocks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8787,7 +8658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/metadata/" class="md-nav__link">
+      <a href="../../../../../textbook/metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8808,7 +8679,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/nodes/" class="md-nav__link">
+      <a href="../../../../../textbook/nodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8829,7 +8700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/restrictions/" class="md-nav__link">
+      <a href="../../../../../textbook/restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8850,7 +8721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/harvesting/" class="md-nav__link">
+      <a href="../../../../../textbook/harvesting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8871,7 +8742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/catapult/" class="md-nav__link">
+      <a href="../../../../../textbook/catapult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8892,7 +8763,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cats/" class="md-nav__link">
+      <a href="../../../../../textbook/cats/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8913,7 +8784,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/glossary/" class="md-nav__link">
+      <a href="../../../../../textbook/glossary/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8956,6 +8827,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#symbolchain.symbol.Restriction.mosaic_restriction_generate_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mosaic_restriction_generate_key
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -8969,7 +8857,7 @@
                   
 
 
-<h1 id="sharedkey"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> SharedKey<a class="headerlink" href="#sharedkey" title="Anchor link to this section for reference">⚓︎</a></h1>
+<h1 id="restriction"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Restriction<a class="headerlink" href="#restriction" title="Anchor link to this section for reference">⚓︎</a></h1>
 
 
 <div class="doc doc-object doc-module">
@@ -8996,6 +8884,30 @@
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="symbolchain.symbol.Restriction.mosaic_restriction_generate_key" class="doc doc-heading">
+	<a id=Restriction.mosaic_restriction_generate_key></a>
+	<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mosaic_restriction_generate_key</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></code>
+
+
+<a href="#symbolchain.symbol.Restriction.mosaic_restriction_generate_key" class="headerlink" title="Anchor link to this section for reference">⚓︎</a></h2>
+
+
+    <div class="doc doc-contents ">
+	<dl class="automatic-reference-term"><dt>
+	<a id="1deba127ccbb7464d0613fe805351a02">Restriction.mosaic_restriction_generate_key</a> 
+</dt>
+<dd>        <p>Generates a mosaic restriction key from a string.</p>
+</dd>
+</dl>
+
+
+    </div>
+
+</div>
 
 
 
@@ -9236,12 +9148,12 @@
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
     
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      <script src="../../../../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
-        <script src="../../../../assets/javascripts/katex.js"></script>
+        <script src="../../../../../assets/javascripts/katex.js"></script>
       
         <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
       
