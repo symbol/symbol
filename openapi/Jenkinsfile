@@ -2,5 +2,5 @@ defaultCiPipeline {
 	operatingSystem = ['ubuntu']
 	instanceSize = 'medium'
 	environment = 'javascript'
-	packageId = 'openapi'
+	packageId = 'symbol-openapi'
 }
