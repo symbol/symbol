@@ -11,9 +11,9 @@ Select the language you prefer:
 === ":simple-python: Python"
 
     <table markdown class="setup">
-    <tr markdown><td>Prerequisites</td><td markdown>[Python](https://www.python.org/downloads/) 3.9.2 or later</td></tr>
+    <tr markdown><td>Prerequisites</td><td markdown>[Python](https://www.python.org/downloads/) 3.10 or later</td></tr>
     <tr markdown><td>Installation</td><td markdown>
-    Install the Symbol SDK version 3.3.0 with:
+    Install the Symbol SDK version 3.3.1 with:
     ```bash
     pip install symbol-sdk-python --upgrade
     ```
@@ -30,7 +30,7 @@ Select the language you prefer:
     <table markdown class="setup">
     <tr markdown><td>Prerequisites</td><td markdown>Any actively supported version of [Node.js](https://nodejs.org/)</td></tr>
     <tr markdown><td>Installation</td><td markdown>
-    Create a project folder and install the Symbol SDK version 3.3.0 as a dependency:
+    Create a project folder and install the Symbol SDK version 3.3.1 as a dependency:
     ```bash
     mkdir symbol-dev && cd symbol-dev
     npm init -y
