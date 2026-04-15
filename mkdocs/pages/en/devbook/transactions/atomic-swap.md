@@ -8,6 +8,9 @@ An atomic swap is an exchange of assets between two parties where both transfers
 together.
 This guarantees that neither party can receive assets without the other also receiving theirs.
 
+This page covers swaps of assets (<mosaics:>) between <accounts:> on the Symbol network.
+To exchange assets between Symbol and another blockchain, see [Cross-Chain Swap](./cross-chain-swap.md).
+
 ## How Atomic Swaps Work on Symbol
 
 On Symbol, atomic swaps are performed using <aggregate transactions:>, which group multiple
@@ -47,16 +50,12 @@ digraph {
 For details on how aggregate transactions work, see the
 [Aggregate Transactions](../../textbook/transactions.md#aggregate-transactions) section in the Textbook.
 
-## Approaches
+## Choose an aggregate type
 
-Atomic swaps can be implemented with two types of aggregate transactions, each suited to different coordination scenarios:
+Symbol supports two aggregate transaction types for atomic swaps.
+Continue to the tutorial that matches your use case:
 
-| Approach                                      | When to use                                         | Trade-off                                 |
+| Type                                          | When to use                                         | Trade-off                                 |
 |-----------------------------------------------|-----------------------------------------------------|-------------------------------------------|
-| [Complete aggregate](./complete-aggregate.md) | All parties can sign before announcement off-chain. | Requires handling off-chain coordination. |
-| [Bonded aggregate](./bonded-aggregate.md)     | Parties cannot sign at the same time on-chain.      | Requires a 10 XYM lock deposit.           |
-
-## Limitations
-
-Atomic swaps using aggregate transactions only work within the Symbol network.
-To exchange assets between Symbol and another blockchain, see the [Cross-Chain Swap](./cross-chain-swap.md) tutorial.
+| [Complete aggregate](./complete-aggregate.md) | All parties can sign off-chain before announcing.   | Requires handling off-chain coordination. |
+| [Bonded aggregate](./bonded-aggregate.md)     | Parties want all coordination to happen on-chain.   | Requires a 10 XYM lock deposit.           |
