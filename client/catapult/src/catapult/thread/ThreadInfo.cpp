@@ -116,7 +116,7 @@ namespace catapult { namespace thread {
 		if (0 == pthread_getname_np(pthread_self(), buffer, sizeof(buffer))) {
 			return std::string(buffer, buffer + std::strlen(buffer));
 		}
-        return std::string();
+		return std::string();
 	}
 }
 }
