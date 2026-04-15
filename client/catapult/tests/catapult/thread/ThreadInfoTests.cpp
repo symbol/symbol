@@ -45,7 +45,7 @@ namespace catapult { namespace thread {
 		// Act: set empty thread name
 		SetThreadName();
 
-		// Act:
+		// Assert: thread name is empty
 		EXPECT_STREQ("", GetThreadName().c_str());
 
 #ifndef _WIN32
