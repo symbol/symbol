@@ -50,7 +50,7 @@ namespace catapult { namespace thread {
 
 		// Restore the original thread name
 		SetThreadName(originalThreadName);
-		EXPECT_EQ(threadName, GetThreadName());
+		EXPECT_EQ(originalThreadName, GetThreadName());
 	}
 
 	TEST(TEST_CLASS, CanSetSpawnedThreadName) {
