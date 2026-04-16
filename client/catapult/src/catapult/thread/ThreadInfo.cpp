@@ -33,17 +33,13 @@ namespace catapult { namespace thread {
 
 		constexpr std::size_t kMaxThreadNameBytes = 64; // Including the null terminator
 
-		constexpr int pthread_self() {
-			return 0;
-		}
-
-		int pthread_setname_np(int, const char* name) {
+		int pthread_setname_np(pthread_t, const char* name) {
 			/*
 			* On macOS, pthread_setname_np only accepts the thread name without the thread ID,
 			* and it applies to the current thread. Therefore, we can ignore the thread ID
 			* and directly set the thread name for the current thread.
 			*/
-			return pthread_setname_np(name);
+			return ::pthread_setname_np(name);
 		}
 
 #elif defined(__GLIBC__)
