@@ -19,6 +19,8 @@ markdown_extensions:
     title: このページに
 theme:
   language: ja
+  font:
+    text: Noto Sans JP, Yu Gothic, Hiragino Sans, Meiryo, sans-serif
   palette:
     # Palette toggle for automatic mode
     - media: (prefers-color-scheme)
@@ -43,9 +45,9 @@ extra:
   consent:
     title: クッキーの同意
     description: >-
-      当社では、お客様の繰り返しのアクセスや好みを認識するため、
-      また、当社のドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
-      お客様の同意により、当社はドキュメントの改善に協力することになります。
+      当社では、お客様の再訪や好みを認識するため、
+      また、ドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
+      同意いただく事で、ドキュメントの改善にご協力頂くことになります。
   social:
     - icon: fontawesome/solid/house
       link: https://docs.symboltest.net
@@ -68,14 +70,78 @@ nav:
       - userbook/intro.md
       - Symbol デスクトップウォレット:
           - userbook/wallet/install.md
+          - プロファイル:
+              - userbook/wallet/create-profile.md
+              - userbook/wallet/import-profile.md
+              - userbook/wallet/export-profile.md
+              - userbook/wallet/delete-profile.md
+          - アカウント:
+              - userbook/wallet/create-account.md
+              - userbook/wallet/import-account.md
+              - userbook/wallet/delete-account.md
+      - userbook/security.md
   - 開発者マニュアル:
       - devbook/intro.md
+      - はじめに:
+          - devbook/start/setup.md
+          - devbook/start/hello-world.md
+      - チュートリアル:
+          - アカウント:
+              - devbook/accounts/create-from-private-key.md
+              - devbook/accounts/create-from-mnemonic.md
+              - devbook/accounts/testnet-faucet.md
+              - devbook/accounts/query-balance.md
+              - devbook/accounts/account-metadata.md
+              - devbook/accounts/configure-multisig.md
+              - devbook/accounts/sign-multisig.md
+              - devbook/accounts/account-restrictions.md
+          - トランザクション:
+              - devbook/transactions/transfer.md
+              - devbook/transactions/typed-descriptors.md
+              - devbook/transactions/messages.md
+              - devbook/transactions/monitoring-status.md
+              - devbook/transactions/complete-aggregate.md
+              - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/transaction-batching.md
+              - devbook/transactions/fee-sponsorship.md
+              - devbook/transactions/atomic-swap.md
+          - ネームスペース:
+              - devbook/namespaces/register-root-namespace.md
+              - devbook/namespaces/register-subnamespace.md
+              - devbook/namespaces/get-namespace-info.md
+              - devbook/namespaces/extend-root-namespace.md
+              - devbook/namespaces/link-namespace-to-address.md
+              - devbook/namespaces/link-namespace-to-mosaic.md
+              - devbook/namespaces/namespace-metadata.md
+              - devbook/namespaces/resolve-namespace-from-receipt.md
+          - モザイク:
+              - devbook/mosaics/create-mosaic.md
+              - devbook/mosaics/get-mosaic-info.md
+              - devbook/mosaics/change-mosaic-supply.md
+              - devbook/mosaics/modify-mosaic-definition.md
+              - devbook/mosaics/mosaic-metadata.md
+              - devbook/mosaics/revoke-mosaic.md
+              - devbook/mosaics/mosaic-restrictions.md
+          - ネットワーク通貨:
+              - devbook/network-currency/query-currency-supply.md
+              - devbook/network-currency/query-block-rewards.md
+          - チェーンの状態:
+              - devbook/chain/chain-heights.md
+              - devbook/chain/network-time.md
+              - devbook/chain/prove-transaction.md
+              - devbook/chain/prove-mosaic-definition.md
+          - Webソケット:
+              - devbook/websockets/listen-new-blocks.md
+              - devbook/websockets/listen-transaction-flow.md
+              - devbook/websockets/listen-bonded-transaction-flow.md
+              - devbook/websockets/listen-transaction-error.md
       - リファレンスガイド:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/
-          - Java SDK: devbook/reference/java/
           - Symbol REST API: devbook/reference/rest/symbol.md
-  - 教科書:
+          - Serialization: devbook/reference/serialization/index.md
+          - WebSockets: devbook/reference/websockets/index.md
+  - テキストブック:
       - textbook/intro.md
       - textbook/cryptography.md
       - textbook/accounts.md
@@ -85,6 +151,7 @@ nav:
       - textbook/mosaics.md
       - textbook/namespaces.md
       - textbook/blocks.md
+      - textbook/metadata.md
       - textbook/nodes.md
       - textbook/restrictions.md
       - textbook/harvesting.md
