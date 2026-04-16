@@ -37,14 +37,14 @@ but applications will probably want to use more fine-grained control.
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:15:17', 'js:12:15']) }}
+{{ tutorial.code_snippet(['py:16:18', 'js:12:15']) }}
 
 The signer account is loaded from the `SIGNER_PRIVATE_KEY` environment variable.
 If not provided, a test key is used as default.
 
 ### Fetching Network Time
 
-{{ tutorial.code_snippet(['py:22:29', 'js:20:28']) }}
+{{ tutorial.code_snippet(['py:23:30', 'js:20:28']) }}
 
 Transactions on Symbol must include a deadline, which defines how long the network should attempt to confirm the
 transaction before discarding it.
@@ -61,7 +61,7 @@ This provides a good balance between accuracy and performance.
 
 ### Fetching Recommended Fees
 
-{{ tutorial.code_snippet(['py:31:39', 'js:30:38']) }}
+{{ tutorial.code_snippet(['py:32:40', 'js:30:38']) }}
 
 Transactions on Symbol must pay a fee to incentivize nodes to include them in blocks.
 If the fee is too low, no node may include the transaction.
@@ -86,7 +86,7 @@ multiplier (`minFeeMultiplier`), and stores it for later use once the transactio
 ### Building the Transaction
 
 {{ tutorial.code_snippet({
-  'py': { 'range': [41, 54] },
+  'py': { 'range': [42, 55] },
   'js': {
     'range': [40, 52],
     'descriptor': 'TransferTransactionV1Descriptor'
@@ -126,7 +126,7 @@ transaction's size in bytes, which is only known once the descriptor has been co
 
 ### Signing and Serializing
 
-{{ tutorial.code_snippet(['py:56:61', 'js:54:59']) }}
+{{ tutorial.code_snippet(['py:57:62', 'js:54:59']) }}
 
 Once the transaction is created, it must be signed with the signing account's private key.
 Signing ensures the transaction is authentic and authorized by the sender.
@@ -138,7 +138,7 @@ JSON payload ready to be submitted directly to a node for announcement.
 
 ### Announcing the Transaction
 
-{{ tutorial.code_snippet(['py:63:73', 'js:61:69']) }}
+{{ tutorial.code_snippet(['py:64:74', 'js:61:69']) }}
 
 Announcing a transaction is a simple request to the <put:/transactions> endpoint of any Symbol <API node:>.
 As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.
@@ -151,7 +151,7 @@ as shown in the next step.
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:75:96', 'js:71:116']) }}
+{{ tutorial.code_snippet(['py:76:97', 'js:71:116']) }}
 
 !!! note
     This step uses polling to check whether the transaction has been confirmed.
