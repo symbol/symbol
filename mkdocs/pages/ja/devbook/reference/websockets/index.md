@@ -1,50 +1,46 @@
-# WebSockets
+# WebSockets {: #websockets }
 
-To get **live updates** when an event occurs on the blockchain, Symbol publishes
-[WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API).
+ブロックチェーン上でイベントが発生したときに**リアルタイムに更新**を取得するために、Symbol では [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) を公開しています。
 
-Client applications can open a WebSocket connection and get a unique identifier.
-With this identifier, applications can subscribe to any of the available channels instead of needing to constantly
-poll the [REST API](../rest/symbol.md) for updates.
+クライアントアプリケーションは WebSocket 接続を開き、一意の識別子を取得できます。
+この識別子を使用することで、アプリケーションは更新のために [REST API](../rest/symbol.md) を継続的にポーリングする代わりに、利用可能な任意のチャネルをサブスクライブできます。
 
-When an event occurs in a channel, the [REST Gateway](../../../textbook/nodes.md#rest-gateway) sends a notification to
-every subscribed client in real-time.
+チャネルでイベントが発生すると、 [REST Gateway](../../../textbook/nodes.md#rest-gateway) はサブスクライブしているすべてのクライアントにリアルタイムで通知を送信します。
 
-WebSocket URIs share the same host and port as the HTTP requests URIs, but use the ``ws://`` protocol.
-The endpoint is `/ws`, for example: `ws://localhost:3001/ws`
+WebSocket URI は HTTP リクエスト URI と同じホストとポートを共有しますが、 `ws://` プロトコルを使用します。
+エンドポイントは `/ws` です。例: `ws://localhost:3001/ws`
 
-Both outgoing subscription messages and incoming updates use the JSON format and are described next.
+送信するサブスクリプションメッセージと受信する更新メッセージはどちらも JSON 形式を使用し、これらについて次に説明します。
 
-!!! warning
+!!! warning "警告"
 
-    The WebSocket connection is dropped silently if idle for too long.
+    アイドル状態が長すぎると、WebSocket 接続は警告なしに切断されます。
 
-    Channels are not automatically resubscribed on reconnection.
+    再接続時にチャネルは自動的に再サブスクライブされません。
 
-## Response Format
+## レスポンス形式 {: #response-format }
 
-All channels share the same response format, which is:
+すべてのチャネルは同じレスポンス形式を使用します。
 
-```json title="Response body"
+```json title="レスポンスボディ"
 {
     "topic": "{subscribed-channel}",
     "data": { ... }
 }
 ```
 
-* ``topic`` contains the name of the subscribed channel, so the same websocket can be used to monitor multiple channels
-    (``topic`` matches the ``subscribe`` field provided in the request body when subscribing).
-* ``data`` is a channel-specific object. Each channel listed below describes the data object it returns.
+* ``topic`` にはサブスクライブしたチャネルの名前が含まれるため、同じWebSocketを使用して複数のチャネルを監視できます（ ``topic`` は、サブスクライブ時にリクエストボディで提供される ``subscribe`` フィールドと一致します）。
+* ``data`` はチャネル固有のオブジェクトです。以下のリストに記載されている各チャネルで、返されるデータオブジェクトについて説明しています。
 
-## Channels
+## チャネル {: #channels }
 
-### `block`
+### `block` {: #block }
 
 ws:block
-:   Notifies subscribed clients every time **a new block is created**.
-    Each returned message contains information about one block.
+:   **新しいブロックが作成される**たびに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、1つのブロックに関する情報が含まれます。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -53,18 +49,18 @@ ws:block
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    [BlockInfoDTO](../rest/symbol.md#model-BlockInfoDTO)
+    [BlockInfoDTO](../rest/symbol.md#model/BlockInfoDTO)
 
-### `finalizedBlock`
+### `finalizedBlock` {: #finalizedblock }
 
 ws:finalizedBlock
-:   Notifies subscribed clients every time a set of blocks is <finalization|finalized>.
-    Each returned message contains information about the **highest block** in the finalization round.
-    All blocks with a smaller height are assumed finalized.
+:   ブロックのセットが <finalization|ファイナライズ> されるたびに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、ファイナライゼーションラウンドで**最も高いブロック（最新のブロック）**に関する情報が含まれます。
+    それより低いブロック高を持つすべてのブロックは、ファイナライズされたと見なされます。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
         {
@@ -73,17 +69,17 @@ ws:finalizedBlock
         }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    [FinalizedBlockDTO](../rest/symbol.md#model-FinalizedBlockDTO)
+    [FinalizedBlockDTO](../rest/symbol.md#model/FinalizedBlockDTO)
 
-### `confirmedAdded`
+### `confirmedAdded` {: #confirmedadded }
 
 ws:confirmedAdded&#47;{address}
-:   Notifies subscribed clients when a transaction related to the given address is included in a block.
-    Each returned message contains information about one confirmed transaction.
+:   指定されたアドレスに関連するトランザクションがブロックに含まれたときに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、1つの承認済みトランザクションに関する情報が含まれます。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -92,22 +88,20 @@ ws:confirmedAdded&#47;{address}
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
+    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
 
-### `unconfirmedAdded`
+### `unconfirmedAdded` {: #unconfirmedadded }
 
 ws:unconfirmedAdded&#47;{address}
-:   Notifies subscribed clients when a transaction related to the given address enters the unconfirmed state,
-    waiting to be included in a block.
-    Each returned message contains information about one unconfirmed transaction.
+:   指定されたアドレスに関連するトランザクションが、ブロックに含まれるのを待つ未承認（unconfirmed）状態になったときに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、1つの未承認トランザクションに関する情報が含まれます。
 
-Possible scenarios when this message is received are:
-a transaction is announced to the network via the <put:/transactions> HTTP endpoint or a <bonded aggregate transaction:>
-has all required cosigners and changes its state from `partial` to `unconfirmed`.
+このメッセージを受信する考えられるシナリオは次のとおりです。
+トランザクションが <put:/transactions> HTTP エンドポイントを介してネットワークにアナウンスされた場合、または <bonded aggregate transaction:|アグリゲートボンデッドトランザクション> が必要なすべての連署者を集め、状態が `partial` から `unconfirmed` に変更された場合です。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -116,20 +110,20 @@ has all required cosigners and changes its state from `partial` to `unconfirmed`
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
+    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
 
-### `unconfirmedRemoved`
+### `unconfirmedRemoved` {: #unconfirmedremoved }
 
 ws:unconfirmedRemoved&#47;{address}
-:   Notifies subscribed clients when a transaction related to the given address exits the `unconfirmed` state.
-    Each returned message contains a no-longer-unconfirmed transaction hash.
+:   指定されたアドレスに関連するトランザクションが `unconfirmed` 状態を抜けたときに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、未承認ではなくなったトランザクションのハッシュが含まれます。
 
-Possible scenarios when this message is received are:
-the transaction is now confirmed, or the deadline was reached and the transaction was not included in a block.
+このメッセージを受信する考えられるシナリオは次のとおりです。
+トランザクションが承認された場合、またはデッドラインに達してトランザクションがブロックに含まれなかった場合です。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -138,18 +132,17 @@ the transaction is now confirmed, or the deadline was reached and the transactio
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    Hash of the transaction.
+    トランザクションのハッシュ。
 
-### `partialAdded`
+### `partialAdded` {: #partialadded }
 
 ws:partialAdded&#47;{address}
-:   Notifies subscribed clients when a <bonded aggregate transaction:> related to the given address enters the
-    `partial` state, waiting for all required cosignatures to complete.
-    Each returned message contains information about one added partial transaction.
+:   指定されたアドレスに関連する <bonded aggregate transaction:|アグリゲートボンデッドトランザクション> が、必要なすべての連署が完了するのを待つ `partial` 状態になったときに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、追加された1つのパーシャルトランザクションに関する情報が含まれます。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -158,22 +151,20 @@ ws:partialAdded&#47;{address}
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    [TransactionInfoDTO](../rest/symbol.md#model-TransactionInfoDTO)
+    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
 
-### `partialRemoved`
+### `partialRemoved` {: #partialremoved }
 
 ws:partialRemoved&#47;{address}
-:   Notifies subscribed clients when a <bonded aggregate transaction:> related to the given address exits the
-    `partial` state.
-    Each returned message contains one removed partial transaction hash.
+:   指定されたアドレスに関連する <bonded aggregate transaction:|アグリゲートボンデッドトランザクション> が `partial` 状態を抜けたときに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、削除された1つのパーシャルトランザクションのハッシュが含まれます。
 
-Possible scenarios when this message is emitted are:
-all required <cosignatures:> were received and the transaction is now `unconfirmed`,
-or the deadline was reached and the transaction was not included in a block.
+このメッセージが発行される考えられるシナリオは次のとおりです。
+必要なすべての <cosignatures:|連署> を受信してトランザクションが `unconfirmed` になった場合、またはデッドラインに達してトランザクションがブロックに含まれなかった場合です。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -182,18 +173,17 @@ or the deadline was reached and the transaction was not included in a block.
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    Hash of the transaction.
+    トランザクションのハッシュ。
 
-### `cosignature`
+### `cosignature` {: #cosignature }
 
 ws:cosignature&#47;{address}
-:   Notifies subscribed clients when a <cosignature:> related to the given address is added to a
-    <bonded aggregate transaction:> in the `partial` state.
-    Each returned message contains one cosignature-signed transaction.
+:   指定されたアドレスに関連する <cosignature:|連署> が、 `partial` 状態の <bonded aggregate transaction:|アグリゲートボンデッドトランザクション> に追加されたときに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、連署付きトランザクションが1つ含まれます。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -202,17 +192,17 @@ ws:cosignature&#47;{address}
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    [CosignatureDTO](../rest/symbol.md#model-CosignatureDTO)
+    [CosignatureDTO](../rest/symbol.md#model/CosignatureDTO)
 
-### `status`
+### `status` {: #status }
 
 ws:status&#47;{address}
-:   Notifies subscribed clients when a transaction related to the given address signals an error.
-    Each returned message contains one error message and a transaction hash.
+:   指定されたアドレスに関連するトランザクションがエラーを通知したときに、サブスクライブしているクライアントに通知します。
+    返される各メッセージには、1つのエラーメッセージとトランザクションのハッシュが含まれます。
 
-=== "Request body"
+=== "リクエストボディ"
 
     ```json
     {
@@ -221,6 +211,6 @@ ws:status&#47;{address}
     }
     ```
 
-=== "Response body"
+=== "レスポンスボディ"
 
-    [TransactionStatusDTO](../rest/symbol.md#model-TransactionStatusDTO)
+    [TransactionStatusDTO](../rest/symbol.md#model/TransactionStatusDTO)
