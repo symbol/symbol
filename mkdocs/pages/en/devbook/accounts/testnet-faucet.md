@@ -29,19 +29,19 @@ Before you start, make sure to:
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("../../images/faucet-open.png") }}
+{{ tutorial.step_begin("faucet-open.png") }}
 Open your web browser and navigate to the Symbol testnet faucet at
 [testnet.symbol.tools](https://testnet.symbol.tools).
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("../../images/faucet-sign-in.png") }}
+{{ tutorial.step_begin("faucet-sign-in.png") }}
 Click **Sign in with Twitter** (now 𝕏) and follow the authentication flow.
 
 This step limits the amount of test funds to 10,000 XYM per account,
 to help prevent abuse of the faucet.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("../../images/faucet-authorize.png") }}
+{{ tutorial.step_begin("faucet-authorize.png") }}
 After signing in, 𝕏 will ask you to authorize the faucet application to access
 your account information.
 
@@ -49,23 +49,23 @@ Review the permissions and click **Authorize app** to continue.
 Once authorized, you will be redirected again to the faucet.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("../../images/faucet-address.png") }}
+{{ tutorial.step_begin("faucet-address.png") }}
 Enter the address where you want to receive the funds in the **Your Testnet Address** field.
 
 Make sure the address starts with `T`, meaning it's a testnet account.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("../../images/faucet-xym.png") }}
+{{ tutorial.step_begin("faucet-xym.png") }}
 In the **XYM Amount** field, specify how much XYM you want to claim.
 The maximum amount per request is 10,000 XYM.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("../../images/faucet-claim.png") }}
+{{ tutorial.step_begin("faucet-claim.png") }}
 Click **Claim** to submit your request.
 If the request is successful, the faucet will transfer the specified amount of XYM to your address.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("../../images/faucet-view-explorer.png") }}
+{{ tutorial.step_begin("faucet-view-explorer.png") }}
 Click **View in Explorer** in the top-right corner notification to verify that the transaction was processed.
 
 The explorer will display the transaction details, including its confirmation status.

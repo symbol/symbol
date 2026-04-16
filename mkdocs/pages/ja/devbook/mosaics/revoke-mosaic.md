@@ -1,0 +1,133 @@
+---
+title: モザイクの回収（リボーク）
+---
+
+# モザイクの回収（リボーク） {: #revoking-a-mosaic }
+
+`revokable`（回収可能）フラグを設定して作成された [モザイク](default:モザイク) は、作成者が任意のアカウントからモザイクを回収し、自身の [アカウント](default: アカウント) 残高に戻すことができます。これは、契約条項の執行、未使用トークンの回収、または誤った配布の修正に役立ちます。
+
+このチュートリアルでは、他のアカウントからモザイクを回収する方法を説明します。
+
+## 前提条件 {: #prerequisites }
+
+開始する前に、以下を確認してください。
+
+* 開発環境をセットアップしていること 。
+    [開発環境のセットアップ](../start/setup.md) を参照してください。
+* `revokable` フラグが設定されたモザイクを所有する [アカウント](default: アカウント) を持っていること。
+    [モザイクの作成](./create-mosaic.md) チュートリアルを参照してください。
+* 他のアカウントにいくつかのモザイクを転送済みであること。
+    [転送トランザクション](../transactions/transfer.md) チュートリアルを参照してください。
+* トランザクション手数料を支払うための [XYM](default: XYM) を入手していること 。
+    [蛇口 (Faucet) からテストネットの通貨を入手する](../accounts/testnet-faucet.md) を参照してください。
+
+さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために、[転送トランザクション](../transactions/transfer.md) チュートリアルを復習しておいてください 。
+
+回収可能性の詳細については、テキストブックの [回収可能性](../../textbook/mosaics.md#revocability) を参照してください。
+
+## 完全なコード {: #full-code }
+
+{% import 'tutorial.jinja2' as tutorial with context %}
+
+{{ tutorial.code_full('devbook/mosaics/revoke-mosaic', ['py', 'js']) }}
+
+## コード解説 {: #code-explanation }
+
+### アカウントの設定 {: #setting-up-the-accounts }
+
+{{ tutorial.code_snippet(['py:25:40', 'js:21:40']) }}
+
+このスニペットは、署名者の秘密鍵を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合はテストキーがデフォルトとして使用されます 。
+署名者のアドレは公開鍵から派生します 。
+このアカウントは、 `revokable` フラグを持つモザイクの元の作成者である必要があります 。
+
+`SOURCE_ADDRESS` 環境変数は、モザイクユニットが回収されるアカウントのアドレスを指定します 。
+
+`MOSAIC_ID` 環境変数は、回収するモザイクの16進数識別子を指定します 。
+アカウントが保持しているモザイクを一覧表示するには、[アカウント残高の照会](../accounts/query-balance.md) を参照してください 。
+
+### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+
+{{ tutorial.code_snippet(['py:43:61', 'js:43:61']) }}
+
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します 。
+
+### 初期残高の確認 {: #checking-initial-balance }
+
+{{ tutorial.code_snippet(['py:65:69', 'js:65:70']) }}
+
+回収を行う前に、ヘルパー関数 `get_account_mosaics` が <get:/accounts/{accountId}> エンドポイントからソースアカウントの対象モザイクの現在残高を取得します 。
+これにより、回収後の結果と比較するための基準が得られます 。
+
+### 回収トランザクションの構築 {: #building-the-revocation-transaction }
+
+{{ tutorial.code_snippet(['py:74:84', 'js:75:85']) }}
+
+回収トランザクションは、ソースアカウントからモザイクユニットを回収し、作成者の残高に戻します 。
+
+* **Type:** モザイク供給回収トランザクションにはタイプ `mosaic_supply_revocation_transaction_v1` を使用します 。
+
+* **ソースアドレス:** 回収するモザイクユニットを保持しているアカウントのアドレス 。
+    これは、指定されたモザイクのユニットを現在保持している任意のアカウントを指定できます 。
+
+* **モザイク:** [モザイク ID](default:モザイクID) と回収する量を含むオブジェクト 。
+
+* **数量:** ソースアカウントから回収する絶対単位の数 。
+    モザイクの [可分性](../../textbook/mosaics.md#divisibility) を確認するには、 <get:/mosaics/{mosaicId}> エンドポイントを照会してください 。
+    例えば可分性が `2` の場合、数量 `700` は `7.00` 整数単位（700 / $10^2$）を表します 。
+
+!!! note "部分的な回収"
+
+    数量はソースアカウントの全残高と一致する必要はありません 。
+    単一のトランザクションで、ソースの現在の保有量までの任意の数量を回収できます 。
+
+### 回収の送信 {: #submitting-the-revocation }
+
+{{ tutorial.code_snippet(['py:86:106', 'js:87:104']) }}
+
+回収トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます 。
+
+{{ tutorial.code_snippet(['py:108:125', 'js:106:138']) }}
+
+コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます 。
+
+### 回収の検証 {: #verifying-the-revocation }
+
+{{ tutorial.code_snippet(['py:129:133', 'js:142:147']) }}
+
+回収を検証するために、ヘルパー関数 `get_account_mosaics` がソースアカウントの残高を再度取得します 。
+残高は [初期残高](#checking-initial-balance) よりも回収量分だけ少なくなっているはずです 。
+
+## 出力 {: #output }
+
+以下に示す出力は、プログラムの典型的な実行結果に対応しています 。
+
+```text linenums="1" hl_lines="4 12 24 26 27 47"
+--8<-- 'devbook/mosaics/revoke-mosaic.log'
+```
+
+出力の主なポイント:
+
+* **モザイクID** (4行目): モザイクID `8857803461494335809` (`0x7aed3d514c986941`) は、回収対象のモザイクを識別します 。
+
+* **初期残高** (12行目): 回収前、ソースアカウントはそのモザイクを `1000` 絶対単位保持しています 。
+
+* **ソースアドレス** (24行目): `source_address` フィールドは、ユニットが回収されるアカウントを識別します 。
+    これは、3行目に示されている Base32 [アドレス](default: アドレス) の16進数エンコード形式です 。
+
+* **回収量** (26-27行目): `mosaic` オブジェクトは、10進数形式のモザイクIDと数量 `700` を指定しています 。
+    10進数の値は、4行目に示されている16進数IDに対応します 。
+
+* **検証された残高** (47行目): 回収後、ソースアカウントの残高は `300` になっており、 `700` 絶対単位が正常に回収されたことが確認されました 。
+
+出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます 。
+
+## 結論 {: #conclusion }
+
+このチュートリアルでは、以下の方法を説明しました。
+
+| ステップ                                                    | 関連ドキュメント                           |
+|---------------------------------------------------------|--------------------------------------|
+| [アカウント残高を確認する](#checking-initial-balance)           | <get:/accounts/{accountId}>          |
+| [モザイクユニットを回収する](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create> |
+| [回収を検証する](#verifying-the-revocation)                | <get:/accounts/{accountId}>          |

@@ -1,0 +1,56 @@
+---
+title: プロファイルの削除
+---
+
+# プロファイルの削除 {: #deleting-a-profile }
+
+このページでは、Symbol Desktop Walletから [プロファイル](default:プロファイル) を完全に削除する方法を説明します。  
+この操作を行うとのデバイス上で対象のプロファイルによって管理されているすべての [アカウント](default:アカウント) へのアクセスが削除されます。
+
+!!! note "メモ"
+    この操作ではアカウントへの **自分のアクセス** のみを削除しています。  
+    アカウント自体、およびそこに含まれるすべての資産は、ブロックチェーン上に残ります。  
+    これらのアカウントの [秘密鍵](default:秘密鍵) が別の場所にコピーされている場合、他のデバイスやウォレットから引き続き資産にアクセスすることができます。
+
+別のプロファイルに切り替えたいだけの場合は、現在のプロファイルを削除する必要はありません。  
+ウォレットは複数のプロファイルをサポートしています。ログアウトして別のプロファイルにログインするか、新しいプロファイルを作成することができます。
+
+## 前提条件 {: #prerequisites }
+
+* Symbol Desktop Wallet がインストールされていることを確認してください。  
+まだインストールしていない場合は、[ウォレットのインストール](./install.md) ガイドを参照してください。
+
+* 削除するプロファイルのアカウントへのアクセスを維持したい場合は、
+    まず [プロファイルのエクスポート](./export-profile.md) を行い、バックアップを安全な場所に保管してください。
+
+## プロファイルの削除方法 {: #how-to-delete-a-profile }
+
+{% import 'tutorial.jinja2' as tutorial %}
+
+{{ tutorial.list_begin() }}
+
+{{ tutorial.step_begin("screenshots/delete-profile-0.jpg") }}
+ウォレットのメイン画面で、右上隅にある **:material-cog: Settings** （設定）ボタンをクリックします。
+{{ tutorial.step_end() }}
+
+{{ tutorial.step_begin("screenshots/delete-profile-1.jpg") }}
+**Delete Profile** （プロファイルの削除）をクリックします。
+{{ tutorial.step_end() }}
+
+{{ tutorial.step_begin("screenshots/delete-profile-2.jpg") }}
+プロファイルを削除することを確認します。
+
+この操作は元に戻すことはできません。  
+続行する前に、バックアップがあることを確認してください。
+{{ tutorial.step_end() }}
+
+{{ tutorial.list_end() }}
+
+プロファイルが削除されると、ログイン画面に移動します。
+
+## 次のステップ {: #next-steps }
+
+プロファイルを削除した後、以下のことが可能です。
+
+* [新しいプロファイルの作成](./create-profile.md) を行い、新しく始める。
+* 保存したバックアップを使用して [既存のプロファイルのインポート](./import-profile.md) を行う。
