@@ -19,6 +19,8 @@ markdown_extensions:
     title: このページに
 theme:
   language: ja
+  font:
+    text: "Noto Sans JP, Yu Gothic, Hiragino Sans, Meiryo, sans-serif"
   palette:
     # Palette toggle for automatic mode
     - media: (prefers-color-scheme)
@@ -43,9 +45,9 @@ extra:
   consent:
     title: クッキーの同意
     description: >-
-      当社では、お客様の繰り返しのアクセスや好みを認識するため、
-      また、当社のドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
-      お客様の同意により、当社はドキュメントの改善に協力することになります。
+      当社では、お客様の再訪や好みを認識するため、
+      また、ドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
+      同意いただく事で、ドキュメントの改善にご協力頂くことになります。
   social:
     - icon: fontawesome/solid/house
       link: https://docs.symboltest.net
@@ -77,6 +79,7 @@ nav:
               - userbook/wallet/create-account.md
               - userbook/wallet/import-account.md
               - userbook/wallet/delete-account.md
+      - userbook/security.md
   - 開発者マニュアル:
       - devbook/intro.md
       - はじめに:
@@ -148,6 +151,7 @@ nav:
       - textbook/mosaics.md
       - textbook/namespaces.md
       - textbook/blocks.md
+      - textbook/metadata.md
       - textbook/nodes.md
       - textbook/restrictions.md
       - textbook/harvesting.md
