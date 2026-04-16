@@ -34,14 +34,14 @@ title: 転送
 
 ### アカウントのセットアップ {: #setting-up-the-account }
 
-{{ tutorial.code_snippet(['py:15:17', 'js:12:15']) }}
+{{ tutorial.code_snippet(['py:16:18', 'js:12:15']) }}
 
 署名者アカウントは、 `SIGNER_PRIVATE_KEY` 環境変数から読み込まれます。
 指定されていない場合は、デフォルトでテストキーが使用されます。
 
 ### ネットワーク時間の取得 {: #fetching-network-time }
 
-{{ tutorial.code_snippet(['py:22:29', 'js:20:28']) }}
+{{ tutorial.code_snippet(['py:23:30', 'js:20:28']) }}
 
 Symbol の トランザクション には、有効期限（deadline）を含める必要があります。これは、ネットワークがトランザクションを破棄する前に承認を試みる期間を定義します。
 有効期限は絶対的なネットワーク時間で表されるため、最初のステップは [ノード](default:ノード) から現在のネットワーク時間を取得することです。
@@ -85,7 +85,7 @@ Symbol の トランザクション には、有効期限（deadline）を含め
 
 ### 推奨手数料の取得 {: #fetching-recommended-fees }
 
-{{ tutorial.code_snippet(['py:31:39', 'js:30:38']) }}
+{{ tutorial.code_snippet(['py:32:40', 'js:30:38']) }}
 
 Symbol の トランザクションは、ノードにトランザクションをブロックに含めるインセンティブを与えるために手数料を支払う必要があります。
 手数料が低すぎると、どのノードもトランザクションを含めない可能性があります。
@@ -106,7 +106,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 ### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet({
-  'py': { 'range': [41, 54] },
+  'py': { 'range': [42, 55] },
   'js': {
     'range': [40, 52],
     'descriptor': 'TransferTransactionV1Descriptor'
@@ -144,7 +144,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 ### 署名とシリアライズ {: #signing-and-serializing }
 
-{{ tutorial.code_snippet(['py:56:61', 'js:54:59']) }}
+{{ tutorial.code_snippet(['py:57:62', 'js:54:59']) }}
 
 トランザクションが作成されたら、署名するアカウントの秘密鍵を使用して署名する必要があります。
 署名により、トランザクションが本物であり、送信者によって承認されていることが保証されます。
@@ -155,7 +155,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 ### トランザクションのアナウンス {: #announcing-the-transaction }
 
-{{ tutorial.code_snippet(['py:63:73', 'js:61:69']) }}
+{{ tutorial.code_snippet(['py:64:74', 'js:61:69']) }}
 
 トランザクションのアナウンスは、任意の Symbolの[API ノード](default:API ノード)の <put:/transactions> エンドポイントへの単純なリクエストです。
 ペイロードが正しく形成されていれば、リクエストは HTTP 200 レスポンスで成功します。
@@ -167,7 +167,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 ### 承認の待機 {: #waiting-for-confirmation }
 
-{{ tutorial.code_snippet(['py:75:96', 'js:71:116']) }}
+{{ tutorial.code_snippet(['py:76:97', 'js:71:116']) }}
 
 !!! note
     このステップでは、トランザクションが承認されたかどうかを確認するためにポーリングを使用しています。
