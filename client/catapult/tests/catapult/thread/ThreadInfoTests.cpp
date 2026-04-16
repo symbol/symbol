@@ -43,7 +43,7 @@ namespace catapult { namespace thread {
 		EXPECT_STREQ("Self thread", GetThreadName().c_str());
 
 		// Act:
-		SetThreadName();
+		SetThreadName("");
 
 		// Assert: thread name is empty
 		EXPECT_STREQ("", GetThreadName().c_str());

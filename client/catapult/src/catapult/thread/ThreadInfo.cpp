@@ -103,10 +103,6 @@ namespace catapult { namespace thread {
 		std::ignore = pthread_setname_np(pthread_self(), truncatedName.c_str());
 	}
 
-	void SetThreadName() {
-		std::ignore = pthread_setname_np(pthread_self(), "");
-	}
-
 	std::string GetThreadName() {
 		char buffer[kMaxThreadNameBytes] = { '\0' };
 		if (0 == pthread_getname_np(pthread_self(), buffer, sizeof(buffer))) {
