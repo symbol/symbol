@@ -1575,6 +1575,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../atomic-swap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Atomic Swaps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -9087,7 +9108,7 @@ Nodes can therefore proceed to validation and include the transaction in a block
 with one fee and one confirmation.</p>
 <p>This is useful for distributing rewards, splitting payments, or funding several accounts at once, for example.</p>
 <p>This tutorial shows how to batch two <a class="mkdocs-ezglossary-link"
-	id="716a0b3ea5ce8e6d07186199be7dba64"
+	id="d8055004b250dbf54e5901372a16e683"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
 	href="../../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transactions</a> that send <a class="mkdocs-ezglossary-link"
@@ -9097,7 +9118,7 @@ with one fee and one confirmation.</p>
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to different recipients.</p>
 <p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="350pt" height="215pt" viewBox="0.00 0.00 349.58 215.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 211)"><title>%3</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-211 345.58,-211 345.58,4 -4,4"/><g id="clust1" class="cluster"><title>clusterAggregate</title><g id="a_clust1"><a xlink:title="Aggregate Complete Transaction"><polygon fill="transparent" stroke="#789abc" points="8,-8 8,-199 333.58,-199 333.58,-8 8,-8"/><text text-anchor="middle" x="170.79" y="-185.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Aggregate Complete Transaction</text></a></g></g><g id="clust2" class="cluster"><title>clusterT1</title><g id="a_clust2"><a xlink:title="Embedded Transfer 1"><polygon fill="transparent" stroke="#789abc" stroke-dasharray="5,2" points="16,-97 16,-170 325.58,-170 325.58,-97 16,-97"/><text text-anchor="middle" x="170.79" y="-156.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Embedded Transfer 1</text></a></g></g><g id="clust3" class="cluster"><title>clusterT2</title><g id="a_clust3"><a xlink:title="Embedded Transfer 2"><polygon fill="transparent" stroke="#789abc" stroke-dasharray="5,2" points="16,-16 16,-89 325.58,-89 325.58,-16 16,-16"/><text text-anchor="middle" x="170.79" y="-75.4" font-family="Times,serif" font-size="12.00" fill="#789abc">Embedded Transfer 2</text></a></g></g><!-- S1 --><g id="node1" class="node"><title>S1</title><g id="a_node1"><a xlink:title="Signer"><ellipse fill="none" stroke="#789abc" cx="65.6" cy="-123" rx="41.69" ry="18"/><text text-anchor="middle" x="65.6" y="-119.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Signer</text></a></g></g><!-- R1 --><g id="node2" class="node"><title>R1</title><g id="a_node2"><a xlink:title="Recipient 1"><ellipse fill="none" stroke="#789abc" cx="253.89" cy="-123" rx="63.89" ry="18"/><text text-anchor="middle" x="253.89" y="-119.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Recipient 1</text></a></g></g><!-- S1&#45;&gt;R1 --><g id="edge1" class="edge"><title>S1&#45;&gt;R1</title><path fill="none" stroke="#789abc" d="M107.48,-123C128.75,-123 155.41,-123 180.06,-123"/><polygon fill="#789abc" stroke="#789abc" points="180.12,-126.5 190.12,-123 180.12,-119.5 180.12,-126.5"/><text text-anchor="middle" x="148.69" y="-126.8" font-family="Times,serif" font-size="14.00" fill="#789abc">5 XYM</text></g><!-- S2 --><g id="node3" class="node"><title>S2</title><g id="a_node3"><a xlink:title="Signer"><ellipse fill="none" stroke="#789abc" cx="65.6" cy="-42" rx="41.69" ry="18"/><text text-anchor="middle" x="65.6" y="-38.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Signer</text></a></g></g><!-- R2 --><g id="node4" class="node"><title>R2</title><g id="a_node4"><a xlink:title="Recipient 2"><ellipse fill="none" stroke="#789abc" cx="253.89" cy="-42" rx="63.89" ry="18"/><text text-anchor="middle" x="253.89" y="-38.3" font-family="Times,serif" font-size="14.00" fill="#789abc">Recipient 2</text></a></g></g><!-- S2&#45;&gt;R2 --><g id="edge2" class="edge"><title>S2&#45;&gt;R2</title><path fill="none" stroke="#789abc" d="M107.48,-42C128.75,-42 155.41,-42 180.06,-42"/><polygon fill="#789abc" stroke="#789abc" points="180.12,-45.5 190.12,-42 180.12,-38.5 180.12,-45.5"/><text text-anchor="middle" x="148.69" y="-45.8" font-family="Times,serif" font-size="14.00" fill="#789abc">3 XYM</text></g></g></svg></p>
 <p>Because all embedded transactions share the same signer, no <a class="mkdocs-ezglossary-link"
-	id="affeb58e16f38dd53faf3ea070fd68e7"
+	id="4f3ec337fba04f4185cb2afbf3a6a2f7"
 	title="When a transaction requires signatures from multiple accounts, they are called cosignatures."
 	name="_:Cosignature"
 	href="../../../textbook/transactions/#d14dfb1cfc7b4e3ae407fa46774259d2">cosignatures</a> are needed.
@@ -9983,7 +10004,7 @@ following the process described in the <a href="../transfer/">Transfer Transacti
 	href="../../../textbook/transactions/#0010b0d59ce3bbeed299dd79c16ed261">embedded transaction</a> that will be wrapped inside the aggregate.
 All embedded transactions use the same <code>signer_public_key</code> because they all originate from the same account.</p>
 <p>The example creates two <a class="mkdocs-ezglossary-link"
-	id="d8055004b250dbf54e5901372a16e683"
+	id="42e98d51b694836c4a2d0399f13e91c1"
 	title="A transaction that allows sending mosaics and optional messages from one account to another."
 	name="_:Transfer Transaction"
 	href="../../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transactions</a>:</p>
