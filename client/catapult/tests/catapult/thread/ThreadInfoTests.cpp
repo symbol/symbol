@@ -28,31 +28,29 @@ namespace catapult { namespace thread {
 #define TEST_CLASS ThreadInfoTests
 
 	TEST(TEST_CLASS, CanSetSelfThreadName) {
+
+		std::string originalThreadName = GetThreadName();
 #ifdef _WIN32
 		// Assert: the default thread name is empty
 		// Note: on Windows, the default thread name is empty,
 		// while on Linux it is the test name.
-		EXPECT_STREQ("", GetThreadName().c_str());
-#else
-		std::string threadName = GetThreadName();
+		EXPECT_STREQ("", originalThreadName.c_str());
 #endif
-		// Arrange:
+		// Act:
 		SetThreadName("Self thread");
 
 		// Assert:
 		EXPECT_STREQ("Self thread", GetThreadName().c_str());
 
-		// Act: set empty thread name
+		// Act:
 		SetThreadName();
 
 		// Assert: thread name is empty
 		EXPECT_STREQ("", GetThreadName().c_str());
 
-#ifndef _WIN32
 		// Restore the original thread name
-		SetThreadName(threadName);
+		SetThreadName(originalThreadName);
 		EXPECT_EQ(threadName, GetThreadName());
-#endif
 	}
 
 	TEST(TEST_CLASS, CanSetSpawnedThreadName) {
