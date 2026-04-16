@@ -111,9 +111,9 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| --- | --- |
-| [ブロック情報の取得](#fetching-block-information) | <get:/blocks/{height}> |
-| [ネットワークシンクアドレスの取得](#fetching-the-network-sink-address) | <get:/network/properties> |
-| [インフレーション報酬の取得](#fetching-the-inflation-reward) | <get:/network/inflation/at/{height}> |
-| [報酬の分配の照会](#querying-the-reward-distribution) | <get:/statements/transaction> |
+| ステップ                                                     | 関連ドキュメント                           |
+|----------------------------------------------------------|--------------------------------------|
+| [ブロック情報の取得](#fetching-block-information)             | <get:/blocks/{height}>               |
+| [ネットワークシンクアドレスの取得](#fetching-the-network-sink-address) | <get:/network/properties>            |
+| [インフレーション報酬の取得](#fetching-the-inflation-reward)      | <get:/network/inflation/at/{height}> |
+| [報酬の分配の照会](#querying-the-reward-distribution)      | <get:/statements/transaction>        |

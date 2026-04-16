@@ -64,8 +64,6 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 <dy:Merkle.proveMerkle> は、指定された位置順序に従って `merkleComponentHash` を証明パス内の各中間ハッシュと反復的に結合することで、マークルルートを再計算します。計算されたルートがブロックの `transactionsHash` と一致すれば、そのトランザクションがブロックの一部であることが証明されます。
 
-
-
 ## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています：
@@ -90,9 +88,9 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 このチュートリアルでは、以下の方法を説明しました：
 
-| ステップ | 関連ドキュメント |
-| ------------------------------------------------------------------ | ------------------------------------------------- |
-| [承認済みトランザクションの取得](#fetching-the-confirmed-transaction) | <get:/transactions/confirmed/{transactionId}> |
-| [ブロックヘッダーの取得](#fetching-the-block-header) | <get:/blocks/{height}> |
-| [マークル証明パスの取得](#fetching-the-merkle-proof-path) | <get:/blocks/{height}/transactions/{hash}/merkle> |
-| [証明の検証](#verifying-the-proof) | <dy:Merkle.proveMerkle> |
+| ステップ                                                        | 関連ドキュメント                                        |
+|-------------------------------------------------------------|---------------------------------------------------|
+| [承認済みトランザクションの取得](#fetching-the-confirmed-transaction) | <get:/transactions/confirmed/{transactionId}>     |
+| [ブロックヘッダーの取得](#fetching-the-block-header)                 | <get:/blocks/{height}>                            |
+| [マークル証明パスの取得](#fetching-the-merkle-proof-path)          | <get:/blocks/{height}/transactions/{hash}/merkle> |
+| [証明の検証](#verifying-the-proof)                           | <dy:Merkle.proveMerkle>                           |

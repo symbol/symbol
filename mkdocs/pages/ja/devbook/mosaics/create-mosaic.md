@@ -145,8 +145,6 @@ title: モザイクの作成
 
 レスポンスが成功すれば、期待通りの供給量と可分性を持ってネットワーク上にモザイクが存在することが確認されます。
 
-
-
 ## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
@@ -176,12 +174,12 @@ title: モザイクの作成
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ------------------------------------------------------------------------ | ------------------------------------ |
-| [モザイクIDを生成する](#building-the-mosaic-definition-transaction) | <dy:IdGenerator.generateMosaicId> |
-| [モザイクを定義する](#building-the-mosaic-definition-transaction) | <dy:SymbolTransactionFactory.create> |
+| ステップ                                                               | 関連ドキュメント                           |
+|--------------------------------------------------------------------|--------------------------------------|
+| [モザイクIDを生成する](#building-the-mosaic-definition-transaction)       | <dy:IdGenerator.generateMosaicId>    |
+| [モザイクを定義する](#building-the-mosaic-definition-transaction)         | <dy:SymbolTransactionFactory.create> |
 | [モザイク供給量をミントする](#building-the-mosaic-supply-change-transaction) | <dy:SymbolTransactionFactory.create> |
-| [モザイクを取得する](#retrieving-the-mosaic) | <get:/mosaics/{mosaicId}> |
+| [モザイクを取得する](#retrieving-the-mosaic)                              | <get:/mosaics/{mosaicId}>            |
 
 ## 次のステップ {: #next-steps }
 

@@ -122,14 +122,12 @@ title: モザイクの回収（リボーク）
 
 出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます 。
 
-
-
 ## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| -------------------------------------------------------------------------- | ------------------------------------ |
-| [アカウント残高を確認する](#checking-initial-balance) | <get:/accounts/{accountId}> |
+| ステップ                                                    | 関連ドキュメント                           |
+|---------------------------------------------------------|--------------------------------------|
+| [アカウント残高を確認する](#checking-initial-balance)           | <get:/accounts/{accountId}>          |
 | [モザイクユニットを回収する](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create> |
-| [回収を検証する](#verifying-the-revocation) | <get:/accounts/{accountId}> |
+| [回収を検証する](#verifying-the-revocation)                | <get:/accounts/{accountId}>          |

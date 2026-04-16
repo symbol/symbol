@@ -12,8 +12,6 @@ title: ボンデッドトランザクションフロー
 
 アカウント A がアグリゲートを構築してアナウンスする一方、アカウント B は WebSocket チャネルを購読し、連署を行い、承認を待ちます。
 
-
-
 ## 前提条件 {: #prerequisites }
 
 開始する前に、開発環境がセットアップされていることを確認してください。
@@ -143,11 +141,11 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-|---------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [partialAdded をサブスクライブする](#account-b-connecting-and-subscribing-to-channels) | <ws:partialAdded&#47;{address}> |
-| [partialRemoved をサブスクライブする](#account-b-connecting-and-subscribing-to-channels) | <ws:partialRemoved&#47;{address}> |
-| [cosignature をサブスクライブする](#account-b-connecting-and-subscribing-to-channels) | <ws:cosignature&#47;{address}> |
-| [トランザクションメッセージを処理する](#account-b-handling-websocket-messages-and-cosigning) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
-| [連署メッセージを処理する](#account-b-handling-websocket-messages-and-cosigning) | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO) |
+| ステップ                                                                              | 関連ドキュメント                                                                  |
+|-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [partialAdded をサブスクライブする](#account-b-connecting-and-subscribing-to-channels)      | <ws:partialAdded&#47;{address}>                                             |
+| [partialRemoved をサブスクライブする](#account-b-connecting-and-subscribing-to-channels)    | <ws:partialRemoved&#47;{address}>                                           |
+| [cosignature をサブスクライブする](#account-b-connecting-and-subscribing-to-channels)       | <ws:cosignature&#47;{address}>                                              |
+| [トランザクションメッセージを処理する](#account-b-handling-websocket-messages-and-cosigning)      | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO)  |
+| [連署メッセージを処理する](#account-b-handling-websocket-messages-and-cosigning)          | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO)          |
 | [partialAdded で連署を送信する](#account-b-handling-websocket-messages-and-cosigning) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |

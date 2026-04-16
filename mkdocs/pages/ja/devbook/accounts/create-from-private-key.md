@@ -66,12 +66,12 @@ title: 秘密鍵からの作成
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ------------------------------------------------------------- | ---------------------------------------- |
-| [秘密鍵の読み込む](#defining-a-private-key) | <dy:PrivateKey> |
-| [ランダムな秘密鍵の作成](#defining-a-private-key) | <dy:PrivateKey.random> |
-| [公開鍵の取得](#creating-the-account) | <dy:KeyPair.publicKey> |
-| [アドレスの取得](#creating-the-account) | <dy:network.publicKeyToAddress> |
+| ステップ                                        | 関連ドキュメント                      |
+|---------------------------------------------|---------------------------------|
+| [秘密鍵の読み込む](#defining-a-private-key)    | <dy:PrivateKey>                 |
+| [ランダムな秘密鍵の作成](#defining-a-private-key) | <dy:PrivateKey.random>          |
+| [公開鍵の取得](#creating-the-account)        | <dy:KeyPair.publicKey>          |
+| [アドレスの取得](#creating-the-account)          | <dy:network.publicKeyToAddress> |
 
 ## 次のステップ
 

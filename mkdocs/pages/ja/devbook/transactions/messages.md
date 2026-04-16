@@ -90,8 +90,6 @@ title: メッセージ
 暗号化されたメッセージは、送信者の秘密鍵と受信者の公開鍵から派生した共通鍵を使用してメッセージの内容を保護することで、機密性を提供します。
 送信者と受信者の両方が、自身の秘密鍵と相手の公開鍵を使用してメッセージを復号できます。
 
-
-
 <dy:MessageEncoder> クラスがメッセージの暗号化を処理します。
 
 1. 送信者のキーペアを使用して <dy:MessageEncoder> が作成されます。
@@ -146,8 +144,8 @@ title: メッセージ
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| -------------------------------------------------------------- | ------------------------------------------- |
-| [テキストをUTF-8バイトに変換する](#sending-a-plain-text-message) | `TextEncoder` (JS) および `str.encode`/`bytes.decode` (Python) <br> システムメソッドであり、Symbol SDKの一部ではありません |
-| [メッセージの暗号化と復号](#sending-an-encrypted-message) | <dy:MessageEncoder> |
-| [転送トランザクションにメッセージを含める](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory> |
+| ステップ                                                     | 関連ドキュメント                                                                                          |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| [テキストをUTF-8バイトに変換する](#sending-a-plain-text-message)    | `TextEncoder` (JS) および `str.encode`/`bytes.decode` (Python) <br> システムメソッドであり、Symbol SDKの一部ではありません |
+| [メッセージの暗号化と復号](#sending-an-encrypted-message)       | <dy:MessageEncoder>                                                                                 |
+| [転送トランザクションにメッセージを含める](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory>                                                                       |

@@ -53,8 +53,6 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### チャネルのサブスクライブ {: #subscribing-to-channels }
 
-
-
 {{ tutorial.code_snippet(['py:19:27', 'js:18:24']) }}
 
 コードは2つのチャネルをサブスクライブします。
@@ -115,9 +113,9 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [block チャネルのサブスクライブ](#subscribing-to-channels) | <ws:block> |
-| [finalized チャネルのサブスクライブ](#subscribing-to-channels) | <ws:finalizedBlock> |
-| [ブロックメッセージの処理](#handling-messages) | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO) |
-| [ファイナライズメッセージの処理](#handling-messages) | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) |
+| ステップ                                               | 関連ドキュメント                                                               |
+|----------------------------------------------------|--------------------------------------------------------------------------|
+| [block チャネルのサブスクライブ](#subscribing-to-channels)     | <ws:block>                                                               |
+| [finalized チャネルのサブスクライブ](#subscribing-to-channels) | <ws:finalizedBlock>                                                      |
+| [ブロックメッセージの処理](#handling-messages)               | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO)           |
+| [ファイナライズメッセージの処理](#handling-messages)            | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) |

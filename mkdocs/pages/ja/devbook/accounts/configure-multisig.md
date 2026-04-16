@@ -66,9 +66,9 @@ digraph "Multisignature Tree" {
 このチュートリアルでは3つの個別のアカウントが必要です。
 それらの [秘密鍵](default: 秘密鍵) は環境変数を通じて提供できます。設定されていない場合は、デフォルト値が使用されます。
 
-| 環境変数 | デフォルト値 | 用途 |
-|----------------------------|---------------|----------------------------|
-| `MULTISIG_PRIVATE_KEY` | `0000..0001` | マルチシグアカウント |
+| 環境変数                   | デフォルト値      | 用途         |
+|----------------------------|--------------|--------------|
+| `MULTISIG_PRIVATE_KEY`     | `0000..0001` | マルチシグアカウント   |
 | `COSIGNATORY0_PRIVATE_KEY` | `0000..0002` | 連署者アカウント1 |
 | `COSIGNATORY1_PRIVATE_KEY` | `0000..0003` | 連署者アカウント2 |
 
@@ -218,9 +218,9 @@ digraph "Multisignature Tree" {
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-|------------------------------------------------------------------------|------------------------------------------------|
-| [現在のマルチシグ設定の取得](#detecting-the-multisig) | <get:/account/{address}/multisig> |
-| [マルチシグアカウントの有効化](#enabling-the-multisig) | <ser:MultisigAccountModificationTransactionV1> |
-| [マルチシグアカウントの無効化](#disabling-the-multisig) | <ser:MultisigAccountModificationTransactionV1> |
-| 設定を埋め込みトランザクションにラップする | <dy:SymbolTransactionFactory.createEmbedded> |
+| ステップ                                           | 関連ドキュメント                                     |
+|------------------------------------------------|------------------------------------------------|
+| [現在のマルチシグ設定の取得](#detecting-the-multisig) | <get:/account/{address}/multisig>              |
+| [マルチシグアカウントの有効化](#enabling-the-multisig)    | <ser:MultisigAccountModificationTransactionV1> |
+| [マルチシグアカウントの無効化](#disabling-the-multisig)   | <ser:MultisigAccountModificationTransactionV1> |
+| 設定を埋め込みトランザクションにラップする                      | <dy:SymbolTransactionFactory.createEmbedded>   |

@@ -13,7 +13,7 @@ title: Hello World
 
 ## 前提条件 {: #prerequisites }
 
-まだ完了していない場合は、[開発環境のセットアップ](../start/setup.md) から始めてください。 
+まだ完了していない場合は、[開発環境のセットアップ](../start/setup.md) から始めてください。
 
 ## 完全なコード {: #full-code }
 

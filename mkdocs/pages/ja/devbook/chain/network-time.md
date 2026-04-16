@@ -50,8 +50,6 @@ Symbolの [メインネット](default: メインネット) の場合、値は `
 
 現在のネットワーク時間から UTC への変換は、単位（秒またはミリ秒）を揃えることに注意しながら、2つの数値を足し合わせるだけで済みます。
 
-
-
 {{ tutorial.code_snippet(['py:29:34', 'js:24:29']) }}
 
 このチュートリアルでは、プロセスを示すために手動で加算を行っています。
@@ -73,8 +71,8 @@ Symbol SDK を使用している場合は、 <dy:NetworkTimestampDatetimeConvert
 
 このチュートリアルでは、以下の方法を説明しました。
 
-|ステップ|関連ドキュメント|
-|---|---|
-| [ネメシスタイムスタンプの取得](#fetch-nemesis-timestamp) | <get:/network/properties> |
-| [現在のネットワーク時間の取得](#fetch-current-network-time) | <get:/node/time> |
-| [両方の結合](#conversion) | <dy:NetworkTimestampDatetimeConverter> (オプション) |
+| ステップ                                                | 関連ドキュメント                                     |
+|-----------------------------------------------------|------------------------------------------------|
+| [ネメシスタイムスタンプの取得](#fetch-nemesis-timestamp)        | <get:/network/properties>                      |
+| [現在のネットワーク時間の取得](#fetch-current-network-time) | <get:/node/time>                               |
+| [両方の結合](#conversion)                            | <dy:NetworkTimestampDatetimeConverter> (オプション) |

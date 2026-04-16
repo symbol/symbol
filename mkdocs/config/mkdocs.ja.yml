@@ -20,7 +20,7 @@ markdown_extensions:
 theme:
   language: ja
   font:
-    text: "Noto Sans JP, Yu Gothic, Hiragino Sans, Meiryo, sans-serif"
+    text: Noto Sans JP, Yu Gothic, Hiragino Sans, Meiryo, sans-serif
   palette:
     # Palette toggle for automatic mode
     - media: (prefers-color-scheme)

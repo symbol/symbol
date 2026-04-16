@@ -33,8 +33,6 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### 供給量の値の取得 {: #fetching-supply-values }
 
-
-
 {{ tutorial.code_snippet(['py:10:23', 'js:7:19']) }}
 
 各供給量の値は、専用のエンドポイントを通じて利用できます。
@@ -85,12 +83,13 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ                                                      | 関連ドキュメント documentation                      |
-| ----------------------------------------------------------| ------------------------------------------ |
-| [最大供給量の取得](#fetching-supply-values)           | <get:/network/currency/supply/max>         |
-| [総供給量の取得](#fetching-supply-values)             | <get:/network/currency/supply/total>       |
-| [循環供給量の取得](#fetching-supply-values)       | <get:/network/currency/supply/circulating> |
+| ステップ                                           | 関連ドキュメント documentation                   |
+|------------------------------------------------|--------------------------------------------|
+| [最大供給量の取得](#fetching-supply-values)     | <get:/network/currency/supply/max>         |
+| [総供給量の取得](#fetching-supply-values)       | <get:/network/currency/supply/total>       |
+| [循環供給量の取得](#fetching-supply-values)     | <get:/network/currency/supply/circulating> |
 | [追加の指標の導出](#deriving-additional-metrics) | -                                          |
 
 ## 次のステップ {: #next-steps }
+
 特定のアカウントのXYM残高を確認するには、[アカウント残高の照会](../accounts/query-balance.md) チュートリアルを参照してください。

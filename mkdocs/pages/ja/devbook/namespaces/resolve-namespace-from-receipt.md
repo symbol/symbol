@@ -10,8 +10,6 @@ title: レシートからのネームスペース解決
 
 このチュートリアルでは、解決ステートメントを照会して、承認済みトランザクションで使用されたネームスペースエイリアスの背後にある実際のアドレスとモザイクIDを見つける方法を説明します。
 
-
-
 ## 前提条件 {: #prerequisites }
 
 開始する前に、 [開発環境をセットアップ](../start/setup.md) してください。
@@ -117,8 +115,8 @@ title: レシートからのネームスペース解決
 
 このチュートリアルでは、以下の方法を説明しました：
 
-| ステップ | 関連ドキュメント |
-| :--- | :--- |
+| ステップ                                                          | 関連ドキュメント                                    |
+|:--------------------------------------------------------------|:----------------------------------------------|
 | [承認済みトランザクションの取得](#retrieving-the-confirmed-transaction) | <get:/transactions/confirmed/{transactionId}> |
-| [アドレス解決の照会](#querying-address-resolution-statements) | <get:/statements/resolutions/address> |
-| [モザイク解決の照会](#querying-mosaic-resolution-statements) | <get:/statements/resolutions/mosaic> |
+| [アドレス解決の照会](#querying-address-resolution-statements)      | <get:/statements/resolutions/address>         |
+| [モザイク解決の照会](#querying-mosaic-resolution-statements)       | <get:/statements/resolutions/mosaic>          |

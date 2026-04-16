@@ -125,17 +125,15 @@ title: サブネームスペースの登録
 
 出力されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索することもできます。
 
-
-
 ## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました：
 
-| ステップ | 関連ドキュメント |
-| -------------------------------------------------------------------------  | ------------------------------------- |
-| [ネームスペース ID を生成する](#building-the-transaction) | <dy:IdGenerator.generateNamespaceId> |
+| ステップ                                                      | 関連ドキュメント                           |
+|-----------------------------------------------------------|--------------------------------------|
+| [ネームスペース ID を生成する](#building-the-transaction)           | <dy:IdGenerator.generateNamespaceId> |
 | [サブネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
-| [サブネームスペースを取得する](#retrieving-the-subnamespace) | <get:/namespaces/{namespaceId}> |
+| [サブネームスペースを取得する](#retrieving-the-subnamespace)          | <get:/namespaces/{namespaceId}>      |
 
 ## 次のステップ {: #next-steps }
 

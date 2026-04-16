@@ -191,8 +191,6 @@ digraph {
 
 ポーリングループは、トランザクションが承認されるか失敗するまで、1秒ごとにステータスを確認します。承認されるとスワップが完了し、両方の転送が実行されます。
 
-
-
 ## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
@@ -217,13 +215,13 @@ digraph {
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-|-----------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [アグリゲートの構築](#building-the-aggregate-transaction) | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [トランザクションの署名](#signing-the-transaction) | <dy:SymbolFacade.signTransaction> |
-| [検証と連署](#verifying-and-cosigning) | <dy:SymbolFacade.cosignTransaction> |
-| [連署の収集](#collecting-the-cosignature) | <dy:SymbolTransactionFactory.attachSignature> |
+| ステップ                                                   | 関連ドキュメント                                                                          |
+|--------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                        |
+| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [トランザクションの署名](#signing-the-transaction)              | <dy:SymbolFacade.signTransaction>                                                   |
+| [検証と連署](#verifying-and-cosigning)                  | <dy:SymbolFacade.cosignTransaction>                                                 |
+| [連署の収集](#collecting-the-cosignature)               | <dy:SymbolTransactionFactory.attachSignature>                                       |
 
 ## 次のステップ {: #next-steps }
 

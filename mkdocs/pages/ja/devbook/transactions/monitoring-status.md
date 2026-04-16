@@ -63,12 +63,12 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 * **Group (グループ):** トランザクションの現在のステータスグループ。可能な値は以下の通りです。
 
-    | グループ | 意味 |
-    | ------------- | -------------------------------------------------------------------------------- |
-    | `unconfirmed` | トランザクションは [未承認トランザクションプール](default: 未承認トランザクションプール) にあり、ブロックに含まれるのを待っている。 |
-    | `confirmed` | トランザクションがブロックに取り込まれた。 |
-    | `failed` | トランザクションが検証に失敗し、拒否された。 |
-    | `partial` | [アグリゲートボンデッドトランザクション](default:アグリゲートボンデッドトランザクション) の[連署](default:マルチシグアカウント)待ち。 |
+    | グループ          | 意味                                                                               |
+    |---------------|------------------------------------------------------------------------------------|
+    | `unconfirmed` | トランザクションは [未承認トランザクションプール](default: 未承認トランザクションプール) にあり、ブロックに含まれるのを待っている。  |
+    | `confirmed`   | トランザクションがブロックに取り込まれた。                                                            |
+    | `failed`      | トランザクションが検証に失敗し、拒否された。                                                       |
+    | `partial`     | [アグリゲートボンデッドトランザクション](default:アグリゲートボンデッドトランザクション) の[連署](default:マルチシグアカウント)待ち。 |
 
 * **Code (コード):** より詳細な情報を提供するステータスコード（例： `Success` や特定のエラーコード）。
     すべての可能な値については、 [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) スキーマを参照してください。
@@ -76,8 +76,6 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 * **Deadline (有効期限):** ネットワーク時間でのトランザクションの有効期限。
 
 関数はポーリングを試行するたびにこれらのフィールドすべてを表示するため、トランザクションがどのように状態を移行していくかを確認できます。
-
-
 
 ### 承認の確認 {: #checking-for-confirmation }
 
@@ -152,11 +150,11 @@ Symbol ネットワークでは、ブロックは通常30秒ごとに生成さ�
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| [ステータスエンドポイントへの照会](#querying-the-status-endpoint) | <get:/transactionStatus/{hash}> |
-| [承認の確認](#checking-for-confirmation) | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
-| [失敗の確認](#checking-for-failure) | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| ステップ                                                | 関連ドキュメント                                                                       |
+|-----------------------------------------------------|----------------------------------------------------------------------------------|
+| [ステータスエンドポイントへの照会](#querying-the-status-endpoint) | <get:/transactionStatus/{hash}>                                                  |
+| [承認の確認](#checking-for-confirmation)             | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [失敗の確認](#checking-for-failure)                  | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
 
 ## 次のステップ {: #next-steps }
 

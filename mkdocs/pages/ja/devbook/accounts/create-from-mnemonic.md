@@ -103,8 +103,8 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| -----------------------------------------------------------  | ----------------------------------------------------------------------------------------------- |
+| ステップ                                       | 関連ドキュメント        |
+|--------------------------------------------|-------------------|
 | [ランダムなニーモニックを作成する](#defining-a-mnemonic) | <dy:Bip32.random> |
-| [ニーモニックからアカウントを導出させる](#deriving-the-root-node) | <dy:Bip32.fromMnemonic) | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, および <dy:Bip32Node.derivePath> |
+| [ニーモニックからアカウントを導出させる](#deriving-the-root-node) | <dy:Bip32.fromMnemonic> | <dy:Bip32.fromMnemonic>, <dy:SymbolFacade.bip32Path>, および <dy:Bip32Node.derivePath> |
 | [アカウントの鍵ペアを取得する](#creating-the-account) | <dy:SymbolFacade.bip32NodeToKeyPair>, <dy:network.publicKeyToAddress> |

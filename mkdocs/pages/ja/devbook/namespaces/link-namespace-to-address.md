@@ -153,16 +153,16 @@ title: ネームスペースのアドレスへのリンク
 
     !!! note "異なる受信者アドレス"
         受信者アドレスがターゲットアドレスと異なるのは、それがターゲットアドレス自体ではなく [エンコードされたネームスペース ID](#using-the-alias) であるためです。
-        ネットワークはトランザクションを処理する際に、エイリアスをリンクされたアドレスに解決します。 
+        ネットワークはトランザクションを処理する際に、エイリアスをリンクされたアドレスに解決します。
 
 ## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ------------------------------------------------------------------- | --------------------------------------------- |
+| ステップ                                                             | 関連ドキュメント                             |
+|------------------------------------------------------------------|----------------------------------------|
 | [ネームスペース ID を生成する](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath> |
-| [アドレスエイリアストランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
-| [エイリアスを検証する](#verifying-the-alias) | <get:/namespaces/{namespaceId}> |
-| [エイリアスを使用する](#using-the-alias)                     | <dy:Address.fromNamespaceId>                  |
-| [アドレス解決レシートを照会する](#using-the-alias) | <get:/statements/resolutions/address> |
+| [アドレスエイリアストランザクションを構築する](#building-the-transaction)            | <dy:SymbolTransactionFactory.create>   |
+| [エイリアスを検証する](#verifying-the-alias)                             | <get:/namespaces/{namespaceId}>        |
+| [エイリアスを使用する](#using-the-alias)                                 | <dy:Address.fromNamespaceId>           |
+| [アドレス解決レシートを照会する](#using-the-alias)                          | <get:/statements/resolutions/address>  |

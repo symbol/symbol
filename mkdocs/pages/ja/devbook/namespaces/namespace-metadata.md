@@ -181,8 +181,6 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 {{ tutorial.code_snippet(['py:179:201', 'js:185:210']) }}
 
-
-
 ## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
@@ -210,9 +208,9 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------|
-| [メタデータのキーと値の定義](#defining-the-metadata) | <dy:Metadata.metadataGenerateKey> |
+| ステップ                                                                               | 関連ドキュメント                                   |
+|------------------------------------------------------------------------------------|----------------------------------------------|
+| [メタデータのキーと値の定義](#defining-the-metadata)                                         | <dy:Metadata.metadataGenerateKey>            |
 | [ネームスペースメタデータトランザクションの作成](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [メタデータの取得](#retrieving-metadata) | <get:/metadata> |
-| [既存のメタデータの変更](#modifying-existing-metadata) | <dy:Metadata.metadataUpdateValue> |
+| [メタデータの取得](#retrieving-metadata)                                                 | <get:/metadata>                              |
+| [既存のメタデータの変更](#modifying-existing-metadata)                                    | <dy:Metadata.metadataUpdateValue>            |

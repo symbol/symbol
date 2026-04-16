@@ -154,16 +154,14 @@ title: ネームスペースのモザイクへのリンク
         転送で使用されているモザイクIDが元のモザイクIDと異なるのは、それがモザイクID自体ではなく [エンコードされたネームスペース ID](#using-the-alias) であるためです。
         ネットワークはトランザクションを処理する際に、エイリアスをリンクされたモザイクに解決します。
 
-
-
 ## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ----------------------------------------------------------------- | --------------------------------------------- |
+| ステップ                                                            | 関連ドキュメント                             |
+|-----------------------------------------------------------------|----------------------------------------|
 | [ネームスペース ID を生成する](#defining-the-namespace-and-target-mosaic) | <dy:IdGenerator.generateNamespacePath> |
-| [モザイクエイリアストランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
-| [エイリアスを検証する](#verifying-the-alias) | <get:/namespaces/{namespaceId}> |
-| [転送内でエイリアスを使用する](#using-the-alias) | <dy:IdGenerator.generateMosaicAliasId> |
-| [モザイク解決レシートを照会する](#using-the-alias) | <get:/statements/resolutions/mosaic> |
+| [モザイクエイリアストランザクションを構築する](#building-the-transaction)           | <dy:SymbolTransactionFactory.create>   |
+| [エイリアスを検証する](#verifying-the-alias)                            | <get:/namespaces/{namespaceId}>        |
+| [転送内でエイリアスを使用する](#using-the-alias)                         | <dy:IdGenerator.generateMosaicAliasId> |
+| [モザイク解決レシートを照会する](#using-the-alias)                         | <get:/statements/resolutions/mosaic>   |

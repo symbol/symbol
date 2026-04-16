@@ -209,19 +209,17 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 あるいは、 `signerPublicKey` を検索して、署名者アカウントの履歴内でトランザクションを表示することもできます。
 
-
-
 ## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [有効期限情報の取得](#fetching-network-time) | <get:/node/time> |
-| [手数料情報の取得](#fetching-recommended-fees) | <get:/network/fees/transaction> |
-| [トランザクションの作成](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
-| [トランザクションの署名](#signing-and-serializing) | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
-| [トランザクションのアナウンス](#announcing-the-transaction) | <put:/transactions> |
-| [承認の待機](#waiting-for-confirmation) | <get:/transactionStatus/{hash}> |
+| ステップ                                          | 関連ドキュメント                                                                          |
+|-----------------------------------------------|-------------------------------------------------------------------------------------|
+| [有効期限情報の取得](#fetching-network-time)   | <get:/node/time>                                                                    |
+| [手数料情報の取得](#fetching-recommended-fees) | <get:/network/fees/transaction>                                                     |
+| [トランザクションの作成](#building-the-transaction)    | <dy:SymbolTransactionFactory.create>                                                |
+| [トランザクションの署名](#signing-and-serializing)     | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
+| [トランザクションのアナウンス](#announcing-the-transaction) | <put:/transactions>                                                                 |
+| [承認の待機](#waiting-for-confirmation)        | <get:/transactionStatus/{hash}>                                                     |
 
 他のトランザクションタイプも、同じ一般的なプロセスに従います。

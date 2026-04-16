@@ -10,8 +10,6 @@ title: トランザクションバッチ処理
 
 このチュートリアルでは、異なる受信者に <XYM:> を送信する2つの [転送トランザクション](default:転送トランザクション) をバッチ処理する方法を説明します。
 
-
-
 ```dot
 digraph {
     rankdir="LR";
@@ -139,7 +137,6 @@ digraph {
 
 ## 出力 {: #output }
 
-
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="16 26 29 30 40 43 44 50"
@@ -167,11 +164,11 @@ digraph {
 
 このチュートリアルでは、以下の方法を説明しました。
 
-|ステップ|関連ドキュメント|
-|---|---|
-| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [アグリゲートの構築](#building-the-aggregate-transaction) | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [署名とアナウンス](#signing-and-announcing) | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
+| ステップ                                                   | 関連ドキュメント                                                                          |
+|--------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                        |
+| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [署名とアナウンス](#signing-and-announcing)                  | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
 
 ## 次のステップ {: #next-steps }
 

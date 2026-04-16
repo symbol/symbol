@@ -122,8 +122,8 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-|------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [status チャネルのサブスクライブ](#subscribing-to-the-status-channel) | <ws:status&#47;{address}> |
-| [拒否をトリガーする](#building-and-signing-an-invalid-transfer-transaction) | [転送トランザクション](../transactions/transfer.md) |
-| [エラーメッセージの処理](#announcing-and-waiting-for-the-error) | [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) |
+| ステップ                                                                 | 関連ドキュメント                                                                     |
+|----------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [status チャネルのサブスクライブ](#subscribing-to-the-status-channel)            | <ws:status&#47;{address}>                                                      |
+| [拒否をトリガーする](#building-and-signing-an-invalid-transfer-transaction) | [転送トランザクション](../transactions/transfer.md)                                    |
+| [エラーメッセージの処理](#announcing-and-waiting-for-the-error)               | [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) |

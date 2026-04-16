@@ -106,8 +106,8 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| -------------------------------------------------------- | ------------------------------------------------------------- |
-| [アカウント状態の取得](#fetching-account-information) | <get:/accounts/{accountId}> |
-| [モザイク名の取得](#fetching-mosaic-names) | <post:/namespaces/mosaic/names> |
+| ステップ                                            | 関連ドキュメント                      |
+|-------------------------------------------------|---------------------------------|
+| [アカウント状態の取得](#fetching-account-information) | <get:/accounts/{accountId}>     |
+| [モザイク名の取得](#fetching-mosaic-names)           | <post:/namespaces/mosaic/names> |
 | [モザイクプロパティの取得](#fetching-mosaic-properties) | <get:/mosaics/{mosaicId}>

@@ -126,17 +126,15 @@ title: ルートネームスペースの登録
 
 出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索することもできます。
 
-
-
 ## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-|-------------------------------------------------------------------------|--------------------------------------|
-| [ネームスペース ID を生成する](#building-the-transaction) | <dy:IdGenerator.generateNamespaceId> |
+| ステップ                                                    | 関連ドキュメント                           |
+|---------------------------------------------------------|--------------------------------------|
+| [ネームスペース ID を生成する](#building-the-transaction)         | <dy:IdGenerator.generateNamespaceId> |
 | [ネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
-| [ネームスペースを取得する](#retrieving-the-namespace) | <get:/namespaces/{namespaceId}> |
+| [ネームスペースを取得する](#retrieving-the-namespace)             | <get:/namespaces/{namespaceId}>      |
 
 ## 次のステップ {: #next-steps }
 

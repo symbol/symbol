@@ -47,8 +47,6 @@ title: ネームスペース情報の取得
 * **Depth (深さ):** ネームスペース階層のレベル数。
     例えば、 `foo` の深さは `1` 、 `foo.bar` の深さは `2` 、 `foo.bar.baz` の深さは `3` です。
 
-
-
 * **Levels (レベル):** 階層の各レベルのネームスペースID。
     `level0` は常にルートネームスペースIDです。より深い階層の場合は `level1` および `level2` が表示されます。
 
@@ -94,8 +92,8 @@ title: ネームスペース情報の取得
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ------------------------------------------------------------- | -------------------------------------- |
-| [ネームスペースIDの生成](#generating-the-namespace-id) | <dy:IdGenerator.generateNamespacePath> |
-| [ネームスペースプロパティの取得](#fetching-namespace-information) | <get:/namespaces/{namespaceId}> |
-| [ネームスペースエイリアスの確認](#checking-the-alias) | <get:/namespaces/{namespaceId}> |
+| ステップ                                                 | 関連ドキュメント                             |
+|------------------------------------------------------|----------------------------------------|
+| [ネームスペースIDの生成](#generating-the-namespace-id)       | <dy:IdGenerator.generateNamespacePath> |
+| [ネームスペースプロパティの取得](#fetching-namespace-information) | <get:/namespaces/{namespaceId}>        |
+| [ネームスペースエイリアスの確認](#checking-the-alias)             | <get:/namespaces/{namespaceId}>        |

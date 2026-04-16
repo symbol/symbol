@@ -234,8 +234,6 @@ digraph {
 
 期限が切れるか、連署のいずれかが無効な場合、トランザクションは失敗し、デポジットは没収されます。
 
-
-
 ## 出力 {: #output }
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
@@ -262,17 +260,17 @@ digraph {
 
 このチュートリアルでは、以下の方法を説明しました：
 
-| ステップ | 関連ドキュメント |
-| ----------------------------------------------------------------------------| ------------------------------------------------------------------------------------|
-| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [アグリゲートの構築](#building-the-aggregate-transaction) | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [ボンデッドトランザクションの署名](#signing-the-bonded-transaction) | <dy:SymbolFacade.signTransaction> |
-| [ハッシュロックの作成](#creating-the-hash-lock) | <dy:SymbolTransactionFactory.create><br/><put:/transactions> |
-| [ボンデッドトランザクションのアナウンス](#announcing-the-bonded-transaction) | <put:/transactions/partial> |
-| [トランザクションの復元](#recovering-the-transaction) | <get:/transactions/partial> |
-| [トランザクションの検証](#verifying-the-transaction) | <get:/transactions/partial/{transactionId}> |
-| [トランザクションへの連署](#cosigning-the-transaction) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |
-| [承認の待機](#waiting-for-confirmation) | <get:/transactionStatus/{hash}> |
+| ステップ                                                      | 関連ドキュメント                                                                          |
+|-----------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [埋め込みトランザクションの作成](#creating-embedded-transactions)    | <dy:SymbolTransactionFactory.createEmbedded>                                        |
+| [アグリゲートの構築](#building-the-aggregate-transaction)        | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [ボンデッドトランザクションの署名](#signing-the-bonded-transaction)     | <dy:SymbolFacade.signTransaction>                                                   |
+| [ハッシュロックの作成](#creating-the-hash-lock)                   | <dy:SymbolTransactionFactory.create><br/><put:/transactions>                        |
+| [ボンデッドトランザクションのアナウンス](#announcing-the-bonded-transaction) | <put:/transactions/partial>                                                         |
+| [トランザクションの復元](#recovering-the-transaction)              | <get:/transactions/partial>                                                         |
+| [トランザクションの検証](#verifying-the-transaction)               | <get:/transactions/partial/{transactionId}>                                         |
+| [トランザクションへの連署](#cosigning-the-transaction)              | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature>         |
+| [承認の待機](#waiting-for-confirmation)                    | <get:/transactionStatus/{hash}>                                                     |
 
 ## 次のステップ {: #next-steps }
 

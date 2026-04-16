@@ -119,8 +119,6 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 2. `unconfirmedRemoved`: トランザクションが未承認プールを抜けます。
 3. `confirmedAdded`: トランザクションがブロック内で承認されます。
 
-
-
 ### チャネルのサブスクライブ解除 {: #unsubscribing-from-channels }
 
 {{ tutorial.code_snippet(['py:100:106', 'js:97:102']) }}
@@ -147,11 +145,11 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-|-------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [unconfirmedAdded のサブスクライブ](#subscribing-to-channels) | <ws:unconfirmedAdded&#47;{address}> |
-| [unconfirmedRemoved のサブスクライブ](#subscribing-to-channels) | <ws:unconfirmedRemoved&#47;{address}> |
-| [confirmedAdded のサブスクライブ](#subscribing-to-channels) | <ws:confirmedAdded&#47;{address}> |
+| ステップ                                                           | 関連ドキュメント                                                                 |
+|----------------------------------------------------------------|----------------------------------------------------------------------------|
+| [unconfirmedAdded のサブスクライブ](#subscribing-to-channels)          | <ws:unconfirmedAdded&#47;{address}>                                        |
+| [unconfirmedRemoved のサブスクライブ](#subscribing-to-channels)        | <ws:unconfirmedRemoved&#47;{address}>                                      |
+| [confirmedAdded のサブスクライブ](#subscribing-to-channels)            | <ws:confirmedAdded&#47;{address}>                                          |
 | [トランザクションメッセージの処理](#announcing-and-waiting-for-confirmation) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
 
 ## 次のステップ {: #next-steps }

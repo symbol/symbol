@@ -142,8 +142,6 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-
-
 ## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。

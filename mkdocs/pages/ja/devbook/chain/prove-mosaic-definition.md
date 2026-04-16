@@ -74,21 +74,19 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 ブランチ（枝）ノードは、そのアクティブなリンクと、次のノードに到達するためにどの [ニブル](../../textbook/blocks.md#state-hash) をたどったかを示します。
 末尾のリーフノードには、残りのパスニブルとハッシュ化された値が保存されます。
 
-
-
 ### 証明の検証 {: #verifying-the-proof }
 
 {{ tutorial.code_snippet(['py:99:107', 'js:111:121']) }}
 
 <dy:Merkle.provePatriciaMerkle> は5つの引数を受け取ります。これらはそれぞれ前のステップで計算されています。
 
-| パラメータ | ソース | 役割 |
-| --------------| -----------------------------------------------------------| ---------------------------------------------------- |
-| `encoded_key` | モザイク ID の SHA3-256 | ツリー内で検索するリーフを特定する |
-| `hashed_value`| シリアライズされた定義の SHA3-256 | リーフに保存されていると予想される値 |
-| `merkle_path` | <get:/mosaics/{mosaicId}/merkle> | ルートからリーフまでのブランチノードとリーフノードのチェーン |
-| `state_hash`  | <get:/blocks/{height}> からの `stateHash` | すべてのチェーン状態を含むブロックヘッダーのハッシュ |
-| `roots`       | <get:/blocks/{height}> からの `stateHashSubCacheMerkleRoots` | 各サブキャッシュの個々のルートハッシュ |
+| パラメータ          | ソース                                                       | 役割                           |
+|----------------|-----------------------------------------------------------|--------------------------------|
+| `encoded_key`  | モザイク ID の SHA3-256                                        | ツリー内で検索するリーフを特定する         |
+| `hashed_value` | シリアライズされた定義の SHA3-256                                   | リーフに保存されていると予想される値        |
+| `merkle_path`  | <get:/mosaics/{mosaicId}/merkle>                          | ルートからリーフまでのブランチノードとリーフノードのチェーン |
+| `state_hash`   | <get:/blocks/{height}> からの `stateHash`                    | すべてのチェーン状態を含むブロックヘッダーのハッシュ  |
+| `roots`        | <get:/blocks/{height}> からの `stateHashSubCacheMerkleRoots` | 各サブキャッシュの個々のルートハッシュ          |
 
 その後、関数は3つの段階で証明を検証します。
 
@@ -138,13 +136,13 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ | 関連ドキュメント |
-| ----------------------------------------------------------------------- | --------------------------------------------------------------------------|
-| [モザイク定義の取得](#fetching-the-mosaic-definition) | <get:/mosaics/{mosaicId}> |
-| [キーと値のハッシュの計算](#fetching-the-block-state-hash) | <ser:MosaicEntry> |
-| [ブロックステートハッシュの取得](#fetching-the-block-state-hash) | <get:/chain/info>、 <get:/blocks/{height}> |
-| [ツリーパスの取得](#fetching-the-tree-path) | <get:/mosaics/{mosaicId}/merkle>、 `deserializePatriciaTreeNodes` |
-| [証明の検証](#verifying-the-proof) | <dy:Merkle.provePatriciaMerkle> |
+| ステップ                                                | 関連ドキュメント                                                       |
+|-----------------------------------------------------|------------------------------------------------------------------|
+| [モザイク定義の取得](#fetching-the-mosaic-definition)    | <get:/mosaics/{mosaicId}>                                        |
+| [キーと値のハッシュの計算](#fetching-the-block-state-hash)   | <ser:MosaicEntry>                                                |
+| [ブロックステートハッシュの取得](#fetching-the-block-state-hash) | <get:/chain/info>、 <get:/blocks/{height}>                        |
+| [ツリーパスの取得](#fetching-the-tree-path)               | <get:/mosaics/{mosaicId}/merkle>、 `deserializePatriciaTreeNodes` |
+| [証明の検証](#verifying-the-proof)                   | <dy:Merkle.provePatriciaMerkle>                                  |
 
 ## 次のステップ {: #next-steps }
 

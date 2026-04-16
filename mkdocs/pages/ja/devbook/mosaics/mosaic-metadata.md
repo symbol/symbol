@@ -212,9 +212,9 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 このチュートリアルでは、以下の方法を説明しました:
 
-| ステップ | 関連ドキュメント |
-| ------------------------------------------------------------------------------------------ | -------------------------------------------------- |
-| [メタデータのキーと値の定義](#defining-the-metadata) | <dy:Metadata.metadataGenerateKey> |
+| ステップ                                                                         | 関連ドキュメント                                   |
+|------------------------------------------------------------------------------|----------------------------------------------|
+| [メタデータのキーと値の定義](#defining-the-metadata)                                   | <dy:Metadata.metadataGenerateKey>            |
 | [モザイクメタデータトランザクションの作成](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [メタデータの取得](#retrieving-metadata) | <get:/metadata> |
-| [既存のメタデータの変更](#modifying-existing-metadata) | <dy:Metadata.metadataUpdateValue> |
+| [メタデータの取得](#retrieving-metadata)                                           | <get:/metadata>                              |
+| [既存のメタデータの変更](#modifying-existing-metadata)                              | <dy:Metadata.metadataUpdateValue>            |
