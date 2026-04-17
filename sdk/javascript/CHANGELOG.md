@@ -5,6 +5,18 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.3.1] - 14-Apr-2026
+
+### Added
+- add TypeScript 6.x support
+- add toJson function which constructs a JSON transaction representation of a transaction. This is useful for Multisig transactions.
+- add generateMosaicRestrictionKey function which generates mosaic restriction key from a string.
+- add Address.isAlias method to check if an address is an alias.
+- add isMosaicAlias function to check if a mosaic id is an alias.
+
+### Fixed
+- validate name passed to generateNamespaceId does not contain namespace separator
+
 ## [3.3.0] - 23-Sept-2025
 
 ### Added
@@ -136,6 +148,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.3.1]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.3.0...sdk%2Fjavascript%2Fv3.3.1
 [3.3.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.3...sdk%2Fjavascript%2Fv3.3.0
 [3.2.3]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.2...sdk%2Fjavascript%2Fv3.2.3
 [3.2.2]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.1...sdk%2Fjavascript%2Fv3.2.2

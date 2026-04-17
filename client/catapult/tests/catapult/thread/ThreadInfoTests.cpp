@@ -27,29 +27,60 @@ namespace catapult { namespace thread {
 
 #define TEST_CLASS ThreadInfoTests
 
-	TEST(TEST_CLASS, CanSetThreadName) {
+	TEST(TEST_CLASS, CanSetSelfThreadName) {
+
+		std::string originalThreadName = GetThreadName();
+#ifdef _WIN32
+		// Assert: the default thread name is empty
+		// Note: on Windows, the default thread name is empty,
+		// while on Linux it is the test name.
+		EXPECT_STREQ("", originalThreadName.c_str());
+#endif
+		// Act:
+		SetThreadName("Self thread");
+
+		// Assert:
+		EXPECT_STREQ("Self thread", GetThreadName().c_str());
+
+		// Act:
+		SetThreadName("");
+
+		// Assert: thread name is empty
+		EXPECT_STREQ("", GetThreadName().c_str());
+
+		// Restore the original thread name
+		SetThreadName(originalThreadName);
+		EXPECT_EQ(originalThreadName, GetThreadName());
+	}
+
+	TEST(TEST_CLASS, CanSetSpawnedThreadName) {
 		// Arrange:
-		std::string threadName;
-		std::thread([&threadName] {
+		std::string providedThreadName = "Spawned thread";
+		std::string returnedThreadName;
+		std::thread([&providedThreadName, &returnedThreadName] {
 			// Act:
-			SetThreadName("foo BAR 123");
-			threadName = GetThreadName();
+			SetThreadName(providedThreadName);
+			returnedThreadName = GetThreadName();
 		}).join();
 
 		// Assert:
-		EXPECT_EQ("foo BAR 123", threadName);
+		EXPECT_EQ(providedThreadName, returnedThreadName);
 	}
 
 	TEST(TEST_CLASS, CanSetLongTruncatedThreadName) {
 		// Arrange:
-		std::string threadName;
-		std::thread([&threadName] {
+		std::string nameSuffix = "_SUFFIX";
+		std::string providedThreadName = std::string(2 * GetMaxThreadNameLength(), 'x') + nameSuffix;
+		std::string expectedThreadName = providedThreadName.substr(providedThreadName.size() - GetMaxThreadNameLength());
+		std::string returnedThreadName;
+		std::thread([&providedThreadName, &returnedThreadName] {
 			// Act:
-			SetThreadName(std::string(2 * GetMaxThreadNameLength(), 'a'));
-			threadName = GetThreadName();
+			SetThreadName(providedThreadName);
+			returnedThreadName = GetThreadName();
 		}).join();
 
 		// Assert: the long thread name is truncated
-		EXPECT_EQ(std::string(GetMaxThreadNameLength(), 'a'), threadName);
+		EXPECT_EQ(expectedThreadName, returnedThreadName);
 	}
+
 }}
