@@ -107,7 +107,7 @@ digraph TimelockWindows {
     A_start [pos="0,5!" width=0.2];
     A_end [pos="12,5!" width=0.2];
     A_start -> A_end [style=bold penwidth=5];
-    A_label [label="Alice's lock on Chain A (longer timelock)" shape=plaintext pos="6,5.3!"];
+    A_label [label="Alice's Token A lock on Chain A (longer timelock)" shape=plaintext pos="6,5.3!"];
 
     // Timelock Difference (between Bob's expiry and Alice's expiry)
     TG_start [pos="7,3.5!" width=0.2];
@@ -119,7 +119,7 @@ digraph TimelockWindows {
     B_start [pos="1,2!" width=0.2];
     B_end [pos="7,2!" width=0.2];
     B_start -> B_end [style=bold penwidth=5];
-    B_label [label="Bob's lock on Chain B (shorter timelock)" shape=plaintext pos="4,2.3!"];
+    B_label [label="Bob's Token B lock on Chain B (shorter timelock)" shape=plaintext pos="4,2.3!"];
 
     // Vertical ticks
     T1_top [pos="0,5!"];

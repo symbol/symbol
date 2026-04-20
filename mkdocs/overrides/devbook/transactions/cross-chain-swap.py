@@ -15,7 +15,8 @@ SYMBOL_NODE_URL = os.getenv(
 	'SYMBOL_NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using Symbol node {SYMBOL_NODE_URL}')
 
-ETH_RPC_URL = os.getenv('ETH_RPC_URL', 'https://ethereum-sepolia-rpc.publicnode.com')
+ETH_RPC_URL = os.getenv('ETH_RPC_URL',
+	'https://ethereum-sepolia-rpc.publicnode.com')
 print(f'Using Ethereum RPC {ETH_RPC_URL}')
 
 # Ethereum HTLC contract on Sepolia
@@ -151,34 +152,61 @@ def wait_for_status(hash_value, expected_status, label):
 		f'{label} not {expected_status} after {max_attempts} attempts')
 
 
+# Poll Symbol for a confirmed secret proof transaction matching
+# a hashlock.
+def wait_for_secret_proof(signer_address, hashlock):
+	hashlock_hex = hashlock.hex().upper()
+	url = (f'{SYMBOL_NODE_URL}/transactions/confirmed'
+		f'?address={signer_address}&type=16978&order=desc')
+	print(f'Polling {url}')
+	print(f'  Looking for secret: {hashlock_hex}')
+
+	attempts = 0
+	max_attempts = 60
+	while attempts < max_attempts:
+		with urllib.request.urlopen(url) as response:
+			data = json.loads(response.read().decode())
+		for tx in data.get('data', []):
+			secret = tx['transaction'].get('secret', '')
+			if secret.upper() == hashlock_hex:
+				print(f'  Found proof transaction after {attempts}s')
+				return bytes.fromhex(tx['transaction']['proof'])
+		attempts += 1
+		time.sleep(1)
+
+	raise Exception(
+		f'Secret proof not found after {max_attempts} attempts')
+
+
 # Symbol accounts
 facade = SymbolFacade('testnet')
 
-ALICE_PRIVATE_KEY = os.getenv('ALICE_PRIVATE_KEY',
+ALICE_XYM_PRIVATE_KEY = os.getenv('ALICE_XYM_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
-alice_key_pair = SymbolFacade.KeyPair(PrivateKey(ALICE_PRIVATE_KEY))
-alice_address = facade.network.public_key_to_address(
-	alice_key_pair.public_key)
-print(f'Alice Symbol address: {alice_address}')
+alice_xym_key_pair = SymbolFacade.KeyPair(
+	PrivateKey(ALICE_XYM_PRIVATE_KEY))
+alice_xym_address = facade.network.public_key_to_address(
+	alice_xym_key_pair.public_key)
+print(f'Alice Symbol address: {alice_xym_address}')
 
-BOB_PRIVATE_KEY = os.getenv('BOB_PRIVATE_KEY',
+BOB_XYM_PRIVATE_KEY = os.getenv('BOB_XYM_PRIVATE_KEY',
 	'1111111111111111111111111111111111111111111111111111111111111111')
-bob_key_pair = SymbolFacade.KeyPair(PrivateKey(BOB_PRIVATE_KEY))
-bob_address = facade.network.public_key_to_address(
-	bob_key_pair.public_key)
-print(f'Bob Symbol address: {bob_address}')
+bob_xym_key_pair = SymbolFacade.KeyPair(PrivateKey(BOB_XYM_PRIVATE_KEY))
+bob_xym_address = facade.network.public_key_to_address(
+	bob_xym_key_pair.public_key)
+print(f'Bob Symbol address: {bob_xym_address}')
 
 # Ethereum accounts
 w3 = Web3(Web3.HTTPProvider(ETH_RPC_URL))
 
-ALICE_ETH_KEY = os.getenv('ALICE_ETH_PRIVATE_KEY',
+ALICE_ETH_PRIVATE_KEY = os.getenv('ALICE_ETH_PRIVATE_KEY',
 	'0xa73276699ba72dc7b5c9d08deaf8cd88eec33c866341b120304432b89586d45d')
-alice_eth_account = w3.eth.account.from_key(ALICE_ETH_KEY)
+alice_eth_account = w3.eth.account.from_key(ALICE_ETH_PRIVATE_KEY)
 print(f'Alice ETH address: {alice_eth_account.address}')
 
-BOB_ETH_KEY = os.getenv('BOB_ETH_PRIVATE_KEY',
+BOB_ETH_PRIVATE_KEY = os.getenv('BOB_ETH_PRIVATE_KEY',
 	'0x8e85561005f27d926af79a7ce3e76e75108a09ff2ab78bf65b5578d2e5d509bf')
-bob_eth_account = w3.eth.account.from_key(BOB_ETH_KEY)
+bob_eth_account = w3.eth.account.from_key(BOB_ETH_PRIVATE_KEY)
 print(f'Bob ETH address: {bob_eth_account.address}')
 
 try:
@@ -192,8 +220,8 @@ try:
 	secret = hashlib.sha256(first_hash).digest()
 	print(f'Secret (double SHA-256): {secret.hex()}')
 
-	# --- Alice: Lock ETH on Ethereum ---
-	print('\n--- Alice: Lock ETH on Ethereum ---')
+	# --- Step 1. Alice: Lock ETH on Ethereum ---
+	print('\n--- Step 1. Alice: Lock ETH on Ethereum ---')
 
 	htlc = w3.eth.contract(address=HTLC_ADDRESS, abi=HTLC_ABI)
 	timelock = int(time.time()) + 72 * 60 * 60
@@ -218,8 +246,8 @@ try:
 	contract_id = lock_receipt.logs[0].topics[1]
 	print(f'HTLC contract ID: {contract_id.hex()}')
 
-	# --- Bob: Create secret lock on Symbol ---
-	print('\n--- Bob: Create secret lock on Symbol ---')
+	# --- Step 2. Bob: Create secret lock on Symbol ---
+	print('\n--- Step 2. Bob: Create secret lock on Symbol ---')
 
 	# Bob queries the Ethereum contract to get the hashlock
 	contract_info = htlc.functions.getContract(contract_id).call()
@@ -231,9 +259,9 @@ try:
 
 	secret_lock_transaction = facade.transaction_factory.create({
 		'type': 'secret_lock_transaction_v1',
-		'signer_public_key': bob_key_pair.public_key,
+		'signer_public_key': bob_xym_key_pair.public_key,
 		'deadline': get_network_time().add_hours(2).timestamp,
-		'recipient_address': alice_address,
+		'recipient_address': alice_xym_address,
 		'mosaic': {
 			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
 			'amount': 1_000000  # 1 XYM
@@ -247,7 +275,7 @@ try:
 
 	# Sign and announce
 	lock_signature = facade.sign_transaction(
-		bob_key_pair, secret_lock_transaction)
+		bob_xym_key_pair, secret_lock_transaction)
 	lock_payload = facade.transaction_factory.attach_signature(
 		secret_lock_transaction, lock_signature)
 
@@ -259,14 +287,14 @@ try:
 	announce_transaction(lock_payload, '/transactions', 'secret lock')
 	wait_for_status(lock_hash, 'confirmed', 'Secret lock')
 
-	# --- Alice: Claim XYM on Symbol ---
-	print('\n--- Alice: Claim XYM on Symbol ---')
+	# --- Step 3. Alice: Claim XYM on Symbol ---
+	print('\n--- Step 3. Alice: Claim XYM on Symbol ---')
 
 	secret_proof_transaction = facade.transaction_factory.create({
 		'type': 'secret_proof_transaction_v1',
-		'signer_public_key': alice_key_pair.public_key,
+		'signer_public_key': alice_xym_key_pair.public_key,
 		'deadline': get_network_time().add_hours(2).timestamp,
-		'recipient_address': alice_address,
+		'recipient_address': alice_xym_address,
 		'secret': Hash256(hashlock),
 		'hash_algorithm': 'hash_256',
 		'proof': proof
@@ -276,7 +304,7 @@ try:
 
 	# Sign and announce
 	proof_signature = facade.sign_transaction(
-		alice_key_pair, secret_proof_transaction)
+		alice_xym_key_pair, secret_proof_transaction)
 	proof_payload = facade.transaction_factory.attach_signature(
 		secret_proof_transaction, proof_signature)
 
@@ -288,18 +316,12 @@ try:
 	announce_transaction(proof_payload, '/transactions', 'secret proof')
 	wait_for_status(proof_hash, 'confirmed', 'Secret proof')
 
-	# --- Bob: Withdraw ETH on Ethereum ---
-	print('\n--- Bob: Withdraw ETH on Ethereum ---')
+	# --- Step 4. Bob: Withdraw ETH on Ethereum ---
+	print('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---')
 
-	# Retrieve the proof from the confirmed transaction
-	tx_path = f'/transactions/confirmed/{proof_hash}'
-	print(f'Fetching proof from {tx_path}')
-	with urllib.request.urlopen(
-		f'{SYMBOL_NODE_URL}{tx_path}'
-	) as response:
-		tx_json = json.loads(response.read().decode())
-		revealed_proof = bytes.fromhex(tx_json['transaction']['proof'])
-		print(f'Proof from chain: {revealed_proof.hex()}')
+	# Bob waits for Alice to reveal the proof on Symbol.
+	revealed_proof = wait_for_secret_proof(alice_xym_address, hashlock)
+	print(f'Proof from chain: {revealed_proof.hex()}')
 
 	withdraw_call = htlc.functions.withdraw(contract_id, revealed_proof)
 	withdraw_tx = withdraw_call.build_transaction({
