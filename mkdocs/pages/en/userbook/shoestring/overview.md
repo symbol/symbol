@@ -3,20 +3,22 @@
 Shoestring
 :   A command-line tool used to deploy and manage <nodes:> in the Symbol network.
 
-It replaces the older `symbol-bootstrap` tool, which is no longer maintained.
-Shoestring performs the same core tasks, but with a simpler architecture and fewer dependencies.
-
 Using Shoestring, node operators can:
 
-* generate node configuration files
-* deploy new nodes
-* manage node certificates and voting keys
-* upgrade the Symbol client
-* reset or migrate existing nodes
+* Deploy new nodes.
+* Migrate existing nodes.
+* Keep the node software up to date.
+* Manage node certificates and voting keys.
 
 Shoestring does not run the node itself.
-Instead, it prepares a [Docker](https://www.docker.com) environment that contains the
+Instead, it prepares a [Docker](https://www.docker.com) environment that contains the required
 [Symbol node components](../../textbook/nodes.md#node-structure).
+
+!!! warning
+
+    Operating Shoestring and Symbol nodes in general requires familiarity with the terminal and command-line tools
+    of your operating system.
+    These guides assume basic command-line usage.
 
 ## Why Shoestring Exists
 
@@ -34,7 +36,8 @@ This design reduces dependencies and makes node operations easier to maintain ov
 
 ## How Shoestring Works
 
-Shoestring prepares the files and configuration required to run a Symbol node.
+Shoestring prepares the configuration files required to run a Symbol node with the desired
+[roles](../../textbook/nodes.md#roles).
 
 The typical workflow is:
 
@@ -45,29 +48,15 @@ The typical workflow is:
 
 The running node consists of several components inside Docker containers, including the
 [Catapult server](../../textbook/nodes.md#catapult) and the
-[REST Gateway](../../textbook/nodes.md#octicons-terminal-24-rest-gateway).
+[REST Gateway](../../textbook/nodes.md#rest-gateway).
 
 Shoestring also provides commands that help maintain a running node, such as upgrading the client,
 renewing certificates, or checking node health.
 
 ## Docker Requirement
 
-Shoestring deploys Symbol nodes using Docker containers.
-
 Running a node directly from the Symbol server binaries is technically possible, but this approach
 requires manual configuration and process management.
 For this reason, Docker-based deployments are recommended for most operators.
 
-All tutorials in this section assume Docker is installed and available on the system.
-
-## Typical Workflow
-
-Operating a Symbol node with Shoestring usually follows these steps:
-
-1. [Install Shoestring](./install.md).
-2. Generate configuration files for the desired network.
-3. Create the node installation.
-4. Start the node containers.
-5. Maintain the node over time.
-
-The following pages describe each of these steps in more detail.
+All guides in this section assume Docker is installed and available on the system.

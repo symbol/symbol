@@ -7,8 +7,11 @@ However, the easiest way to change them is by using <Shoestring:> and an `overri
 
 The header of each of the tables below indicates which file contains that table's properties.
 
-!!! note
-    For **node**-related properties, see the [Node Properties](./node-properties.md) page.
+!!! warning
+    Setting any configuration property to a value different to those of the rest of the network will make your node
+    <fork:>, effectively disconnecting it from the rest of the network.
+
+    Only [Node Properties](./node-properties.md) can be safely edited, as they only affect your node.
 
 ## Network Configuration
 

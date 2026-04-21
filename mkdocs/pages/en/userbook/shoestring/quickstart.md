@@ -1,12 +1,15 @@
 # Creating and Running a Node
 
-This tutorial shows how to create and start a Symbol <node:> using the <Shoestring:> tool.
+This tutorial shows how to deploy and start a new Symbol <node:> using the <Shoestring:> tool.
 
-The tutorial assumes that Shoestring and its dependencies are already [installed](./install.md).
+The tutorial assumes that Shoestring and its dependencies have already been [installed](./install.md).
+
+If you already have a node created with the deprecated Bootstrap tool and wish to reuse it,
+read the [Migration](./migrate.md) guide instead.
 
 ## Create a New Node
 
-Deploying a node with Shoestring requires a few steps, described below.
+Deploying a node with Shoestring involves the following steps.
 
 ??? info "Using the Shoestring Wizard"
 
@@ -16,16 +19,16 @@ Deploying a node with Shoestring requires a few steps, described below.
     python3 -m shoestring.wizard
     ```
 
-    The wizard asks a series of questions and generates the same configuration files used in this tutorial.
+    The wizard asks a series of questions and generates the same configuration files created in this tutorial.
 
-    The resulting node behaves exactly the same as one created with the command-line steps shown below.
+    The resulting node behaves exactly like one created with the command-line steps below.
 
     After completing the wizard, continue from [Start the Node](#start-the-node)
     if the node has not been started automatically.
 
 ### 1. Create a Working Directory
 
-Shoestring creates the node installation inside the current directory.
+Shoestring creates the node files inside the current directory.
 
 Create a directory for the node and move into it:
 
@@ -34,11 +37,11 @@ mkdir symbol-node
 cd symbol-node
 ```
 
-All commands in this tutorial assume they are executed from this directory.
+All commands in this tutorial assume they are run from this directory.
 
 ### 2. Generate the Network Configuration
 
-The first step is to generate the default configuration files required for the node.
+The first step is to retrieve the default configuration files for the target network (<mainnet:> or <testnet:>).
 
 Run:
 
@@ -46,10 +49,11 @@ Run:
 python3 -m shoestring init --package mainnet config.ini
 ```
 
-This command downloads configuration files required to operate on the <mainnet:> network,
-and creates the file `config.ini`.
+This command downloads the configuration files required to operate on the <mainnet:> network and creates the file
+`config.ini`.
 
-For <testnet:> nodes, use:
+For <testnet:> nodes, use the `sai` package instead.
+In later commands that use the `--network` parameter, specify `testnet` instead of `mainnet`.
 
 ```bash
 python3 -m shoestring init --package sai config.ini
@@ -57,22 +61,35 @@ python3 -m shoestring init --package sai config.ini
 
 ### 3. Configure Shoestring
 
-The `config.ini` file generated in the previous step already contains most required values.
-Only a few values need to be customized for your node, and they all reside in the `#!ini [node]` section:
+The `config.ini` file generated in the previous step already contains most required settings.
+Only a few values usually need to be customized for your node, and they are all located in the `#!ini [node]` section:
 
 * The node [roles](../../textbook/nodes.md#roles), called _features_ by Shoestring.
 
     Set the desired node features from the list: `PEER`, `API`, `HARVESTER`, and `VOTER`.
-    You can combine multiple features separating them with a vertical bar `|`, for example:
+    You can combine multiple features by separating them with a vertical bar `|`, for example:
 
     ```ini title="config.ini"
     [node]
     features = PEER | API
     ```
 
-* The `caCommonName` and `nodeCommonName` are used as Common Names (CN) in the
+    Review the [roles](../../textbook/nodes.md#roles) page for detailed explanations.
+    In summary:
+
+    * `PEER`: The node participates in consensus.
+    * `API`: The node exposes an API for client applications.
+    * `HARVESTER`: The node participates in block creation and is eligible for <harvesting:> rewards.
+        A minimum of 10'000 <XYM:> are required.
+        See [Configure Harvesting](#configure-harvesting-optional) below.
+    * `VOTER`: The node participates in <finalization:> and is eligible for voting rewards.
+        A minimum of 3'000'000 <XYM:> are required.
+        See [Configure Voting](#configure-voting-optional) below.
+
+* The `caCommonName` and `nodeCommonName` properties are used as Common Names (CN) in the
     [certificates](https://en.wikipedia.org/wiki/X.509) generated for the node.
-    They do not affect node behavior, but must not be empty for certificate generation to succeed.
+
+    They do not affect node behavior, but they must not be empty or certificate generation will fail.
 
     For example:
 
@@ -82,12 +99,22 @@ Only a few values need to be customized for your node, and they all reside in th
     nodeCommonName = My Symbol Node
     ```
 
+* `API` nodes that should accept HTTPS requests must set the `apiHttps` property to `true`.
+    Otherwise, the node will only accept HTTP requests.
+
+    ```ini title="config.ini"
+    [node]
+    apiHttps = false
+    ```
+
+    Enabling HTTPS support also requires setting a valid `host` as shown next.
+
 ### 4. Configure the Node
 
-An additional configuration file must be created to provide node-specific settings.
-Without it, the node will not be usable.
+An additional configuration file is required to define node-specific settings.
+Without it, the node will not be properly usable.
 
-Create a new file called `overrides.ini` with the following sections:
+Create a new file called `overrides.ini` with the following content:
 
 ```ini title="overrides.ini"
 [node.localnode]
@@ -95,33 +122,72 @@ host = my-symbol-node.com
 friendlyName = My Symbol Node
 ```
 
-* `host` is the public IP address or hostname of your node as seen by the rest of the network.
-    If you use an unreachable host (like `127.0.0.1`), your node will connect to the network but other nodes will not
-    interact with it.
+* `host` is the public IP address or hostname through which the rest of the network reaches your node.
 
-* `friendlyName` is the human-readable name that will appear in node lists like <https://symbol.fyi/nodes>.
+    If you use an unreachable host (like `localhost` or `127.0.0.1`), your node may connect to the network,
+    but other nodes will be unable to initiate connections to it.
+
+* `friendlyName` is the human-readable name displayed in node lists such as <https://symbol.fyi/nodes>.
+
+!!! info "Further Customization"
+
+    The `overrides.ini` file can be used to modify any Catapult
+    [network](../../devbook/reference/config/network-properties.md) or
+    [node](../../devbook/reference/config/node-properties.md) property.
+
+    To do so, add a section using the syntax `[config-file-name.config-section]`,
+    then define the desired properties below it.
+
+`config.ini` configures Shoestring itself, while `overrides.ini` customizes the generated node software.
 
 ### 5. Create the Node Identity
 
-Each node requires a cryptographic identity used for secure communication.
-
-Generate the node key with OpenSSL:
+Each node requires a cryptographic identity for secure communication with other nodes.
+At the heart of this identity is a <private key:>, which can be generated with OpenSSL:
 
 ```bash
 openssl genpkey -algorithm ed25519 -out ca.key.pem
 ```
 
 This creates a [PEM file](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) named `ca.key.pem`
-that contains the private key used to generate the node certificates.
+that contains the private key for the node's <main key:|main account>.
 
 This file **must be kept secure**.
-Leave it in this directory for now, it will be removed at a later stage.
+Leave it in this directory for now.
+It will be removed at a later stage.
+
+!!! info "Main Account Address"
+
+    To view the address and public key corresponding to this private key, you can use Shoestring's `pemview` tool:
+
+    ```sh
+    python3 -m shoestring pemview --input ca.key.pem --network mainnet
+    ```
+
+    The output is similar to this:
+
+    ```text linenums="1"
+        i     | loaded ca.key.pem
+        i     |     address: TCUCHCSSTTXRU3BMOBMAQXY2WMGSBICEH6WB77I
+        i     |  public key: 5DA31F82685B4F03924B096A1343F297CF4552F...
+    ```
+
+    The account's address is required to send funds to it.
+    Funds are then needed to pay transaction fees, for example when enabling harvesting.
+
+    You can also use the `--show-private` parameter to display the private key and
+    [import it into the wallet](../wallet/import-account.md).
+    This step allows you to manage the account more conveniently, but it is not required for this guide.
+
+    Alternatively, you can use the `openssl` tool directly to show the account's public key:
+
+    ```sh
+    openssl pkey -in ca.key.pem -text
+    ```
 
 ### 6. Create the Node Installation
 
-Once the configuration and key files are ready, create the node installation.
-
-Run:
+Once the configuration and key files are ready, create the node installation with:
 
 ```bash
 python3 -m shoestring setup \
@@ -134,14 +200,183 @@ python3 -m shoestring setup \
 
 This command performs several tasks:
 
-* downloads the Symbol server software
-* creates the node directory structure
-* generates certificates
-* prepares the Docker environment
+* Downloads the <Catapult:> server software.
+* Prepares the node directory structure.
+* Generates certificates from the private key.
+* Creates the Docker configuration files.
+* Creates transactions that enable harvesting, if configured.
 
-The node is now configured and ready to be started.
+## Configure Harvesting (Optional)
+
+If you enabled the `HARVESTER` role, one additional configuration step is required.
+If not, this section can be skipped.
+
+To enable harvesting, a <VRF key:> must be linked to your account through a special transaction.
+
+For security reasons, the main account must also be linked through a separate transaction to a
+<remote key:|remote account>.
+This remote account is used by the node to sign newly created blocks, so it must remain on the node,
+where it stays online and could be exposed if the server is ever compromised.
+
+However, the remote account does not hold any funds, as all harvesting rewards are credited to
+the linked main account, which can remain stored offline.
+
+Shoestring's `setup` command has already created both transactions and stored them in a file named
+`linking_transaction.dat`.
+The following subsections explain how to sign the transactions in this file and announce them to the network.
+
+### 7. Fund the Main Account
+
+First, the node's main account needs to hold some <XYM:> to pay the fees required to announce these transactions.
+
+Obtain the account's address as shown in [step 5 above](#5-create-the-node-identity) and transfer funds to it
+from another account.
+1 <XYM:> is typically enough.
+
+### 8. Sign the Transactions
+
+Shoestring's `signer` tool reads `linking_transaction.dat` and signs the transactions in it with the key stored in
+`ca.key.pem` (the node's main account):
+
+```sh
+python3 -m shoestring signer \
+    --config config.ini \
+    --ca-key-path ca.key.pem \
+    --save linking_transaction.dat
+```
+
+The signature is written back to `linking_transaction.dat` together with the transactions, so no new file is created.
+
+The output looks similar to the following:
+
+```text linenums="1"
+    i     | Aggregate transaction: ((signature: 00000000...,
+            signer_public_key: 5DA31F82..., version: 0x3,
+            network: NetworkType.TESTNET,
+            type: TransactionType.AGGREGATE_COMPLETE,
+            fee: 0x0000000000015180,
+            deadline: 0x0000001946C3C12A, )
+            transactions_hash: CCA5A2CE..., transactions: [],
+            cosignatures: [], )
+    i     | Inner transactions:
+    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
+                network: NetworkType.TESTNET,
+                type: TransactionType.ACCOUNT_KEY_LINK, )
+                linked_public_key: E44E749E...,
+                link_action: LinkAction.LINK, )
+    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
+                network: NetworkType.TESTNET,
+                type: TransactionType.VRF_KEY_LINK, )
+                linked_public_key: 88307270...,
+                link_action: LinkAction.LINK, )
+    i     | Signed transaction TransactionType.AGGREGATE_COMPLETE
+            with hash: BE1DA35E...
+```
+
+Note that the two key-link transactions are wrapped inside a single <aggregate transaction:>, for convenience.
+
+### 9. Announce the Transactions
+
+Use the `announce-transaction` tool to submit the signed transactions to the network:
+
+```sh
+python3 -m shoestring announce-transaction \
+    --config config.ini \
+    --transaction linking_transaction.dat
+```
+
+The tool connects to an available node on the network and submits the signed transactions.
+The output is similar to this:
+
+```text linenums="1"
+    i     | connecting to https://401-sai-dual.symboltest.net:3001
+    i     | preparing to announce transaction 5E59A0A0... of type
+            TransactionType.AGGREGATE_COMPLETE
+    i     | transaction was successfully sent to the network
+```
+
+### 10. Wait for Confirmation
+
+The `announce-transaction` command exits without waiting for confirmation, so the result must be verified manually.
+
+From the output of the previous command, note the **URL** of the node where the transaction was submitted
+(line 1) and the **hash** of the transaction (line 2).
+
+Then open the URL in a browser, or query it with `curl`:
+`{NODE_URL}/transactionStatus/{FULL_TRANSACTION_HASH}`.
+
+For example, from the output above, the URL is:
+
+[https://401-sai-dual.symboltest.net:3001/transactionStatus/5E59A0A0...](https://401-sai-dual.symboltest.net:3001/transactionStatus/5E59A0A009A885B8DA0A6E1CE18BAE26A83441414E595799F25DB94848CCDEEB)
+
+!!! note "Check the same node where the transactions were submitted"
+
+    If the node rejected the transactions without announcing them to the rest of the network,
+    all other nodes will respond to this URL with a "transaction unknown" error,
+    so always check the status of a transaction on the same node where you submitted it.
+
+If the transactions are accepted, the node returns a message similar to this one:
+
+```json
+{
+  "hash": "5E59A0A009A885B8DA0A6E1CE18BAE26A83441414E595799F25DB94848CCDEEB",
+  "code": "Success",
+  "deadline": "107120562182",
+  "group": "confirmed"
+}
+```
+
+The most common outcomes are:
+
+| Result                       | Meaning                                                                                                                                  |
+|------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| **Confirmed**                | The transactions are confirmed. Continue with this guide.                                                                                |
+| **Unconfirmed**              | The transactions are valid but not yet included in a block. Wait up to 30 seconds.                                                       |
+| **Unknown**                  | The transactions were submitted to a different node, or too long ago, or not at all. Repeat from [Step 9](#9-announce-the-transactions). |
+| **Insufficient funds**       | Fund the node's main account as explained in [step 7 above](#7-fund-the-main-account), then announce again.                              |
+| **Signature Not Verifiable** | The transactions were probably not signed. Repeat from [Step 8](#8-sign-the-transactions).                                               |
+| **Deadline expired**         | Transactions must be announced within 6 hours of running `setup`. See below.                                                             |
+
+In case of expired deadlines, repeat [step 4](#4-configure-the-node) using the `--output-transaction-only`
+parameter to create a fresh `linking_transaction.dat` and continue from [step 9](#9-announce-the-transactions) to
+announce it.
+
+Once the transactions are confirmed, the node is ready to participate in block creation using the <remote key:>
+(created automatically during the setup process), and accrue any harvesting rewards on the <main key:|main account>
+(obtained from the `ca.key.pem` file).
+
+!!! warning "Importance Calculation Delay"
+
+    A node has a higher chance of harvesting blocks, and therefore collecting rewards, when the <importance:> of
+    its main account is higher.
+    
+    If you just funded the main account, importance takes 12 hours to update on <mainnet:> and 3 hours on <testnet:>.
+
+## Configure Voting (Optional)
+
+To create a <voting node:>, the following requirements must be met:
+
+* Set the `VOTER` role when [configuring Shoestring](#3-configure-shoestring).
+* The node's main account must hold 3'000'000 <XYM:>.
+
+!!! info "Voting Keys Maintenance"
+
+    During setup, Shoestring creates <voting keys:> for the node.
+    These keys must be renewed periodically for security reasons.
+
+    Once the node is up and running, read the [Managing a Node](./manage.md) guide to learn about the renewal
+    process.
 
 ## Start the Node
+
+The node is now configured and ready to be started, but there is one final security step remains:
+
+!!! danger "Backup the Private Key"
+
+    The `ca.key.pem` file contains the main account's private key, and it is NOT needed for normal node operation.
+    This file should be moved offline after the node is properly configured.
+
+    Copy `ca.key.pem` to secure storage, ideally offline, and **remove it from the machine that will run the node**.
 
 Start the node containers with Docker:
 
@@ -149,11 +384,11 @@ Start the node containers with Docker:
 docker compose up -d
 ```
 
-The `-d` option runs the containers in detached mode, so the node continues running even after closing the terminal.
+The `-d` option runs the containers in detached mode, allowing the node to continue running after the terminal is closed.
 
 !!! warning "Docker permissions"
 
-    If you see an error similar to:
+    If you receive an error similar to:
 
     ```text
     permission denied while trying to connect to the Docker daemon socket
@@ -177,6 +412,9 @@ docker compose down
 
 The node data remains on disk and the node can be started again with `docker compose up -d`.
 
+Keep in mind that the node might take up to 5 minutes to shut down cleanly.
+If interrupted, data might be left in an inconsistent state and require [recovery](#node-recovery).
+
 ## Verify the Node
 
 Check that the node is running correctly:
@@ -186,9 +424,9 @@ python3 -m shoestring health --config config.ini --directory .
 ```
 
 If the node started successfully, the command reports that the peer endpoint, REST API, and WebSocket services are
-reachable:
+reachable (assuming these are the features you enabled):
 
-```txt
+```text
      ...    | running health agent for peer certificate
       i     | ca certificate not near expiry (7299 day(s))
       i     | node certificate not near expiry (374 day(s))
@@ -199,19 +437,33 @@ keys/cert/node.crt.pem: OK
      ...    | running health agent for REST API
       i     | REST API accessible, height = 226081
      ...    | running health agent for REST websockets
-      i     | websocket connected to ws://127.0.0.1:3000/ws, subscribing and waiting for block
+      i     | websocket connected to ws://127.0.0.1:3000/ws,
+              subscribing and waiting for block
       i     | websocket received a block with height 226082
 ```
 
-While the node is synchronizing with the network, the reported chain height is lower than the actual height.
+!!! info "Synchronization"
+
+    Upon first launch, the node synchronizes with the network by downloading the full blockchain.
+
+    This process can take **several hours**.
+    During this time, REST requests to the node, if it is running the API role,
+    may be delayed and report an incorrect chain height.
+
+## Node Recovery
+
+In the event of an unclean shutdown, for example, due to power loss, lock files may remain in the `data`
+folder that prevent the node from starting.
+
+The following command attempts to recover the node and restore a valid state:
+
+```sh
+docker compose -f docker-compose-recovery.yaml up \
+    --abort-on-container-exit
+```
+
+After the recovery command completes, start the node again with `docker compose up -d`.
 
 ## Next Steps
 
-Once the node is running, additional tasks may be needed:
-
-* customizing node configuration
-* upgrading the client
-* renewing certificates
-* migrating from symbol-bootstrap
-
-See the following pages for details.
+Once the node is running, only occasional [maintenance tasks](./manage.md) remain.

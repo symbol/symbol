@@ -152,8 +152,8 @@ nav:
           - Serialization: devbook/reference/serialization/index.md
           - WebSockets: devbook/reference/websockets/index.md
           - Configuration Properties:
-            - Network: devbook/reference/config/network-properties.md
-            - Node: devbook/reference/config/node-properties.md
+              - Network: devbook/reference/config/network-properties.md
+              - Node: devbook/reference/config/node-properties.md
   - Textbook:
       - textbook/intro.md
       - textbook/cryptography.md
