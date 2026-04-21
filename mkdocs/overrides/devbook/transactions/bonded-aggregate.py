@@ -50,7 +50,7 @@ def wait_for_status(hash_value, expected_status, label):
 		except urllib.error.HTTPError as e:
 			if e.code != 404:
 				raise
-			# Transaction status not yet available
+			print('  Transaction status: not yet available')
 
 		attempts += 1
 		time.sleep(1)
