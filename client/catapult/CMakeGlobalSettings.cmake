@@ -110,7 +110,8 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc /Zc:__cplusplus")
 	# in debug disable "potentially uninitialized local variable" (FP)
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /D_SCL_SECURE_NO_WARNINGS /wd4701")
-
+	# also enable name return value optimization to allow proper tests validation
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zc:nrvo")
 	if (CCACHE_EXE AND USE_CCACHE_ON_WINDOWS)
 		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Z7")
 	else()
