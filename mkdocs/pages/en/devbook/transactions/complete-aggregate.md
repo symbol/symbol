@@ -288,7 +288,7 @@ This tutorial showed how to:
 
 * **Batch from one account:** If all transactions share the same signer and no cosignatures are needed, see the
   [Batching Transactions](./transaction-batching.md) tutorial for a simpler flow.
-* **Sponsor fees:** Let one account pay transaction fees on behalf of another using the
-  [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
 * **Use bonded aggregates:** If parties cannot coordinate off-chain, see the
-  [Creating a Bonded Aggregate Transaction](./bonded-aggregate.md) tutorial for a fully on-chain alternative.
+  [Creating a Complete Aggregate Transaction](./complete-aggregate.md) tutorial for a fully on-chain alternative.
+* **Sponsor fees:** Let one account pay transaction fees on behalf of another following the
+  [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
