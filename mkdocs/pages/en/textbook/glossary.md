@@ -97,12 +97,6 @@ Hardware wallet
     They typically only provide signing functionality, so they must be paired with a software <wallet:> or
     application that creates the <transactions:> and announces them.
 
-HTLC
-:   [Hashed Time-Lock Contract](https://en.bitcoin.it/wiki/Hash_Time_Locked_Contracts).
-    A protocol that combines a <hashlock:> (funds can only be claimed by revealing a secret proof) and a <timelock:>
-    (funds are refunded if unclaimed before a deadline) to enable trustless exchanges between parties.
-    Symbol offers the functionality needed to implement HTLC; see [Cross-Chain Swaps](cross-chain-swaps.md).
-
 ICO
 :   Initial Coin Offering.
 

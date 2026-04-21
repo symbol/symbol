@@ -36,16 +36,20 @@ the swap coordinates operations across two independent chains.
 
 ## Protocol
 
-Cross-chain swaps use the <HTLC:|Hashed Time-Lock Contract> (HTLC) protocol to create a trustless environment for
-exchanging assets across blockchains.
+Cross-chain swaps on Symbol can be implemented using the HTLC protocol:
 
-### How it works
+HTLC
+:   [Hashed Time-Lock Contract](https://en.bitcoin.it/wiki/Hash_Time_Locked_Contracts).
+    A protocol that combines a <hashlock:> (funds can only be claimed by revealing a secret proof) and a <timelock:>
+    (funds are refunded if unclaimed before a deadline) to enable trustless exchanges between parties.
+
+### How it Works
 
 HTLC relies on two locking mechanisms:
 
 Hashlock
 :   A condition that keeps funds locked until someone reveals a specific secret (the _proof_).
-    The lock stores the cryptographic hash of the proof, so claiming the funds forces the proof to be published on the
+    The lock stores the cryptographic <hash:|hash> of the proof, so claiming the funds forces the proof to be published on the
     chain.
 
 Timelock
@@ -73,17 +77,19 @@ The maximum timelock duration is 365 days.
 
 ### Compatibility with other chains
 
-To swap with Symbol, the other chain must support an equivalent HTLC mechanism with a compatible hash algorithm:
+To swap with Symbol, the other chain must support an equivalent HTLC mechanism with a hash algorithm compatible with
+the ones Symbol supports:
+
+| Algorithm  | Description                                                                                                                                     |
+|------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SHA3_256` | The proof is hashed with [SHA-3 256](https://en.wikipedia.org/wiki/SHA-3).                                                                      |
+| `HASH_160` | The proof is hashed first with [SHA-256](https://en.wikipedia.org/wiki/SHA-2) and then with [RIPEMD-160](https://en.wikipedia.org/wiki/RIPEMD). |
+| `HASH_256` | The proof is hashed twice with [SHA-256](https://en.wikipedia.org/wiki/SHA-2).                                                                  |
+
+For example:
 
 * Bitcoin natively supports HTLC via `OP_HASH160` and `OP_HASH256`.
 * Ethereum HTLC smart contracts can be implemented using the built-in SHA-256 and RIPEMD-160 functions.
-* Any chain works as long as it can lock funds using one of the hash algorithms Symbol supports:
-
-| Algorithm  | Description                                                       |
-| ---------- | ----------------------------------------------------------------- |
-| `SHA3_256` | The proof is hashed with SHA-3 256.                               |
-| `HASH_160` | The proof is hashed first with SHA-256 and then with RIPEMD-160.  |
-| `HASH_256` | The proof is hashed twice with SHA-256.                           |
 
 ## Example
 
@@ -162,21 +168,23 @@ digraph TimelockWindows {
     setting a <timelock:>.
 2. **Bob locks tokens on Chain B:** Bob reads the hashlock from Alice's transfer on Chain A and starts his
     own transfer of `Token B` on Chain B, locking it with the **same hashlock** and naming Alice as the recipient.
-    Bob's timelock must expire **before** Alice's timelock on Chain A (see [Timelock Ordering](#timelock-ordering)
-    for why).
+    Bob's timelock must expire **before** Alice's timelock on Chain A (see [Timelock Ordering](#timelock-ordering)).
 3. **Alice claims on Chain B:** Alice reveals the proof on Chain B to complete Bob's transfer and receive `Token B`.
-4. **Bob claims on Chain A:** Bob reads the proof from Chain B and uses it to complete Alice's transfer and receive
-    `Token A`.
+4. **Bob claims on Chain A:** Bob reads the proof from Chain B and uses it to complete Alice's transfer on Chain A
+    and receive `Token A`.
+
+    Note that Bob can claim as soon as the proof is revealed.
+    He does not need to wait for his timelock on Symbol to expire as depicted in the diagram.
 
 If the timelocks are configured correctly, the protocol ensures every participant has a fair chance to receive their
 part of the swap:
 
-| Scenario                                        | Outcome                                                                                              |
-| ------------------------------------------------| -----------------------------------------------------------------------------------------------------|
-| Bob does not lock tokens                        | Alice's tokens are refunded after her timelock on Chain A expires.                                   |
-| Alice does not reveal proof                     | Bob's tokens are refunded when his timelock expires. Alice's tokens are also refunded later.         |
-| Alice reveals proof, Bob claims in time         | Alice gets Bob's tokens. Bob can claim Alice's tokens before her timelock expires.                   |
-| Alice reveals proof, Bob does not claim in time | **Worst case for Bob**. Alice keeps Bob's tokens and gets her own back when her timelock expires.    |
+| Scenario                                        | Outcome                                                                                           |
+|-------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| Bob does not lock tokens                        | Alice's tokens are refunded after her timelock on Chain A expires.                                |
+| Alice does not reveal proof                     | Bob's tokens are refunded when his timelock expires. Alice's tokens are also refunded later.      |
+| Alice reveals proof, Bob claims in time         | Alice gets Bob's tokens. Bob can claim Alice's tokens before her timelock expires.                |
+| Alice reveals proof, Bob does not claim in time | **Worst case for Bob**. Alice keeps Bob's tokens and gets her own back when her timelock expires. |
 
 See [Safety Considerations](#safety-considerations) for details on how to configure the timelocks correctly.
 
@@ -190,70 +198,75 @@ The following sections cover each of these concerns, using the Alice and Bob [ex
 
 ### Lock Verification
 
-Before acting on the other party's lock, each party must verify that the lock actually matches what was agreed.
-A mechanical follow of the protocol without this check allows the other side to cheat by posting a lock with the
-wrong amount, token, hashlock, or recipient.
+Before acting on the other party's lock, each party must verify that the lock matches what was agreed.
+Blindly following the protocol without this check allows the counterparty to cheat by posting a lock with the
+wrong amount, token, hashlock, recipient, or expiry.
 
-Each party should check:
+Each party should verify:
 
-* **Amount and token:** the lock holds the expected quantity of the expected token.
-* **Hashlock:** the lock uses the agreed hashlock (same value on both chains).
-* **Recipient:** the lock names the correct recipient.
-* **Timelock:** the expiry is within the agreed ordering (see [Timelock Ordering](#timelock-ordering) and
+* **Amount and token:** The lock holds the expected quantity of the agreed token.
+* **Hashlock:** The lock uses the agreed hashlock, the same value on both chains.
+* **Recipient:** The lock names the correct recipient.
+* **Timelock:** The expiry follows the agreed ordering (see [Timelock Ordering](#timelock-ordering) and
     [Timelock Difference](#timelock-difference)).
 
-Concretely:
+In practice:
 
 * **Before Bob locks** (step 2), Bob verifies Alice's lock on Chain A.
 * **Before Alice reveals the proof** (step 3), Alice verifies Bob's lock on Chain B.
 
 If any check fails, the party should refuse to continue.
-Alice can wait for her own timelock to expire and reclaim her tokens; Bob has not yet locked.
+In that case, Alice can wait for her own timelock to expire and get her tokens refunded,
+while Bob has not yet locked any funds.
 
 ### Timelock Ordering
 
 Alice is the initiator of the swap.
-Since Alice knows the proof from the start, she controls when to reveal it.
-Bob's timelock must expire **before** Alice's timelock to prevent Alice from waiting for her own refund and then still
-claiming Bob's tokens by revealing the proof.
+Because Alice knows the proof from the start, she controls when it is first revealed.
+
+For this reason, Bob's timelock must expire before Alice's timelock.
+Otherwise, Alice could wait until reclaiming her own tokens and then still reveal the proof in time to claim Bob's
+tokens.
 
 ### Timelock Difference
 
 The difference between Bob's timelock expiry and Alice's timelock expiry must be **large enough** for Bob to detect the
-proof on Chain B, submit his claim on Chain A, and get it confirmed.
+proof on Chain B, submit his claim on Chain A, and obtain confirmation.
 
 In the worst case, Alice reveals the proof at the last moment before Bob's lock expires, leaving Bob only this
-difference to react.
+remaining time to react.
 
-The difference should account for:
+The required margin should account for:
 
 * **Finality periods** on both chains (see [Finality](#finality) below).
 * **Observation time** for Bob to detect the proof on Chain B.
 * **Transaction submission and confirmation time** on Chain A.
-* **Possible resubmission** if Bob's claim transaction is not accepted by the network.
+* **Possible resubmission** if Bob's claim transaction is not initially accepted by the network.
 
-If Bob considers the window Alice provided too small, he can refuse to perform the swap and ask Alice to set a longer
-timelock on Chain A.
+If Bob considers the window too short, he can refuse the swap and ask Alice to use a longer timelock on Chain A.
 
 See the [timing diagram](#example) in the example above.
 
 ### Late Proof Revelation
 
 Alice must reveal the proof well before Bob's timelock expires.
-If she reveals it close to that deadline and her claim transaction on Chain B does not confirm in time, Bob gets
-refunded on Chain B while the proof is now public.
-Bob can then use the proof to claim Alice's tokens on Chain A, leaving Alice with nothing.
+
+If she waits until the last moment and her claim transaction on Chain B does not confirm in time, Bob may be refunded on
+Chain B while the proof has already become public.
+
+Bob can then use that proof to claim Alice's tokens on Chain A, leaving Alice with nothing.
 
 ### Finality
 
 Each party must wait for the previous step's transaction to reach <finalization:|finality> on their chain before acting
 on the next step.
 
-In particular, Alice's lock (step 1) must be final before Bob locks, and Bob's lock (step 2) must be final before
+In particular, Alice's _lock_ (step 1) must be final before Bob locks, and Bob's lock (step 2) must be final before
 Alice reveals the proof.
 A <rollback:> at either point could remove a lock after the other party has already acted.
 
-If a claim transaction (steps 3 or 4) is rolled back, the party can resubmit as long as the timelock has not expired.
+On the other hand, if a _claim_ transaction (steps 3 or 4) is rolled back, the party can resubmit as long as the
+timelock has not expired.
 
 ### Front-Running Risk
 

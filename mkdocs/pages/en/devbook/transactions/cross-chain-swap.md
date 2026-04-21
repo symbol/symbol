@@ -88,7 +88,7 @@ Before you start, make sure to:
 
 This tutorial uses a sample HTLC contract deployed on Ethereum as the other side of Symbol's secret lock.
 The contract source is available in the
-[hashed-timelock-contract-ethereum](https://github.com/gimre-xymcity/hashed-timelock-contract-ethereum)
+[hashed-timelock-contract-ethereum](https://github.com/theSymbolSyndicate/hashed-timelock-contract-ethereum)
 repository.
 
 !!! warning "Educational use only"
@@ -304,8 +304,7 @@ Key points in the output:
 * **Line 19:** Bob retrieves the hashlock from the Ethereum contract using `getContract`.
 * **Line 50:** Bob's Symbol secret lock is confirmed. Alice can now claim the XYM.
 * **Line 70:** Alice includes the proof in her secret proof transaction. Once announced, it becomes public on Symbol.
-* **Line 80:** Alice's secret proof is confirmed. Alice receives the 1 XYM, and the proof becomes visible on the
-    Symbol blockchain.
+* **Line 80:** Alice's secret proof is confirmed. Alice receives the 1 XYM.
 * **Line 87:** Bob retrieves the revealed proof from Alice's confirmed transaction on Symbol, then uses it to
     withdraw on Ethereum.
 * **Line 89:** Bob's Ethereum withdrawal is confirmed.
