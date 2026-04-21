@@ -1,8 +1,8 @@
 ---
-title: Atomic Swaps
+title: Atomic Swap
 ---
 
-# Atomic Swaps
+# Atomic Swap
 
 An atomic swap is an exchange of assets between two parties where both transfers either succeed together or fail
 together.

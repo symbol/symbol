@@ -97,9 +97,6 @@ Hardware wallet
     They typically only provide signing functionality, so they must be paired with a software <wallet:> or
     application that creates the <transactions:> and announces them.
 
-HTLC
-:   Hashed Time-Lock Contract.
-
 ICO
 :   Initial Coin Offering.
 
