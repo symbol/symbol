@@ -50,15 +50,14 @@ async function waitForStatus(hash, expectedStatus, label) {
 
 			if (status.group === expectedStatus) {
 				console.log(
-					`${label} ${expectedStatus} ` +
-					`in ${attempts} seconds`
+					`${label} ${expectedStatus} in ${attempts} seconds`
 				);
 				return;
 			}
 
 		} catch (error) {
 			if (error.status === 404) {
-				// Transaction status not yet available
+				console.log('  Transaction status: not yet available');
 			} else {
 				throw error;
 			}

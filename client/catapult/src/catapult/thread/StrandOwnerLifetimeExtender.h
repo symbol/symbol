@@ -68,7 +68,7 @@ namespace catapult { namespace thread {
 #else
 		template<typename THandler>
 		static auto MakeStrandCheckHandler(const Strand&, THandler handler) {
-			return std::move(handler);
+			return handler;
 		}
 #endif
 

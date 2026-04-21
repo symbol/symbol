@@ -96,7 +96,7 @@ but applications will probably want to use more fine-grained control.
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:62:82', 'js:76:94']) }}
+{{ tutorial.code_snippet(['py:62:82', 'js:75:94']) }}
 
 This example includes both <private keys:> in one script for simplicity.
 In practice, each party signs on their own machine.
@@ -111,14 +111,14 @@ The addresses for both accounts are derived from their public keys using the fac
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:85:103', 'js:97:115']) }}
+{{ tutorial.code_snippet(['py:85:103', 'js:96:115']) }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](./transfer.md) tutorial.
 
 ### Creating Embedded Transactions
 
-{{ tutorial.code_snippet(['py:105:126', 'js:117:140']) }}
+{{ tutorial.code_snippet(['py:105:126', 'js:116:140']) }}
 
 The <embedded transactions:> define the operations to execute atomically.
 Each embedded transaction specifies:
@@ -126,8 +126,7 @@ Each embedded transaction specifies:
 * **Type:** All transaction types can be embedded within aggregates (except other aggregates).
   For embedded transfers, use `transfer_transaction_v1`, the same as for basic transfer transactions.
 
-* **Signer public key:** The account that would sign this transaction if it were announced
-  independently.
+* **Signer public key:** The account that would sign this transaction if it were announced independently.
 
 * **Transaction-specific fields:** All fields specific to the transaction type must be provided.
   For transfers, this includes the recipient address and the <mosaics:> to send.
@@ -149,7 +148,7 @@ The example creates two <transfer transactions:> for the swap:
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:128:144', 'js:142:159']) }}
+{{ tutorial.code_snippet(['py:128:144', 'js:141:159']) }}
 
 Once the embedded transactions are prepared, create the bonded aggregate transaction that wraps them:
 
@@ -157,12 +156,6 @@ Once the embedded transactions are prepared, create the bonded aggregate transac
 
 * **Signer public key:** The account initiating the aggregate.
   This account announces the transaction and pays the transaction fee.
-
-    !!! tip "Sharing transaction fees"
-
-        While the signer pays the entire fee upfront, other participants can contribute to the cost within the
-        aggregate.
-        For more details, see [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md).
 
 * **Deadline:** The timestamp, in [network time](./transfer.md#fetching-network-time), after which the transaction
   expires and can no longer be confirmed.
@@ -173,12 +166,12 @@ Once the embedded transactions are prepared, create the bonded aggregate transac
 
 * **Transactions:** The array of embedded transactions to execute.
 
-The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus
-space reserved for one cosignature (104 bytes).
+The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus space reserved
+for one cosignature (104 bytes).
 
 ### Signing the Bonded Transaction
 
-{{ tutorial.code_snippet(['py:146:154', 'js:161:170']) }}
+{{ tutorial.code_snippet(['py:146:154', 'js:160:170']) }}
 
 Account A signs the bonded transaction, producing the main signature and finalizing the transaction hash.
 
@@ -186,7 +179,7 @@ This hash is required for the next step: creating a hash lock transaction.
 
 ### Creating the Hash Lock
 
-{{ tutorial.code_snippet(['py:156:182', 'js:172:201']) }}
+{{ tutorial.code_snippet(['py:156:182', 'js:171:201']) }}
 
 Before announcing a bonded aggregate, a hash lock transaction must be created and confirmed.
 The hash lock serves as a deposit to prevent spam and ensure network resources are not exhausted by unfinished
@@ -196,8 +189,8 @@ The hash lock transaction specifies:
 
 * **Type:** Use `hash_lock_transaction_v1`.
 
-* **Mosaic:** The deposit amount (10 XYM). This deposit is locked temporarily while waiting for
-  cosignatures.
+* **Mosaic:** The deposit amount (10 XYM).
+  This deposit is locked temporarily while waiting for cosignatures.
 
 * **Duration:** The number of blocks the deposit remains locked (100 blocks in this example).
   If all cosignatures are collected and the bonded aggregate confirms before the duration expires,
@@ -226,7 +219,7 @@ cosignatures.
 
 ### Recovering the Transaction
 
-{{ tutorial.code_snippet(['py:194:217', 'js:212:238']) }}
+{{ tutorial.code_snippet(['py:194:217', 'js:211:238']) }}
 
 Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable on-chain
 coordination.
@@ -241,7 +234,7 @@ their content.
 
 ### Verifying the Transaction
 
-{{ tutorial.code_snippet(['py:219:229', 'js:240:250']) }}
+{{ tutorial.code_snippet(['py:219:229', 'js:239:250']) }}
 
 Once a transaction is found, Account B uses its hash to fetch the full details (including embedded transactions) from
 <get:/transactions/partial/{transactionId}>.
@@ -257,7 +250,7 @@ recipients, and mosaics to ensure the swap terms are correct.
 
 ### Cosigning the Transaction
 
-{{ tutorial.code_snippet(['py:231:246', 'js:252:268']) }}
+{{ tutorial.code_snippet(['py:231:246', 'js:251:268']) }}
 
 Account B cosigns the transaction using <dy:SymbolFacade.cosignTransactionHash> with the transaction hash and the
 `detached` parameter set to `true`.
@@ -281,7 +274,7 @@ the network automatically processes the bonded aggregate and includes it in a bl
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:248:252', 'js:270:274']) }}
+{{ tutorial.code_snippet(['py:248:252', 'js:269:273']) }}
 
 The `wait_for_status` helper function polls <get:/transactionStatus/{hash}> until the transaction is confirmed or fails.
 
@@ -339,7 +332,7 @@ This tutorial showed how to:
 
 * **Monitor with WebSockets:** Replace polling with real-time notifications using the
   [Listening to Bonded Transaction Flow](../websockets/listen-bonded-transaction-flow.md) tutorial.
-* **Sponsor fees:** Let one account pay transaction fees on behalf of another using the
-  [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
 * **Use complete aggregates:** If parties can coordinate off-chain, skip the hash lock with the
   [Creating a Complete Aggregate Transaction](./complete-aggregate.md) tutorial.
+* **Sponsor fees:** Let one account pay transaction fees on behalf of another following the
+  [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
