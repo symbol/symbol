@@ -89,7 +89,7 @@ The tutorial then proceeds to:
 
 The tutorial starts by configuring the accounts involved in the example.
 
-{{ tutorial.code_snippet(['py:112:130', 'js:123:145']) }}
+{{ tutorial.code_snippet(['py:112:128', 'js:123:142']) }}
 
 The code defines:
 
@@ -100,10 +100,11 @@ The code defines:
     Its address can be provided through the `TARGET_ADDRESS` environment variable as a Symbol testnet address.
 - the **mosaic identifier**, read from `MOSAIC_ID` as 16 hexadecimal characters.
 - the **restriction name**, read from `RESTRICTION_NAME` as a string.
-- the corresponding **restriction key**, derived from the restriction name by hashing it with SHA3-256 and taking the
-    first four bytes of the hash.
+- the corresponding **restriction key**, derived from the restriction name using the SDK's
+    <dy:Restriction.mosaicRestrictionGenerateKey> function, which hashes the name with SHA3-256 and takes the first
+    eight bytes of the hash.
     This approach allows applications to use human-readable names while producing deterministic keys.
-    Any 32-bit number can also be used directly as a restriction key.
+    Any 64-bit number can also be used directly as a restriction key.
 
 If any of these values is not provided through an environment variable, a default value is used.
 
@@ -112,14 +113,14 @@ If the default one is used, it may already be funded.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:133:151', 'js:148:166']) }}
+{{ tutorial.code_snippet(['py:131:149', 'js:145:163']) }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Enabling the Global Restriction
 
-{{ tutorial.code_snippet(['py:153:166', 'js:168:182']) }}
+{{ tutorial.code_snippet(['py:151:164', 'js:165:179']) }}
 
 The code first checks whether the mosaic already defines a global restriction for the configured key:
 
@@ -168,7 +169,7 @@ Depending on the current value of the restriction for the target account,
 a transaction is created that authorizes or deauthorizes the account.
 This transaction is added to the list of transactions to announce.
 
-{{ tutorial.code_snippet(['py:169:184', 'js:185:201']) }}
+{{ tutorial.code_snippet(['py:167:182', 'js:182:198']) }}
 
 - If the account does not yet have a restriction value, or the value is not `1`, the code assigns the value `1`,
     authorizing it to use the mosaic.
@@ -191,7 +192,7 @@ When no previous restriction exists, the special value `0xFFFFFFFF_FFFFFFFF` mus
 All configuration transactions created above are bundled into a single <complete aggregate transaction:>,
 so the user does not need to wait for them to be confirmed individually.
 
-{{ tutorial.code_snippet(['py:187:196', 'js:204:214']) }}
+{{ tutorial.code_snippet(['py:185:194', 'js:201:211']) }}
 
 Only the aggregate transaction pays fees, so <embedded transactions:> do not use the `fee` field.
 
@@ -200,14 +201,14 @@ Only the aggregate transaction pays fees, so <embedded transactions:> do not use
 The constructed aggregate transaction is signed, announced, and confirmed as described in the
 [Transfer transaction](../transactions/transfer.md) tutorial.
 
-{{ tutorial.code_snippet(['py:199:204', 'js:217:222']) }}
+{{ tutorial.code_snippet(['py:197:202', 'js:214:219']) }}
 
 ### Sending a Test Transfer
 
 Finally, the tutorial attempts to send one unit of the mosaic from the owner account to the target account
 using a standard <transfer transaction:>.
 
-{{ tutorial.code_snippet(['py:207:224', 'js:225:243']) }}
+{{ tutorial.code_snippet(['py:205:222', 'js:222:240']) }}
 
 If the target account currently satisfies the restriction (`security_level ≥ 1`),
 the transfer is confirmed successfully.

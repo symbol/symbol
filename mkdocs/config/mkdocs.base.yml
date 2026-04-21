@@ -167,6 +167,7 @@ extra:
       - Metadata
       - Merkle
       - IdGenerator
+      - Restriction
       - ripemd160
 copyright: >
   Copyright &copy; 2025 The Symbol Syndicate
