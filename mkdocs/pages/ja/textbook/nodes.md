@@ -17,7 +17,7 @@ Symbol ノードはいくつものソフトウェアコンポーネントで構�
 
 最も一般的な構成は「ロール」と呼ばれます。下記がその説明です。
 
-## ノード構造
+## ノード構造 {: #node-structure }
 
 ```dot
 digraph SymbolNode {
@@ -32,11 +32,11 @@ digraph SymbolNode {
 
     // Core components
     Catapult   [label="Catapult" pos="0,3!" URL="#catapult"];
-    REST       [label="REST\nゲートウェイ" pos="6,3!" URL="#rest"];
-    RocksDB    [label="ステート DB\n(RocksDB)" pos="1.5,1!" shape=cylinder URL="#_3"];
-    Disk       [label="ブロック DB\n(プレーンファイル)" pos="1.5,0!" shape=cylinder URL="#_4"];
-    MongoDB    [label="フル DB\n(MongoDB)" pos="6,0!" shape=cylinder URL="#_6"];
-    Broker     [label="ブローカー" pos="4,1.5!" URL="#_5"];
+    REST       [label="REST\nゲートウェイ" pos="6,3!" URL="#rest-gateway"];
+    RocksDB    [label="ステート DB\n(RocksDB)" pos="1.5,1!" shape=cylinder URL="#state-database"];
+    Disk       [label="ブロック DB\n(プレーンファイル)" pos="1.5,0!" shape=cylinder URL="#blocks-database"];
+    MongoDB    [label="フル DB\n(MongoDB)" pos="6,0!" shape=cylinder URL="#blocks-database"];
+    Broker     [label="ブローカー" pos="4,1.5!" URL="#broker"];
 
     // Waypoints
     RocksDBWP  [shape=point width=0 pos="0.125,1!"];
@@ -67,34 +67,34 @@ digraph SymbolNode {
 }
 ```
 
-### :octicons-terminal-24: Catapult
+### :octicons-terminal-24: Catapult {: #catapult }
 
 [Catapult](default:Catapult) クライアントは他のノードと
-[後述するピアツーピア通信](#_11) で直接通信します。
+[後述するピアツーピア通信](#peer-to-peer-communication) で直接通信します。
 パフォーマンス上の理由から、
-[ブロックデータベース](#_4) と [ブロックチェーン状態データベース](#_3) を分離して保持しています。
+[ブロックデータベース](#blocks-database) と [ブロックチェーン状態データベース](#state-database) を分離して保持しています。
 
-また、[REST ゲートウェイ](#rest) からの基本的な問い合わせ
+また、[REST ゲートウェイ](#rest-gateway) からの基本的な問い合わせ
 （ノードの公開鍵、ピアリスト、ネットワーク設定、時刻など）にも応答します。
 
-### :octicons-database-24: 状態データベース
+### :octicons-database-24: 状態データベース {: #state-database }
 
 Catapult は [RocksDB](http://rocksdb.org) というキー・バリュー型データベースを使用して、
 ブロックチェーンの現在の状態を保持しています。
 ここにはアカウント残高、アクティブなモザイク、ネームスペースなどが含まれています。
 
-### :octicons-database-24: ブロックデータベース
+### :octicons-database-24: ブロックデータベース {: #blocks-database }
 
 すべての [ブロック](default:ブロック) はプレーンファイルとしてディスク上に保存され、
 [レシート](default:レシート)、[未承認トランザクションプール](default:未承認トランザクションプール)、
-そして完了待ちの [ボンデッドアグリゲートトランザクション](default:ボンデッドアグリゲートトランザクション) が保存されています。
+そして完了待ちの [アグリゲートボンデッドトランザクション](default:アグリゲートボンデッドトランザクション) が保存されています。
 
-### :octicons-terminal-24: REST ゲートウェイ
+### :octicons-terminal-24: REST ゲートウェイ {: #rest-gateway }
 
 外部クライアント（アプリやウォレットなど）がブロックチェーンとやり取りするための HTTP API を提供する。
 
 多くの問い合わせは、ブロックや状態、未処理トランザクションを保存している
-自身の [フルデータベース](#_6) から直接応答されます。
+自身の [フルデータベース](#blocks-database) から直接応答されます。
 ノード自体やネットワークに関する問い合わせは [Catapult](default:Catapult) エンジンへ転送されます。
 
 REST ゲートウェイは WebSocket 接続もサポートしており、
@@ -104,10 +104,10 @@ REST ゲートウェイは WebSocket 接続もサポートしており、
 これらのイベントは [ZeroMQ](#zero-mq) によりゲートウェイに送信され、
 そこから購読者へ転送されます。
 
-### :octicons-terminal-24: ブローカー
+### :octicons-terminal-24: ブローカー {: #broker }
 
-このコンポーネントは、[ブロックデータベース](#_4) からの更新を
-[REST ゲートウェイ](#rest) が使用する [フルデータベース](#_6) にコピーします。
+このコンポーネントは、[ブロックデータベース](#blocks-database) からの更新を
+[REST ゲートウェイ](#rest-gateway) が使用する [フルデータベース](#blocks-database) にコピーします。
 
 有効化されている場合、[Catapult](default:Catapult) はスプーラーを使用して、
 ブロックデータベースの変更を非同期的にブローカーへ通知する。
@@ -117,34 +117,34 @@ Catapult の時間に敏感な処理を妨げないようにしています。
 変更が検出されるとすぐに、ブローカーは [ZeroMQ](#zero-mq) 経由で REST ゲートウェイにも通知し、
 購読中のアプリケーションがタイムリーに更新を受け取れるようにします。
 
-### :octicons-terminal-24: Zero MQ
+### :octicons-terminal-24: Zero MQ {: #zero-mq }
 
 [ZeroMQ](https://zeromq.org/) は、
-[ブローカー](#_5) から [REST ゲートウェイ](#rest) へ、
+[ブローカー](#broker) から [REST ゲートウェイ](#rest-gateway) へ、
 さらに最終的には購読アプリケーションへリアルタイムでイベントや状態変化を送信するためのメッセージングシステムです。
 
 通常の HTTP リクエストとは異なり、ZeroMQ はプッシュ型通信を実現します。
 これによりクライアントはポーリングすることなく、
 新しいブロック、承認済みトランザクション、アカウント状態の変更などのイベントを即座に受け取れます。
 
-### :octicons-database-24: フルデータベース
+### :octicons-database-24: フルデータベース {: #full-database }
 
-[Catapult](default:Catapult) の [ブロックデータベース](#_3) と
-[状態データベース](#_4) は高スループットに最適化されている。
+[Catapult](default:Catapult) の [ブロックデータベース](#blocks-database) と
+[状態データベース](#state-database) は高スループットに最適化されている。
 
 並行して、ノードはこのデータのレプリカを [MongoDB](https://www.mongodb.com) に保持し、
-[REST ゲートウェイ](#rest) が受け取る複雑な問い合わせを効率的に処理できるようにしています。
+[REST ゲートウェイ](#rest-gateway) が受け取る複雑な問い合わせを効率的に処理できるようにしています。
 
-[フルデータベース](#_6) への書き込みを行うのは [ブローカー](#_5) のみであり、
+[フルデータベース](#blocks-database) への書き込みを行うのは [ブローカー](#broker) のみであり、
 ブロックチェーンの基礎データと同期を保っています。
 
-## ロール
+## ロール {: #roles }
 
 Symbol ノードは高度に設定可能で、有効化されるコンポーネントによってさまざまなロールを担うことができます。
 
 各ロールでは、有効なコンポーネントに応じてハードウェア要件が異なります。
 
-### ピアノード
+### ピアノード {: #peer-nodes }
 
 ピアノード
 :   ピアノードは新しいブロックを生成し、受信したトランザクションとブロックを検証して、
@@ -157,33 +157,33 @@ Symbol ノードは高度に設定可能で、有効化されるコンポーネ�
 ピアノードは他のノードとだけ通信し、外部 API は公開しません。
 ただし API ロールも兼ねる場合はその限りではありません。
 
-### API ノード
+### API ノード {: #api-nodes }
 
 API ノード
 :   API ノードは、外部クライアント（ウォレット、エクスプローラ、アプリケーションなど）が
     ネットワークとやり取りするための公開 [REST](https://ja.wikipedia.org/wiki/Representational_State_Transfer)
     インターフェイスを提供します。
 
-このロールでは [ノード構造](#_2) で説明したすべてのコンポーネントを有効化する必要があります。
+このロールでは [ノード構造](#node-structure) で説明したすべてのコンポーネントを有効化する必要があります。
 すべての API ノードはピアノードでもあります。
 
-また、[ボンデッドアグリゲートトランザクション](default:ボンデッドアグリゲートトランザクション) を保存し、
+また、[アグリゲートボンデッドトランザクション](default:アグリゲートボンデッドトランザクション) を保存し、
 トランザクションが完了して処理可能になるまで連署を収集する。
 
-### 投票ノード
+### 投票ノード {: #voting-nodes }
 
 投票ノード
 :   投票ノードは [ファイナライズ](default:ファイナライズ) プロセスに参加し、ブロックを不変にする。
 
 投票ノードはピアノードまたは API ノードのどちらでもあり得ます。つまり API を公開していても公開していなくても構いません。
 
-### デュアルノード
+### デュアルノード {: #dual-nodes }
 
 デュアルノード
 :   [ハーベスティング](default:ハーベスティング) が有効化された API ノードを、
     しばしば「デュアルノード」と呼びます。
 
-### ライト API ノード
+### ライト API ノード {: #light-api-nodes }
 
 ライト API ノード
 :   [Catapult](default:Catapult) の限定的な HTTP API が公開されているノードを「ライト API ノード」と呼ぶ。
@@ -203,7 +203,7 @@ API ノード
 * <get:/node/server>
 * <get:/node/unlockedaccount>
 
-## ピアツーピア通信
+## ピアツーピア通信 {: #peer-to-peer-communication }
 
 Symbol ノードは分散型のピアツーピア方式で直接通信を行う。
 中央の調整者は存在せず、各ノードは他のノードの一部と接続して分散ネットワークを形成します。
@@ -242,7 +242,7 @@ graph P2PNetwork {
 ただし、このリストに載っているノードが特別扱いされることはありません。
 一度接続されると、すべてのピアはプロトコル上平等に扱われます。
 
-### ノードの評価（レピュテーション）
+### ノードの評価（レピュテーション） {: #node-reputation }
 
 Symbol のような分散システムでは、ノードはどのピアを信頼し接続を維持するかを自律的に判断しなければならないです。
 固定されたホワイトリストや手動で管理された接続に依存する代わりに、

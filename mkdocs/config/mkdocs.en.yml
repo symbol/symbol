@@ -113,6 +113,8 @@ nav:
               - devbook/transactions/bonded-aggregate.md
               - devbook/transactions/transaction-batching.md
               - devbook/transactions/fee-sponsorship.md
+              - devbook/transactions/atomic-swap.md
+              - devbook/transactions/cross-chain-swap.md
           - Namespaces:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
@@ -165,6 +167,7 @@ nav:
       - textbook/metadata.md
       - textbook/nodes.md
       - textbook/restrictions.md
+      - textbook/cross-chain-swaps.md
       - textbook/harvesting.md
       - textbook/catapult.md
       - textbook/cats.md
