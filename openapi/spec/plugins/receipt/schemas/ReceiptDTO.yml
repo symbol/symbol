@@ -8,4 +8,4 @@ properties:
     type: integer
     description: Version of the receipt format.
   type:
-    $ref: "./ReceiptTypeEnum.yml"
+    $ref: ./ReceiptTypeEnum.yml

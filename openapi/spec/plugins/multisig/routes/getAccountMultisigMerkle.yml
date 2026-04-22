@@ -18,13 +18,13 @@ description: |
   exists for the supplied address.
 operationId: getAccountMultisigMerkle
 parameters:
-  - $ref: "../../../parameters/path/addressPath.yml"
+  - $ref: ../../../parameters/path/addressPath.yml
 responses:
-  "200":
+  '200':
     description: Merkle proof for the requested multisig state entry.
     content:
       application/json:
         schema:
-          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"
+          $ref: ../../../schemas/MerkleStateInfoDTO.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

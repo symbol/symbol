@@ -5,7 +5,7 @@ required:
   - names
 properties:
   address:
-    $ref: "../../../schemas/AddressHex.yml"
+    $ref: ../../../schemas/AddressHex.yml
     description: Account address for which namespace names were resolved.
   names:
     type: array

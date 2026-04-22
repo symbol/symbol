@@ -7,4 +7,4 @@ properties:
     type: array
     description: Array of voting key link entries.
     items:
-      $ref: "./AccountLinkVotingKeyDTO.yml"
+      $ref: ./AccountLinkVotingKeyDTO.yml

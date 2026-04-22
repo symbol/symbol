@@ -4,4 +4,4 @@ properties:
     type: string
     description: Maximum metadata value size.
     examples:
-      - "1024"
+      - '1024'

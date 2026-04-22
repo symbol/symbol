@@ -6,11 +6,11 @@ required:
   - tree
 properties:
   raw:
-    $ref: "./MerkleTreeRaw.yml"
+    $ref: ./MerkleTreeRaw.yml
   tree:
     description: Merkle tree parsed from Merkle tree raw.
     type: array
     items:
       anyOf:
-        - $ref: "./MerkleTreeBranchDTO.yml"
-        - $ref: "./MerkleTreeLeafDTO.yml"
+        - $ref: ./MerkleTreeBranchDTO.yml
+        - $ref: ./MerkleTreeLeafDTO.yml

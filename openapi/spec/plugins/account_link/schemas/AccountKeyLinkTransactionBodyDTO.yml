@@ -5,6 +5,6 @@ required:
   - linkAction
 properties:
   linkedPublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+    $ref: ../../../schemas/PublicKey.yml
   linkAction:
-    $ref: "../../../schemas/LinkActionEnum.yml"
+    $ref: ../../../schemas/LinkActionEnum.yml

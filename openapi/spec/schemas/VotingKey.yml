@@ -1,5 +1,5 @@
 type: string
-pattern: '^[0-9a-fA-F]+$'
+pattern: ^[0-9a-fA-F]+$
 description: 32-byte voting public key used for finalization voting.
 minLength: 64
 maxLength: 64

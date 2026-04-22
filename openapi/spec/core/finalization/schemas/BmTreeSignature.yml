@@ -8,6 +8,6 @@ required:
   - bottom
 properties:
   root:
-    $ref: "./ParentPublicKeySignaturePair.yml"
+    $ref: ./ParentPublicKeySignaturePair.yml
   bottom:
-    $ref: "./ParentPublicKeySignaturePair.yml"
+    $ref: ./ParentPublicKeySignaturePair.yml

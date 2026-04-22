@@ -7,10 +7,10 @@ required:
   - hash
 properties:
   mosaicId:
-    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+    $ref: ../../../schemas/UnresolvedMosaicId.yml
   amount:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
   duration:
-    $ref: "../../../schemas/BlockDuration.yml"
+    $ref: ../../../schemas/BlockDuration.yml
   hash:
-    $ref: "../../../schemas/Hash256.yml"
+    $ref: ../../../schemas/Hash256.yml

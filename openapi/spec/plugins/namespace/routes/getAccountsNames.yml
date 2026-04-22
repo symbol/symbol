@@ -8,25 +8,25 @@ description: |
   For each address, the response returns the namespace names currently linked to that account.
 operationId: getAccountsNames
 requestBody:
-  $ref: "../../../request_bodies/addresses.yml"
+  $ref: ../../../request_bodies/addresses.yml
 responses:
-  "200":
+  '200':
     description: Account names successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/AccountsNamesDTO.yml"
+          $ref: ../schemas/AccountsNamesDTO.yml
         examples:
           default:
             value:
               accountNames:
-                - address: "68B57AA57ECA7B613947ECCF82866A5C106B8E1D619CFBA7"
+                - address: 68B57AA57ECA7B613947ECCF82866A5C106B8E1D619CFBA7
                   names:
-                    - "nononon"
-                - address: "6839F2F26F01622E9B05FF059B97443BDD366B8E992CF8DA"
+                    - nononon
+                - address: 6839F2F26F01622E9B05FF059B97443BDD366B8E992CF8DA
                   names:
-                    - "maromaro1989"
-  "400":
-    $ref : "../../../responses/InvalidContent.yml"
-  "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+                    - maromaro1989
+  '400':
+    $ref: ../../../responses/InvalidContent.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

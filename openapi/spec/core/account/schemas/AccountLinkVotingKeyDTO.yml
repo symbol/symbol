@@ -6,10 +6,10 @@ required:
   - endEpoch
 properties:
   publicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+    $ref: ../../../schemas/PublicKey.yml
   startEpoch:
-    $ref: "../../../schemas/FinalizationEpoch.yml"
+    $ref: ../../../schemas/FinalizationEpoch.yml
     description: First finalization epoch for which this key is valid.
   endEpoch:
-    $ref: "../../../schemas/FinalizationEpoch.yml"
+    $ref: ../../../schemas/FinalizationEpoch.yml
     description: Last finalization epoch for which this key is valid.

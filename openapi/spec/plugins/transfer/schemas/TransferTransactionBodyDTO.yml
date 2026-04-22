@@ -5,13 +5,13 @@ required:
   - mosaics
 properties:
   recipientAddress:
-    $ref: "../../../schemas/UnresolvedAddress.yml"
+    $ref: ../../../schemas/UnresolvedAddress.yml
   mosaics:
     type: array
     description: |
       Array of mosaics sent to the recipient.
     items:
-      $ref: "../../../schemas/UnresolvedMosaic.yml"
+      $ref: ../../../schemas/UnresolvedMosaic.yml
   message:
     type: string
     description: Optional transfer message payload, encoded as a hexadecimal string.

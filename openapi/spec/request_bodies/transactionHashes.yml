@@ -2,5 +2,5 @@ description: Request body containing an array of transaction hashes to look up.
 content:
   application/json:
     schema:
-      $ref: "./schemas/transactionHashes.yml"
+      $ref: ./schemas/transactionHashes.yml
 required: true

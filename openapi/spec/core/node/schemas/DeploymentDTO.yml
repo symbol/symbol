@@ -10,11 +10,11 @@ properties:
     type: string
     description: The tool used to create, maintain and deploy the node.
     examples:
-      - 'symbol-shoestring'
+      - symbol-shoestring
   deploymentToolVersion:
     type: string
     examples:
-      - '1.0.6'
+      - 1.0.6
     description: The version of the tool used to create, maintain and deploy the node.
   lastUpdatedDate:
     type: string

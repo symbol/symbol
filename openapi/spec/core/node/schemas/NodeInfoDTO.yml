@@ -18,18 +18,18 @@ properties:
     examples:
       - 16777993
   publicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+    $ref: ../../../schemas/PublicKey.yml
   networkGenerationHashSeed:
-    $ref: "../../../schemas/Hash256.yml"
+    $ref: ../../../schemas/Hash256.yml
   roles:
-    $ref: "./RolesTypeEnum.yml"
+    $ref: ./RolesTypeEnum.yml
   port:
     type: integer
     description: Port used for the communication.
     examples:
       - 7900
   networkIdentifier:
-    $ref: "../../entity/schemas/NetworkTypeEnum.yml"
+    $ref: ../../entity/schemas/NetworkTypeEnum.yml
   friendlyName:
     type: string
     description: Node friendly name.
@@ -41,4 +41,4 @@ properties:
     examples:
       - 127.0.0.1
   nodePublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+    $ref: ../../../schemas/PublicKey.yml

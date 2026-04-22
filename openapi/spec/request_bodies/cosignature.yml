@@ -2,5 +2,5 @@ description: Request body for announcing one detached cosignature for an aggrega
 content:
   application/json:
     schema:
-      $ref: "./schemas/cosignature.yml"
+      $ref: ./schemas/cosignature.yml
 required: true

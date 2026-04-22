@@ -4,4 +4,4 @@ properties:
     type: string
     description: Maximum number of account restriction values.
     examples:
-      - "100"
+      - '100'

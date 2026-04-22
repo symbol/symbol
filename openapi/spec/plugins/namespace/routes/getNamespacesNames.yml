@@ -11,9 +11,9 @@ description: |
   response.
 operationId: getNamespacesNames
 requestBody:
-  $ref: "../../../request_bodies/namespaceIds.yml"
+  $ref: ../../../request_bodies/namespaceIds.yml
 responses:
-  "200":
+  '200':
     description: Namespace names successfully resolved.
     content:
       application/json:
@@ -21,20 +21,20 @@ responses:
           type: array
           description: Array of resolved namespace name entries.
           items:
-            $ref: "../schemas/NamespaceNameDTO.yml"
+            $ref: ../schemas/NamespaceNameDTO.yml
         examples:
           subnamespaceWithParent:
             value:
-              - id: "E74B99BA41F4AFEE"
-                name: "xym"
-                parentId: "A95F1F8A96159516"
-              - id: "A95F1F8A96159516"
-                name: "symbol"
+              - id: E74B99BA41F4AFEE
+                name: xym
+                parentId: A95F1F8A96159516
+              - id: A95F1F8A96159516
+                name: symbol
           rootNamespace:
             value:
-              - id: "A95F1F8A96159516"
-                name: "symbol"
-  "400":
-    $ref : "../../../responses/InvalidContent.yml"
-  "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+              - id: A95F1F8A96159516
+                name: symbol
+  '400':
+    $ref: ../../../responses/InvalidContent.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

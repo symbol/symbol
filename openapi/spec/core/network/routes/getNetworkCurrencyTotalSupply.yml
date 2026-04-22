@@ -12,7 +12,7 @@ description: |
 
 operationId: getTotalCurrencySupply
 responses:
-  "200":
+  '200':
     description: |
       Successful response containing the total currency supply.
 
@@ -22,6 +22,6 @@ responses:
       text/plain:
         schema:
           type: string
-          pattern: '^\d+\.\d+$'
+          pattern: ^\d+\.\d+$
           examples:
-            - "7842928625.000000"
+            - '7842928625.000000'

@@ -6,7 +6,7 @@ description: |
 required: true
 schema:
   type: string
-  pattern: '^(?:[0-9a-fA-F]{64}|[A-Z2-7]{39})$'
+  pattern: ^(?:[0-9a-fA-F]{64}|[A-Z2-7]{39})$
 examples:
   testnetAddress:
     summary: Testnet address (Base32, prefix T)

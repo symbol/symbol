@@ -4,12 +4,12 @@ summary: Get the node information
 description: Supplies additional information about the application running on a node.
 operationId: getNodeInfo
 responses:
-  "200":
+  '200':
     description: Node information successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/NodeInfoDTO.yml"
+          $ref: ../schemas/NodeInfoDTO.yml
         examples:
           nodeInfo:
             summary: Example node info
@@ -21,4 +21,4 @@ responses:
               port: 7900
               networkIdentifier: 152
               friendlyName: api-node-0
-              host: "127.0.0.1"
+              host: 127.0.0.1

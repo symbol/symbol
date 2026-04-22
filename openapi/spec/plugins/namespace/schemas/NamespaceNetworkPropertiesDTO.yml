@@ -5,29 +5,29 @@ properties:
     type: string
     description: Maximum namespace name size.
     examples:
-      - "64"
+      - '64'
   maxChildNamespaces:
     type: string
     description: Maximum number of children for a root namespace.
     examples:
-      - "100"
+      - '100'
   maxNamespaceDepth:
     type: string
     description: Maximum namespace depth.
     examples:
-      - "3"
+      - '3'
   minNamespaceDuration:
-    type: string # utils::BlockSpan
+    type: string  # utils::BlockSpan
     description: Minimum namespace duration.
     examples:
       - 30d
   maxNamespaceDuration:
-    type: string # utils::BlockSpan
+    type: string  # utils::BlockSpan
     description: Maximum namespace duration.
     examples:
       - 1825d
   namespaceGracePeriodDuration:
-    type: string # utils::BlockSpan
+    type: string  # utils::BlockSpan
     description: Grace period during which time only the previous owner can renew an expired namespace.
     examples:
       - 30d
@@ -35,22 +35,22 @@ properties:
     type: string
     description: Comma-separated list of reserved root namespace names that cannot be claimed.
     examples:
-      - "symbol, symbl, xym, xem, nem, user, account, org, com, biz, net, edu, mil, gov, info"
+      - symbol, symbl, xym, xem, nem, user, account, org, com, biz, net, edu, mil, gov, info
   namespaceRentalFeeSinkAddressV1:
-    $ref: "../../../schemas/Address.yml"
+    $ref: ../../../schemas/Address.yml
     description: Legacy (V1) address (in Base32 format) of the namespace rental fee sink. May be absent on newer networks.
   namespaceRentalFeeSinkAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: ../../../schemas/Address.yml
     description: Address of the namespace rental fee sink account.
     examples:
       - NCVORTEX4XD5IQASZQEHDWUXT33XBOTBMKFDCLI
   rootNamespaceRentalFeePerBlock:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Root namespace rental fee per block in atomic units.
     examples:
-      - "2"
+      - '2'
   childNamespaceRentalFee:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Child namespace rental fee in atomic units.
     examples:
-      - "100000"
+      - '100000'

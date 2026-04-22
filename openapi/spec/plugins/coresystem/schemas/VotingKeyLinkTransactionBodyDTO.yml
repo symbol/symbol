@@ -7,10 +7,10 @@ required:
   - linkAction
 properties:
   linkedPublicKey:
-    $ref: "../../../schemas/VotingKey.yml"
+    $ref: ../../../schemas/VotingKey.yml
   startEpoch:
-    $ref: "../../../schemas/FinalizationEpoch.yml"
+    $ref: ../../../schemas/FinalizationEpoch.yml
   endEpoch:
-    $ref: "../../../schemas/FinalizationEpoch.yml"
+    $ref: ../../../schemas/FinalizationEpoch.yml
   linkAction:
-    $ref: "../../../schemas/LinkActionEnum.yml"
+    $ref: ../../../schemas/LinkActionEnum.yml

@@ -9,5 +9,5 @@ description: |
   [Technical Reference](https://symbol.github.io/symbol-technicalref/main.pdf) section 8.1.
   Represented as a string to preserve precision (unsigned 64-bit integer).
 examples:
-  - "100000000000000"
-  - "26453656336676"
+  - '100000000000000'
+  - '26453656336676'

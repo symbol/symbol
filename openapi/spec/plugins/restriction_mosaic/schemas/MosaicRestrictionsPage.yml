@@ -9,7 +9,7 @@ properties:
     description: Array of mosaic restrictions.
     items:
       anyOf:
-      - $ref: "./MosaicAddressRestrictionDTO.yml"
-      - $ref: "./MosaicGlobalRestrictionDTO.yml"
+        - $ref: ./MosaicAddressRestrictionDTO.yml
+        - $ref: ./MosaicGlobalRestrictionDTO.yml
   pagination:
-    $ref: "../../../schemas/Pagination.yml"
+    $ref: ../../../schemas/Pagination.yml

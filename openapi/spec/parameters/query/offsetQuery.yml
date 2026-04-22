@@ -6,7 +6,7 @@ description: |
   - `orderBy=id`: use the entry's `id` (ObjectId, 24-char hex).
   - `orderBy=height`: use the block height (string, e.g. `"17592"`).
   - `orderBy=balance`: use the mosaic balance amount (string, e.g. `"1000000"`).
-  
+
   Allowed `orderBy` values depend on the endpoint. If `orderBy` is omitted, `id` is used by default.
 
   Set `offset` to the sort-field value of the last entry from the previous page. Across pages,

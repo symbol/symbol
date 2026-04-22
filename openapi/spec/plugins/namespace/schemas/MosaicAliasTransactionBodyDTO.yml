@@ -6,8 +6,8 @@ required:
   - aliasAction
 properties:
   namespaceId:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
   mosaicId:
-    $ref: "../../../schemas/MosaicId.yml"
+    $ref: ../../../schemas/MosaicId.yml
   aliasAction:
-    $ref: "./AliasActionEnum.yml"
+    $ref: ./AliasActionEnum.yml

@@ -6,8 +6,8 @@ required:
   - amount
 properties:
   sourceAddress:
-    $ref: "../../../schemas/UnresolvedAddress.yml"
+    $ref: ../../../schemas/UnresolvedAddress.yml
   mosaicId:
-    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+    $ref: ../../../schemas/UnresolvedMosaicId.yml
   amount:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml

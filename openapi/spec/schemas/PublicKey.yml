@@ -1,6 +1,6 @@
 type: string
 description: 256-bit public key encoded as a hexadecimal string (64 hex characters).
-pattern: '^[0-9a-fA-F]+$'
+pattern: ^[0-9a-fA-F]+$
 minLength: 64
 maxLength: 64
 examples:

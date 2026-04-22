@@ -9,4 +9,4 @@ properties:
     type: array
     description: Public keys of accounts harvesting on this node.
     items:
-      $ref: "../../../schemas/PublicKey.yml"
+      $ref: ../../../schemas/PublicKey.yml

@@ -4,5 +4,5 @@ required:
   - multisig
 properties:
   multisig:
-    $ref: "./MultisigDTO.yml"
+    $ref: ./MultisigDTO.yml
     description: Full multisig state for the requested account.

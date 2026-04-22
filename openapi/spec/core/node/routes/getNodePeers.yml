@@ -4,7 +4,7 @@ summary: Get peers information
 description: Gets the list of peers visible by the node.
 operationId: getNodePeers
 responses:
-  "200":
+  '200':
     description: Node peers successfully retrieved.
     content:
       application/json:
@@ -13,7 +13,7 @@ responses:
           description: |
             List of peer nodes visible to the connected node.
           items:
-            $ref: "../schemas/NodeInfoDTO.yml"
+            $ref: ../schemas/NodeInfoDTO.yml
         examples:
           nodePeers:
             summary: Example list of peer nodes
@@ -25,7 +25,7 @@ responses:
                 port: 7900
                 networkIdentifier: 152
                 friendlyName: api-node-0
-                host: "127.0.0.1"
+                host: 127.0.0.1
               - version: 16777994
                 publicKey: FA313F7B4E6148B0E6CB8637599678D1587FCBCFD16F6E3FCBEC9A035B6C2F21
                 networkGenerationHashSeed: 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
@@ -33,4 +33,4 @@ responses:
                 port: 7900
                 networkIdentifier: 152
                 friendlyName: peer-node-1
-                host: "192.168.1.10"
+                host: 192.168.1.10

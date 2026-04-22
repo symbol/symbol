@@ -6,4 +6,4 @@ description: |
   - `1`: Mosaic metadata
   - `2`: Namespace metadata
 schema:
-  $ref: "../../plugins/metadata/schemas/MetadataTypeEnum.yml"
+  $ref: ../../plugins/metadata/schemas/MetadataTypeEnum.yml

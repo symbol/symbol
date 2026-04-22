@@ -11,14 +11,14 @@ required:
   - value
 properties:
   targetAddress:
-    $ref: "../../../schemas/UnresolvedAddress.yml"
+    $ref: ../../../schemas/UnresolvedAddress.yml
   scopedMetadataKey:
-    $ref: "../../../schemas/MetadataKey.yml"
+    $ref: ../../../schemas/MetadataKey.yml
   targetNamespaceId:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
   valueSizeDelta:
-    $ref: "../../../schemas/MetadataValueSizeDelta.yml"
+    $ref: ../../../schemas/MetadataValueSizeDelta.yml
   valueSize:
-    $ref: "../../../schemas/MetadataValueSize.yml"
+    $ref: ../../../schemas/MetadataValueSize.yml
   value:
-    $ref: "../../../schemas/MetadataValue.yml"
+    $ref: ../../../schemas/MetadataValue.yml

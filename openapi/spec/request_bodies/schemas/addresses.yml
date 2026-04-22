@@ -5,4 +5,4 @@ properties:
     type: array
     description: Array of addresses.
     items:
-      $ref: "../../schemas/Address.yml"
+      $ref: ../../schemas/Address.yml

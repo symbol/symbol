@@ -11,4 +11,4 @@ description: |
   **Converting to real time:** Add this timestamp (ms) to `epochAdjustment × 1000` (ms), then use standard date functions.
   Note: `epochAdjustment` may be returned as a string like `"1615853185s"`; use the numeric part.
 examples:
-  - "108303181802"
+  - '108303181802'

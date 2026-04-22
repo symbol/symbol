@@ -2,5 +2,5 @@ description: Request body containing account addresses in Base32 format.
 content:
   application/json:
     schema:
-      $ref: "./schemas/addresses.yml"
+      $ref: ./schemas/addresses.yml
 required: true

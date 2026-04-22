@@ -6,12 +6,12 @@ description: |
   The setting `numBlocksTransactionFeeStats` is adjustable in the REST configuration file (`rest.json`) per REST instance.
 operationId: getTransactionFees
 responses:
-  "200":
+  '200':
     description: Transaction fees successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/TransactionFeesDTO.yml"
+          $ref: ../schemas/TransactionFeesDTO.yml
         examples:
           transactionFees:
             summary: Mainnet transaction fees example

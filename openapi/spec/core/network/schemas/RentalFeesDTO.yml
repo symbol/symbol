@@ -9,17 +9,17 @@ required:
   - effectiveMosaicRentalFee
 properties:
   effectiveRootNamespaceRentalFeePerBlock:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Estimated effective rental fee to register/extend a namespace per block.
     examples:
       - 200
   effectiveChildNamespaceRentalFee:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Estimated effective rental fee to create a subnamespace.
     examples:
       - 10000000
   effectiveMosaicRentalFee:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Estimated effective rental fee to create a mosaic.
     examples:
       - 50000000

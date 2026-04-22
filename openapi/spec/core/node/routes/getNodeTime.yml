@@ -4,16 +4,16 @@ summary: Get the node time
 description: Gets the node time at the moment the reply was sent and received.
 operationId: getNodeTime
 responses:
-  "200":
+  '200':
     description: Node time successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/NodeTimeDTO.yml"
+          $ref: ../schemas/NodeTimeDTO.yml
         examples:
           nodeTime:
             summary: Example node time with round-trip timestamps
             value:
               communicationTimestamps:
-                sendTimestamp: "108303181802"
-                receiveTimestamp: "108303181850"
+                sendTimestamp: '108303181802'
+                receiveTimestamp: '108303181850'

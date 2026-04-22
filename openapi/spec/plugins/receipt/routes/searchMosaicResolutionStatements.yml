@@ -9,36 +9,36 @@ description: |
   transaction source within the same block.
 operationId: searchMosaicResolutionStatements
 parameters:
-  - $ref: "../../../parameters/query/heightQuery.yml"
-  - $ref: "../../../parameters/query/pageSizeQuery.yml"
-  - $ref: "../../../parameters/query/pageNumberQuery.yml"
-  - $ref: "../../../parameters/query/offsetQuery.yml"
-  - $ref: "../../../parameters/query/orderQuery.yml"
+  - $ref: ../../../parameters/query/heightQuery.yml
+  - $ref: ../../../parameters/query/pageSizeQuery.yml
+  - $ref: ../../../parameters/query/pageNumberQuery.yml
+  - $ref: ../../../parameters/query/offsetQuery.yml
+  - $ref: ../../../parameters/query/orderQuery.yml
 responses:
-  "200":
+  '200':
     description: Paginated list of mosaic resolution statements.
     content:
       application/json:
         schema:
-          $ref: "../schemas/ResolutionStatementPage.yml"
+          $ref: ../schemas/ResolutionStatementPage.yml
         examples:
           default:
             summary: Mosaic resolution statement example
             value:
               data:
                 - statement:
-                    height: "5278141"
-                    unresolved: "E74B99BA41F4AFEE"
+                    height: '5278141'
+                    unresolved: E74B99BA41F4AFEE
                     resolutionEntries:
                       - source:
                           primaryId: 1
                           secondaryId: 0
-                        resolved: "6BED913FA20223F8"
-                  id: "69C3A6057A00AE05231CB3C0"
+                        resolved: 6BED913FA20223F8
+                  id: 69C3A6057A00AE05231CB3C0
                   meta:
-                    timestamp: "158576521276"
+                    timestamp: '158576521276'
               pagination:
                 pageNumber: 1
                 pageSize: 10
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

@@ -4,5 +4,5 @@ description: |
   The key is used to randomize block production and leader/participant selection.
   Required for all harvesting eligible accounts.
 allOf:
-  - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
-  - $ref: "./VrfKeyLinkTransactionBodyDTO.yml"
+  - $ref: ../../../core/transaction/schemas/TransactionDTO.yml
+  - $ref: ./VrfKeyLinkTransactionBodyDTO.yml

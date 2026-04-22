@@ -11,7 +11,7 @@ description: |
   To verify the final result, query `GET /transactionStatus/{hash}` on the same node that received
   the announce request. If that node drops the transaction before propagation, other nodes may not
   know the transaction at all and can return `404` for the same hash.
-  
+
   In some cases the transaction can be dropped without any failure status being returned. Common causes include using
   a fee below the minimum accepted by that node or using a generation hash seed that does not match the target network.
   Transaction status availability is not guaranteed indefinitely: failed statuses are stored in a capped collection

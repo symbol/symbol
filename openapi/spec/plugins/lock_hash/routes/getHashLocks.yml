@@ -4,9 +4,9 @@ summary: Get hash lock information for an array of hashes
 description: Returns hash lock entries for the given array of aggregate bonded transaction hashes.
 operationId: getHashLocks
 requestBody:
-  $ref: "../../../request_bodies/transactionHashes.yml"
+  $ref: ../../../request_bodies/transactionHashes.yml
 responses:
-  "200":
+  '200':
     description: Hash lock entries successfully retrieved.
     content:
       application/json:
@@ -14,21 +14,21 @@ responses:
           type: array
           description: Hash lock entries matching the requested hashes.
           items:
-            $ref: "../schemas/HashLockInfoDTO.yml"
+            $ref: ../schemas/HashLockInfoDTO.yml
         examples:
           default:
             summary: Batch hash lock lookup example
             value:
               - lock:
                   version: 1
-                  ownerAddress: "98F003E1C174E04338C5D436BC7AFB8866A03C0FD7B226E6"
-                  mosaicId: "72C0212E67A08BCE"
-                  amount: "10000000"
-                  endHeight: "1946240"
+                  ownerAddress: 98F003E1C174E04338C5D436BC7AFB8866A03C0FD7B226E6
+                  mosaicId: 72C0212E67A08BCE
+                  amount: '10000000'
+                  endHeight: '1946240'
                   status: 1
-                  hash: "E864E2CC4345D1A8CBB05FDCE87F6500D7F1FE557856CB06990CFC82A238421A"
-                id: "69C45B7239C3F3DF2942F2B9"
-  "400":
-    $ref : "../../../responses/InvalidContent.yml"
-  "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+                  hash: E864E2CC4345D1A8CBB05FDCE87F6500D7F1FE557856CB06990CFC82A238421A
+                id: 69C45B7239C3F3DF2942F2B9
+  '400':
+    $ref: ../../../responses/InvalidContent.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

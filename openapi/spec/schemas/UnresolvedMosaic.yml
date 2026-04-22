@@ -4,6 +4,6 @@ required:
   - amount
 properties:
   id:
-    $ref: "./UnresolvedMosaicId.yml"
+    $ref: ./UnresolvedMosaicId.yml
   amount:
-    $ref: "./Amount.yml"
+    $ref: ./Amount.yml

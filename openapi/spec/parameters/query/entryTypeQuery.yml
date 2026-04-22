@@ -2,4 +2,4 @@ name: entryType
 in: query
 description: Filter by entry type (include).
 schema:
-  $ref: "../../plugins/restriction_mosaic/schemas/MosaicRestrictionEntryTypeEnum.yml"
+  $ref: ../../plugins/restriction_mosaic/schemas/MosaicRestrictionEntryTypeEnum.yml

@@ -4,12 +4,12 @@ properties:
     type: string  # uint32
     description: Maximum number of transactions per aggregate.
     examples:
-      - "100"
+      - '100'
   maxCosignaturesPerAggregate:
     type: string
     description: Maximum number of cosignatures per aggregate.
     examples:
-      - "25"
+      - '25'
   enableStrictCosignatureCheck:
     type: boolean
     description: |
