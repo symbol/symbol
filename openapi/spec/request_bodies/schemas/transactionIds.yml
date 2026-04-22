@@ -9,5 +9,5 @@ properties:
     items:
       type: string
     examples:
-      - 59B8DA0F0CB2720001103922
-      - 59B8D8E60CB2720001103904
+      - - 59B8DA0F0CB2720001103922
+        - 59B8D8E60CB2720001103904
