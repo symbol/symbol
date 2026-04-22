@@ -194,3 +194,25 @@ Looks up the friendly name for the specified transaction.
 `string`
 
 Transaction friendly name.
+
+***
+
+### toJson()
+
+```ts
+static toJson(transaction): string
+```
+
+Generates a JSON representation of transaction that can be sent to a node.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `transaction` | [`Transaction`](../namespaces/models/classes/Transaction.md) | Transaction object. |
+
+#### Returns
+
+`string`
+
+JSON transaction payload.

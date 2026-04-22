@@ -1,0 +1,59 @@
+Using node https://reference.symboltest.net:3001
+Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Mosaic ID: 7859648582932718274 (0x6d1314be751b62c2)
+Fetching current network time from /node/time
+  Network time: 103372272508 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+
+--- Adding new metadata ---
+Created embedded metadata transaction:
+{
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16964,
+  "target_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+  "scoped_metadata_key": "15731601119740876263",
+  "target_mosaic_id": "7859648582932718274",
+  "value_size_delta": 15,
+  "value": "4d79206669727374206d6f73616963"
+}
+Built aggregate transaction with hash: 900741B895CD8CA31F969C8929BBDE1331F1B93565CEA276283FD0122EAC77C9
+Announcing aggregate transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for aggregate transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+aggregate transaction confirmed in 21 seconds
+
+--- Modifying existing metadata ---
+Fetching current metadata from /metadata?sourceAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&targetAddress=TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I&scopedMetadataKey=DA51DFDE6A4AD5E7&targetId=6D1314BE751B62C2&metadataType=1
+  Current value: My first mosaic
+Created embedded update transaction:
+{
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16964,
+  "target_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+  "scoped_metadata_key": "15731601119740876263",
+  "target_mosaic_id": "7859648582932718274",
+  "value_size_delta": -1,
+  "value": "180944071d1717544d021c12080a63"
+}
+Built aggregate transaction with hash: A05078F485403FAEC0F740EFAA997241C26E2C25DFFD9E023113C861943ACB92
+Announcing aggregate transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for aggregate transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+aggregate transaction confirmed in 26 seconds

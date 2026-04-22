@@ -41,6 +41,22 @@ Creates a Symbol address.
 
 ## Methods
 
+### isAlias()
+
+```ts
+isAlias(): boolean
+```
+
+Determines if this address is an alias.
+
+#### Returns
+
+`boolean`
+
+true if this address is an alias.
+
+***
+
 ### toJson()
 
 ```ts

@@ -24,9 +24,11 @@
 - [generateMosaicId](functions/generateMosaicId.md)
 - [generateNamespaceId](functions/generateNamespaceId.md)
 - [generateNamespacePath](functions/generateNamespacePath.md)
+- [isMosaicAlias](functions/isMosaicAlias.md)
 - [isValidNamespaceName](functions/isValidNamespaceName.md)
 - [metadataGenerateKey](functions/metadataGenerateKey.md)
 - [metadataUpdateValue](functions/metadataUpdateValue.md)
+- [mosaicRestrictionGenerateKey](functions/mosaicRestrictionGenerateKey.md)
 
 ## deserializePatriciaTreeNodes
 
