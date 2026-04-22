@@ -2,12 +2,12 @@ import json
 import os
 import time
 import urllib.request
-import hashlib
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
 from symbolchain.symbol.Network import NetworkTimestamp
+from symbolchain.symbol.Restriction import mosaic_restriction_generate_key
 
 NODE_URL = os.environ.get(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
@@ -120,14 +120,12 @@ target_address = os.getenv('TARGET_ADDRESS',
 	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA')
 print(f'Target address: {target_address}')
 
-mosaic_id = int(os.getenv('MOSAIC_ID', '6A383620F5C7A5B2'), 16)
+mosaic_id = int(os.getenv('MOSAIC_ID', '6A5ACF2376E50D4A'), 16)
 print(f'Mosaic ID: 0x{mosaic_id:08X}')
 restriction_name = os.getenv('RESTRICTION_NAME', 'security_level')
-hasher = hashlib.sha3_256()
-hasher.update(restriction_name.encode('utf8'))
-restriction_key = int.from_bytes(hasher.digest()[:4])
+restriction_key = mosaic_restriction_generate_key(restriction_name)
 print(f'Restriction name: "{restriction_name}"'
-	f' (key: 0x{restriction_key:08X})')
+	f' (key: 0x{restriction_key:016X})')
 
 try:
 	# Fetch current network time

@@ -1,4 +1,4 @@
-import { Address } from 'symbol-sdk/symbol';
+import { Address, isMosaicAlias } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
@@ -35,11 +35,10 @@ try {
 	const mosaics = txData.transaction.mosaics;
 	for (const mosaic of mosaics) {
 		const mosaicId = BigInt(`0x${mosaic.id}`);
-		const isMosaicAlias =
-			(mosaicId >> 63n & 1n) === 1n;
-		if (isMosaicAlias) aliasedMosaics.add(mosaic.id);
+		const isAlias = isMosaicAlias(mosaicId);
+		if (isAlias) aliasedMosaics.add(mosaic.id);
 		console.log(`  Mosaic: ${mosaic.id}`);
-		console.log(`  Is mosaic alias: ${isMosaicAlias}`);
+		console.log(`  Is mosaic alias: ${isAlias}`);
 	}
 
 	// Query address resolution statements

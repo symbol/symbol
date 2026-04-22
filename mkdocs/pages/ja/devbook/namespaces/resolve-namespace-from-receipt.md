@@ -26,13 +26,13 @@ title: レシートからのネームスペース解決
 
 ### トランザクションハッシュの定義 {: #defining-the-transaction-hash }
 
-{{ tutorial.code_snippet(['py:11:14', 'js:7:10']) }}
+{{ tutorial.code_snippet(['py:12:15', 'js:7:10']) }}
 
 コードは、生のアドレスやモザイクIDの代わりにネームスペースエイリアスを使用した、承認済みトランザクションのハッシュを定義します。この ハッシュは `TRANSACTION_HASH` 環境変数から読み取られ、デフォルトでは Symbol [テストネット](default:テストネット) 上の既知のトランザクションが使用されます。
 
 ### 承認済みトランザクションの取得 {: #retrieving-the-confirmed-transaction }
 
-{{ tutorial.code_snippet(['py:17:29', 'js:13:26']) }}
+{{ tutorial.code_snippet(['py:18:30', 'js:13:26']) }}
 
 承認済みトランザクションは、そのハッシュを使用して <get:/transactions/confirmed/{transactionId}> エンドポイントから取得されます。
 
@@ -40,7 +40,7 @@ title: レシートからのネームスペース解決
 
 トランザクションのメタデータには `index` フィールドも含まれており、これはブロック内でのトランザクションの0から始まる位置を示します。コードは、後の解決エントリとの照合のために、これを1から始まる `primaryId` （ `index + 1` ）に変換します。
 
-{{ tutorial.code_snippet(['py:31:35', 'js:28:32']) }}
+{{ tutorial.code_snippet(['py:32:36', 'js:28:32']) }}
 
 取得されたトランザクションには `recipientAddress` フィールドが含まれます。トランザクションが受信者としてネームスペースエイリアスを使用した場合、このフィールドには実際のアドレスではなく、未解決の値（エンコードされたネームスペースID）が保持されます。
 
@@ -49,16 +49,16 @@ title: レシートからのネームスペース解決
 * ビットが `1` の場合、アドレスは [ネームスペースのアドレスへのリンク](./link-namespace-to-address.md#using-the-alias) チュートリアルで説明されているように、エンコードされたネームスペースエイリアスです。
 * ビットが `0` の場合、受信者は通常のアドレスであり、解決は不要です。
 
-{{ tutorial.code_snippet(['py:37:45', 'js:34:43']) }}
+{{ tutorial.code_snippet(['py:38:46', 'js:34:42']) }}
 
-コードはトランザクションの `mosaics` 配列を反復処理し、64ビット値のビット63（最上位ビット）を調べることで、各モザイクIDがネームスペースエイリアスであるかどうかを確認します：
+コードはトランザクションの `mosaics` 配列を反復処理し、SDK の <dy:IdGenerator.isMosaicAlias> 関数を使用して、各モザイクIDがネームスペースエイリアスかどうかを確認します。この関数は64ビット値のビット63（最上位ビット）を検査します：
 
 * ビットが `1` の場合、値は [ネームスペースのモザイクへのリンク](./link-namespace-to-mosaic.md#using-the-alias) チュートリアルで説明されているように、モザイクエイリアスとして使用されるネームスペースIDです。
 * ビットが `0` の場合、値は通常のモザイクIDであり、解決は不要です。
 
 ### アドレス解決ステートメントの照会 {: #querying-address-resolution-statements }
 
-{{ tutorial.code_snippet(['py:48:58', 'js:46:57']) }}
+{{ tutorial.code_snippet(['py:49:59', 'js:45:56']) }}
 
 トランザクションメタデータのブロック高を使用して、コードは <get:/statements/resolutions/address> エンドポイントを照会し、そのブロックのアドレス解決ステートメントを取得します。
 
@@ -68,7 +68,7 @@ title: レシートからのネームスペース解決
 * **Unresolved**: トランザクションで使用された（アドレスとしてエンコードされた）ネームスペースエイリアス。
 * **Resolution entries**: 承認時点でのエイリアスと実際のアドレスをマッピングする配列。
 
-{{ tutorial.code_snippet(['py:60:73', 'js:59:78']) }}
+{{ tutorial.code_snippet(['py:61:74', 'js:58:77']) }}
 
 エンドポイントはブロックのすべてのアドレス解決ステートメントを返します。異なるネームスペースエイリアスが使用された場合、単一のブロックに複数の解決ステートメントが含まれる可能性があるため、コードは `unresolved` フィールドがトランザクションの `recipientAddress` と一致しないステートメントをスキップします。
 
@@ -83,7 +83,7 @@ title: レシートからのネームスペース解決
 
 ### モザイク解決ステートメントの照会 {: #querying-mosaic-resolution-statements }
 
-{{ tutorial.code_snippet(['py:76:99', 'js:81:110']) }}
+{{ tutorial.code_snippet(['py:77:100', 'js:80:109']) }}
 
 同じトランザクションでは、生のモザイクIDの代わりに `symbol.xym` をモザイクエイリアスとしても使用しています。コードは同じブロック高で <get:/statements/resolutions/mosaic> エンドポイントを照会し、モザイク解決ステートメントを取得します。
 
