@@ -12,14 +12,13 @@ There are two supported build techniques on Windows:
 - [Visual Studio] with vcpkg (easiest and recommended)
 - [Visual Studio] with Conan (not integrated with Visual Studio, mostly command line)
 
-The recommended approach is to use Visual Studio with integrated CMake and vcpkg.
+The recommended approach is to use Visual Studio with support for CMake and vcpkg.
 You can either use the full Visual Studio IDE or just Build Tools for Visual Studio,
 but in both cases you need to have CMake support installed.
 
 - [Building with Visual Studio and vcpkg](#building-with-visual-studio-and-vcpkg)
   - [Prerequisites](#prerequisites)
   - [Setting up the environment](#setting-up-the-environment)
-  - [Setting up vcpkg](#setting-up-vcpkg)
   - [Building from within the Visual Studio IDE](#building-from-within-the-visual-studio-ide)
   - [Building from the command line](#building-from-the-command-line)
   - [Verify Catapult build](#verify-catapult-build)
@@ -44,14 +43,36 @@ Required Visual Studio components:
 
 Additional requirements:
 
-- [Git] >= 2.25
-- [Python] >= 3.8
-- [vcpkg] package manager (can be installed separately)
+- [Git] >= 2.25 (if not already installed with Visual Studio)
+- [vcpkg] package manager (to be installed separately)
+
+> [!WARNING]
+> ## ⚠️ DO NOT USE THE VCPKG BUNDLED WITH VISUAL STUDIO ⚠️
+> For this project, **you must install vcpkg manually from a Git clone**.
+> Do **not** use the Visual Studio bundled/integrated vcpkg installation.
+>
+> ✅ Supported: `git clone https://github.com/microsoft/vcpkg.git` + `bootstrap-vcpkg.bat`
+>
+> ❌ Not supported: vcpkg installed only via Visual Studio installer/components
 
 If you want to install [Git] manually, download it from <https://git-scm.com/download/win>.
 Install it before the next steps because it is needed to clone catapult and optionally vcpkg.
 
 ### Setting up the environment
+
+Install [vcpkg] manually from Developer PowerShell for Visual Studio:
+```powershell
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+```
+
+After bootstrap completes, set an environment variable named `VCPKG_ROOT` to the full path where you cloned vcpkg (for example, `C:\vcpkg`).
+To do this you MUST open a Developer PowerShell for Visual Studio in Administrator mode and run the following command:
+```powershell
+[System.Environment]::SetEnvironmentVariable('VCPKG_ROOT','C:\vcpkg', 'Machine')
+```
+Again ... remember to change `C:\vcpkg` to the actual path where you cloned vcpkg.
 
 Open Visual Studio and clone the catapult repository using the built-in Git integration:
 - Go to **Git -> Clone Repository**.
@@ -63,22 +84,6 @@ If you prefer to use a terminal, you can clone the repository using Developer Po
 Replace `<your_chosen_directory>` with the path where you want to clone the repository:
 ```powershell
 git clone https://github.com/symbol/symbol.git <your_chosen_directory>
-```
-
-### Setting up vcpkg
-
-If you did not install vcpkg from the Visual Studio installer, you can install it manually from Developer PowerShell for Visual Studio:
-```powershell
-git clone https://github.com/microsoft/vcpkg.git
-cd vcpkg
-.\bootstrap-vcpkg.bat
-```
-
-After bootstrap completes, set an environment variable named `VCPKG_ROOT` to the full path where you cloned vcpkg (for example, `C:\vcpkg`).
-It is recommended to set this variable permanently in system environment variables,
-but you can also set it temporarily in the current terminal session:
-```powershell
-$env:VCPKG_ROOT = "C:\vcpkg"
 ```
 
 ### Building from within the Visual Studio IDE
@@ -103,6 +108,11 @@ At the end of the build, check the output window for errors.
 If there are issues, please open an issue.
 The binaries will be available in the `build\<preset-name>\bin` directory (e.g. `build\win-Release\bin` for Release configuration).
 
+If you want to run unit tests, you can select the `Test Explorer` tab in Visual Studio and run the tests from there but :
+- You must have built the Debug configuration to have the tests available.
+- You may need to set the test adapter to `Google Test Adapter` in the Test Explorer
+- You need to set the Working Directory for the tests to `$(SolutionDir)/build`.
+
 ### Building from the command line
 
 If you prefer the command line, **or if you installed Build Tools for Visual Studio only**,
@@ -119,6 +129,13 @@ Here is a list of available presets you can obtain by running `cmake --list-pres
   "win-RelWithDebInfo" - Windows (VS) configuration RelWithDebInfo
   "win-Release"        - Windows (VS) configuration Release
   "win-MinSizeRel"     - Windows (VS) configuration MinSizeRel
+```
+
+> **Note !** The build process is very resource intensive and may make your system unresponsive for a while.
+> If you want to limit the number of parallel build jobs, you can add the `-j` option to the build command.
+> For example, to limit to 2 parallel jobs, run:
+```powershell
+cmake --build --preset <preset-name> -j2
 ```
 
 ### Verify Catapult build
@@ -158,7 +175,8 @@ Address Inspector Tool options:
 
 Should you have built in Debug configuration, you have also unit tets built. You can run them with this command:
 ```powershell
-ctest --test-dir .\build\<preset-name>\tests
+cd build
+ctest --test-dir=.\<preset-name>\
 ```
 
 ## Building with Visual Studio and Conan
