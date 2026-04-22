@@ -4,4 +4,4 @@ description: |
   For address restrictions, it is the value assigned to the target address;
   for global restrictions, it is the threshold evaluated with the restriction type.
 examples:
-  - "1000"
+  - '1000'

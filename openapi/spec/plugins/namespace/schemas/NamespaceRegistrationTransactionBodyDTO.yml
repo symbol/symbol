@@ -6,13 +6,13 @@ required:
   - name
 properties:
   duration:
-    $ref: "../../../schemas/BlockDuration.yml"
+    $ref: ../../../schemas/BlockDuration.yml
   parentId:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
   id:
-    $ref: "../../../schemas/NamespaceId.yml"
+    $ref: ../../../schemas/NamespaceId.yml
   registrationType:
-    $ref: "./NamespaceRegistrationTypeEnum.yml"
+    $ref: ./NamespaceRegistrationTypeEnum.yml
   name:
     type: string
     description: Namespace name.

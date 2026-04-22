@@ -4,4 +4,4 @@ description: |
   Only blocks with timestamp greater or equal than this one are returned. The timestamp is
   expressed in milliseconds since the nemesis block.
 schema:
-  $ref: "../../schemas/Timestamp.yml"
+  $ref: ../../schemas/Timestamp.yml

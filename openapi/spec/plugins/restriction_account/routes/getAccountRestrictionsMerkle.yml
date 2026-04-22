@@ -8,13 +8,13 @@ description: |
   exists for the requested address.
 operationId: getAccountRestrictionsMerkle
 parameters:
-  - $ref: "../../../parameters/path/addressPath.yml"
+  - $ref: ../../../parameters/path/addressPath.yml
 responses:
-  "200":
+  '200':
     description: Merkle proof for the requested account restriction entry.
     content:
       application/json:
         schema:
-          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"
+          $ref: ../../../schemas/MerkleStateInfoDTO.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

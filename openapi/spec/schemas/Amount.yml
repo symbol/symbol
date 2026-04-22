@@ -5,4 +5,4 @@ description: |
   `123.456789` whole units. Encoded as a string to preserve precision, since the value
   is an unsigned 64-bit integer.
 examples:
-  - "123456789"
+  - '123456789'

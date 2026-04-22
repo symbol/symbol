@@ -5,10 +5,10 @@ required:
   - restrictions
 properties:
   version:
-    $ref: "../../../schemas/StateVersion.yml"
+    $ref: ../../../schemas/StateVersion.yml
   address:
-    $ref: "../../../schemas/AddressHex.yml"
+    $ref: ../../../schemas/AddressHex.yml
   restrictions:
     type: array
     items:
-      $ref: "./AccountRestrictionDTO.yml"
+      $ref: ./AccountRestrictionDTO.yml

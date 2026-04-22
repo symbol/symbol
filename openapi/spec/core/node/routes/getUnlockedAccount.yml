@@ -4,12 +4,12 @@ summary: Get the unlocked harvesting account public keys
 description: Returns array of unlocked account public keys.
 operationId: getUnlockedAccount
 responses:
-  "200":
+  '200':
     description: Unlocked harvesting accounts successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/UnlockedAccountDTO.yml"
+          $ref: ../schemas/UnlockedAccountDTO.yml
         examples:
           unlockedAccount:
             summary: Example unlocked harvesting accounts

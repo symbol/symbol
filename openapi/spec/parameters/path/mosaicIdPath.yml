@@ -3,4 +3,4 @@ in: path
 description: Mosaic identifier encoded as a 16-character hexadecimal string.
 required: true
 schema:
-  $ref: "../../schemas/MosaicId.yml"
+  $ref: ../../schemas/MosaicId.yml

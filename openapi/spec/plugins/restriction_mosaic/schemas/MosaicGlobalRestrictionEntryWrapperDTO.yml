@@ -8,17 +8,17 @@ required:
   - restrictions
 properties:
   version:
-    $ref: "../../../schemas/StateVersion.yml"
+    $ref: ../../../schemas/StateVersion.yml
   compositeHash:
     description: Composite hash uniquely identifying the mosaic restriction entry.
-    $ref: "../../../schemas/Hash256.yml"
+    $ref: ../../../schemas/Hash256.yml
   entryType:
-    $ref: "./MosaicRestrictionEntryTypeEnum.yml"
+    $ref: ./MosaicRestrictionEntryTypeEnum.yml
   mosaicId:
     description: Mosaic identifier for which the restrictions are defined.
-    $ref: "../../../schemas/MosaicId.yml"
+    $ref: ../../../schemas/MosaicId.yml
   restrictions:
     description: Global restriction rules associated with the mosaic.
     type: array
     items:
-      $ref: "./MosaicGlobalRestrictionEntryDTO.yml"
+      $ref: ./MosaicGlobalRestrictionEntryDTO.yml

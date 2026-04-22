@@ -10,8 +10,8 @@ properties:
       Mosaic identifier providing the restriction key used by this global restriction rule.
       The global restriction for the requested mosaic depends on the rule defined on this reference mosaic.
       This value is `0` when the restriction key is defined on the same mosaic.
-    $ref: "../../../schemas/MosaicId.yml"
+    $ref: ../../../schemas/MosaicId.yml
   restrictionValue:
-    $ref: "../../../schemas/RestrictionValue.yml"
+    $ref: ../../../schemas/RestrictionValue.yml
   restrictionType:
-    $ref: "./MosaicRestrictionTypeEnum.yml"
+    $ref: ./MosaicRestrictionTypeEnum.yml

@@ -8,9 +8,9 @@ description: |
   preserve the order of the requested identifiers.
 operationId: getMosaics
 requestBody:
-  $ref: "../../../request_bodies/mosaicIds.yml"
+  $ref: ../../../request_bodies/mosaicIds.yml
 responses:
-  "200":
+  '200':
     description: Mosaic information successfully retrieved.
     content:
       application/json:
@@ -18,8 +18,8 @@ responses:
           type: array
           description: Array of found mosaic information objects in server-defined order.
           items:
-            $ref: "../schemas/MosaicInfoDTO.yml"
-  "400":
-    $ref : "../../../responses/InvalidContent.yml"
-  "409":
-    $ref : "../../../responses/InvalidArgument.yml"
+            $ref: ../schemas/MosaicInfoDTO.yml
+  '400':
+    $ref: ../../../responses/InvalidContent.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

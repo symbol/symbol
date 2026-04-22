@@ -5,6 +5,6 @@ required:
   - account
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   account:
-    $ref: "./AccountDTO.yml"
+    $ref: ./AccountDTO.yml

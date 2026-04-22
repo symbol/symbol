@@ -6,10 +6,10 @@ required:
   - type
 properties:
   type:
-    $ref: "./AliasTypeEnum.yml"
+    $ref: ./AliasTypeEnum.yml
   mosaicId:
-    $ref: "../../../schemas/MosaicId.yml"
+    $ref: ../../../schemas/MosaicId.yml
     description: Mosaic identifier linked by the namespace when `type` is `1`.
   address:
-    $ref: "../../../schemas/AddressHex.yml"
+    $ref: ../../../schemas/AddressHex.yml
     description: Account address linked by the namespace when `type` is `2`.

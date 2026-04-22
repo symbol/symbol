@@ -1,5 +1,5 @@
 type: string
-pattern: '^[0-9a-fA-F]+$'
+pattern: ^[0-9a-fA-F]+$
 description: |
   Unique [namespace](https://docs.symbol.dev/concepts/namespaces.html) identifier.
   A 64-bit unsigned integer derived from the namespace name and its parent namespace ID,

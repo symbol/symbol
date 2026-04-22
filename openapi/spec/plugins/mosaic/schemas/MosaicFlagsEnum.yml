@@ -7,7 +7,7 @@ description: |
     When not set, it can only be transferred to and from the mosaic owner.
   - 0x04 (4 decimal, `restrictable`): Mosaic supports custom restrictions configured by the mosaic owner.
   - 0x08 (8 decimal, `revokable`): Mosaic creator can revoke balances from another account.
-  
+
   Example: `3` means `0x01 + 0x02`, so the mosaic is both `supplyMutable` and `transferable`.
 examples:
   - 0

@@ -11,13 +11,13 @@ description: |
   trees and state proofs on Symbol.
 operationId: getMosaicMerkle
 parameters:
-  - $ref: "../../../parameters/path/mosaicIdPath.yml"
+  - $ref: ../../../parameters/path/mosaicIdPath.yml
 responses:
-  "200":
+  '200':
     description: Mosaic Merkle information successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"
+          $ref: ../../../schemas/MerkleStateInfoDTO.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

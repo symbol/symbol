@@ -6,4 +6,4 @@ required:
   - communicationTimestamps
 properties:
   communicationTimestamps:
-    $ref: "./CommunicationTimestampsDTO.yml"
+    $ref: ./CommunicationTimestampsDTO.yml

@@ -6,8 +6,8 @@ required:
   - action
 properties:
   mosaicId:
-    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+    $ref: ../../../schemas/UnresolvedMosaicId.yml
   delta:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
   action:
-    $ref: "./MosaicSupplyChangeActionEnum.yml"
+    $ref: ./MosaicSupplyChangeActionEnum.yml

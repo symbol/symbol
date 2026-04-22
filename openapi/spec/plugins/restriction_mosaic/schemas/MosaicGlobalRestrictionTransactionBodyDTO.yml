@@ -10,16 +10,16 @@ required:
   - newRestrictionType
 properties:
   mosaicId:
-    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+    $ref: ../../../schemas/UnresolvedMosaicId.yml
   referenceMosaicId:
-    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+    $ref: ../../../schemas/UnresolvedMosaicId.yml
   restrictionKey:
-    $ref: "../../../schemas/RestrictionKeyHex.yml"
+    $ref: ../../../schemas/RestrictionKeyHex.yml
   previousRestrictionValue:
-    $ref: "../../../schemas/RestrictionValue.yml"
+    $ref: ../../../schemas/RestrictionValue.yml
   newRestrictionValue:
-    $ref: "../../../schemas/RestrictionValue.yml"
+    $ref: ../../../schemas/RestrictionValue.yml
   previousRestrictionType:
-    $ref: "./MosaicRestrictionTypeEnum.yml"
+    $ref: ./MosaicRestrictionTypeEnum.yml
   newRestrictionType:
-    $ref: "./MosaicRestrictionTypeEnum.yml"
+    $ref: ./MosaicRestrictionTypeEnum.yml

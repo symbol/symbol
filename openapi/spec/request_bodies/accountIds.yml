@@ -1,7 +1,7 @@
 content:
   application/json:
     schema:
-      $ref: "./schemas/accountIds.yml"
+      $ref: ./schemas/accountIds.yml
     examples:
       byPublicKeys:
         summary: Lookup by public keys

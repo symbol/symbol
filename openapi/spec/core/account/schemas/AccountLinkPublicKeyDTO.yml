@@ -4,4 +4,4 @@ required:
   - publicKey
 properties:
   publicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+    $ref: ../../../schemas/PublicKey.yml

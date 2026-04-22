@@ -10,13 +10,13 @@ required:
   - type
 properties:
   signerPublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+    $ref: ../../../schemas/PublicKey.yml
     description: Public key of the account that signed the entity (e.g. block harvester, transaction signer).
   version:
     type: integer
     description: Entity version. Indicates the schema variant for serialization and validation.
   network:
-    $ref: "./NetworkTypeEnum.yml"
+    $ref: ./NetworkTypeEnum.yml
     description: Network type (mainnet or testnet). Ensures the entity targets the correct network.
   type:
     type: integer

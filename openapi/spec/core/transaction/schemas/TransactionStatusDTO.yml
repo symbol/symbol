@@ -6,15 +6,15 @@ required:
   - hash
 properties:
   group:
-    $ref: "./TransactionGroupEnum.yml"
+    $ref: ./TransactionGroupEnum.yml
   code:
-    $ref: "./TransactionStatusEnum.yml"
+    $ref: ./TransactionStatusEnum.yml
   hash:
-    $ref: "../../../schemas/Hash256.yml"
+    $ref: ../../../schemas/Hash256.yml
     description: Hash of the transaction.
   deadline:
-    $ref: "../../../schemas/Timestamp.yml"
+    $ref: ../../../schemas/Timestamp.yml
     description: Deadline specified by the transaction, expressed in milliseconds since the creation of the nemesis (first) block.
   height:
-    $ref: "../../../schemas/Height.yml"
+    $ref: ../../../schemas/Height.yml
     description: Block height at which the transaction was confirmed, when available.

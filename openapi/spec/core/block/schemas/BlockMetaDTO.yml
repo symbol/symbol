@@ -10,17 +10,17 @@ required:
   - statementsCount
 properties:
   hash:
-    $ref: "../../../schemas/Hash256.yml"
+    $ref: ../../../schemas/Hash256.yml
   totalFee:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Sum (in smallest/atomic units) of all transaction fees included in the block.
   generationHash:
-    $ref: "../../../schemas/Hash256.yml"
+    $ref: ../../../schemas/Hash256.yml
   stateHashSubCacheMerkleRoots:
     type: array
     description: Merkle roots of each sub-cache at this block height.
     items:
-      $ref: "../../../schemas/Hash256.yml"
+      $ref: ../../../schemas/Hash256.yml
   totalTransactionsCount:
     type: integer
     description: |

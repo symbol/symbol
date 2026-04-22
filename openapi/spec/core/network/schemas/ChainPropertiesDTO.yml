@@ -15,139 +15,139 @@ properties:
     type: string
     description: Mosaic ID used as primary chain currency.
     examples:
-      - "0x6BED'913F'A202'23F8"
+      - 0x6BED'913F'A202'23F8
   harvestingMosaicId:
     type: string
     description: Mosaic ID used to provide harvesting ability.
     examples:
-      - "0x6BED'913F'A202'23F8"
+      - 0x6BED'913F'A202'23F8
   blockGenerationTargetTime:
-    type: string # utils::TimeSpan
+    type: string  # utils::TimeSpan
     description: Targeted time between blocks.
     examples:
       - 30s
   blockTimeSmoothingFactor:
-    type: string # uint32
+    type: string  # uint32
     description: A higher value makes the network more biased.
     examples:
-      - "3000"
+      - '3000'
   blockFinalizationInterval:
-    type: string # uint32
+    type: string  # uint32
     description: Number of blocks between successive finalization attempts.
     examples:
       - 30
   importanceGrouping:
-    type: string # uint64
+    type: string  # uint64
     description: Number of blocks that should be treated as a group for importance purposes.
     examples:
-      - "720"
+      - '720'
   importanceActivityPercentage:
     type: string
     description: Percentage of importance resulting from fee generation and beneficiary usage.
     examples:
-      - "5"
+      - '5'
   maxRollbackBlocks:
-    type: string # uint32
+    type: string  # uint32
     description: Maximum number of blocks that can be rolled back.
     examples:
-      - "0"
+      - '0'
   maxDifficultyBlocks:
-    type: string # uint32
+    type: string  # uint32
     description: Maximum number of blocks to use in a difficulty calculation.
     examples:
-      - "60"
+      - '60'
   defaultDynamicFeeMultiplier:
-    type: string # BlockFeeMultiplier
+    type: string  # BlockFeeMultiplier
     description: Default multiplier to use for dynamic fees.
     examples:
-      - "100"
+      - '100'
   maxTransactionLifetime:
-    type: string #utils::TimeSpan
+    type: string  # utils::TimeSpan
     description: Maximum lifetime a transaction can have before it expires.
     examples:
       - 6h
   maxBlockFutureTime:
-    type: string # utils::TimeSpan
+    type: string  # utils::TimeSpan
     description: Maximum future time of a block that can be accepted.
     examples:
       - 300ms
   initialCurrencyAtomicUnits:
-    type: string # Amount
+    type: string  # Amount
     description: Initial currency atomic units available in the network.
     examples:
-      - "7'842'928'625'000'000"
+      - 7'842'928'625'000'000
   maxMosaicAtomicUnits:
-    type: string # Amount
+    type: string  # Amount
     description: Maximum atomic units (total-supply * 10 ^ divisibility) of a mosaic allowed in the network.
     examples:
-      - "8'999'999'999'000'000"
+      - 8'999'999'999'000'000
   totalChainImportance:
-    type: string # Importance
+    type: string  # Importance
     description: Total whole importance units available in the network.
     examples:
-      - "7'842'928'625'000'000"
+      - 7'842'928'625'000'000
   minHarvesterBalance:
-    type: string # Amount
+    type: string  # Amount
     description: Minimum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
     examples:
-      - "10'000'000'000"
+      - 10'000'000'000
   maxHarvesterBalance:
-    type: string # Amount
+    type: string  # Amount
     description: Maximum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
     examples:
-      - "50'000'000'000'000"
+      - 50'000'000'000'000
   minVoterBalance:
-    type: string # Amount
+    type: string  # Amount
     description: Minimum number of harvesting mosaic atomic units needed for an account to be eligible for voting.
     examples:
-      - "3'000'000'000'000"
+      - 3'000'000'000'000
   votingSetGrouping:
-    type: string # uint32
+    type: string  # uint32
     description: Number of blocks per finalization epoch (defines epoch duration for voting).
     examples:
-      - "1440"
+      - '1440'
   maxVotingKeysPerAccount:
     type: string
     description: Maximum number of voting keys that can be registered at once per account.
     examples:
-      - "3"
+      - '3'
   minVotingKeyLifetime:
-    type: string # uint32
+    type: string  # uint32
     description: Minimum number of finalization rounds for which voting key can be registered.
     examples:
-      - "112"
+      - '112'
   maxVotingKeyLifetime:
-    type: string # uint32
+    type: string  # uint32
     description: Maximum number of finalization rounds for which voting key can be registered.
     examples:
-      - "360"
+      - '360'
   harvestBeneficiaryPercentage:
     type: string
     description: Percentage of the harvested fee that is collected by the beneficiary account.
     examples:
-      - "25"
+      - '25'
   harvestNetworkPercentage:
     type: string
     description: Percentage of the harvested fee that is collected by the network.
     examples:
-      - "5"
+      - '5'
   harvestNetworkFeeSinkAddressV1:
-    $ref: "../../../schemas/Address.yml"
+    $ref: ../../../schemas/Address.yml
     description: Legacy (V1) address (in Base32 format) of the harvest network fee sink account. May be absent on newer networks.
     examples:
       - NBUTOBVT5JQDCV6UEPCPFHWWOAOPOCLA5AY5FLI
   harvestNetworkFeeSinkAddress:
-    $ref: "../../../schemas/Address.yml"
+    $ref: ../../../schemas/Address.yml
     description: Address (in Base32 format) of the harvest network fee sink account.
     examples:
       - NAVORTEX3IPBAUWQBBI3I3BDIOS4AVHPZLCFC7Y
   blockPruneInterval:
-    type: string # uint32
+    type: string  # uint32
     description: Number of blocks between cache pruning.
     examples:
-      - "360"
+      - '360'
   maxTransactionsPerBlock:
-    type: string # uint32
+    type: string  # uint32
     description: Maximum number of transactions per block.
     examples:
-      - "6'000"
+      - 6'000
