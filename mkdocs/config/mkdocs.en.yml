@@ -84,10 +84,8 @@ nav:
           - userbook/shoestring/overview.md
           - userbook/shoestring/install.md
           - userbook/shoestring/quickstart.md
-          - userbook/shoestring/configure.md
-          - userbook/shoestring/manage.md
+          - userbook/shoestring/maintain.md
           - userbook/shoestring/migrate.md
-          - userbook/shoestring/security.md
       - userbook/security.md
   - Developer Manual:
       - devbook/intro.md

@@ -138,6 +138,9 @@ friendlyName = My Symbol Node
     To do so, add a section using the syntax `[config-file-name.config-section]`,
     then define the desired properties below it.
 
+    Note that setting any network property to a value different to those of the rest of the network will make your node
+    <fork:>, effectively disconnecting it from the rest of the network.
+
 `config.ini` configures Shoestring itself, while `overrides.ini` customizes the generated node software.
 
 ### 5. Create the Node Identity
@@ -364,7 +367,7 @@ To create a <voting node:>, the following requirements must be met:
     During setup, Shoestring creates <voting keys:> for the node.
     These keys must be renewed periodically for security reasons.
 
-    Once the node is up and running, read the [Managing a Node](./manage.md) guide to learn about the renewal
+    Once the node is up and running, read the [Maintaining a Node](./maintain.md) guide to learn about the renewal
     process.
 
 ## Start the Node
@@ -446,7 +449,7 @@ keys/cert/node.crt.pem: OK
 
     Upon first launch, the node synchronizes with the network by downloading the full blockchain.
 
-    This process can take **several hours**.
+    This process can take from 24 to 48 hours.
     During this time, REST requests to the node, if it is running the API role,
     may be delayed and report an incorrect chain height.
 
@@ -464,6 +467,19 @@ docker compose -f docker-compose-recovery.yaml up \
 
 After the recovery command completes, start the node again with `docker compose up -d`.
 
+!!! warning "Last Resort"
+
+    If the recovery command does not solve the issue, `reset-data` can be used.
+
+    This command removes all downloaded blockchain data, so the node must synchronize again from the beginning.
+    However, it preserves the node's configuration and keys.
+
+    ```sh
+    python3 -m shoestring reset-data \
+        --config ./config.ini \
+        --directory .
+    ```
+
 ## Next Steps
 
-Once the node is running, only occasional [maintenance tasks](./manage.md) remain.
+Once the node is running, only occasional [maintenance tasks](./maintain.md) remain.

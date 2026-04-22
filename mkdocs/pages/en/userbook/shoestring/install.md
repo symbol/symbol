@@ -70,7 +70,7 @@ When they are shared (as is the case on some Virtual Server providers) performan
 Install Shoestring using the Python package manager:
 
 ```bash
-pip install symbol-shoestring
+python3 -m pip install symbol-shoestring
 ```
 
 This command installs the Shoestring tool and its dependencies.
@@ -114,7 +114,7 @@ python3 -m shoestring <command> --help
 To upgrade Shoestring to the latest version, run:
 
 ```bash
-pip install --upgrade symbol-shoestring
+python3 -m pip install --upgrade symbol-shoestring
 ```
 
 ## Next Steps
