@@ -1,14 +1,14 @@
 # Developer Notes
 
-This document is intended for readers interested in catapult-client development.
+This document is intended for readers interested in catapult-client development and or willing to compile catapult-client from source.
 
 ## Hardware requirements
 
 The scripts shared in these documents have been tested on servers with the following hardware:
 
-* CPU: 4 cores, with **little endian** architecture
-* Memory: 8 GB
-* HD: 20 GB
+* CPU: 4+ cores, with **little endian** architecture
+* Memory: 8+ GB
+* HD: 20+ GB
 
 Runtime server requirements are network dependent.
 For example, networks with higher throughput will likely have higher requirements.
@@ -22,17 +22,30 @@ Make sure that the node's host is accessible from the internet and that the port
 
 ## Building catapult-client
 
+We have tested the build process on Linux, Apple (macOS), and Windows. The instructions for each platform are available in separate documents.
+
+* [Build with Docker](BUILD-docker.md)
+* [Build on Linux](BUILD-linux.md)
+* [Build on Apple (macOS)](BUILD-apple.md)
+* [Build on Windows](BUILD-windows.md)
+* [Build manually](BUILD-manual.md)
+
 ### Prerequisites
 
 Required
 
-* cmake >= 3.23
+* cmake >= 3.25
 * git
 * python 3.x
 
 Recommended
 
-* ninja-build
+* ninja-build (Linux)
+* Visual Studio Build Essentials 2019 or 2022 or 2026 (Windows)
+
+Optional
+
+* Visual Studio 2019 or 2022 or 2026 (Windows)
 
 ### Compilers
 
@@ -53,15 +66,10 @@ Windows:
 
 * Visual Studio 2019 (16.8)
 * Visual Studio 2022 (17.9)
+* Visual Studio 2026 (18.0)
 
 ### Guides
 
-In increasing order of complexity:
-
-* [Build with Docker](BUILD-docker.md)
-* [Build with Conan](BUILD-conan.md)
-* [Build with Visual Studio](BUILD-vs.md) (*easiest for Windows users on VS integrated with CMake)
-* [Build manually](BUILD-manual.md)
 
 ### Sanitizers
 

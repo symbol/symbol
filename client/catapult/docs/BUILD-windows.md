@@ -1,0 +1,240 @@
+[Visual Studio]: https://visualstudio.microsoft.com/downloads/
+[vcpkg]: https://github.com/microsoft/vcpkg
+[Conan]: https://conan.io/downloads.html
+[Python]: https://www.python.org/downloads/windows/
+[Git]: https://git-scm.com/download/win
+
+# Building on Windows
+
+This guide describes how to build catapult-client on Windows.
+There are two supported build techniques on Windows:
+
+- [Visual Studio] with vcpkg (easiest and recommended)
+- [Visual Studio] with Conan (not integrated with Visual Studio, mostly command line)
+
+The recommended approach is to use Visual Studio with integrated CMake and vcpkg.
+You can either use the full Visual Studio IDE or just Build Tools for Visual Studio,
+but in both cases you need to have CMake support installed.
+
+- [Building with Visual Studio and vcpkg](#building-with-visual-studio-and-vcpkg)
+  - [Prerequisites](#prerequisites)
+  - [Setting up the environment](#setting-up-the-environment)
+  - [Setting up vcpkg](#setting-up-vcpkg)
+  - [Building from within the Visual Studio IDE](#building-from-within-the-visual-studio-ide)
+  - [Building from the command line](#building-from-the-command-line)
+  - [Verify Catapult build](#verify-catapult-build)
+- [Building with Visual Studio and Conan](#building-with-visual-studio-and-conan)
+  - [Prerequisites](#prerequisites-1)
+  - [Setting up the environment](#setting-up-the-environment-1)
+  - [Let Conan install dependencies](#let-conan-install-dependencies)
+  - [Configure and build](#configure-and-build)
+  - [Verify Catapult build](#verify-catapult-build-1)
+
+## Building with Visual Studio and vcpkg
+
+### Prerequisites
+
+Install either [Visual Studio] or Build Tools for Visual Studio.
+
+Required Visual Studio components:
+
+- Desktop development with C++ (MSVC toolset)
+- C++ CMake tools for Windows
+- Windows 10/11 SDK
+
+Additional requirements:
+
+- [Git] >= 2.25
+- [Python] >= 3.8
+- [vcpkg] package manager (can be installed separately)
+
+If you want to install [Git] manually, download it from <https://git-scm.com/download/win>.
+Install it before the next steps because it is needed to clone catapult and optionally vcpkg.
+
+### Setting up the environment
+
+Open Visual Studio and clone the catapult repository using the built-in Git integration:
+- Go to **Git -> Clone Repository**.
+- In the **Repository location** enter the URL `https://github.com/symbol/symbol.git`
+- In the **Path** field, choose a local directory where you want to clone the repository (for example, `C:\symbol`).
+- Click **Clone** to start cloning the repository.
+
+If you prefer to use a terminal, you can clone the repository using Developer PowerShell for Visual Studio.
+Replace `<your_chosen_directory>` with the path where you want to clone the repository:
+```powershell
+git clone https://github.com/symbol/symbol.git <your_chosen_directory>
+```
+
+### Setting up vcpkg
+
+If you did not install vcpkg from the Visual Studio installer, you can install it manually from Developer PowerShell for Visual Studio:
+```powershell
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+```
+
+After bootstrap completes, set an environment variable named `VCPKG_ROOT` to the full path where you cloned vcpkg (for example, `C:\vcpkg`).
+It is recommended to set this variable permanently in system environment variables,
+but you can also set it temporarily in the current terminal session:
+```powershell
+$env:VCPKG_ROOT = "C:\vcpkg"
+```
+
+### Building from within the Visual Studio IDE
+
+Open Visual Studio, then go to **File -> Open -> CMake...** and select the `CMakeLists.txt` file from the
+`client\catapult` subdirectory of the `symbol` repository you cloned earlier.
+This starts CMake configuration and downloads/builds dependencies through vcpkg.
+This step can take a while depending on your hardware and internet connection.
+
+You may want to choose the CMake preset from the toolbar before building.
+For example, select `win-Release` to build the Release configuration.
+
+Preset names are prefixed with `win-` and are Visual Studio version agnostic.
+The project uses the Ninja generator, so the same presets can be used across Visual Studio versions.
+
+When configuration finishes, the CMake output window shows `1> CMake generation finished.`.
+At this point, the project is fully configured and ready to build.
+You can now build the project by clicking on the `Build -> Build All` menu item.
+
+The build process may take a while.
+At the end of the build, check the output window for errors.
+If there are issues, please open an issue.
+The binaries will be available in the `build\<preset-name>\bin` directory (e.g. `build\win-Release\bin` for Release configuration).
+
+### Building from the command line
+
+If you prefer the command line, **or if you installed Build Tools for Visual Studio only**,
+use Developer PowerShell for Visual Studio and run the following commands from `symbol\client\catapult`:
+```powershell
+cmake --preset <preset-name>
+cmake --build --preset <preset-name>
+```
+
+Where `<preset-name>` is the name of the preset you want to build (e.g. `win-Release`).
+Here is a list of available presets you can obtain by running `cmake --list-presets` from the `symbol\client\catapult` directory:
+```
+  "win-Debug"          - Windows (VS) configuration Debug
+  "win-RelWithDebInfo" - Windows (VS) configuration RelWithDebInfo
+  "win-Release"        - Windows (VS) configuration Release
+  "win-MinSizeRel"     - Windows (VS) configuration MinSizeRel
+```
+
+### Verify Catapult build
+
+By default, builds are created in the `build` directory of the `catapult` project.
+Based on your preset, binaries are generated in the corresponding subdirectory.
+For example, if you build Debug,
+you will find the binaries in `build\win-Debug\bin`.
+
+You can verify the build by running this command from Developer PowerShell for Visual Studio with current directory set to `symbol\client\catapult`:
+```powershell
+.\build\<preset-name>\bin\catapult.tools.address.exe --help
+```
+
+You should see output similar to this:
+```powershell
+Address Inspector Tool
+Copyright (c) Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp.
+catapult version: 1.0.3.7 3d657205 [VisualStudio]
+
+Address Inspector Tool options:
+  -h [ --help ]     print help message
+  -l [ --loggingConfigurationPath ] arg
+                    path to the logging configuration file
+  -n [ --network ] arg (=testnet)
+                    network, possible values: testnet (default), mainnet
+  -i [ --input ] arg
+                    input value (comma-delimited) or file
+  -o [ --output ] arg
+                    (optional) output file
+  -f [ --format ] arg (=pretty)
+                    output format, possible values: pretty (default), csv
+  --suppressConsole
+                    true to suppress console output
+  -m [ --mode ] arg mode, possible values: encoded, decoded, public, secret
+```
+
+Should you have built in Debug configuration, you have also unit tets built. You can run them with this command:
+```powershell
+ctest --test-dir .\build\<preset-name>\tests
+```
+
+## Building with Visual Studio and Conan
+
+[Conan] is also supported as an alternative to vcpkg.
+However, this approach is not integrated with Visual Studio IDE and is mostly command-line based.
+Conan generetes it own preset named `conan-default` that can be used to build the project with CMake.
+
+### Prerequisites
+
+- Same as above, except for vcpkg which is not needed for this approach.
+- [Git] >= 2.25 (for cloning the repository)
+- [Python] >= 3.8
+- [Conan] package manager >= 2.0 (you can install it with `py -3 -m pip install --upgrade "conan>=2,<3"`)
+
+Ensure Python is added to your system `PATH` so you can run it from any terminal.
+
+### Setting up the environment
+
+As above, clone the catapult repository either with Git integration or from terminal:
+```powershell
+git clone https://github.com/symbol/symbol.git <your_chosen_directory>
+```
+
+### Let Conan install dependencies
+
+From Developer PowerShell for Visual Studio, navigate to `symbol\client\catapult` and run:
+```powershell
+conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
+cd build
+```
+Where `build_type` can be `Debug`, `Release`, `RelWithDebInfo`, or `MinSizeRel`.
+
+This will create a `build` directory with the Conan configuration and generated files.
+All dependencies are downloaded and built in the `build` directory as well.
+This can take a while depending on your hardware and internet connection.
+
+### Configure and build
+
+Next, configure the project with CMake and build it:
+```powershell
+cmake --preset conan-default -G "Ninja" ../
+cmake --build . -j2
+```
+
+If needed, replace `Visual Studio 18 2026` with your installed Visual Studio generator.
+
+After a successful build, tools are available under `build\bin\<configuration>` (e.g. `build\bin\Release` for Release configuration).
+
+### Verify Catapult build
+
+You can verify the build by running this command from Developer PowerShell for Visual Studio with current directory set to `symbol\client\catapult`:
+```powershell
+.\build\bin\<configuration>\catapult.tools.address.exe --help
+```
+Where `<configuration>` is the build configuration you used (e.g. `Release`).
+
+You should see output similar to this:
+```powershell
+Address Inspector Tool
+Copyright (c) Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp.
+catapult version: 1.0.3.7 3d657205 [VisualStudio]
+
+Address Inspector Tool options:
+  -h [ --help ]     print help message
+  -l [ --loggingConfigurationPath ] arg
+                    path to the logging configuration file
+  -n [ --network ] arg (=testnet)
+                    network, possible values: testnet (default), mainnet
+  -i [ --input ] arg
+                    input value (comma-delimited) or file
+  -o [ --output ] arg
+                    (optional) output file
+  -f [ --format ] arg (=pretty)
+                    output format, possible values: pretty (default), csv
+  --suppressConsole
+                    true to suppress console output
+  -m [ --mode ] arg mode, possible values: encoded, decoded, public, secret
+```
