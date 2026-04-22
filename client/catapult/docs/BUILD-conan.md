@@ -1,177 +1,163 @@
+[CMake]: http://cmake.org
+[Conan]: https://conan.io
+
 # Building with Conan
 
-Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
+[Conan] is a C/C++ package manager. In this project, it is used to fetch and build third-party dependencies and make them available to CMake in a reproducible way.
 
-## Mandatory version requirements
-- Python version >= 3.8
-- Conan version >= 2.x
+- [Building on Linux/macOS](#building-conan-nix)
+    - [Prerequisites](#nix-prerequisites)
+- [Building on Windows](#building-with-conan-on-windows)
 
-## Prerequisites
+These instructions cover building catapult with Conan on Linux/macOS and Windows.
 
-* **On Linux**:
+## Building with Conan on Linux/macOS {#building-conan-nix}
 
-  1. Install the compiler and build dependencies:
+### Prerequisites {#nix-prerequisites}
 
-     ```sh
-     sudo apt update
-     sudo apt install build-essential git cmake ninja-build pkg-config
-     ```
+- Python >= 3.8
+- Conan >= 2.x
 
-  2. Install latest version of [Conan](https://conan.io/downloads.html).
+## Install Conan 2 with pip (Python 3 required)
 
-  3. Create a profile for Conan:
+Conan 2 is installed with `pip`, which requires Python 3 to be available in your environment.
 
-     ```sh
-     conan profile detect --name default
-     ```
+```sh
+python3 -m pip install --upgrade "conan>=2,<3"
+conan --version
+```
 
-* **On Windows**:
+On Windows, if `python3` is not available, use:
 
-  1. Install [Visual Studio](https://visualstudio.microsoft.com/) and [Git for Windows](https://git-scm.com/download/win).
+```sh
+py -3 -m pip install --upgrade "conan>=2,<3"
+conan --version
+```
 
-     Run all commands from a command prompt that has access to Visual Studio and Git. This can be accomplished by using the "Native Tools Command Prompt" shortcut installed by Visual Studio on the Start Menu.
+## Common setup (all platforms)
 
-  2. Install latest version of [Conan](https://conan.io/downloads.html). You can proceed in two ways:
-  
-        - if you have Python installed, you can use pip:
-		
-        ```sh
-        pip install --upgrade conan
-        ```
-
-        - or you can download and run the installer from the [Conan website](https://conan.io/downloads.html).
-
-  3. Create a profile for Conan:
-
-   ```sh
-   conan profile detect --name default
-   ```
-   This should produce an output like the following:
-   ```sh
-   Found Visual Studio 17
-   [...]
-   Profile created with detected settings: C:\Users\<yourusername>\.conan\profiles\default
-   ```
-
-* **On Mac**:
-
-  1. Install the compiler:
-
-     ```sh
-     xcode-select —install
-     ```
-
-  2. Install build dependencies:
-
-     ```sh
-     brew install git cmake ninja pkg-config
-     ```
-
-  3. Install latest version of [Conan](https://conan.io/downloads.html).
-
-  4. Create a profile for Conan:
-
-      ```sh
-     conan profile detect --name default
-      ```
-
-## Step 1: Build dependencies
-
-While Conan will be building and installing packages, you might want to go for a ☕ (or lunch),
-as this will probably take *a bit*.
-
-### Install conan sources repo and get catapult source code (any OS)
 ```sh
 conan remote add nemtech https://conan.symbol.dev/artifactory/api/conan/catapult
 git clone https://github.com/symbol/symbol.git
 cd symbol/client/catapult
 ```
 
-### Linux and Macos
+## Building with Conan on *nix (Linux/macOS)
+
+### Prerequisites
+
+- **Linux (Ubuntu):**
+
+  ```sh
+  sudo apt update
+  sudo apt install build-essential git cmake ninja-build pkg-config python3-full
+  ```
+
+- **macOS:**
+
+  ```sh
+  xcode-select --install
+  brew install git cmake ninja pkg-config
+  ```
+
+- Install Conan: <https://conan.io/downloads.html>
+- Create Conan profile:
+
+  ```sh
+  conan profile detect --name default
+  ```
+
+### Install dependencies
+
 ```sh
 conan install . --build=missing -s build_type=Release
 cd build/Release
 ```
 
-### Windows
+`build_type` can be `Release`, `RelWithDebInfo`, or `Debug`.
+
+### Configure and build
+
 ```sh
-conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
-cd build
+cmake --preset conan-release -G Ninja -DUSE_CONAN=ON ../../
+ninja -j4
 ```
-_where `build_type` argument value can be any of Release, RelWithDebInfo, Debug_
 
+### Runtime library path
 
-## Step 2: Build catapult
+After build, binaries are in `build/bin`. Dependencies are in `build/deps` and must be visible at runtime.
 
-### Windows + Visual Studio
-
-> **NOTE:**
-> Make sure to use the correct ``PYTHON_EXECUTABLE`` path! Python3 is required for the build to produce some header files. If Python3 cannot be found you won't notice until more than one hour into the build process because of some missing headers. You can find your Python3 path by running ``where python3``.
-
-* Generate project files for Visual Studio 2022:
-
-  ```sh
-  cmake --preset conan-default -G "Visual Studio 17 2022" -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
-  ```
-
-* Generate project files for Visual Studio 2019:
-
-  ```sh
-  cmake --preset conan-default -G "Visual Studio 16 2019"  -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
-  ```
-
-* Build:
-
-  ```sh
-  cmake --build . --target publish
-  msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
-  ```
-  > **NOTE:** Ensure the `Configuration` argument matches the `build_type` used in the `conan install ..` command you have executed earlier.
-
-  After building successfully, the tools in ``build\bin\<configuration>`` (where <configuration> is the name of the configuration profile you have set i.e. Release | RelWithDebInfo | Debug) are ready to use. All runtime dependencies have been copied into the same folder so Windows will find them.
-
-* Verify:
-
-  Check that the tools are working correctly by running:
-
-  ```sh
-  bin\Release\catapult.tools.address --help
-  ```
-
-### Linux and macOS
-
-* Build:
-
-  ```sh
-  cmake --preset conan-release -G Ninja -DUSE_CONAN=ON ../../
-  ninja -j4
-  ```
-
-  Once the build finishes successfully, the tools in ``_build/bin`` are ready to use. However, the dependencies in ``_build/deps`` must be accessible so make sure to add this folder to the ``LD_LIBRARY_PATH`` environment variable (Linux) or ``DYLD_LIBRARY_PATH`` (Mac).
-
-  One way of doing this is by running this from the ``_build`` directory:
+- Linux:
 
   ```sh
   export LD_LIBRARY_PATH=$PWD/deps
   ```
 
-  You will need to run this line every new session, unless you add it at the end of your ``~/.bashrc`` or ``~/.profile`` files.
-
-* Install (Optional):
-
-  The catapult tools can be made available globally by running:
+- macOS:
 
   ```sh
-  sudo ninja install
+  export DYLD_LIBRARY_PATH=$PWD/deps
   ```
 
-  > **NOTE:**
-  > You can change the default installation location by passing ``-DCMAKE_INSTALL_PREFIX=...`` to ``cmake`` in the Build step. In this case you might not require ``sudo``.
+### Optional install
 
-* Verify:
+```sh
+sudo ninja install
+```
 
-  Check that the tools are working correctly by running:
+You can customize the install location with `-DCMAKE_INSTALL_PREFIX=...` during CMake configure.
 
-  ```sh
-  bin/catapult.tools.address --help
-  ```
+### Verify
+
+```sh
+bin/catapult.tools.address --help
+```
+
+## Building with Conan on Windows
+
+### Prerequisites
+
+1. Install [Visual Studio](https://visualstudio.microsoft.com/) and [Git for Windows](https://git-scm.com/download/win).
+2. Run commands from a Visual Studio Native Tools Command Prompt.
+3. Install Conan with pip (Python 3):
+
+   ```sh
+   py -3 -m pip install --upgrade "conan>=2,<3"
+   ```
+
+   Or use the installer from <https://conan.io/downloads.html>.
+
+4. Create Conan profile:
+
+   ```sh
+   conan profile detect --name default
+   ```
+
+### Install dependencies
+
+```sh
+conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
+cd build
+```
+
+`build_type` can be `Release`, `RelWithDebInfo`, or `Debug`.
+
+### Configure and build
+
+> **Note:** set `PYTHON_EXECUTABLE` to a Python 3 path (for generated headers). You can locate it with `where python3`.
+
+```sh
+cmake --preset conan-default -G "Visual Studio 17 2022" -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
+cmake --build . --target publish
+msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
+```
+
+Ensure `Configuration` matches the Conan `build_type` used above.
+
+After a successful build, tools are available under `build\bin\<configuration>`.
+
+### Verify
+
+```sh
+bin\Release\catapult.tools.address --help
+```
