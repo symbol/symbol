@@ -2,8 +2,7 @@ extends:
   - minimal
 
 rules:
-  no-ambiguous-paths: off
-  tag-description: off
+  no-ambiguous-paths: "off"
 
 apis:
   main:

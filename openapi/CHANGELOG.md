@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.0.5] - 17-Feb-2026
+## [1.0.5] - 14-Apr-2026
 
 Milestone: Symbol Mainnet
 
@@ -20,6 +20,13 @@ Milestone: Symbol Mainnet
 - feat: Added ``POST /restrictions/account`` endpoint - batch fetch account restrictions by addresses.
 - feat: Added ``POST /restrictions/mosaic`` endpoint - batch fetch mosaic restrictions by compositeHashes.
 - fix: Corrected ``/network/inflation`` response schema reference.
+- feat: Switched build/lint toolchain from ``swagger-cli`` to ``@redocly/cli`` and refreshed OpenAPI dependencies.
+- feat: Added broad endpoint and schema descriptions across account, block, network, node, chain, finalization,
+  transaction, mosaic, namespace, receipt, metadata, multisig, lock and restriction areas.
+- feat: Added YAML linting and external link verification to improve spec consistency and docs quality checks.
+- feat: Migrated to OpenAPI 3.1.0
+- fix: Replaced ``format: hex`` usage with explicit regex patterns in schemas.
+- fix: Clarified query/filter semantics in endpoint documentation.
 
 ## [1.0.4] - 25-Nov-2025
 
