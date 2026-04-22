@@ -4,4 +4,4 @@ properties:
     type: string
     description: Maximum number of mosaic restriction values.
     examples:
-      - "20"
+      - '20'

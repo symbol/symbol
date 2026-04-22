@@ -5,8 +5,8 @@ required:
   - db
 properties:
   apiNode:
-    $ref: "./NodeStatusEnum.yml"
+    $ref: ./NodeStatusEnum.yml
     description: API node service status.
   db:
-    $ref: "./NodeStatusEnum.yml"
+    $ref: ./NodeStatusEnum.yml
     description: MongoDB service status.

@@ -8,7 +8,7 @@ required:
   - names
 properties:
   mosaicId:
-    $ref: "../../../schemas/MosaicId.yml"
+    $ref: ../../../schemas/MosaicId.yml
     description: Mosaic identifier for which namespace names were resolved.
   names:
     type: array

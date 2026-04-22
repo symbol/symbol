@@ -2,4 +2,4 @@ name: signerPublicKey
 in: query
 description: Filter transactions by the public key of the signing account (include).
 schema:
-  $ref: "../../schemas/PublicKey.yml"
+  $ref: ../../schemas/PublicKey.yml

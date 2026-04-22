@@ -28,9 +28,9 @@ properties:
       Cosignatory addresses to add to the multisig account.
       Newly added cosignatories must opt in by cosigning the aggregate transaction.
     items:
-      $ref: "../../../schemas/UnresolvedAddress.yml"
+      $ref: ../../../schemas/UnresolvedAddress.yml
   addressDeletions:
     type: array
     description: Cosignatory addresses to remove from the multisig account.
     items:
-      $ref: "../../../schemas/UnresolvedAddress.yml"
+      $ref: ../../../schemas/UnresolvedAddress.yml

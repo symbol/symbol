@@ -4,4 +4,4 @@ properties:
     type: string
     description: Maximum transaction message size.
     examples:
-      - "1024"
+      - '1024'

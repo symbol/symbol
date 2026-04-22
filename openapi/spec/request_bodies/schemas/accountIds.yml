@@ -7,9 +7,9 @@ properties:
     type: array
     description: Array of account public keys.
     items:
-      $ref: "../../schemas/PublicKey.yml"
+      $ref: ../../schemas/PublicKey.yml
   addresses:
     type: array
     description: Array of account addresses.
     items:
-      $ref: "../../schemas/Address.yml"
+      $ref: ../../schemas/Address.yml

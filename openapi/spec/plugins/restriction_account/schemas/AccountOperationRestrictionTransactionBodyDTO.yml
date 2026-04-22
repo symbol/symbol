@@ -6,14 +6,14 @@ required:
   - restrictionDeletions
 properties:
   restrictionFlags:
-    $ref: "./AccountRestrictionFlagsEnum.yml"
+    $ref: ./AccountRestrictionFlagsEnum.yml
   restrictionAdditions:
     type: array
     description: Account restriction additions.
     items:
-      $ref: "../../../core/transaction/schemas/TransactionTypeEnum.yml"
+      $ref: ../../../core/transaction/schemas/TransactionTypeEnum.yml
   restrictionDeletions:
     type: array
     description: Account restriction deletions.
     items:
-      $ref: "../../../core/transaction/schemas/TransactionTypeEnum.yml"
+      $ref: ../../../core/transaction/schemas/TransactionTypeEnum.yml

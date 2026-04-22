@@ -3,4 +3,4 @@ in: query
 description: |
   Sort responses by the property set. Defaults to `id` when not specified.
 schema:
-  $ref: "../../core/block/schemas/BlockOrderByEnum.yml"
+  $ref: ../../core/block/schemas/BlockOrderByEnum.yml

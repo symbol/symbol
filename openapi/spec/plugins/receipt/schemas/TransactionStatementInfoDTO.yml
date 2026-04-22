@@ -6,8 +6,8 @@ required:
 description: Wrapper object containing one transaction statement and its metadata.
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   meta:
-    $ref: "./StatementMetaDTO.yml"
+    $ref: ./StatementMetaDTO.yml
   statement:
-    $ref: "./TransactionStatementDTO.yml"
+    $ref: ./TransactionStatementDTO.yml

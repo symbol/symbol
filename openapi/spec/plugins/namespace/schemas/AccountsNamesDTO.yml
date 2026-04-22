@@ -7,4 +7,4 @@ properties:
     type: array
     description: Array of namespace name entries resolved for the requested account addresses.
     items:
-      $ref: "./AccountNamesDTO.yml"
+      $ref: ./AccountNamesDTO.yml

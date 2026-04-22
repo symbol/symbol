@@ -8,6 +8,6 @@ properties:
     type: array
     description: Account restriction entries matching the requested filters.
     items:
-      $ref: "./AccountRestrictionsInfoDTO.yml"
+      $ref: ./AccountRestrictionsInfoDTO.yml
   pagination:
-    $ref: "../../../schemas/Pagination.yml"
+    $ref: ../../../schemas/Pagination.yml

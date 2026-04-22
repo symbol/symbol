@@ -5,10 +5,10 @@ required:
   - deadline
 properties:
   maxFee:
-    $ref: "../../../schemas/Amount.yml"
+    $ref: ../../../schemas/Amount.yml
     description: Maximum fee the signer is willing to pay for this transaction, in smallest (atomic) units.
   deadline:
-    $ref: "../../../schemas/Timestamp.yml"
+    $ref: ../../../schemas/Timestamp.yml
     description: |
       Latest network time at which the transaction can still be included in a block, expressed in milliseconds
       since the creation of the nemesis (first) block.

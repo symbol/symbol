@@ -4,7 +4,7 @@ description: |
   (left or right) relative to the proofHash being evaluated.
 properties:
   position:
-    $ref: "./PositionEnum.yml"
+    $ref: ./PositionEnum.yml
   hash:
-    $ref: "../../../schemas/Hash256.yml"
+    $ref: ../../../schemas/Hash256.yml
     description: Sibling node hash used when recalculating the Merkle root.

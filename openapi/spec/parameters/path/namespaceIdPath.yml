@@ -3,4 +3,4 @@ in: path
 description: Namespace identifier encoded as a 16-character hexadecimal string.
 required: true
 schema:
-  $ref: "../../schemas/NamespaceId.yml"
+  $ref: ../../schemas/NamespaceId.yml

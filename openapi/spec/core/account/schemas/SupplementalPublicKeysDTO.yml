@@ -4,10 +4,10 @@ description: |
   VRF key derivation, and finalization voting.
 properties:
   linked:
-    $ref: "./AccountLinkPublicKeyDTO.yml"
+    $ref: ./AccountLinkPublicKeyDTO.yml
   node:
-    $ref: "./AccountLinkPublicKeyDTO.yml"
+    $ref: ./AccountLinkPublicKeyDTO.yml
   vrf:
-    $ref: "./AccountLinkPublicKeyDTO.yml"
+    $ref: ./AccountLinkPublicKeyDTO.yml
   voting:
-    $ref: "./AccountLinkVotingKeysDTO.yml"
+    $ref: ./AccountLinkVotingKeysDTO.yml

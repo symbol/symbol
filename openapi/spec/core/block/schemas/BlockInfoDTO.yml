@@ -6,10 +6,10 @@ required:
   - block
 properties:
   id:
-    $ref: "../../../schemas/ObjectId.yml"
+    $ref: ../../../schemas/ObjectId.yml
   meta:
-    $ref: "./BlockMetaDTO.yml"
+    $ref: ./BlockMetaDTO.yml
   block:
     anyOf:
-      - $ref: "./BlockDTO.yml"
-      - $ref: "./ImportanceBlockDTO.yml"
+      - $ref: ./BlockDTO.yml
+      - $ref: ./ImportanceBlockDTO.yml

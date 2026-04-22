@@ -7,4 +7,4 @@ properties:
     type: array
     description: Array of transactions initiated by different accounts.
     items:
-      $ref: "../../../core/transaction/schemas/EmbeddedTransactionInfoDTO.yml"
+      $ref: ../../../core/transaction/schemas/EmbeddedTransactionInfoDTO.yml

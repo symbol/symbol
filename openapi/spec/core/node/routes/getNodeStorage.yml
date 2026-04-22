@@ -4,12 +4,12 @@ summary: Get the storage information of the node
 description: Returns storage information about the node.
 operationId: getNodeStorage
 responses:
-  "200":
+  '200':
     description: Storage information successfully retrieved.
     content:
       application/json:
         schema:
-          $ref: "../schemas/StorageInfoDTO.yml"
+          $ref: ../schemas/StorageInfoDTO.yml
         examples:
           nodeStorage:
             summary: Example node storage statistics

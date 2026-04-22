@@ -12,4 +12,4 @@ description: |
   On transaction search endpoints, this filter cannot be combined with `recipientAddress` and
   `signerPublicKey`.
 schema:
-  $ref: "../../schemas/Address.yml"
+  $ref: ../../schemas/Address.yml

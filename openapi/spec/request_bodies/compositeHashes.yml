@@ -1,5 +1,5 @@
 content:
   application/json:
     schema:
-      $ref: "./schemas/compositeHashes.yml"
+      $ref: ./schemas/compositeHashes.yml
 required: true

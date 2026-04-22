@@ -3,7 +3,7 @@ in: path
 description: Receipt statement hash.
 required: true
 schema:
-  $ref: "../../schemas/Hash256.yml"
+  $ref: ../../schemas/Hash256.yml
 examples:
   default:
     summary: Receipt statement hash

@@ -10,7 +10,7 @@ description: |
   content type and filename.
 operationId: getMetadataMetal
 parameters:
-  - $ref: "../../../parameters/path/metalIdPath.yml"
+  - $ref: ../../../parameters/path/metalIdPath.yml
   - name: mimeType
     in: query
     description: Override the MIME type of the response.
@@ -19,9 +19,9 @@ parameters:
       type: string
     examples:
       png:
-        value: "image/png"
+        value: image/png
       plainText:
-        value: "text/plain"
+        value: text/plain
   - name: fileName
     in: query
     description: Override the filename in the Content-Disposition header.
@@ -36,7 +36,7 @@ parameters:
       type: boolean
       default: false
 responses:
-  "200":
+  '200':
     description: Binary payload of the Metal metadata.
     headers:
       Content-Disposition:
@@ -47,9 +47,9 @@ responses:
           type: string
         examples:
           inlineSvg:
-            value: 'inline; filename="metal-sample.svg"'
+            value: inline; filename="metal-sample.svg"
           attachmentSvg:
-            value: 'attachment; filename="metal-sample.svg"'
+            value: attachment; filename="metal-sample.svg"
       Content-MetalText:
         description: |
           Original decoded Metal seal text associated with the payload, when the payload was stored
@@ -62,7 +62,7 @@ responses:
           textSeal:
             value: '["seal1",65,"text/plain","metal-sample.txt"]'
     content:
-      "*/*":
+      '*/*':
         schema:
           type: string
           format: binary

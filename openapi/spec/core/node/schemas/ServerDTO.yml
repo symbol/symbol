@@ -11,4 +11,4 @@ properties:
       - 1.0.14
     description: catapult-rest component version.
   deployment:
-    $ref: "./DeploymentDTO.yml"
+    $ref: ./DeploymentDTO.yml

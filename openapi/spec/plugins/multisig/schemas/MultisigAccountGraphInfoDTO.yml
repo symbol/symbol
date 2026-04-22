@@ -17,4 +17,4 @@ properties:
     type: array
     description: Multisig state entries discovered at this graph level.
     items:
-      $ref: "./MultisigAccountInfoDTO.yml"
+      $ref: ./MultisigAccountInfoDTO.yml

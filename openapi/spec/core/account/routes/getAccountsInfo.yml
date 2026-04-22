@@ -9,9 +9,9 @@ description: |
   If both `publicKeys` and `addresses` are provided, the request is invalid and the server returns `409` error.
 operationId: getAccountsInfo
 requestBody:
-  $ref: "../../../request_bodies/accountIds.yml"
+  $ref: ../../../request_bodies/accountIds.yml
 responses:
-  "200":
+  '200':
     description: Successfully fetched list of account data.
     content:
       application/json:
@@ -19,30 +19,30 @@ responses:
           type: array
           description: Array of account information objects.
           items:
-            $ref: "../schemas/AccountInfoDTO.yml"
+            $ref: ../schemas/AccountInfoDTO.yml
         examples:
           default:
             value:
-              - id: "5E62690AB46E5565E8C0B5B5"
+              - id: 5E62690AB46E5565E8C0B5B5
                 account:
                   version: 1
-                  address: "985A3B9B3A5821E7E5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0"
-                  addressHeight: "1"
+                  address: 985A3B9B3A5821E7E5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0
+                  addressHeight: '1'
                   publicKey: AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26
-                  publicKeyHeight: "1"
+                  publicKeyHeight: '1'
                   accountType: 0
                   supplementalPublicKeys: {}
                   activityBuckets:
-                    - startHeight: "1"
-                      totalFeesPaid: "0"
+                    - startHeight: '1'
+                      totalFeesPaid: '0'
                       beneficiaryCount: 0
-                      rawScore: "0"
+                      rawScore: '0'
                   mosaics:
                     - id: 0DC67FBE1CAD29E3
-                      amount: "1000000"
-                  importance: "0.010263666447108395"
-                  importanceHeight: "1"
-  "400":
-    $ref: "../../../responses/InvalidContent.yml"
-  "409":
-    $ref: "../../../responses/InvalidArgument.yml"
+                      amount: '1000000'
+                  importance: '0.010263666447108395'
+                  importanceHeight: '1'
+  '400':
+    $ref: ../../../responses/InvalidContent.yml
+  '409':
+    $ref: ../../../responses/InvalidArgument.yml

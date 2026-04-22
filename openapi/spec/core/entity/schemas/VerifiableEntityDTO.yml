@@ -7,4 +7,4 @@ required:
   - signature
 properties:
   signature:
-    $ref: "../../../schemas/Signature.yml"
+    $ref: ../../../schemas/Signature.yml

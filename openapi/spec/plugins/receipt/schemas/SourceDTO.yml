@@ -5,7 +5,7 @@ required:
   - secondaryId
 properties:
   primaryId:
-    $ref: "../../../schemas/UInt32.yml"
+    $ref: ../../../schemas/UInt32.yml
     description: |
       Index of the top-level transaction within the block.
       A top-level transaction is a transaction that appears directly in the block,
@@ -16,7 +16,7 @@ properties:
     examples:
       - 1
   secondaryId:
-    $ref: "../../../schemas/UInt32.yml"
+    $ref: ../../../schemas/UInt32.yml
     description: |
       Index of the embedded transaction within the aggregate transaction.
       Indexing is `1`-based, so the first embedded transaction has `secondaryId = 1`.
