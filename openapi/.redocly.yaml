@@ -1,5 +1,5 @@
 extends:
-  - minimal
+  - recommended
 
 rules:
   no-ambiguous-paths: off
