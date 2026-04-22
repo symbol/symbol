@@ -1,0 +1,160 @@
+{
+	"version": 4,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 25,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "vs-base",
+			"description": "Base preset for Visual Studio toolset",
+			"binaryDir": "${sourceDir}/build/${presetName}",
+			"installDir": "${sourceDir}/build/install/${presetName}",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"architecture": {
+				"value": "x64",
+				"strategy": "external"
+			},
+			"environment": {
+				"CC": "cl",
+				"CXX": "cl"
+			},
+			"generator": "Ninja",
+			"toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+			"cacheVariables": {
+				"VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-ports"
+			}
+		},
+		{
+			"name": "win-Debug",
+			"displayName": "Windows (VS) configuration Debug",
+			"inherits": "vs-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "win-RelWithDebInfo",
+			"displayName": "Windows (VS) configuration RelWithDebInfo",
+			"inherits": "vs-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
+			},
+			"warnings": {
+				"dev": false
+			}
+		},
+		{
+			"name": "win-Release",
+			"displayName": "Windows (VS) configuration Release",
+			"inherits": "vs-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			},
+			"warnings": {
+				"dev": false
+			}
+		},
+		{
+			"name": "win-MinSizeRel",
+			"displayName": "Windows (VS) configuration MinSizeRel",
+			"inherits": "vs-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "MinSizeRel"
+			},
+			"warnings": {
+				"dev": false
+			}
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "win-Debug",
+			"configurePreset": "win-Debug",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "Debug"
+		},
+		{
+			"name": "win-RelWithDebInfo",
+			"configurePreset": "win-RelWithDebInfo",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "RelWithDebInfo"
+		},
+		{
+			"name": "win-Release",
+			"configurePreset": "win-Release",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "Release"
+		},
+		{
+			"name": "win-MinSizeRel",
+			"configurePreset": "win-MinSizeRel",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "MinSizeRel"
+		}
+	],
+	"testPresets": [
+		{
+			"name": "win-Debug",
+			"configurePreset": "win-Debug",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "Debug"
+		},
+		{
+			"name": "win-RelWithDebInfo",
+			"configurePreset": "win-RelWithDebInfo",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "RelWithDebInfo"
+		},
+		{
+			"name": "win-Release",
+			"configurePreset": "win-Release",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "Release"
+		},
+		{
+			"name": "win-MinSizeRel",
+			"configurePreset": "win-MinSizeRel",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"configuration": "MinSizeRel"
+		}
+	]
+}

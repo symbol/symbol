@@ -1,0 +1,28 @@
+# Derive or sanitize toolchain file.
+# IMPORTANT ! This MUST be done before any project() or find_package() calls
+# as after any of the above the CMAKE_TOOLCHAIN_FILE is locked in.
+
+if(DEFINED CMAKE_TOOLCHAIN_FILE)
+
+    get_filename_component(_toolchain_abs "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+    get_filename_component(_toolchain_leaf "${_toolchain_abs}" NAME)
+
+    # Lower case comparison
+    string(TOLOWER "${_toolchain_leaf}" _toolchain_leaf_lower)
+    if(_toolchain_leaf_lower STREQUAL "vcpkg.cmake")
+        set(USE_VCPKG ON)
+    elseif(_toolchain_leaf_lower MATCHES "^conan.*\.cmake$")
+        set(USE_CONAN ON)
+    else()
+        message(FATAL_ERROR "CMAKE_TOOLCHAIN_FILE must be either a vcpkg.cmake or a Conan-generated cmake file. Provided: ${CMAKE_TOOLCHAIN_FILE}")
+    endif()
+
+    unset(_toolchain_abs)
+    unset(_toolchain_leaf)
+    unset(_toolchain_leaf_lower)
+
+else()
+
+    set(USE_METAL ON)
+
+endif()
