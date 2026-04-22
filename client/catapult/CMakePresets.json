@@ -13,21 +13,29 @@
 			"installDir": "${sourceDir}/build/install/${presetName}",
 			"hidden": true,
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
-			},
-			"architecture": {
-				"value": "x64",
-				"strategy": "external"
-			},
-			"environment": {
-				"CC": "cl",
-				"CXX": "cl"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"generator": "Ninja",
 			"toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
 			"cacheVariables": {
+				"VCPKG_FEATURE_FLAGS": "manifests",
 				"VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-ports"
 			}
 		},
@@ -44,7 +52,8 @@
 			"displayName": "Windows (VS) configuration RelWithDebInfo",
 			"inherits": "vs-base",
 			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
+				"CMAKE_BUILD_TYPE": "RelWithDebInfo",
+				"VCPKG_BUILD_TYPE": "release"
 			},
 			"warnings": {
 				"dev": false
@@ -55,7 +64,8 @@
 			"displayName": "Windows (VS) configuration Release",
 			"inherits": "vs-base",
 			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Release"
+				"CMAKE_BUILD_TYPE": "Release",
+				"VCPKG_BUILD_TYPE": "release"
 			},
 			"warnings": {
 				"dev": false
@@ -66,7 +76,8 @@
 			"displayName": "Windows (VS) configuration MinSizeRel",
 			"inherits": "vs-base",
 			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "MinSizeRel"
+				"CMAKE_BUILD_TYPE": "MinSizeRel",
+				"VCPKG_BUILD_TYPE": "release"
 			},
 			"warnings": {
 				"dev": false
@@ -78,9 +89,24 @@
 			"name": "win-Debug",
 			"configurePreset": "win-Debug",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "Debug"
 		},
@@ -88,9 +114,24 @@
 			"name": "win-RelWithDebInfo",
 			"configurePreset": "win-RelWithDebInfo",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "RelWithDebInfo"
 		},
@@ -98,9 +139,24 @@
 			"name": "win-Release",
 			"configurePreset": "win-Release",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "Release"
 		},
@@ -108,9 +164,24 @@
 			"name": "win-MinSizeRel",
 			"configurePreset": "win-MinSizeRel",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "MinSizeRel"
 		}
@@ -120,9 +191,24 @@
 			"name": "win-Debug",
 			"configurePreset": "win-Debug",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "Debug"
 		},
@@ -130,9 +216,24 @@
 			"name": "win-RelWithDebInfo",
 			"configurePreset": "win-RelWithDebInfo",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "RelWithDebInfo"
 		},
@@ -140,9 +241,24 @@
 			"name": "win-Release",
 			"configurePreset": "win-Release",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "Release"
 		},
@@ -150,9 +266,24 @@
 			"name": "win-MinSizeRel",
 			"configurePreset": "win-MinSizeRel",
 			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Windows"
+					},
+					{
+						"type": "equals",
+						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
+						"rhs": "x64"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
 			},
 			"configuration": "MinSizeRel"
 		}
