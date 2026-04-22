@@ -2,6 +2,7 @@ import json
 import os
 import urllib.request
 
+from symbolchain.symbol.IdGenerator import is_mosaic_alias
 from symbolchain.symbol.Network import Address
 
 NODE_URL = os.getenv(
@@ -38,11 +39,11 @@ try:
 	mosaics = tx_data['transaction']['mosaics']
 	for mosaic in mosaics:
 		mosaic_id = int(mosaic['id'], 16)
-		is_mosaic_alias = (mosaic_id >> 63) & 1 == 1
-		if is_mosaic_alias:
+		is_alias = is_mosaic_alias(mosaic_id)
+		if is_alias:
 			aliased_mosaics.add(mosaic['id'])
 		print(f'  Mosaic: {mosaic["id"]}')
-		print(f'  Is mosaic alias: {is_mosaic_alias}')
+		print(f'  Is mosaic alias: {is_alias}')
 
 	# Query address resolution statements
 	if is_address_alias:

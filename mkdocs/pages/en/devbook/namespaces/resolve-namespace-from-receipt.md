@@ -32,7 +32,7 @@ balance is needed.
 
 ### Defining the Transaction Hash
 
-{{ tutorial.code_snippet(['py:11:14', 'js:7:10']) }}
+{{ tutorial.code_snippet(['py:12:15', 'js:7:10']) }}
 
 The code defines the hash of a confirmed transaction that used namespace aliases instead of a plain address and
 mosaic ID.
@@ -44,7 +44,7 @@ You can use `TRANSACTION_HASH` to analyze a different transaction.
 
 ### Retrieving the Confirmed Transaction
 
-{{ tutorial.code_snippet(['py:17:29', 'js:13:26']) }}
+{{ tutorial.code_snippet(['py:18:30', 'js:13:26']) }}
 
 The confirmed transaction is fetched from the <get:/transactions/confirmed/{transactionId}> endpoint using its hash.
 
@@ -55,7 +55,7 @@ The transaction metadata also includes the `index` field, which is the 0-based p
 the block.
 The code converts it to a 1-based `primaryId` (`index + 1`) to match against the resolution entries later.
 
-{{ tutorial.code_snippet(['py:31:35', 'js:28:32']) }}
+{{ tutorial.code_snippet(['py:32:36', 'js:28:32']) }}
 
 The retrieved transaction contains the `recipientAddress` field.
 If the transaction used a namespace alias as recipient, this field holds the unresolved value (the encoded
@@ -67,10 +67,11 @@ The code checks whether the recipient is an alias by inspecting the lowest bit o
     [Linking Namespaces to Addresses](./link-namespace-to-address.md#using-the-alias) tutorial.
 * If the bit is `0`, the recipient is a regular address and no resolution is needed.
 
-{{ tutorial.code_snippet(['py:37:45', 'js:34:43']) }}
+{{ tutorial.code_snippet(['py:38:46', 'js:34:42']) }}
 
-The code iterates through the transaction's `mosaics` array and checks whether each mosaic ID is a namespace alias
-by inspecting bit 63 (the highest bit) of its 64-bit value:
+The code iterates through the transaction's `mosaics` array and uses the SDK's <dy:IdGenerator.isMosaicAlias> function
+to check whether each mosaic ID is a namespace alias.
+The function tests bit 63 (the highest bit) of the 64-bit value:
 
 * If the bit is `1`, the value is a namespace ID used as a mosaic alias, as described in the
     [Linking Namespaces to Mosaics](./link-namespace-to-mosaic.md#using-the-alias) tutorial.
@@ -78,7 +79,7 @@ by inspecting bit 63 (the highest bit) of its 64-bit value:
 
 ### Querying Address Resolution Statements
 
-{{ tutorial.code_snippet(['py:48:58', 'js:46:57']) }}
+{{ tutorial.code_snippet(['py:49:59', 'js:45:56']) }}
 
 Using the block height from the transaction metadata, the code queries the
 <get:/statements/resolutions/address> endpoint to retrieve the address resolution statements for that block.
@@ -89,7 +90,7 @@ Each resolution statement contains:
 * **Unresolved:** The namespace alias (encoded as an address) that was used in the transaction.
 * **Resolution entries:** An array mapping the alias to the actual address at the time of confirmation.
 
-{{ tutorial.code_snippet(['py:60:73', 'js:59:77']) }}
+{{ tutorial.code_snippet(['py:61:74', 'js:58:76']) }}
 
 The endpoint returns all address resolution statements for the block.
 The code skips any statement whose `unresolved` field does not match the transaction's `recipientAddress`,
@@ -113,7 +114,7 @@ even if the alias was defined multiple times in the same block.
 
 ### Querying Mosaic Resolution Statements
 
-{{ tutorial.code_snippet(['py:76:99', 'js:80:109']) }}
+{{ tutorial.code_snippet(['py:77:100', 'js:79:108']) }}
 
 The same transaction also used `symbol.xym` as a mosaic alias instead of a raw mosaic ID.
 The code queries the <get:/statements/resolutions/mosaic> endpoint with the same block height to retrieve
