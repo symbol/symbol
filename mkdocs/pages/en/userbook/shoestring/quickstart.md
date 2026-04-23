@@ -378,10 +378,10 @@ To create a <voting node:>, the following requirements must be met:
 !!! info "Voting Keys Maintenance"
 
     During setup, Shoestring creates <voting keys:> for the node.
-    These keys must be renewed periodically for security reasons.
+    For security reasons, these keys have a maximum lifespan of 180 days, so they must be renewed periodically.
 
-    Once the node is up and running, read the [Maintaining a Node](./maintain.md) guide to learn about the renewal
-    process.
+    Once the node is up and running, read the [Maintaining a Node](./maintain.md#voting-key-renewal) guide to
+    learn about the renewal process.
 
 ## Start the Node
 
