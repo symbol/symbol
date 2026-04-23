@@ -7,10 +7,25 @@
 	},
 	"configurePresets": [
 		{
-			"name": "vs-base",
-			"description": "Base preset for Visual Studio toolset",
+			"name": "build-base",
+			"description": "This is the base preset for building the project",
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"installDir": "${sourceDir}/build/install/${presetName}",
+			"hidden": true,
+			"generator": "Ninja",
+			"toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+			"cacheVariables": {
+				"VCPKG_FEATURE_FLAGS": "manifests",
+				"VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-ports"
+			},
+			"warnings": {
+				"dev": false
+			}
+		},
+		{
+			"name": "win-base",
+			"inherits": "build-base",
+			"description": "Base preset for Windows (Visual Studio Toolset)",
 			"hidden": true,
 			"condition": {
 				"type": "allOf",
@@ -31,63 +46,112 @@
 						"rhs": ""
 					}
 				]
-			},
-			"generator": "Ninja",
-			"toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-			"cacheVariables": {
-				"VCPKG_FEATURE_FLAGS": "manifests",
-				"VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-ports"
 			}
 		},
 		{
 			"name": "win-Debug",
-			"displayName": "Windows (VS) configuration Debug",
-			"inherits": "vs-base",
+			"displayName": "Build Catapult in Debug mode",
+			"inherits": "win-base",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug"
+			},
+			"warnings": {
+				"dev": true
 			}
 		},
 		{
 			"name": "win-RelWithDebInfo",
-			"displayName": "Windows (VS) configuration RelWithDebInfo",
-			"inherits": "vs-base",
+			"displayName": "Build Catapult in Release mode with limited Debug Info",
+			"inherits": "win-base",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "RelWithDebInfo",
 				"VCPKG_BUILD_TYPE": "release"
-			},
-			"warnings": {
-				"dev": false
 			}
 		},
 		{
 			"name": "win-Release",
-			"displayName": "Windows (VS) configuration Release",
-			"inherits": "vs-base",
+			"displayName": "Build Catapult in Release mode",
+			"inherits": "win-base",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"VCPKG_BUILD_TYPE": "release"
-			},
-			"warnings": {
-				"dev": false
 			}
 		},
 		{
 			"name": "win-MinSizeRel",
-			"displayName": "Windows (VS) configuration MinSizeRel",
-			"inherits": "vs-base",
+			"displayName": "Build Catapult in MinSizeRel mode (minimal binary sizes)",
+			"inherits": "win-base",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "MinSizeRel",
 				"VCPKG_BUILD_TYPE": "release"
+			}
+		},
+		{
+			"name": "linux-base",
+			"inherits": "build-base",
+			"description": "Base preset for Linux (GCC/Clang Toolset)",
+			"hidden": true,
+			"binaryDir": "${sourceDir}/build/${presetName}",
+			"condition": {
+				"type": "allOf",
+				"conditions": [
+					{
+						"type": "equals",
+						"lhs": "${hostSystemName}",
+						"rhs": "Linux"
+					},
+					{
+						"type": "notEquals",
+						"lhs": "$env{VCPKG_ROOT}",
+						"rhs": ""
+					}
+				]
+			}
+		},
+		{
+			"name": "linux-Debug",
+			"displayName": "Build Catapult in Debug mode",
+			"inherits": "linux-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
 			},
 			"warnings": {
-				"dev": false
+				"dev": true
+			}
+		},
+		{
+			"name": "linux-RelWithDebInfo",
+			"displayName": "Build Catapult in Release mode with limited Debug Info",
+			"inherits": "linux-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "RelWithDebInfo",
+				"VCPKG_BUILD_TYPE": "release"
+			}
+		},
+		{
+			"name": "linux-Release",
+			"displayName": "Build Catapult in Release mode",
+			"inherits": "linux-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"VCPKG_BUILD_TYPE": "release"
+			}
+		},
+		{
+			"name": "linux-MinSizeRel",
+			"displayName": "Build Catapult in MinSizeRel mode (minimal binary sizes)",
+			"inherits": "linux-base",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "MinSizeRel",
+				"VCPKG_BUILD_TYPE": "release"
 			}
 		}
 	],
 	"buildPresets": [
 		{
-			"name": "win-Debug",
-			"configurePreset": "win-Debug",
+			"name": "win-Base",
+			"hidden": true,
+			"description": "Base build preset for Windows (Visual Studio Toolset)",
 			"condition": {
 				"type": "allOf",
 				"conditions": [
@@ -97,84 +161,53 @@
 						"rhs": "Windows"
 					},
 					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
-					},
-					{
 						"type": "notEquals",
 						"lhs": "$env{VCPKG_ROOT}",
 						"rhs": ""
 					}
 				]
 			},
-			"configuration": "Debug"
+			"jobs": 4
+		},
+		{
+			"name": "win-Debug",
+			"inherits": "win-Base",
+			"configurePreset": "win-Debug",
+			"configuration": "Debug",
+			"displayName": "Build Catapult in Debug mode"
 		},
 		{
 			"name": "win-RelWithDebInfo",
+			"inherits": "win-Base",
 			"configurePreset": "win-RelWithDebInfo",
-			"condition": {
-				"type": "allOf",
-				"conditions": [
-					{
-						"type": "equals",
-						"lhs": "${hostSystemName}",
-						"rhs": "Windows"
-					},
-					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
-					},
-					{
-						"type": "notEquals",
-						"lhs": "$env{VCPKG_ROOT}",
-						"rhs": ""
-					}
-				]
-			},
-			"configuration": "RelWithDebInfo"
+			"configuration": "RelWithDebInfo",
+			"displayName": "Build Catapult in Release mode with limited Debug Info"
 		},
 		{
 			"name": "win-Release",
+			"inherits": "win-Base",
 			"configurePreset": "win-Release",
-			"condition": {
-				"type": "allOf",
-				"conditions": [
-					{
-						"type": "equals",
-						"lhs": "${hostSystemName}",
-						"rhs": "Windows"
-					},
-					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
-					},
-					{
-						"type": "notEquals",
-						"lhs": "$env{VCPKG_ROOT}",
-						"rhs": ""
-					}
-				]
-			},
-			"configuration": "Release"
+			"configuration": "Release",
+			"displayName": "Build Catapult in Release mode"
 		},
 		{
 			"name": "win-MinSizeRel",
+			"inherits": "win-Base",
 			"configurePreset": "win-MinSizeRel",
+			"configuration": "MinSizeRel",
+			"displayName": "Build Catapult in MinSizeRel mode (minimal binary sizes)"
+		},
+		{
+			"name": "linux-Base",
+			"hidden": true,
+			"description": "Base build preset for Linux (GCC/Clang Toolset)",
 			"condition": {
 				"type": "allOf",
 				"conditions": [
 					{
 						"type": "equals",
 						"lhs": "${hostSystemName}",
-						"rhs": "Windows"
-					},
-					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
+						"rhs": "Linux"
 					},
 					{
 						"type": "notEquals",
@@ -183,13 +216,41 @@
 					}
 				]
 			},
-			"configuration": "MinSizeRel"
+			"jobs": 4
+		},
+		{
+			"name": "linux-Debug",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-Debug",
+			"configuration": "Debug",
+			"displayName": "Build Catapult in Debug mode"
+		},
+		{
+			"name": "linux-RelWithDebInfo",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-RelWithDebInfo",
+			"configuration": "RelWithDebInfo",
+			"displayName": "Build Catapult in Release mode with limited Debug Info"
+		},
+		{
+			"name": "linux-Release",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-Release",
+			"configuration": "Release",
+			"displayName": "Build Catapult in Release mode"
+		},
+		{
+			"name": "linux-MinSizeRel",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-MinSizeRel",
+			"configuration": "MinSizeRel",
+			"displayName": "Build Catapult in MinSizeRel mode (minimal binary sizes)"
 		}
 	],
 	"testPresets": [
 		{
-			"name": "win-Debug",
-			"configurePreset": "win-Debug",
+			"name": "win-Base",
+			"hidden": true,
 			"condition": {
 				"type": "allOf",
 				"conditions": [
@@ -199,84 +260,47 @@
 						"rhs": "Windows"
 					},
 					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
-					},
-					{
 						"type": "notEquals",
 						"lhs": "$env{VCPKG_ROOT}",
 						"rhs": ""
 					}
 				]
-			},
+			}
+		},
+		{
+			"name": "win-Debug",
+			"inherits": "win-Base",
+			"configurePreset": "win-Debug",
 			"configuration": "Debug"
 		},
 		{
 			"name": "win-RelWithDebInfo",
+			"inherits": "win-Base",
 			"configurePreset": "win-RelWithDebInfo",
-			"condition": {
-				"type": "allOf",
-				"conditions": [
-					{
-						"type": "equals",
-						"lhs": "${hostSystemName}",
-						"rhs": "Windows"
-					},
-					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
-					},
-					{
-						"type": "notEquals",
-						"lhs": "$env{VCPKG_ROOT}",
-						"rhs": ""
-					}
-				]
-			},
 			"configuration": "RelWithDebInfo"
 		},
 		{
 			"name": "win-Release",
+			"inherits": "win-Base",
 			"configurePreset": "win-Release",
-			"condition": {
-				"type": "allOf",
-				"conditions": [
-					{
-						"type": "equals",
-						"lhs": "${hostSystemName}",
-						"rhs": "Windows"
-					},
-					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
-					},
-					{
-						"type": "notEquals",
-						"lhs": "$env{VCPKG_ROOT}",
-						"rhs": ""
-					}
-				]
-			},
 			"configuration": "Release"
 		},
 		{
 			"name": "win-MinSizeRel",
+			"inherits": "win-Base",
 			"configurePreset": "win-MinSizeRel",
+			"configuration": "MinSizeRel"
+		},
+		{
+			"name": "linux-Base",
+			"hidden": true,
 			"condition": {
 				"type": "allOf",
 				"conditions": [
 					{
 						"type": "equals",
 						"lhs": "${hostSystemName}",
-						"rhs": "Windows"
-					},
-					{
-						"type": "equals",
-						"lhs": "$env{VSCMD_ARG_TGT_ARCH}",
-						"rhs": "x64"
+						"rhs": "Linux"
 					},
 					{
 						"type": "notEquals",
@@ -284,7 +308,30 @@
 						"rhs": ""
 					}
 				]
-			},
+			}
+		},
+		{
+			"name": "linux-Debug",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-Debug",
+			"configuration": "Debug"
+		},
+		{
+			"name": "linux-RelWithDebInfo",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-RelWithDebInfo",
+			"configuration": "RelWithDebInfo"
+		},
+		{
+			"name": "linux-Release",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-Release",
+			"configuration": "Release"
+		},
+		{
+			"name": "linux-MinSizeRel",
+			"inherits": "linux-Base",
+			"configurePreset": "linux-MinSizeRel",
 			"configuration": "MinSizeRel"
 		}
 	]
