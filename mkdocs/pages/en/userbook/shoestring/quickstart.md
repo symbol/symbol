@@ -146,24 +146,38 @@ friendlyName = My Symbol Node
 ### 5. Create the Node Identity
 
 Each node requires a cryptographic identity for secure communication with other nodes.
-At the heart of this identity is a <private key:>, which can be generated with OpenSSL:
+At the heart of this identity is a <private key:>, which corresponds to the node's <main key:|main account>.
 
-```bash
-openssl genpkey -algorithm ed25519 -out ca.key.pem
-```
+This key is stored in a [PEM file](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail),
+and there are two ways to obtain it:
 
-This creates a [PEM file](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) named `ca.key.pem`
-that contains the private key for the node's <main key:|main account>.
+* Create a new key with OpenSSL:
+
+    ```bash
+    openssl genpkey -algorithm ed25519 -out ca.key.pem
+    ```
+
+* Import an existing private key:
+
+    ```bash
+    python3 -m shoestring pemtool --output ca.key.pem
+    ```
+
+    This command asks you to paste your private key, but you can also provide it through a file with the
+    `--input` parameter.
+    Take special care not to leave private keys exposed in files or command history.
+
+Both options create a PEM file named `ca.key.pem` that contains the private key.
 
 This file **must be kept secure**.
 Leave it in this directory for now.
-It will be removed at a later stage.
+It will be moved offline at a later stage.
 
 !!! info "Main Account Address"
 
     To view the address and public key corresponding to this private key, you can use Shoestring's `pemview` tool:
 
-    ```sh
+    ```bash
     python3 -m shoestring pemview --input ca.key.pem --network mainnet
     ```
 
@@ -184,7 +198,7 @@ It will be removed at a later stage.
 
     Alternatively, you can use the `openssl` tool directly to show the account's public key:
 
-    ```sh
+    ```bash
     openssl pkey -in ca.key.pem -text
     ```
 
@@ -203,7 +217,6 @@ python3 -m shoestring setup \
 
 This command performs several tasks:
 
-* Downloads the <Catapult:> server software.
 * Prepares the node directory structure.
 * Generates certificates from the private key.
 * Creates the Docker configuration files.
@@ -241,7 +254,7 @@ from another account.
 Shoestring's `signer` tool reads `linking_transaction.dat` and signs the transactions in it with the key stored in
 `ca.key.pem` (the node's main account):
 
-```sh
+```bash
 python3 -m shoestring signer \
     --config config.ini \
     --ca-key-path ca.key.pem \
@@ -282,7 +295,7 @@ Note that the two key-link transactions are wrapped inside a single <aggregate t
 
 Use the `announce-transaction` tool to submit the signed transactions to the network:
 
-```sh
+```bash
 python3 -m shoestring announce-transaction \
     --config config.ini \
     --transaction linking_transaction.dat
@@ -460,12 +473,13 @@ folder that prevent the node from starting.
 
 The following command attempts to recover the node and restore a valid state:
 
-```sh
+```bash
 docker compose -f docker-compose-recovery.yaml up \
     --abort-on-container-exit
 ```
 
-After the recovery command completes, start the node again with `docker compose up -d`.
+After the recovery command completes, check whether any `.lock` files still exist in the `data` directory.
+If they have been removed, start the node again with `docker compose up -d`.
 
 !!! warning "Last Resort"
 
@@ -474,7 +488,7 @@ After the recovery command completes, start the node again with `docker compose 
     This command removes all downloaded blockchain data, so the node must synchronize again from the beginning.
     However, it preserves the node's configuration and keys.
 
-    ```sh
+    ```bash
     python3 -m shoestring reset-data \
         --config ./config.ini \
         --directory .
