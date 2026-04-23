@@ -92,10 +92,10 @@ endfunction()
 message("--- locating rocksdb dependencies ---")
 find_package(RocksDB 10.6.2 EXACT REQUIRED)
 
-if(WIN32)
-	set(RocksDB_LIBRARY RocksDB::rocksdb)
+if(TARGET RocksDB::rocksdb-shared)
+	set(RocksDB_LIBRARY RocksDB::rocksdb-shared)	
 else()
-	set(RocksDB_LIBRARY RocksDB::rocksdb-shared)
+	set(RocksDB_LIBRARY RocksDB::rocksdb)	
 endif()
 
 message("rocksdb   ver: ${RocksDB_VERSION}")
