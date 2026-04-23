@@ -8,9 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://docs.symboltest.net/en/userbook/shoestring/configure/">
+        <link rel="canonical" href="https://docs.symboltest.net/en/userbook/shoestring/maintain/">
       
       
+        <link rel="prev" href="../quickstart/">
+      
+      
+        <link rel="next" href="../migrate/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
@@ -18,7 +22,7 @@
     
     
       
-        <title>Configure - Symbol Docs WIP 🚧</title>
+        <title>Maintaining a Node - Symbol Docs WIP 🚧</title>
       
     
     
@@ -100,6 +104,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#maintaining-a-node" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -130,7 +139,7 @@
 					<span class="md-ellipsis">
 						
 						
-							Configure
+							Maintaining a Node
 						
 					</span>
 				</div>
@@ -189,7 +198,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/en/userbook/shoestring/configure/" hreflang="en" class="md-select__link">
+						<a href="/en/userbook/shoestring/maintain/" hreflang="en" class="md-select__link">
 							English
 						</a>
 					</li>
@@ -197,7 +206,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/ja/userbook/shoestring/configure/" hreflang="ja" class="md-select__link">
+						<a href="/ja/userbook/shoestring/maintain/" hreflang="ja" class="md-select__link">
 							日本語
 						</a>
 					</li>
@@ -294,10 +303,12 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../../intro/" class="md-tabs__link">
           
   
@@ -405,23 +416,28 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -432,7 +448,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             User Manual
@@ -770,6 +786,8 @@
                 
   
   
+    
+  
   
   
     
@@ -779,11 +797,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
         
           
           <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
@@ -797,7 +815,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_3">
             <span class="md-nav__icon md-icon"></span>
             Shoestring Node Operation
@@ -858,6 +876,309 @@
   
   <span class="md-ellipsis">
     Creating and Running a Node
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Maintaining a Node
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Maintaining a Node
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-the-rest-health-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check the REST Health Endpoint
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-node-health-with-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Node Health with Shoestring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-docker-container-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Docker Container Status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      View Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-network-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify Network Synchronization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-space-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disk Space Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Disk Space Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-available-disk-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Available Disk Space
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-unused-docker-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove Unused Docker Images
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand-or-move-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expand or Move Storage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restarting-and-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restarting and Recovery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Restarting and Recovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stop-the-node-cleanly" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stop the Node Cleanly
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-the-node-again" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start the Node Again
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-container-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Container Status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stale-lock-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stale Lock Files
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-node-software" class="md-nav__link">
+    <span class="md-ellipsis">
+      Updating Node Software
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating Node Software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#update-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update Shoestring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-node-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update Node Containers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#voting-key-renewal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Voting Key Renewal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backups
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-should-be-backed-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Should Be Backed Up
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Migrating a Node
   </span>
   
 
@@ -9049,6 +9370,235 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-the-rest-health-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check the REST Health Endpoint
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-node-health-with-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Node Health with Shoestring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-docker-container-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Docker Container Status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      View Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-network-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify Network Synchronization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-space-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disk Space Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Disk Space Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-available-disk-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Available Disk Space
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-unused-docker-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove Unused Docker Images
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand-or-move-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expand or Move Storage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restarting-and-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restarting and Recovery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Restarting and Recovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stop-the-node-cleanly" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stop the Node Cleanly
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-the-node-again" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start the Node Again
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-container-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Container Status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stale-lock-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stale Lock Files
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-node-software" class="md-nav__link">
+    <span class="md-ellipsis">
+      Updating Node Software
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating Node Software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#update-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update Shoestring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-node-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update Node Containers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#voting-key-renewal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Voting Key Renewal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backups
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-should-be-backed-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Should Be Backed Up
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -9063,7 +9613,7 @@
                   
 
 	
-		<a href="https://github.com/symbol/symbol/blob/new-docs/mkdocs/pages/en/userbook/shoestring/configure.md" title="Edit this page" class="md-content__button md-icon">
+		<a href="https://github.com/symbol/symbol/blob/new-docs/mkdocs/pages/en/userbook/shoestring/maintain.md" title="Edit this page" class="md-content__button md-icon">
 			
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
 		</a>
@@ -9072,16 +9622,197 @@
 		
 			
 		
-		<a href="https://github.com/symbol/symbol/raw/new-docs/mkdocs/pages/en/userbook/shoestring/configure.md" title="View source of this page" class="md-content__button md-icon">
+		<a href="https://github.com/symbol/symbol/raw/new-docs/mkdocs/pages/en/userbook/shoestring/maintain.md" title="View source of this page" class="md-content__button md-icon">
 			
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
 		</a>
 	
 
 
-  <h1>Configure</h1>
-
-
+<h1 id="maintaining-a-node">Maintaining a Node<a class="headerlink" href="#maintaining-a-node" title="Anchor link to this section for reference">⚓︎</a></h1>
+<h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Regular monitoring helps detect problems before they affect harvesting, voting, or API availability.
+A healthy node should remain online, synchronized with the network, and responsive to requests.</p>
+<p>Checking the following items periodically can prevent most unexpected outages.</p>
+<h3 id="check-the-rest-health-endpoint">Check the REST Health Endpoint<a class="headerlink" href="#check-the-rest-health-endpoint" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>If the REST Gateway is enabled, the node also exposes the health endpoint <a href="/en/devbook/reference/rest/symbol#tag/Node_routes/getNodeHealth" title="Get the node health information"><code>/node/health</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a>.</p>
+<p>A healthy response looks similar to the following:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="nt">&quot;apiNode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="nt">&quot;db&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;up&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>If any component reports <code>down</code>, further investigation is required.</p>
+<h3 id="check-node-health-with-shoestring">Check Node Health with Shoestring<a class="headerlink" href="#check-node-health-with-shoestring" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Shoestring includes a built-in health check command:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
+</span></code></pre></div>
+<p>This command performs a basic status check of the local node and reports whether its services appear to be
+operating normally.</p>
+<p>A healthy node report looks like this:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>     ...    | running health agent for peer certificate
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>      i     | ca certificate not near expiry (7299 day(s))
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>      i     | node certificate not near expiry (374 day(s))
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>keys/cert/ca.crt.pem: OK
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>keys/cert/node.crt.pem: OK
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>     ...    | running health agent for peer API
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>      i     | peer API accessible, height = 226081
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>     ...    | running health agent for REST API
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>      i     | REST API accessible, height = 226081
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>     ...    | running health agent for REST websockets
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>      i     | websocket connected to ws://127.0.0.1:3000/ws,
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>              subscribing and waiting for block
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>      i     | websocket received a block with height 226082
+</span></code></pre></div>
+<h3 id="check-docker-container-status">Check Docker Container Status<a class="headerlink" href="#check-docker-container-status" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Shoestring nodes run inside Docker containers.
+Use the following command to verify that all required containers are running:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
+</span></code></pre></div>
+<p>Containers stuck in a restart loop or shown as exited usually indicate a configuration or startup problem.</p>
+<h3 id="view-logs">View Logs<a class="headerlink" href="#view-logs" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Logs are often the fastest way to diagnose node issues.</p>
+<p>To view recent logs:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span>
+</span></code></pre></div>
+<p>To follow logs in real time (stop with <code>Ctrl+C</code>):</p>
+<div class="highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+</span></code></pre></div>
+<p>Look for repeated errors, database problems, connection failures, or warnings about missing files.</p>
+<h3 id="verify-network-synchronization">Verify Network Synchronization<a class="headerlink" href="#verify-network-synchronization" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>A running node is not necessarily a synchronized node.
+Compare the current block height of your node with public explorers or node lists.</p>
+<p>Useful resources include:</p>
+<ul>
+<li><a href="https://symbol.fyi/nodes">Symbol Explorer</a></li>
+<li><a href="https://nodewatch.symbol.tools/symbol/nodes">Nodewatch</a></li>
+<li><a href="https://symbol-tools.com/symbolTools/view/tool/nodeList.html">Symbol Node List</a></li>
+</ul>
+<p>If your node remains significantly behind other public nodes for an extended period, further investigation may
+be required.</p>
+<h2 id="disk-space-management">Disk Space Management<a class="headerlink" href="#disk-space-management" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Insufficient disk space is a common cause of node instability.
+A node that runs out of available storage stops synchronizing.</p>
+<p>To minimize issues, always follow the recommended hardware and storage guidelines in the
+<a href="../install/#hardware">Installation</a> guide.</p>
+<p>It is better to stop the node cleanly before storage becomes critically low.</p>
+<h3 id="check-available-disk-space">Check Available Disk Space<a class="headerlink" href="#check-available-disk-space" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Use the following command to view free space on mounted filesystems:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>df<span class="w"> </span>-h
+</span></code></pre></div>
+<p>Pay particular attention to the filesystem where the node data directory is stored.</p>
+<h3 id="remove-unused-docker-images">Remove Unused Docker Images<a class="headerlink" href="#remove-unused-docker-images" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Old container images may remain on the system after updates.
+Unused images can be removed safely with:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>image<span class="w"> </span>prune
+</span></code></pre></div>
+<p>To remove all unused images, including older tagged versions:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>docker<span class="w"> </span>image<span class="w"> </span>prune<span class="w"> </span>-a
+</span></code></pre></div>
+<p>Review the list carefully before confirming removal.</p>
+<h3 id="expand-or-move-storage">Expand or Move Storage<a class="headerlink" href="#expand-or-move-storage" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>As the blockchain grows, additional storage may eventually be required.</p>
+<p>The node's directory can be safely moved to a different place,
+<strong>as long as the node is fully stopped</strong> before moving the files.</p>
+<h2 id="restarting-and-recovery">Restarting and Recovery<a class="headerlink" href="#restarting-and-recovery" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Unexpected shutdowns, power loss, or system errors may occasionally stop the node or prevent it from starting
+correctly.
+Most issues can be resolved with a clean restart and a few basic checks.</p>
+<h3 id="stop-the-node-cleanly">Stop the Node Cleanly<a class="headerlink" href="#stop-the-node-cleanly" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Before performing maintenance or recovery tasks, stop all services gracefully:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+</span></code></pre></div>
+<p>This allows containers to shut down cleanly and reduces the risk of database corruption.
+Keep in mind that the node might take up to 5 minutes to shut down cleanly.</p>
+<h3 id="start-the-node-again">Start the Node Again<a class="headerlink" href="#start-the-node-again" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>To start the node after shutdown:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span></code></pre></div>
+<p>After startup, allow a few moments for all services to initialize.</p>
+<h3 id="check-container-status">Check Container Status<a class="headerlink" href="#check-container-status" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Verify that all required containers are running:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
+</span></code></pre></div>
+<p>If any container exits immediately or repeatedly restarts, <a href="#view-logs">inspect the logs</a>.</p>
+<h3 id="stale-lock-files">Stale Lock Files<a class="headerlink" href="#stale-lock-files" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>If the node was interrupted unexpectedly, <code>.lock</code> files may remain in the <code>data</code> directory and prevent startup.</p>
+<p>If you find any such file, read the <a href="../quickstart/#node-recovery">Node Recovery</a> guide.</p>
+<h2 id="updating-node-software">Updating Node Software<a class="headerlink" href="#updating-node-software" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Keeping the operating system and node software updated improves stability, compatibility, and security.</p>
+<h3 id="update-shoestring">Update Shoestring<a class="headerlink" href="#update-shoestring" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Shoestring itself is installed as a Python package.
+To update it to the latest available version:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>shoestring
+</span></code></pre></div>
+<p>After the update, confirm the installed version:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>show<span class="w"> </span>symbol-shoestring
+</span></code></pre></div>
+<h3 id="update-node-containers">Update Node Containers<a class="headerlink" href="#update-node-containers" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>Shoestring provides the <code>upgrade</code> command to download and install the latest version of all Symbol components.
+Make sure you run it regularly.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><a href="#stop-the-node-cleanly">Stop your node</a> before upgrading it, and then <a href="#start-the-node-again">restart it</a>.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>upgrade<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>--directory<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span>--overrides<span class="w"> </span>overrides.ini
+</span></code></pre></div>
+<p>After restarting the node, <a href="#monitoring">confirm that it is operating normally</a>.</p>
+<h2 id="voting-key-renewal">Voting Key Renewal<a class="headerlink" href="#voting-key-renewal" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p><a class="mkdocs-ezglossary-link"
+	id="6330cd1e84682d8c5938f2952d1407b6"
+	title="Voting nodes contribute to the finalization process, which makes blocks immutable."
+	name="_:Voting Node"
+	href="../../../textbook/nodes/#bca21766fb7e31db1e4e938bb9762d65">Voting nodes</a> require <a class="mkdocs-ezglossary-link"
+	id="cbf32e90c17878a841d196fa8daba110"
+	title="Key pair required for nodes participating in the finalization process."
+	name="_:Voting Key"
+	href="../../../textbook/cryptography/#467f5aa81d9db628796592e94e2caf24">voting keys</a>, which must be registered for a limited validity period.</p>
+<p>For security reasons, each voting key is valid for a maximum of 180 days (roughly six months), so keys must be renewed
+periodically to keep the node eligible for voting on finalization.</p>
+<p>Only one key is required for the voting process at any given time, but up to three keys can be registered
+simultaneously.
+This allows overlapping validity periods, so a backup key remains available when another key expires.</p>
+<p>When Shoestring <a href="../quickstart/#configure-voting-optional">creates a voting node</a>, it already registers two voting
+keys with consecutive validity periods.
+It also provides a command to renew them when required:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>renew-voting-keys<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
+</span></code></pre></div>
+<p>This command creates new keys as required and prepares the necessary transactions to:</p>
+<ul>
+<li>Unlink expired voting keys.</li>
+<li>Link the new keys to the node.</li>
+</ul>
+<p>The transactions are stored in a file named <code>renew_voting_keys_transaction.dat</code>.</p>
+<p>They must then be signed and announced manually, following the process described in the
+<a href="../quickstart/#8-sign-the-transactions">Creating and Running a Node</a> guide.</p>
+<div class="admonition warning">
+<p class="admonition-title">Protect the Main Account Key</p>
+<p>Signing these transactions requires access to the PEM file containing the node's
+<a class="mkdocs-ezglossary-link"
+	id="3143cb8f54a494cafe8104fd62190d6b"
+	title="Key pair associated with every account, identifying its owner."
+	name="_:Main Key"
+	href="../../../textbook/cryptography/#a291244137ae0c728b9d1cea6494128c">main account</a> private key.</p>
+<p>This file should be stored securely and should not normally remain on the node itself.</p>
+</div>
+<h2 id="backups">Backups<a class="headerlink" href="#backups" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Unlike many other services, a Symbol node does not usually require backups of its blockchain database.</p>
+<p>The blockchain is already replicated across many independent nodes.
+If local chain data is lost or corrupted, the node can normally be resynchronized from the network.</p>
+<p>For this reason, backups should focus on local files that cannot be recovered automatically.</p>
+<h3 id="what-should-be-backed-up">What Should Be Backed Up<a class="headerlink" href="#what-should-be-backed-up" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>The following files are typically the most important:</p>
+<ul>
+<li>Shoestring configuration file <code>config.ini</code></li>
+<li>Node identity key files like <code>ca.key.pem</code></li>
+<li>Node customization <code>overrides.ini</code></li>
+<li>If harvesting is enabled, <code>harvesters.dat</code></li>
+</ul>
 
 
 
@@ -9104,7 +9835,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 16, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 23, 2026</span>
   </span>
 
     
@@ -9114,7 +9845,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 15, 2018</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 22, 2026</span>
   </span>
 
     
@@ -9124,11 +9855,12 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
       
     </span>
     <nav>
       
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
     </nav>
   </span>
 
