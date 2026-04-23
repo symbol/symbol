@@ -112,6 +112,7 @@ If you want to run unit tests, you can select the `Test Explorer` tab in Visual 
 - You must have built the Debug configuration to have the tests available.
 - You may need to set the test adapter to `Google Test Adapter` in the Test Explorer
 - You need to set the Working Directory for the tests to `$(SolutionDir)/build`.
+- Do not enable parallel test execution as it may cause issues with the tests.
 
 ### Building from the command line
 
