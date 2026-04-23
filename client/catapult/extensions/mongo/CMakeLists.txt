@@ -2,17 +2,22 @@ cmake_minimum_required(VERSION 3.23)
 
 message("--- locating mongo dependencies ---")
 find_package(MONGOCXX 4.1.4 REQUIRED)
+if(TARGET mongo::mongocxx_shared)
+	set(MONGOCXX_LIBRARY mongo::mongocxx_shared)
+else()
+	set(MONGOCXX_LIBRARY mongo::mongocxx_static)	
+endif()
+get_library_path("MONGOCXX_LIBRARY_PATH" ${MONGOCXX_LIBRARY})
 find_package(mongoc 2.2.1 REQUIRED)
 
 message("mongocxx  ver: ${MONGOCXX_VERSION}")
 message("mongoc    ver: ${mongoc_VERSION}")
-get_library_path("MONGOCXX_LIBRARY_PATH" mongo::mongocxx_shared)
-message("mongocxx  lib: ${mongocxx_LIBRARIES}")
+message("mongocxx  lib: ${MONGOCXX_LIBRARY_PATH}")
 message("mongocxx  dir: ${mongocxx_INCLUDE_DIRS}")
 
 ### find and set mongo includes and libraries
 function(catapult_add_mongo_dependencies TARGET_NAME)
-	target_link_libraries(${TARGET_NAME} mongo::mongocxx_shared)
+	target_link_libraries(${TARGET_NAME} ${MONGOCXX_LIBRARY})
 endfunction()
 
 # used to define a catapult mongo int test executable by combining catapult_test_executable and catapult_target
