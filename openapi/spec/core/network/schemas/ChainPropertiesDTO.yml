@@ -35,7 +35,7 @@ properties:
     type: string  # uint32
     description: Number of blocks between successive finalization attempts.
     examples:
-      - 30
+      - '30'
   importanceGrouping:
     type: string  # uint64
     description: Number of blocks that should be treated as a group for importance purposes.

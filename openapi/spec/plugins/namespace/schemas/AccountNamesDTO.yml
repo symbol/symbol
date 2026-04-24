@@ -11,7 +11,7 @@ properties:
     type: array
     description: Namespace names currently linked to the account.
     examples:
-      - nononon
-      - maromaro1989
+      - - nononon
+        - maromaro1989
     items:
       type: string
