@@ -1,9 +1,9 @@
 extends:
-  - minimal
+  - recommended
 
 rules:
   no-ambiguous-paths: off
-  tag-description: off
+  operation-4xx-response: off
 
 apis:
   main:
