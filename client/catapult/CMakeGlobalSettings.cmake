@@ -28,19 +28,6 @@ if(CCACHE_EXE)
 	endif()
 endif(CCACHE_EXE)
 
-### set general cmake settings
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-### same as above but for multi-config generators (e.g. Visual Studio)
-foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-	string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/lib)
-endforeach()
-
 ### set up conan
 if(USE_CONAN)
 	set(CONAN_SYSTEM_INCLUDES ON)
@@ -363,7 +350,6 @@ endif()
 
 # sets cxx std version
 function(catapult_set_cxx_std_version TARGET_NAME)
-	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" AND "${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^8.")
 		target_link_libraries(${TARGET_NAME} "stdc++fs")
 	endif()
