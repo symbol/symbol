@@ -5,7 +5,7 @@ if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8 OR NOT CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_
     math(EXPR _bitness "${CMAKE_SIZEOF_VOID_P} * 8")
     message(FATAL_ERROR 
 		"This project requires a 64-bit Little Endian operating system and compiler.\n"
-      "You're currently using a ${_bitness}-bit ${CMAKE_CXX_BYTE_ORDER} Endian architecture."
+		"You're currently using a ${_bitness}-bit ${CMAKE_CXX_BYTE_ORDER} Endian architecture."
 	)
 endif()
 
