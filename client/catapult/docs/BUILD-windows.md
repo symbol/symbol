@@ -40,6 +40,7 @@ Required Visual Studio components:
 - Desktop development with C++ (MSVC toolset)
 - C++ CMake tools for Windows
 - Windows 10/11 SDK
+- At least 60 GB of free disk space for the build and dependencies (this is an estimate and can vary based on the number of dependencies and their sizes)
 
 Additional requirements:
 
@@ -116,24 +117,19 @@ If you want to run unit tests, you can select the `Test Explorer` tab in Visual 
 If you prefer the command line, **or if you installed Build Tools for Visual Studio only**,
 use Developer PowerShell for Visual Studio and run the following commands from `symbol\client\catapult`:
 ```powershell
-cmake --preset <name>
-cmake --build --preset <name>
+cmake --workflow --preset <name>
 ```
 
 Where `<name>` is the name of the preset you want to build (e.g. `Release`).
+This single command will configure and build the project in one step. 
+The whole process may take a while depending on your hardware and internet connection.
+
 Here is a list of available presets you can obtain by running `cmake --list-presets` from the `symbol\client\catapult` directory:
 ```
   "Debug"          - x64 Debug
   "Release"        - x64 Release
   "RelWithDebInfo" - x64 RelWithDebInfo
   "MinSizeRel"     - x64 MinSizeRel
-```
-
-> **Note !** The build process is very resource intensive and may make your system unresponsive for a while.
-> If you want to limit the number of parallel build jobs, you can add the `-j` option to the build command.
-> For example, to limit to 2 parallel jobs, run:
-```powershell
-cmake --build --preset <name> -j2
 ```
 
 ### Verify Catapult build
