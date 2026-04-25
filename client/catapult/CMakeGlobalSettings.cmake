@@ -1,6 +1,11 @@
 ### enable testing
 enable_testing()
 
+### check for 64-bit architecture
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    message(FATAL_ERROR "This project requires a 64-bit operating system and compiler.")
+endif()
+
 ### enable ccache if available
 find_program(CCACHE_EXE ccache)
 if(CCACHE_EXE)
