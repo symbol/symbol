@@ -53,14 +53,14 @@ Additional requirements:
 >
 > ✅ Supported: `git clone https://github.com/microsoft/vcpkg.git` + `bootstrap-vcpkg.bat`
 >
-> ❌ Not supported: vcpkg installed only via Visual Studio installer/components
+> ❌ Not supported: vcpkg installed via Visual Studio installer/components. Please note that even if you have cloned vcpkg from Git but you also have the Visual Studio bundled vcpkg, you may run into issues because of conflicts between the two installations.
 
 If you want to install [Git] manually, download it from <https://git-scm.com/download/win>.
 Install it before the next steps because it is needed to clone catapult and optionally vcpkg.
 
 ### Setting up the environment
 
-Install [vcpkg] manually from Developer PowerShell for Visual Studio:
+Install [vcpkg] manually from Developer PowerShell for Visual Studio (you can skip this step if you already have a manual vcpkg installation, but remember to set the `VCPKG_ROOT` environment variable as described below):
 ```powershell
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
@@ -94,10 +94,7 @@ This starts CMake configuration and downloads/builds dependencies through vcpkg.
 This step can take a while depending on your hardware and internet connection.
 
 You may want to choose the CMake preset from the toolbar before building.
-For example, select `win-Release` to build the Release configuration.
-
-Preset names are prefixed with `win-` and are Visual Studio version agnostic.
-The project uses the Ninja generator, so the same presets can be used across Visual Studio versions.
+For example, select `Release` to build the Release configuration.
 
 When configuration finishes, the CMake output window shows `1> CMake generation finished.`.
 At this point, the project is fully configured and ready to build.
@@ -106,7 +103,7 @@ You can now build the project by clicking on the `Build -> Build All` menu item.
 The build process may take a while.
 At the end of the build, check the output window for errors.
 If there are issues, please open an issue.
-The binaries will be available in the `build\<preset-name>\bin` directory (e.g. `build\win-Release\bin` for Release configuration).
+The binaries will be available in the `build\<name>\bin` directory (e.g. `build\Release\bin` for Release configuration).
 
 If you want to run unit tests, you can select the `Test Explorer` tab in Visual Studio and run the tests from there but :
 - You must have built the Debug configuration to have the tests available.
@@ -119,24 +116,24 @@ If you want to run unit tests, you can select the `Test Explorer` tab in Visual 
 If you prefer the command line, **or if you installed Build Tools for Visual Studio only**,
 use Developer PowerShell for Visual Studio and run the following commands from `symbol\client\catapult`:
 ```powershell
-cmake --preset <preset-name>
-cmake --build --preset <preset-name>
+cmake --preset <name>
+cmake --build --preset <name>
 ```
 
-Where `<preset-name>` is the name of the preset you want to build (e.g. `win-Release`).
+Where `<name>` is the name of the preset you want to build (e.g. `Release`).
 Here is a list of available presets you can obtain by running `cmake --list-presets` from the `symbol\client\catapult` directory:
 ```
-  "win-Debug"          - Windows (VS) configuration Debug
-  "win-RelWithDebInfo" - Windows (VS) configuration RelWithDebInfo
-  "win-Release"        - Windows (VS) configuration Release
-  "win-MinSizeRel"     - Windows (VS) configuration MinSizeRel
+  "Debug"          - x64 Debug
+  "Release"        - x64 Release
+  "RelWithDebInfo" - x64 RelWithDebInfo
+  "MinSizeRel"     - x64 MinSizeRel
 ```
 
 > **Note !** The build process is very resource intensive and may make your system unresponsive for a while.
 > If you want to limit the number of parallel build jobs, you can add the `-j` option to the build command.
 > For example, to limit to 2 parallel jobs, run:
 ```powershell
-cmake --build --preset <preset-name> -j2
+cmake --build --preset <name> -j2
 ```
 
 ### Verify Catapult build
@@ -144,11 +141,11 @@ cmake --build --preset <preset-name> -j2
 By default, builds are created in the `build` directory of the `catapult` project.
 Based on your preset, binaries are generated in the corresponding subdirectory.
 For example, if you build Debug,
-you will find the binaries in `build\win-Debug\bin`.
+you will find the binaries in `build\Debug\bin`.
 
 You can verify the build by running this command from Developer PowerShell for Visual Studio with current directory set to `symbol\client\catapult`:
 ```powershell
-.\build\<preset-name>\bin\catapult.tools.address.exe --help
+.\build\<name>\bin\catapult.tools.address.exe --help
 ```
 
 You should see output similar to this:
@@ -177,7 +174,7 @@ Address Inspector Tool options:
 Should you have built in Debug configuration, you have also unit tets built. You can run them with this command:
 ```powershell
 cd build
-ctest --test-dir=.\<preset-name>\
+ctest --test-dir=.\<name>\
 ```
 
 ## Building with Visual Studio and Conan
