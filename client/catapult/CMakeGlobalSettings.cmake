@@ -1,11 +1,11 @@
 ### enable testing
 enable_testing()
 
-### check for 64-bit architecture with little endian byte order
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8 OR NOT CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
+    math(EXPR _bitness "${CMAKE_SIZEOF_VOID_P} * 8")
     message(FATAL_ERROR 
 		"This project requires a 64-bit Little Endian operating system and compiler.\n"
-		"You're currently using a ${CMAKE_SIZEOF_VOID_P * 8}-bit ${CMAKE_CXX_BYTE_ORDER} Endian architecture."
+      "You're currently using a ${_bitness}-bit ${CMAKE_CXX_BYTE_ORDER} Endian architecture."
 	)
 endif()
 
