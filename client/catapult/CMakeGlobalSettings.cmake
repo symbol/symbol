@@ -1,9 +1,9 @@
 ### enable testing
 enable_testing()
 
-### check for 64-bit architecture
-if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    message(FATAL_ERROR "This project requires a 64-bit operating system and compiler.")
+### check for 64-bit architecture with little endian byte order
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8 OR NOT CMAKE_CXX_BYTE_ORDER EQUAL "LITTLE_ENDIAN")
+    message(FATAL_ERROR "This project requires a 64-bit Little Endian operating system and compiler.")
 endif()
 
 ### enable ccache if available
