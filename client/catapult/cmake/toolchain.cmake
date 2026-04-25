@@ -10,7 +10,7 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
     # Lower case comparison
     string(TOLOWER "${_toolchain_leaf}" _toolchain_leaf_lower)
     if(_toolchain_leaf_lower STREQUAL "vcpkg.cmake")
-        set(USE_VCPKG ON)
+        set(USE_VCPKG ON CACHE BOOL "Use vcpkg")
         if(WIN32)
             set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
         elseif(LINUX)
@@ -20,7 +20,7 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
             set(VCPKG_OVERLAY_PORTS "${CMAKE_SOURCE_DIR}/vcpkg-ports" CACHE STRING "Vcpkg overlay ports")
         endif()
     elseif(_toolchain_leaf_lower MATCHES "^conan.*\.cmake$")
-        set(USE_CONAN ON)
+        set(USE_CONAN ON CACHE BOOL "Use Conan")
     else()
         message(FATAL_ERROR "CMAKE_TOOLCHAIN_FILE must be either a vcpkg.cmake or a Conan-generated cmake file. Provided: ${CMAKE_TOOLCHAIN_FILE}")
     endif()
@@ -31,6 +31,8 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
 
 else()
 
-    set(USE_METAL ON)
+    set(USE_METAL ON CACHE BOOL "Use Metal")
 
 endif()
+
+set(CONAN_SYSTEM_INCLUDES $<BOOL:${USE_CONAN}>)
