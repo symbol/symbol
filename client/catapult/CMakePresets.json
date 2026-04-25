@@ -30,38 +30,9 @@
 			}
 		},
 		{
-			"name": "base-win-x64",
-			"hidden": true,
-			"inherits": "base-vcpkg",
-			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
-			},
-			"architecture": {
-				"value": "x64",
-				"strategy": "external"
-			}
-		},
-		{
-			"name": "base-linux-x64",
-			"hidden": true,
-			"inherits": "base-vcpkg",
-			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Linux"
-			}
-		},
-		{
-			"name": "cross-platform",
-			"hidden": true,
-			"inherits": [ "base-win-x64", "base-linux-x64" ]
-		},
-		{
 			"name": "Debug",
 			"displayName": "x64 Debug",
-			"inherits": [ "base-win-x64", "base-linux-x64" ],
+			"inherits": "base-vcpkg",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug"
 			},
@@ -73,7 +44,7 @@
 		{
 			"name": "Release",
 			"displayName": "x64 Release",
-			"inherits": "cross-platform",
+			"inherits": "base-vcpkg",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release"
 			}
@@ -81,7 +52,7 @@
 		{
 			"name": "RelWithDebInfo",
 			"displayName": "x64 RelWithDebInfo",
-			"inherits": "cross-platform",
+			"inherits": "base-vcpkg",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
 			}
@@ -89,7 +60,7 @@
 		{
 			"name": "MinSizeRel",
 			"displayName": "x64 MinSizeRel",
-			"inherits": "cross-platform",
+			"inherits": "base-vcpkg",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "MinSizeRel"
 			}
