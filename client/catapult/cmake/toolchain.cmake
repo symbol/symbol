@@ -1,4 +1,4 @@
-# Derive or sanitize toolchain file.
+# Sanitize project toolchain file if any.
 # IMPORTANT ! This MUST be done before any project() or find_package() calls
 # as after any of the above the CMAKE_TOOLCHAIN_FILE is locked in.
 
