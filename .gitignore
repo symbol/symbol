@@ -15,6 +15,7 @@
 # cpp
 _build/
 _temp/
+out/
 
 # js
 node_modules/
@@ -27,3 +28,7 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# tests
+Testing/
+cert/
