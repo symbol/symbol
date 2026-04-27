@@ -167,6 +167,24 @@ and there are two ways to obtain it:
     `--input` parameter.
     Take special care not to leave private keys exposed in files or command history.
 
+    !!! tip "Reuse the Bootstrap Main Key"
+
+        If you want to reuse the same main account used by an existing Bootstrap node,
+        the main private key can be obtained from the `target/addresses.yml` file in the node's Bootstrap installation.
+
+        If the file is encrypted, run the following command first:
+
+        ```sh
+        symbol-bootstrap decrypt \
+            --source target/addresses.yml \
+            --destination target/addresses_plaintext.yml
+        ```
+
+        Then retrieve the key from the `target/addresses_plaintext.yml` file and
+        **remove the plaintext file after extracting the key**.
+
+        Once you have the private key, use the `pemtool` command as described above.
+
 Both options create a PEM file named `ca.key.pem` that contains the private key.
 
 This file **must be kept secure**.
@@ -202,6 +220,29 @@ It will be moved offline at a later stage.
     openssl pkey -in ca.key.pem -text
     ```
 
+!!! tip "Import the remaining Bootstrap Keys"
+
+    If you want to continue using the same keys from a previous node, like <VRF keys:>, <remote keys:>,
+    or <voting keys:>, import them now with the following command:
+
+    ```sh
+    python3 -m shoestring import-bootstrap \
+        --config config.ini \
+        --bootstrap [Path to the Bootstrap target directory] \
+        --include-node-key
+    ```
+
+    Note that the `--bootstrap` parameter typically points to the `target` directory inside the
+    previous Bootstrap installation, for example `../bootstrap-node/target`.
+
+    This command copies all necessary keys into the `bootstrap-import` directory,
+    and updates `config.ini` to reference them.
+
+    Note that no block data is imported: Upon first launch, the node synchronizes with the network by
+    downloading the full blockchain.
+
+    From this point onward, the previous Bootstrap installation is no longer needed.
+
 ### 6. Create the Node Installation
 
 Once the configuration and key files are ready, create the node installation with:
@@ -226,6 +267,11 @@ This command performs several tasks:
 
 If you enabled the `HARVESTER` role, one additional configuration step is required.
 If not, this section can be skipped.
+
+!!! tip "Reuse Harvesting Configuration from Bootstrap"
+
+    If you imported all keys from a working Bootstrap installation as described above,
+    and harvesting was already configured there, this section can also be skipped.
 
 To enable harvesting, a <VRF key:> must be linked to your account through a special transaction.
 
