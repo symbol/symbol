@@ -1,3 +1,4 @@
+set -e
 SYMBOL_DOCS_DISABLE_TS=false mkdocs build -f config/mkdocs.en.yml
 SYMBOL_DOCS_DISABLE_TS=false mkdocs build -f config/mkdocs.ja.yml
 cd ../docs

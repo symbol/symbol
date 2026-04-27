@@ -80,6 +80,11 @@ nav:
               - userbook/wallet/create-account.md
               - userbook/wallet/import-account.md
               - userbook/wallet/delete-account.md
+      - Shoestring Node Operation:
+          - userbook/shoestring/overview.md
+          - userbook/shoestring/install.md
+          - userbook/shoestring/quickstart.md
+          - userbook/shoestring/maintain.md
       - userbook/security.md
   - Developer Manual:
       - devbook/intro.md
@@ -143,6 +148,9 @@ nav:
           - Symbol REST API: devbook/reference/rest/symbol.md
           - Serialization: devbook/reference/serialization/index.md
           - WebSockets: devbook/reference/websockets/index.md
+          - Configuration Properties:
+              - Network: devbook/reference/config/network-properties.md
+              - Node: devbook/reference/config/node-properties.md
   - Textbook:
       - textbook/intro.md
       - textbook/cryptography.md
