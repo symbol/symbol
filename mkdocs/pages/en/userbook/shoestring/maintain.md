@@ -84,6 +84,8 @@ Terminal commands assume they are run from the node's directory.
     docker compose logs -f
     ```
 
+    You can optionally specify the service you want to examine, such as `client`, `db`, or `broker`.
+
     Look for repeated errors, database problems, connection failures, or warnings about missing files.
 
 * **Verify Network Synchronization**
@@ -151,7 +153,7 @@ Most issues can be resolved with a clean restart and a few basic checks.
     Verify that all required containers are running:
 
     ```bash
-    docker compose ps
+    docker compose ps -a
     ```
 
     If any container exits immediately or repeatedly restarts, [inspect the logs](#view-logs).
@@ -235,7 +237,7 @@ If a `File Not Found` error is shown, try using an absolute path for the `--dire
 
 The [`health` command](#check-node-health-with-shoestring) warns when expiration is approaching and the certificate
 should be renewed.
-You can also check the current certificate's expiration date on the
+You can also check the current certificate's expiration date remotely on the
 [Symbol Node List](https://symbol-tools.com/symbolTools/view/tool/nodeList.html).
 
 !!! danger "Protect the Main Account Key"
