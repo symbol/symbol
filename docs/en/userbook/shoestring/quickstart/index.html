@@ -1113,27 +1113,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../migrate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Migrating a Node
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -9533,8 +9512,8 @@ validates incoming transactions, and participates in consensus and block creatio
 	name="_:Shoestring"
 	href="../../../userbook/shoestring/overview/#2a1a9bfad06f50393b16eb629894551a">Shoestring</a> tool.</p>
 <p>The tutorial assumes that Shoestring and its dependencies have already been <a href="../install/">installed</a>.</p>
-<p>If you already have a node created with the deprecated Bootstrap tool and wish to reuse it,
-read the <a href="../migrate/">Migration</a> guide instead.</p>
+<p>If you already have a node created with the deprecated Bootstrap tool and wish to reuse its
+configuration or keys, pay special attention to the Bootstrap notes throughout this guide.</p>
 <h2 id="create-a-new-node">Create a New Node<a class="headerlink" href="#create-a-new-node" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Deploying a node with Shoestring involves the following steps.</p>
 <details class="info">
@@ -9708,6 +9687,19 @@ and there are two ways to obtain it:</p>
 <p>This command asks you to paste your private key, but you can also provide it through a file with the
 <code>--input</code> parameter.
 Take special care not to leave private keys exposed in files or command history.</p>
+<div class="admonition tip">
+<p class="admonition-title">Reuse the Bootstrap Main Key</p>
+<p>If you want to reuse the same main account used by an existing Bootstrap node,
+the main private key can be obtained from the <code>target/addresses.yml</code> file in the node's Bootstrap installation.</p>
+<p>If the file is encrypted, run the following command first:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>symbol-bootstrap<span class="w"> </span>decrypt<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span>--source<span class="w"> </span>target/addresses.yml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span>--destination<span class="w"> </span>target/addresses_plaintext.yml
+</span></code></pre></div>
+<p>Then retrieve the key from the <code>target/addresses_plaintext.yml</code> file and
+<strong>remove the plaintext file after extracting the key</strong>.</p>
+<p>Once you have the private key, use the <code>pemtool</code> command as described above.</p>
+</div>
 </li>
 </ul>
 <p>Both options create a PEM file named <code>ca.key.pem</code> that contains the private key.</p>
@@ -9717,14 +9709,14 @@ It will be moved offline at a later stage.</p>
 <div class="admonition info">
 <p class="admonition-title">Main Account Address</p>
 <p>To view the address and public key corresponding to this private key, you can use Shoestring's <code>pemview</code> tool:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemview<span class="w"> </span>--input<span class="w"> </span>ca.key.pem<span class="w"> </span>--network<span class="w"> </span>mainnet
+<div class="highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemview<span class="w"> </span>--input<span class="w"> </span>ca.key.pem<span class="w"> </span>--network<span class="w"> </span>mainnet
 </span></code></pre></div>
 <p>The output is similar to this:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
-<span class="normal"><a href="#__codelineno-11-2">2</a></span>
-<span class="normal"><a href="#__codelineno-11-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a>    i     | loaded ca.key.pem
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a>    i     |     address: TCUCHCSSTTXRU3BMOBMAQXY2WMGSBICEH6WB77I
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a>    i     |  public key: 5DA31F82685B4F03924B096A1343F297CF4552F...
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
+<span class="normal"><a href="#__codelineno-12-2">2</a></span>
+<span class="normal"><a href="#__codelineno-12-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a>    i     | loaded ca.key.pem
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a>    i     |     address: TCUCHCSSTTXRU3BMOBMAQXY2WMGSBICEH6WB77I
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a>    i     |  public key: 5DA31F82685B4F03924B096A1343F297CF4552F...
 </span></code></pre></div></td></tr></table></div>
 <p>The account's address is required to send funds to it.
 Funds are then needed to pay transaction fees, for example when enabling harvesting.</p>
@@ -9732,17 +9724,46 @@ Funds are then needed to pay transaction fees, for example when enabling harvest
 <a href="../../wallet/import-account/">import it into the wallet</a>.
 This step allows you to manage the account more conveniently, but it is not required for this guide.</p>
 <p>Alternatively, you can use the <code>openssl</code> tool directly to show the account's public key:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>openssl<span class="w"> </span>pkey<span class="w"> </span>-in<span class="w"> </span>ca.key.pem<span class="w"> </span>-text
+<div class="highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>openssl<span class="w"> </span>pkey<span class="w"> </span>-in<span class="w"> </span>ca.key.pem<span class="w"> </span>-text
 </span></code></pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Import the remaining Bootstrap Keys</p>
+<p>If you want to continue using the same keys from a previous node, like <a class="mkdocs-ezglossary-link"
+	id="07961b6b823fbe1801b04f1d4fafca46"
+	title="Key pair used by harvesting nodes to make their output unpredictable."
+	name="_:VRF Key"
+	href="../../../textbook/cryptography/#1342c11a86fbb9888dcf7082cc9946ba">VRF keys</a>, <a class="mkdocs-ezglossary-link"
+	id="258d80833a4caae0186156a423566f44"
+	title="Key pair associated with every remote harvesting account."
+	name="_:Remote Key"
+	href="../../../textbook/cryptography/#fdb843cdeea7bb265f839f24adc30f4f">remote keys</a>,
+or <a class="mkdocs-ezglossary-link"
+	id="593a42223eec7c9b7b6aa53a90b3ecf2"
+	title="Key pair required for nodes participating in the finalization process."
+	name="_:Voting Key"
+	href="../../../textbook/cryptography/#467f5aa81d9db628796592e94e2caf24">voting keys</a>, import them now with the following command:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>import-bootstrap<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>--bootstrap<span class="w"> </span><span class="o">[</span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>Bootstrap<span class="w"> </span>target<span class="w"> </span>directory<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span>--include-node-key
+</span></code></pre></div>
+<p>Note that the <code>--bootstrap</code> parameter typically points to the <code>target</code> directory inside the
+previous Bootstrap installation, for example <code>../bootstrap-node/target</code>.</p>
+<p>This command copies all necessary keys into the <code>bootstrap-import</code> directory,
+and updates <code>config.ini</code> to reference them.</p>
+<p>Note that no block data is imported: Upon first launch, the node synchronizes with the network by
+downloading the full blockchain.</p>
+<p>From this point onward, the previous Bootstrap installation is no longer needed.</p>
 </div>
 <h3 id="6-create-the-node-installation">6. Create the Node Installation<a class="headerlink" href="#6-create-the-node-installation" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Once the configuration and key files are ready, create the node installation with:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>setup<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span>--overrides<span class="w"> </span>./overrides.ini<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span>--package<span class="w"> </span>mainnet<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span>--directory<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span>--ca-key-path<span class="w"> </span>./ca.key.pem
+<div class="highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>setup<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span>--overrides<span class="w"> </span>./overrides.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span>--package<span class="w"> </span>mainnet<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span>--directory<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span>--ca-key-path<span class="w"> </span>./ca.key.pem
 </span></code></pre></div>
 <p>This command performs several tasks:</p>
 <ul>
@@ -9754,6 +9775,11 @@ This step allows you to manage the account more conveniently, but it is not requ
 <h2 id="configure-harvesting-optional">Configure Harvesting (Optional)<a class="headerlink" href="#configure-harvesting-optional" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>If you enabled the <code>HARVESTER</code> role, one additional configuration step is required.
 If not, this section can be skipped.</p>
+<div class="admonition tip">
+<p class="admonition-title">Reuse Harvesting Configuration from Bootstrap</p>
+<p>If you imported all keys from a working Bootstrap installation as described above,
+and harvesting was already configured there, this section can also be skipped.</p>
+</div>
 <p>To enable harvesting, a <a class="mkdocs-ezglossary-link"
 	id="d7751a4b86c060a53e64ce319c823065"
 	title="Key pair used by harvesting nodes to make their output unpredictable."
@@ -9788,54 +9814,54 @@ from another account.
 <h3 id="8-sign-the-transactions">8. Sign the Transactions<a class="headerlink" href="#8-sign-the-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Shoestring's <code>signer</code> tool reads <code>linking_transaction.dat</code> and signs the transactions in it with the key stored in
 <code>ca.key.pem</code> (the node's main account):</p>
-<div class="highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>signer<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>--ca-key-path<span class="w"> </span>ca.key.pem<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span>--save<span class="w"> </span>linking_transaction.dat
+<div class="highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>signer<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span>--ca-key-path<span class="w"> </span>ca.key.pem<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span>--save<span class="w"> </span>linking_transaction.dat
 </span></code></pre></div>
 <p>The signature is written back to <code>linking_transaction.dat</code> together with the transactions, so no new file is created.</p>
 <p>The output looks similar to the following:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-15-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-15-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-15-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-15-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-15-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-15-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-15-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-15-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-15-10">10</a></span>
-<span class="normal"><a href="#__codelineno-15-11">11</a></span>
-<span class="normal"><a href="#__codelineno-15-12">12</a></span>
-<span class="normal"><a href="#__codelineno-15-13">13</a></span>
-<span class="normal"><a href="#__codelineno-15-14">14</a></span>
-<span class="normal"><a href="#__codelineno-15-15">15</a></span>
-<span class="normal"><a href="#__codelineno-15-16">16</a></span>
-<span class="normal"><a href="#__codelineno-15-17">17</a></span>
-<span class="normal"><a href="#__codelineno-15-18">18</a></span>
-<span class="normal"><a href="#__codelineno-15-19">19</a></span>
-<span class="normal"><a href="#__codelineno-15-20">20</a></span>
-<span class="normal"><a href="#__codelineno-15-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a>    i     | Aggregate transaction: ((signature: 00000000...,
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a>            signer_public_key: 5DA31F82..., version: 0x3,
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a>            network: NetworkType.TESTNET,
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a>            type: TransactionType.AGGREGATE_COMPLETE,
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a>            fee: 0x0000000000015180,
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6"></a>            deadline: 0x0000001946C3C12A, )
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7"></a>            transactions_hash: CCA5A2CE..., transactions: [],
-</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8"></a>            cosignatures: [], )
-</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9"></a>    i     | Inner transactions:
-</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10"></a>    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
-</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11"></a>                network: NetworkType.TESTNET,
-</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12"></a>                type: TransactionType.ACCOUNT_KEY_LINK, )
-</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13"></a>                linked_public_key: E44E749E...,
-</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14"></a>                link_action: LinkAction.LINK, )
-</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15"></a>    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
-</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16"></a>                network: NetworkType.TESTNET,
-</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17"></a>                type: TransactionType.VRF_KEY_LINK, )
-</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18"></a>                linked_public_key: 88307270...,
-</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19"></a>                link_action: LinkAction.LINK, )
-</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20"></a>    i     | Signed transaction TransactionType.AGGREGATE_COMPLETE
-</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21"></a>            with hash: BE1DA35E...
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-17-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-17-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-17-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-17-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-17-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-17-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-17-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-17-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-17-10">10</a></span>
+<span class="normal"><a href="#__codelineno-17-11">11</a></span>
+<span class="normal"><a href="#__codelineno-17-12">12</a></span>
+<span class="normal"><a href="#__codelineno-17-13">13</a></span>
+<span class="normal"><a href="#__codelineno-17-14">14</a></span>
+<span class="normal"><a href="#__codelineno-17-15">15</a></span>
+<span class="normal"><a href="#__codelineno-17-16">16</a></span>
+<span class="normal"><a href="#__codelineno-17-17">17</a></span>
+<span class="normal"><a href="#__codelineno-17-18">18</a></span>
+<span class="normal"><a href="#__codelineno-17-19">19</a></span>
+<span class="normal"><a href="#__codelineno-17-20">20</a></span>
+<span class="normal"><a href="#__codelineno-17-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a>    i     | Aggregate transaction: ((signature: 00000000...,
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2"></a>            signer_public_key: 5DA31F82..., version: 0x3,
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3"></a>            network: NetworkType.TESTNET,
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a>            type: TransactionType.AGGREGATE_COMPLETE,
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5"></a>            fee: 0x0000000000015180,
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6"></a>            deadline: 0x0000001946C3C12A, )
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a>            transactions_hash: CCA5A2CE..., transactions: [],
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8"></a>            cosignatures: [], )
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9"></a>    i     | Inner transactions:
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10"></a>    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11"></a>                network: NetworkType.TESTNET,
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12"></a>                type: TransactionType.ACCOUNT_KEY_LINK, )
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13"></a>                linked_public_key: E44E749E...,
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14"></a>                link_action: LinkAction.LINK, )
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15"></a>    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16"></a>                network: NetworkType.TESTNET,
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17"></a>                type: TransactionType.VRF_KEY_LINK, )
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18"></a>                linked_public_key: 88307270...,
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19"></a>                link_action: LinkAction.LINK, )
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20"></a>    i     | Signed transaction TransactionType.AGGREGATE_COMPLETE
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21"></a>            with hash: BE1DA35E...
 </span></code></pre></div></td></tr></table></div>
 <p>Note that the two key-link transactions are wrapped inside a single <a class="mkdocs-ezglossary-link"
 	id="2e47adc8b0e4c13ae8fe77a452d4da7b"
@@ -9845,19 +9871,19 @@ all embedded transactions are accepted or none are."
 	href="../../../textbook/transactions/#f4cd3e5143da74ac79f397be4a500b5c">aggregate transaction</a>, for convenience.</p>
 <h3 id="9-announce-the-transactions">9. Announce the Transactions<a class="headerlink" href="#9-announce-the-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Use the <code>announce-transaction</code> tool to submit the signed transactions to the network:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>announce-transaction<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span>--transaction<span class="w"> </span>linking_transaction.dat
+<div class="highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>announce-transaction<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span>--transaction<span class="w"> </span>linking_transaction.dat
 </span></code></pre></div>
 <p>The tool connects to an available node on the network and submits the signed transactions.
 The output is similar to this:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1">1</a></span>
-<span class="normal"><a href="#__codelineno-17-2">2</a></span>
-<span class="normal"><a href="#__codelineno-17-3">3</a></span>
-<span class="normal"><a href="#__codelineno-17-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a>    i     | connecting to https://401-sai-dual.symboltest.net:3001
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2"></a>    i     | preparing to announce transaction 5E59A0A0... of type
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3"></a>            TransactionType.AGGREGATE_COMPLETE
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a>    i     | transaction was successfully sent to the network
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span>
+<span class="normal"><a href="#__codelineno-19-2">2</a></span>
+<span class="normal"><a href="#__codelineno-19-3">3</a></span>
+<span class="normal"><a href="#__codelineno-19-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a>    i     | connecting to https://401-sai-dual.symboltest.net:3001
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2"></a>    i     | preparing to announce transaction 5E59A0A0... of type
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3"></a>            TransactionType.AGGREGATE_COMPLETE
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4"></a>    i     | transaction was successfully sent to the network
 </span></code></pre></div></td></tr></table></div>
 <h3 id="10-wait-for-confirmation">10. Wait for Confirmation<a class="headerlink" href="#10-wait-for-confirmation" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>The <code>announce-transaction</code> command exits without waiting for confirmation, so the result must be verified manually.</p>
@@ -9874,12 +9900,12 @@ all other nodes will respond to this URL with a "transaction unknown" error,
 so always check the status of a transaction on the same node where you submitted it.</p>
 </div>
 <p>If the transactions are accepted, the node returns a message similar to this one:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p">{</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">&quot;hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5E59A0A009A885B8DA0A6E1CE18BAE26A83441414E595799F25DB94848CCDEEB&quot;</span><span class="p">,</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Success&quot;</span><span class="p">,</span>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">&quot;deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;107120562182&quot;</span><span class="p">,</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;confirmed&quot;</span>
-</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">{</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nt">&quot;hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5E59A0A009A885B8DA0A6E1CE18BAE26A83441414E595799F25DB94848CCDEEB&quot;</span><span class="p">,</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Success&quot;</span><span class="p">,</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="nt">&quot;deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;107120562182&quot;</span><span class="p">,</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;confirmed&quot;</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The most common outcomes are:</p>
 <table>
@@ -9969,7 +9995,7 @@ as opposed to transactions on the mainnet."
 <div class="admonition info">
 <p class="admonition-title">Voting Keys Maintenance</p>
 <p>During setup, Shoestring creates <a class="mkdocs-ezglossary-link"
-	id="593a42223eec7c9b7b6aa53a90b3ecf2"
+	id="1f1c19be4eb2e5a7ff667c98079e8605"
 	title="Key pair required for nodes participating in the finalization process."
 	name="_:Voting Key"
 	href="../../../textbook/cryptography/#467f5aa81d9db628796592e94e2caf24">voting keys</a> for the node.
@@ -9986,45 +10012,45 @@ This file should be moved offline after the node is properly configured.</p>
 <p>Copy <code>ca.key.pem</code> to secure storage, ideally offline, and <strong>remove it from the machine that will run the node</strong>.</p>
 </div>
 <p>Start the node containers with Docker:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<div class="highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
 <p>The <code>-d</code> option runs the containers in detached mode, allowing the node to continue running after the terminal is closed.</p>
 <div class="admonition warning">
 <p class="admonition-title">Docker permissions</p>
 <p>If you receive an error similar to:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>permission denied while trying to connect to the Docker daemon socket
+<div class="highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>permission denied while trying to connect to the Docker daemon socket
 </span></code></pre></div>
 <p>your user does not have permission to run Docker commands.</p>
 <p>On Linux, you can add your user to the <code>docker</code> group with:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+<div class="highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
 </span></code></pre></div>
 <p>Then log out and log back in, and run the command again.</p>
 </div>
 <p>To stop the node, run from the same folder:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+<div class="highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 </span></code></pre></div>
 <p>The node data remains on disk and the node can be started again with <code>docker compose up -d</code>.</p>
 <p>Keep in mind that the node might take up to 5 minutes to shut down cleanly.
 If interrupted, data might be left in an inconsistent state and require <a href="#node-recovery">recovery</a>.</p>
 <h2 id="verify-the-node">Verify the Node<a class="headerlink" href="#verify-the-node" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Check that the node is running correctly:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
+<div class="highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
 </span></code></pre></div>
 <p>If the node started successfully, the command reports that the peer endpoint, REST API, and WebSocket services are
 reachable (assuming these are the features you enabled):</p>
-<div class="highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>     ...    | running health agent for peer certificate
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>      i     | ca certificate not near expiry (7299 day(s))
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>      i     | node certificate not near expiry (374 day(s))
-</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>keys/cert/ca.crt.pem: OK
-</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>keys/cert/node.crt.pem: OK
-</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>     ...    | running health agent for peer API
-</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>      i     | peer API accessible, height = 226081
-</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>     ...    | running health agent for REST API
-</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>      i     | REST API accessible, height = 226081
-</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>     ...    | running health agent for REST websockets
-</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>      i     | websocket connected to ws://127.0.0.1:3000/ws,
-</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>              subscribing and waiting for block
-</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>      i     | websocket received a block with height 226082
+<div class="highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>     ...    | running health agent for peer certificate
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>      i     | ca certificate not near expiry (7299 day(s))
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>      i     | node certificate not near expiry (374 day(s))
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>keys/cert/ca.crt.pem: OK
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>keys/cert/node.crt.pem: OK
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>     ...    | running health agent for peer API
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>      i     | peer API accessible, height = 226081
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>     ...    | running health agent for REST API
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>      i     | REST API accessible, height = 226081
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>     ...    | running health agent for REST websockets
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a>      i     | websocket connected to ws://127.0.0.1:3000/ws,
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>              subscribing and waiting for block
+</span><span id="__span-26-13"><a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a>      i     | websocket received a block with height 226082
 </span></code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Synchronization</p>
@@ -10037,8 +10063,8 @@ may be delayed and report an incorrect chain height.</p>
 <p>In the event of an unclean shutdown, for example, due to power loss, lock files may remain in the <code>data</code>
 folder that prevent the node from starting.</p>
 <p>The following command attempts to recover the node and restore a valid state:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose-recovery.yaml<span class="w"> </span>up<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span>--abort-on-container-exit
+<div class="highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose-recovery.yaml<span class="w"> </span>up<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span>--abort-on-container-exit
 </span></code></pre></div>
 <p>After the recovery command completes, check whether any <code>.lock</code> files still exist in the <code>data</code> directory.
 If they have been removed, start the node again with <code>docker compose up -d</code>.</p>
@@ -10047,9 +10073,9 @@ If they have been removed, start the node again with <code>docker compose up -d<
 <p>If the recovery command does not solve the issue, <code>reset-data</code> can be used.</p>
 <p>This command removes all downloaded blockchain data, so the node must synchronize again from the beginning.
 However, it preserves the node's configuration and keys.</p>
-<div class="highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>reset-data<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">    </span>--directory<span class="w"> </span>.
+<div class="highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>reset-data<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span>--directory<span class="w"> </span>.
 </span></code></pre></div>
 </div>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Anchor link to this section for reference">⚓︎</a></h2>
@@ -10076,7 +10102,7 @@ However, it preserves the node's configuration and keys.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 23, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 27, 2026</span>
   </span>
 
     
@@ -10086,7 +10112,7 @@ However, it preserves the node's configuration and keys.</p>
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 16, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 27, 2026</span>
   </span>
 
     

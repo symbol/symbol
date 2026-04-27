@@ -1,12 +1,12 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	KeyPair,
+	mosaicRestrictionGenerateKey,
 	SymbolTransactionFactory,
 	models,
 	NetworkTimestamp,
 	SymbolFacade
 } from 'symbol-sdk/symbol';
-import crypto from 'crypto';
 
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
@@ -132,16 +132,13 @@ const targetAddress = process.env.TARGET_ADDRESS ||
 console.log(`Target address: ${targetAddress}`);
 
 const mosaicId = BigInt('0x' + (process.env.MOSAIC_ID ||
-	'6A383620F5C7A5B2'));
+	'6A5ACF2376E50D4A'));
 console.log(`Mosaic ID: 0x${mosaicId.toString(16).toUpperCase()}`);
 
 const restrictionName = process.env.RESTRICTION_NAME || 'security_level';
-const digest = crypto.createHash('sha3-256')
-	.update(Buffer.from(restrictionName, 'utf8'))
-	.digest();
-const restrictionKey = BigInt(digest.readUInt32BE(0));
+const restrictionKey = mosaicRestrictionGenerateKey(restrictionName);
 console.log(`Restriction name: "${restrictionName}" (key: 0x${
-	restrictionKey.toString(16).toUpperCase().padStart(8, '0')
+	restrictionKey.toString(16).toUpperCase().padStart(16, '0')
 	})`);
 
 try {
