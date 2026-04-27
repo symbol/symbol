@@ -4,8 +4,8 @@ This tutorial shows how to deploy and start a new Symbol <node:> using the <Shoe
 
 The tutorial assumes that Shoestring and its dependencies have already been [installed](./install.md).
 
-If you already have a node created with the deprecated Bootstrap tool and wish to reuse it,
-read the [Migration](./migrate.md) guide instead.
+If you already have a node created with the deprecated Bootstrap tool and wish to reuse its
+configuration or keys, pay special attention to the Bootstrap notes throughout this guide.
 
 ## Create a New Node
 
