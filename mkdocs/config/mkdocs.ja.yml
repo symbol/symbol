@@ -79,6 +79,11 @@ nav:
               - userbook/wallet/create-account.md
               - userbook/wallet/import-account.md
               - userbook/wallet/delete-account.md
+      - Shoestringを使用したノード運用:
+          - userbook/shoestring/overview.md
+          - userbook/shoestring/install.md
+          - userbook/shoestring/quickstart.md
+          - userbook/shoestring/maintain.md
       - userbook/security.md
   - 開発者マニュアル:
       - devbook/intro.md
@@ -142,6 +147,9 @@ nav:
           - Symbol REST API: devbook/reference/rest/symbol.md
           - Serialization: devbook/reference/serialization/index.md
           - WebSockets: devbook/reference/websockets/index.md
+          - 構成プロパティ:
+              - ネットワーク: devbook/reference/config/network-properties.md
+              - ノード: devbook/reference/config/node-properties.md
   - テキストブック:
       - textbook/intro.md
       - textbook/cryptography.md
