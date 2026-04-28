@@ -233,28 +233,33 @@ Once the node considers the transaction to be valid, it is broadcast to the <pee
 and added to every node's _unconfirmed pool_.
 
 Unconfirmed pool
-:   A list of transactions pending validation, shared by all nodes in the network.
+:   A list of validated transactions awaiting inclusion in a block, maintained by each node in the network.
 
-Nodes pick up transactions from this pool and perform the same validation:
-they checks the transaction's structure, signatures, and any conditions specific to its type.
-If the transaction passes validation, it is further propagated to other peers.
+When a peer receives a propagated transaction, it runs the full validation again before adding the transaction
+to its own pool, because no node trusts another's validation.
+If the transaction passes, the peer forwards it to its own peers, and propagation continues until the transaction
+is distributed across the network.
 
-This process ensures that a broad portion of the network knows about the transaction.
+!!! warning "Applications must not rely on unconfirmed transactions"
+
+    A transaction in the unconfirmed pool is not yet guaranteed to be included in a block.
+    Applications should never act on an unconfirmed transaction as if it had already been confirmed.
 
 ### 5. Harvesting
 
 Once in the unconfirmed pool, the transaction will eventually be picked up by the <harvesting:> process and
 included in a block.
-At that moment, the transactions becomes _confirmed_.
+At that moment, the transaction becomes _confirmed_.
 
 ### 6. Confirmation
 
-Newly created blocks are propagated to other nodes, that validate them and either accept or reject them.
+Newly created blocks are propagated to other nodes that validate them and either accept or reject them.
 The <consensus:> mechanism ensures that all nodes on the network ultimately agree on the same blocks.
+Once the block containing a transaction is accepted by consensus, the transaction is _confirmed_.
 
 Occasionally, a block already accepted by a node is later rejected by the majority of the network and must be
 <rollback:|rolled back>.
-In this case, the blocks's transactions are reverted and returned to the unconfirmed pool.
+In this case, the block's transactions are reverted and returned to the unconfirmed pool.
 
 If a transaction's deadline expires while it is still in the unconfirmed pool, it is rejected.
 This may happen, for example, if the transaction fee offered is too low to be included by any harvester.
@@ -277,7 +282,7 @@ by <rollbacks:>.
 All transaction types in Symbol share a set of common attributes:
 
 | Attribute             | Description                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------- |
+|-----------------------|---------------------------------------------------------------------------------------|
 | **Signer public key** | Public key of the account that created and signed the transaction.                    |
 | **Signature**         | Cryptographic proof that the signer authorized the transaction and its content.       |
 | **Deadline**          | Timestamp indicating when the transaction expires if not confirmed.                   |
@@ -288,12 +293,15 @@ All transaction types in Symbol share a set of common attributes:
 
 Before a transaction is included in a block, each node independently validates it using the following checks:
 
-| **Check**           | **Description**                                                                                     |
-| ------------------- | --------------------------------------------------------------------------------------------------- |
-| **Signature check** | Verifies the signature is valid and matches the signer's public key and the transaction's contents. |
-| **Fee check**       | Confirms the max fee meets the node's minimum threshold and that the signer has sufficient balance. |
-| **Deadline check**  | Discards the transaction if its deadline has already passed.                                        |
-| **Semantic checks** | Validates that the transaction is logically correct based on its type. Example: a transfer transaction fails if the sender lacks sufficient funds. |
+| **Check**            | **Description**                                                                                          |
+|----------------------|----------------------------------------------------------------------------------------------------------|
+| **Signature check**  | Verifies the signature is valid and matches the signer's public key and the transaction's contents.      |
+| **Fee check**        | Confirms the max fee meets the node's minimum threshold and that the signer has sufficient balance.      |
+| **Deadline check**   | Discards the transaction if its deadline has already passed.                                             |
+| **Timestamp check**  | Rejects transactions whose timestamp lies too far in the future, protecting against clock manipulation.  |
+| **Network check**    | Rejects transactions that target a different network, for example a testnet transaction sent to mainnet. |
+| **Uniqueness check** | Rejects transactions whose hash already appears in the recent chain history, preventing replay.          |
+| **Semantic checks**  | Validates that the transaction is logically correct based on its type. Example: a transfer transaction fails if the sender lacks sufficient funds. |
 
 Transactions that fail any of these checks are rejected and not propagated further.
 
@@ -305,43 +313,43 @@ and validation steps, but differ in purpose and required fields.
 
 <div class="subsections" markdown>
 
-| **Transaction Type**                | **Description**                                                                                   |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **[Transfer Transactions](default:transfer transaction)** |                                                                             |
-| `Transfer`                          | Send <mosaics:> and optional messages between two <accounts:>.                                    |
-| **[Aggregate Transactions](default:aggregate transaction)** |                                                                           |
-| `Aggregate Complete`                | Send transactions in batches to different accounts.                                               |
-| `Aggregate Bonded`                  | Propose an arrangement of transactions between different accounts.                                |
-| `Hash Lock`                         | Lock a deposit needed to announce a <bonded aggregate transaction:>.                              |
-| [**Finalization**](#7-finalization) |                                                                                                   |
-| `Voting Key Link`                   | Link an account with a <BLS:> public key required for finalization voting.                        |
-| **[Harvesting](default:harvesting)** |                                                                                                  |
-| `Account Key Link`                  | This transaction is required for all accounts wanting to activate remote or delegated harvesting. |
-| `Node Key Link`                     | This transaction is required for all accounts willing to activate delegated harvesting.           |
-| `VRF Key Link`                      | Link an account with a VRF public key required for harvesting.                                    |
-| **Locks**                           |                                                                                                   |
-| `Secret Lock`                       | Start a token swap between different chains.                                                      |
-| `Secret Proof`                      | Conclude a token swap between different chains.                                                   |
-| **[Metadata](default:metadata)**    |                                                                                                   |
-| `Account Metadata`                  | Associate a key-value state (metadata) to an account.                                             |
-| `Mosaic Metadata`                   | Associate a key-value state (metadata) to a mosaic.                                               |
-| `Namespace Metadata`                | Associate a key-value state (metadata) to a namespace.                                            |
-| **[Mosaics](default:mosaic)**       |                                                                                                   |
-| `Mosaic Definition`                 | Create a new  mosaic.                                                                             |
-| `Mosaic Supply Change`              | Change the total supply of a mosaic.                                                              |
-| `Mosaic Supply Revocation`          | Revoke mosaic.                                                                                    |
-| **[Multisig](default:multisignature account)** |                                                                                        |
-| `Multisig Account Modification`     | Create or modify a multi-signature account.                                                       |
-| **[Namespaces](default:namespace)** |                                                                                                   |
-| `Namespace Registration`            | Register (or renew a registration for) a namespace.                                               |
-| `Address Alias`                     | Attach or detach a namespace (alias) to an account address.                                       |
-| `Mosaic Alias`                      | Attach or detach a namespace to a mosaic.                                                         |
-| **[Restrictions](default:restrictions)** |                                                                                              |
-| `Account Address Restriction`       | Allow or block incoming and outgoing transactions for a given a set of addresses.                 |
-| `Account Mosaic Restriction`        | Allow or block incoming transactions containing a given set of mosaics.                           |
-| `Account Operation Restriction`     | Allow or block outgoing transactions depending on their transaction type.                         |
-| `Mosaic Global Restriction`         | Set global rules to transfer a restrictable mosaic.                                               |
-| `Mosaic Address Restriction`        | Set address-specific rules to transfer a restrictable mosaic.                                     |
+| **Transaction Type**                                        | **Description**                                                                                   |
+|-------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| **[Transfer Transactions](default:transfer transaction)**   |                                                                                                   |
+| `Transfer`                                                  | Send <mosaics:> and optional messages between two <accounts:>.                                    |
+| **[Aggregate Transactions](default:aggregate transaction)** |                                                                                                   |
+| `Aggregate Complete`                                        | Send transactions in batches to different accounts.                                               |
+| `Aggregate Bonded`                                          | Propose an arrangement of transactions between different accounts.                                |
+| `Hash Lock`                                                 | Lock a deposit needed to announce a <bonded aggregate transaction:>.                              |
+| [**Finalization**](#7-finalization)                         |                                                                                                   |
+| `Voting Key Link`                                           | Link an account with a <BLS:> public key required for finalization voting.                        |
+| **[Harvesting](default:harvesting)**                        |                                                                                                   |
+| `Account Key Link`                                          | This transaction is required for all accounts wanting to activate remote or delegated harvesting. |
+| `Node Key Link`                                             | This transaction is required for all accounts willing to activate delegated harvesting.           |
+| `VRF Key Link`                                              | Link an account with a VRF public key required for harvesting.                                    |
+| **Locks**                                                   |                                                                                                   |
+| `Secret Lock`                                               | Start a token swap between different chains.                                                      |
+| `Secret Proof`                                              | Conclude a token swap between different chains.                                                   |
+| **[Metadata](default:metadata)**                            |                                                                                                   |
+| `Account Metadata`                                          | Associate a key-value state (metadata) to an account.                                             |
+| `Mosaic Metadata`                                           | Associate a key-value state (metadata) to a mosaic.                                               |
+| `Namespace Metadata`                                        | Associate a key-value state (metadata) to a namespace.                                            |
+| **[Mosaics](default:mosaic)**                               |                                                                                                   |
+| `Mosaic Definition`                                         | Create a new  mosaic.                                                                             |
+| `Mosaic Supply Change`                                      | Change the total supply of a mosaic.                                                              |
+| `Mosaic Supply Revocation`                                  | Revoke mosaic.                                                                                    |
+| **[Multisig](default:multisignature account)**              |                                                                                                   |
+| `Multisig Account Modification`                             | Create or modify a multi-signature account.                                                       |
+| **[Namespaces](default:namespace)**                         |                                                                                                   |
+| `Namespace Registration`                                    | Register (or renew a registration for) a namespace.                                               |
+| `Address Alias`                                             | Attach or detach a namespace (alias) to an account address.                                       |
+| `Mosaic Alias`                                              | Attach or detach a namespace to a mosaic.                                                         |
+| **[Restrictions](default:restrictions)**                    |                                                                                                   |
+| `Account Address Restriction`                               | Allow or block incoming and outgoing transactions for a given a set of addresses.                 |
+| `Account Mosaic Restriction`                                | Allow or block incoming transactions containing a given set of mosaics.                           |
+| `Account Operation Restriction`                             | Allow or block outgoing transactions depending on their transaction type.                         |
+| `Mosaic Global Restriction`                                 | Set global rules to transfer a restrictable mosaic.                                               |
+| `Mosaic Address Restriction`                                | Set address-specific rules to transfer a restrictable mosaic.                                     |
 
 </div>
 
