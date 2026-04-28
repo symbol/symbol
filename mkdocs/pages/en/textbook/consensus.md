@@ -78,5 +78,10 @@ For example, a wallet can consider a transaction to be fully confirmed once it i
 Votes are weighted by account balance to prevent <Sybil attacks:>,
 and only accounts holding at least 3'000'000 <XYM:> are eligible to participate.
 
+!!! note
+
+    There is currently no reward scheme for voting nodes, as a suitable mechanism has not yet been agreed upon.
+    Community contributions and proposals in this area are encouraged.
+
 In the absence of network partitions, blocks are typically finalized within 10 to 20 minutes,
 depending on how long ago the last finalization point occurred.

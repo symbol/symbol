@@ -42,7 +42,7 @@ Symbol uses the [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.me
 Wallet
 :   An application used to manage Symbol accounts, initiate transactions and sign them.
 
-It stores <private keys:> or <mnemonic phrases:>, and uses them to signs transactions.
+It stores <private keys:> or <mnemonic phrases:>, and uses them to sign transactions.
 More broadly, wallets provide tools for exploring and interacting with the blockchain.
 
 Wallets can be:
@@ -98,6 +98,26 @@ Multisig accounts are configured by:
 
     * **Approval threshold**: Number of required signatures to approve a regular transaction.
     * **Removal threshold**: Number of required signatures to remove cosignatories from the multisig.
+
+For example, a **2-of-3** multisig has three cosignatories, any two of which must sign to authorize a transaction:
+
+```dot
+digraph "M-of-N Multisignature" {
+    rankdir="BT";
+    node [fontsize=12];
+    "Multisig Account" [label="Multisig Account\n2 of 3"];
+
+    "Cosignatory 1" [penwidth=2];
+    "Cosignatory 2" [penwidth=2];
+
+    "Cosignatory 1" -> "Multisig Account" [penwidth=2 minlen=2];
+    "Cosignatory 2" -> "Multisig Account" [penwidth=2 minlen=2];
+    "Cosignatory 3" -> "Multisig Account" [style=dashed minlen=2];
+}
+```
+
+In the previous diagram, Cosignatories 1 and 2 sign, which meets the minimum of `M=2`, so the transaction is valid
+without Cosignatory 3.
 
 Example use cases:
 
