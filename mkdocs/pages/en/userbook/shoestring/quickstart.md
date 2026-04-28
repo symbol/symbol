@@ -82,7 +82,7 @@ Only a few values usually need to be customized for your node, and they are all 
     * `HARVESTER`: The node participates in block creation and is eligible for <harvesting:> rewards.
         A minimum of 10'000 <XYM:> are required.
         See [Configure Harvesting](#configure-harvesting-optional) below.
-    * `VOTER`: The node participates in <finalization:> and is eligible for voting rewards.
+    * `VOTER`: The node participates in <finalization:>.
         A minimum of 3'000'000 <XYM:> are required.
         See [Configure Voting](#configure-voting-optional) below.
 
