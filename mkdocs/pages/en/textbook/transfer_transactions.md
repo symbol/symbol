@@ -45,7 +45,8 @@ a transfer transaction contains the following attributes:
 
 The recipient can be specified as an <address:> or a <namespace:> alias.
 
-!!! warning
+!!! warning "Assets sent to an unowned address are lost"
+
     It is possible to send mosaics to an address that has never appeared on-chain.
 
     This behavior is normal and supported,
