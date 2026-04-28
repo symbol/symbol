@@ -174,7 +174,7 @@ Keeping the operating system and node software updated improves stability, compa
     To update it to the latest available version:
 
     ```bash
-    python3 -m pip install --upgrade shoestring
+    python3 -m pip install --upgrade symbol-shoestring
     ```
 
     After the update, confirm the installed version:

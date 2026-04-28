@@ -399,7 +399,7 @@ The most common outcomes are:
 | **Signature Not Verifiable** | The transactions were probably not signed. Repeat from [Step 8](#8-sign-the-transactions).                                               |
 | **Deadline expired**         | Transactions must be announced within 6 hours of running `setup`. See below.                                                             |
 
-In case of expired deadlines, repeat [step 4](#4-configure-the-node) using the `--output-transaction-only`
+In case of expired deadlines, repeat [step 6](#6-create-the-node-installation) using the `--output-transaction-only`
 parameter to create a fresh `linking_transaction.dat` and continue from [step 9](#9-announce-the-transactions) to
 announce it.
 
