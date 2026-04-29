@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.23)
 
 set(PLUGIN_CATAPULT_LIBS catapult.mongo)
 
@@ -26,8 +25,6 @@ endfunction()
 function(catapult_mongo_plugin_tests_no_deps TARGET_NAME)
 	catapult_test_executable_target(${TARGET_NAME} mongo)
 	catapult_add_mongo_dependencies(${TARGET_NAME})
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
 function(catapult_mongo_plugin_tests_with_header_only_deps TARGET_NAME)
@@ -42,7 +39,6 @@ function(catapult_mongo_plugin_tests_with_header_only_deps TARGET_NAME)
 		target_link_libraries(${TARGET_NAME} tests.catapult.test.plugins.${PLUGIN_NAME})
 	endif()
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
 function(catapult_mongo_plugin_tests_with_deps TARGET_NAME)
@@ -51,25 +47,12 @@ function(catapult_mongo_plugin_tests_with_deps TARGET_NAME)
 
 	catapult_mongo_plugin_tests_with_header_only_deps(${TARGET_NAME} "${ARGN}")
 	target_link_libraries(${TARGET_NAME} tests.catapult.test.mongo.plugins.${PLUGIN_NAME})
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
 function(catapult_mongo_plugin_test_library TARGET_NAME)
 	catapult_library_target(${TARGET_NAME})
 	catapult_add_mongo_dependencies(${TARGET_NAME})
-	target_link_libraries(${TARGET_NAME} ${GTest_LIBRARIES})
+	target_link_libraries(${TARGET_NAME} ${GTest_IMPORTED_TARGETS})
 endfunction()
 
-add_subdirectory(account_link)
-add_subdirectory(aggregate)
-add_subdirectory(lock_hash)
-add_subdirectory(lock_secret)
-add_subdirectory(lock_shared)
-add_subdirectory(metadata)
-add_subdirectory(mosaic)
-add_subdirectory(multisig)
-add_subdirectory(namespace)
-add_subdirectory(restriction_account)
-add_subdirectory(restriction_mosaic)
-add_subdirectory(transfer)
+subdirectories(ADD BASE . VERBOSE)

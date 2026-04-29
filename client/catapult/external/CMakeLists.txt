@@ -1,18 +1,14 @@
-cmake_minimum_required(VERSION 3.23)
 project(external)
-add_definitions(-DNO_MISALIGNED_ACCESSES) # sha3
 
-file(GLOB external_donna_SRC
-	"donna/*.c"
-	"donna/*.h"
+file(GLOB _sources LIST_DIRECTORIES false CONFIGURE_DEPENDS "donna/*.c" "donna/*.h")
+
+SOURCE_GROUP("donna" FILES ${_sources})
+
+add_library(external 
+	${_sources}
+	README.txt
 )
 
-SOURCE_GROUP("donna" FILES ${external_donna_SRC})
-
-add_library(external
-	${external_donna_SRC}
-	README.txt)
-
+target_compile_definitions(external PUBLIC NO_MISALIGNED_ACCESSES) #sha3
+target_link_libraries(external build.defaults)
 catapult_add_openssl_dependencies(external)
-
-set_property(TARGET external PROPERTY POSITION_INDEPENDENT_CODE ON)

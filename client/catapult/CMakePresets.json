@@ -38,6 +38,7 @@
 			},
 			"warnings": {
 				"dev": true,
+				"deprecated": true,
 				"unusedCli": true
 			}
 		},

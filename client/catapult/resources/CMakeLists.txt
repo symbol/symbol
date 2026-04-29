@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.23)
 
 set(TARGET_NAME resources)
 file(GLOB ${TARGET_NAME}_FILES "*.properties" "*.json")

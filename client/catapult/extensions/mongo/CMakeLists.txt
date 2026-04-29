@@ -1,25 +1,6 @@
-cmake_minimum_required(VERSION 3.23)
-
-message("--- locating mongo dependencies ---")
-find_package(MONGOCXX 4.1.4 REQUIRED)
-if(TARGET mongo::mongocxx_shared)
-	set(MONGOCXX_LIBRARY mongo::mongocxx_shared)
-elseif(TARGET mongo::mongocxx_static)
-	set(MONGOCXX_LIBRARY mongo::mongocxx_static)	
-elseif(TARGET mongo::mongocxx)
-	set(MONGOCXX_LIBRARY mongo::mongocxx)
-endif()
-get_library_path("MONGOCXX_LIBRARY_PATH" ${MONGOCXX_LIBRARY})
-find_package(mongoc 2.2.1 REQUIRED)
-
-message("mongocxx  ver: ${MONGOCXX_VERSION}")
-message("mongoc    ver: ${mongoc_VERSION}")
-message("mongocxx  lib: ${MONGOCXX_LIBRARY_PATH}")
-message("mongocxx  dir: ${mongocxx_INCLUDE_DIRS}")
-
 ### find and set mongo includes and libraries
 function(catapult_add_mongo_dependencies TARGET_NAME)
-	target_link_libraries(${TARGET_NAME} ${MONGOCXX_LIBRARY})
+	target_link_libraries(${TARGET_NAME} $<IF:$<TARGET_EXISTS:mongo::mongocxx_static>,mongo::mongocxx_static,mongo::mongocxx_shared>)
 endfunction()
 
 # used to define a catapult mongo int test executable by combining catapult_test_executable and catapult_target
@@ -28,10 +9,8 @@ function(catapult_int_test_executable_target TARGET_NAME)
 	catapult_target(${TARGET_NAME})
 
 	set_property(TEST ${TARGET_NAME} PROPERTY LABELS Database)
+	target_link_libraries(${TARGET_NAME} build.tests)
 
-	# customize and export compiler options for gtest
-	catapult_set_test_compiler_options()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
 add_subdirectory(plugins)
