@@ -1,4 +1,3 @@
-
 set(TARGET_NAME catapult.recovery)
 
 catapult_executable(${TARGET_NAME})

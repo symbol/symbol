@@ -1,4 +1,3 @@
-
 add_definitions(-DCATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}")
 catapult_library_target(catapult.version)
 

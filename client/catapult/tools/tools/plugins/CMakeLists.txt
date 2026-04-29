@@ -1,4 +1,3 @@
-
 set(TARGET_NAME catapult.tools.plugins)
 
 catapult_library_target(${TARGET_NAME})

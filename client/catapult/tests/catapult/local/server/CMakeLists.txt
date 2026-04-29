@@ -1,2 +1,1 @@
-
 catapult_test_executable_target_no_lib(tests.catapult.local.server nemesis)

@@ -1,4 +1,3 @@
-
 catapult_library_target(catapult.chain)
 target_link_libraries(catapult.chain
 	catapult.api

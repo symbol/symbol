@@ -1,4 +1,3 @@
-
 catapult_library_target(tests.catapult.test.nemesis)
 target_link_libraries(tests.catapult.test.nemesis
 	tests.catapult.test.local
