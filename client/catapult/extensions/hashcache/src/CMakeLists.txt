@@ -1,4 +1,3 @@
-
 catapult_define_extension_src(hashcache)
 
 # add dependency on hash cache plugin

@@ -1,2 +1,1 @@
-
 catapult_define_extension(filespooling)

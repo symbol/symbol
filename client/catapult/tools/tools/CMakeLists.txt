@@ -1,4 +1,3 @@
-
 add_subdirectory(plugins)
 
 catapult_library_target(catapult.tools)

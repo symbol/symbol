@@ -1,4 +1,3 @@
-
 set(TARGET_NAME tests.catapult.int.mongo.plugins.mosaic)
 
 catapult_int_test_executable_target(${TARGET_NAME} storages)

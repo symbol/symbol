@@ -1,4 +1,3 @@
-
 set(TARGET_NAME catapult.broker)
 
 catapult_executable(${TARGET_NAME})

@@ -1,4 +1,3 @@
-
 set(PLUGIN_CATAPULT_LIBS catapult.mongo)
 
 function(catapult_mongo_plugin_src_no_deps PLUGIN_BASE_NAME)

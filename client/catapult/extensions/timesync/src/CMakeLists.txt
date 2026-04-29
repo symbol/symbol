@@ -1,2 +1,1 @@
-
 catapult_define_extension_src(timesync api filters handlers)

@@ -1,4 +1,3 @@
-
 set(TARGET_NAME tests.catapult.mongo.plugins.multisig)
 
 include_directories(${PROJECT_SOURCE_DIR}/plugins/txes/multisig)

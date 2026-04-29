@@ -1,4 +1,3 @@
-
 set(PLUGIN_BASE_NAME catapult.mongo.plugins.metadata)
 
 include_directories(${PROJECT_SOURCE_DIR}/plugins/txes/metadata)

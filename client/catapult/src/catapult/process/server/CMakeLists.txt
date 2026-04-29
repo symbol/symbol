@@ -1,4 +1,3 @@
-
 set(TARGET_NAME catapult.server)
 
 catapult_executable(${TARGET_NAME})

@@ -1,4 +1,3 @@
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
 
 function(catapult_define_extension_no_group EXTENSION_NAME)

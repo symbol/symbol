@@ -1,4 +1,3 @@
-
 set(PLUGIN_BASE_NAME catapult.plugins.namespace)
 
 catapult_tx_plugin_src(${PLUGIN_BASE_NAME})

@@ -1,4 +1,3 @@
-
 include_directories(../../../external)
 
 catapult_library_target(tests.catapult.test.crypto)

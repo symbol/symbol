@@ -1,4 +1,3 @@
-
 set(TARGET_NAME tests.catapult.mongo.plugins.restrictionaccount)
 
 include_directories(${PROJECT_SOURCE_DIR}/plugins/txes/restriction_account)

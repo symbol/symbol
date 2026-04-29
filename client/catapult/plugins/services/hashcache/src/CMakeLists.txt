@@ -1,4 +1,3 @@
-
 set(PLUGIN_BASE_NAME catapult.plugins.hashcache)
 
 # create a cache lib

@@ -1,4 +1,3 @@
-
 set(TARGET_NAME catapult.cache_db)
 
 catapult_library_target(${TARGET_NAME})

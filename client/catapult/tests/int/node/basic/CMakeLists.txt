@@ -1,4 +1,3 @@
-
 set(TARGET_NAME tests.catapult.int.node)
 
 catapult_int_test_executable_target(${TARGET_NAME})
