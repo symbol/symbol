@@ -6,6 +6,9 @@ if (MSVC_VERSION LESS_EQUAL 1928)
 	message(FATAL_ERROR "MSVC version must be at least 1928 (Visual Studio 2019 16.8)\nFound version ${MSVC_VERSION}")
 endif ()
 
+# Set a flag we're using cl or clang-cl, which is used in some conditional settings below
+set(CACHE MSVC_EXTENDED TYPE BOOL FORCE VALUE TRUE)
+
 target_compile_definitions(build.defaults INTERFACE 
 	_WIN32_WINNT=0x0A00											# Min Windows 10
 	VC_EXTRALEAN												# Process windows headers faster ...

@@ -1,1 +1,1 @@
-catapult_test_executable_target_no_lib(tests.catapult.utils nodeps test)
+catapult_test_executable_target(tests.catapult.utils nodeps test NOLIB)

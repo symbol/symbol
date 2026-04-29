@@ -1,4 +1,12 @@
-add_subdirectory(plugins)
+subdirectories(ADD BASE . DIRS plugins VERBOSE)
 
 catapult_library_target(catapult.tools)
-target_link_libraries(catapult.tools ${CORE_CATAPULT_LIBS} catapult.api catapult.config catapult.net catapult.sdk catapult.version)
+target_link_libraries(
+    catapult.tools 
+    ${CORE_CATAPULT_LIBS} 
+    catapult.api 
+    catapult.config 
+    catapult.net 
+    catapult.sdk 
+    catapult.version
+)

@@ -1,4 +1,4 @@
-add_subdirectory(test)
+subdirectories(ADD BASE . DIRS test VERBOSE)
 
 set(TARGET_NAME tests.catapult.plugins.metadata)
 

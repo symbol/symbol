@@ -1,72 +1,5 @@
 
-if(USE_CONAN)
-	# only set rpath when running conan, which copies dependencies to `@executable_path/../deps`
-	# when not using conan, rpath is set to link paths by default
-	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		set(ENABLE_RPATHS ON)
-		set(USE_EXPLICIT_RPATHS ON)
-	endif()
-endif()
-
-if(ENABLE_RPATHS)
-	if(USE_EXPLICIT_RPATHS)
-		if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-			# $origin - to load plugins when running the server
-			set(CMAKE_INSTALL_RPATH "$ORIGIN/../deps:$ORIGIN/../lib")
-			set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-			set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-
-			# use rpath for executables
-			# (executable rpath will be used for loading indirect libs, this is needed because boost libs do not set runpath)
-			# use newer runpath for shared libs
-			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--enable-new-dtags")
-			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
-		endif()
-		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-			set(CMAKE_INSTALL_RPATH "@executable_path/../deps;@executable_path/../lib")
-			set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-			set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-		endif()
-	endif()
-else()
-	set(CMAKE_SKIP_BUILD_RPATH TRUE)
-endif()
-
-### define gtest helper functions
-
-# sets additional compiler options for test projects in order to quiet GTEST warnings while allowing source warning checks to be stricter
-function(catapult_set_test_compiler_options)
-	# some gtest workarounds for gcc + clang
-	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-		set(CMAKE_CXX_FLAGS_LOCAL "-Wno-dangling-else")
-
-		# - Wno-dangling-else: workaround for GTEST ambiguous else blocker not working https://github.com/google/googletest/issues/1119
-		# disable dangling reference for tests - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165#c9
-		if(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "13")
-			set(CMAKE_CXX_FLAGS_LOCAL "${CMAKE_CXX_FLAGS_LOCAL} -Wno-dangling-reference")
-		endif()
-
-		# - Wno-free-nonheap-object: bug should be fix in gcc 16 - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115016
-		if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "14" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "16")
-			set(CMAKE_CXX_FLAGS_LOCAL "${CMAKE_CXX_FLAGS_LOCAL} -Wno-free-nonheap-object")
-		endif()
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_LOCAL}" PARENT_SCOPE)
-	elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-		# - Wno-global-constructors: required for GTEST test definition macros
-		# - Wno-zero-as-null-pointer-constant: workaround for GTEST NULL/nullptr mismatch https://github.com/google/googletest/issues/1323
-		# - Wno-missing-noreturn: some test functions do not return a value
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-			-Wno-global-constructors \
-			-Wno-zero-as-null-pointer-constant \
-			-Wno-missing-noreturn"
-			PARENT_SCOPE)
-	endif()
-endfunction()
-
 ### define version helpers
-
-
 if(MSVC)
 	function(set_win_version_definitions WIN_TARGET_NAME WIN_FILETYPE)
 		add_definitions(-DCATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}")
@@ -90,9 +23,9 @@ endif()
 function(catapult_target TARGET_NAME)
 
 	target_link_libraries(${TARGET_NAME} build.defaults ${Boost_LIBRARIES})
-	string(REGEX MATCH "\.(plugins|tools)" _TARGET_FOLDER "${TARGET_NAME}")
-	if(_TARGET_FOLDER)
-		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "${_TARGET_FOLDER}") 
+	string(REGEX MATCH "\.(plugins|tools)" _folder "${TARGET_NAME}")
+	if(_folder)
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "${_folder}") 
 	endif()
 
 endfunction()
@@ -102,7 +35,7 @@ function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
 
 	message(TRACE "processing ${TARGET_TYPE} '${TARGET_NAME}'")
 
-	file(GLOB TARGET_FILES CONFIGURE_DEPENDS "*.h" "*.cpp")
+	file(GLOB TARGET_FILES LIST_DIRECTORIES false CONFIGURE_DEPENDS "*.h" "*.cpp")
 	SOURCE_GROUP("src" FILES ${TARGET_FILES})
 
 	# add any (optional) subdirectories
@@ -121,37 +54,22 @@ function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
 
 endfunction()
 
-# used to define a catapult library, creating an appropriate source group and adding a library
-function(catapult_library TARGET_NAME)
-	catapult_find_all_target_files("lib" ${TARGET_NAME} ${ARGN})
-	add_library(${TARGET_NAME} ${${TARGET_NAME}_FILES})
-endfunction()
-
 # combines catapult_library and catapult_target
 function(catapult_library_target TARGET_NAME)
-	catapult_library(${TARGET_NAME} ${ARGN})
-	set_property(TARGET ${TARGET_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+	catapult_find_all_target_files("lib" ${TARGET_NAME} ${ARGN})
+	add_library(${TARGET_NAME} ${${TARGET_NAME}_FILES})
 	catapult_target(${TARGET_NAME})
 endfunction()
 
-# used to define a catapult shared library, creating an appropriate source group and adding a library
-function(catapult_shared_library TARGET_NAME)
+# used to define a catapult shared library target, creating an appropriate source group and adding a library
+function(catapult_shared_library_target TARGET_NAME)
 	catapult_find_all_target_files("shared lib" ${TARGET_NAME} ${ARGN})
-
 	add_definitions(-DDLL_EXPORTS)
-
 	if(MSVC)
 		set_win_version_definitions(${TARGET_NAME} VFT_DLL)
 	endif()
-
 	add_library(${TARGET_NAME} SHARED ${${TARGET_NAME}_FILES} ${VERSION_RESOURCES})
-endfunction()
-
-# combines catapult_shared_library and catapult_target
-function(catapult_shared_library_target TARGET_NAME)
-	catapult_shared_library(${TARGET_NAME} ${ARGN})
 	catapult_target(${TARGET_NAME})
-
 	install(TARGETS ${TARGET_NAME})
 endfunction()
 
@@ -159,7 +77,7 @@ endfunction()
 function(catapult_executable TARGET_NAME)
 	catapult_find_all_target_files("exe" ${TARGET_NAME} ${ARGN})
 
-	if(MSVC)
+	if(MSVC_EXTENDED)
 		set_win_version_definitions(${TARGET_NAME} VFT_APP)
 	endif()
 
@@ -194,34 +112,25 @@ function(catapult_test_executable TARGET_NAME)
 endfunction()
 
 # used to define a catapult test executable for a catapult library by combining catapult_test_executable and
-# catapult_target and adding some library dependencies
+# catapult_target and adding some library dependencies.
+# pass NOLIB as the third argument to skip linking the library under test (header-only or already pulled in transitively)
 function(catapult_test_executable_target TARGET_NAME TEST_DEPENDENCY_NAME)
-	catapult_test_executable(${TARGET_NAME} ${ARGN})
+	cmake_parse_arguments(_ARG "NOLIB" "" "" ${ARGN})
+	catapult_test_executable(${TARGET_NAME} ${_ARG_UNPARSED_ARGUMENTS})
 
-	# customize and export compiler options for gtest
-	catapult_set_test_compiler_options()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
+	set(_extra_libs "")
+	if(NOT _ARG_NOLIB)
+		# test targets are in the form test.xyz, so derive xyz as the library under test
+		string(REPLACE "." ";" _parts "${TARGET_NAME}")
+		list(LENGTH _parts _num_parts)
+		if(_num_parts LESS 2)
+			message(FATAL_ERROR "unexpected test target name '${TARGET_NAME}'")
+		endif()
+		list(REMOVE_AT _parts 0)
+		string(JOIN "." _extra_libs ${_parts})
+	endif()
 
-	# test libraries are in the form test.xyz, so add xyz as a dependency (the library under test)
-	string(FIND ${TARGET_NAME} "." TEST_END_INDEX)
-	MATH(EXPR TEST_END_INDEX "${TEST_END_INDEX}+1")
-	string(SUBSTRING ${TARGET_NAME} ${TEST_END_INDEX} -1 LIBRARY_UNDER_TEST)
-
-	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME} ${LIBRARY_UNDER_TEST})
-	catapult_target(${TARGET_NAME})
-endfunction()
-
-# used to define a catapult test executable for a header only catapult library by combining catapult_test_executable and
-# catapult_target and adding some library dependencies
-# also used when the library under test should not be automatically added because it's included by the test dependency library
-function(catapult_test_executable_target_no_lib TARGET_NAME TEST_DEPENDENCY_NAME)
-	catapult_test_executable(${TARGET_NAME} ${ARGN})
-
-	# customize and export compiler options for gtest
-	catapult_set_test_compiler_options()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
-
-	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME})
+	target_link_libraries(${TARGET_NAME} build.tests tests.catapult.test.${TEST_DEPENDENCY_NAME} ${_extra_libs})
 	catapult_target(${TARGET_NAME})
 endfunction()
 

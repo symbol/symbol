@@ -1,1 +1,1 @@
-catapult_test_executable_target_no_lib(tests.catapult.model core)
+catapult_test_executable_target(tests.catapult.model core NOLIB)

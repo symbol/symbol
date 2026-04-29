@@ -10,6 +10,4 @@ set(PLUGIN_CATAPULT_LIBS
 	catapult.state
 	catapult.validators)
 
-add_subdirectory(coresystem)
-add_subdirectory(services)
-add_subdirectory(txes)
+subdirectories(ADD BASE . VERBOSE)

@@ -8,6 +8,4 @@ function(catapult_bench_executable_target TARGET_NAME)
 	install(TARGETS ${TARGET_NAME})
 endfunction()
 
-add_subdirectory(crypto)
-
-add_subdirectory(nodeps)
+subdirectories(ADD BASE . VERBOSE)

@@ -76,6 +76,38 @@ if(NOT CATAPULT_BUILD_DEVELOPMENT)
 	endif()
 endif()
 
+# only set rpath when running conan, which copies dependencies to `@executable_path/../deps`
+# when not using conan, rpath is set to link paths by default
+if(USE_CONAN AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(ENABLE_RPATHS ON)
+	set(USE_EXPLICIT_RPATHS ON)
+endif()
+
+if(ENABLE_RPATHS)
+	if(USE_EXPLICIT_RPATHS)
+		if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+			# $origin - to load plugins when running the server
+			set(CMAKE_INSTALL_RPATH "$ORIGIN/../deps:$ORIGIN/../lib")
+			set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+			set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+
+			# use rpath for executables
+			# (executable rpath will be used for loading indirect libs, this is needed because boost libs do not set runpath)
+			# use newer runpath for shared libs
+			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--enable-new-dtags")
+			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
+		endif()
+		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+			set(CMAKE_INSTALL_RPATH "@executable_path/../deps;@executable_path/../lib")
+			set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+			set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+		endif()
+	endif()
+else()
+	set(CMAKE_SKIP_BUILD_RPATH TRUE)
+endif()
+
+
 # Create interface libraries for compiler settings
 add_library(build.defaults INTERFACE)
 add_library(build.tests INTERFACE)

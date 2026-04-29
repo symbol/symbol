@@ -71,4 +71,5 @@ target_compile_options(build.tests INTERFACE
 	# - Wno-zero-as-null-pointer-constant: workaround for GTEST NULL/nullptr mismatch https://github.com/google/googletest/issues/1323
     $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-global-constructors>
     $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-zero-as-null-pointer-constant>
+    $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-missing-noreturn>
 )
