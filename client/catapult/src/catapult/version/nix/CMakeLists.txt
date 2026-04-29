@@ -1,3 +1,3 @@
-cmake_minimum_required(VERSION 3.23)
 
-catapult_object_library(catapult.version.nix what_version.cpp)
+add_library(catapult.version.nix OBJECT what_version.cpp)
+target_link_libraries(catapult.version.nix $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)

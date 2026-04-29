@@ -1,238 +1,3 @@
-### enable testing
-enable_testing()
-
-if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8 OR NOT CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
-    math(EXPR _bitness "${CMAKE_SIZEOF_VOID_P} * 8")
-    message(FATAL_ERROR 
-		"This project requires a 64-bit Little Endian operating system and compiler.\n"
-		"You're currently using a ${_bitness}-bit ${CMAKE_CXX_BYTE_ORDER} Endian architecture."
-	)
-endif()
-
-### enable ccache if available
-find_program(CCACHE_EXE ccache)
-if(CCACHE_EXE)
-# ccache on windows requires real binary instead of the shims used by scoop to be in the PATH
-	if (MSVC AND USE_CCACHE_ON_WINDOWS)
-		file(COPY_FILE ${CCACHE_EXE} ${CMAKE_BINARY_DIR}/cl.exe ONLY_IF_DIFFERENT)
-		set(CMAKE_VS_GLOBALS
-			"CLToolExe=cl.exe"
-			"CLToolPath=${CMAKE_BINARY_DIR}"
-			"TrackFileAccess=false"
-			"UseMultiToolTask=true"
-			"DebugInformationFormat=OldStyle"
-		)
-	else()
-		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-		set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-	endif()
-endif(CCACHE_EXE)
-
-### set up conan
-if(USE_CONAN)
-	set(CONAN_SYSTEM_INCLUDES ON)
-endif()
-
-### set boost settings
-add_definitions(-DBOOST_ALL_DYN_LINK)
-add_definitions(-DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
-add_definitions(-DBOOST_ASIO_NO_DEPRECATED)
-
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-
-# log requires { atomic chrono filesystem log_setup regex thread }
-set(CATAPULT_BOOST_COMPONENTS atomic chrono date_time filesystem log log_setup program_options regex thread)
-
-### set openssl definitions
-add_definitions(-DOPENSSL_API_COMPAT=0x10100000L)
-
-### set custom diagnostics
-if(ENABLE_CATAPULT_DIAGNOSTICS)
-	add_definitions(-DENABLE_CATAPULT_DIAGNOSTICS)
-endif()
-
-### forward docker build settings
-if(CATAPULT_TEST_DB_URL)
-	add_definitions(-DCATAPULT_TEST_DB_URL="${CATAPULT_TEST_DB_URL}")
-endif()
-if(CATAPULT_DOCKER_TESTS)
-	add_definitions(-DCATAPULT_DOCKER_TESTS)
-endif()
-
-### set architecture
-if(ARCHITECTURE_NAME)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=${ARCHITECTURE_NAME}")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${ARCHITECTURE_NAME}")
-endif()
-
-### set code coverage
-if(ENABLE_CODE_COVERAGE)
-	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage -fprofile-update=atomic")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage -fprofile-update=atomic")
-	elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
-	else()
-		message(FATAL_ERROR "code coverage is unsupported for ${CMAKE_CXX_COMPILER_ID}")
-	endif()
-endif()
-
-### set sanitization
-if(ENABLE_FUZZ_BUILD)
-	set(USE_SANITIZER "undefined")
-endif()
-
-if(USE_SANITIZER)
-	set(SANITIZER_IGNORELIST "${PROJECT_SOURCE_DIR}/sanitizer_ignorelist.txt")
-	set(SANITIZATION_FLAGS "-fno-omit-frame-pointer -fsanitize-ignorelist=${SANITIZER_IGNORELIST} -fsanitize=${USE_SANITIZER}")
-
-	if(USE_SANITIZER MATCHES "undefined")
-		set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=implicit-conversion,nullability")
-		if(ENABLE_FUZZ_BUILD)
-			set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=address -fno-sanitize-recover=all")
-		endif()
-
-		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-			# -fno-sanitize=vptr: disable vptr on Apple MX processors to avoid false positives
-			set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fno-sanitize=vptr")
-
-			# revert to clang 15 behavior due to false positives around unterminated constant strings
-			add_compile_options(-mllvm -asan-globals=0)
-		endif()
-	endif()
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZATION_FLAGS}")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SANITIZATION_FLAGS}")
-endif()
-
-### set compiler settings
-if(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc /Zc:__cplusplus")
-	# in debug disable "potentially uninitialized local variable" (FP)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /D_SCL_SECURE_NO_WARNINGS /wd4701")
-	# also enable name return value optimization to allow proper tests validation
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zc:nrvo")
-	if (CCACHE_EXE AND USE_CCACHE_ON_WINDOWS)
-		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Z7")
-	else()
-		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Zi")
-	endif()
-
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-
-	if(MSVC_VERSION GREATER_EQUAL 1950) # Visual Studio 18 2026
-		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG")
-		set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG /INCREMENTAL:NO /OPT:REF")
-	else()
-		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG:FASTLINK")
-		set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG")
-	endif()
-
-	add_compile_options(/MP)            # Enable parallel compilation
-	add_compile_options(/GA)            # Optimizes for Windows applications
-
-	add_definitions(-D_WIN32_WINNT=0x0A00)
-
-	add_compile_options(/w44287)		# 'operator' : unsigned/negative constant mismatch
-	add_compile_options(/w44388)		# 'token' : signed/unsigned mismatch
-
-	# explicitly disable linking against static boost libs
-	add_definitions(-DBOOST_ALL_NO_LIB)
-
-	# min/max macros are useless
-	add_definitions(-DNOMINMAX)
-	add_definitions(-DWIN32_LEAN_AND_MEAN)
-
-	# mongo cxx view inherits std::iterator
-	add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
-	# boost asio associated_allocator
-	add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
-elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-	# -Wstrict-aliasing=1 perform most paranoid strict aliasing checks
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wformat-security -Werror -Wstrict-aliasing=1")
-
-	# - Wno-maybe-uninitialized: false positives where gcc isn't sure if an uninitialized variable is used or not
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wno-maybe-uninitialized -g1 -fno-omit-frame-pointer")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-maybe-uninitialized")
-
-	# add memset_s
-	add_definitions(-D_STDC_WANT_LIB_EXT1_=1)
-	add_definitions(-D__STDC_WANT_LIB_EXT1__=1)
-elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-	# - Wno-c++98-compat*: catapult is not compatible with C++98
-	# - Wno-disabled-macro-expansion: expansion of recursive macro is required for boost logging macros
-	# - Wno-padded: allow compiler to automatically pad data types for alignment
-	# - Wno-switch-enum: do not require enum switch statements to list every value (this setting is also incompatible with GCC warnings)
-	# - Wno-weak-vtables: vtables are emitted in all translation units for virtual classes with no out-of-line virtual method definitions
-	# - Wno-unsafe-buffer-usage: allow unsafe buffer usage https://reviews.llvm.org/D137379
-	# - Wno-shadow-uncaptured-local: allow shadowing of local variables in lambdas https://github.com/llvm/llvm-project/issues/81307
-	# - Wno-thread-safety-negative: error: acquiring mutex 'm_mutex' requires negative capability '!m_mutex'
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-		-stdlib=libc++ \
-		-Weverything \
-		-Werror \
-		-Wno-c++98-compat \
-		-Wno-c++98-compat-pedantic \
-		-Wno-disabled-macro-expansion \
-		-Wno-padded \
-		-Wno-switch-enum \
-		-Wno-weak-vtables \
-		-Wno-unsafe-buffer-usage \
-		-Wno-shadow-uncaptured-local \
-		-Wno-switch-default \
-		-Wno-thread-safety-negative")
-
-	if("${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^21.")
-		# - Wno-nrvo: error: not eliding copy on return
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-			-Wno-nrvo")
-	endif()
-
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
-
-	# fix -Wpoison-system-directories: error: include location '/usr/local/include' is "unsafe for cross-compilation"
-	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		find_program(XCRUN_EXE xcrun)
-		if (XCRUN_EXE)
-			execute_process(COMMAND xcrun --show-sdk-path OUTPUT_VARIABLE OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
-			set(CMAKE_OSX_SYSROOT "${OSX_SYSROOT}")
-		else()
-			message(WARNING "xcrun not found, cannot automatically set CMAKE_OSX_SYSROOT.")
-		endif()
-	endif()
-endif()
-
-if(NOT MSVC)
-	# set visibility flags
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-endif()
-
-if(CATAPULT_BUILD_RELEASE)
-	set(ENABLE_HARDENING ON)
-endif()
-
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-	# set hardening flags
-	if(ENABLE_HARDENING)
-		set(HARDENING_FLAGS "-fstack-protector-all -D_FORTIFY_SOURCE=3")
-		if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-			set(HARDENING_FLAGS "${HARDENING_FLAGS} -fstack-clash-protection")
-		else()
-			set(HARDENING_FLAGS "${HARDENING_FLAGS} -fsanitize=safe-stack")
-		endif()
-
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HARDENING_FLAGS}")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${HARDENING_FLAGS}")
-
-		set(LINKER_HARDENING_FLAGS "-Wl,-z,noexecstack,-z,relro,-z,now")
-		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LINKER_HARDENING_FLAGS}")
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LINKER_HARDENING_FLAGS}")
-	endif()
-endif()
 
 if(USE_CONAN)
 	# only set rpath when running conan, which copies dependencies to `@executable_path/../deps`
@@ -269,13 +34,6 @@ endif()
 
 ### define gtest helper functions
 
-# add tests subdirectory
-function(catapult_add_tests_subdirectory DIRECTORY_NAME)
-	if(ENABLE_TESTS)
-		add_subdirectory(${DIRECTORY_NAME})
-	endif()
-endfunction()
-
 # sets additional compiler options for test projects in order to quiet GTEST warnings while allowing source warning checks to be stricter
 function(catapult_set_test_compiler_options)
 	# some gtest workarounds for gcc + clang
@@ -308,26 +66,6 @@ endfunction()
 
 ### define version helpers
 
-# set CATAPULT_VERSION_DESCRIPTION to a reasonable value
-if(NOT CATAPULT_BUILD_DEVELOPMENT)
-	# extract version information from git
-	execute_process(
-		COMMAND git rev-parse --abbrev-ref HEAD
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		OUTPUT_VARIABLE GIT_BRANCH
-		OUTPUT_STRIP_TRAILING_WHITESPACE)
-	execute_process(
-		COMMAND git log -1 --format=%h
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		OUTPUT_VARIABLE GIT_COMMIT_HASH
-		OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-	if(CATAPULT_BUILD_RELEASE_PUBLIC)
-		set(CATAPULT_VERSION_DESCRIPTION "(public)")
-	else()
-		set(CATAPULT_VERSION_DESCRIPTION "${GIT_COMMIT_HASH} [${GIT_BRANCH}]")
-	endif()
-endif()
 
 if(MSVC)
 	function(set_win_version_definitions WIN_TARGET_NAME WIN_FILETYPE)
@@ -348,67 +86,39 @@ endif()
 
 ### define target helper functions
 
-# sets cxx std version
-function(catapult_set_cxx_std_version TARGET_NAME)
-	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" AND "${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^8.")
-		target_link_libraries(${TARGET_NAME} "stdc++fs")
-	endif()
-endfunction()
-
 # used to define a catapult target (library, executable) and automatically enables PCH for clang
 function(catapult_target TARGET_NAME)
-	catapult_set_cxx_std_version(${TARGET_NAME})
 
-	# indicate boost as a dependency
-	target_link_libraries(${TARGET_NAME} ${Boost_LIBRARIES})
-
-	# put both plugins and plugins tests in same 'folder'
-	if(TARGET_NAME MATCHES "\.plugins")
-		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "plugins")
+	target_link_libraries(${TARGET_NAME} build.defaults ${Boost_LIBRARIES})
+	string(REGEX MATCH "\.(plugins|tools)" _TARGET_FOLDER "${TARGET_NAME}")
+	if(_TARGET_FOLDER)
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "${_TARGET_FOLDER}") 
 	endif()
 
-	if(TARGET_NAME MATCHES "\.tools")
-		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "tools")
-	endif()
 endfunction()
 
 # finds all files comprising a target
 function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
-	if(CMAKE_VERBOSE_MAKEFILE)
-		message("processing ${TARGET_TYPE} '${TARGET_NAME}'")
-	endif()
 
-	file(GLOB ${TARGET_NAME}_INCLUDE_SRC "*.h")
-	file(GLOB ${TARGET_NAME}_SRC "*.cpp")
+	message(TRACE "processing ${TARGET_TYPE} '${TARGET_NAME}'")
 
-	set(CURRENT_FILES ${${TARGET_NAME}_INCLUDE_SRC} ${${TARGET_NAME}_SRC})
-	SOURCE_GROUP("src" FILES ${CURRENT_FILES})
-	set(TARGET_FILES ${CURRENT_FILES})
+	file(GLOB TARGET_FILES CONFIGURE_DEPENDS "*.h" "*.cpp")
+	SOURCE_GROUP("src" FILES ${TARGET_FILES})
 
 	# add any (optional) subdirectories
-	foreach(arg ${ARGN})
-		set(SUBDIR ${arg})
-		if(CMAKE_VERBOSE_MAKEFILE)
-			message("+ processing subdirectory '${arg}'")
+	foreach(SUBDIR ${ARGN})
+		if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR})
+			message(TRACE "+ processing subdirectory '${SUBDIR}'")
+			file(GLOB SUBDIR_FILES CONFIGURE_DEPENDS "${SUBDIR}/*.h" "${SUBDIR}/*.cpp")
+			SOURCE_GROUP("${SUBDIR}" FILES ${SUBDIR_FILES})
+			list(APPEND TARGET_FILES ${SUBDIR_FILES})
+		else()
+			message(TRACE "!! subdirectory '${SUBDIR}' does not exist in ${CMAKE_CURRENT_SOURCE_DIR}")
 		endif()
-
-		file(GLOB ${TARGET_NAME}_${SUBDIR}_INCLUDE_SRC "${SUBDIR}/*.h")
-		file(GLOB ${TARGET_NAME}_${SUBDIR}_SRC "${SUBDIR}/*.cpp")
-
-		set(CURRENT_FILES ${${TARGET_NAME}_${SUBDIR}_INCLUDE_SRC} ${${TARGET_NAME}_${SUBDIR}_SRC})
-		SOURCE_GROUP("${SUBDIR}" FILES ${CURRENT_FILES})
-		set(TARGET_FILES ${TARGET_FILES} ${CURRENT_FILES})
 	endforeach()
 
 	set(${TARGET_NAME}_FILES ${TARGET_FILES} PARENT_SCOPE)
-endfunction()
 
-# used to define a catapult object library
-function(catapult_object_library TARGET_NAME)
-	add_library(${TARGET_NAME} OBJECT ${ARGN})
-	set_property(TARGET ${TARGET_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-	catapult_set_cxx_std_version(${TARGET_NAME})
 endfunction()
 
 # used to define a catapult library, creating an appropriate source group and adding a library
