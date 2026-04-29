@@ -1,1 +1,1 @@
-catapult_test_executable_target_no_lib(tests.catapult.thread core)
+catapult_test_executable_target(tests.catapult.thread core NOLIB)

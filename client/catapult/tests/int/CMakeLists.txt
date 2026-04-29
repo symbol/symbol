@@ -7,5 +7,4 @@ function(catapult_int_test_executable_target TARGET_NAME)
 	target_link_libraries(${TARGET_NAME} build.tests)
 endfunction()
 
-add_subdirectory(node)
-add_subdirectory(stress)
+subdirectories(ADD BASE . VERBOSE)

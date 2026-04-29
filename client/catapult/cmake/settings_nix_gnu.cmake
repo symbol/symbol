@@ -59,5 +59,6 @@ target_compile_options(build.tests INTERFACE
 	# - Wno-dangling-else: workaround for GTEST ambiguous else blocker not working https://github.com/google/googletest/issues/1119
 	# disable dangling reference for tests - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165#c9
     $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-dangling-else>
-    $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>>:-Wno-dangling-reference>
+    $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,13.0>>:-Wno-dangling-reference>
+    $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-free-nonheap-object>
 )

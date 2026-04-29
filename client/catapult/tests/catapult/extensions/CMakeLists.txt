@@ -1,3 +1,3 @@
-catapult_test_executable_target_no_lib(tests.catapult.extensions nemesis)
+catapult_test_executable_target(tests.catapult.extensions nemesis NOLIB)
 target_link_libraries(tests.catapult.extensions catapult.plugins.coresystem.deps)
 catapult_add_openssl_dependencies(tests.catapult.extensions)

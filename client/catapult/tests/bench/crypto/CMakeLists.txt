@@ -1,2 +1,1 @@
-add_subdirectory(hashers)
-add_subdirectory(verify)
+subdirectories(ADD BASE . VERBOSE)

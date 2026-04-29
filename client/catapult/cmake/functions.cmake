@@ -69,7 +69,6 @@ endfunction()
 #   subdirectories(ADD  BASE <path> [WITH_TESTS true | false] [FOLLOW_SYMLINKS] [VERBOSE])
 #   subdirectories(ADD  BASE <path> [DIRS path1 path2 pathN] [WITH_TESTS true | false] [FOLLOW_SYMLINKS] [VERBOSE])
 function(subdirectories)
-
 	if(ARGC EQUAL 0)
 		message(FATAL_ERROR "[!] subdirectories: missing subcommand. Expected LIST or ADD.")
 	endif()
@@ -192,5 +191,4 @@ function(subdirectories)
 	else()
 		message(FATAL_ERROR "subdirectories: unsupported subcommand '${_mode}'. Expected LIST or ADD.")
 	endif()
-
 endfunction()
