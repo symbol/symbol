@@ -46,6 +46,11 @@ extra:
     code_full_intro: |
       このチュートリアルの完全なコード一覧を以下に示します。
       詳細な手順ごとの説明は次のセクションで行います。
+    tutorial_level: 難易度
+    tutorial_level_labels:
+      beginner: 初級
+      intermediate: 中級
+      advanced: 上級
   consent:
     title: クッキーの同意
     description: >-

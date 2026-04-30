@@ -671,3 +671,38 @@ code.doc-symbol-interface::after {
 .md-typeset .icon-list>ul>li>p:first-child>.twemoji>svg {
 	width: 2em;
 }
+
+/* Tutorial level tags */
+.md-typeset .tutorial_level {
+	border-radius: 0.5rem;
+	font-size: initial;
+	font-weight: normal;
+	padding: 0 10px;
+}
+
+[data-md-color-scheme=slate] .md-typeset .tutorial_level-beginner {
+	background-color: #1F7A3E;
+	color: #B6F2C8;
+}
+.md-typeset .tutorial_level-beginner {
+	background-color: #DFF5E6;
+	color: #1F7A3E;
+}
+[data-md-color-scheme=slate] .md-typeset .tutorial_level-intermediate {
+	background-color: #8A6D1A;
+	color: #FFF1B8;
+}
+.md-typeset .tutorial_level-intermediate {
+	background-color: #FFF4CC;
+	color: #8A6D1A;
+}
+
+[data-md-color-scheme=slate] .md-typeset .tutorial_level-advanced {
+	background-color: #8C2F39;
+	color: #FFD1D6;
+}
+
+.md-typeset .tutorial_level-advanced {
+	background-color: #FDE2E4;
+	color: #8C2F39;
+}

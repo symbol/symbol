@@ -11,20 +11,68 @@ import yaml
 
 log = logging.getLogger('mkdocs')
 
+def parse_page_header(text: str) -> tuple[dict, str | None]:
+	"""
+	Return the YAML frontmatter of a page and its first level 1 header
+	"""
+	lines = text.splitlines()
+	meta = {}
+	start = 0
+
+	if lines and lines[0].strip() == "---":
+		for i in range(1, len(lines)):
+			if lines[i].strip() == "---":
+				raw_yaml = "\n".join(lines[1:i])
+				meta = yaml.safe_load(raw_yaml) or {}
+				start = i + 1
+				break
+
+	for line in lines[start:]:
+		stripped = line.strip()
+		if stripped.startswith("# "):
+			return meta, stripped[2:]
+
+	return meta, None
+
 @mkdocs.plugins.event_priority(-50)
 def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	"""
-	Exclude from processing files we don't care about.
-	Doxygen-generated: We only keep filenames starting with configured prefixes.
+	Exclude from processing files we don't care about:
+		Doxygen-generated: We only keep filenames starting with configured prefixes.
+	Parse frontmatter of developer tutorials to find their level and store it for later.
 	"""
 	out_files: list[File] = []
 	prefixes = tuple(config["extra"]["symbol"]["java-sdk"]["include-prefixes"] + ["links"])
+	config['extra']['symbol']['tutorials'] = {}
 	for f in in_files:
 		if f.src_uri.startswith("devbook/reference/java"):
 			if not f.name.startswith(prefixes):
 				log.debug(f"Custom hook: Removing {f.name}")
 				continue
 		out_files.append(f)
+
+		if not f.src_path.startswith("devbook/") or not f.src_path.endswith(".md"):
+			continue
+
+		src = Path(config["docs_dir"]) / f.src_path
+		if not src.is_file():
+			continue
+		text = src.read_text(encoding="utf-8")
+		meta, title = parse_page_header(text)
+
+		if "tutorial_level" not in meta:
+			continue
+
+		section = f.url.split('/')[-3]
+		level = meta["tutorial_level"]
+		if section not in config['extra']['symbol']['tutorials']:
+			config['extra']['symbol']['tutorials'][section] = {}
+		if level not in config['extra']['symbol']['tutorials'][section]:
+			config['extra']['symbol']['tutorials'][section][level] = []
+		config['extra']['symbol']['tutorials'][section][level].append({
+			"title": meta.get("title") or title,
+			"url": '/'.join(f.url.split('/')[1:-1]) + '.md'
+		})
 
 	return files.Files(out_files)
 
