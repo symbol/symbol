@@ -185,7 +185,7 @@ Any transaction involving that account instead requires signatures from its cosi
 ### Disabling the Multisig
 
 Disabling a multisig configuration requires removing all cosignatories.
-The process is similar to enabling it, with ttwo key differences:
+The process is similar to enabling it, with two key differences:
 cosignatories must be removed one by one, and the multisig account itself cannot sign the transaction.
 
 For this reason, two <ser:MultisigAccountModificationTransactionV1>s are created:
