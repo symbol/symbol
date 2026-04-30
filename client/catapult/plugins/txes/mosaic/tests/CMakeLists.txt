@@ -1,4 +1,4 @@
-subdirectories(ADD BASE . DIRS test VERBOSE)
+subdirectories(ADD BASE . DIRS test)
 
 set(TARGET_NAME tests.catapult.plugins.mosaic)
 

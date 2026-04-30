@@ -1,4 +1,4 @@
-subdirectories(ADD BASE . DIRS plugins VERBOSE)
+subdirectories(ADD BASE . DIRS plugins)
 
 catapult_library_target(catapult.tools)
 target_link_libraries(
