@@ -49,16 +49,14 @@ target_compile_options(build.defaults INTERFACE
 )
 
 target_link_options(build.defaults INTERFACE
-	$<$<VERSION_EQUAL:$<CMAKE_CXX_COMPILER_VERSION>,8>:stdc++fs>
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,noexecstack>	# NX bit - prevent code execution from stack
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,relro>         # Read-only relocation - make reloc section read-only
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,now>           # Resolve all symbols immediately (no lazy binding)
+	$<$<AND:$<VERSION_GREATER_EQUAL:${CMAKE_CXX_COMPILER_VERSION},8.0>,$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},9.0>>:stdc++fs>
+	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,noexecstack>
+	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,relro>
+	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,now>
 )
 
 target_compile_options(build.tests INTERFACE
-	# - Wno-dangling-else: workaround for GTEST ambiguous else blocker not working https://github.com/google/googletest/issues/1119
-	# disable dangling reference for tests - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165#c9
-    $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-dangling-else>
-    $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER:$<CMAKE_CXX_COMPILER_VERSION>,13.0>>:-Wno-dangling-reference>
-    $<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:$<CMAKE_CXX_COMPILER_VERSION>,14.0>,$<VERSION_LESS:$<CMAKE_CXX_COMPILER_VERSION>,16.0>>:-Wno-free-nonheap-object>
+	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-dangling-else>
+	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_CXX_COMPILER_VERSION},13.0>>:-Wno-dangling-reference>
+	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_CXX_COMPILER_VERSION},14.0>,$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},16.0>>:-Wno-free-nonheap-object>
 )
