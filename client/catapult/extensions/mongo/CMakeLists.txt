@@ -13,7 +13,7 @@ function(catapult_int_test_executable_target TARGET_NAME)
 
 endfunction()
 
-subdirectories(ADD BASE . DIRS plugins VERBOSE)
+subdirectories(ADD BASE . DIRS plugins)
 
 catapult_define_extension_no_group(mongo)
 catapult_add_mongo_dependencies(extension.mongo)

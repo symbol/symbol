@@ -76,7 +76,7 @@ add_custom_target(server)
 add_custom_target(tools)
 
 # add source directories
-subdirectories(ADD BASE . DIRS external src tests sdk plugins extensions resources internal tools VERBOSE)
+subdirectories(ADD BASE . DIRS external src tests sdk plugins extensions resources internal tools)
 
 if(USE_CONAN)
 	install(DIRECTORY ${CMAKE_BINARY_DIR}/deps/ DESTINATION deps)

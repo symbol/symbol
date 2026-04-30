@@ -1,1 +1,1 @@
-subdirectories(ADD BASE . VERBOSE)
+subdirectories(ADD BASE .)

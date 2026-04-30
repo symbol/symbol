@@ -10,4 +10,4 @@ set(PLUGIN_CATAPULT_LIBS
 	catapult.state
 	catapult.validators)
 
-subdirectories(ADD BASE . VERBOSE)
+subdirectories(ADD BASE .)

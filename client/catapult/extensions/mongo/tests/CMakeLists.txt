@@ -1,6 +1,6 @@
 set(TARGET_NAME tests.catapult.mongo)
 
-subdirectories(ADD BASE . VERBOSE)
+subdirectories(ADD BASE .)
 
 catapult_test_executable_target(${TARGET_NAME} mongo mappers NOLIB)
 catapult_add_mongo_dependencies(${TARGET_NAME})
