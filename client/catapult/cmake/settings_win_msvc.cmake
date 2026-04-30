@@ -39,7 +39,9 @@ target_compile_options(build.defaults INTERFACE
 	$<$<COMPILE_LANGUAGE:CXX>:/MP${PARALLEL_BUILDS}>							# Uses multiple processes
 	$<$<COMPILE_LANGUAGE:CXX>:/GA>												# Optimizes for Windows applications
 	$<$<COMPILE_LANGUAGE:CXX>:/EHsc>											# Enable C++ exceptions, but not SEH exceptions (which are not used in catapult)
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${ENABLE_HARDENING}>>:/sdl>			# Enable additional security checks
+	
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:/sdl>			# Enable additional security checks
+
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:/MDd>						# Compiles to create a debug multithreaded DLL, by using MSVCRTD.lib.
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:/MD>				# Compiles to create a multithreaded DLL, by using MSVCRT.lib.
 

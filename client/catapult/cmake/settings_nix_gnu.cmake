@@ -38,9 +38,9 @@ target_compile_options(build.defaults INTERFACE
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<BOOL:${ENABLE_FUZZ_BUILD}>>:-fno-sanitize-recover=all>
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<STREQUAL:${CMAKE_SYSTEM_NAME},Darwin>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>>:-fno-sanitize=vptr>
 
-	$<$<AND:$<BOOL:${ENABLE_HARDENING}>,$<COMPILE_LANGUAGE:CXX>>:-D_FORTIFY_SOURCE=3> # Don't pass this using add_option as GCC complains _FORTIFY_SOURCE has been redefined
-	$<$<AND:$<BOOL:${ENABLE_HARDENING}>,$<COMPILE_LANGUAGE:CXX>>:-fstack-protector-all>
-	$<$<AND:$<BOOL:${ENABLE_HARDENING}>,$<COMPILE_LANGUAGE:CXX>>:-fstack-clash-protection>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-D_FORTIFY_SOURCE=3> # Don't pass this using add_option as GCC complains _FORTIFY_SOURCE has been redefined
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fstack-protector-all>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fstack-clash-protection>
 
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:-g1>
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:-fno-omit-frame-pointer>
