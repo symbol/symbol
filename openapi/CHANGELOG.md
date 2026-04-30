@@ -27,6 +27,7 @@ Milestone: Symbol Mainnet
 - feat: Migrated to OpenAPI 3.1.0
 - fix: Replaced ``format: hex`` usage with explicit regex patterns in schemas.
 - fix: Clarified query/filter semantics in endpoint documentation.
+- fix: Updated ``/node/storage`` schema to document database stats.
 
 ## [1.0.4] - 25-Nov-2025
 

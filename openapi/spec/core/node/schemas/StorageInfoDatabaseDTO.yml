@@ -1,0 +1,48 @@
+type: object
+description: |
+  MongoDB database statistics for the node's data store, as returned by
+  [`db.stats()`](https://www.mongodb.com/docs/manual/reference/command/dbStats/).
+required:
+  - numIndexes
+  - numObjects
+  - dataSize
+  - indexSize
+  - storageSize
+properties:
+  numIndexes:
+    description: |
+      Total number of indexes across all collections in the database.
+      Represented as BSON Long with `low` / `high` / `unsigned` fields.
+    $ref: ../../../schemas/BsonLongDTO.yml
+  numObjects:
+    description: |
+      Approximate number of documents (objects) stored in the database.
+      Represented as BSON Long with `low` / `high` / `unsigned` fields.
+    $ref: ../../../schemas/BsonLongDTO.yml
+  dataSize:
+    type: integer
+    format: int64
+    description: |
+      Total logical size of collection data (uncompressed), in bytes.
+      This reflects document payload size and excludes index allocation.
+      Useful as an estimate of raw data footprint, not on-disk usage.
+    examples:
+      - 1073741824
+  indexSize:
+    type: integer
+    format: int64
+    description: |
+      Total logical size of all indexes, in bytes.
+      This includes index structures across collections and grows with
+      both document count and the number of distinct indexed values.
+    examples:
+      - 134217728
+  storageSize:
+    type: integer
+    format: int64
+    description: |
+      Total physical storage allocated by the database engine for collection
+      data, in bytes. This is an allocation metric and can differ from
+      `dataSize` because it includes engine overhead and internal padding.
+    examples:
+      - 1207959552
