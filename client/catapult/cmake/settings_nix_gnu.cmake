@@ -49,7 +49,7 @@ target_compile_options(build.defaults INTERFACE
 )
 
 target_link_options(build.defaults INTERFACE
-	$<$<CMAKE_CXX_COMPILER_VERSION,8>:stdc++fs>
+	$<$<VERSION_EQUAL:$<CMAKE_CXX_COMPILER_VERSION>,8>:stdc++fs>
 	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,noexecstack>	# NX bit - prevent code execution from stack
 	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,relro>         # Read-only relocation - make reloc section read-only
 	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,now>           # Resolve all symbols immediately (no lazy binding)
