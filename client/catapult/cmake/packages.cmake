@@ -1,6 +1,5 @@
 # All third-party dependencies are defined here. 
 
-set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 find_package(Boost 1.90.0 REQUIRED COMPONENTS atomic chrono date_time filesystem log log_setup program_options regex thread)
 find_package(OpenSSL 3.6.1 REQUIRED)
 find_package(RocksDB 10.6.2 REQUIRED)
