@@ -54,7 +54,6 @@ function(_subdirectories_collect OUT_VAR BASE_DIR)
 	foreach(_item IN LISTS _items)
 		if(IS_DIRECTORY "${_item}")
 			if(_arg_WITH_CMAKELISTS AND NOT EXISTS "${_item}/CMakeLists.txt")
-				message(TRACE "[i] _subdirectories_collect: skipping '${_item}' since it does not contain a CMakeLists.txt file")
 				continue()
 			endif()
 			list(APPEND _dirs "${_item}")
@@ -66,8 +65,8 @@ endfunction()
 
 # Syntax:
 #   subdirectories(LIST <out-var> BASE <path> [RELATIVE] [WITH_CMAKELISTS] [FOLLOW_SYMLINKS])
-#   subdirectories(ADD  BASE <path> [WITH_TESTS true | false] [FOLLOW_SYMLINKS] [VERBOSE])
-#   subdirectories(ADD  BASE <path> [DIRS path1 path2 pathN] [WITH_TESTS true | false] [FOLLOW_SYMLINKS] [VERBOSE])
+#   subdirectories(ADD  BASE <path> [WITH_TESTS true | false] [FOLLOW_SYMLINKS])
+#   subdirectories(ADD  BASE <path> [DIRS path1 path2 pathN] [WITH_TESTS true | false] [FOLLOW_SYMLINKS])
 function(subdirectories)
 	if(ARGC EQUAL 0)
 		message(FATAL_ERROR "[!] subdirectories: missing subcommand. Expected LIST or ADD.")
@@ -122,7 +121,7 @@ function(subdirectories)
 
 	elseif(_mode STREQUAL "ADD")
 
-		set(_fn_options FOLLOW_SYMLINKS VERBOSE)
+		set(_fn_options FOLLOW_SYMLINKS)
 		set(_fn_single BASE WITH_TESTS)
 		set(_fn_multi DIRS)
 
@@ -182,13 +181,57 @@ function(subdirectories)
 				message(TRACE "[i] subdirectories ADD: skipping '${_dir}' subdirectory since WITH_TESTS is false")
 				continue()
 			endif()
-			if(_arg_VERBOSE)
-				message(STATUS "[+] Adding subdirectory '${_dir}'")
-			endif()
+			message(TRACE "[+] Adding subdirectory '${_dir}'")
 			add_subdirectory("${_dir}")
 		endforeach()
 
 	else()
 		message(FATAL_ERROR "subdirectories: unsupported subcommand '${_mode}'. Expected LIST or ADD.")
 	endif()
+endfunction()
+
+function(add_target_sources TARGET_NAME)
+
+	if(NOT TARGET ${TARGET_NAME})
+		message(FATAL_ERROR "add_target_sources: target '${TARGET_NAME}' does not exist yet.")
+	endif()
+	
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+	message(TRACE "[i]\tadding sources to '${TARGET_NAME}' (${TARGET_TYPE})")
+
+	# find all source files in the BASE directory if provided, otherwise in the current source directory
+	set(_fn_single BASE)
+	set(_fn_multi DIRS)
+
+	cmake_parse_arguments(
+		PARSE_ARGV 1
+		_arg
+		""
+		"${_fn_single}"
+		"${_fn_multi}"
+	)
+	_subdirectories_resolve_base(_arg_BASE "${_arg_BASE}")
+
+	file(GLOB _files LIST_DIRECTORIES false CONFIGURE_DEPENDS "${_arg_BASE}/*.h" "${_arg_BASE}/*.cpp")
+	SOURCE_GROUP("src" FILES ${_files})
+	target_sources(${TARGET_NAME} PRIVATE ${_files})
+
+	# traverse all subdirs if provided still only looking for .h and .cpp files, and add them to the target sources as well
+	foreach(_item IN LISTS _arg_DIRS)
+		# resolve the directory path relative to the base
+		if(IS_ABSOLUTE "${_item}")
+			set(_resolved_dir "${_item}")
+		else()
+			set(_resolved_dir "${_arg_BASE}/${_item}")
+		endif()
+		if(NOT IS_DIRECTORY "${_resolved_dir}")
+			message(TRACE "[i]\tskipping '${_resolved_dir}' for target '${TARGET_NAME}' since it is not a valid directory")
+			continue()
+		endif()
+		message(TRACE "[i]\tadding sources to '${TARGET_NAME}' (${TARGET_TYPE}) < ${_item}")
+		file(GLOB _subdir_files LIST_DIRECTORIES false CONFIGURE_DEPENDS "${_resolved_dir}/*.h" "${_resolved_dir}/*.cpp")
+		SOURCE_GROUP("${_item}" FILES ${_subdir_files})
+		target_sources(${TARGET_NAME} PRIVATE ${_subdir_files})
+	endforeach()
+
 endfunction()
