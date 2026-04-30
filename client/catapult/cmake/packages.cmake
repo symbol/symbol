@@ -1,17 +1,22 @@
 # All third-party dependencies are defined here. 
 
-find_package(Boost 1.90.0 REQUIRED COMPONENTS atomic chrono date_time filesystem log log_setup program_options regex thread)
-find_package(OpenSSL 3.6.1 REQUIRED)
-find_package(RocksDB 10.6.2 REQUIRED)
+if(USE_VCPKG)
+    set(_CONFIG_FLAG "CONFIG")
+endif()
+
+
+find_package(Boost 1.90.0 ${_CONFIG_FLAG} REQUIRED COMPONENTS atomic chrono date_time filesystem log log_setup program_options regex thread)
+find_package(OpenSSL 3.6.1 ${_CONFIG_FLAG} REQUIRED)
+find_package(RocksDB 10.6.2 ${_CONFIG_FLAG} REQUIRED)
 set(RocksDB_IMPORTED_TARGETS $<IF:$<TARGET_EXISTS:RocksDB::rocksdb>,RocksDB::rocksdb,RocksDB::rocksdb-shared>)
 
-find_package(mongocxx 4.1.4 REQUIRED)
-find_package(mongoc 2.2.1 REQUIRED)
-find_package(cppzmq 4.11.0 REQUIRED)
+find_package(mongocxx 4.1.4 ${_CONFIG_FLAG} REQUIRED)
+find_package(mongoc 2.2.1 ${_CONFIG_FLAG} REQUIRED)
+find_package(cppzmq 4.11.0 ${_CONFIG_FLAG} REQUIRED)
 
 if(ENABLE_TESTS)
-    find_package(GTest 1.16.0 REQUIRED)
-    find_package(benchmark 1.9.4 REQUIRED)
+    find_package(GTest 1.16.0 ${_CONFIG_FLAG} REQUIRED)
+    find_package(benchmark 1.9.4 ${_CONFIG_FLAG} REQUIRED)
     if(USE_VCPKG OR USE_CONAN)
         set(GTest_IMPORTED_TARGETS GTest::gtest)
     elseif(USE_METAL)
