@@ -42,6 +42,10 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
 extra:
+  symbol:
+    code_full_intro: |
+      The following is the complete code listing for this tutorial.
+      A detailed, step-by-step explanation follows in the next section.
   consent:
     title: Cookie consent
     description: >-
