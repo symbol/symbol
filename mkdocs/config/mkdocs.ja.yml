@@ -42,6 +42,10 @@ theme:
         icon: material/brightness-4
         name: システム設定に切り替える
 extra:
+  symbol:
+    code_full_intro: |
+      このチュートリアルの完全なコード一覧を以下に示します。
+      詳細な手順ごとの説明は次のセクションで行います。
   consent:
     title: クッキーの同意
     description: >-

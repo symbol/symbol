@@ -35,6 +35,8 @@
 
 {# Now iterate over the normalized dictionary #}
 {%- if show -%}
+{{ config.extra.symbol.code_full_intro }}
+
 {%- for l, props in langs.items() -%}
 {%- set caption = props.caption if props.caption is defined else None -%}
 === "{{lang_icon[l]}} {{lang_name[l]}}"
