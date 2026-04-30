@@ -174,3 +174,6 @@ copyright: >
 extra_css:
   - assets/stylesheets/extra.css
   - https://unpkg.com/katex@0/dist/katex.min.css
+not_in_nav: |
+  /404.md
+  /devbook/reference/java/links.md
