@@ -35,11 +35,17 @@ builds:
     path: linters
     required: true
 
+  - name: OpenAPI
+    path: openapi
+    dependsOn:
+      - linters
+
   - name: mkdocs
     path: mkdocs
     dependsOn:
       - sdk/javascript
       - sdk/python
+      - openapi
 
 customBuilds:
   - name: Nightly Job

@@ -1,0 +1,8 @@
+type: integer
+description: |
+  Unsigned 32-bit integer.
+  Represented as integer since it fits in JSON number precision.
+examples:
+  - 0
+  - 1
+  - 2222212828

@@ -1,0 +1,19 @@
+name: accountId
+in: path
+description: |
+  Account public key as 64 hexadecimal characters, or account address as 39 Base32
+  (network prefix `T` for testnet, `N` for mainnet).
+required: true
+schema:
+  type: string
+  pattern: ^(?:[0-9a-fA-F]{64}|[A-Z2-7]{39})$
+examples:
+  testnetAddress:
+    summary: Testnet address (Base32, prefix T)
+    value: TADP6C2GVEG654OP5LZI32P2GYJSCMEGQBYB7QY
+  mainnetAddress:
+    summary: Mainnet address (Base32, prefix N)
+    value: NCHEST3QRQS4JZGOO64TH7NFJ2A63YA7TPM5PXI
+  publicKey:
+    summary: Account public key (hex)
+    value: AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26

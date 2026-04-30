@@ -1,0 +1,6 @@
+type: string
+description: |
+  Node equality strategy. Defines if the identifier for the node must be its public key or host.
+enum:
+  - host
+  - public-key
