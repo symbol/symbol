@@ -167,7 +167,7 @@
     利用可能な最新バージョンにアップデートするには：
 
     ```bash
-    python3 -m pip install --upgrade shoestring
+    python3 -m pip install --upgrade symbol-shoestring
     ```
 
     アップデート後、インストールされたバージョンを確認します。
@@ -242,7 +242,7 @@ python3 -m shoestring renew-certificates \
 
     既存のノードキーを引き続き使用し、この可能性を回避するには、証明書を更新する際に `--retain-node-key` パラメータを使用します。
 
-### 投票鍵の更新 {: #voting-key-renewal }
+### 投票キーの更新 {: #voting-key-renewal }
 
 [投票ノード](default:投票ノード) には [投票キー](default:投票キー) が必要であり、限られた有効期間で登録する必要があります。
 
@@ -251,7 +251,7 @@ python3 -m shoestring renew-certificates \
 任意の時点で投票プロセスに必要な鍵は1つだけですが、最大3つの鍵を同時に登録できます。
 これにより有効期間を重複させることができるため、ある鍵の期限が切れた場合でもバックアップキーを引き続き利用できます。
 
-Shoestringが[ボーティングノードを作成](./quickstart.md#configure-voting-optional)する際、投票キーを登録しています。
+Shoestringが[投票ノードを作成](./quickstart.md#configure-voting-optional)する際、投票キーを登録しています。
 更新するためのコマンドも提供されています。
 
 ```bash
@@ -260,7 +260,7 @@ python3 -m shoestring renew-voting-keys --config config.ini --directory .
 
 このコマンドは、現在の鍵の有効期限が切れるとアクティブになる新しい鍵を作成し、以下のために必要なトランザクションを準備します。
 
-* 期限切れのボーティングキーのリンクを解除する。
+* 期限切れの投票キーのリンクを解除する。
 * 新しい鍵をノードにリンクする。
 
 トランザクションは `renew_voting_keys_transaction.dat` という名前のファイルに保存されます。

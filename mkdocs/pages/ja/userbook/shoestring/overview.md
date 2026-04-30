@@ -18,10 +18,10 @@ Shoestring自体はノードを実行しません。
     ShoestringおよびSymbolノードを操作するには、使用しているオペレーティングシステムのターミナルやコマンドラインツールに精通している必要があります。
     これらのガイドでは、コマンドラインの基本的な操作ができることを前提としています。
 
-## Shoestringである理由
+## Shoestringを使う理由
 
 以前のSymbolのデプロイは `symbol-bootstrap` に依存していました。
-そのツールは [Node.js](https://nodejs.org/) に依存しており、設定の生成とオーケストレーションのための複雑なロジックが含まれていました。
+bootstrapは [Node.js](https://nodejs.org/) に依存しており、設定の生成とオーケストレーションのための複雑なロジックが含まれていました。
 
 Shoestringは、以下の方法でノードのデプロイを簡素化します。
 
@@ -44,7 +44,7 @@ Shoestringは、目的の[ロール](../../textbook/nodes.md#roles)を持つSymb
 
 実行中のノードは、[Catapultサーバー](../../textbook/nodes.md#catapult)や[REST Gateway](../../textbook/nodes.md#rest-gateway)など、Dockerコンテナ内の複数のコンポーネントで構成されます。
 
-Shoestringはまた、クライアントのアップグレード、証明書の更新、ノードのヘルスチェックなど、実行中のノードの保守に役立つコマンドも提供します。
+ノードソフトウェアのアップグレード、証明書の更新、ノードのヘルスチェックなど、実行中のノードの保守に役立つコマンドも提供します。
 
 ## Dockerの要件
 
