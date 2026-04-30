@@ -34,9 +34,9 @@ target_compile_options(build.defaults INTERFACE
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<BOOL:${ENABLE_FUZZ_BUILD}>>:-fno-sanitize-recover=all>
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<STREQUAL:${CMAKE_SYSTEM_NAME},Darwin>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>>:-fno-sanitize=vptr>
 
-	$<$<AND:$<BOOL:${ENABLE_HARDENING}>,$<COMPILE_LANGUAGE:CXX>>:-D_FORTIFY_SOURCE=3>
-	$<$<AND:$<BOOL:${ENABLE_HARDENING}>,$<COMPILE_LANGUAGE:CXX>>:-fstack-protector-all>
-	$<$<AND:$<BOOL:${ENABLE_HARDENING}>,$<COMPILE_LANGUAGE:CXX>>:-fsanitize=safe-stack>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-D_FORTIFY_SOURCE=3>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fstack-protector-all>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fsanitize=safe-stack>
 
 	$<$<CONFIG:RelWithDebInfo>:-g1>
 )
