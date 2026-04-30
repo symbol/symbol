@@ -368,7 +368,7 @@ python3 -m shoestring announce-transaction \
 | **Signature Not Verifiable(署名検証不可)** | トランザクションがおそらく署名されていません。[ステップ8](#8-sign-the-transactions) からやり直してください。                                               |
 | **Deadline expired(有効期限切れ)**         |.  トランザクションは `setup` 実行後6時間以内にアナウンスする必要があります。以下を参照してください |       
 
-有効期限が切れた場合は、`--output-transaction-only` パラメータを使用して [ステップ6](#4-create-the-node-installation) を再度行い、新しい `linking_transaction.dat` を作成してください。その後、[ステップ9](#9-announce-the-transactions) から手順を再開してアナウンスを行います。
+有効期限が切れた場合は、`--output-transaction-only` パラメータを使用して [ステップ6](#6-create-the-node-installation) を再度行い、新しい `linking_transaction.dat` を作成してください。その後、[ステップ9](#9-announce-the-transactions) から手順を再開してアナウンスを行います。
 
 トランザクションが承認されると、ノードは[リモートキー](default:リモートキー)（セットアッププロセス中に自動的に作成された）  を使用してブロック生成に参加し、（`ca.key.pem` ファイルから取得した） [メインキー](default:メインキー) にハーベスティング報酬を蓄積する準備が整います。
 
