@@ -52,8 +52,8 @@ The <post:/namespaces/mosaic/names> endpoint accepts multiple mosaic IDs and ret
 currently linked to them.
 If a mosaic has no linked namespace, it will not appear in the response.
 
-A mosaic can have multiple namespace aliases (different namespaces can link to the same mosaic).
-When this happens, the code displays all aliases separated by commas.
+The method returns a map because a mosaic can have multiple namespace aliases
+(different namespaces can link to the same mosaic).
 
 ### Fetching Mosaic Properties
 
