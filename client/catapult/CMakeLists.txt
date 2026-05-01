@@ -17,6 +17,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)								# use FOLDER target property
 get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 # setup configurable options
+include(CMakeDependentOption)
 cmake_dependent_option(ENABLE_CCACHE_ON_WINDOWS "Enable ccache on Windows (requires ccache executable in PATH)" OFF [[CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows"]] OFF) # Only supported on Windows host
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_TESTS "Enable tests" ON)
