@@ -4,10 +4,9 @@
 
 if (MSVC_VERSION LESS_EQUAL 1928)
 	message(FATAL_ERROR "MSVC version must be at least 1928 (Visual Studio 2019 16.8)\nFound version ${MSVC_VERSION}")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	message(FATAL_ERROR "Clang-cl is not (yet) supported.\nPlease use MSVC (cl) toolset.")
 endif ()
-
-# Set a flag we're using cl or clang-cl, which is used in some conditional settings below
-set(CACHE MSVC_EXTENDED TYPE BOOL FORCE VALUE TRUE)
 
 target_compile_definitions(build.defaults INTERFACE 
 	_WIN32_WINNT=0x0A00											# Min Windows 10
@@ -24,7 +23,6 @@ target_compile_definitions(build.defaults INTERFACE
 target_compile_options(build.defaults INTERFACE
 	$<$<COMPILE_LANGUAGE:CXX>:/permissive->										# enable standard conformance mode
 	$<$<COMPILE_LANGUAGE:CXX>:/Zc:__cplusplus>									# enable correct __cplusplus macro
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:/Zc:nrvo>					# enable Named Return Value Optimization for Debug builds
 	$<$<COMPILE_LANGUAGE:CXX>:/W4>												# set warning level to 4
 	$<$<COMPILE_LANGUAGE:CXX>:/WX>												# treat warnings as errors
 	$<$<COMPILE_LANGUAGE:CXX>:/w44287>											# 'operator' : unsigned/negative constant mismatch
@@ -36,7 +34,6 @@ target_compile_options(build.defaults INTERFACE
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:/wd4702>			# Silence warning C4702: unreachable code
 	$<$<COMPILE_LANGUAGE:CXX>:/wd4714>											# Silence warning C4714: _forceinline not inlined
 	$<$<COMPILE_LANGUAGE:CXX>:/wd5030>											# Silence warning C5030: unknown gnu/clang attribute
-	$<$<COMPILE_LANGUAGE:CXX>:/MP${PARALLEL_BUILDS}>							# Uses multiple processes
 	$<$<COMPILE_LANGUAGE:CXX>:/GA>												# Optimizes for Windows applications
 	$<$<COMPILE_LANGUAGE:CXX>:/EHsc>											# Enable C++ exceptions, but not SEH exceptions (which are not used in catapult)
 	
@@ -46,6 +43,9 @@ target_compile_options(build.defaults INTERFACE
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:/MD>				# Compiles to create a multithreaded DLL, by using MSVCRT.lib.
 
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<STREQUAL:${ARCHITECTURE_NAME},>>>:/arch:${ARCHITECTURE_NAME}>
+
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Debug>>:/Zc:nrvo>	# enable Named Return Value Optimization for Debug builds (MSVC only)
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:MSVC>>:/MP${PARALLEL_BUILDS}>		# Uses multiple processes
 
 )
 

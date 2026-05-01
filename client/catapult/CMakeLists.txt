@@ -39,7 +39,7 @@ include(cmake/settings_all.cmake)                                           # se
 # include platform/compiler specific settings
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     if(MSVC OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
-    include(cmake/settings_win_msvc.cmake)
+        include(cmake/settings_win_msvc.cmake)
     else()
         message(FATAL_ERROR "Unsupported compiler on Windows")
     endif()
