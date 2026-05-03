@@ -33,7 +33,7 @@ def on_pre_build(config: base.Config):
 	"""
 	Copy the OpenAPI spec file next to its markdown, and load it into the config.
 	"""
-	spec_path = Path(__file__).parent.parent.parent.joinpath("openapi/_build").resolve()
+	spec_path = Path(__file__).parent.parent.parent.joinpath("openapi", "_build").resolve()
 	md_path = Path(config.docs_dir).joinpath("devbook", "reference", "rest").resolve()
 	spec_fname = 'openapi3.yml'
 	shutil.copy2(spec_path / spec_fname, md_path / spec_fname)
