@@ -1,5 +1,6 @@
 ---
 title: New Blocks
+tutorial_level: beginner
 ---
 
 # Listening to New Blocks

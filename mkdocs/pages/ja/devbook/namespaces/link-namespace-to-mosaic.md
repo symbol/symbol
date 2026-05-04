@@ -1,5 +1,6 @@
 ---
 title: ネームスペースのモザイクへのリンク
+tutorial_level: intermediate
 ---
 
 # ネームスペースのモザイクへのリンクと解除 {: #linking-and-unlinking-namespaces-to-mosaics }

@@ -1,5 +1,6 @@
 ---
 title: Revoke Mosaic
+tutorial_level: beginner
 ---
 
 # Revoking a Mosaic

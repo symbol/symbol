@@ -1,5 +1,6 @@
 ---
 title: Create from Mnemonic
+tutorial_level: beginner
 ---
 
 # Creating Accounts from Mnemonics

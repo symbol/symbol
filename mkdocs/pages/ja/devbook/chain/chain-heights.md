@@ -1,5 +1,6 @@
 ---
 title: チェーンとファイナライズの最新高
+tutorial_level: beginner
 ---
 
 # チェーン高とファイナライズ高の照会 {: #querying-chain-and-finalization-height }

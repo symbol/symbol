@@ -1,5 +1,6 @@
 ---
 title: Bonded Aggregate
+tutorial_level: advanced
 ---
 
 # Creating a Bonded Aggregate Transaction

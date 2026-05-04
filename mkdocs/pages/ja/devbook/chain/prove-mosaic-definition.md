@@ -1,5 +1,6 @@
 ---
 title: モザイク定義の証明
+tutorial_level: intermediate
 ---
 
 # モザイク定義の証明 {: #prove-a-mosaic's-definition }

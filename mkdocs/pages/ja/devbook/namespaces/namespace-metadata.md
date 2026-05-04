@@ -1,5 +1,6 @@
 ---
 title: ネームスペースメタデータの追加
+tutorial_level: advanced
 ---
 
 # ネームスペースへのメタデータの追加 {: #adding-metadata-to-a-namespace }

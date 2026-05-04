@@ -1,5 +1,6 @@
 ---
 title: Change Mosaic Supply
+tutorial_level: beginner
 ---
 
 # Changing Mosaic Supply

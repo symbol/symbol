@@ -1,5 +1,6 @@
 ---
 title: モザイク供給量の変更
+tutorial_level: beginner
 ---
 
 # モザイク供給量の変更 {: #changing-mosaic-supply }

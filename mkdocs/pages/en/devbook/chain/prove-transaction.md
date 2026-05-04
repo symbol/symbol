@@ -1,5 +1,6 @@
 ---
 title: Prove Transaction Inclusion
+tutorial_level: beginner
 ---
 
 # Proving a Transaction's Inclusion in a Block

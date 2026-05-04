@@ -1,5 +1,6 @@
 ---
 title: マルチシグの設定
+tutorial_level: advanced
 ---
 
 # マルチシグアカウントの設定 {: #configuring-a-multisignature-account }

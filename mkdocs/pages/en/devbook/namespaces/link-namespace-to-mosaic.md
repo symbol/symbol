@@ -1,5 +1,6 @@
 ---
 title: Link Namespace to Mosaic
+tutorial_level: intermediate
 ---
 
 # Linking and Unlinking Namespaces to Mosaics

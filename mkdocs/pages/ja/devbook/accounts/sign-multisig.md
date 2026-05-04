@@ -1,5 +1,6 @@
 ---
 title: マルチシグでの署名
+tutorial_level: intermediate
 ---
 
 # マルチシグアカウントからのトランザクション署名 {: #signing-a-transaction-from-a -multisignature-account }

@@ -1,5 +1,6 @@
 ---
 title: ブロック報酬の照会
+tutorial_level: beginner
 ---
 
 # ブロック報酬の照会 {: #querying-block-rewards }

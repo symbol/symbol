@@ -1,5 +1,6 @@
 ---
 title: Messages
+tutorial_level: intermediate
 ---
 
 # Sending Messages with Transfer Transactions

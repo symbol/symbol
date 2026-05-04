@@ -1,5 +1,6 @@
 ---
 title: Query Currency Supply
+tutorial_level: beginner
 ---
 
 # Querying Currency Supply
