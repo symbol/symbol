@@ -1,5 +1,6 @@
 ---
 title: Chain and Finalization Height
+tutorial_level: beginner
 ---
 
 # Querying Chain and Finalization Height

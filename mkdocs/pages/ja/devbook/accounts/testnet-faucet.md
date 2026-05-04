@@ -1,5 +1,6 @@
 ---
 title: 蛇口 (Faucet) からの通貨の入手
+tutorial_level: beginner
 ---
 
 # 蛇口 (Faucet) からのテストネット通貨の入手 {: #getting-testnet-funds-from-the-faucet }

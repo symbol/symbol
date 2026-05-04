@@ -1,5 +1,6 @@
 ---
 title: サブネームスペースの登録
+tutorial_level: intermediate
 ---
 
 # サブネームスペースの登録 {: #registering-a-subnamespace }

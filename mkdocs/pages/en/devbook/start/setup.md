@@ -1,5 +1,6 @@
 ---
 title: Setup
+tutorial_level: beginner
 ---
 
 # Setting Up a Development Environment

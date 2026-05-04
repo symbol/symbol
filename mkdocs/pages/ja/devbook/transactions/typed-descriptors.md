@@ -1,5 +1,6 @@
 ---
 title: 型付き記述子
+tutorial_level: beginner
 ---
 
 # JavaScriptで型付き記述子を使用してトランザクションを作成する {: #creating-transactions-using-typed-descriptors-in-javascript }

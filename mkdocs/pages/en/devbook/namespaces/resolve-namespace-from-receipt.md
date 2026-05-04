@@ -1,5 +1,6 @@
 ---
 title: Resolve Namespace from Receipt
+tutorial_level: intermediate
 ---
 
 # Resolving a Namespace from a Receipt

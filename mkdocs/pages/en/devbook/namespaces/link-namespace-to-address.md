@@ -1,5 +1,6 @@
 ---
 title: Link Namespace to Address
+tutorial_level: intermediate
 ---
 
 # Linking and Unlinking Namespaces to Addresses

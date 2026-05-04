@@ -1,5 +1,6 @@
 ---
 title: Add Mosaic Restrictions
+tutorial_level: advanced
 ---
 
 # Adding Restrictions to a Mosaic

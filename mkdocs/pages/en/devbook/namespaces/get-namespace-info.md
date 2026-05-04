@@ -1,5 +1,6 @@
 ---
 title: Get Namespace Information
+tutorial_level: beginner
 ---
 
 # Getting Namespace Information

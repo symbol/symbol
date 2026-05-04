@@ -1,5 +1,6 @@
 ---
 title: モザイク定義の変更
+tutorial_level: intermediate
 ---
 
 # モザイク定義の変更 {: #modifying-a-mosaic-definition }

@@ -1,5 +1,6 @@
 ---
 title: Add Namespace Metadata
+tutorial_level: advanced
 ---
 
 # Adding Metadata to a Namespace

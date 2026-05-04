@@ -1,5 +1,6 @@
 ---
 title: Hello World
+tutorial_level: beginner
 ---
 
 # Hello World {: #hello-world }

@@ -1,3 +1,7 @@
+---
+tutorial_level: beginner
+---
+
 # Hello World
 
 This tutorial shows how to verify that your Symbol SDK installation is working correctly by writing a minimal program

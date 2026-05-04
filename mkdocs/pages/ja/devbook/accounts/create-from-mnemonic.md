@@ -1,5 +1,6 @@
 ---
 title: ニーモニックからの作成
+tutorial_level: beginner
 ---
 
 # ニーモニックからのアカウント作成 {: #creating-accounts-from-mnemonics }

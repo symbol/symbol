@@ -1,5 +1,6 @@
 ---
 title: Add Account Restrictions
+tutorial_level: advanced
 ---
 
 # Adding Restrictions to an Account

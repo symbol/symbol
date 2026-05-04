@@ -1,5 +1,6 @@
 ---
 title: Transaction Status
+tutorial_level: beginner
 ---
 
 # Monitoring Transaction Status

@@ -1,5 +1,6 @@
 ---
 title: 転送
+tutorial_level: beginner
 ---
 
 # 転送トランザクションの作成 {: #creating-a-transfer-transaction }

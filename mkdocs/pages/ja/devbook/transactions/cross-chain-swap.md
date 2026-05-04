@@ -1,5 +1,6 @@
 ---
 title: クロスチェーンスワップ
+tutorial_level: advanced
 ---
 
 # Symbolとイーサリアム間のクロスチェーンスワップ {: #cross-chain-swap-between-symbol-and-ethereum }

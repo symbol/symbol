@@ -1,5 +1,6 @@
 ---
 title: トランザクションバッチ処理
+tutorial_level: intermediate
 ---
 
 # トランザクションのバッチ処理 {: #batching-transactions }

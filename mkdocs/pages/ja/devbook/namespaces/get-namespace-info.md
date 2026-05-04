@@ -1,5 +1,6 @@
 ---
 title: ネームスペース情報の取得
+tutorial_level: beginner
 ---
 
 # ネームスペース情報の取得 {: #getting-namespace-information }

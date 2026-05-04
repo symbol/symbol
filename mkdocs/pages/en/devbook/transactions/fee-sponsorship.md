@@ -1,5 +1,6 @@
 ---
 title: Pay Fees on Behalf of Another Account
+tutorial_level: advanced
 ---
 
 # Paying Transaction Fees on Behalf of Another Account

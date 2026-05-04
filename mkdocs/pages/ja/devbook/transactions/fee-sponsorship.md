@@ -1,5 +1,6 @@
 ---
 title: 他のアカウントの代理での手数料の支払い
+tutorial_level: advanced
 ---
 
 # 他のアカウントの代理でのトランザクション手数料の支払い {: #paying-transaction-fees-on-behalf-of-another-account }

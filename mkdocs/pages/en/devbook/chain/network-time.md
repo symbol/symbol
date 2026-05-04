@@ -1,3 +1,7 @@
+---
+tutorial_level: beginner
+---
+
 # Network Time
 
 Time in the Symbol blockchain is measured in _network time_, defined as the number of milliseconds elapsed since

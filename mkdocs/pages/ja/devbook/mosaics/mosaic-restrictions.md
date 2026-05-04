@@ -1,5 +1,6 @@
 ---
 title: モザイク制限の追加
+tutorial_level: advanced
 ---
 
 # モザイクへの制限の追加 {: #adding-restrictions-to-a-mosaic }

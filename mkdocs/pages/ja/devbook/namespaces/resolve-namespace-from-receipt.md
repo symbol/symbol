@@ -1,5 +1,6 @@
 ---
 title: レシートからのネームスペース解決
+tutorial_level: intermediate
 ---
 
 # レシートからのネームスペース解決 {: #resolving-a-namespace-from-a-receipt }

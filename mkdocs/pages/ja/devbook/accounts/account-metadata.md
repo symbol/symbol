@@ -1,5 +1,6 @@
 ---
 title: アカウントメタデータの追加
+tutorial_level: advanced
 ---
 
 # アカウントへのメタデータの追加 {: #adding-metadata-to-an-account }

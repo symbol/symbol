@@ -1,5 +1,6 @@
 ---
 title: Transfer
+tutorial_level: beginner
 ---
 
 # Creating a Transfer Transaction

@@ -1,5 +1,6 @@
 ---
 title: アグリゲートボンデッドトランザクション
+tutorial_level: advanced
 ---
 
 # アグリゲートボンデッドトランザクションの作成 {: #creating-a-bonded-aggregate-transaction }

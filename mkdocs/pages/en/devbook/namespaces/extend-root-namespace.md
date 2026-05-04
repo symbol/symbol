@@ -1,5 +1,6 @@
 ---
 title: Extend Root Namespace
+tutorial_level: beginner
 ---
 
 # Extending a Root Namespace

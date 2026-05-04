@@ -1,5 +1,6 @@
 ---
 title: アトミックスワップ
+tutorial_level: advanced
 ---
 
 # アトミックスワップ {: #atomic-swap }

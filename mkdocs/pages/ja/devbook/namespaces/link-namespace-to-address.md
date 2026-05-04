@@ -1,5 +1,6 @@
 ---
 title: ネームスペースのアドレスへのリンク
+tutorial_level: intermediate
 ---
 
 # ネームスペースのアドレスへのリンクと解除 {: #linking-and-unlinking-namespaces-to-addresses }

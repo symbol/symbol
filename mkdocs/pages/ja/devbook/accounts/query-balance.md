@@ -1,5 +1,6 @@
 ---
 title: アカウント残高の照会
+tutorial_level: beginner
 ---
 
 # アカウント残高の照会 {: #querying-an-account-balance }

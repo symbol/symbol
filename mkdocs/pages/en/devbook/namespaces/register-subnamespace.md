@@ -1,5 +1,6 @@
 ---
 title: Register Subnamespace
+tutorial_level: intermediate
 ---
 
 # Registering a Subnamespace

@@ -1,5 +1,6 @@
 ---
 title: メッセージ
+tutorial_level: intermediate
 ---
 
 # 転送トランザクションでのメッセージの送信 {: #sending-messages-with-transfer-transactions }

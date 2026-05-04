@@ -1,5 +1,6 @@
 ---
 title: Sign a Multisig
+tutorial_level: intermediate
 ---
 
 # Signing a Transaction from a Multisignature Account

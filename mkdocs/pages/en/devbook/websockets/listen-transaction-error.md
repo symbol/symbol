@@ -1,5 +1,6 @@
 ---
 title: Transaction Errors
+tutorial_level: beginner
 ---
 
 # Listening to Transaction Errors

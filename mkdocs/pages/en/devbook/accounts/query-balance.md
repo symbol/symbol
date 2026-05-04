@@ -1,5 +1,6 @@
 ---
 title: Query Account Balance
+tutorial_level: beginner
 ---
 
 # Querying an Account Balance

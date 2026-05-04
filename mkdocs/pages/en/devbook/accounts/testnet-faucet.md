@@ -1,5 +1,6 @@
 ---
 title: Fund via Faucet
+tutorial_level: beginner
 ---
 
 # Getting Testnet Funds from the Faucet

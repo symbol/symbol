@@ -1,5 +1,6 @@
 ---
 title: Add Mosaic Metadata
+tutorial_level: advanced
 ---
 
 # Adding Metadata to a Mosaic

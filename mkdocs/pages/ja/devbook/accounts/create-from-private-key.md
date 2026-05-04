@@ -1,5 +1,6 @@
 ---
 title: 秘密鍵からの作成
+tutorial_level: beginner
 ---
 
 # 秘密鍵からのアカウント作成 {: #creating-accounts-from-private-keys }

@@ -1,5 +1,6 @@
 ---
 title: Complete Aggregate
+tutorial_level: advanced
 ---
 
 # Creating a Complete Aggregate Transaction
