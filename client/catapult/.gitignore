@@ -2,5 +2,6 @@
 .idea/
 .vs/
 .vscode/
+.github/
 conanbuildinfo.txt
 CMakeUserPresets.json
