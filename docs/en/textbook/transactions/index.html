@@ -9496,6 +9496,7 @@
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
 		</a>
 	
+	
 
 
 <h1 id="transactions">Transactions<a class="headerlink" href="#transactions" title="Anchor link to this section for reference">⚓︎</a></h1>
@@ -9751,13 +9752,18 @@ and added to every node's <em>unconfirmed pool</em>.</p>
 <dt>
 	<a id="90027de0459d0c0423628636c2148dc4">Unconfirmed pool</a> 
 </dt>
-<dd>A list of transactions pending validation, shared by all nodes in the network.</dd>
+<dd>A list of validated transactions awaiting inclusion in a block, maintained by each node in the network.</dd>
 
 </dl>
-<p>Nodes pick up transactions from this pool and perform the same validation:
-they checks the transaction's structure, signatures, and any conditions specific to its type.
-If the transaction passes validation, it is further propagated to other peers.</p>
-<p>This process ensures that a broad portion of the network knows about the transaction.</p>
+<p>When a peer receives a propagated transaction, it runs the full validation again before adding the transaction
+to its own pool, because no node trusts another's validation.
+If the transaction passes, the peer forwards it to its own peers, and propagation continues until the transaction
+is distributed across the network.</p>
+<div class="admonition warning">
+<p class="admonition-title">Applications must not rely on unconfirmed transactions</p>
+<p>A transaction in the unconfirmed pool is not yet guaranteed to be included in a block.
+Applications should never act on an unconfirmed transaction as if it had already been confirmed.</p>
+</div>
 <h3 id="5-harvesting">5. Harvesting<a class="headerlink" href="#5-harvesting" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Once in the unconfirmed pool, the transaction will eventually be picked up by the <a class="mkdocs-ezglossary-link"
 	id="d0d5b674a96b79a8a63218d40f321a7e"
@@ -9766,14 +9772,15 @@ It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
 	href="../../textbook/harvesting/#4da2a5a68444f540bbf5e10a08b085e4">harvesting</a> process and
 included in a block.
-At that moment, the transactions becomes <em>confirmed</em>.</p>
+At that moment, the transaction becomes <em>confirmed</em>.</p>
 <h3 id="6-confirmation">6. Confirmation<a class="headerlink" href="#6-confirmation" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>Newly created blocks are propagated to other nodes, that validate them and either accept or reject them.
+<p>Newly created blocks are propagated to other nodes that validate them and either accept or reject them.
 The <a class="mkdocs-ezglossary-link"
 	id="02103e76f60defc2fa28299cbf9d1cea"
 	title="The process by which all nodes in the network agree on the current state of the blockchain."
 	name="_:Consensus"
-	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> mechanism ensures that all nodes on the network ultimately agree on the same blocks.</p>
+	href="../../textbook/consensus/#92c744def3f7fe5c0703c81afb16f4f8">consensus</a> mechanism ensures that all nodes on the network ultimately agree on the same blocks.
+Once the block containing a transaction is accepted by consensus, the transaction is <em>confirmed</em>.</p>
 <p>Occasionally, a block already accepted by a node is later rejected by the majority of the network and must be
 <a class="mkdocs-ezglossary-link"
 	id="a0fefdb4c54a01aae72aa76bfdeb2231"
@@ -9781,7 +9788,7 @@ The <a class="mkdocs-ezglossary-link"
 typically after a fork is resolved."
 	name="_:Rollback"
 	href="../../textbook/consensus/#fa68d384bf5dbf284e2a6a02fb2ef92d">rolled back</a>.
-In this case, the blocks's transactions are reverted and returned to the unconfirmed pool.</p>
+In this case, the block's transactions are reverted and returned to the unconfirmed pool.</p>
 <p>If a transaction's deadline expires while it is still in the unconfirmed pool, it is rejected.
 This may happen, for example, if the transaction fee offered is too low to be included by any harvester.</p>
 <p>To reduce the risk of relying on transactions that might be reverted, applications typically wait for several
@@ -9855,6 +9862,18 @@ typically after a fork is resolved."
 <tr>
 <td><strong>Deadline check</strong></td>
 <td>Discards the transaction if its deadline has already passed.</td>
+</tr>
+<tr>
+<td><strong>Timestamp check</strong></td>
+<td>Rejects transactions whose timestamp lies too far in the future, protecting against clock manipulation.</td>
+</tr>
+<tr>
+<td><strong>Network check</strong></td>
+<td>Rejects transactions that target a different network, for example a testnet transaction sent to mainnet.</td>
+</tr>
+<tr>
+<td><strong>Uniqueness check</strong></td>
+<td>Rejects transactions whose hash already appears in the recent chain history, preventing replay.</td>
 </tr>
 <tr>
 <td><strong>Semantic checks</strong></td>
@@ -10101,7 +10120,7 @@ However, all nodes must support the same plugin set to maintain consensus across
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 16, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 28, 2026</span>
   </span>
 
     

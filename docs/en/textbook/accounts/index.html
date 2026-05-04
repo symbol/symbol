@@ -9238,6 +9238,7 @@
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
 		</a>
 	
+	
 
 
 <h1 id="accounts">Accounts<a class="headerlink" href="#accounts" title="Anchor link to this section for reference">⚓︎</a></h1>
@@ -9333,7 +9334,7 @@ it is extremely unlikely that the same number is generated twice by chance."
 	id="e670f24252f14a225873ab2d2da1334c"
 	title="A human-readable representation of a private key, typically shown as a list of 12 or 24 random words."
 	name="_:Mnemonic Phrase"
-	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrases</a>, and uses them to signs transactions.
+	href="../../textbook/accounts/#caca6bf16f8acd51395d644299eb6351">mnemonic phrases</a>, and uses them to sign transactions.
 More broadly, wallets provide tools for exploring and interacting with the blockchain.</p>
 <p>Wallets can be:</p>
 <ul>
@@ -9436,6 +9437,10 @@ approve transactions.</dd>
 </ul>
 </li>
 </ul>
+<p>For example, a <strong>2-of-3</strong> multisig has three cosignatories, any two of which must sign to authorize a transaction:</p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="416pt" height="165pt" viewBox="0.00 0.00 416.35 165.08" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 161.08)"><title>M&#45;of&#45;N Multisignature</title><polygon fill="transparent" stroke="transparent" points="-4,4 -4,-161.08 412.35,-161.08 412.35,4 -4,4"/><!-- Multisig Account --><g id="node1" class="node"><title>Multisig Account</title><ellipse fill="none" stroke="#789abc" cx="204.17" cy="-133.04" rx="84.29" ry="24.08"/><text text-anchor="middle" x="204.17" y="-136.44" font-family="Times,serif" font-size="12.00" fill="#789abc">Multisig Account</text><text text-anchor="middle" x="204.17" y="-123.44" font-family="Times,serif" font-size="12.00" fill="#789abc">2 of 3</text></g><!-- Cosignatory 1 --><g id="node2" class="node"><title>Cosignatory 1</title><ellipse fill="none" stroke="#789abc" stroke-width="2" cx="62.17" cy="-18" rx="62.35" ry="18"/><text text-anchor="middle" x="62.17" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Cosignatory 1</text></g><!-- Cosignatory 1&#45;&gt;Multisig Account --><g id="edge1" class="edge"><title>Cosignatory 1&#45;&gt;Multisig Account</title><path fill="none" stroke="#789abc" stroke-width="2" d="M82.52,-35.2C104.97,-53.07 141.51,-82.16 168.7,-103.8"/><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="166.8,-106.77 176.81,-110.26 171.16,-101.29 166.8,-106.77"/></g><!-- Cosignatory 2 --><g id="node3" class="node"><title>Cosignatory 2</title><ellipse fill="none" stroke="#789abc" stroke-width="2" cx="204.17" cy="-18" rx="62.35" ry="18"/><text text-anchor="middle" x="204.17" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Cosignatory 2</text></g><!-- Cosignatory 2&#45;&gt;Multisig Account --><g id="edge2" class="edge"><title>Cosignatory 2&#45;&gt;Multisig Account</title><path fill="none" stroke="#789abc" stroke-width="2" d="M204.17,-36.17C204.17,-52.68 204.17,-78.1 204.17,-98.61"/><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="200.67,-98.82 204.17,-108.82 207.67,-98.82 200.67,-98.82"/></g><!-- Cosignatory 3 --><g id="node4" class="node"><title>Cosignatory 3</title><ellipse fill="none" stroke="#789abc" cx="346.17" cy="-18" rx="62.35" ry="18"/><text text-anchor="middle" x="346.17" y="-14.9" font-family="Times,serif" font-size="12.00" fill="#789abc">Cosignatory 3</text></g><!-- Cosignatory 3&#45;&gt;Multisig Account --><g id="edge3" class="edge"><title>Cosignatory 3&#45;&gt;Multisig Account</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M325.83,-35.2C303.38,-53.07 266.84,-82.16 239.65,-103.8"/><polygon fill="#789abc" stroke="#789abc" points="237.19,-101.29 231.54,-110.26 241.55,-106.77 237.19,-101.29"/></g></g></svg></p>
+<p>In the previous diagram, Cosignatories 1 and 2 sign, which meets the minimum of <code>M=2</code>, so the transaction is valid
+without Cosignatory 3.</p>
 <p>Example use cases:</p>
 <ul>
 <li>
@@ -9510,7 +9515,7 @@ at least one of the other three cosignatories <code>1</code> to <code>3</code>.<
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 25, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 28, 2026</span>
   </span>
 
     

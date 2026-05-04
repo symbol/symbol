@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="ja" class="no-js">
   <head>
     
       <meta charset="utf-8">
@@ -8,25 +8,29 @@
       
       
       
-        <link rel="canonical" href="https://docs.symboltest.net/en/devbook/reference/java/links/">
+        <link rel="canonical" href="https://docs.symboltest.net/ja/userbook/shoestring/install/">
       
       
+        <link rel="prev" href="../overview/">
       
       
-      <link rel="icon" href="../../../../assets/images/favicon.ico">
+        <link rel="next" href="../quickstart/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
-        <title>Links - Symbol Docs WIP 🚧</title>
+        <title>Shoestringのインストール - Symbolドキュメント WIP ⚠</title>
       
     
     
 
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -35,10 +39,10 @@
 
 <style>
 [data-md-color-primary=indigo] {
-	--md-primary-fg-color: var(--devbook-color);
-	--md-primary-fg-color--dark: var(--devbook-color--dark);
-	--md-primary-fg-color--light: var(--devbook-color--light);
-	--md-accent-fg-color--transparent: var(--devbook-color--transparent);
+	--md-primary-fg-color: var(--userbook-color);
+	--md-primary-fg-color--dark: var(--userbook-color--dark);
+	--md-primary-fg-color--light: var(--userbook-color--light);
+	--md-accent-fg-color--transparent: var(--userbook-color--transparent);
 }
 </style>
 
@@ -51,25 +55,25 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Exo+2:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Exo 2";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+JP,+Yu+Gothic,+Hiragino+Sans,+Meiryo,+sans-serif:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans JP, Yu Gothic, Hiragino Sans, Meiryo, sans-serif";--md-code-font:"Roboto Mono"}</style>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/extra.css">
     
       <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
     
     
-   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
     .gslide-desc { color: #666; user-select: text; }
@@ -82,7 +86,7 @@
     .gdesc-inner { font-size: 0.75rem; }
     body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
     body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
-    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -100,6 +104,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#shoestring" class="md-skip">
+          コンテンツにスキップ
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -109,10 +118,10 @@
       
 
 <header class="md-header" data-md-component="header">
-	<nav class="md-header__inner md-grid" aria-label="Header">
-		<a href="https://docs.symboltest.net" title="Symbol Docs WIP 🚧" class="md-header__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
+	<nav class="md-header__inner md-grid" aria-label="ヘッダー">
+		<a href="https://docs.symboltest.net" title="Symbolドキュメント WIP ⚠" class="md-header__button md-logo" aria-label="Symbolドキュメント WIP ⚠" data-md-component="logo">
 			
-  <img src="../../../../assets/images/symbol-logo.svg" alt="logo">
+  <img src="../../../assets/images/symbol-logo.svg" alt="logo">
 
 		</a>
 		<label class="md-header__button md-icon" for="__drawer">
@@ -123,16 +132,14 @@
 			<div class="md-header__ellipsis">
 				<div class="md-header__topic">
 					<span class="md-ellipsis">
-						Symbol Docs WIP 🚧
+						Symbolドキュメント WIP ⚠
 					</span>
 				</div>
 				<div class="md-header__topic" data-md-component="header-topic">
 					<span class="md-ellipsis">
 						
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M277.74 312.9c9.8-6.7 23.4-12.5 23.4-12.5s-38.7 7-77.2 10.2c-47.1 3.9-97.7 4.7-123.1 1.3-60.1-8 33-30.1 33-30.1s-36.1-2.4-80.6 19c-52.5 25.4 130 37 224.5 12.1m-85.4-32.1c-19-42.7-83.1-80.2 0-145.8C296 53.2 242.84 0 242.84 0c21.5 84.5-75.6 110.1-110.7 162.6-23.9 35.9 11.7 74.4 60.2 118.2m114.6-176.2c.1 0-175.2 43.8-91.5 140.2 24.7 28.4-6.5 54-6.5 54s62.7-32.4 33.9-72.9c-26.9-37.8-47.5-56.6 64.1-121.3m-6.1 270.5a12.2 12.2 0 0 1-2 2.6c128.3-33.7 81.1-118.9 19.8-97.3a17.33 17.33 0 0 0-8.2 6.3 70.5 70.5 0 0 1 11-3c31-6.5 75.5 41.5-20.6 91.4M348 437.4s14.5 11.9-15.9 21.2c-57.9 17.5-240.8 22.8-291.6.7-18.3-7.9 16-19 26.8-21.3 11.2-2.4 17.7-2 17.7-2-20.3-14.3-131.3 28.1-56.4 40.2C232.84 509.4 401 461.3 348 437.4M124.44 396c-78.7 22 47.9 67.4 148.1 24.5a186 186 0 0 1-28.2-13.8c-44.7 8.5-65.4 9.1-106 4.5-33.5-3.8-13.9-15.2-13.9-15.2m179.8 97.2c-78.7 14.8-175.8 13.1-233.3 3.6 0-.1 11.8 9.7 72.4 13.6 92.2 5.9 233.8-3.3 237.1-46.9 0 0-6.4 16.5-76.2 29.7M260.64 353c-59.2 11.4-93.5 11.1-136.8 6.6-33.5-3.5-11.6-19.7-11.6-19.7-86.8 28.8 48.2 61.4 169.5 25.9a60.4 60.4 0 0 1-21.1-12.8"/></svg>
 						
-						
-							Links
+							Shoestringのインストール
 						
 					</span>
 				</div>
@@ -145,9 +152,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="ライトモードに切り替える"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="ライトモードに切り替える" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
       </label>
     
@@ -155,9 +162,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="ダークモードに切り替える"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+      <label class="md-header__button md-icon" title="ダークモードに切り替える" for="__palette_2" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -165,9 +172,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="システム設定に切り替える"  type="radio" name="__palette" id="__palette_2">
     
-      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+      <label class="md-header__button md-icon" title="システム設定に切り替える" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -182,7 +189,7 @@
 			<div class="md-header__option">
 	<div class="md-select">
 		
-		<button class="md-header__button md-icon" aria-label="Select language">
+		<button class="md-header__button md-icon" aria-label="言語切り替え">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
 		</button>
 		<div class="md-select__inner">
@@ -191,7 +198,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/en/devbook/reference/java/links/" hreflang="en" class="md-select__link">
+						<a href="/en/userbook/shoestring/install/" hreflang="en" class="md-select__link">
 							English
 						</a>
 					</li>
@@ -199,7 +206,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/ja/devbook/reference/java/links/" hreflang="ja" class="md-select__link">
+						<a href="/ja/userbook/shoestring/install/" hreflang="ja" class="md-select__link">
 							日本語
 						</a>
 					</li>
@@ -220,21 +227,21 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="検索" placeholder="検索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="Search">
+      <nav class="md-search__options" aria-label="検索">
         
-          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="共有" aria-label="共有" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
             
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
           </a>
         
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="クリア" aria-label="クリア" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -247,7 +254,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            Initializing search
+            検索を初期化
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -272,7 +279,7 @@
         
           
             
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+<nav class="md-tabs" aria-label="タブ" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
       
@@ -281,12 +288,12 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
     
   
-  Welcome to the Symbol documentation pages
+  Symbolドキュメントページへようこそ
 
       </a>
     </li>
@@ -296,14 +303,16 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../../userbook/intro/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../intro/" class="md-tabs__link">
           
   
-  User Manual
+  ユーザーマニュアル
 
         </a>
       </li>
@@ -318,10 +327,10 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../intro/" class="md-tabs__link">
+        <a href="../../../devbook/intro/" class="md-tabs__link">
           
   
-  Developer Manual
+  開発者マニュアル
 
         </a>
       </li>
@@ -336,10 +345,10 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../../textbook/intro/" class="md-tabs__link">
+        <a href="../../../textbook/intro/" class="md-tabs__link">
           
   
-  Textbook
+  テキストブック
 
         </a>
       </li>
@@ -367,14 +376,14 @@
   
 
 
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="ナビゲーション" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="https://docs.symboltest.net" title="Symbol Docs WIP 🚧" class="md-nav__button md-logo" aria-label="Symbol Docs WIP 🚧" data-md-component="logo">
+    <a href="https://docs.symboltest.net" title="Symbolドキュメント WIP ⚠" class="md-nav__button md-logo" aria-label="Symbolドキュメント WIP ⚠" data-md-component="logo">
       
-  <img src="../../../../assets/images/symbol-logo.svg" alt="logo">
+  <img src="../../../assets/images/symbol-logo.svg" alt="logo">
 
     </a>
-    Symbol Docs WIP 🚧
+    Symbolドキュメント WIP ⚠
   </label>
   
     <div class="md-nav__source">
@@ -390,11 +399,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Welcome to the Symbol documentation pages
+    Symbolドキュメントページへようこそ
   </span>
   
 
@@ -407,37 +416,42 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
-    User Manual
+    ユーザーマニュアル
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            User Manual
+            ユーザーマニュアル
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -448,11 +462,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/intro/" class="md-nav__link">
+      <a href="../../intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Welcome
+    はじめに
   </span>
   
 
@@ -486,7 +500,7 @@
             
   
   <span class="md-ellipsis">
-    Symbol Desktop Wallet
+    Symbol デスクトップウォレット
   </span>
   
 
@@ -496,7 +510,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2_2">
             <span class="md-nav__icon md-icon"></span>
-            Symbol Desktop Wallet
+            Symbol デスクトップウォレット
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -507,11 +521,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/install/" class="md-nav__link">
+      <a href="../../wallet/install/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Installing the Wallet
+    ウォレットのインストール
   </span>
   
 
@@ -545,7 +559,7 @@
             
   
   <span class="md-ellipsis">
-    Profiles
+    プロファイル
   </span>
   
 
@@ -555,7 +569,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2_2_2">
             <span class="md-nav__icon md-icon"></span>
-            Profiles
+            プロファイル
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -566,11 +580,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/create-profile/" class="md-nav__link">
+      <a href="../../wallet/create-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Creating a Profile
+    プロファイルの作成
   </span>
   
 
@@ -587,11 +601,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/import-profile/" class="md-nav__link">
+      <a href="../../wallet/import-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Importing a Profile
+    プロファイルのインポート
   </span>
   
 
@@ -608,11 +622,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/export-profile/" class="md-nav__link">
+      <a href="../../wallet/export-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Exporting a Profile
+    プロファイルのエクスポート
   </span>
   
 
@@ -629,11 +643,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/delete-profile/" class="md-nav__link">
+      <a href="../../wallet/delete-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Deleting a Profile
+    プロファイルの削除
   </span>
   
 
@@ -675,7 +689,7 @@
             
   
   <span class="md-ellipsis">
-    Accounts
+    アカウント
   </span>
   
 
@@ -685,7 +699,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2_2_3">
             <span class="md-nav__icon md-icon"></span>
-            Accounts
+            アカウント
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -696,11 +710,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/create-account/" class="md-nav__link">
+      <a href="../../wallet/create-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Creating an Account
+    アカウントの作成
   </span>
   
 
@@ -717,11 +731,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/import-account/" class="md-nav__link">
+      <a href="../../wallet/import-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Importing an Account
+    アカウントのインポート
   </span>
   
 
@@ -738,11 +752,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/delete-account/" class="md-nav__link">
+      <a href="../../wallet/delete-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Deleting an Account
+    アカウントの削除
   </span>
   
 
@@ -772,6 +786,8 @@
                 
   
   
+    
+  
   
   
     
@@ -781,28 +797,28 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
         
           
           <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Shoestring Node Operation
+    Shoestringを使用したノード運用
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_3">
             <span class="md-nav__icon md-icon"></span>
-            Shoestring Node Operation
+            Shoestringを使用したノード運用
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -813,11 +829,164 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/shoestring/overview/" class="md-nav__link">
+      <a href="../overview/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Shoestring Overview
+    Shoestringの概要
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Shoestringのインストール
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Shoestringのインストール
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="このページに">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      このページに
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      要件
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="要件">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#software" class="md-nav__link">
+    <span class="md-ellipsis">
+      ソフトウェア
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      ハードウェア
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-with-pip" class="md-nav__link">
+    <span class="md-ellipsis">
+      pipを使用したインストール
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-the-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      インストールの確認
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shoestringのアップデート
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      次のステップ
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ノードの作成と実行
   </span>
   
 
@@ -834,53 +1003,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/shoestring/install/" class="md-nav__link">
+      <a href="../maintain/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Installing Shoestring
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../userbook/shoestring/quickstart/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Creating and Running a Node
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../userbook/shoestring/maintain/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Maintaining a Node
+    ノードの保守
   </span>
   
 
@@ -905,11 +1032,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/security/" class="md-nav__link">
+      <a href="../../security/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Security
+    セキュリティ
   </span>
   
 
@@ -950,7 +1077,7 @@
             
   
   <span class="md-ellipsis">
-    Developer Manual
+    開発者マニュアル
   </span>
   
 
@@ -960,7 +1087,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Developer Manual
+            開発者マニュアル
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -971,11 +1098,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../intro/" class="md-nav__link">
+      <a href="../../../devbook/intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Welcome
+    ようこそ
   </span>
   
 
@@ -1009,7 +1136,7 @@
             
   
   <span class="md-ellipsis">
-    Getting Started
+    はじめに
   </span>
   
 
@@ -1019,7 +1146,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
-            Getting Started
+            はじめに
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1030,11 +1157,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../start/setup/" class="md-nav__link">
+      <a href="../../../devbook/start/setup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Setup
+    セットアップ
   </span>
   
 
@@ -1051,7 +1178,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../start/hello-world/" class="md-nav__link">
+      <a href="../../../devbook/start/hello-world/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1097,7 +1224,7 @@
             
   
   <span class="md-ellipsis">
-    Tutorials
+    チュートリアル
   </span>
   
 
@@ -1107,7 +1234,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3">
             <span class="md-nav__icon md-icon"></span>
-            Tutorials
+            チュートリアル
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1135,7 +1262,7 @@
             
   
   <span class="md-ellipsis">
-    Accounts
+    アカウント
   </span>
   
 
@@ -1145,7 +1272,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_1">
             <span class="md-nav__icon md-icon"></span>
-            Accounts
+            アカウント
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1156,11 +1283,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/create-from-private-key/" class="md-nav__link">
+      <a href="../../../devbook/accounts/create-from-private-key/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Create from Private Keys
+    秘密鍵からの作成
   </span>
   
 
@@ -1177,11 +1304,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/create-from-mnemonic/" class="md-nav__link">
+      <a href="../../../devbook/accounts/create-from-mnemonic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Create from Mnemonic
+    ニーモニックからの作成
   </span>
   
 
@@ -1198,11 +1325,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/testnet-faucet/" class="md-nav__link">
+      <a href="../../../devbook/accounts/testnet-faucet/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Fund via Faucet
+    蛇口 (Faucet) からの通貨の入手
   </span>
   
 
@@ -1219,11 +1346,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/query-balance/" class="md-nav__link">
+      <a href="../../../devbook/accounts/query-balance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Query Account Balance
+    アカウント残高の照会
   </span>
   
 
@@ -1240,11 +1367,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/account-metadata/" class="md-nav__link">
+      <a href="../../../devbook/accounts/account-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Add Account Metadata
+    アカウントメタデータの追加
   </span>
   
 
@@ -1261,11 +1388,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/configure-multisig/" class="md-nav__link">
+      <a href="../../../devbook/accounts/configure-multisig/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Configure a Multisig
+    マルチシグの設定
   </span>
   
 
@@ -1282,11 +1409,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/sign-multisig/" class="md-nav__link">
+      <a href="../../../devbook/accounts/sign-multisig/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Sign a Multisig
+    マルチシグでの署名
   </span>
   
 
@@ -1303,11 +1430,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/account-restrictions/" class="md-nav__link">
+      <a href="../../../devbook/accounts/account-restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Add Account Restrictions
+    アカウント制限の追加
   </span>
   
 
@@ -1349,7 +1476,7 @@
             
   
   <span class="md-ellipsis">
-    Transactions
+    トランザクション
   </span>
   
 
@@ -1359,7 +1486,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_2">
             <span class="md-nav__icon md-icon"></span>
-            Transactions
+            トランザクション
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1370,11 +1497,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/transfer/" class="md-nav__link">
+      <a href="../../../devbook/transactions/transfer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Transfer
+    転送
   </span>
   
 
@@ -1391,11 +1518,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/typed-descriptors/" class="md-nav__link">
+      <a href="../../../devbook/transactions/typed-descriptors/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Typed Descriptors
+    型付き記述子
   </span>
   
 
@@ -1412,11 +1539,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/messages/" class="md-nav__link">
+      <a href="../../../devbook/transactions/messages/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Messages
+    メッセージ
   </span>
   
 
@@ -1433,11 +1560,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/monitoring-status/" class="md-nav__link">
+      <a href="../../../devbook/transactions/monitoring-status/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Transaction Status
+    トランザクションステータス
   </span>
   
 
@@ -1454,11 +1581,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/complete-aggregate/" class="md-nav__link">
+      <a href="../../../devbook/transactions/complete-aggregate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Complete Aggregate
+    アグリゲートコンプリートトランザクション
   </span>
   
 
@@ -1475,11 +1602,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/bonded-aggregate/" class="md-nav__link">
+      <a href="../../../devbook/transactions/bonded-aggregate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Bonded Aggregate
+    アグリゲートボンデッドトランザクション
   </span>
   
 
@@ -1496,11 +1623,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/transaction-batching/" class="md-nav__link">
+      <a href="../../../devbook/transactions/transaction-batching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Transaction Batching
+    トランザクションバッチ処理
   </span>
   
 
@@ -1517,11 +1644,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/fee-sponsorship/" class="md-nav__link">
+      <a href="../../../devbook/transactions/fee-sponsorship/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Pay Fees on Behalf of Another Account
+    他のアカウントの代理での手数料の支払い
   </span>
   
 
@@ -1538,11 +1665,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/atomic-swap/" class="md-nav__link">
+      <a href="../../../devbook/transactions/atomic-swap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Atomic Swap
+    アトミックスワップ
   </span>
   
 
@@ -1559,11 +1686,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/cross-chain-swap/" class="md-nav__link">
+      <a href="../../../devbook/transactions/cross-chain-swap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Cross-Chain Swap
+    クロスチェーンスワップ
   </span>
   
 
@@ -1605,7 +1732,7 @@
             
   
   <span class="md-ellipsis">
-    Namespaces
+    ネームスペース
   </span>
   
 
@@ -1615,7 +1742,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_3">
             <span class="md-nav__icon md-icon"></span>
-            Namespaces
+            ネームスペース
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1626,11 +1753,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/register-root-namespace/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/register-root-namespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Register Root Namespace
+    ルートネームスペースの登録
   </span>
   
 
@@ -1647,11 +1774,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/register-subnamespace/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/register-subnamespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Register Subnamespace
+    サブネームスペースの登録
   </span>
   
 
@@ -1668,11 +1795,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/get-namespace-info/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/get-namespace-info/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Get Namespace Information
+    ネームスペース情報の取得
   </span>
   
 
@@ -1689,11 +1816,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/extend-root-namespace/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/extend-root-namespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Extend Root Namespace
+    ルートネームスペースの延長
   </span>
   
 
@@ -1710,11 +1837,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/link-namespace-to-address/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/link-namespace-to-address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Link Namespace to Address
+    ネームスペースのアドレスへのリンク
   </span>
   
 
@@ -1731,11 +1858,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/link-namespace-to-mosaic/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/link-namespace-to-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Link Namespace to Mosaic
+    ネームスペースのモザイクへのリンク
   </span>
   
 
@@ -1752,11 +1879,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/namespace-metadata/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/namespace-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Add Namespace Metadata
+    ネームスペースメタデータの追加
   </span>
   
 
@@ -1773,11 +1900,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Resolve Namespace from Receipt
+    レシートからのネームスペース解決
   </span>
   
 
@@ -1819,7 +1946,7 @@
             
   
   <span class="md-ellipsis">
-    Mosaics
+    モザイク
   </span>
   
 
@@ -1829,7 +1956,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_4">
             <span class="md-nav__icon md-icon"></span>
-            Mosaics
+            モザイク
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1840,11 +1967,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/create-mosaic/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/create-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Create Mosaic
+    モザイクの作成
   </span>
   
 
@@ -1861,11 +1988,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/get-mosaic-info/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/get-mosaic-info/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Get Mosaic Information
+    モザイク情報の取得
   </span>
   
 
@@ -1882,11 +2009,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/change-mosaic-supply/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/change-mosaic-supply/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Change Mosaic Supply
+    モザイク供給量の変更
   </span>
   
 
@@ -1903,11 +2030,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/modify-mosaic-definition/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/modify-mosaic-definition/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Modify Mosaic Definition
+    モザイク定義の変更
   </span>
   
 
@@ -1924,11 +2051,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/mosaic-metadata/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Add Mosaic Metadata
+    モザイクメタデータの追加
   </span>
   
 
@@ -1945,11 +2072,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/revoke-mosaic/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/revoke-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Revoke Mosaic
+    モザイクの回収（リボーク）
   </span>
   
 
@@ -1966,11 +2093,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/mosaic-restrictions/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/mosaic-restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Add Mosaic Restrictions
+    モザイク制限の追加
   </span>
   
 
@@ -2012,7 +2139,7 @@
             
   
   <span class="md-ellipsis">
-    Network Currency
+    ネットワーク通貨
   </span>
   
 
@@ -2022,7 +2149,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_5">
             <span class="md-nav__icon md-icon"></span>
-            Network Currency
+            ネットワーク通貨
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2033,11 +2160,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../network-currency/query-currency-supply/" class="md-nav__link">
+      <a href="../../../devbook/network-currency/query-currency-supply/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Query Currency Supply
+    通貨供給量の照会
   </span>
   
 
@@ -2054,11 +2181,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../network-currency/query-block-rewards/" class="md-nav__link">
+      <a href="../../../devbook/network-currency/query-block-rewards/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Query Block Rewards
+    ブロック報酬の照会
   </span>
   
 
@@ -2100,7 +2227,7 @@
             
   
   <span class="md-ellipsis">
-    Chain State
+    チェーンの状態
   </span>
   
 
@@ -2110,7 +2237,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_6">
             <span class="md-nav__icon md-icon"></span>
-            Chain State
+            チェーンの状態
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2121,11 +2248,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/chain-heights/" class="md-nav__link">
+      <a href="../../../devbook/chain/chain-heights/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Chain and Finalization Height
+    チェーンとファイナライズの最新高
   </span>
   
 
@@ -2142,11 +2269,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/network-time/" class="md-nav__link">
+      <a href="../../../devbook/chain/network-time/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Network Time
+    ネットワーク時間
   </span>
   
 
@@ -2163,11 +2290,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/prove-transaction/" class="md-nav__link">
+      <a href="../../../devbook/chain/prove-transaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Prove Transaction Inclusion
+    トランザクション包含の証明
   </span>
   
 
@@ -2184,11 +2311,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/prove-mosaic-definition/" class="md-nav__link">
+      <a href="../../../devbook/chain/prove-mosaic-definition/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Prove Mosaic Definition
+    モザイク定義の証明
   </span>
   
 
@@ -2230,7 +2357,7 @@
             
   
   <span class="md-ellipsis">
-    WebSockets
+    Webソケット
   </span>
   
 
@@ -2240,7 +2367,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_7">
             <span class="md-nav__icon md-icon"></span>
-            WebSockets
+            Webソケット
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2251,11 +2378,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-new-blocks/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-new-blocks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    New Blocks
+    新しいブロック
   </span>
   
 
@@ -2272,11 +2399,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-transaction-flow/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-transaction-flow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Transaction Flow
+    トランザクションフロー
   </span>
   
 
@@ -2293,11 +2420,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-bonded-transaction-flow/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-bonded-transaction-flow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Bonded Transaction Flow
+    ボンデッドトランザクションフロー
   </span>
   
 
@@ -2314,11 +2441,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-transaction-error/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-transaction-error/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Transaction Errors
+    トランザクションエラー
   </span>
   
 
@@ -2368,7 +2495,7 @@
             
   
   <span class="md-ellipsis">
-    Reference Guides
+    リファレンスガイド
   </span>
   
 
@@ -2378,7 +2505,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_4">
             <span class="md-nav__icon md-icon"></span>
-            Reference Guides
+            リファレンスガイド
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2465,7 +2592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/AccountDescriptorRepository/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/AccountDescriptorRepository/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2486,7 +2613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/ArrayHelpers/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/ArrayHelpers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2507,7 +2634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BaseValue/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BaseValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2528,7 +2655,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Bip32/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Bip32/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2549,7 +2676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BlockchainSettings/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BlockchainSettings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2570,7 +2697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BufferReader/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BufferReader/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2591,7 +2718,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BufferWriter/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BufferWriter/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2612,7 +2739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/ByteArray/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/ByteArray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2633,7 +2760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Cipher/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Cipher/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2654,7 +2781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/CodeWordsEncoder/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/CodeWordsEncoder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2675,7 +2802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/CryptoTypes/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/CryptoTypes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2696,7 +2823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/DiceMnemonicGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/DiceMnemonicGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2717,7 +2844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2738,7 +2865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2759,7 +2886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/NodeDescriptorRepository/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/NodeDescriptorRepository/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2780,7 +2907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/PrivateKeyStorage/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/PrivateKeyStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2801,7 +2928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/QrSignatureStorage/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/QrSignatureStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2822,7 +2949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/QrStorage/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/QrStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2843,7 +2970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/RuleBasedTransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/RuleBasedTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2864,7 +2991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/TransactionDescriptorProcessor/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/TransactionDescriptorProcessor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2885,7 +3012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Transforms/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Transforms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2944,7 +3071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/external/ed25519/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/external/ed25519/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3011,7 +3138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/facade/BatchOperations/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/facade/BatchOperations/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3032,7 +3159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/facade/SymbolFacade/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/facade/SymbolFacade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3061,7 +3188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/ripemd160/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/ripemd160/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3120,7 +3247,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/IdGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/IdGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3141,7 +3268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/KeyPair/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/KeyPair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3162,7 +3289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Merkle/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Merkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3183,7 +3310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/MessageEncoder/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/MessageEncoder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3204,7 +3331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Metadata/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3225,7 +3352,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3246,7 +3373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Restriction/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Restriction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3267,7 +3394,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/TransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/TransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3288,7 +3415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/VotingKeysGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/VotingKeysGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3409,7 +3536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Bip32/classes/Bip32/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Bip32/classes/Bip32/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3430,7 +3557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Bip32/classes/Bip32Node/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Bip32/classes/Bip32Node/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3497,7 +3624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/classes/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/classes/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3518,7 +3645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/classes/NetworkLocator/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/classes/NetworkLocator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3577,7 +3704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/AddressConstructable/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/type-aliases/AddressConstructable/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3598,7 +3725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/Constructable/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/type-aliases/Constructable/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3619,7 +3746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/EncodedSizeAccessor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/type-aliases/EncodedSizeAccessor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3694,7 +3821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/NetworkTimestamp/classes/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/NetworkTimestamp/classes/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3715,7 +3842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/NetworkTimestamp/classes/NetworkTimestampDatetimeConverter/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/NetworkTimestamp/classes/NetworkTimestampDatetimeConverter/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3782,7 +3909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/BaseValue/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/BaseValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3803,7 +3930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/ByteArray/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/ByteArray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3824,7 +3951,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/Hash256/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/Hash256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3845,7 +3972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/PrivateKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/PrivateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3866,7 +3993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/PublicKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/PublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3887,7 +4014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/SharedKey256/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/SharedKey256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3908,7 +4035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/Signature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/Signature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3967,7 +4094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/bytesToBigInt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/bytesToBigInt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3988,7 +4115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/bytesToInt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/bytesToInt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4009,7 +4136,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/deepCompare/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/deepCompare/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4030,7 +4157,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/hexToUint8/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/hexToUint8/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4051,7 +4178,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/intToBytes/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/intToBytes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4072,7 +4199,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/isHexString/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/isHexString/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4093,7 +4220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/tryParseUint/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/tryParseUint/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4114,7 +4241,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/uint8ToHex/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/uint8ToHex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4227,7 +4354,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/MessageEncoder/classes/default/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/MessageEncoder/classes/default/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4286,7 +4413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/MessageEncoder/type-aliases/TryDecodeResult/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/MessageEncoder/type-aliases/TryDecodeResult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4323,7 +4450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Address/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/Address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4344,7 +4471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/KeyPair/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/KeyPair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4365,7 +4492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4386,7 +4513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4407,7 +4534,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolAccount/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolAccount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4428,7 +4555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolFacade/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4449,7 +4576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolPublicAccount/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolPublicAccount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4470,7 +4597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolTransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4491,7 +4618,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Verifier/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/Verifier/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4512,7 +4639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/VotingKeysGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/VotingKeysGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4533,7 +4660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateMosaicAliasId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateMosaicAliasId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4554,7 +4681,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateMosaicId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateMosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4575,7 +4702,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateNamespaceId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateNamespaceId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4596,7 +4723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateNamespacePath/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateNamespacePath/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4617,7 +4744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/isMosaicAlias/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/isMosaicAlias/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4638,7 +4765,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/isValidNamespaceName/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/isValidNamespaceName/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4659,7 +4786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/metadataGenerateKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/metadataGenerateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4680,7 +4807,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/metadataUpdateValue/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/metadataUpdateValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4701,7 +4828,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/mosaicRestrictionGenerateKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/mosaicRestrictionGenerateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4760,7 +4887,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/BranchNode/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/BranchNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4781,7 +4908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/LeafNode/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/LeafNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4802,7 +4929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/MerkleHashBuilder/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/MerkleHashBuilder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4823,7 +4950,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/PatriciaMerkleProofResult/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/PatriciaMerkleProofResult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4844,7 +4971,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/TreeNode/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/TreeNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4865,7 +4992,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/deserializePatriciaTreeNodes/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/functions/deserializePatriciaTreeNodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4886,7 +5013,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/proveMerkle/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/functions/proveMerkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4907,7 +5034,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/provePatriciaMerkle/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/functions/provePatriciaMerkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4966,7 +5093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/type-aliases/MerklePart/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/type-aliases/MerklePart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4987,7 +5114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/type-aliases/PatriciaTreePath/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/type-aliases/PatriciaTreePath/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5062,7 +5189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5083,7 +5210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5104,7 +5231,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5125,7 +5252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5146,7 +5273,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5167,7 +5294,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5188,7 +5315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5209,7 +5336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5230,7 +5357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5251,7 +5378,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5272,7 +5399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5293,7 +5420,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5314,7 +5441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/CosignatureDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/CosignatureDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5335,7 +5462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5356,7 +5483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5377,7 +5504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5398,7 +5525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5419,7 +5546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5440,7 +5567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5461,7 +5588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5482,7 +5609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5503,7 +5630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5524,7 +5651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5545,7 +5672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5566,7 +5693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5587,7 +5714,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5608,7 +5735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5629,7 +5756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5650,7 +5777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5671,7 +5798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5692,7 +5819,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5713,7 +5840,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5734,7 +5861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5801,7 +5928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5822,7 +5949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5843,7 +5970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5864,7 +5991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5885,7 +6012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5906,7 +6033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountRestrictionFlags/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountRestrictionFlags/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5927,7 +6054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Address/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5948,7 +6075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AddressAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5969,7 +6096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressResolutionEntry/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AddressResolutionEntry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5990,7 +6117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressResolutionStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AddressResolutionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6011,7 +6138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6032,7 +6159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV2/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6053,7 +6180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6074,7 +6201,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6095,7 +6222,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6116,7 +6243,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6137,7 +6264,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AliasAction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AliasAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6158,7 +6285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Amount/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Amount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6179,7 +6306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Block/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Block/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6200,7 +6327,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockDuration/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockDuration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6221,7 +6348,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6242,7 +6369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockFeeMultiplier/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockFeeMultiplier/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6263,7 +6390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6284,7 +6411,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6305,7 +6432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Cosignature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Cosignature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6326,7 +6453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/DetachedCosignature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/DetachedCosignature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6347,7 +6474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Difficulty/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Difficulty/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6368,7 +6495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6389,7 +6516,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6410,7 +6537,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6431,7 +6558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6452,7 +6579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6473,7 +6600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6494,7 +6621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6515,7 +6642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6536,7 +6663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6557,7 +6684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6578,7 +6705,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6599,7 +6726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6620,7 +6747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6641,7 +6768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6662,7 +6789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6683,7 +6810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6704,7 +6831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6725,7 +6852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6746,7 +6873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6767,7 +6894,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6788,7 +6915,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransaction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6809,7 +6936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6830,7 +6957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6851,7 +6978,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6872,7 +6999,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6893,7 +7020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationEpoch/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationEpoch/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6914,7 +7041,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationPoint/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationPoint/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6935,7 +7062,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationRound/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationRound/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6956,7 +7083,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizedBlockHeader/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizedBlockHeader/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6977,7 +7104,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/HarvestFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/HarvestFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6998,7 +7125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Hash256/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Hash256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7019,7 +7146,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Hash512/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Hash512/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7040,7 +7167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/HashLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/HashLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7061,7 +7188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Height/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Height/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7082,7 +7209,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Importance/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Importance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7103,7 +7230,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ImportanceBlockV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ImportanceBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7124,7 +7251,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ImportanceHeight/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ImportanceHeight/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7145,7 +7272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/InflationReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/InflationReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7166,7 +7293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LinkAction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LinkAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7187,7 +7314,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashAlgorithm/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashAlgorithm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7208,7 +7335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7229,7 +7356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7250,7 +7377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7271,7 +7398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7292,7 +7419,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7313,7 +7440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7334,7 +7461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Mosaic/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7355,7 +7482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7376,7 +7503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7397,7 +7524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7418,7 +7545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicExpiredReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicExpiredReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7439,7 +7566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicFlags/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicFlags/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7460,7 +7587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7481,7 +7608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7502,7 +7629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7523,7 +7650,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicNonce/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicNonce/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7544,7 +7671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7565,7 +7692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicResolutionEntry/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicResolutionEntry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7586,7 +7713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicResolutionStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicResolutionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7607,7 +7734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRestrictionKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRestrictionKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7628,7 +7755,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRestrictionType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRestrictionType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7649,7 +7776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeAction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyChangeAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7670,7 +7797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7691,7 +7818,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7712,7 +7839,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7733,7 +7860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceDeletedReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceDeletedReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7754,7 +7881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceExpiredReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceExpiredReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7775,7 +7902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7796,7 +7923,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7817,7 +7944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7838,7 +7965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRegistrationType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRegistrationType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7859,7 +7986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7880,7 +8007,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NemesisBlockV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NemesisBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7901,7 +8028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NetworkType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NetworkType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7922,7 +8049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7943,7 +8070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NormalBlockV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NormalBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7964,7 +8091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofGamma/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ProofGamma/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7985,7 +8112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofScalar/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ProofScalar/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8006,7 +8133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofVerificationHash/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ProofVerificationHash/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8027,7 +8154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/PublicKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/PublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8048,7 +8175,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Receipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Receipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8069,7 +8196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8090,7 +8217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptSource/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptSource/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8111,7 +8238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8132,7 +8259,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/SecretLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/SecretLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8153,7 +8280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/SecretProofTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/SecretProofTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8174,7 +8301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Signature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Signature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8195,7 +8322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Timestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Timestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8216,7 +8343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Transaction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Transaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8237,7 +8364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8258,7 +8385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8279,7 +8406,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8300,7 +8427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransferTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransferTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8321,7 +8448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedAddress/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedAddress/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8342,7 +8469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedMosaic/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedMosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8363,7 +8490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedMosaicId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedMosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8384,7 +8511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8405,7 +8532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VotingPublicKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VotingPublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8426,7 +8553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8447,7 +8574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VrfProof/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VrfProof/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8492,7 +8619,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rest/symbol/" class="md-nav__link">
+      <a href="../../../devbook/reference/rest/symbol/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8513,7 +8640,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../serialization/" class="md-nav__link">
+      <a href="../../../devbook/reference/serialization/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8534,7 +8661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../websockets/" class="md-nav__link">
+      <a href="../../../devbook/reference/websockets/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8572,7 +8699,7 @@
             
   
   <span class="md-ellipsis">
-    Configuration Properties
+    構成プロパティ
   </span>
   
 
@@ -8582,7 +8709,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_4_6">
             <span class="md-nav__icon md-icon"></span>
-            Configuration Properties
+            構成プロパティ
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -8593,11 +8720,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/network-properties/" class="md-nav__link">
+      <a href="../../../devbook/reference/config/network-properties/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Network
+    ネットワーク
   </span>
   
 
@@ -8614,11 +8741,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/node-properties/" class="md-nav__link">
+      <a href="../../../devbook/reference/config/node-properties/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Node
+    ノード
   </span>
   
 
@@ -8675,7 +8802,7 @@
             
   
   <span class="md-ellipsis">
-    Textbook
+    テキストブック
   </span>
   
 
@@ -8685,7 +8812,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            Textbook
+            テキストブック
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -8696,11 +8823,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/intro/" class="md-nav__link">
+      <a href="../../../textbook/intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Welcome
+    はじめに
   </span>
   
 
@@ -8717,11 +8844,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cryptography/" class="md-nav__link">
+      <a href="../../../textbook/cryptography/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Basic Cryptography
+    暗号の基本
   </span>
   
 
@@ -8738,11 +8865,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/accounts/" class="md-nav__link">
+      <a href="../../../textbook/accounts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Accounts
+    アカウント
   </span>
   
 
@@ -8759,11 +8886,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/consensus/" class="md-nav__link">
+      <a href="../../../textbook/consensus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Consensus
+    コンセンサス
   </span>
   
 
@@ -8780,11 +8907,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/transactions/" class="md-nav__link">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Transactions
+    トランザクション
   </span>
   
 
@@ -8801,11 +8928,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/transfer_transactions/" class="md-nav__link">
+      <a href="../../../textbook/transfer_transactions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Transfer Transactions
+    転送トランザクション
   </span>
   
 
@@ -8822,11 +8949,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/mosaics/" class="md-nav__link">
+      <a href="../../../textbook/mosaics/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Mosaics
+    モザイク
   </span>
   
 
@@ -8843,11 +8970,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/namespaces/" class="md-nav__link">
+      <a href="../../../textbook/namespaces/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Namespaces
+    ネームスペース
   </span>
   
 
@@ -8864,11 +8991,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/blocks/" class="md-nav__link">
+      <a href="../../../textbook/blocks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Blocks
+    ブロック
   </span>
   
 
@@ -8885,11 +9012,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/metadata/" class="md-nav__link">
+      <a href="../../../textbook/metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Metadata
+    メタデータ
   </span>
   
 
@@ -8906,11 +9033,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/nodes/" class="md-nav__link">
+      <a href="../../../textbook/nodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Nodes
+    ノード
   </span>
   
 
@@ -8927,11 +9054,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/restrictions/" class="md-nav__link">
+      <a href="../../../textbook/restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Restrictions
+    制限
   </span>
   
 
@@ -8948,11 +9075,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cross-chain-swaps/" class="md-nav__link">
+      <a href="../../../textbook/cross-chain-swaps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Cross-Chain Swaps
+    クロスチェーンスワップ
   </span>
   
 
@@ -8969,11 +9096,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/harvesting/" class="md-nav__link">
+      <a href="../../../textbook/harvesting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Harvesting
+    ハーベスティング
   </span>
   
 
@@ -8990,7 +9117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/catapult/" class="md-nav__link">
+      <a href="../../../textbook/catapult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -9011,7 +9138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cats/" class="md-nav__link">
+      <a href="../../../textbook/cats/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -9032,11 +9159,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/glossary/" class="md-nav__link">
+      <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Glossary
+    用語集
   </span>
   
 
@@ -9068,10 +9195,89 @@
 
   
 
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
+<nav class="md-nav md-nav--secondary" aria-label="このページに">
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      このページに
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      要件
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="要件">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#software" class="md-nav__link">
+    <span class="md-ellipsis">
+      ソフトウェア
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      ハードウェア
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-with-pip" class="md-nav__link">
+    <span class="md-ellipsis">
+      pipを使用したインストール
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-the-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      インストールの確認
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shoestringのアップデート
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      次のステップ
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -9085,10 +9291,175 @@
                 
                   
 
+	
+		<a href="https://github.com/symbol/symbol/blob/new-docs/mkdocs/pages/ja/userbook/shoestring/install.md" title="編集" class="md-content__button md-icon">
+			
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+		</a>
+	
+	
+		
+			
+		
+		<a href="https://github.com/symbol/symbol/raw/new-docs/mkdocs/pages/ja/userbook/shoestring/install.md" title="このページの原文を表示" class="md-content__button md-icon">
+			
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+		</a>
+	
+	
 
-  <h1>Links</h1>
 
-
+<h1 id="shoestring">Shoestringのインストール<a class="headerlink" href="#shoestring" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
+<p>このページでは、 <a class="mkdocs-ezglossary-link"
+	id="17c07867e1daefff41021bcb063e62f0"
+	title="Symbolネットワーク上の ノード をデプロイおよび管理するために使用するコマンドラインツール。"
+	name="_:Shoestring"
+	href="../../../userbook/shoestring/overview/#2a1a9bfad06f50393b16eb629894551a">Shoestring</a> ツールのインストール方法と、それが正しく動作することを確認する方法について説明します。</p>
+<p>ShoestringはPythonパッケージとして配布されており、 <code>pip</code> を使用してインストールできます。</p>
+<h2 id="requirements">要件<a class="headerlink" href="#requirements" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<h3 id="software">ソフトウェア<a class="headerlink" href="#software" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>Shoestringをインストールする前に、システムで以下のソフトウェアが利用可能であることを確認してください。</p>
+<ul>
+<li>Python 3.10以降。</li>
+<li><code>pip</code> （Pythonパッケージマネージャー）。</li>
+<li>
+<p>Docker Compose（v2）をサポートする<a href="https://www.docker.com">Docker</a>。</p>
+<details class="info">
+<summary>Docker Composeのインストール</summary>
+<p>プラグインとしてのインストールを推奨します。
+例えば、UbuntuやDebianでは以下を実行します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>docker-compose-v2
+</span></code></pre></div>
+<p>プラグインバージョンがシステムで利用できない場合は、古い <code>docker-compose</code> パッケージをインストールし、以下のコマンドの <code>docker compose</code> を <code>docker-compose</code> に置き換えてください（ハイフンに注意）。</p>
+</details>
+</li>
+<li>
+<p><a href="https://www.openssl.org/">OpenSSL</a> コマンドラインツール。</p>
+<details class="info">
+<summary>OpenSSLのインストール</summary>
+<p>ノードで使用される暗号鍵を生成するには、<strong>OpenSSLコマンドラインツール</strong>が必要です。
+多くのシステムでは、これらはすでにインストールされているか、オペレーティングシステムのパッケージマネージャーを通じて利用可能です。
+存在しない場合は、 <a href="https://openssl-library.org/source/">https://openssl-library.org/source/</a> からダウンロードできます。</p>
+<p>システムでOpenSSLが利用可能かどうかを確認するには、 <code>openssl version</code> を実行します。
+コマンドがインストールされているバージョンを出力すれば、ツールは正しくインストールされており、システムのパスで利用可能です。</p>
+</details>
+</li>
+</ul>
+<h3 id="hardware">ハードウェア<a class="headerlink" href="#hardware" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>ブロックチェーンノードの実行は、ディスクスペース、メモリ、およびCPUリソースの面で<strong>非常に要求が厳しい</strong>ものです。
+以下の最小要件を満たしていない場合、ネットワークの他のノードに追いつくのに苦労するノードが作成されます。
+グローバルなブロックチェーンは影響を受けませんが、ノードが同期を維持できずハーベスティング報酬を得るのが困難になります。</p>
+<p><strong>専用のCPUとRAM</strong>を使用することを<strong>強く推奨</strong>します。
+これらが共有されている場合（一部の仮想サーバープロバイダーのように）、パフォーマンスは大きな影響を受けます。</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">最小要件</label><label for="__tabbed_1_2">推奨要件</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<table>
+<thead>
+<tr>
+<th>要件</th>
+<th>ピアノード</th>
+<th>APIノード</th>
+<th>デュアル / 投票ノード</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CPU</strong></td>
+<td>2 コア</td>
+<td>4 コア</td>
+<td>4 コア</td>
+</tr>
+<tr>
+<td><strong>RAM</strong></td>
+<td>8 GB</td>
+<td>16 GB</td>
+<td>16 GB</td>
+</tr>
+<tr>
+<td><strong>ディスクサイズ</strong></td>
+<td>500 GB</td>
+<td>750 GB</td>
+<td>750 GB</td>
+</tr>
+<tr>
+<td><strong>ディスク速度</strong></td>
+<td>1500 IOPS SSD</td>
+<td>1500 IOPS SSD</td>
+<td>1500 IOPS SSD</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tabbed-block">
+<table>
+<thead>
+<tr>
+<th>要件</th>
+<th>ピアノード</th>
+<th>APIノード</th>
+<th>デュアル / 投票ノード</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CPU</strong></td>
+<td>4 コア</td>
+<td>8 コア</td>
+<td>8 コア</td>
+</tr>
+<tr>
+<td><strong>RAM</strong></td>
+<td>16 GB</td>
+<td>32 GB</td>
+<td>32 GB</td>
+</tr>
+<tr>
+<td><strong>ディスクサイズ</strong></td>
+<td>500 GB</td>
+<td>750 GB</td>
+<td>750 GB</td>
+</tr>
+<tr>
+<td><strong>ディスク速度</strong></td>
+<td>1500 IOPS SSD</td>
+<td>1500 IOPS SSD</td>
+<td>1500 IOPS SSD</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<h2 id="installing-with-pip">pipを使用したインストール<a class="headerlink" href="#installing-with-pip" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>Pythonパッケージマネージャーを使用してShoestringをインストールします。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>symbol-shoestring
+</span></code></pre></div>
+<p>このコマンドはShoestringツールとその依存関係をインストールします。</p>
+<div class="admonition warning">
+<p class="admonition-title">トラブルシューティング</p>
+<p>一部のPythonの依存関係はソースからビルドされるため、一部のシステムではShoestringのインストールに追加のシステムパッケージが必要になる場合があります。</p>
+<p>ヘッダー、ライブラリ、またはコンパイラツールの欠落に関連するエラーでインストールが失敗した場合は、システムに必要な<strong>開発用パッケージ</strong>をインストールし、再度インストールを実行してください。</p>
+<p>一般的な症状には、<code>pyconfig.h</code>、OpenSSLヘッダー、またはビルドツールチェーンの欠落に言及するエラーが含まれます。</p>
+<p>UbuntuおよびDebianでは、通常、以下をインストールすれば十分です。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-dev<span class="w"> </span>libssl-dev
+</span></code></pre></div>
+<p>その後、Shoestringのインストールを再度実行してください。</p>
+</div>
+<h2 id="verifying-the-installation">インストールの確認<a class="headerlink" href="#verifying-the-installation" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>インストール後、以下を実行してツールが利用可能であることを確認します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>--help
+</span></code></pre></div>
+<p>インストールが成功した場合、コマンドは利用可能なShoestringコマンドのリストを出力します。</p>
+<p>特定のコマンドで利用可能なオプションを確認するには、次を使用します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>&lt;command&gt;<span class="w"> </span>--help
+</span></code></pre></div>
+<h2 id="updating-shoestring">Shoestringのアップデート<a class="headerlink" href="#updating-shoestring" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>Shoestringを最新バージョンにアップグレードするには、以下を実行します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>symbol-shoestring
+</span></code></pre></div>
+<h2 id="next-steps">次のステップ<a class="headerlink" href="#next-steps" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>Shoestringをインストールした後の次のステップは、<a href="../quickstart/">ノードの作成と起動</a>です。</p>
 
 
 
@@ -9097,8 +9468,52 @@
 
 
   
+    
+  
+  
+    
   
 
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最終更新日">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月30日</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="作成日">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月30日</span>
+  </span>
+
+    
+    
+      
+  
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="投稿者">
+      
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+      
+    </span>
+    <nav>
+      
+        <a href="mailto:daoka@symbolsyndicate.us">daoka</a>
+    </nav>
+  </span>
+
+    
+    
+  </aside>
 
 
 
@@ -9216,7 +9631,7 @@
     
     
     
-    <a href="https://docs.symboltest.net" target="_blank" rel="noopener" title="Go to the home page" class="md-social__link">
+    <a href="https://docs.symboltest.net" target="_blank" rel="noopener" title="ホームページ" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1v16.2c0 22.1-17.9 40-40 40h-16c-1.1 0-2.2 0-3.3-.1-1.4.1-2.8.1-4.2.1L416 512h-24c-22.1 0-40-17.9-40-40v-88c0-17.7-14.3-32-32-32h-64c-17.7 0-32 14.3-32 32v88c0 22.1-17.9 40-40 40h-55.9c-1.5 0-3-.1-4.5-.2-1.2.1-2.4.2-3.6.2h-16c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9.1-2.8v-69.7h-32c-18 0-32-14-32-32.1 0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7l255.4 224.5c8 7 12 15 11 24"/></svg>
     </a>
   
@@ -9224,7 +9639,7 @@
     
     
     
-    <a href="https://x.com/SymbolSyndicate" target="_blank" rel="noopener" title="Follow us on X" class="md-social__link">
+    <a href="https://x.com/SymbolSyndicate" target="_blank" rel="noopener" title="X (旧Twitter)" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9zm-24.8 373.8h39.1L151.1 88h-42z"/></svg>
     </a>
   
@@ -9232,7 +9647,7 @@
     
     
     
-    <a href="https://github.com/symbol" target="_blank" rel="noopener" title="Explore our repos" class="md-social__link">
+    <a href="https://github.com/symbol" target="_blank" rel="noopener" title="リポジトリ" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
     </a>
   
@@ -9240,7 +9655,7 @@
     
     
     
-    <a href="https://discord.gg/J38KwW5ZuG" target="_blank" rel="noopener" title="Join our Discord server" class="md-social__link">
+    <a href="https://discord.gg/J38KwW5ZuG" target="_blank" rel="noopener" title="Discordサーバー" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485 485 0 0 0 404.081 32.03a1.82 1.82 0 0 0-1.923.91 338 338 0 0 0-14.9 30.6 447.9 447.9 0 0 0-134.426 0 310 310 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.7 483.7 0 0 0-119.688 37.107 1.7 1.7 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.02 2.02 0 0 0 .765 1.375 487.7 487.7 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348 348 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321 321 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251 251 0 0 0 9.109-7.137 1.82 1.82 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.81 1.81 0 0 1 1.924.233 235 235 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.4 301.4 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391 391 0 0 0 30.014 48.815 1.86 1.86 0 0 0 2.063.7A486 486 0 0 0 610.7 405.729a1.88 1.88 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541M222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241m195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241"/></svg>
     </a>
   
@@ -9248,7 +9663,7 @@
     
     
     
-    <a href="https://docs.symbol.dev" target="_blank" rel="noopener" title="Visit the legacy documentation site" class="md-social__link">
+    <a href="https://docs.symbol.dev" target="_blank" rel="noopener" title="旧ドキュメントサイト" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="m323.4 85.2-96.8 78.4c-16.1 13-19.2 36.4-7 53.1 12.9 17.8 38 21.3 55.3 7.8l99.3-77.2c7-5.4 17-4.2 22.5 2.8s4.2 17-2.8 22.5L373 188.8 550.2 352H592c26.5 0 48-21.5 48-48V176c0-26.5-21.5-48-48-48h-80.7l-3.9-2.5L434.8 79c-15.3-9.8-33.2-15-51.4-15-21.8 0-43 7.5-60 21.2m22.8 124.4-51.7 40.2c-31.5 24.6-77.2 18.2-100.8-14.2-22.2-30.5-16.6-73.1 12.7-96.8l83.2-67.3c-11.6-4.9-24.1-7.4-36.8-7.4C234 64 215.7 69.6 200 80l-72 48H48c-26.5 0-48 21.5-48 48v128c0 26.5 21.5 48 48 48h108.2l91.4 83.4c19.6 17.9 49.9 16.5 67.8-3.1 5.5-6.1 9.2-13.2 11.1-20.6l17 15.6c19.5 17.9 49.9 16.6 67.8-2.9 4.5-4.9 7.8-10.6 9.9-16.5 19.4 13 45.8 10.3 62.1-7.5 17.9-19.5 16.6-49.9-2.9-67.8z"/></svg>
     </a>
   
@@ -9280,8 +9695,8 @@
   
 
 
-<h4>Cookie consent</h4>
-<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p>
+<h4>クッキーの同意</h4>
+<p>当社では、お客様の再訪や好みを認識するため、 また、ドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。 同意いただく事で、ドキュメントの改善にご協力頂くことになります。</p>
 <input class="md-toggle" type="checkbox" id="__settings" >
 <div class="md-consent__settings">
   <ul class="task-list">
@@ -9304,7 +9719,7 @@
 <div class="md-consent__controls">
   
     
-      <button class="md-button md-button--primary">Accept</button>
+      <button class="md-button md-button--primary">同意</button>
     
     
     
@@ -9312,7 +9727,7 @@
     
     
     
-      <label class="md-button" for="__settings">Manage settings</label>
+      <label class="md-button" for="__settings">サイトの設定</label>
     
   
 </div>
@@ -9321,12 +9736,12 @@
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
     
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
-        <script src="../../../../assets/javascripts/katex.js"></script>
+        <script src="../../../assets/javascripts/katex.js"></script>
       
         <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
       

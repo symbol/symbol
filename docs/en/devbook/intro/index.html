@@ -9126,40 +9126,94 @@
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
 		</a>
 	
+	
 
 
 <h1 id="welcome-to-the-developer-manual">Welcome to the Developer Manual<a class="headerlink" href="#welcome-to-the-developer-manual" title="Anchor link to this section for reference">⚓︎</a></h1>
-<p>The developer manual is for developers building applications on Symbol.
-It provides code examples in multiple programming languages,
-showing how to perform common tasks with the <a class="mkdocs-ezglossary-link"
-	id="a78562bf614d1709774ed378a8b04bac"
-	title="Software Development Kit. A Software library used to simplify creating applications for a given platform."
-	name="_:SDK"
-	href="../../textbook/glossary/#dac8825c5fdcfece8e4c3d6daf87d776">SDK</a> or the HTTP API.</p>
-<p>The book is structured as follows:</p>
+<p>The Developer Manual is for developers building applications on Symbol.
+It provides code examples in Python and JavaScript,
+showing how to perform common tasks with the SDK or the HTTP API.</p>
+<p>The manual is structured as follows:</p>
 <div class="icon-list">
 <ul>
 <li>
 <p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 6h16v10H4m16 2a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4c-1.11 0-2 .89-2 2v10a2 2 0 0 0 2 2H0v2h24v-2z"/></svg></span> <strong>Getting Started</strong></p>
-<p>This section explains how to set up your development machine to start developing Symbol applications
-both using JavaScript and Python.</p>
-<p>A quick <code>Hello World</code> sample is provided to check if you are ready to go!</p>
+<p>Set up your development machine and run a quick <code>Hello World</code> sample to check that everything is ready.</p>
 </li>
 <li>
 <p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17z"/></svg></span> <strong>Tutorials</strong></p>
-<p>Each tutorial focuses on a single task, grouped by area, and links to the <a href="../../textbook/intro/">textbook</a>
-when background information is useful.</p>
-<p>Each referenced SDK method and HTTP API endpoint links to the reference guide for full details.
-Hovering your mouse over the links provides a quick description.</p>
+<p>Follow task-focused tutorials grouped by area.
+Each tutorial links to the <a href="../../textbook/intro/">textbook</a> and the relevant reference guides when background
+information is useful.</p>
 </li>
 <li>
 <p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg></span> <strong>Reference Guides</strong></p>
-<p>This section contains exhaustive information about every SDK method and HTTP API endpoint.</p>
-<p>It's not meant to be browsed directly, but rather accessed through links from the tutorials.</p>
+<p>Consult exhaustive information about SDK methods, HTTP and WebSockets endpoints, and binary structures.</p>
 </li>
 </ul>
 </div>
-<p>Use the navigation menu to get started!</p>
+<p>Use the navigation menu, or jump directly into one of the tutorials below.</p>
+<p>Tutorials are grouped by level, from beginner to advanced, based on the required familiarity with Symbol concepts.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><span class="tutorial_level tutorial_level-beginner">BEGINNER</span></th>
+<th><span class="tutorial_level tutorial_level-intermediate">INTERMEDIATE</span></th>
+<th><span class="tutorial_level tutorial_level-advanced">ADVANCED</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Getting Started</td>
+<td><a href="../start/setup/">Setup</a><br/><a href="../start/hello-world/">Hello World</a><br/></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Accounts</td>
+<td><a href="../accounts/create-from-private-key/">Create from Private Keys</a><br/><a href="../accounts/create-from-mnemonic/">Create from Mnemonic</a><br/><a href="../accounts/testnet-faucet/">Fund via Faucet</a><br/><a href="../accounts/query-balance/">Query Account Balance</a><br/></td>
+<td><a href="../accounts/sign-multisig/">Sign a Multisig</a><br/></td>
+<td><a href="../accounts/account-metadata/">Add Account Metadata</a><br/><a href="../accounts/configure-multisig/">Configure a Multisig</a><br/><a href="../accounts/account-restrictions/">Add Account Restrictions</a><br/></td>
+</tr>
+<tr>
+<td>Transactions</td>
+<td><a href="../transactions/transfer/">Transfer</a><br/><a href="../transactions/typed-descriptors/">Typed Descriptors</a><br/><a href="../transactions/monitoring-status/">Transaction Status</a><br/></td>
+<td><a href="../transactions/messages/">Messages</a><br/><a href="../transactions/transaction-batching/">Transaction Batching</a><br/></td>
+<td><a href="../transactions/complete-aggregate/">Complete Aggregate</a><br/><a href="../transactions/bonded-aggregate/">Bonded Aggregate</a><br/><a href="../transactions/fee-sponsorship/">Pay Fees on Behalf of Another Account</a><br/><a href="../transactions/atomic-swap/">Atomic Swap</a><br/><a href="../transactions/cross-chain-swap/">Cross-Chain Swap</a><br/></td>
+</tr>
+<tr>
+<td>Namespaces</td>
+<td><a href="../namespaces/get-namespace-info/">Get Namespace Information</a><br/><a href="../namespaces/extend-root-namespace/">Extend Root Namespace</a><br/></td>
+<td><a href="../namespaces/register-root-namespace/">Register Root Namespace</a><br/><a href="../namespaces/register-subnamespace/">Register Subnamespace</a><br/><a href="../namespaces/link-namespace-to-address/">Link Namespace to Address</a><br/><a href="../namespaces/link-namespace-to-mosaic/">Link Namespace to Mosaic</a><br/><a href="../namespaces/resolve-namespace-from-receipt/">Resolve Namespace from Receipt</a><br/></td>
+<td><a href="../namespaces/namespace-metadata/">Add Namespace Metadata</a><br/></td>
+</tr>
+<tr>
+<td>Mosaics</td>
+<td><a href="../mosaics/get-mosaic-info/">Get Mosaic Information</a><br/><a href="../mosaics/change-mosaic-supply/">Change Mosaic Supply</a><br/><a href="../mosaics/revoke-mosaic/">Revoke Mosaic</a><br/></td>
+<td><a href="../mosaics/modify-mosaic-definition/">Modify Mosaic Definition</a><br/></td>
+<td><a href="../mosaics/create-mosaic/">Create Mosaic</a><br/><a href="../mosaics/mosaic-metadata/">Add Mosaic Metadata</a><br/><a href="../mosaics/mosaic-restrictions/">Add Mosaic Restrictions</a><br/></td>
+</tr>
+<tr>
+<td>Network Currency</td>
+<td><a href="../network-currency/query-currency-supply/">Query Currency Supply</a><br/><a href="../network-currency/query-block-rewards/">Query Block Rewards</a><br/></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Chain State</td>
+<td><a href="../chain/chain-heights/">Chain and Finalization Height</a><br/><a href="../chain/network-time/">Network Time</a><br/><a href="../chain/prove-transaction/">Prove Transaction Inclusion</a><br/></td>
+<td><a href="../chain/prove-mosaic-definition/">Prove Mosaic Definition</a><br/></td>
+<td></td>
+</tr>
+<tr>
+<td>Websockets</td>
+<td><a href="../websockets/listen-new-blocks/">New Blocks</a><br/><a href="../websockets/listen-transaction-flow/">Transaction Flow</a><br/><a href="../websockets/listen-transaction-error/">Transaction Errors</a><br/></td>
+<td><a href="../websockets/listen-bonded-transaction-flow/">Bonded Transaction Flow</a><br/></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -9182,7 +9236,7 @@ Hovering your mouse over the links provides a quick description.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 30, 2026</span>
   </span>
 
     

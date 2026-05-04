@@ -8,25 +8,29 @@
       
       
       
-        <link rel="canonical" href="https://docs.symboltest.net/ja/devbook/reference/java/links/">
+        <link rel="canonical" href="https://docs.symboltest.net/ja/userbook/shoestring/quickstart/">
       
       
+        <link rel="prev" href="../install/">
       
       
-      <link rel="icon" href="../../../../assets/images/favicon.ico">
+        <link rel="next" href="../maintain/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
-        <title>Links - Symbolドキュメント WIP ⚠</title>
+        <title>ノードの作成と実行 - Symbolドキュメント WIP ⚠</title>
       
     
     
 
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -35,10 +39,10 @@
 
 <style>
 [data-md-color-primary=indigo] {
-	--md-primary-fg-color: var(--devbook-color);
-	--md-primary-fg-color--dark: var(--devbook-color--dark);
-	--md-primary-fg-color--light: var(--devbook-color--light);
-	--md-accent-fg-color--transparent: var(--devbook-color--transparent);
+	--md-primary-fg-color: var(--userbook-color);
+	--md-primary-fg-color--dark: var(--userbook-color--dark);
+	--md-primary-fg-color--light: var(--userbook-color--light);
+	--md-accent-fg-color--transparent: var(--userbook-color--transparent);
 }
 </style>
 
@@ -56,20 +60,20 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/extra.css">
     
       <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
     
     
-   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
     .gslide-desc { color: #666; user-select: text; }
@@ -82,7 +86,7 @@
     .gdesc-inner { font-size: 0.75rem; }
     body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
     body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
-    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -100,6 +104,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#_1" class="md-skip">
+          コンテンツにスキップ
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -112,7 +121,7 @@
 	<nav class="md-header__inner md-grid" aria-label="ヘッダー">
 		<a href="https://docs.symboltest.net" title="Symbolドキュメント WIP ⚠" class="md-header__button md-logo" aria-label="Symbolドキュメント WIP ⚠" data-md-component="logo">
 			
-  <img src="../../../../assets/images/symbol-logo.svg" alt="logo">
+  <img src="../../../assets/images/symbol-logo.svg" alt="logo">
 
 		</a>
 		<label class="md-header__button md-icon" for="__drawer">
@@ -129,10 +138,8 @@
 				<div class="md-header__topic" data-md-component="header-topic">
 					<span class="md-ellipsis">
 						
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M277.74 312.9c9.8-6.7 23.4-12.5 23.4-12.5s-38.7 7-77.2 10.2c-47.1 3.9-97.7 4.7-123.1 1.3-60.1-8 33-30.1 33-30.1s-36.1-2.4-80.6 19c-52.5 25.4 130 37 224.5 12.1m-85.4-32.1c-19-42.7-83.1-80.2 0-145.8C296 53.2 242.84 0 242.84 0c21.5 84.5-75.6 110.1-110.7 162.6-23.9 35.9 11.7 74.4 60.2 118.2m114.6-176.2c.1 0-175.2 43.8-91.5 140.2 24.7 28.4-6.5 54-6.5 54s62.7-32.4 33.9-72.9c-26.9-37.8-47.5-56.6 64.1-121.3m-6.1 270.5a12.2 12.2 0 0 1-2 2.6c128.3-33.7 81.1-118.9 19.8-97.3a17.33 17.33 0 0 0-8.2 6.3 70.5 70.5 0 0 1 11-3c31-6.5 75.5 41.5-20.6 91.4M348 437.4s14.5 11.9-15.9 21.2c-57.9 17.5-240.8 22.8-291.6.7-18.3-7.9 16-19 26.8-21.3 11.2-2.4 17.7-2 17.7-2-20.3-14.3-131.3 28.1-56.4 40.2C232.84 509.4 401 461.3 348 437.4M124.44 396c-78.7 22 47.9 67.4 148.1 24.5a186 186 0 0 1-28.2-13.8c-44.7 8.5-65.4 9.1-106 4.5-33.5-3.8-13.9-15.2-13.9-15.2m179.8 97.2c-78.7 14.8-175.8 13.1-233.3 3.6 0-.1 11.8 9.7 72.4 13.6 92.2 5.9 233.8-3.3 237.1-46.9 0 0-6.4 16.5-76.2 29.7M260.64 353c-59.2 11.4-93.5 11.1-136.8 6.6-33.5-3.5-11.6-19.7-11.6-19.7-86.8 28.8 48.2 61.4 169.5 25.9a60.4 60.4 0 0 1-21.1-12.8"/></svg>
 						
-						
-							Links
+							ノードの作成と実行
 						
 					</span>
 				</div>
@@ -191,7 +198,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/en/devbook/reference/java/links/" hreflang="en" class="md-select__link">
+						<a href="/en/userbook/shoestring/quickstart/" hreflang="en" class="md-select__link">
 							English
 						</a>
 					</li>
@@ -199,7 +206,7 @@
 					<li class="md-select__item">
 						
 						
-						<a href="/ja/devbook/reference/java/links/" hreflang="ja" class="md-select__link">
+						<a href="/ja/userbook/shoestring/quickstart/" hreflang="ja" class="md-select__link">
 							日本語
 						</a>
 					</li>
@@ -281,7 +288,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
     
@@ -296,11 +303,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../../userbook/intro/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../intro/" class="md-tabs__link">
           
   
   ユーザーマニュアル
@@ -318,7 +327,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../intro/" class="md-tabs__link">
+        <a href="../../../devbook/intro/" class="md-tabs__link">
           
   
   開発者マニュアル
@@ -336,7 +345,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../../textbook/intro/" class="md-tabs__link">
+        <a href="../../../textbook/intro/" class="md-tabs__link">
           
   
   テキストブック
@@ -371,7 +380,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="https://docs.symboltest.net" title="Symbolドキュメント WIP ⚠" class="md-nav__button md-logo" aria-label="Symbolドキュメント WIP ⚠" data-md-component="logo">
       
-  <img src="../../../../assets/images/symbol-logo.svg" alt="logo">
+  <img src="../../../assets/images/symbol-logo.svg" alt="logo">
 
     </a>
     Symbolドキュメント WIP ⚠
@@ -390,7 +399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -407,23 +416,28 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -434,7 +448,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             ユーザーマニュアル
@@ -448,7 +462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/intro/" class="md-nav__link">
+      <a href="../../intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -507,7 +521,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/install/" class="md-nav__link">
+      <a href="../../wallet/install/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -566,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/create-profile/" class="md-nav__link">
+      <a href="../../wallet/create-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -587,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/import-profile/" class="md-nav__link">
+      <a href="../../wallet/import-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -608,7 +622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/export-profile/" class="md-nav__link">
+      <a href="../../wallet/export-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -629,7 +643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/delete-profile/" class="md-nav__link">
+      <a href="../../wallet/delete-profile/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -696,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/create-account/" class="md-nav__link">
+      <a href="../../wallet/create-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -717,7 +731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/import-account/" class="md-nav__link">
+      <a href="../../wallet/import-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -738,7 +752,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/wallet/delete-account/" class="md-nav__link">
+      <a href="../../wallet/delete-account/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -772,10 +786,349 @@
                 
   
   
+    
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Shoestringを使用したノード運用
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Shoestringを使用したノード運用
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
-      <a href="../../../../userbook/security/" class="md-nav__link">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Shoestringの概要
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Shoestringのインストール
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ノードの作成と実行
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    ノードの作成と実行
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="このページに">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      このページに
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-new-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      新しいノードの作成
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="新しいノードの作成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-working-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 作業ディレクトリの作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-generate-the-network-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. ネットワーク設定の生成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configure-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Shoestringの設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-configure-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ノードの設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-create-the-node-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. ノードIDの作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-create-the-node-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. ノードのインストール環境を作成
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-harvesting-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      ハーベスティングの設定（オプション）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ハーベスティングの設定（オプション）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#7-fund-the-main-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. メインアカウントへの資金提供
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-sign-the-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. トランザクションへの署名
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-announce-the-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. トランザクションのアナウンス
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-wait-for-confirmation" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. 承認の待機
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-voting-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      投票の設定（オプション）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      ノードの起動
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      ノードの検証
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      ノードのリカバリ（復旧）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      次のステップ
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../maintain/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ノードの保守
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -841,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../intro/" class="md-nav__link">
+      <a href="../../../devbook/intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -900,7 +1253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../start/setup/" class="md-nav__link">
+      <a href="../../../devbook/start/setup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -921,7 +1274,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../start/hello-world/" class="md-nav__link">
+      <a href="../../../devbook/start/hello-world/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1026,7 +1379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/create-from-private-key/" class="md-nav__link">
+      <a href="../../../devbook/accounts/create-from-private-key/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1047,7 +1400,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/create-from-mnemonic/" class="md-nav__link">
+      <a href="../../../devbook/accounts/create-from-mnemonic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1068,7 +1421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/testnet-faucet/" class="md-nav__link">
+      <a href="../../../devbook/accounts/testnet-faucet/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1089,7 +1442,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/query-balance/" class="md-nav__link">
+      <a href="../../../devbook/accounts/query-balance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1110,7 +1463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/account-metadata/" class="md-nav__link">
+      <a href="../../../devbook/accounts/account-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1131,7 +1484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/configure-multisig/" class="md-nav__link">
+      <a href="../../../devbook/accounts/configure-multisig/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1152,7 +1505,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/sign-multisig/" class="md-nav__link">
+      <a href="../../../devbook/accounts/sign-multisig/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1173,7 +1526,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../accounts/account-restrictions/" class="md-nav__link">
+      <a href="../../../devbook/accounts/account-restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1240,7 +1593,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/transfer/" class="md-nav__link">
+      <a href="../../../devbook/transactions/transfer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1261,7 +1614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/typed-descriptors/" class="md-nav__link">
+      <a href="../../../devbook/transactions/typed-descriptors/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1282,7 +1635,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/messages/" class="md-nav__link">
+      <a href="../../../devbook/transactions/messages/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1303,7 +1656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/monitoring-status/" class="md-nav__link">
+      <a href="../../../devbook/transactions/monitoring-status/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1324,7 +1677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/complete-aggregate/" class="md-nav__link">
+      <a href="../../../devbook/transactions/complete-aggregate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1345,7 +1698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/bonded-aggregate/" class="md-nav__link">
+      <a href="../../../devbook/transactions/bonded-aggregate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1366,7 +1719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/transaction-batching/" class="md-nav__link">
+      <a href="../../../devbook/transactions/transaction-batching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1387,7 +1740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/fee-sponsorship/" class="md-nav__link">
+      <a href="../../../devbook/transactions/fee-sponsorship/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1408,7 +1761,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/atomic-swap/" class="md-nav__link">
+      <a href="../../../devbook/transactions/atomic-swap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1429,7 +1782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../transactions/cross-chain-swap/" class="md-nav__link">
+      <a href="../../../devbook/transactions/cross-chain-swap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1496,7 +1849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/register-root-namespace/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/register-root-namespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1517,7 +1870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/register-subnamespace/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/register-subnamespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1538,7 +1891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/get-namespace-info/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/get-namespace-info/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1559,7 +1912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/extend-root-namespace/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/extend-root-namespace/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1580,7 +1933,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/link-namespace-to-address/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/link-namespace-to-address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1601,7 +1954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/link-namespace-to-mosaic/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/link-namespace-to-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1622,7 +1975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/namespace-metadata/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/namespace-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1643,7 +1996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
+      <a href="../../../devbook/namespaces/resolve-namespace-from-receipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1710,7 +2063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/create-mosaic/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/create-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1731,7 +2084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/get-mosaic-info/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/get-mosaic-info/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1752,7 +2105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/change-mosaic-supply/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/change-mosaic-supply/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1773,7 +2126,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/modify-mosaic-definition/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/modify-mosaic-definition/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1794,7 +2147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/mosaic-metadata/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/mosaic-metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1815,7 +2168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/revoke-mosaic/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/revoke-mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1836,7 +2189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../mosaics/mosaic-restrictions/" class="md-nav__link">
+      <a href="../../../devbook/mosaics/mosaic-restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1903,7 +2256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../network-currency/query-currency-supply/" class="md-nav__link">
+      <a href="../../../devbook/network-currency/query-currency-supply/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1924,7 +2277,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../network-currency/query-block-rewards/" class="md-nav__link">
+      <a href="../../../devbook/network-currency/query-block-rewards/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1991,7 +2344,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/chain-heights/" class="md-nav__link">
+      <a href="../../../devbook/chain/chain-heights/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2012,7 +2365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/network-time/" class="md-nav__link">
+      <a href="../../../devbook/chain/network-time/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2033,7 +2386,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/prove-transaction/" class="md-nav__link">
+      <a href="../../../devbook/chain/prove-transaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2054,7 +2407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../chain/prove-mosaic-definition/" class="md-nav__link">
+      <a href="../../../devbook/chain/prove-mosaic-definition/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2121,7 +2474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-new-blocks/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-new-blocks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2142,7 +2495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-transaction-flow/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-transaction-flow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2163,7 +2516,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-bonded-transaction-flow/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-bonded-transaction-flow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2184,7 +2537,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../websockets/listen-transaction-error/" class="md-nav__link">
+      <a href="../../../devbook/websockets/listen-transaction-error/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2335,7 +2688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/AccountDescriptorRepository/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/AccountDescriptorRepository/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2356,7 +2709,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/ArrayHelpers/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/ArrayHelpers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2377,7 +2730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BaseValue/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BaseValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2398,7 +2751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Bip32/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Bip32/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2419,7 +2772,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BlockchainSettings/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BlockchainSettings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2440,7 +2793,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BufferReader/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BufferReader/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2461,7 +2814,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/BufferWriter/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/BufferWriter/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2482,7 +2835,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/ByteArray/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/ByteArray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2503,7 +2856,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Cipher/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Cipher/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2524,7 +2877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/CodeWordsEncoder/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/CodeWordsEncoder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2545,7 +2898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/CryptoTypes/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/CryptoTypes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2566,7 +2919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/DiceMnemonicGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/DiceMnemonicGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2587,7 +2940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2608,7 +2961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2629,7 +2982,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/NodeDescriptorRepository/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/NodeDescriptorRepository/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2650,7 +3003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/PrivateKeyStorage/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/PrivateKeyStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2671,7 +3024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/QrSignatureStorage/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/QrSignatureStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2692,7 +3045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/QrStorage/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/QrStorage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2713,7 +3066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/RuleBasedTransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/RuleBasedTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2734,7 +3087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/TransactionDescriptorProcessor/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/TransactionDescriptorProcessor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2755,7 +3108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/Transforms/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/Transforms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2814,7 +3167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/external/ed25519/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/external/ed25519/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2881,7 +3234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/facade/BatchOperations/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/facade/BatchOperations/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2902,7 +3255,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/facade/SymbolFacade/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/facade/SymbolFacade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2931,7 +3284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/ripemd160/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/ripemd160/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2990,7 +3343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/IdGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/IdGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3011,7 +3364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/KeyPair/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/KeyPair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3032,7 +3385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Merkle/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Merkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3053,7 +3406,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/MessageEncoder/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/MessageEncoder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3074,7 +3427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Metadata/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3095,7 +3448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3116,7 +3469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/Restriction/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/Restriction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3137,7 +3490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/TransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/TransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3158,7 +3511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../py/symbol/VotingKeysGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/py/symbol/VotingKeysGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3279,7 +3632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Bip32/classes/Bip32/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Bip32/classes/Bip32/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3300,7 +3653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Bip32/classes/Bip32Node/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Bip32/classes/Bip32Node/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3367,7 +3720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/classes/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/classes/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3388,7 +3741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/classes/NetworkLocator/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/classes/NetworkLocator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3447,7 +3800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/AddressConstructable/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/type-aliases/AddressConstructable/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3468,7 +3821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/Constructable/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/type-aliases/Constructable/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3489,7 +3842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/Network/type-aliases/EncodedSizeAccessor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/Network/type-aliases/EncodedSizeAccessor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3564,7 +3917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/NetworkTimestamp/classes/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/NetworkTimestamp/classes/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3585,7 +3938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/NetworkTimestamp/classes/NetworkTimestampDatetimeConverter/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/NetworkTimestamp/classes/NetworkTimestampDatetimeConverter/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3652,7 +4005,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/BaseValue/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/BaseValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3673,7 +4026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/ByteArray/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/ByteArray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3694,7 +4047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/Hash256/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/Hash256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3715,7 +4068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/PrivateKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/PrivateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3736,7 +4089,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/PublicKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/PublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3757,7 +4110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/SharedKey256/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/SharedKey256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3778,7 +4131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/classes/Signature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/classes/Signature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3837,7 +4190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/bytesToBigInt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/bytesToBigInt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3858,7 +4211,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/bytesToInt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/bytesToInt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3879,7 +4232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/deepCompare/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/deepCompare/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3900,7 +4253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/hexToUint8/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/hexToUint8/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3921,7 +4274,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/intToBytes/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/intToBytes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3942,7 +4295,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/isHexString/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/isHexString/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3963,7 +4316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/tryParseUint/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/tryParseUint/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3984,7 +4337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/index/namespaces/utils/functions/uint8ToHex/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/index/namespaces/utils/functions/uint8ToHex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4097,7 +4450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/MessageEncoder/classes/default/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/MessageEncoder/classes/default/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4156,7 +4509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/MessageEncoder/type-aliases/TryDecodeResult/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/MessageEncoder/type-aliases/TryDecodeResult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4193,7 +4546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Address/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/Address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4214,7 +4567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/KeyPair/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/KeyPair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4235,7 +4588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Network/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/Network/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4256,7 +4609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/NetworkTimestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/NetworkTimestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4277,7 +4630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolAccount/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolAccount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4298,7 +4651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolFacade/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4319,7 +4672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolPublicAccount/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolPublicAccount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4340,7 +4693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/SymbolTransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4361,7 +4714,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/Verifier/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/Verifier/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4382,7 +4735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/classes/VotingKeysGenerator/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/classes/VotingKeysGenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4403,7 +4756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateMosaicAliasId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateMosaicAliasId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4424,7 +4777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateMosaicId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateMosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4445,7 +4798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateNamespaceId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateNamespaceId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4466,7 +4819,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/generateNamespacePath/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/generateNamespacePath/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4487,7 +4840,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/isMosaicAlias/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/isMosaicAlias/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4508,7 +4861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/isValidNamespaceName/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/isValidNamespaceName/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4529,7 +4882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/metadataGenerateKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/metadataGenerateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4550,7 +4903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/metadataUpdateValue/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/metadataUpdateValue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4571,7 +4924,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/functions/mosaicRestrictionGenerateKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/functions/mosaicRestrictionGenerateKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4630,7 +4983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/BranchNode/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/BranchNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4651,7 +5004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/LeafNode/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/LeafNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4672,7 +5025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/MerkleHashBuilder/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/MerkleHashBuilder/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4693,7 +5046,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/PatriciaMerkleProofResult/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/PatriciaMerkleProofResult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4714,7 +5067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/classes/TreeNode/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/classes/TreeNode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4735,7 +5088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/deserializePatriciaTreeNodes/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/functions/deserializePatriciaTreeNodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4756,7 +5109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/proveMerkle/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/functions/proveMerkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4777,7 +5130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/functions/provePatriciaMerkle/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/functions/provePatriciaMerkle/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4836,7 +5189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/type-aliases/MerklePart/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/type-aliases/MerklePart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4857,7 +5210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/merkle/type-aliases/PatriciaTreePath/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/merkle/type-aliases/PatriciaTreePath/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4932,7 +5285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4953,7 +5306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4974,7 +5327,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4995,7 +5348,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountMosaicRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5016,7 +5369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AccountOperationRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5037,7 +5390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AddressAliasTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5058,7 +5411,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5079,7 +5432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV2Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5100,7 +5453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateBondedTransactionV3Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5121,7 +5474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5142,7 +5495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV2Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5163,7 +5516,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/AggregateCompleteTransactionV3Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5184,7 +5537,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/CosignatureDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/CosignatureDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5205,7 +5558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/DetachedCosignatureDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5226,7 +5579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/HashLockTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5247,7 +5600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicAddressRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5268,7 +5621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicAliasTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5289,7 +5642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicDefinitionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5310,7 +5663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5331,7 +5684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicGlobalRestrictionTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5352,7 +5705,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5373,7 +5726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicSupplyChangeTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5394,7 +5747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MosaicSupplyRevocationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5415,7 +5768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/MultisigAccountModificationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5436,7 +5789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NamespaceMetadataTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5457,7 +5810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NamespaceRegistrationTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5478,7 +5831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/NodeKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5499,7 +5852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/SecretLockTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5520,7 +5873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/SecretProofTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5541,7 +5894,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/TransferTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5562,7 +5915,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/UnresolvedMosaicDescriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5583,7 +5936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/VotingKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5604,7 +5957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/descriptors/classes/VrfKeyLinkTransactionV1Descriptor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5671,7 +6024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5692,7 +6045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5713,7 +6066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5734,7 +6087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountMosaicRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5755,7 +6108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountOperationRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5776,7 +6129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AccountRestrictionFlags/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AccountRestrictionFlags/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5797,7 +6150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Address/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Address/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5818,7 +6171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AddressAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5839,7 +6192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressResolutionEntry/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AddressResolutionEntry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5860,7 +6213,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AddressResolutionStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AddressResolutionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5881,7 +6234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5902,7 +6255,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV2/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5923,7 +6276,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateBondedTransactionV3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5944,7 +6297,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5965,7 +6318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5986,7 +6339,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AggregateCompleteTransactionV3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6007,7 +6360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/AliasAction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/AliasAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6028,7 +6381,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Amount/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Amount/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6049,7 +6402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Block/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Block/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6070,7 +6423,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockDuration/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockDuration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6091,7 +6444,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6112,7 +6465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockFeeMultiplier/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockFeeMultiplier/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6133,7 +6486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6154,7 +6507,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/BlockType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/BlockType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6175,7 +6528,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Cosignature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Cosignature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6196,7 +6549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/DetachedCosignature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/DetachedCosignature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6217,7 +6570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Difficulty/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Difficulty/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6238,7 +6591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6259,7 +6612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6280,7 +6633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6301,7 +6654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountMosaicRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6322,7 +6675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAccountOperationRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6343,7 +6696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedAddressAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6364,7 +6717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedHashLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6385,7 +6738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6406,7 +6759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6427,7 +6780,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicDefinitionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6448,7 +6801,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6469,7 +6822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6490,7 +6843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyChangeTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6511,7 +6864,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMosaicSupplyRevocationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6532,7 +6885,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedMultisigAccountModificationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6553,7 +6906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNamespaceMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6574,7 +6927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNamespaceRegistrationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6595,7 +6948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedNodeKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6616,7 +6969,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedSecretLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6637,7 +6990,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedSecretProofTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6658,7 +7011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransaction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6679,7 +7032,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6700,7 +7053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedTransferTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6721,7 +7074,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedVotingKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6742,7 +7095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/EmbeddedVrfKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6763,7 +7116,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationEpoch/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationEpoch/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6784,7 +7137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationPoint/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationPoint/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6805,7 +7158,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizationRound/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizationRound/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6826,7 +7179,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/FinalizedBlockHeader/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/FinalizedBlockHeader/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6847,7 +7200,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/HarvestFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/HarvestFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6868,7 +7221,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Hash256/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Hash256/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6889,7 +7242,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Hash512/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Hash512/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6910,7 +7263,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/HashLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/HashLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6931,7 +7284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Height/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Height/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6952,7 +7305,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Importance/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Importance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6973,7 +7326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ImportanceBlockV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ImportanceBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6994,7 +7347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ImportanceHeight/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ImportanceHeight/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7015,7 +7368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/InflationReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/InflationReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7036,7 +7389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LinkAction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LinkAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7057,7 +7410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashAlgorithm/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashAlgorithm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7078,7 +7431,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashCompletedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7099,7 +7452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashCreatedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7120,7 +7473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockHashExpiredFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7141,7 +7494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretCompletedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7162,7 +7515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretCreatedFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7183,7 +7536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/LockSecretExpiredFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7204,7 +7557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Mosaic/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Mosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7225,7 +7578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicAddressRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7246,7 +7599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicAliasTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicAliasTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7267,7 +7620,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicDefinitionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7288,7 +7641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicExpiredReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicExpiredReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7309,7 +7662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicFlags/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicFlags/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7330,7 +7683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicGlobalRestrictionTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7351,7 +7704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7372,7 +7725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7393,7 +7746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicNonce/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicNonce/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7414,7 +7767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRentalFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7435,7 +7788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicResolutionEntry/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicResolutionEntry/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7456,7 +7809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicResolutionStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicResolutionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7477,7 +7830,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRestrictionKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRestrictionKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7498,7 +7851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicRestrictionType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicRestrictionType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7519,7 +7872,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeAction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyChangeAction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7540,7 +7893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyChangeTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7561,7 +7914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MosaicSupplyRevocationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7582,7 +7935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/MultisigAccountModificationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7603,7 +7956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceDeletedReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceDeletedReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7624,7 +7977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceExpiredReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceExpiredReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7645,7 +7998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7666,7 +8019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceMetadataTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7687,7 +8040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRegistrationTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7708,7 +8061,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRegistrationType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRegistrationType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7729,7 +8082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NamespaceRentalFeeReceipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7750,7 +8103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NemesisBlockV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NemesisBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7771,7 +8124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NetworkType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NetworkType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7792,7 +8145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NodeKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7813,7 +8166,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/NormalBlockV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/NormalBlockV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7834,7 +8187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofGamma/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ProofGamma/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7855,7 +8208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofScalar/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ProofScalar/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7876,7 +8229,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ProofVerificationHash/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ProofVerificationHash/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7897,7 +8250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/PublicKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/PublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7918,7 +8271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Receipt/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Receipt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7939,7 +8292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7960,7 +8313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptSource/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptSource/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -7981,7 +8334,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/ReceiptType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/ReceiptType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8002,7 +8355,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/SecretLockTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/SecretLockTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8023,7 +8376,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/SecretProofTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/SecretProofTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8044,7 +8397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Signature/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Signature/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8065,7 +8418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Timestamp/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Timestamp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8086,7 +8439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/Transaction/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/Transaction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8107,7 +8460,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionFactory/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionFactory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8128,7 +8481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionStatement/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionStatement/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8149,7 +8502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransactionType/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransactionType/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8170,7 +8523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/TransferTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/TransferTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8191,7 +8544,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedAddress/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedAddress/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8212,7 +8565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedMosaic/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedMosaic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8233,7 +8586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/UnresolvedMosaicId/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/UnresolvedMosaicId/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8254,7 +8607,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VotingKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8275,7 +8628,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VotingPublicKey/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VotingPublicKey/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8296,7 +8649,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VrfKeyLinkTransactionV1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8317,7 +8670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ts/symbol/namespaces/models/classes/VrfProof/" class="md-nav__link">
+      <a href="../../../devbook/reference/ts/symbol/namespaces/models/classes/VrfProof/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8362,7 +8715,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rest/symbol/" class="md-nav__link">
+      <a href="../../../devbook/reference/rest/symbol/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8383,7 +8736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../serialization/" class="md-nav__link">
+      <a href="../../../devbook/reference/serialization/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8404,7 +8757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../websockets/" class="md-nav__link">
+      <a href="../../../devbook/reference/websockets/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8413,6 +8766,94 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_6" id="__nav_3_4_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    構成プロパティ
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            構成プロパティ
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../devbook/reference/config/network-properties/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ネットワーク
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../devbook/reference/config/node-properties/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ノード
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -8478,7 +8919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/intro/" class="md-nav__link">
+      <a href="../../../textbook/intro/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8499,7 +8940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cryptography/" class="md-nav__link">
+      <a href="../../../textbook/cryptography/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8520,7 +8961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/accounts/" class="md-nav__link">
+      <a href="../../../textbook/accounts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8541,7 +8982,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/consensus/" class="md-nav__link">
+      <a href="../../../textbook/consensus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8562,7 +9003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/transactions/" class="md-nav__link">
+      <a href="../../../textbook/transactions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8583,7 +9024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/transfer_transactions/" class="md-nav__link">
+      <a href="../../../textbook/transfer_transactions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8604,7 +9045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/mosaics/" class="md-nav__link">
+      <a href="../../../textbook/mosaics/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8625,7 +9066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/namespaces/" class="md-nav__link">
+      <a href="../../../textbook/namespaces/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8646,7 +9087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/blocks/" class="md-nav__link">
+      <a href="../../../textbook/blocks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8667,7 +9108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/metadata/" class="md-nav__link">
+      <a href="../../../textbook/metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8688,7 +9129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/nodes/" class="md-nav__link">
+      <a href="../../../textbook/nodes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8709,7 +9150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/restrictions/" class="md-nav__link">
+      <a href="../../../textbook/restrictions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8730,7 +9171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cross-chain-swaps/" class="md-nav__link">
+      <a href="../../../textbook/cross-chain-swaps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8751,7 +9192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/harvesting/" class="md-nav__link">
+      <a href="../../../textbook/harvesting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8772,7 +9213,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/catapult/" class="md-nav__link">
+      <a href="../../../textbook/catapult/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8793,7 +9234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/cats/" class="md-nav__link">
+      <a href="../../../textbook/cats/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8814,7 +9255,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../textbook/glossary/" class="md-nav__link">
+      <a href="../../../textbook/glossary/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -8854,6 +9295,181 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      このページに
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-new-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      新しいノードの作成
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="新しいノードの作成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-working-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 作業ディレクトリの作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-generate-the-network-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. ネットワーク設定の生成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configure-shoestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Shoestringの設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-configure-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ノードの設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-create-the-node-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. ノードIDの作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-create-the-node-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. ノードのインストール環境を作成
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-harvesting-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      ハーベスティングの設定（オプション）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ハーベスティングの設定（オプション）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#7-fund-the-main-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. メインアカウントへの資金提供
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-sign-the-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. トランザクションへの署名
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-announce-the-transactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. トランザクションのアナウンス
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-wait-for-confirmation" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. 承認の待機
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-voting-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      投票の設定（オプション）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      ノードの起動
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      ノードの検証
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      ノードのリカバリ（復旧）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      次のステップ
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -8867,10 +9483,559 @@
                 
                   
 
+	
+		<a href="https://github.com/symbol/symbol/blob/new-docs/mkdocs/pages/ja/userbook/shoestring/quickstart.md" title="編集" class="md-content__button md-icon">
+			
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+		</a>
+	
+	
+		
+			
+		
+		<a href="https://github.com/symbol/symbol/raw/new-docs/mkdocs/pages/ja/userbook/shoestring/quickstart.md" title="このページの原文を表示" class="md-content__button md-icon">
+			
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+		</a>
+	
+	
 
-  <h1>Links</h1>
 
-
+<h1 id="_1">ノードの作成と実行<a class="headerlink" href="#_1" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
+<p>このチュートリアルでは、 <a class="mkdocs-ezglossary-link"
+	id="e08e3734397fff265c1119e6542e435b"
+	title="Symbolネットワーク上の ノード をデプロイおよび管理するために使用するコマンドラインツール。"
+	name="_:Shoestring"
+	href="../../../userbook/shoestring/overview/#2a1a9bfad06f50393b16eb629894551a">Shoestring</a> ツールを使用して新しいSymbol <a class="mkdocs-ezglossary-link"
+	id="6c2a451b90e45948013cb3451773c772"
+	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加するコンピュータです。"
+	name="_:ノード"
+	href="../../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> をデプロイし、起動する方法を示します。</p>
+<p>このチュートリアルでは、Shoestringとその依存関係がすでに<a href="../install/">インストール済み</a>であることを前提としています。</p>
+<p>非推奨のBootstrapで作成されたノードがすでにあり、その設定や鍵を再利用したい場合は、このガイド全体に記載されているBootstrapに関する注意事項を確認してください。</p>
+<h2 id="create-a-new-node">新しいノードの作成<a class="headerlink" href="#create-a-new-node" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>Shoestringを使用したノードのデプロイには、以下の手順が含まれます。</p>
+<details class="info">
+<summary>Shoestringウィザードの使用</summary>
+<p>Shoestringが提供する対話型のセットアップウィザードを使用することもできます。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring.wizard
+</span></code></pre></div>
+<p>ウィザードは質問に回答することで、このチュートリアルで作成されるのと同じ設定ファイルを生成します。</p>
+<p>ウィザードによって作成されたノードは、以下のコマンドラインの手順で作成されたノードと同じように動作します。</p>
+<p>ウィザードを完了した後、ノードが自動的に起動されなかった場合は、<a href="#start-the-node">ノードの起動</a>から続行してください。</p>
+</details>
+<h3 id="1-create-a-working-directory">1. 作業ディレクトリの作成<a class="headerlink" href="#1-create-a-working-directory" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>Shoestringは現在のディレクトリ内にノードファイルを作成します。</p>
+<p>ノード用のディレクトリを作成し、そのディレクトリに移動します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkdir<span class="w"> </span>symbol-node
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>symbol-node
+</span></code></pre></div>
+<p>このチュートリアルのすべてのコマンドは、このディレクトリで実行することを前提としています。</p>
+<h3 id="2-generate-the-network-configuration">2. ネットワーク設定の生成<a class="headerlink" href="#2-generate-the-network-configuration" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>最初のステップは、ターゲットとするネットワーク（ <a class="mkdocs-ezglossary-link"
+	id="03a1b7879d191dda96ad600f3d8b821f"
+	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
+	name="_:メインネット"
+	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> または <a class="mkdocs-ezglossary-link"
+	id="a3ca04ca89d1f3e1f13c10e34e58aa97"
+	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
+	name="_:テストネット"
+	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> ）のデフォルト設定ファイルを取得することです。</p>
+<p>以下を実行します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>mainnet<span class="w"> </span>config.ini
+</span></code></pre></div>
+<p>このコマンドは、 <a class="mkdocs-ezglossary-link"
+	id="e9c6880a2aa1a9ef1af2c56b47f44b95"
+	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
+	name="_:メインネット"
+	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で動作するために必要な設定ファイルをダウンロードし、 <code>config.ini</code> ファイルを作成します。</p>
+<p><a class="mkdocs-ezglossary-link"
+	id="1440dc36b91316e5812832a834cdd30c"
+	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
+	name="_:テストネット"
+	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> の場合は、代わりに <code>sai</code> パッケージを使用します。
+後続のコマンドで <code>--network</code> パラメータを使用する場合は、 <code>mainnet</code> の代わりに <code>testnet</code> を指定してください。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>sai<span class="w"> </span>config.ini
+</span></code></pre></div>
+<h3 id="3-configure-shoestring">3. Shoestringの設定<a class="headerlink" href="#3-configure-shoestring" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>前の手順で生成された <code>config.ini</code> ファイルには、必要な設定のほとんどがすでに含まれています。
+ご自身のノード用にカスタマイズする必要がある値は通常いくつかしかなく、それらはすべて <code class="highlight"><span class="k">[node]</span></code> セクションにあります。</p>
+<ul>
+<li>
+<p>ノードの<a href="../../../textbook/nodes/#roles">ロール</a>。Shoestringでは <em>features（機能）</em> と呼ばれます。</p>
+<p>リストから必要なノード機能を設定します： <code>PEER</code> 、 <code>API</code> 、 <code>HARVESTER</code> 、および <code>VOTER</code> 。
+縦棒 <code>|</code> で区切ることで、複数の機能を組み合わせることができます。例：</p>
+<div class="highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[node]</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="na">features</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">PEER | API</span>
+</span></code></pre></div>
+<p>詳細な説明については、<a href="../../../textbook/nodes/#roles">ロール</a>のページを確認してください。
+要約すると以下のようになります。</p>
+<ul>
+<li><code>PEER</code>: ノードはコンセンサスに参加します。</li>
+<li><code>API</code>: ノードはクライアントアプリケーション用のAPIを公開します。</li>
+<li><code>HARVESTER</code>: ノードはブロック生成に参加し、 <a class="mkdocs-ezglossary-link"
+	id="fae1f06a41eb8038ace3bdee0c6805e1"
+	title="Symbol が新しい ブロック をチェーンに追加し、参加する
+アカウント に報酬を分配するプロセスです。
+PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
+	name="_:ハーベスティング"
+	href="../../../textbook/harvesting/#ff18d4dd87ad820305edbe133d434f4d">ハーベスティング</a> 報酬を得る資格があります。
+    最低10,000 <a class="mkdocs-ezglossary-link"
+	id="93ba8b7506204c3d8cae1824e5d2379f"
+	title="Symbol ブロックチェーンのネイティブ通貨。"
+	name="_:XYM"
+	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> が必要です。
+    以下の<a href="#configure-harvesting-optional">ハーベスティングの設定（オプション）</a>を参照してください。</li>
+<li><code>VOTER</code>: ノードは <a class="mkdocs-ezglossary-link"
+	id="6c632a765053aa95fa0d7da4c24bdc79"
+	title="ロールバック のリスクを取り除き、
+ブロックおよびその中のトランザクションを不可逆にするプロセスです。"
+	name="_:ファイナライズ"
+	href="../../../textbook/consensus/#1dbe2b6d0705a0c83c92093e71bec62f">ファイナライズ</a> に参加します。
+    最低3,000,000 <a class="mkdocs-ezglossary-link"
+	id="3d3075d49013b8de349a1a51e2245ffd"
+	title="Symbol ブロックチェーンのネイティブ通貨。"
+	name="_:XYM"
+	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> が必要です。
+    以下の<a href="#configure-voting-optional">投票の設定（オプション）</a>を参照してください。</li>
+</ul>
+</li>
+<li>
+<p><code>caCommonName</code> および <code>nodeCommonName</code> プロパティは、ノード用に生成される<a href="https://en.wikipedia.org/wiki/X.509">証明書</a>の一般名（CN: Common Names）として使用されます。</p>
+<p>これらはノードの動作には影響しませんが、空であってはなりません。空の場合、証明書の生成に失敗します。</p>
+<p>例：</p>
+<div class="highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[node]</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="na">caCommonName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">My Symbol Node CA</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="na">nodeCommonName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">My Symbol Node</span>
+</span></code></pre></div>
+</li>
+<li>
+<p>HTTPSリクエストを受け入れる必要がある <code>API</code> ノードは、 <code>apiHttps</code> プロパティを <code>true</code> に設定する必要があります。
+    そうしないと、ノードはHTTPリクエストしか受け入れません。</p>
+<div class="highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[node]</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="na">apiHttps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+</span></code></pre></div>
+<p>HTTPSサポートを有効にするには、次に示すように有効な <code>host</code> を設定する必要もあります。</p>
+</li>
+</ul>
+<h3 id="4-configure-the-node">4. ノードの設定<a class="headerlink" href="#4-configure-the-node" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>ノード固有の設定を定義するには、追加の設定ファイルが必要です。
+これがないと、ノードは正しく使用できません。</p>
+<p>以下の内容で <code>overrides.ini</code> という名前の新しいファイルを作成します。</p>
+<div class="highlight"><span class="filename">overrides.ini</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[node.localnode]</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="na">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my-symbol-node.com</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="na">friendlyName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">My Symbol Node</span>
+</span></code></pre></div>
+<ul>
+<li>
+<p><code>host</code> は、ネットワーク上の他のノードが自身のノードにアクセスするためのパブリックIPアドレスまたはホスト名です。</p>
+<p>到達不可能なホスト（ <code>localhost</code> や <code>127.0.0.1</code> など）を使用した場合、ノードがネットワークに接続できても、他のノードは接続をできません。</p>
+</li>
+<li>
+<p><code>friendlyName</code> は、 <a href="https://symbol.fyi/nodes">https://symbol.fyi/nodes</a> などのノードリストに表示される、人間が読める名前です。</p>
+</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">さらなるカスタマイズ</p>
+<p><code>overrides.ini</code> ファイルを使用して、任意のCatapultの<a href="../../../devbook/reference/config/network-properties/">ネットワークプロパティ</a>または<a href="../../../devbook/reference/config/node-properties/">ノードプロパティ</a>を変更できます。</p>
+<p>これを行うには、 <code>[設定ファイル名.設定セクション]</code> という構文を使用してセクションを追加し、その下に目的のプロパティを定義します。</p>
+<p>ネットワークプロパティのいずれかをネットワークの他のノードと異なる値に設定すると、ノードが <a class="mkdocs-ezglossary-link"
+	id="04ab8c7226cabeab5823cf1f4b7591ea"
+	title="共通の履歴を共有しながらも、最新のブロックが異なる複数の競合チェーンが
+同時に存在している状態です。"
+	name="_:フォーク"
+	href="../../../textbook/consensus/#7ba24d6084f93e4ac323721360eb075a">フォーク</a> し、ネットワークから切り離されることに注意してください。</p>
+</div>
+<p><code>config.ini</code> はShoestring自体を設定するのに対し、 <code>overrides.ini</code> は生成されるノードソフトウェアをカスタマイズします。</p>
+<h3 id="5-create-the-node-identity">5. ノードIDの作成<a class="headerlink" href="#5-create-the-node-identity" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>各ノードには、他のノードとの安全な通信のための暗号化IDが必要です。
+このIDの中心となるのが <a class="mkdocs-ezglossary-link"
+	id="efb4e59c8b9ed6d037106cf6e13e9d7b"
+	title="非常に長い数値であり、厳重に秘匿すべき情報です。
+値そのものに意味はなく、第三者に推測されることは想定されていません。
+通常はランダムに生成され、同じキーが偶然に生成されることはほぼありません。"
+	name="_:秘密鍵"
+	href="../../../textbook/cryptography/#87b32666b22cbcb8905e62db6871dccf">秘密鍵</a> であり、これはノードの <a class="mkdocs-ezglossary-link"
+	id="7e3ae139a6c995a6529c7683473d3a7d"
+	title="各 アカウント に紐づく キーペア。所有者を識別します。"
+	name="_:メインキー"
+	href="../../../textbook/cryptography/#c946a784ffb575f121b19bb1e95e604c">メインキー</a> に対応します。</p>
+<p>この鍵は<a href="https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail">PEMファイル</a>に保存されており、これを取得するには2つの方法があります。</p>
+<ul>
+<li>
+<p>OpenSSLを使用して新しい鍵を作成する：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>ed25519<span class="w"> </span>-out<span class="w"> </span>ca.key.pem
+</span></code></pre></div>
+</li>
+<li>
+<p>既存の秘密鍵をインポートする：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemtool<span class="w"> </span>--output<span class="w"> </span>ca.key.pem
+</span></code></pre></div>
+<p>このコマンドは秘密鍵を貼り付けるよう求めますが、 <code>--input</code> パラメータを使用してファイル経由で提供することもできます。
+秘密鍵をファイルやコマンド履歴に露出させたままにしないよう、特に注意してください。</p>
+<div class="admonition tip">
+<p class="admonition-title">Bootstrapのメインキーを再利用する</p>
+<p>既存のBootstrapノードで使用しているのと同じメインアカウントを再利用したい場合、メインの秘密鍵はノードのBootstrap内の <code>target/addresses.yml</code> ファイルから取得できます。</p>
+<p>ファイルが暗号化されている場合は、まず以下のコマンドを実行します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>symbol-bootstrap<span class="w"> </span>decrypt<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span>--source<span class="w"> </span>target/addresses.yml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span>--destination<span class="w"> </span>target/addresses_plaintext.yml
+</span></code></pre></div>
+<p>次に、 <code>target/addresses_plaintext.yml</code> ファイルから鍵を取得し、<strong>鍵を抽出した後はプレーンテキストファイルを削除します</strong>。</p>
+<p>秘密鍵を取得したら、上記のように <code>pemtool</code> コマンドを使用します。</p>
+</div>
+</li>
+</ul>
+<p>どちらのオプションでも、秘密鍵を含む <code>ca.key.pem</code> という名前のPEMファイルが作成されます。</p>
+<p>このファイルは<strong>安全に保管する必要があります</strong>。
+今のところは、このディレクトリに残しておいてください。
+後でオフラインに移動します。</p>
+<div class="admonition info">
+<p class="admonition-title">メインアカウントのアドレス</p>
+<p>この秘密鍵に対応するアドレスと公開鍵を表示するには、Shoestringの <code>pemview</code> ツールを使用できます。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemview<span class="w"> </span>--input<span class="w"> </span>ca.key.pem<span class="w"> </span>--network<span class="w"> </span>mainnet
+</span></code></pre></div>
+<p>出力は以下のようになります。</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
+<span class="normal"><a href="#__codelineno-12-2">2</a></span>
+<span class="normal"><a href="#__codelineno-12-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a>    i     | loaded ca.key.pem
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a>    i     |     address: TCUCHCSSTTXRU3BMOBMAQXY2WMGSBICEH6WB77I
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a>    i     |  public key: 5DA31F82685B4F03924B096A1343F297CF4552F...
+</span></code></pre></div></td></tr></table></div>
+<p>アカウントへ資金を送信するには、このアカウントのアドレスが必要です。
+その後、ハーベスティングを有効にする際などにトランザクション手数料を支払うために資金が必要になります。</p>
+<p><code>--show-private</code> パラメータを使用して秘密鍵を表示し、<a href="../../wallet/import-account/">ウォレットにインポート</a>することもできます。
+この手順により、アカウントをより便利に管理できるようになりますが、このガイドでは必須ではありません。</p>
+<p>あるいは、 <code>openssl</code> ツールを直接使用してアカウントの公開鍵を表示することもできます。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>openssl<span class="w"> </span>pkey<span class="w"> </span>-in<span class="w"> </span>ca.key.pem<span class="w"> </span>-text
+</span></code></pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">残りのBootstrapキーをインポートする</p>
+<p><a class="mkdocs-ezglossary-link"
+	id="f1c229603ce07df0e88f8585f44b05c8"
+	title="ハーベスティング ノードが出力を予測不可能にするために使用する キーペア。"
+	name="_:VRFキー"
+	href="../../../textbook/cryptography/#a32090e969f8a4717b803f0318f2f431">VRFキー</a>、 <a class="mkdocs-ezglossary-link"
+	id="acac672a186fc5ae90a5296238783506"
+	title="各 リモートハーベスティング アカウントに紐づく キーペア。"
+	name="_:リモートキー"
+	href="../../../textbook/cryptography/#b914a838ca6b21285cfa89e661c1353d">リモートキー</a> 、または <a class="mkdocs-ezglossary-link"
+	id="b30eb1df6c7b0b312056b4a9968a0978"
+	title="ファイナライズ プロセスに参加するノードが必要とする キーペア。"
+	name="_:投票キー"
+	href="../../../textbook/cryptography/#797365cbdc42fd9918de0ac28f769b1d">投票キー</a> など、以前のノードと同じ鍵を引き続き使用したい場合は、以下のコマンドで今すぐインポートしてください。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>import-bootstrap<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>--bootstrap<span class="w"> </span><span class="o">[</span>Bootstrapターゲットディレクトリへのパス<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span>--include-node-key
+</span></code></pre></div>
+<p><code>--bootstrap</code> パラメータは、通常、以前のBootstrap内の <code>target</code> ディレクトリ（例： <code>../bootstrap-node/target</code> ）を指すことに注意してください。</p>
+<p>このコマンドは、必要なすべての鍵を <code>bootstrap-import</code> ディレクトリにコピーし、それらを参照するように <code>config.ini</code> を更新します。</p>
+<p>ブロックデータはインポートされないことに注意してください。初回起動時に、ノードはブロックチェーン全体をダウンロードすることでネットワークと同期します。</p>
+<p>これ以降、以前のBootstrapは不要になります。</p>
+</div>
+<h3 id="6-create-the-node-installation">6. ノードのインストール環境を作成<a class="headerlink" href="#6-create-the-node-installation" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>設定ファイルと鍵ファイルの準備ができたら、以下を使用してノードのインストール環境を作成します。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>setup<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span>--overrides<span class="w"> </span>./overrides.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span>--package<span class="w"> </span>mainnet<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span>--directory<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span>--ca-key-path<span class="w"> </span>./ca.key.pem
+</span></code></pre></div>
+<p>このコマンドは以下のいくつかのタスクを実行します：</p>
+<ul>
+<li>ノードのディレクトリ構造を準備する。</li>
+<li>秘密鍵から証明書を生成する。</li>
+<li>Dockerの設定ファイルを作成する。</li>
+<li>ハーベスティングが設定されている場合、有効にするためのトランザクションを作成する。</li>
+</ul>
+<h2 id="configure-harvesting-optional">ハーベスティングの設定（オプション）<a class="headerlink" href="#configure-harvesting-optional" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p><code>HARVESTER</code> ロールを有効にした場合は、追加の設定が必要です。有効にしていない場合は、このセクションをスキップします。</p>
+<div class="admonition tip">
+<p class="admonition-title">Bootstrapからハーベスティング設定を再利用する</p>
+<p>上記のように、動作しているBootstrapからすべての鍵をインポートし、そこでハーベスティングがすでに設定されている場合も、このセクションをスキップします。</p>
+</div>
+<p>ハーベスティングを有効にするには、特別なトランザクションを通じて <a class="mkdocs-ezglossary-link"
+	id="c14b85e6456c50c945f42f3ded6e0837"
+	title="ハーベスティング ノードが出力を予測不可能にするために使用する キーペア。"
+	name="_:VRFキー"
+	href="../../../textbook/cryptography/#a32090e969f8a4717b803f0318f2f431">VRFキー</a> をアカウントにリンクする必要があります。</p>
+<p>セキュリティ上の理由から、メインアカウントも別のトランザクションを通じて <a class="mkdocs-ezglossary-link"
+	id="43a688113b0ab242c737a57e06d78747"
+	title="各 リモートハーベスティング アカウントに紐づく キーペア。"
+	name="_:リモートキー"
+	href="../../../textbook/cryptography/#b914a838ca6b21285cfa89e661c1353d">リモートキー</a> にリンクする必要があります。このリモートアカウントは新しく作成されたブロックに署名するためにノードによって使用されるため、ノード上に置く必要があり、そこでオンライン状態を維持するため、サーバーが侵害された場合に暴露される可能性があります。</p>
+<p>しかし、リモートアカウント自体は資金を保持しません。すべてのハーベスティング報酬は、リンクされたメインアカウント（オフラインで保存したままにできる）に送られるためです。</p>
+<p>Shoestringの <code>setup</code> コマンドは、すでにこれら両方のトランザクションを作成し、 <code>linking_transaction.dat</code> という名前のファイルで保存しています。以下のサブセクションでは、このファイル内のトランザクションに署名し、ネットワークにアナウンスする方法を説明します。</p>
+<h3 id="7-fund-the-main-account">7. メインアカウントへの資金提供<a class="headerlink" href="#7-fund-the-main-account" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>まず、これらのトランザクションをアナウンスするために必要な手数料を支払うため、ノードのメインアカウントはいくらかの <a class="mkdocs-ezglossary-link"
+	id="fa488930b10bd9c0b47a7dc51c343341"
+	title="Symbol ブロックチェーンのネイティブ通貨。"
+	name="_:XYM"
+	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> を保持する必要があります。</p>
+<p>上記の<a href="#5-create-the-node-identity">ステップ5</a>で示されているようにアカウントのアドレスを取得し、別のアカウントからそこに資金を送ります。
+通常は 1 <a class="mkdocs-ezglossary-link"
+	id="838e4a85d05dd26ad75f336f141d32fc"
+	title="Symbol ブロックチェーンのネイティブ通貨。"
+	name="_:XYM"
+	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> で十分です。</p>
+<h3 id="8-sign-the-transactions">8. トランザクションへの署名<a class="headerlink" href="#8-sign-the-transactions" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>Shoestringの <code>signer</code> ツールは <code>linking_transaction.dat</code> を読み取り、 <code>ca.key.pem</code> （ノードのメインアカウント）に保存されている鍵でその中のトランザクションに署名します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>signer<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span>--ca-key-path<span class="w"> </span>ca.key.pem<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span>--save<span class="w"> </span>linking_transaction.dat
+</span></code></pre></div>
+<p>署名はトランザクションとともに <code>linking_transaction.dat</code> に書き戻されるため、新しいファイルは作成されません。</p>
+<p>出力は以下のようになります：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-17-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-17-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-17-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-17-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-17-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-17-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-17-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-17-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-17-10">10</a></span>
+<span class="normal"><a href="#__codelineno-17-11">11</a></span>
+<span class="normal"><a href="#__codelineno-17-12">12</a></span>
+<span class="normal"><a href="#__codelineno-17-13">13</a></span>
+<span class="normal"><a href="#__codelineno-17-14">14</a></span>
+<span class="normal"><a href="#__codelineno-17-15">15</a></span>
+<span class="normal"><a href="#__codelineno-17-16">16</a></span>
+<span class="normal"><a href="#__codelineno-17-17">17</a></span>
+<span class="normal"><a href="#__codelineno-17-18">18</a></span>
+<span class="normal"><a href="#__codelineno-17-19">19</a></span>
+<span class="normal"><a href="#__codelineno-17-20">20</a></span>
+<span class="normal"><a href="#__codelineno-17-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a>    i     | Aggregate transaction: ((signature: 00000000...,
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2"></a>            signer_public_key: 5DA31F82..., version: 0x3,
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3"></a>            network: NetworkType.TESTNET,
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a>            type: TransactionType.AGGREGATE_COMPLETE,
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5"></a>            fee: 0x0000000000015180,
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6"></a>            deadline: 0x0000001946C3C12A, )
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a>            transactions_hash: CCA5A2CE..., transactions: [],
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8"></a>            cosignatures: [], )
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9"></a>    i     | Inner transactions:
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10"></a>    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11"></a>                network: NetworkType.TESTNET,
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12"></a>                type: TransactionType.ACCOUNT_KEY_LINK, )
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13"></a>                linked_public_key: E44E749E...,
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14"></a>                link_action: LinkAction.LINK, )
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15"></a>    i     |   ((signer_public_key: 5DA31F82..., version: 0x1,
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16"></a>                network: NetworkType.TESTNET,
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17"></a>                type: TransactionType.VRF_KEY_LINK, )
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18"></a>                linked_public_key: 88307270...,
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19"></a>                link_action: LinkAction.LINK, )
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20"></a>    i     | Signed transaction TransactionType.AGGREGATE_COMPLETE
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21"></a>            with hash: BE1DA35E...
+</span></code></pre></div></td></tr></table></div>
+<p>便宜上、2つのキーリンクトランザクションが1つの <a class="mkdocs-ezglossary-link"
+	id="d02692f9f90be3974b0c33eb8dc9a377"
+	title="アグリゲートトランザクションは、複数の基本トランザクションを結論、
+それらをアトミック（全体または無効のいずれか）に実行します。
+つまり、すべての埋め込みトランザクションが受理されるか、すべてが拒否されます。"
+	name="_:アグリゲートトランザクション"
+	href="../../../textbook/transactions/#6dd08aca9c0c19b00fed342e463abd43">アグリゲートトランザクション</a> 内にラップされていることに注意してください。</p>
+<h3 id="9-announce-the-transactions">9. トランザクションのアナウンス<a class="headerlink" href="#9-announce-the-transactions" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p>announce-transaction ツールを使用して、署名されたトランザクションをネットワークに送信します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>announce-transaction<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span>--transaction<span class="w"> </span>linking_transaction.dat
+</span></code></pre></div>
+<p>このツールはネットワーク上の利用可能なノードに接続し、署名されたトランザクションを送信します。
+出力は以下のようになります：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span>
+<span class="normal"><a href="#__codelineno-19-2">2</a></span>
+<span class="normal"><a href="#__codelineno-19-3">3</a></span>
+<span class="normal"><a href="#__codelineno-19-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a>    i     | connecting to https://401-sai-dual.symboltest.net:3001
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2"></a>    i     | preparing to announce transaction 5E59A0A0... of type
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3"></a>            TransactionType.AGGREGATE_COMPLETE
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4"></a>    i     | transaction was successfully sent to the network
+</span></code></pre></div></td></tr></table></div>
+<h2 id="10-wait-for-confirmation">10. 承認の待機<a class="headerlink" href="#10-wait-for-confirmation" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p><code>announce-transaction</code> コマンドは承認を待たずに終了するため、結果を手動で確認する必要があります。</p>
+<p>前のコマンドの出力から、トランザクションが送信されたノードの URL（1行目）と、トランザクションの ハッシュ（2行目）をメモしておきます。</p>
+<p>次に、ブラウザでそのURLを開くか、<code>curl</code> を使用して問い合わせます：
+<code>{NODE_URL}/transactionStatus/{FULL_TRANSACTION_HASH}</code></p>
+<p>例えば、上記の出力の場合、URLは以下のようになります：</p>
+<p><a href="https://401-sai-dual.symboltest.net:3001/transactionStatus/5E59A0A009A885B8DA0A6E1CE18BAE26A83441414E595799F25DB94848CCDEEB">https://401-sai-dual.symboltest.net:3001/transactionStatus/5E59A0A0...</a></p>
+<div class="admonition note">
+<p class="admonition-title">トランザクションが送信されたのと同じノードを確認する</p>
+<p>ノードがトランザクションをネットワーク上の他のノードにアナウンスせずに拒否した場合、他のすべてのノードはこのURLに対して「transaction unknown（不明なトランザクション）」エラーで応答します。そのため、トランザクションのステータスは常に送信したのと同じノードで確認するようにしてください。</p>
+</div>
+<p>トランザクションが受け入れられた場合、ノードは以下のようなメッセージを返します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">{</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nt">&quot;hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5E59A0A009A885B8DA0A6E1CE18BAE26A83441414E595799F25DB94848CCDEEB&quot;</span><span class="p">,</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Success&quot;</span><span class="p">,</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="nt">&quot;deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;107120562182&quot;</span><span class="p">,</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;confirmed&quot;</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>一般的な結果は以下の通りです：</p>
+<table>
+<thead>
+<tr>
+<th>結果</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Confirmed(承認済み)</strong></td>
+<td>トランザクションが承認されました。このガイドの続きに進んでください。</td>
+</tr>
+<tr>
+<td><strong>Unconfirmed(未承認)</strong></td>
+<td>トランザクションは有効ですが、まだブロックに含まれていません。最大30秒ほど待ってください。</td>
+</tr>
+<tr>
+<td><strong>Unknown(不明)</strong></td>
+<td>別のノードに送信されたか、送信から時間が経過しすぎている、あるいは送信されていません。<a href="#9-announce-the-transactions">ステップ9</a> からやり直してください。</td>
+</tr>
+<tr>
+<td><strong>Insufficient funds(資金不足)</strong></td>
+<td><a href="#7-fund-the-main-account">上記のステップ7</a> で説明したようにノードのメインアカウントに資金を提供し、再度アナウンスしてください。</td>
+</tr>
+<tr>
+<td><strong>Signature Not Verifiable(署名検証不可)</strong></td>
+<td>トランザクションがおそらく署名されていません。<a href="#8-sign-the-transactions">ステップ8</a> からやり直してください。</td>
+</tr>
+<tr>
+<td><strong>Deadline expired(有効期限切れ)</strong></td>
+<td>.  トランザクションは <code>setup</code> 実行後6時間以内にアナウンスする必要があります。以下を参照してください</td>
+</tr>
+</tbody>
+</table>
+<p>有効期限が切れた場合は、<code>--output-transaction-only</code> パラメータを使用して <a href="#6-create-the-node-installation">ステップ6</a> を再度行い、新しい <code>linking_transaction.dat</code> を作成してください。その後、<a href="#9-announce-the-transactions">ステップ9</a> から手順を再開してアナウンスを行います。</p>
+<p>トランザクションが承認されると、ノードは<a class="mkdocs-ezglossary-link"
+	id="c77a0a62b5334df938b3840c8739f935"
+	title="各 リモートハーベスティング アカウントに紐づく キーペア。"
+	name="_:リモートキー"
+	href="../../../textbook/cryptography/#b914a838ca6b21285cfa89e661c1353d">リモートキー</a>（セットアッププロセス中に自動的に作成された）  を使用してブロック生成に参加し、（<code>ca.key.pem</code> ファイルから取得した） <a class="mkdocs-ezglossary-link"
+	id="9506fa888240b7d7ad92d0235264d687"
+	title="各 アカウント に紐づく キーペア。所有者を識別します。"
+	name="_:メインキー"
+	href="../../../textbook/cryptography/#c946a784ffb575f121b19bb1e95e604c">メインキー</a> にハーベスティング報酬を蓄積する準備が整います。</p>
+<div class="admonition warning">
+<p class="admonition-title">インポータンス計算の遅延</p>
+<p>メインアカウントの <a class="mkdocs-ezglossary-link"
+	id="e2642101d27e765235ace8f5344c6ad7"
+	title="アカウントの残高、支払ったトランザクション手数料、
+そして新しいブロックの ハーベスティング への参加状況に基づき、
+ネットワークへの貢献度を数値化したものです。
+このスコアにより、ハーベスティングの優先度およびコンセンサス投票時の重みが決まります。"
+	name="_:インポータンス"
+	href="../../../textbook/harvesting/#8d301074509fc6237fa93b125ad7eb12">インポータンス</a> が高いほど、ノードがブロックをハーベストし、報酬を受け取れる確率が高くなります。</p>
+<p>メインアカウントに資金を提供したばかりの場合、インポータンスの更新には <a class="mkdocs-ezglossary-link"
+	id="3cb761ad733c14291a26aa1fcfe6e9a4"
+	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
+	name="_:メインネット"
+	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で12時間、 <a class="mkdocs-ezglossary-link"
+	id="33d2d2d2d25fc4df5332a7f6ac4475f4"
+	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
+	name="_:テストネット"
+	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> で3時間かかります。</p>
+</div>
+<h2 id="configure-voting-optional">投票の設定（オプション）<a class="headerlink" href="#configure-voting-optional" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p><a class="mkdocs-ezglossary-link"
+	id="cc27b12c7e4f9e5e8954e39b54fb5258"
+	title="投票ノードは ファイナライズ プロセスに参加し、ブロックを不変にする。"
+	name="_:投票ノード"
+	href="../../../textbook/nodes/#ddd18e1f8c69b7e04689c08f3e4bd57b">投票ノード</a> を作成するには、以下の要件を満たす必要があります。</p>
+<p><a href="#3-configure-shoestring">Shoestringの設定時</a>に <code>VOTER</code> ロールを設定する。
+ノードのメインアカウントに 3,000,000 <a class="mkdocs-ezglossary-link"
+	id="1bae095a68e3ff49b10e9113c3a3fce1"
+	title="Symbol ブロックチェーンのネイティブ通貨。"
+	name="_:XYM"
+	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> 以上を保有している。</p>
+<div class="admonition info">
+<p class="admonition-title">投票キーの保守</p>
+<p>セットアップ中、Shoestringはノード用の <a class="mkdocs-ezglossary-link"
+	id="0069b522a734d86cd6ce3908896a55e1"
+	title="ファイナライズ プロセスに参加するノードが必要とする キーペア。"
+	name="_:投票キー"
+	href="../../../textbook/cryptography/#797365cbdc42fd9918de0ac28f769b1d">投票キー</a> を作成します。
+セキュリティ上の理由から、この鍵には最大有効期限は180日に設定されているため、定期的に更新する必要があります。</p>
+<p>ノードが起動して正常に動作し始めたら、<a href="../maintain/#voting-key-renewal">ノードの保守</a>ガイドを読み、更新プロセスについて確認してください。</p>
+</div>
+<h2 id="start-the-node">ノードの起動<a class="headerlink" href="#start-the-node" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>ノードの設定が完了し、起動の準備が整いましたが、最後に、セキュリティに関する手順を行います：</p>
+<div class="admonition danger">
+<p class="admonition-title">秘密鍵をバックアップしてください</p>
+<p><code>ca.key.pem</code> ファイルにはメインアカウントの秘密鍵が含まれていますが、通常のノード運用には<strong>必要ありません</strong>。
+ノードが適切に設定された後は、このファイルをオフラインに移動する必要があります。</p>
+<p><code>ca.key.pem</code> を安全なストレージ（理想的にはオフライン）にコピーし、<strong>ノードを実行するマシンからは削除してください</strong>。</p>
+</div>
+<p>Dockerを使用してノードコンテナを起動します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span></code></pre></div>
+<p><code>-d</code> オプションはコンテナをデタッチドモードで実行するため、ターミナルを閉じた後もノードの実行を継続できます。</p>
+<div class="admonition warning">
+<p class="admonition-title">Dockerの権限</p>
+<p>以下のようなエラーが表示される場合：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>permission denied while trying to connect to the Docker daemon socket
+</span></code></pre></div>
+<p>実行ユーザーにDockerのコマンドを実行する権限がありません。</p>
+<p>Linuxでは、以下のコマンドを使用してユーザーを <code>docker</code> グループに追加できます：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+</span></code></pre></div>
+<p>その後、一度ログアウトして再ログインしてから、再度コマンドを実行してください。</p>
+</div>
+<p>ノードを停止するには、同じフォルダーから以下を実行します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+</span></code></pre></div>
+<p>ノードのデータはディスク上に保持されるため、<code>docker compose up -d</code> で再度ノードを起動します。</p>
+<p>ノードを正常にシャットダウンするまでに最大 5分 かかる場合があることに注意してください。
+途中で中断された場合、データが不整合な状態になり、<a href="#node-recovery">リカバリ（復旧）</a>が必要になる可能性があります。</p>
+<h2 id="verify-the-node">ノードの検証<a class="headerlink" href="#verify-the-node" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>ノードが正しく動作しているか確認します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
+</span></code></pre></div>
+<p>ノードが正常に起動した場合、このコマンドは（有効にした機能であると想定して）ピアエンドポイント、REST API、およびWebSocketサービスがアクセス可能であることを報告します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>     ...    | running health agent for peer certificate
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>      i     | ca certificate not near expiry (7299 day(s))
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>      i     | node certificate not near expiry (374 day(s))
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>keys/cert/ca.crt.pem: OK
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>keys/cert/node.crt.pem: OK
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>     ...    | running health agent for peer API
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>      i     | peer API accessible, height = 226081
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>     ...    | running health agent for REST API
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>      i     | REST API accessible, height = 226081
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>     ...    | running health agent for REST websockets
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a>      i     | websocket connected to ws://127.0.0.1:3000/ws,
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>              subscribing and waiting for block
+</span><span id="__span-26-13"><a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a>      i     | websocket received a block with height 226082
+</span></code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">同期</p>
+<p>初回起動時、ノードはブロックチェーン全体をダウンロードすることでネットワークと同期します。</p>
+<p>このプロセスには24時間から48時間かかる場合があります。
+この間、APIロールを実行している場合、ノードへのRESTリクエストが遅延したり、正しくないチェーン高を返す可能性があります。</p>
+</div>
+<h2 id="node-recovery">ノードのリカバリ（復旧）<a class="headerlink" href="#node-recovery" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>停電などによる不適切なシャットダウンが発生した場合、<code>data</code> フォルダーにロックファイルが残り、ノードの起動が妨げられることがあります。</p>
+<p>以下のコマンドは、ノードのリカバリを試み、正常な状態に復元します：</p>
+<div class="highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose-recovery.yaml<span class="w"> </span>up<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span>--abort-on-container-exit
+</span></code></pre></div>
+<p>リカバリコマンドが完了したら、<code>data</code> ディレクトリ内の <code>.lock</code> ファイルが消えているか確認してください。
+削除されていれば、<code>docker compose up -d</code> でノードを再度起動します。</p>
+<div class="admonition warning">
+<p class="admonition-title">最終手段</p>
+<p>リカバリコマンドで問題が解決しない場合は、<code>reset-data</code> を使用できます。</p>
+<p>このコマンドはダウンロード済みのブロックチェーンデータをすべて削除するため、ノードは最初から同期し直す必要があります。
+ただし、ノードの設定や鍵は保持されます。</p>
+<div class="highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>reset-data<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span>--directory<span class="w"> </span>.
+</span></code></pre></div>
+</div>
+<h2 id="next-steps">次のステップ<a class="headerlink" href="#next-steps" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>ノードが稼働した後は、あとは時折<a href="../maintain/">メンテナンス作業</a>を行うだけです。</p>
 
 
 
@@ -8879,8 +10044,53 @@
 
 
   
+    
+  
+  
+    
   
 
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最終更新日">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月30日</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="作成日">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月30日</span>
+  </span>
+
+    
+    
+      
+  
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="投稿者">
+      
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
+      
+    </span>
+    <nav>
+      
+        <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+    </nav>
+  </span>
+
+    
+    
+  </aside>
 
 
 
@@ -9103,12 +10313,12 @@
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
     
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
-        <script src="../../../../assets/javascripts/katex.js"></script>
+        <script src="../../../assets/javascripts/katex.js"></script>
       
         <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
       

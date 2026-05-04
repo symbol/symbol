@@ -513,7 +513,7 @@ paths:
                           version: 1
                           network: 152
                           type: 33091
-                          signature: 4B408BBEDF25F2AC8E0E44A6E51E3CCBA03885902055F75EB9FF50433532CA44BF9175FDA7502EEE2FC16
+                          signature: 4B408BBEDF25F2AC8E0E44A6E51E3CCBA03885902055F75EB9FF50433532CA44BF9175FDA7502EEE2FC16A44094C44DAED6FF1B382303D1AD21D142246F4E8AF
                           height: '17592'
                           timestamp: '108303181802'
                           difficulty: '100000000000000'
@@ -577,7 +577,7 @@ paths:
                       statementsCount: 1
                     block:
                       size: 376
-                      signature: 2071C002EE41AB668E26155EFF654620057E005218A0D43013FE36C5805C4E8A34A74D5CC563B27175EAECA
+                      signature: 2071C002EE41AB668E26155EFF654620057E005218A0D43013FE36C5805C4E8A34A74D5CC563B27175EAECA4600550DFC98177A8D82356124F89025F89DB7A0C
                       signerPublicKey: FA313F7B4E6148B0E6CB8637599678D1587FCBCFD16F6E3FCBEC9A035B6C2F21
                       version: 1
                       network: 104
@@ -744,10 +744,10 @@ paths:
                         signatures:
                           - root:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 8F7E6D5C4B3A2918F7E6D5C4B3A291807F6E5D4C3B2A1908F7E6D5C4B3A291807F6E5D4C3B2A1908F7
+                              signature: 8F7E6D5C4B3A2918F7E6D5C4B3A291807F6E5D4C3B2A1908F7E6D5C4B3A291807F6E5D4C3B2A1908F7EB764806E961AE503C061907F85D0002174181340BF80A
                             bottom:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 9E8D7C6B5A49382A1F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C
+                              signature: 9E8D7C6B5A49382A1F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C87AC489DACC0F86E9A6AF254B473109C354ABCC8B398F9
                       - stage: 1
                         height: '5270348'
                         hashes:
@@ -755,10 +755,10 @@ paths:
                         signatures:
                           - root:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 1A2B3C4D5E6F7890A1B2C3D4E5F6078A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6078A9B0C1D2E3F4
+                              signature: 1A2B3C4D5E6F7890A1B2C3D4E5F6078A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6078A9B0C1D2E3F4CD14E2813AA27C899CF1C2985E17E202F9F5DB412D6072
                             bottom:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B
+                              signature: 2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2BBF0E41BEEBDD8273AA5D397B68B5BA6C3FFAB273C5BB94
         '404':
           $ref: '#/components/responses/ResourceNotFound'
         '409':
@@ -796,10 +796,10 @@ paths:
                         signatures:
                           - root:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 8F7E6D5C4B3A2918F7E6D5C4B3A291807F6E5D4C3B2A1908F7E6D5C4B3A291807F6E5D4C3B2A1908
+                              signature: 8F7E6D5C4B3A2918F7E6D5C4B3A291807F6E5D4C3B2A1908F7E6D5C4B3A291807F6E5D4C3B2A19083EC75265929DD8731EE993FA9066F4BA3CEF74BCEEEAECE4
                             bottom:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 9E8D7C6B5A49382A1F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C7B6A5948E7D6C5B4A39281F0E9
+                              signature: 9E8D7C6B5A49382A1F0E9D8C7B6A5948E7D6C5B4A39281F0E9D8C7B6A5948E7D6C5B4A39281F0E9243BBB19301AB20B3446AC13AEFF8268E8EBC6B67390C7AF1
                       - stage: 1
                         height: '5270348'
                         hashes:
@@ -807,10 +807,10 @@ paths:
                         signatures:
                           - root:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 1A2B3C4D5E6F7890A1B2C3D4E5F6078A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6078A9B0C1D2
+                              signature: 1A2B3C4D5E6F7890A1B2C3D4E5F6078A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6078A9B0C1D2466EFB13F67C60354468C5F99EA9851EBB920D94C3DD3B79DE
                             bottom:
                               parentPublicKey: 7EDF52C5B42F72FDB4C8A59C6E2350DF43F3E35DCDBE6F6B4A3E2D1C0B9A8978
-                              signature: 2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F708
+                              signature: 2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F70819A2B3C4D5E6F7087F3202B8D6840F5692D287AC476030EED7387510B400A0DFB4C
         '404':
           $ref: '#/components/responses/ResourceNotFound'
         '409':
@@ -1011,9 +1011,9 @@ paths:
                       - D19BCD440545CF785D88F903141DE794F2D57012509BC224B25BFCA220267D1ADD42182702F50C1A4E95D0F21604E4F9EEEEF329932FCD0C76B43992B0D90B0D
                       - FDB98C472D0B98FDD766DA177366DEB2DB0E79721BD73DA96A84622A98932DA75BAA327BA9E23D448C6F25344654A6F17F7734C14D1530B327F911A97B4DE30A
                     corruptAggregateTransactionHashes:
-                      - 26FF5E7174DEEF3147DB25C37C7AE9905157ACBA2D233D40D1F77A65B60D59BC = 3A2F78C2E7B10FF84EB33BF1DD0FD61951F8E3EA330361
-                      - 2DF1D19B5E68102665D11B3CF3069AB5DFED2E60A7690C8788172E0E5E30B72D = 3B64321593D06FF37B191F52FE31E107A8FDB0116AB537
-                      - 30FA71E6D1E34DF1E430A07E1B0817BED9A4ED6B0245B7471B0557380A700E1B = AE377EAB7F1970DEC21FF305C39EBDD3ECE413B911EF3E
+                      - 26FF5E7174DEEF3147DB25C37C7AE9905157ACBA2D233D40D1F77A65B60D59BC = 3A2F78C2E7B10FF84EB33BF1DD0FD61951F8E3EA3303614D1B20060CD88F6E14
+                      - 2DF1D19B5E68102665D11B3CF3069AB5DFED2E60A7690C8788172E0E5E30B72D = 3B64321593D06FF37B191F52FE31E107A8FDB0116AB5374157F8F415B8C73BE4
+                      - 30FA71E6D1E34DF1E430A07E1B0817BED9A4ED6B0245B7471B0557380A700E1B = AE377EAB7F1970DEC21FF305C39EBDD3ECE413B911EF3E4E11F7DDDC9C9C9748
         '409':
           $ref: '#/components/responses/InvalidArgument'
   /network/inflation:
@@ -1466,7 +1466,7 @@ paths:
                           feeMultiplier: 0
                         transaction:
                           size: 176
-                          signature: 86499F4AF09ED620D961C0A2CD5D22400A632E360F7FA23EA5D62C2B60A63E00EE1F34455657C1C72FA597D
+                          signature: 86499F4AF09ED620D961C0A2CD5D22400A632E360F7FA23EA5D62C2B60A63E00EE1F34455657C1C72FA597D25D0178EC5953BA3809909F0BEFF275790F6D8776
                           signerPublicKey: BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F
                           version: 1
                           network: 104
@@ -1494,7 +1494,7 @@ paths:
                           feeMultiplier: 100
                         transaction:
                           size: 712
-                          signature: E6ACAA3328B6DE2650918FC24360F70D3AD8B65C7CD139815A453D37B3F22C21D7A32ED98E1CECA924C
+                          signature: E6ACAA3328B6DE2650918FC24360F70D3AD8B65C7CD139815A453D37B3F22C21D7A32ED98E1CECA924C6B2FE5256BC74210FD9014A8F71622D5777965134C77E
                           signerPublicKey: 0544EA984581DBF1C0A98F14231F83AAAFC4F26E09DB035CE0C99737DE4E1DD7
                           version: 3
                           network: 104
@@ -1505,7 +1505,7 @@ paths:
                           cosignatures:
                             - version: '0'
                               signerPublicKey: DD8710269484573DB6C497B6722B6B8A5D1136305C16CD81313F899CD792FCA5
-                              signature: F29AC6AF8FB7EE85535927502253B04A3EA934A60AB57F39C30EBFFE72D9F52A3F42173A6D9BDEC8
+                              signature: F29AC6AF8FB7EE85535927502253B04A3EA934A60AB57F39C30EBFFE72D9F52A3F42173A6D9BDEC8ED56F6B8EDE4D9CAC69127C56F85BB0A0911914C076470D5
                           transactions:
                             - meta:
                                 height: '5299119'
@@ -1584,7 +1584,7 @@ paths:
                         feeMultiplier: 128
                       transaction:
                         size: 368
-                        signature: 0C34EA160F07070DAED62E734EAE734D1DFBD78499486A09561094551946DE3BAF79317AA000718724255C67BE
+                        signature: 0C34EA160F07070DAED62E734EAE734D1DFBD78499486A09561094551946DE3BAF79317AA000718724255C67BE5C09537CC04F9E76511FCC293E3D95B0A98ADE
                         signerPublicKey: B93B3931652DF080F1699F0EA14C6C760075785981C034AD4F435AC1EBEDA137
                         version: 3
                         network: 104
@@ -1595,7 +1595,7 @@ paths:
                         cosignatures:
                           - version: '0'
                             signerPublicKey: 3AB7AF84CC38E4E112F840ABD31866BD83AD5BCE765F31F84601D35799B9FFF4
-                            signature: 07BBD3BD1EBFDDE9B771F646278DEAEA245ED8FA66800169EE533377884F76816DEEDA8A8319EC838930DC
+                            signature: 07BBD3BD1EBFDDE9B771F646278DEAEA245ED8FA66800169EE533377884F76816DEEDA8A8319EC838930DC05FE0DBF44A79F2E81A0F6BFB75477462C77124711
                       id: 69CD60B02976BBB47C19E5D9
         '400':
           $ref: '#/components/responses/InvalidContent'
@@ -1635,7 +1635,7 @@ paths:
                       feeMultiplier: 128
                     transaction:
                       size: 368
-                      signature: 0C34EA160F07070DAED62E734EAE734D1DFBD78499486A09561094551946DE3BAF79317AA000718724255C67BE
+                      signature: 0C34EA160F07070DAED62E734EAE734D1DFBD78499486A09561094551946DE3BAF79317AA000718724255C67BEB54EDEA1E3EF568CB177256AC02DE6D7BFDC11
                       signerPublicKey: B93B3931652DF080F1699F0EA14C6C760075785981C034AD4F435AC1EBEDA137
                       version: 3
                       network: 104
@@ -1646,7 +1646,7 @@ paths:
                       cosignatures:
                         - version: '0'
                           signerPublicKey: 3AB7AF84CC38E4E112F840ABD31866BD83AD5BCE765F31F84601D35799B9FFF4
-                          signature: 07BBD3BD1EBFDDE9B771F646278DEAEA245ED8FA66800169EE533377884F76816DEEDA8A8319EC838930DCC
+                          signature: 07BBD3BD1EBFDDE9B771F646278DEAEA245ED8FA66800169EE533377884F76816DEEDA8A8319EC838930DCCEDCF313073B300AF86C69421F4D5455228AC216B4
                       transactions:
                         - meta:
                             height: '5299379'
@@ -1721,7 +1721,7 @@ paths:
                           index: 0
                         transaction:
                           size: 176
-                          signature: 25163A3D6607C900841DC3BF23C5054D47F75D87C22E4143616AA9225D3853DD60FF8DC314DCAC4911CB261B2
+                          signature: 25163A3D6607C900841DC3BF23C5054D47F75D87C22E4143616AA9225D3853DD60FF8DC314DCAC4911CB261B29F2BC8ED3179B5A4AA67A8D48685C8B0D5CF6AA
                           signerPublicKey: A6977B7FF4C3354EFC9393F7EC6F0FBD85A2A649A0B50A06A6A5452629B28006
                           version: 1
                           network: 104
@@ -1777,7 +1777,7 @@ paths:
                         index: 0
                       transaction:
                         size: 328
-                        signature: 862748DA2628D09C0D53EF937DC0FB8A52388B287368D105F287320153D1B4B372F0B20A82A5B695FE73BFFEFF
+                        signature: 862748DA2628D09C0D53EF937DC0FB8A52388B287368D105F287320153D1B4B372F0B20A82A5B695FE73BFFEFFCB8665A67BF8A6269D9355D56907BCD8C8BF9B
                         signerPublicKey: D3078EDE1559AF366629C81E33CBB2859187A682EADC338C7F79E228959A2CC4
                         version: 3
                         network: 152
@@ -1828,7 +1828,7 @@ paths:
                       index: 0
                     transaction:
                       size: 328
-                      signature: 862748DA2628D09C0D53EF937DC0FB8A52388B287368D105F287320153D1B4B372F0B20A82A5B695FE73BFFEFFCD
+                      signature: 862748DA2628D09C0D53EF937DC0FB8A52388B287368D105F287320153D1B4B372F0B20A82A5B695FE73BFFEFFCD3EF1DC8166ACA4A1F8422990347BD09A2000
                       signerPublicKey: D3078EDE1559AF366629C81E33CBB2859187A682EADC338C7F79E228959A2CC4
                       version: 3
                       network: 152
@@ -1969,7 +1969,7 @@ paths:
                           index: 0
                         transaction:
                           size: 248
-                          signature: 416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C
+                          signature: 416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7CCF35231623FE8A9365C48F494437504C45ED53E4
                           signerPublicKey: FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049
                           version: 3
                           network: 152
@@ -1993,7 +1993,7 @@ paths:
                           index: 0
                         transaction:
                           size: 248
-                          signature: 416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7C
+                          signature: 416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7CE5A8946AC3E2B6352599B70EB7BF0C0050AD2837
                           signerPublicKey: FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049
                           version: 3
                           network: 152
@@ -2100,7 +2100,7 @@ paths:
                         index: 0
                       transaction:
                         size: 264
-                        signature: C17FEC2639C3BEE110C11FA199AC96C29D41A502B3E90F0E879FD00AB0BEBC2BEA27CFD006CEA1E6E12AE4D3D1
+                        signature: C17FEC2639C3BEE110C11FA199AC96C29D41A502B3E90F0E879FD00AB0BEBC2BEA27CFD006CEA1E6E12AE4D3D156C5B56693E207FEBA1E2724223193174E157A
                         signerPublicKey: C46AA9E7F1953C8EC9E20CEE783378CE556C01648B3C9CC185FBA6ACFDB8AC9E
                         version: 3
                         network: 152
@@ -2117,7 +2117,7 @@ paths:
                         index: 0
                       transaction:
                         size: 248
-                        signature: 416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7CAB
+                        signature: 416F363728A4F3BD89DF251138BDC4DD2B58B69C9C2CB0D9B2735E4643781023499F442CEB2D2796D4DA1A7CAB9CB840ED80E74C4B140BE81D6A019B4915D073
                         signerPublicKey: FFEA4F971FA8A6DCF63B410F1FF2868A9A7E1EFFD8B73DFB39F190E324F23049
                         version: 3
                         network: 152
@@ -2168,7 +2168,7 @@ paths:
                       index: 0
                     transaction:
                       size: 264
-                      signature: C17FEC2639C3BEE110C11FA199AC96C29D41A502B3E90F0E879FD00AB0BEBC2BEA27CFD006CEA1E6E12AE4D3D149
+                      signature: C17FEC2639C3BEE110C11FA199AC96C29D41A502B3E90F0E879FD00AB0BEBC2BEA27CFD006CEA1E6E12AE4D3D14907ABBBBC89AC623F5E8308046ECC9041EC17
                       signerPublicKey: C46AA9E7F1953C8EC9E20CEE783378CE556C01648B3C9CC185FBA6ACFDB8AC9E
                       version: 3
                       network: 152
@@ -4599,6 +4599,8 @@ components:
         over the serialized entity payload. Can be verified with the signer's public key (`signerPublicKey`).
         Used for blocks, transactions, and cosignatures.
       pattern: ^[0-9a-fA-F]+$
+      minLength: 128
+      maxLength: 128
       examples:
         - 4B408BBEDF25F2AC8E0E44A6E51E3CCBA03885902055F75EB9FF50433532CA44BF9175FDA7502EEE2FC1617126E453A2BD692BAFDAAF06BC8EDEBA7961B3730D
     VerifiableEntityDTO:
@@ -4873,7 +4875,7 @@ components:
         `(scoreHigh << 64) + scoreLow`. Each block adds `difficulty − time elapsed since previous block`;
         the chain score is the sum. During synchronization, nodes select the chain with the highest score.
       examples:
-        - 1683298087010368300
+        - '1683298087010368306'
     FinalizationPoint:
       type: integer
       format: int64
@@ -5185,7 +5187,7 @@ components:
           type: string
           description: Number of blocks between successive finalization attempts.
           examples:
-            - 30
+            - '30'
         importanceGrouping:
           type: string
           description: Number of blocks that should be treated as a group for importance purposes.
@@ -7292,8 +7294,8 @@ components:
           items:
             type: string
           examples:
-            - 59B8DA0F0CB2720001103922
-            - 59B8D8E60CB2720001103904
+            - - 59B8DA0F0CB2720001103922
+              - 59B8D8E60CB2720001103904
     transactionHashes:
       type: object
       description: Array wrapper used to request transaction statuses by transaction hash.
@@ -8275,8 +8277,8 @@ components:
           type: array
           description: Namespace names currently linked to the account.
           examples:
-            - nononon
-            - maromaro1989
+            - - nononon
+              - maromaro1989
           items:
             type: string
     AccountsNamesDTO:
@@ -8307,7 +8309,7 @@ components:
           type: array
           description: Namespace names currently linked to the mosaic identifier.
           examples:
-            - symbol.xym
+            - - symbol.xym
           items:
             type: string
     MosaicsNamesDTO:
@@ -8920,12 +8922,13 @@ components:
     accountIdPath:
       name: accountId
       in: path
-      description: Account identifier. Accepts either a public key or a Base32-encoded address.
+      description: |
+        Account public key as 64 hexadecimal characters, or account address as 39 Base32
+        (network prefix `T` for testnet, `N` for mainnet).
       required: true
       schema:
-        oneOf:
-          - $ref: '#/components/schemas/PublicKey'
-          - $ref: '#/components/schemas/Address'
+        type: string
+        pattern: ^(?:[0-9a-fA-F]{64}|[A-Z2-7]{39})$
       examples:
         testnetAddress:
           summary: Testnet address (Base32, prefix T)
@@ -9107,10 +9110,19 @@ components:
     transactionIdPath:
       name: transactionId
       in: path
-      description: Transaction ID assigned by the node or transaction hash.
+      description: |
+        Transaction hash (64 hexadecimal characters) or node-assigned transaction ID (16 hexadecimal characters).
       required: true
       schema:
         type: string
+        pattern: ^(?:[0-9a-fA-F]{64}|[0-9a-fA-F]{16})$
+      examples:
+        transactionHash:
+          summary: Transaction hash (hex)
+          value: 73C5E3F46E2D24A3A1B9959DD62A42A54A0882F3DF2D72A6917C57C67D7A5B8A
+        transactionId:
+          summary: Database transaction ID
+          value: 0DC67FBE1CAD29E3
     addressPath:
       name: address
       in: path
