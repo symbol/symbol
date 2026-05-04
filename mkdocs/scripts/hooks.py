@@ -11,6 +11,29 @@ import yaml
 
 log = logging.getLogger('mkdocs')
 
+def build_nav_order(config):
+	order = {}
+	counter = 0
+
+	def walk(items):
+		nonlocal counter
+
+		for item in items:
+			if isinstance(item, str):
+				order[item] = counter
+				counter += 1
+
+			elif isinstance(item, dict):
+				for _, value in item.items():
+					if isinstance(value, str):
+						order[value] = counter
+						counter += 1
+					elif isinstance(value, list):
+						walk(value)
+
+	walk(config.get("nav", []))
+	return order
+
 def parse_page_header(text: str) -> tuple[dict, str | None]:
 	"""
 	Return the YAML frontmatter of a page and its first level 1 header
@@ -44,6 +67,8 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	out_files: list[File] = []
 	prefixes = tuple(config["extra"]["symbol"]["java-sdk"]["include-prefixes"] + ["links"])
 	config['extra']['symbol']['tutorials'] = {}
+	nav_order = build_nav_order(config)
+	section_order = {}
 	for f in in_files:
 		if f.src_uri.startswith("devbook/reference/java"):
 			if not f.name.startswith(prefixes):
@@ -64,6 +89,9 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 			continue
 
 		section = f.url.split('/')[-3]
+		section = section.replace('-', ' ')
+		section = section.replace('start', 'getting started')
+		section = section.replace('chain', 'chain state')
 		level = meta["tutorial_level"]
 		if section not in config['extra']['symbol']['tutorials']:
 			config['extra']['symbol']['tutorials'][section] = {}
@@ -71,9 +99,22 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 			config['extra']['symbol']['tutorials'][section][level] = []
 		config['extra']['symbol']['tutorials'][section][level].append({
 			"title": meta.get("title") or title,
-			"url": '/'.join(f.url.split('/')[1:-1]) + '.md'
+			"url": '/'.join(f.url.split('/')[1:-1]) + '.md',
+			"order": nav_order[f.url[:-1]+'.md']
 		})
+		section_order[section] = min(section_order.get(section, 999999), nav_order.get(f.src_path, 999999))
 
+	for section in config['extra']['symbol']['tutorials'].values():
+		for items in section.values():
+			items.sort(key=lambda t: t["order"])
+
+	tutorials = config['extra']['symbol']['tutorials']
+	config['extra']['symbol']['tutorials'] = dict(
+		sorted(
+			tutorials.items(),
+			key=lambda item: section_order.get(item[0], 999999),
+		)
+	)
 	return files.Files(out_files)
 
 @mkdocs.plugins.event_priority(50)
