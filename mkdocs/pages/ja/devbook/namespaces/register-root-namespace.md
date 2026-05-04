@@ -1,5 +1,6 @@
 ---
 title: ルートネームスペースの登録
+tutorial_level: intermediate
 ---
 
 # ルートネームスペースの登録 {: #registering-a-root-namespace }

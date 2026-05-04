@@ -1,5 +1,6 @@
 ---
 title: Modify Mosaic Definition
+tutorial_level: intermediate
 ---
 
 # Modifying a Mosaic Definition

@@ -1,5 +1,6 @@
 ---
 title: Create Mosaic
+tutorial_level: advanced
 ---
 
 # Creating a Mosaic

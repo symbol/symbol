@@ -1,5 +1,6 @@
 ---
 title: モザイクの作成
+tutorial_level: advanced
 ---
 
 # モザイクの作成 {: #creating-a-mosaic }

@@ -1,5 +1,6 @@
 ---
 title: Get Mosaic Information
+tutorial_level: beginner
 ---
 
 # Getting Mosaic Information

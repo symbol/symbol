@@ -1,5 +1,6 @@
 ---
 title: モザイクの回収（リボーク）
+tutorial_level: beginner
 ---
 
 # モザイクの回収（リボーク） {: #revoking-a-mosaic }

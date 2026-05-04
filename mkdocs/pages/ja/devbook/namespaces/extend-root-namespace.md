@@ -1,5 +1,6 @@
 ---
 title: ルートネームスペースの延長
+tutorial_level: beginner
 ---
 
 # ルートネームスペースの延長 {: #extending-a-root-namespace }

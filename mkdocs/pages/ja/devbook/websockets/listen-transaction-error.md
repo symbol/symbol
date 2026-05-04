@@ -1,5 +1,6 @@
 ---
 title: トランザクションエラー
+tutorial_level: beginner
 ---
 
 # トランザクションエラーのリスニング {: #listening-to-transaction-errors }
