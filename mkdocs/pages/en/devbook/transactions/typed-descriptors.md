@@ -1,5 +1,6 @@
 ---
 title: Typed Descriptors
+tutorial_level: beginner
 ---
 
 # Creating Transactions Using Typed Descriptors in JavaScript

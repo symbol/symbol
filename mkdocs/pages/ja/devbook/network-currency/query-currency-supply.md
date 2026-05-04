@@ -1,5 +1,6 @@
 ---
 title: 通貨供給量の照会
+tutorial_level: beginner
 ---
 
 # 通貨供給量の照会 {: #querying-currency-supply }

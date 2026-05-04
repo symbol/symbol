@@ -1,5 +1,6 @@
 ---
 title: Prove Mosaic Definition
+tutorial_level: intermediate
 ---
 
 # Prove a Mosaic's Definition

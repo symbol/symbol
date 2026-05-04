@@ -1,5 +1,6 @@
 ---
 title: アグリゲートコンプリートトランザクション
+tutorial_level: advanced
 ---
 
 # アグリゲートコンプリートトランザクションの作成 {: #creating-a-complete-aggregate-transaction }

@@ -1,5 +1,6 @@
 ---
 title: 新しいブロック
+tutorial_level: beginner
 ---
 
 # 新しいブロックのリスニング {: #listening-to-new-blocks }

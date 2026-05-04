@@ -1,5 +1,6 @@
 ---
 title: ネットワーク時間
+tutorial_level: beginner
 ---
 
 # ネットワーク時間 {: #network-time }

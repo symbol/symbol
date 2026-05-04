@@ -1,5 +1,6 @@
 ---
 title: Transaction Batching
+tutorial_level: intermediate
 ---
 
 # Batching Transactions

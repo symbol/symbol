@@ -1,5 +1,6 @@
 ---
 title: Register Root Namespace
+tutorial_level: intermediate
 ---
 
 # Registering a Root Namespace

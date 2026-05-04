@@ -1,5 +1,6 @@
 ---
 title: モザイクメタデータの追加
+tutorial_level: advanced
 ---
 
 # モザイクへのメタデータの追加 {: #adding-metadata-to-a-mosaic }

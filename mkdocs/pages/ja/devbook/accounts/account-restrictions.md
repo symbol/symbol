@@ -1,5 +1,6 @@
 ---
 title: アカウント制限の追加
+tutorial_level: advanced
 ---
 
 # アカウントへの制限の追加 {: #adding-restrictions-to-an-account }

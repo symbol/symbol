@@ -1,5 +1,6 @@
 ---
 title: Configure a Multisig
+tutorial_level: advanced
 ---
 
 # Configuring a Multisignature Account

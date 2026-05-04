@@ -1,5 +1,6 @@
 ---
 title: Query Block Rewards
+tutorial_level: beginner
 ---
 
 # Querying Block Rewards

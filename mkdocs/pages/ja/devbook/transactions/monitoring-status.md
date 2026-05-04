@@ -1,5 +1,6 @@
 ---
 title: トランザクションステータス
+tutorial_level: beginner
 ---
 
 # トランザクションステータスの監視 {: #monitoring-transaction-status }

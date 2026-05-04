@@ -1,5 +1,6 @@
 ---
 title: Cross-Chain Swap
+tutorial_level: advanced
 ---
 
 # Cross-Chain Swap Between Symbol and Ethereum

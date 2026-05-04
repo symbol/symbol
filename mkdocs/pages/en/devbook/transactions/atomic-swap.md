@@ -1,5 +1,6 @@
 ---
 title: Atomic Swap
+tutorial_level: advanced
 ---
 
 # Atomic Swap

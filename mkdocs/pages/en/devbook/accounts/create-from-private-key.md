@@ -1,5 +1,6 @@
 ---
 title: Create from Private Keys
+tutorial_level: beginner
 ---
 
 # Creating Accounts from Private Keys
