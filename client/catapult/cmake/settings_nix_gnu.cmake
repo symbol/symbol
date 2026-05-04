@@ -9,12 +9,12 @@ if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "11.0")
 endif()
 
 target_compile_definitions(build.defaults INTERFACE 
-	$<$<BOOL:${ARCHITECTURE_NAME}>:-march=${ARCHITECTURE_NAME}>
 	_STDC_WANT_LIB_EXT1_=1
 	__STDC_WANT_LIB_EXT1__=1
 )
 
 target_compile_options(build.defaults INTERFACE 
+	$<$<BOOL:${ARCHITECTURE_NAME}>:-march=${ARCHITECTURE_NAME}>
 	$<$<COMPILE_LANGUAGE:CXX>:-Wall>											# enable all warnings
 	$<$<COMPILE_LANGUAGE:CXX>:-Wextra>											# enable extra warnings
 	$<$<COMPILE_LANGUAGE:CXX>:-Wpedantic>										# enable pedantic warnings
@@ -38,7 +38,8 @@ target_compile_options(build.defaults INTERFACE
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<BOOL:${ENABLE_FUZZ_BUILD}>>:-fno-sanitize-recover=all>
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<STREQUAL:${CMAKE_SYSTEM_NAME},Darwin>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>>:-fno-sanitize=vptr>
 
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-D_FORTIFY_SOURCE=3> # Don't pass this using add_option as GCC complains _FORTIFY_SOURCE has been redefined
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-U_FORTIFY_SOURCE>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-D_FORTIFY_SOURCE=3>
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fstack-protector-all>
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fstack-clash-protection>
 
@@ -48,15 +49,22 @@ target_compile_options(build.defaults INTERFACE
 	$<$<COMPILE_LANGUAGE:C>:-Wno-deprecated-declarations>
 )
 
-target_link_options(build.defaults INTERFACE
+target_link_libraries(build.defaults INTERFACE
 	$<$<AND:$<VERSION_GREATER_EQUAL:${CMAKE_CXX_COMPILER_VERSION},8.0>,$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},9.0>>:stdc++fs>
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,noexecstack>
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,relro>
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,now>
+)
+
+target_link_options(build.defaults INTERFACE
+	$<$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>:-Wl,-z,noexecstack>
+	$<$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>:-Wl,-z,relro>
+	$<$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>:-Wl,-z,now>
 )
 
 target_compile_options(build.tests INTERFACE
 	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-dangling-else>
 	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_CXX_COMPILER_VERSION},13.0>>:-Wno-dangling-reference>
 	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_CXX_COMPILER_VERSION},14.0>,$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},16.0>>:-Wno-free-nonheap-object>
+)
+
+target_link_libraries(build.tests INTERFACE
+	$<$<BOOL:${ENABLE_TESTS}>:${GTest_IMPORTED_TARGETS}>
 )
