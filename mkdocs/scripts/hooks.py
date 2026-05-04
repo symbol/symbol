@@ -11,28 +11,31 @@ import yaml
 
 log = logging.getLogger('mkdocs')
 
-def build_nav_order(config):
+def build_nav_order_and_section(config):
 	order = {}
+	section = {}
 	counter = 0
 
-	def walk(items):
+	def walk(items, current_section):
 		nonlocal counter
 
 		for item in items:
 			if isinstance(item, str):
 				order[item] = counter
+				section[item] = current_section
 				counter += 1
 
 			elif isinstance(item, dict):
-				for _, value in item.items():
+				for name, value in item.items():
 					if isinstance(value, str):
 						order[value] = counter
+						section[value] = current_section
 						counter += 1
 					elif isinstance(value, list):
-						walk(value)
+						walk(value, name)
 
-	walk(config.get("nav", []))
-	return order
+	walk(config.get("nav", []), 'None')
+	return order, section
 
 def parse_page_header(text: str) -> tuple[dict, str | None]:
 	"""
@@ -67,7 +70,7 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	out_files: list[File] = []
 	prefixes = tuple(config["extra"]["symbol"]["java-sdk"]["include-prefixes"] + ["links"])
 	config['extra']['symbol']['tutorials'] = {}
-	nav_order = build_nav_order(config)
+	nav_order,nav_section = build_nav_order_and_section(config)
 	section_order = {}
 	for f in in_files:
 		if f.src_uri.startswith("devbook/reference/java"):
@@ -88,10 +91,7 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 		if "tutorial_level" not in meta:
 			continue
 
-		section = f.url.split('/')[-3]
-		section = section.replace('-', ' ')
-		section = section.replace('start', 'getting started')
-		section = section.replace('chain', 'chain state')
+		section = nav_section[f.src_path]
 		level = meta["tutorial_level"]
 		if section not in config['extra']['symbol']['tutorials']:
 			config['extra']['symbol']['tutorials'][section] = {}
