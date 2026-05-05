@@ -117,10 +117,160 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	)
 	return files.Files(out_files)
 
+TAG_RE = re.compile(r"\[(?P<kind>[<>])(?P<name>[A-Za-z0-9_.:-]+)\]")
+COMMENT_RE = re.compile(r"(?P<prefix>#|//)\s*(?P<body>.*)$")
+
+def extract_tutorial_code(config: base.Config) -> None:
+	"""
+	Scans all .py and .mjs files under overrides/devbook and reads all tutorial code, separating it into
+	sections using [>start] and [<end] markers, and removing the markers.
+	Stores the result in config.extra.symbol.tutorial_code:
+	{
+		"<path>": {
+			"full": str,                # Full source with snippet tags removed (lines preserved)
+			"snippets": {
+				"<section_name>": {
+					"code": str,        # Extracted snippet (tags removed)
+					"start_line": int,  # 1-based line number in original file where snippet starts
+					"end_line": int     # 1-based line number where snippet ends (exclusive of closing tag)
+				},
+				...
+			}
+		},
+		...
+	}
+
+	Notes:
+	- Paths are relative to the `overrides` folder (POSIX-style).
+	- Tag-only comment lines are replaced with blank lines in "full.code" to preserve line numbers.
+	- Inline tag comments are stripped, preserving the code before the tag.
+	"""
+	def _comment_contains_only_tags(body: str) -> bool:
+		without_tags = TAG_RE.sub("", body).strip()
+		return without_tags == ""
+
+	def _remove_tags_from_comment(body: str) -> str:
+		return TAG_RE.sub("", body)
+
+	def _process_file(path: Path) -> dict:
+		lines = path.read_text(encoding="utf-8").splitlines()
+
+		clean_full_lines: list[str] = []
+		snippets: dict[str, dict] = {}
+
+		open_sections: dict[str, dict] = {}
+
+		for index, line in enumerate(lines, start=1):
+			comment_match = COMMENT_RE.search(line)
+			tags = []
+
+			if comment_match:
+				tags = list(TAG_RE.finditer(comment_match.group("body")))
+
+			has_tags = bool(comment_match and tags)
+			is_tag_only_comment = bool(
+				has_tags
+				and line[:comment_match.start()].strip() == ""
+				and _comment_contains_only_tags(comment_match.group("body"))
+			)
+
+			clean_line = line
+
+			if has_tags:
+				before_comment = line[:comment_match.start()].rstrip()
+				after_tags = _remove_tags_from_comment(comment_match.group("body")).strip()
+
+				if before_comment and after_tags:
+					clean_line = f"{before_comment} {comment_match.group('prefix')} {after_tags}"
+				elif before_comment:
+					clean_line = before_comment
+				elif after_tags:
+					clean_line = f"{line[:comment_match.start()]}{comment_match.group('prefix')} {after_tags}"
+				else:
+					clean_line = ""
+
+			# First process closing tags on this line.
+			#
+			# This allows:
+			#
+			#     // [<first] [>second]
+			#
+			# to close `first` before opening `second`.
+			for tag in tags:
+				if tag.group("kind") != "<":
+					continue
+
+				name = tag.group("name")
+
+				if name not in open_sections:
+					raise ValueError(f"{path}:{index}: closing unopened snippet section '{name}'")
+
+				section = open_sections.pop(name)
+				snippets[name] = {
+					"code": "\n".join(section["lines"]),
+					"start_line": section["start_line"],
+					"end_line": index - 1,
+				}
+
+			# Then process opening tags on this line.
+			for tag in tags:
+				if tag.group("kind") != ">":
+					continue
+
+				name = tag.group("name")
+
+				if name in open_sections:
+					raise ValueError(f"{path}:{index}: snippet section '{name}' is already open")
+
+				if name in snippets:
+					raise ValueError(f"{path}:{index}: duplicate snippet section '{name}'")
+
+				open_sections[name] = {
+					"start_line": index if clean_line else index + 1,
+					"lines": [],
+				}
+
+			# Remove tag-only comments from rendered full code, but preserve line numbers.
+			clean_full_lines.append(clean_line)
+
+			# Marker comments are not included in snippets.
+			# If the line had code before the marker comment, keep that code.
+			# If it was only a marker comment, preserve the line only in the full listing,
+			# not in extracted snippets.
+			if clean_line:
+				for section in open_sections.values():
+					section["lines"].append(clean_line)
+
+		if open_sections:
+			still_open = ", ".join(sorted(open_sections))
+			raise ValueError(f"{path}: unclosed snippet section(s): {still_open}")
+
+		return {
+			"full": "\n".join(clean_full_lines),
+			"snippets": snippets,
+		}
+
+	root = Path(__file__).parent.parent.joinpath("overrides").resolve()
+	examples_dir = root / "devbook"
+
+	config["extra"]["symbol"]["tutorial_code"] = {}
+
+	for path in examples_dir.rglob("*"):
+		if not path.is_file():
+			continue
+
+		if path.suffix not in {".py", ".mjs"}:
+			continue
+
+		rel_path = path.relative_to(root).as_posix()
+		result = _process_file(path)
+		config["extra"]["symbol"]["tutorial_code"][rel_path] = result
+
 @mkdocs.plugins.event_priority(50)
 def on_pre_build(config: base.Config):
 	"""
 	Copy the OpenAPI spec file next to its markdown, and load it into the config.
+	Load all tutorial sample code into memory and parse sections.
 	"""
 	spec_path = Path(__file__).parent.parent.parent.joinpath("openapi", "_build").resolve()
 	md_path = Path(config.docs_dir).joinpath("devbook", "reference", "rest").resolve()
@@ -128,6 +278,7 @@ def on_pre_build(config: base.Config):
 	shutil.copy2(spec_path / spec_fname, md_path / spec_fname)
 	with open(spec_path / spec_fname, 'r', encoding='utf-8') as f:
 		config['extra']['symbol']['openapi'] = yaml.safe_load(f)
+	extract_tutorial_code(config)
 
 def page_markdown_js_typedoc(content, page, config, files):
 	"""
