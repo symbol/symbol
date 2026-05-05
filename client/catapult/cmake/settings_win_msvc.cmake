@@ -1,11 +1,11 @@
 # MSVC specific compiler settings
 # MSVC (Visual Studio 2019 16.8) is the minimum supported version
-# We support both cl and clang-cl, but both require the same minimum version of Visual Studio
+# We support only cl actually, clang-cl is not (yet) supported
 
-if (MSVC_VERSION LESS_EQUAL 1928)
+if (MSVC_VERSION LESS 1928)
 	message(FATAL_ERROR "MSVC version must be at least 1928 (Visual Studio 2019 16.8)\nFound version ${MSVC_VERSION}")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	message(FATAL_ERROR "Clang-cl is not (yet) supported.\nPlease use MSVC (cl) toolset.")
+	message(FATAL_ERROR "Clang-cl is not (yet) supported.\nPlease use MSVC's cl compiler.")
 endif ()
 
 target_compile_definitions(build.defaults INTERFACE 
@@ -44,16 +44,21 @@ target_compile_options(build.defaults INTERFACE
 
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<NOT:$<STREQUAL:${ARCHITECTURE_NAME},>>>:/arch:${ARCHITECTURE_NAME}>
 
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Debug>>:/Zc:nrvo>	# enable Named Return Value Optimization for Debug builds (MSVC only)
+	# Enable Named Return Value Optimization for Debug builds when supported by MSVC (VS 2022 17.4+)
+	# Note !! This is explicitly enabled for Debug builds only as for other build types, the optimization is already enabled by default.
+	# Rationale : Many tests rely on the fact NRVO is applied. If we don't do this running tests in Debug mode will cause a significant
+	# amount of errors. Due to this running tests in Debug mode for Visual Studio versions less than 17.4 will be very difficult and error prone.
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Debug>,$<VERSION_GREATER_EQUAL:${MSVC_VERSION},1934>>:/Zc:nrvo>
+
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:MSVC>>:/MP${PARALLEL_BUILDS}>		# Uses multiple processes
 
 )
 
 target_link_options(build.defaults INTERFACE
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:/DEBUG>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:/DEBUG>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:/INCREMENTAL:NO>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:/OPT:REF>
+	$<$<CONFIG:Debug>:/DEBUG>
+	$<$<CONFIG:RelWithDebInfo>:/DEBUG>
+	$<$<CONFIG:RelWithDebInfo>:/INCREMENTAL:NO>
+	$<$<CONFIG:RelWithDebInfo>:/OPT:REF>
 )
 
 if (CCACHE_EXE AND USE_CCACHE_ON_WINDOWS)
