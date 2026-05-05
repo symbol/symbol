@@ -48,7 +48,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/websockets/listen-bonded-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen-bonded-transaction-flow', ['py', 'js']) }}
 
 アグリゲートボンデッドトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築、署名、アナウンスする **開始者** （アカウント A）と、WebSocket チャネルを監視し、トランザクションを検証した後に連署する1人以上の **連署者** （アカウント B）です。
 
@@ -59,7 +59,7 @@ tutorial_level: intermediate
 
 ### アカウント A: アカウントの設定 {: #account-a-setting-up-accounts }
 
-{{ tutorial.code_snippet(['py:18:35', 'js:14:31']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 この例では、簡略化のため1つのスクリプトに両方の [秘密鍵](default: 秘密鍵) を含めています。実際には、各当事者が自身のマシンで [署名](default: 署名) します。
 アカウント A は、[埋め込みトランザクション](default: 埋め込みトランザクション) の署名者としてアカウント B を設定し、B の [アドレス](default: アドレス) を派生させるために、アカウント B の [公開鍵](default: 公開鍵) のみを必要とします。
@@ -70,7 +70,7 @@ tutorial_level: intermediate
 
 ### アカウント A: アグリゲートの構築とハッシュロックのアナウンス {: #account-a-building-the-aggregate-and-announcing-the-hash-lock }
 
-{{ tutorial.code_snippet(['py:56:170', 'js:47:162']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 アカウント A は、 [アグリゲートボンデッドトランザクション](../transactions/bonded-aggregate.md) チュートリアルで説明されているのと同じパターンに従い、アカウント B の 1 つのカスタムモザイクと 10 XYM を交換するアグリゲートボンデッドを作成して署名し、必要なハッシュロックをアナウンスします。
 
@@ -78,7 +78,7 @@ tutorial_level: intermediate
 
 ### アカウント B: 接続とチャネルのサブスクライブ {: #account-b-connecting-and-subscribing-to-channels }
 
-{{ tutorial.code_snippet(['py:171:193', 'js:164:189']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード](default: ノード) を設定します。値が指定されない場合は、デフォルト値が使用されます。
 WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き換え、 `/ws` を追加することで `NODE_URL` から派生します。
@@ -93,13 +93,13 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### アカウント A: ボンデッドアグリゲートのアナウンス {: #account-a-announcing-the-bonded-aggregate }
 
-{{ tutorial.code_snippet(['py:194:203', 'js:257:267']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 アカウント B のサブスクライブが完了すると、アカウント A は通常の <put:/transactions> エンドポイントではなく、 <put:/transactions/partial> にボンデッドアグリゲートをアナウンスします。
 
 ### アカウント B: WebSocket メッセージの処理と連署 {: #account-b-handling-websocket-messages-and-cosigning }
 
-{{ tutorial.code_snippet(['py:205:258', 'js:191:255']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 アカウント B は受信メッセージをリスニングし、チャネルごとに振り分けます。
 メッセージのスキーマは、 `cosignature` メッセージを除き、 [通常のトランザクションフロー](./listen-transaction-flow.md) チュートリアルと同じです。 `cosignature` メッセージは [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO) スキーマに従い、他のチャネルで使用される `meta.hash` フィールドは含まれません。
@@ -118,7 +118,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### アカウント B: チャネルのサブスクライブ解除 {: #account-b-unsubscribing-from-channels }
 
-{{ tutorial.code_snippet(['py:259:265', 'js:269:274']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 承認後、アカウント B は接続を閉じる前に、すべてのチャネルのサブスクライブ解除メッセージを送信します。
 

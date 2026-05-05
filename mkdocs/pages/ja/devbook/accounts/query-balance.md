@@ -18,7 +18,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/query-balance', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/query-balance', ['py', 'js']) }}
 
 このスニペットでは、`NODE_URL` 環境変数を使用して Symbol API ノードを設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -34,7 +34,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### アカウント情報の取得 {: #fetching-account-information }
 
-{{ tutorial.code_snippet(['py:10:33', 'js:6:32']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 <get:/accounts/{accountId}> エンドポイントは、保持しているすべてのモザイクを含むアカウントの状態を取得します。
 
@@ -42,7 +42,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### モザイク名の取得 {: #fetching-mosaic-names }
 
-{{ tutorial.code_snippet(['py:36:60', 'js:34:57']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 モザイクは64ビットの数値である [モザイク ID](default:モザイクID) によって識別されますが、これは読みにくく覚えにくい場合があります。
 利便性を高めるために、モザイクを人間が読み取り可能な [ネームスペース](default:ネームスペース) エイリアスにリンクさせることができます。
@@ -54,7 +54,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### モザイクプロパティの取得 {: #fetching-mosaic-properties }
 
-{{ tutorial.code_snippet(['py:63:87', 'js:59:82']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 モザイク残高を正しくフォーマットするために、スニペットはネットワークからプロパティを取得します。
 必要な主要プロパティは [可分性](default:可分性) であり、これはモザイクがサポートする小数点以下の桁数を定義します。
@@ -64,7 +64,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### 金額のフォーマット {: #formatting-amounts }
 
-{{ tutorial.code_snippet(['py:90:105', 'js:84:101']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 このユーティリティ関数は、*絶対量 (atomic amount)* を人間にとってわかりやすい表現に変換します。
 
@@ -76,7 +76,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### すべてを組み合わせる {: #putting-it-all-together }
 
-{{ tutorial.code_snippet(['py:108:150', 'js:103:148']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 メインコードは `ADDRESS` 環境変数を読み取って、どのアカウントを照会するかを決定します。
 値が指定されない場合は、デフォルトのサンプルアドレスを使用します。

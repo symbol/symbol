@@ -40,7 +40,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/websockets/listen-transaction-error', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen-transaction-error', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード] (default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -50,7 +50,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### 監視対象アドレスと署名者の設定 {: #setting-up-the-monitored-address-and-signer }
 
-{{ tutorial.code_snippet(['py:17:27', 'js:14:22']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 `status` チャネルは、特定のアドレスをスコープとします。
 `MONITOR_ADDRESS` 環境変数は、監視するアドレスを設定します。
@@ -61,7 +61,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### WebSocket への接続 {: #connecting-to-the-websocket }
 
-{{ tutorial.code_snippet(['py:31:35', 'js:25:33']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 コードは、ノードの `/ws` エンドポイントへの WebSocket 接続を開きます。
 接続すると、サーバーは以降のすべてのサブスクリプションリクエストに含める必要がある一意の識別子（ `uid` ）を含むメッセージを送信します。
@@ -70,14 +70,14 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### Status チャネルのサブスクライブ {: #subscribing-to-the-status-channel }
 
-{{ tutorial.code_snippet(['py:37:42', 'js:35:38']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 コードは、監視対象アドレスをスコープとする <ws:status&#47;{address}> チャネルをサブスクライブします。
 このチャネルは、そのアドレスが関与するトランザクションがネットワークによって拒否されるたびに通知を行い、エラーコードとトランザクションハッシュを提供します。
 
 ### 無効な転送トランザクションの構築と署名 {: #building-and-signing-an-invalid-transfer-transaction }
 
-{{ tutorial.code_snippet(['py:44:73', 'js:40:67']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 このチュートリアルでは、エイリアス `symbol.unknown` を持つモザイクを含め、監視対象アドレスに送信される [転送トランザクション](../transactions/transfer.md) を構築します。
 このモザイクはネットワーク上に存在しないため、トランザクションは拒否されます。
@@ -87,7 +87,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### アナウンスとエラーの待機 {: #announcing-and-waiting-for-the-error }
 
-{{ tutorial.code_snippet(['py:75:96', 'js:69:93']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 コードはトランザクションをアナウンスし、受信メッセージをリスニングします。
 各メッセージは [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) スキーマに従い、以下が含まれます。
@@ -100,7 +100,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### チャネルのサブスクライブ解除 {: #unsubscribing-from-the-channel }
 
-{{ tutorial.code_snippet(['py:98:102', 'js:95:98']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 エラーを受信した後、コードは接続を閉じる前にサブスクライブ解除メッセージを送信します。
 

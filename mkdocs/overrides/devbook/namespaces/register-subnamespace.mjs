@@ -43,7 +43,7 @@ try {
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
 
-	// Build the transaction
+	// Build the transaction [>step-1]
 	const rootNamespaceName = 'ns_root';
 	const childNamespaceName = `sub_${Date.now()}`;
 	const fullNamespaceName =
@@ -64,7 +64,7 @@ try {
 		name: childNamespaceName
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
-
+	// [<step-1]
 	// Sign transaction and generate final payload
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
@@ -123,7 +123,7 @@ try {
 		}
 	}
 
-	// Retrieve the namespace
+	// Retrieve the namespace [>step-2]
 	const namespaceId = generateNamespaceId(
 		childNamespaceName, parentId);
 	console.log(
@@ -155,7 +155,7 @@ try {
 		console.log('  Level 2:', namespaceInfo.level2);
 	}
 	console.log('  Start height:', namespaceInfo.startHeight);
-	console.log('  End height:', namespaceInfo.endHeight);
+	console.log('  End height:', namespaceInfo.endHeight); // [<step-2]
 } catch (e) {
 	console.error(e.message);
 }

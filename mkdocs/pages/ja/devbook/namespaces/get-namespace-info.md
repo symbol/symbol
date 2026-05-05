@@ -17,7 +17,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/get-namespace-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/get-namespace-info', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol APIノードを設定します。
 値が指定されない場合は、デフォルトの [テストネット](default:テストネット) ノードが使用されます。
@@ -29,7 +29,7 @@ tutorial_level: beginner
 
 ### ネームスペースIDの生成 {: #generating-the-namespace-id }
 
-{{ tutorial.code_snippet(['py:16:20', 'js:11:15']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 ネームスペースIDは、 <dy:IdGenerator.generateNamespacePath> を使用して、ネームスペース名からローカルで計算されます。
 この関数は、 `symbol.xym` のような完全修飾名を受け取り、それを `.` で分割し、階層の各レベルのネームスペースIDの配列を返します。
@@ -37,7 +37,7 @@ tutorial_level: beginner
 
 ### ネームスペース情報の取得 {: #fetching-namespace-information }
 
-{{ tutorial.code_snippet(['py:22:44', 'js:17:46']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 <get:/namespaces/{namespaceId}> エンドポイントは、以下のネームスペースの現在のプロパティを取得します。
 
@@ -55,7 +55,7 @@ tutorial_level: beginner
 
 ### エイリアスの確認 {: #checking-the-alias }
 
-{{ tutorial.code_snippet(['py:46:58', 'js:48:59']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 ネームスペース階層の各レベルは、独自の[エイリアス](../../textbook/namespaces.md#linking)を持つことができる独立したネームスペースです。
 レスポンスには、照会されたレベルのエイリアス情報が含まれており、モザイクまたはアカウントのどちらにリンクされているかを示します。

@@ -11,9 +11,9 @@ from symbolchain import sc
 
 
 # OPTION 1
-
+# [>step-1]
 def build_prefunded_message_transaction(recipient_address, message):
-	# Build the embedded message transaction
+	# Build the embedded message transaction [>step-2]
 	message_transaction = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		# Account sending the message
@@ -21,8 +21,8 @@ def build_prefunded_message_transaction(recipient_address, message):
 		'recipient_address': recipient_address,
 		'message': message
 	})
-
-	# Build the embedded prefund transaction
+	# [<step-2]
+	# Build the embedded prefund transaction [>step-3]
 	prefund_transaction = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		# Account funding the transaction fee
@@ -36,8 +36,8 @@ def build_prefunded_message_transaction(recipient_address, message):
 			'amount': 0 # To be filled once value is known
 		}]
 	})
-
-	# Build the wrapper complete aggregate transaction
+	# [<step-3]
+	# Build the wrapper complete aggregate transaction [>step-4]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		# This is the account that will pay for the transaction
@@ -53,8 +53,8 @@ def build_prefunded_message_transaction(recipient_address, message):
 	transaction.transactions_hash = sc.Hash256(
 		facade.hash_embedded_transactions(
 			[message_transaction, prefund_transaction]).bytes)
-
-	# Sign the aggregate transaction using the user's signature
+	# [<step-4]
+	# Sign the aggregate transaction using the user's signature [>step-5]
 	facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(user_key_pair, transaction))
@@ -65,13 +65,13 @@ def build_prefunded_message_transaction(recipient_address, message):
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(user_key_pair, transaction))
-
+	# [<step-5]
 	return (transaction, json_payload)
-
+# [<step-1]
 # OPTION 2
-
+# [>step-6]
 def build_sponsored_message_transaction(recipient_address, message):
-	# Build the embedded message transaction
+	# Build the embedded message transaction [>step-7]
 	message_transaction = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		# Account sending the message
@@ -79,8 +79,8 @@ def build_sponsored_message_transaction(recipient_address, message):
 		'recipient_address': recipient_address,
 		'message': message
 	})
-
-	# Build the embedded filler transaction
+	# [<step-7]
+	# Build the embedded filler transaction [>step-8]
 	filler_transaction = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		# The application account is both the sender and the recipient
@@ -90,8 +90,8 @@ def build_sponsored_message_transaction(recipient_address, message):
 			facade.network.public_key_to_address(
 				app_key_pair.public_key)
 	})
-
-	# Build the wrapper complete aggregate transaction
+	# [<step-8]
+	# Build the wrapper complete aggregate transaction [>step-9]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		# This is the account that will pay for the transaction
@@ -103,8 +103,8 @@ def build_sponsored_message_transaction(recipient_address, message):
 	})
 	# Calculate total fee, reserving space for a cosignature
 	transaction.fee = sc.Amount(fee_mult * (transaction.size + 104))
-
-	# Sign the aggregate transaction using the app's signature
+	# [<step-9]
+	# Sign the aggregate transaction using the app's signature [>step-10]
 	facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(app_key_pair, transaction))
@@ -115,9 +115,9 @@ def build_sponsored_message_transaction(recipient_address, message):
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(app_key_pair, transaction))
-
+	# [<step-10]
 	return (transaction, json_payload)
-
+# [<step-6]
 NODE_URL = 'https://reference.symboltest.net:3001'
 print(f'Using node {NODE_URL}')
 

@@ -10,7 +10,7 @@ const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
 const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
 console.log(`Using node ${NODE_URL}`);
-
+// [>step-1]
 const ACCOUNT_A_PRIVATE_KEY =
 	process.env.ACCOUNT_A_PRIVATE_KEY
 	|| '0000000000000000000000000000000000000000000000000000000000000000';
@@ -29,7 +29,7 @@ const accountBAddress = facade.network
 	.publicKeyToAddress(accountBKeyPair.publicKey);
 console.log('Account A:', accountAAddress.toString());
 console.log('Account B:', accountBAddress.toString());
-
+// [<step-1]
 try {
 	// Fetch current network time
 	const timeResponse = await fetch(`${NODE_URL}/node/time`);
@@ -44,7 +44,7 @@ try {
 	const feeMultiplier = Math.max(
 		feeJSON.medianFeeMultiplier, feeJSON.minFeeMultiplier);
 
-	// [Account A] Build embedded transactions for the swap
+	// [Account A] Build embedded transactions for the swap [>step-2]
 	const embeddedTx1 = facade.transactionFactory.createEmbedded({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: accountAKeyPair.publicKey.toString(),
@@ -160,8 +160,8 @@ try {
 		}));
 	}
 	lockWebSocket.close();
-
-	// [Account B] Connect to WebSocket for bonded flow
+	// [<step-2]
+	// [Account B] Connect to WebSocket for bonded flow [>step-3]
 	const websocket = new WebSocket(WS_URL);
 	const uid = await new Promise((resolve) => {
 		websocket.addEventListener('message', (event) => {
@@ -187,8 +187,8 @@ try {
 		const name = channel.split('/')[0];
 		console.log(`[Account B] Subscribed to ${name} channel`);
 	}
-
-	// [Account B] Listen for bonded transaction flow
+	// [<step-3]
+	// [Account B] Listen for bonded transaction flow [>step-5]
 	const confirmed = new Promise((resolve, reject) => {
 		websocket.addEventListener('message', (event) => {
 			const message = JSON.parse(event.data);
@@ -253,8 +253,8 @@ try {
 			}
 		});
 	});
-
-	// [Account A] Announce bonded aggregate
+	// [<step-5]
+	// [Account A] Announce bonded aggregate [>step-4]
 	await fetch(`${NODE_URL}/transactions/partial`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
@@ -265,13 +265,13 @@ try {
 
 	// Wait for confirmation via WebSocket
 	await confirmed;
-
-	// Unsubscribe before closing
+	// [<step-4]
+	// Unsubscribe before closing [>step-6]
 	for (const channel of channels) {
 		websocket.send(JSON.stringify({uid, unsubscribe: channel}));
 	}
 	console.log('[Account B] Unsubscribed from all channels');
-	websocket.close();
+	websocket.close(); // [<step-6]
 } catch (error) {
 	console.error(error);
 }

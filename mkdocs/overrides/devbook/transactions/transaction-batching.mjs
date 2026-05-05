@@ -10,7 +10,7 @@ import {
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
-
+// [>step-1]
 const SIGNER_PRIVATE_KEY =
 	process.env.SIGNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
@@ -33,9 +33,9 @@ const recipient2Hex = Buffer.from(
 	new Address(RECIPIENT_2).bytes).toString('hex').toUpperCase();
 console.log(`Recipient 1: ${RECIPIENT_1} (${recipient1Hex})`);
 console.log(`Recipient 2: ${RECIPIENT_2} (${recipient2Hex})`);
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -54,8 +54,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Embedded tx 1: Send 5 XYM to Recipient 1
+	// [<step-2]
+	// Embedded tx 1: Send 5 XYM to Recipient 1 [>step-3]
 	const xymMosaicId = generateMosaicAliasId('symbol.xym');
 	const embeddedTx1 = facade.transactionFactory.createEmbedded({
 		type: 'transfer_transaction_v1',
@@ -77,8 +77,8 @@ try {
 			amount: 3_000_000n  // 3 XYM
 		}]
 	});
-
-	// Build the aggregate transaction
+	// [<step-3]
+	// Build the aggregate transaction [>step-4]
 	const embeddedTransactions = [embeddedTx1, embeddedTx2];
 	const transaction = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
@@ -92,8 +92,8 @@ try {
 		feeMult * transaction.size);
 	console.log('Built aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
-
-	// Sign transaction and generate final payload
+	// [<step-4]
+	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static
@@ -109,8 +109,8 @@ try {
 			body: jsonPayload
 		});
 	console.log('  Response:', await announceResponse.text());
-
-	// Wait for confirmation
+	// [<step-5]
+	// Wait for confirmation [>step-6]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
@@ -136,7 +136,7 @@ try {
 			console.log('  Transaction status: unknown | Cause:',
 				e.message);
 		}
-	}
+	} // [<step-6]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

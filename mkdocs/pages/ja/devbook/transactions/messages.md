@@ -28,7 +28,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/messages', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/messages', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -38,7 +38,7 @@ tutorial_level: intermediate
 
 ### アカウントの設定 {: #setting-up-accounts }
 
-{{ tutorial.code_snippet(['py:45:71', 'js:43:61']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 メッセージを送信するには、送信者の [秘密鍵](default:秘密鍵) と受信者の[アドレス](default:アドレス) が必要です。
 メッセージを暗号化するには、さらに受信者の [公開鍵](default:公開鍵) が必要です。
@@ -54,7 +54,7 @@ tutorial_level: intermediate
 
 ### プレーンテキストメッセージの送信 {: #sending-a-plain-text-message }
 
-{{ tutorial.code_snippet(['py:94:110', 'js:84:99']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 トランザクション記述子に `mosaics` フィールドと `message` フィールドの両方を含めることで、モザイクの転送とメッセージを組み合わせることができます。
 
@@ -76,7 +76,7 @@ tutorial_level: intermediate
 
 ### プレーンテキストメッセージの受信 {: #receiving-a-plain-text-message }
 
-{{ tutorial.code_snippet(['py:135:148', 'js:119:129']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 トランザクションをアナウンスした後、 `retrieve_confirmed_transaction` ヘルパー関数が、トランザクションが承認されるまで
 <get:/transactions/confirmed/{transactionId}> エンドポイントをポーリングします。
@@ -86,7 +86,7 @@ tutorial_level: intermediate
 
 ### 暗号化されたメッセージの送信 {: #sending-an-encrypted-message }
 
-{{ tutorial.code_snippet(['py:151:177', 'js:132:156']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 暗号化されたメッセージは、送信者の秘密鍵と受信者の公開鍵から派生した共通鍵を使用してメッセージの内容を保護することで、機密性を提供します。
 送信者と受信者の両方が、自身の秘密鍵と相手の公開鍵を使用してメッセージを復号できます。
@@ -109,7 +109,7 @@ tutorial_level: intermediate
 
 ### 暗号化されたメッセージの受信 {: #receiving-an-encrypted-message }
 
-{{ tutorial.code_snippet(['py:202:228', 'js:177:200']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 暗号化されたメッセージトランザクションをアナウンスした後、 `retrieve_confirmed_transaction` ヘルパー関数が承認をポーリングします。
 

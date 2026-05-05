@@ -46,7 +46,7 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv(
 	'SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -57,9 +57,9 @@ facade = SymbolFacade('testnet')
 signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -78,10 +78,10 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
+	# [<step-2]
 	# --- CREATING MOSAIC DEFINITION ---
 	print('\n--- Creating mosaic definition ---')
-
+	# [>step-3]
 	nonce = int(time.time()) & 0xFFFFFFFF
 	print(f'Mosaic nonce: {nonce}')
 
@@ -98,8 +98,8 @@ try:
 
 	mosaic_id = generate_mosaic_id(signer_address, nonce)
 	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
-
-	# Sign and generate final payload
+	# [<step-3]
+	# Sign and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, definition_tx)
 	json_payload = facade.transaction_factory.attach_signature(
 			definition_tx, signature)
@@ -111,10 +111,10 @@ try:
 	print(f'Transaction hash: {definition_hash}')
 	announce_transaction(json_payload, 'mosaic definition')
 	wait_for_confirmation(definition_hash, 'mosaic definition')
-
+	# [<step-4]
 	# --- INCREASING MOSAIC SUPPLY ---
 	print('\n--- Increasing mosaic supply ---')
-
+	# [>step-5]
 	supply_tx = facade.transaction_factory.create({
 		'type': 'mosaic_supply_change_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -124,8 +124,8 @@ try:
 		'delta': 100_00
 	})
 	supply_tx.fee = Amount(fee_mult * supply_tx.size)
-
-	# Sign and generate final payload
+	# [<step-5]
+	# Sign and generate final payload [>step-6]
 	signature = facade.sign_transaction(signer_key_pair, supply_tx)
 	json_payload = facade.transaction_factory.attach_signature(
 			supply_tx, signature)
@@ -138,10 +138,10 @@ try:
 	print(f'Transaction hash: {supply_hash}')
 	announce_transaction(json_payload, 'mosaic supply change')
 	wait_for_confirmation(supply_hash, 'mosaic supply change')
-
+	# [<step-6]
 	# --- VERIFYING MOSAIC ---
 	print('\n--- Verifying mosaic ---')
-
+	# [>step-7]
 	mosaic_id_hex = f'{mosaic_id:016x}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
@@ -154,6 +154,6 @@ try:
 		print(f'  Flags: {mosaic_info["flags"]}')
 		print(f'  Divisibility: {mosaic_info["divisibility"]}')
 		print(f'  Duration: {mosaic_info["duration"]}')
-
+	# [<step-7]
 except Exception as e:
 	print(e)

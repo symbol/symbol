@@ -13,7 +13,7 @@ from websockets import connect
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 WS_URL = NODE_URL.replace('http', 'ws', 1) + '/ws'
 print(f'Using node {NODE_URL}')
-
+# [>step-1]
 MONITOR_ADDRESS = os.getenv(
 	'MONITOR_ADDRESS','TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I'
 )
@@ -25,23 +25,23 @@ SIGNER_PRIVATE_KEY = os.getenv(
 )
 facade = SymbolFacade('testnet')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
-
+# [<step-1]
 
 async def main():
-	async with connect(WS_URL) as websocket:
+	async with connect(WS_URL) as websocket: # [>step-2]
 		# Connect to WebSocket
 		response = json.loads(await websocket.recv())
 		uid = response['uid']
 		print(f'Connected to {WS_URL} with uid {uid}')
-
-		# Subscribe to status channel
+	# [<step-2]
+		# Subscribe to status channel [>step-3]
 		channel = f'status/{MONITOR_ADDRESS}'
 		await websocket.send(json.dumps(
 			{'uid': uid, 'subscribe': channel}
 		))
 		print('Subscribed to status channel')
-
-		# Build a transfer transaction with a non-existent mosaic
+		# [<step-3]
+		# Build a transfer transaction with a non-existent mosaic [>step-4]
 		with urllib.request.urlopen(f'{NODE_URL}/node/time') as resp:
 			time_json = json.loads(resp.read().decode())
 			timestamp = NetworkTimestamp(int(
@@ -70,8 +70,8 @@ async def main():
 		signature = facade.sign_transaction(signer_key_pair, transaction)
 		json_payload = facade.transaction_factory.attach_signature(
 			transaction, signature)
-		transaction_hash = str(facade.hash_transaction(transaction))
-
+		transaction_hash = str(facade.hash_transaction(transaction)) # [<step-4]
+		# [>step-5]
 		announce_request = urllib.request.Request(
 			f'{NODE_URL}/transactions',
 			data=json_payload.encode(),
@@ -94,13 +94,13 @@ async def main():
 
 			if tx_hash == transaction_hash:
 				break
-
-		# Unsubscribe before closing
+		# [<step-5]
+		# Unsubscribe before closing [>step-6]
 		await websocket.send(json.dumps(
 			{'uid': uid, 'unsubscribe': channel}
 		))
 		print('Unsubscribed from status channel')
-
+		# [<step-6]
 
 try:
 	asyncio.run(main())

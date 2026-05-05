@@ -51,7 +51,7 @@ async function waitForConfirmation(transactionHash, label) {
 
 // Returns a filtered list of restrictions currently applied to the mosaic
 // matching the given restriction key
-async function getMosaicRestrictions(query, key) {
+async function getMosaicRestrictions(query, key) { // [>step-5] [>step-4]
 	const restrictionsPath = `/restrictions/mosaic?${query}`;
 	console.log(`  Getting restrictions from ${restrictionsPath}`);
 	let res = [];
@@ -77,13 +77,13 @@ function getMosaicGlobalRestrictions(mosaicId, key) {
 		`mosaicId=${mosaicId.toString(16)}&entryType=1`,
 		key);
 }
-
+// [<step-4]
 function getMosaicAddressRestrictions(mosaicId, address, key) {
 	return getMosaicRestrictions(
 		`mosaicId=${mosaicId.toString(16)}&entryType=0` +
 		`&targetAddress=${address}`, key);
 }
-
+// [<step-5]
 // Returns a transaction enabling a mosaic's global restriction
 function globalRestrictionEnableTransaction() {
 	const transaction = facade.transactionFactory.createEmbedded({
@@ -119,7 +119,7 @@ function addressRestrictionSetValue(prevValue, newValue, address) {
 }
 
 const facade = new SymbolFacade('testnet');
-
+// [>step-1]
 const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
 const ownerKeyPair = new KeyPair(new PrivateKey(OWNER_PRIVATE_KEY));
@@ -140,9 +140,9 @@ const restrictionKey = mosaicRestrictionGenerateKey(restrictionName);
 console.log(`Restriction name: "${restrictionName}" (key: 0x${
 	restrictionKey.toString(16).toUpperCase().padStart(16, '0')
 	})`);
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -161,8 +161,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Enable global restriction if required
+	// [<step-2]
+	// Enable global restriction if required [>step-3]
 	const transactions = [];
 	console.log('Checking if the global restriction is enabled:');
 	const globalRestrictions = await getMosaicGlobalRestrictions(
@@ -177,9 +177,9 @@ try {
 		transactions.push(addressRestrictionSetValue(
 			0xFFFFFFFFFFFFFFFFn, 1n, ownerAddress.toString()));
 	}
-
+	// [<step-3]
 	// Toggle target address restriction
-	console.log('Checking if target account is authorized:');
+	console.log('Checking if target account is authorized:'); // [>step-6]
 	const addressRestrictions = await getMosaicAddressRestrictions(
 		mosaicId, targetAddress, restrictionKey);
 	let prevValue = 0xFFFFFFFFFFFFFFFFn;
@@ -196,9 +196,9 @@ try {
 		transactions.push(addressRestrictionSetValue(
 			prevValue, 0n, targetAddress));
 	}
-
+	// [<step-6]
 	// Build an aggregate transaction
-	console.log('Bundling', transactions.length,
+	console.log('Bundling', transactions.length, // [>step-7]
 		'transaction(s) in an aggregate');
 	const aggregate = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
@@ -209,17 +209,17 @@ try {
 		transactions
 	});
 	aggregate.fee = new models.Amount(feeMult * aggregate.size);
-
+	// [<step-7]
 	// Sign, announce and wait for confirmation
-	let payload = SymbolTransactionFactory.attachSignature(
+	let payload = SymbolTransactionFactory.attachSignature( // [>step-8]
 		aggregate,
 		facade.signTransaction(ownerKeyPair, aggregate));
 	let hash = facade.hashTransaction(aggregate).toString();
 	await announceTransaction(payload, 'aggregate');
 	await waitForConfirmation(hash, 'aggregate');
-
+	// [<step-8]
 	// Try to transfer the mosaic to the target address
-	const transfer = facade.transactionFactory.create({
+	const transfer = facade.transactionFactory.create({ // [>step-9]
 		type: 'transfer_transaction_v1',
 		signerPublicKey: ownerKeyPair.publicKey,
 		deadline: timestamp.addHours(2).timestamp,
@@ -238,7 +238,7 @@ try {
 	console.log('\nAttempting transfer to the target account');
 	await announceTransaction(payload, 'test transfer');
 	await waitForConfirmation(hash, 'test transfer');
-
+	// [<step-9]
 } catch (e) {
 	console.error(e.message);
 }

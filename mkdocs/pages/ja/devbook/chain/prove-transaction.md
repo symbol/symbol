@@ -22,7 +22,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/prove-transaction', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove-transaction', ['py', 'js']) }}
 
 このスニペットは、証明するトランザクションの [ハッシュ](default:ハッシュ) を `TRANSACTION_HASH` 環境変数から読み取ります。設定されていない場合は、Symbolテストネットのブロック `55` にある既知のトランザクションがデフォルトとして使用されます。
 
@@ -30,7 +30,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 ### 承認済みトランザクションの取得 {: #fetching-the-confirmed-transaction }
 
-{{ tutorial.code_snippet(['py:17:26', 'js:13:22']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 コードは、 <get:/transactions/confirmed/{transactionId}> エンドポイントから承認済みのトランザクションを取得します。
 
@@ -40,7 +40,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 ### ブロックヘッダーの取得 {: #fetching-the-block-header }
 
-{{ tutorial.code_snippet(['py:28:39', 'js:24:35']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 <get:/blocks/{height}> エンドポイントは、 `transactionsHash` フィールドを含むブロックのメタデータを返します。このハッシュは、ブロック内の各トランザクションの `merkleComponentHash` から構築されたマークルツリーのルートです。
 
@@ -48,7 +48,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 ### マークル証明パスの取得 {: #fetching-the-merkle-proof-path }
 
-{{ tutorial.code_snippet(['py:41:56', 'js:37:53']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 <get:/blocks/{height}/transactions/{hash}/merkle> エンドポイントは、**マークル証明パス**（Merkle proof path）を返します。これは、 `merkleComponentHash` から始めて `transactionsHash` を再計算するために必要な最小限の中間ハッシュのセットです（マークルツリーの各レベルに1つずつ）。
 
@@ -61,7 +61,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 ### 証明の検証 {: #verifying-the-proof }
 
-{{ tutorial.code_snippet(['py:58:70', 'js:55:67']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 <dy:Merkle.proveMerkle> は、指定された位置順序に従って `merkleComponentHash` を証明パス内の各中間ハッシュと反復的に結合することで、マークルルートを再計算します。計算されたルートがブロックの `transactionsHash` と一致すれば、そのトランザクションがブロックの一部であることが証明されます。
 

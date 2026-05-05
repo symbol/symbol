@@ -6,7 +6,7 @@ NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
-
+# [>step-1]
 def get_account_info(account_identifier):
 	"""
 	Fetch account information by address or public key.
@@ -31,8 +31,8 @@ def get_account_info(account_identifier):
 		else:
 			print(f'Unexpected error: {e}')
 		raise SystemExit(1)
-
-
+# [<step-1]
+# [>step-2]
 def get_mosaic_names(mosaic_ids):
 	"""
 	Fetch friendly names for a set of mosaics.
@@ -58,8 +58,8 @@ def get_mosaic_names(mosaic_ids):
 			mosaic_id = int(entry['mosaicId'], 16)
 			names_map[mosaic_id] = entry['names']
 		return names_map
-
-
+# [<step-2]
+# [>step-3]
 def get_mosaics_info(mosaic_ids):
 	"""
 	Fetch information for multiple mosaics in a single request.
@@ -85,8 +85,8 @@ def get_mosaics_info(mosaic_ids):
 			mosaic_id = int(entry['mosaic']['id'], 16)
 			mosaics_map[mosaic_id] = entry['mosaic']
 		return mosaics_map
-
-
+# [<step-3]
+# [>step-4]
 def format_amount(amount, divisibility):
 	"""
 	Format an atomic amount with decimal places.
@@ -103,9 +103,9 @@ def format_amount(amount, divisibility):
 	whole_part = amount // (10 ** divisibility)
 	fractional_part = amount % (10 ** divisibility)
 	return f'{whole_part}.{fractional_part:0{divisibility}d}'
+# [<step-4]
 
-
-# The account address to query
+# The account address to query [>step-5]
 ADDRESS = os.getenv(
 	'ADDRESS', 'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ')
 print(f'Fetching account information from {ADDRESS}')
@@ -147,4 +147,4 @@ for mosaic_entry in account_mosaics:
 
 	print(f'  Balance: {formatted_balance}')
 	print(f'  Balance (atomic): {balance}')
-	print(f'  Divisibility: {divisibility}')
+	print(f'  Divisibility: {divisibility}') # [<step-5]

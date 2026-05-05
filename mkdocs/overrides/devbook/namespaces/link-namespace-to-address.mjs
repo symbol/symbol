@@ -11,7 +11,7 @@ import {
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
-
+// [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
@@ -20,8 +20,8 @@ const signerKeyPair = new SymbolFacade.KeyPair(
 const facade = new SymbolFacade('testnet');
 const signerAddress = facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
-console.log('Signer address:', signerAddress.toString());
-
+console.log('Signer address:', signerAddress.toString()); // [<step-1]
+// [>step-2]
 const namespaceName = process.env.NAMESPACE_NAME || 'my_namespace';
 console.log('Namespace name:', namespaceName);
 
@@ -36,9 +36,9 @@ const targetAddress = new SymbolFacade.Address(
 	process.env.TARGET_ADDRESS ||
 	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI');
 console.log('Target address:', targetAddress.toString());
-
+// [<step-2]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-3]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -58,8 +58,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Build the alias transaction
+	// [<step-3]
+	// Build the alias transaction [>step-4]
 	const transaction = facade.transactionFactory.create({
 		type: 'address_alias_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -69,8 +69,8 @@ try {
 		aliasAction: 'link'
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
-
-	// Sign transaction and generate final payload
+	// [<step-4]
+	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
 	const jsonPayload =
@@ -91,8 +91,8 @@ try {
 		body: jsonPayload
 	});
 	console.log('  Response:', await announceResponse.text());
-
-	// Wait for confirmation
+	// [<step-5]
+	// Wait for confirmation [>step-6]
 	console.log('Waiting for transaction confirmation...');
 	for (let attempt = 0; attempt < 60; attempt++) {
 		await new Promise(resolve => setTimeout(resolve, 1000));
@@ -127,8 +127,8 @@ try {
 			console.log('  Transaction status: unknown');
 		}
 	}
-
-	// Retrieve the namespace to verify the alias
+	// [<step-6]
+	// Retrieve the namespace to verify the alias [>step-7]
 	const namespacePath =
 		`/namespaces/${namespaceId.toString(16)}`;
 	console.log(
@@ -144,8 +144,8 @@ try {
 			namespaceInfo.alias.address);
 		console.log('  Linked address:', aliasedAddress.toString());
 	}
-
-	// Send a transfer using the alias instead of a raw address
+	// [<step-7]
+	// Send a transfer using the alias instead of a raw address [>step-8]
 	console.log('Using alias in transfer:', namespaceName);
 
 	// Encode the namespace ID as a recipient address
@@ -166,7 +166,7 @@ try {
 	});
 	console.log('Transfer transaction:');
 	console.log('  Recipient address (alias):',
-		recipientAddress.toString());
+		recipientAddress.toString()); // [<step-8]
 } catch (e) {
 	console.error(e.message);
 }

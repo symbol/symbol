@@ -17,7 +17,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/chain-heights', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/chain-heights', ['py', 'js']) }}
 
 このスニペットでは、`NODE_URL` 環境変数を使用して Symbol API [ノード](default:ノード) を設定します。値が指定されない場合は、デフォルト値が使用されます。
 
@@ -27,7 +27,7 @@ tutorial_level: beginner
 
 ### チェーン情報の取得 {: #fetching-chain-information }
 
-{{ tutorial.code_snippet(['py:17:22', 'js:12:20']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 各イテレーションで、コードは <get:/chain/info> エンドポイントに `GET` リクエストを送信します。レスポンスには以下が含まれます:
 
@@ -44,7 +44,7 @@ tutorial_level: beginner
 
 ### 高さの変更の追跡 {: #tracking-height-changes }
 
-{{ tutorial.code_snippet(['py:26:41', 'js:24:37']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 各高さが最後に変更されてからの経過時間を表示するために、コードは以前の値とそのタイムスタンプを保存します。高さが以前の値と異なる場合、タイムスタンプは現在時刻に更新されます。
 
@@ -52,7 +52,7 @@ tutorial_level: beginner
 
 ### ポーリングループ {: #polling-loop }
 
-{{ tutorial.code_snippet(['py:43:52', 'js:39:49']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 各イテレーションでは、以下の内容を含む1行のステータスを出力します:
 

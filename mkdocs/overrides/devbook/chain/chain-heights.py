@@ -14,15 +14,15 @@ finalized_changed_at = None
 
 try:
 	while True:
-		with urllib.request.urlopen(f'{NODE_URL}/chain/info') as response:
+		with urllib.request.urlopen(f'{NODE_URL}/chain/info') as response: # [>step-1]
 			chain_info = json.loads(response.read().decode())
 
 		height = int(chain_info['height'])
 		finalized = chain_info['latestFinalizedBlock']
 		finalized_height = int(finalized['height'])
-
+		# [<step-1]
 		now = time.time()
-
+		# [>step-2]
 		if prev_height is not None and height != prev_height:
 			height_changed_at = now
 		if (
@@ -38,8 +38,8 @@ try:
 		if finalized_changed_at is not None:
 			f_ago = f"{int(now - finalized_changed_at)}s ago"
 		else:
-			f_ago = "-"
-
+			f_ago = "-" # [<step-2]
+		# [>step-3]
 		print(
 			f"Height: {height:>10,}"
 			f"  (changed {h_ago})"
@@ -50,7 +50,7 @@ try:
 		prev_height = height
 		prev_finalized_height = finalized_height
 		time.sleep(1)
-
+		# [<step-3]
 except KeyboardInterrupt:
 	pass
 except Exception as error:

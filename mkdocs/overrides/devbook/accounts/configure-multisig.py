@@ -43,7 +43,7 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
-# Returns the cosignatory addresses of the provided multisig account,
+# Returns the cosignatory addresses of the provided multisig account, [>step-3]
 # or an empty list if the account is not multisig or has never been used
 def get_multisig_cosignatories(address):
 	multisig_path = f'/account/{address}/multisig'
@@ -59,10 +59,10 @@ def get_multisig_cosignatories(address):
 		# The address has never been used
 		print('  Response: No cosignatories')
 	return []
-
+# [<step-3]
 # Returns a transaction that turns a regular account into a multisig
 def multisig_enable_transaction():
-	# Create an embedded multisig account modification transaction
+	# Create an embedded multisig account modification transaction [>step-5]
 	# that adds two cosignatories
 	embedded_transaction = facade.transaction_factory.create_embedded({
 		'type': 'multisig_account_modification_transaction_v1',
@@ -74,8 +74,8 @@ def multisig_enable_transaction():
 		'min_removal_delta': 1,
 		'address_additions': cosignatory_addresses
 	})
-
-	# Build the aggregate transaction
+	# [<step-5]
+	# Build the aggregate transaction [>step-6]
 	embedded_transactions = [embedded_transaction]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
@@ -92,8 +92,8 @@ def multisig_enable_transaction():
 		fee_mult * (transaction.size + 104 * len(cosignatory_key_pairs)))
 	print('Enabling the multisig with the aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
-
-	# Sign the aggregate transaction with the multisig's signature
+	# [<step-6]
+	# Sign the aggregate transaction with the multisig's signature [>step-7]
 	facade.transaction_factory.attach_signature(transaction,
 		facade.sign_transaction(multisig_key_pair, transaction))
 
@@ -102,12 +102,12 @@ def multisig_enable_transaction():
 		transaction.cosignatures.append(
 			facade.cosign_transaction(cosignatory_key_pair, transaction)
 		)
-
+	# [<step-7]
 	return transaction
 
 # Returns a transaction that turns a multisig into a regular account
 def multisig_disable_transaction():
-	# Create two embedded multisig account modification transactions
+	# Create two embedded multisig account modification transactions [>step-8]
 	# because cosignatories must be removed one by one
 	embedded_transaction_1 = facade.transaction_factory.create_embedded({
 		'type': 'multisig_account_modification_transaction_v1',
@@ -127,8 +127,8 @@ def multisig_disable_transaction():
 		'min_removal_delta': -1,
 		'address_deletions': [cosignatory_addresses[0]]
 	})
-
-	# Build the aggregate transaction
+	# [<step-8]
+	# Build the aggregate transaction [>step-9]
 	embedded_transactions = [embedded_transaction_1,
 		embedded_transaction_2]
 	transaction = facade.transaction_factory.create({
@@ -149,11 +149,11 @@ def multisig_disable_transaction():
 	# Sign the aggregate transaction using the first cosigner's signature
 	facade.transaction_factory.attach_signature(transaction,
 		facade.sign_transaction(cosignatory_key_pairs[0], transaction))
-
+	# [<step-9]
 	return transaction
 
 facade = SymbolFacade('testnet')
-
+# [>step-1]
 KEY_TEMPLATE = '0' * 63 + '{}'
 
 # Setup the keys for the multisig account and its two cosignatories
@@ -175,9 +175,9 @@ for i in range(2):
 	addr = facade.network.public_key_to_address(kp.public_key)
 	cosignatory_addresses.append(addr)
 	print(f'Cosignatory {i} address: {addr} (public key {kp.public_key})')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -196,8 +196,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Get current state of the multisig account and decide which
+	# [<step-2]
+	# Get current state of the multisig account and decide which [>step-4]
 	# operation to perform
 	cosignatories = get_multisig_cosignatories(multisig_address)
 	if len(cosignatories) == 0:
@@ -213,12 +213,12 @@ try:
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(signer_key_pair, transaction))
-
-	# Announce and wait for confirmation
+	# [<step-4]
+	# Announce and wait for confirmation [>step-10]
 	transaction_hash = facade.hash_transaction(transaction)
 	print(f'Built aggregate transaction with hash: {transaction_hash}')
 	announce_transaction(json_payload, 'aggregate transaction')
 	wait_for_confirmation(transaction_hash, 'aggregate transaction')
-
+	# [<step-10]
 except Exception as e:
 	print(e)
