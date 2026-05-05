@@ -11,6 +11,7 @@ target_compile_definitions(build.defaults INTERFACE
 )
 
 target_compile_options(build.defaults INTERFACE 
+	$<$<BOOL:${ARCHITECTURE_NAME}>:-march=${ARCHITECTURE_NAME}>		
 	$<$<COMPILE_LANGUAGE:CXX>:-Weverything>										# enable all warnings
 	$<$<COMPILE_LANGUAGE:CXX>:-Werror>											# treat warnings as errors
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-c++98-compat>								# catapult is not compatible with C++98
@@ -20,7 +21,7 @@ target_compile_options(build.defaults INTERFACE
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-switch-enum>									# do not require enum switch statements to list every value
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-weak-vtables>								# vtables are emitted in all translation units for virtual classes with no out-of-line virtual method definitions
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-shadow-uncaptured-local>						# allow shadowing of local variables in lambdas https://github.com/llvm/llvm-project/issues/81307
-	$<$<BOOL:${ARCHITECTURE_NAME}>:-march=${ARCHITECTURE_NAME}>		
+
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>      # allow unsafe buffer usage https://reviews.llvm.org/D137379
 
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${ENABLE_CODE_COVERAGE}>>:-fprofile-instr-generate>
