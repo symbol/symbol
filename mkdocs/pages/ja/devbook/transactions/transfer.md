@@ -106,13 +106,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 ### トランザクションの構築 {: #building-the-transaction }
 
-{{ tutorial.code_snippet({
-  'py': { 'range': [42, 55] },
-  'js': {
-    'range': [40, 52],
-    'descriptor': 'TransferTransactionV1Descriptor'
-  }
-}) }}
+{{ tutorial.code_snippet(['py:42:55', 'js:40:52']) }}
 
 転送トランザクションを構築する際には、必要なすべてのトランザクションプロパティを指定する必要があります。
 スニペットには以下のフィールドが含まれています。
