@@ -118,7 +118,7 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	return files.Files(out_files)
 
 TAG_RE = re.compile(r"\[(?P<kind>[<>])(?P<name>[A-Za-z0-9_.:-]+)\]")
-COMMENT_RE = re.compile(r"(?P<prefix>#|//)\s*(?P<body>.*)$")
+COMMENT_RE = re.compile(r"(?P<prefix>[ \t]*(#|//))\s*(?P<body>.*)$")
 
 def extract_tutorial_code(config: base.Config) -> None:
 	"""
@@ -206,10 +206,11 @@ def extract_tutorial_code(config: base.Config) -> None:
 					raise ValueError(f"{path}:{index}: closing unopened snippet section '{name}'")
 
 				section = open_sections.pop(name)
+				if clean_line:
+					section["lines"].append(clean_line)
 				snippets[name] = {
 					"code": "\n".join(section["lines"]),
 					"start_line": section["start_line"],
-					"end_line": index - 1,
 				}
 
 			# Then process opening tags on this line.
@@ -237,7 +238,7 @@ def extract_tutorial_code(config: base.Config) -> None:
 			# If the line had code before the marker comment, keep that code.
 			# If it was only a marker comment, preserve the line only in the full listing,
 			# not in extracted snippets.
-			if clean_line:
+			if clean_line or not has_tags:
 				for section in open_sections.values():
 					section["lines"].append(clean_line)
 
