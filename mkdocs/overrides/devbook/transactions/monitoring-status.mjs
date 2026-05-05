@@ -4,11 +4,11 @@ const NODE_URL = process.env.NODE_URL||
 console.log('Using node', NODE_URL);
 
 // Transaction hash to monitor.
-const transactionHash = process.env.TRANSACTION_HASH ||
+const transactionHash = process.env.TRANSACTION_HASH || // [>step-1]
 	'2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA';
-
+// [<step-1]
 console.log(`Monitoring transaction: ${transactionHash}`);
-
+// [>step-2]
 /**
  * Poll the transaction status endpoint until the transaction is confirmed.
  *
@@ -53,21 +53,21 @@ async function waitForTransactionConfirmation(
 			console.log(`    Code: ${statusCode}`);
 			console.log(`    Hash: ${statusHash}`);
 			console.log(`    Deadline: ${statusDeadline}`);
-
-			// Check if the transaction has been confirmed
+// [<step-2]
+			// Check if the transaction has been confirmed [>step-3]
 			if (statusGroup === 'confirmed') {
 				console.log(`\nTransaction confirmed!`);
 				return true;
 			}
-
-			// Check if the transaction failed
+			// [<step-3]
+			// Check if the transaction failed [>step-4]
 			if (statusGroup === 'failed') {
 				console.log(
 					`\nTransaction failed with code: ${statusCode}`
 				);
 				throw new Error(`Transaction failed: ${statusCode}`);
-			}
-
+			} // [<step-4]
+		// [>step-5]
 		} catch (error) {
 			if (error.status === 404) {
 				console.log(
@@ -78,21 +78,21 @@ async function waitForTransactionConfirmation(
 				throw error;
 			}
 		}
-
-		// Wait before next attempt (except on last attempt)
+		// [<step-5]
+		// Wait before next attempt (except on last attempt) [>step-6]
 		if (attempt < maxAttempts) {
 			await new Promise((resolve) =>
 				setTimeout(resolve, waitSeconds * 1000)
 			);
-		}
+		} // [<step-6]
 	}
-
+	// [>step-7]
 	console.log(
 		`\nTransaction not confirmed after ${maxAttempts} attempts`
 	);
 	throw new Error(
 		`Transaction ${transactionHash} not confirmed in time`
-	);
+	); // [<step-7]
 }
 
 // Monitor the transaction until it's confirmed

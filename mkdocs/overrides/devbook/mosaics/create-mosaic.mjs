@@ -46,7 +46,7 @@ async function waitForConfirmation(transactionHash, label) {
 	}
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
-
+// [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY || (
 	'0000000000000000000000000000000000000000000000000000000000000000');
 const signerKeyPair = new SymbolFacade.KeyPair(
@@ -56,9 +56,9 @@ const facade = new SymbolFacade('testnet');
 const signerAddress =facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
 console.log('Signer address:', signerAddress.toString());
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -77,10 +77,10 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
+	// [<step-2]
 	// --- CREATING MOSAIC DEFINITION ---
 	console.log('\n--- Creating mosaic definition ---');
-
+	// [>step-3]
 	const nonce = Math.floor(Date.now() / 1000) & 0x7FFFFFFF;
 	console.log('Mosaic nonce:', nonce);
 
@@ -98,8 +98,8 @@ try {
 
 	const mosaicId = generateMosaicId(signerAddress, nonce);
 	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
-
-	// Sign and generate final payload
+	// [<step-3]
+	// Sign and generate final payload [>step-4]
 	const defSignature = facade.signTransaction(
 		signerKeyPair, definitionTx);
 	const defPayload = facade.transactionFactory.static.attachSignature(
@@ -113,10 +113,10 @@ try {
 	console.log('Transaction hash:', definitionHash);
 	await announceTransaction(defPayload, 'mosaic definition');
 	await waitForConfirmation(definitionHash, 'mosaic definition');
-
+	// [<step-4]
 	// --- INCREASING MOSAIC SUPPLY ---
 	console.log('\n--- Increasing mosaic supply ---');
-
+	// [>step-5]
 	const supplyTx =
 		facade.transactionFactory.create({
 			type: 'mosaic_supply_change_transaction_v1',
@@ -127,8 +127,8 @@ try {
 			delta: 100_00n
 		});
 	supplyTx.fee = new models.Amount(feeMult * supplyTx.size);
-
-	// Sign and generate final payload
+	// [<step-5]
+	// Sign and generate final payload [>step-6]
 	const supSignature = facade.signTransaction(
 		signerKeyPair, supplyTx);
 	const supPayload = facade.transactionFactory.static.attachSignature(
@@ -141,10 +141,10 @@ try {
 	console.log('Transaction hash:', supplyHash);
 	await announceTransaction(supPayload, 'mosaic supply change');
 	await waitForConfirmation(supplyHash, 'mosaic supply change');
-
+	// [<step-6]
 	// --- VERIFYING MOSAIC ---
 	console.log('\n--- Verifying mosaic ---');
-
+	// [>step-7]
 	const mosaicIdHex = mosaicId.toString(16).padStart(16, '0');
 	const mosaicPath = `/mosaics/${mosaicIdHex}`;
 	console.log('Fetching mosaic information from', mosaicPath);
@@ -156,7 +156,7 @@ try {
 	console.log('  Supply:', mosaicInfo.supply);
 	console.log('  Flags:', mosaicInfo.flags);
 	console.log('  Divisibility:', mosaicInfo.divisibility);
-	console.log('  Duration:', mosaicInfo.duration);
+	console.log('  Duration:', mosaicInfo.duration); // [<step-7]
 } catch (e) {
 	console.error(e.message);
 }

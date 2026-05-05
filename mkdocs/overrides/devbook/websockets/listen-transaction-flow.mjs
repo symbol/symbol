@@ -5,7 +5,7 @@ const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
 const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
 console.log(`Using node ${NODE_URL}`);
-
+// [>step-1]
 const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS
 	|| 'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I';
 console.log(`Monitoring address: ${MONITOR_ADDRESS}`);
@@ -15,9 +15,9 @@ const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
 const facade = new SymbolFacade('testnet');
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
-
+// [<step-1]
 try {
-	// Connect to WebSocket
+	// Connect to WebSocket [>step-2]
 	const websocket = new WebSocket(WS_URL);
 	const uid = await new Promise((resolve) => {
 		websocket.addEventListener('message', (event) => {
@@ -26,8 +26,8 @@ try {
 		}, { once: true });
 	});
 	console.log(`Connected to ${WS_URL} with uid ${uid}`);
-
-	// Subscribe to transaction channels
+	// [<step-2]
+	// Subscribe to transaction channels [>step-3]
 	const channels = [
 		`unconfirmedAdded/${MONITOR_ADDRESS}`,
 		`unconfirmedRemoved/${MONITOR_ADDRESS}`,
@@ -38,8 +38,8 @@ try {
 		const name = channel.split('/')[0];
 		console.log(`Subscribed to ${name} channel`);
 	}
-
-	// Build and announce a transfer transaction
+	// [<step-3]
+	// Build and announce a transfer transaction [>step-4]
 	const timeResponse = await fetch(`${NODE_URL}/node/time`);
 	const timeJSON = await timeResponse.json();
 	const timestamp = new NetworkTimestamp(
@@ -62,8 +62,8 @@ try {
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction, signature);
-	const transactionHash = facade.hashTransaction(transaction).toString();
-
+	const transactionHash = facade.hashTransaction(transaction).toString(); // [<step-4]
+	// [>step-5]
 	const confirmed = new Promise((resolve) => {
 		websocket.addEventListener('message', (event) => {
 			const message = JSON.parse(event.data);
@@ -93,13 +93,13 @@ try {
 
 	// Wait for confirmation via WebSocket
 	await confirmed;
-
-	// Unsubscribe before closing
+	// [<step-5]
+	// Unsubscribe before closing [>step-6]
 	for (const channel of channels) {
 		websocket.send(JSON.stringify({ uid, unsubscribe: channel }));
 	}
 	console.log('Unsubscribed from all channels');
-	websocket.close();
+	websocket.close(); // [<step-6]
 } catch (error) {
 	console.error(error);
 }

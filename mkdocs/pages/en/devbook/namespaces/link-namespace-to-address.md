@@ -33,13 +33,13 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/link-namespace-to-address', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/link-namespace-to-address', ['py', 'js']) }}
 
 ## Code Explanation
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:18:26', 'js:15:23']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -48,7 +48,7 @@ This account must own the namespace being linked.
 
 ### Defining the Namespace and Target Address
 
-{{ tutorial.code_snippet(['py:28:38', 'js:25:38']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The code defines:
 
@@ -73,14 +73,14 @@ The code defines:
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:41:59', 'js:41:60']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:61:70', 'js:62:71']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The address alias transaction specifies:
 
@@ -104,19 +104,19 @@ The address alias transaction specifies:
 
 ### Submitting the Transaction
 
-{{ tutorial.code_snippet(['py:72:91', 'js:73:93']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:93:111', 'js:95:129']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Verifying the Alias
 
-{{ tutorial.code_snippet(['py:113:125', 'js:131:146']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 To verify the alias was created, the code retrieves the namespace information from the network
 using the <get:/namespaces/{namespaceId}> endpoint.
@@ -126,7 +126,7 @@ specified address.
 
 ### Using the Alias
 
-{{ tutorial.code_snippet(['py:128:147', 'js:148:169']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 Once the namespace is linked to an address, the namespace can be used in place of the address in transactions.
 The code demonstrates creating a <transfer transaction:> using the alias as the recipient address instead of

@@ -21,7 +21,7 @@ def get_account_mosaics(address):
 		response_json = json.loads(response.read().decode())
 		return response_json['account']['mosaics']
 
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
@@ -38,9 +38,9 @@ print(f'Source address: {SOURCE_ADDRESS}')
 MOSAIC_ID_HEX = os.getenv('MOSAIC_ID', '7aed3d514c986941')
 mosaic_id = int(MOSAIC_ID_HEX, 16)
 print(f'Mosaic ID: {mosaic_id} (0x{MOSAIC_ID_HEX})')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -59,18 +59,18 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
+	# [<step-2]
 	# --- CHECKING INITIAL BALANCE ---
 	print('\n--- Checking initial balance ---')
-	mosaics = get_account_mosaics(SOURCE_ADDRESS)
+	mosaics = get_account_mosaics(SOURCE_ADDRESS) # [>step-3]
 	for mosaic in mosaics:
 		if mosaic['id'] == MOSAIC_ID_HEX.upper():
 			print(f'  Mosaic ID: {mosaic["id"]},'
 				f' Amount: {mosaic["amount"]}')
-
+	# [<step-3]
 	# --- REVOKING MOSAIC ---
 	print('\n--- Revoking mosaic ---')
-
+	# [>step-4]
 	revoke_tx = facade.transaction_factory.create({
 		'type': 'mosaic_supply_revocation_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -82,8 +82,8 @@ try:
 		}
 	})
 	revoke_tx.fee = Amount(fee_mult * revoke_tx.size)
-
-	# Sign and generate final payload
+	# [<step-4]
+	# Sign and generate final payload [>step-5]
 	signature = facade.sign_transaction(
 		signer_key_pair, revoke_tx)
 	json_payload = facade.transaction_factory.attach_signature(
@@ -104,8 +104,8 @@ try:
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
-
-	# Wait for confirmation
+	# [<step-5]
+	# Wait for confirmation [>step-6]
 	print('Waiting for mosaic revocation confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
@@ -123,14 +123,14 @@ try:
 					f'Mosaic revocation failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-
+	# [<step-6]
 	# --- VERIFYING REVOCATION ---
 	print('\n--- Verifying revocation ---')
-	mosaics = get_account_mosaics(SOURCE_ADDRESS)
+	mosaics = get_account_mosaics(SOURCE_ADDRESS) # [>step-7]
 	for mosaic in mosaics:
 		if mosaic['id'] == MOSAIC_ID_HEX.upper():
 			print(f'  Mosaic ID: {mosaic["id"]},'
 				f' Amount: {mosaic["amount"]}')
-
+	# [<step-7]
 except Exception as e:
 	print(e)

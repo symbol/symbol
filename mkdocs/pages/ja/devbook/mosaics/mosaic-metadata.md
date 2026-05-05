@@ -43,7 +43,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/mosaic-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic-metadata', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -51,7 +51,7 @@ digraph {
 
 ### アカウントとモザイクのセットアップ {: #setting-up-the-account-and-mosaic }
 
-{{ tutorial.code_snippet(['py:53:66', 'js:51:65']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、署名者の秘密鍵を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合はデフォルトのテストキーが使用されます。
 署名者のアドレスは公開鍵から派生します。
@@ -67,7 +67,7 @@ digraph {
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:69:87', 'js:68:86']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
@@ -83,7 +83,7 @@ digraph {
     SDKは、人間が読み取り可能な文字列からSHA3-256ハッシュを使用してこのキーを生成する <dy:Metadata.metadataGenerateKey> ヘルパー関数を提供しています。
     この方法により、キーがより意味のあるものになり、衝突の可能性が低減します。
 
-{{ tutorial.code_snippet(['py:92:95', 'js:91:94']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 この例では、キーは文字列 `description` から派生します。
 デモンストレーションのためにキー文字列にはタイムスタンプが付加されているため、コードを実行するたびに新しいエントリがモザイクに追加されます。
@@ -102,7 +102,7 @@ digraph {
 
 ### 埋め込みモザイクメタデータトランザクションの作成 {: #creating-the-embedded-mosaic-metadata-transaction }
 
-{{ tutorial.code_snippet(['py:97:110', 'js:96:110']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 モザイクメタデータトランザクションは、ブロックチェーン上のモザイクにキーと値のペアを関連付けます。
 同じトランザクションタイプで、新しいメタデータエントリの追加と既存の更新の両方を処理します。
@@ -133,7 +133,7 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 ### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction }
 
-{{ tutorial.code_snippet(['py:112:122', 'js:112:122']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 コードは、埋め込みモザイクメタデータトランザクションを [アグリゲートトランザクション](default:アグリゲートトランザクション) に追加します。
 
@@ -147,13 +147,13 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 ### アグリゲートトランザクションの送信 {: #submitting-the-aggregate-transaction }
 
-{{ tutorial.code_snippet(['py:124:133', 'js:124:135']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 アグリゲートトランザクションは、[アグリゲートコンプリートトランザクションの作成](../transactions/complete-aggregate.md#building-the-aggregate-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
 ### メタデータの取得 {: #modifying-existing-metadata }
 
-{{ tutorial.code_snippet(['py:138:156', 'js:140:161']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 メタデータエントリの現在の値を取得するために、コードは `sourceAddress`、`targetAddress`、`scopedMetadataKey`、`targetId`（モザイク ID）、および `metadataType`（モザイクメタデータの場合は `1`）のフィルタを指定して <get:/metadata> エンドポイントを使用します。
 
@@ -161,7 +161,7 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 ### 既存のメタデータの変更 {: #retrieving-metadata }
 
-{{ tutorial.code_snippet(['py:158:175', 'js:163:181']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 既存のメタデータエントリを更新するには、前述のようにネットワークから取得した現在の値が必要です。
 
@@ -185,7 +185,7 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 [最初のメタデータ作成](#building-the-aggregate-transaction) と同様に、このメタデータの変更はアグリゲートトランザクションにラップされ、署名してアナウンスされます。
 
-{{ tutorial.code_snippet(['py:177:199', 'js:183:208']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 ## 出力 {: #output }
 

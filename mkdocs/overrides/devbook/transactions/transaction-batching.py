@@ -12,7 +12,7 @@ from symbolchain.symbol.Network import Address, NetworkTimestamp
 NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv(
 	'SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -33,9 +33,9 @@ recipient1_hex = Address(RECIPIENT_1).bytes.hex().upper()
 recipient2_hex = Address(RECIPIENT_2).bytes.hex().upper()
 print(f'Recipient 1: {RECIPIENT_1} ({recipient1_hex})')
 print(f'Recipient 2: {RECIPIENT_2} ({recipient2_hex})')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -54,8 +54,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Embedded tx 1: Send 5 XYM to Recipient 1
+	# [<step-2]
+	# Embedded tx 1: Send 5 XYM to Recipient 1 [>step-3]
 	xym_mosaic_id = generate_mosaic_alias_id('symbol.xym')
 	embedded_tx_1 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
@@ -77,8 +77,8 @@ try:
 			'amount': 3_000_000  # 3 XYM
 		}]
 	})
-
-	# Build the aggregate transaction
+	# [<step-3]
+	# Build the aggregate transaction [>step-4]
 	embedded_transactions = [embedded_tx_1, embedded_tx_2]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
@@ -91,8 +91,8 @@ try:
 	transaction.fee = Amount(fee_mult * transaction.size)
 	print('Built aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
-
-	# Sign transaction and generate final payload
+	# [<step-4]
+	# Sign transaction and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = (facade.transaction_factory.attach_signature(
 			transaction, signature))
@@ -108,8 +108,8 @@ try:
 	)
 	with urllib.request.urlopen(announce_request) as response:
 		print(f'  Response: {response.read().decode()}')
-
-	# Wait for confirmation
+	# [<step-5]
+	# Wait for confirmation [>step-6]
 	transaction_hash = facade.hash_transaction(transaction)
 	status_path = f'/transactionStatus/{transaction_hash}'
 	print(f'Waiting for confirmation from {status_path}')
@@ -131,6 +131,6 @@ try:
 			print(f'  Transaction status: unknown | Cause: ({e.msg})')
 	else:
 		print('Confirmation took too long.')
-
+	# [<step-6]
 except Exception as e:
 	print(e)

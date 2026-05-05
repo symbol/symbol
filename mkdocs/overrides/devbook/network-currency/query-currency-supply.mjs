@@ -3,7 +3,7 @@ const NODE_URL = process.env.NODE_URL ||
 console.log(`Using node ${NODE_URL}`);
 
 const SUPPLY_PATH = '/network/currency/supply';
-
+// [>step-1]
 const fmt = (v) => v.toLocaleString('en-US', { minimumFractionDigits: 6 });
 
 const maxResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/max`);
@@ -16,10 +16,10 @@ console.log(`Total supply: ${fmt(total)} XYM`);
 
 const circResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/circulating`);
 const circulating = parseFloat((await circResponse.text()).trim());
-console.log(`Circulating supply: ${fmt(circulating)} XYM`);
-
+console.log(`Circulating supply: ${fmt(circulating)} XYM`); // [<step-1]
+// [>step-2]
 const nonCirculating = total - circulating;
 console.log(`Non-circulating: ${fmt(nonCirculating)} XYM`);
 
 const unminted = maximum - total;
-console.log(`Unminted: ${fmt(unminted)} XYM`);
+console.log(`Unminted: ${fmt(unminted)} XYM`); // [<step-2]

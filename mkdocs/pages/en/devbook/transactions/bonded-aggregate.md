@@ -81,7 +81,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/bonded-aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/bonded-aggregate', ['py', 'js']) }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that poll for pending
@@ -97,7 +97,7 @@ but applications will probably want to use more fine-grained control.
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:62:82', 'js:75:94']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 This example includes both <private keys:> in one script for simplicity.
 In practice, each party signs on their own machine.
@@ -112,14 +112,14 @@ The addresses for both accounts are derived from their public keys using the fac
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:85:103', 'js:96:115']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](./transfer.md) tutorial.
 
 ### Creating Embedded Transactions
 
-{{ tutorial.code_snippet(['py:105:126', 'js:116:140']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The <embedded transactions:> define the operations to execute atomically.
 Each embedded transaction specifies:
@@ -149,7 +149,7 @@ The example creates two <transfer transactions:> for the swap:
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:128:144', 'js:141:159']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 Once the embedded transactions are prepared, create the bonded aggregate transaction that wraps them:
 
@@ -172,7 +172,7 @@ for one cosignature (104 bytes).
 
 ### Signing the Bonded Transaction
 
-{{ tutorial.code_snippet(['py:146:154', 'js:160:170']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Account A signs the bonded transaction, producing the main signature and finalizing the transaction hash.
 
@@ -180,7 +180,7 @@ This hash is required for the next step: creating a hash lock transaction.
 
 ### Creating the Hash Lock
 
-{{ tutorial.code_snippet(['py:156:182', 'js:171:201']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 Before announcing a bonded aggregate, a hash lock transaction must be created and confirmed.
 The hash lock serves as a deposit to prevent spam and ensure network resources are not exhausted by unfinished
@@ -207,7 +207,7 @@ Then, the `wait_for_status` helper function polls the transaction status until c
 
 ### Announcing the Bonded Transaction
 
-{{ tutorial.code_snippet(['py:184:192', 'js:203:210']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 Once the hash lock is confirmed, the bonded aggregate is announced to <put:/transactions/partial> using the
 `announce_transaction` helper.
@@ -220,7 +220,7 @@ cosignatures.
 
 ### Recovering the Transaction
 
-{{ tutorial.code_snippet(['py:194:217', 'js:211:238']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable on-chain
 coordination.
@@ -235,7 +235,7 @@ their content.
 
 ### Verifying the Transaction
 
-{{ tutorial.code_snippet(['py:219:229', 'js:239:250']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 Once a transaction is found, Account B uses its hash to fetch the full details (including embedded transactions) from
 <get:/transactions/partial/{transactionId}>.
@@ -251,7 +251,7 @@ recipients, and mosaics to ensure the swap terms are correct.
 
 ### Cosigning the Transaction
 
-{{ tutorial.code_snippet(['py:231:246', 'js:251:268']) }}
+{{ tutorial.code_snippet_tagged('step-10') }}
 
 Account B cosigns the transaction using <dy:SymbolFacade.cosignTransactionHash> with the transaction hash and the
 `detached` parameter set to `true`.
@@ -275,7 +275,7 @@ the network automatically processes the bonded aggregate and includes it in a bl
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:248:252', 'js:269:273']) }}
+{{ tutorial.code_snippet_tagged('step-11') }}
 
 The `wait_for_status` helper function polls <get:/transactionStatus/{hash}> until the transaction is confirmed or fails.
 

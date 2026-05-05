@@ -31,7 +31,7 @@ calculation, network time, and transaction confirmation work.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/messages', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/messages', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -41,7 +41,7 @@ The parts about fetching network time, calculating fees, and announcing transact
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:45:71', 'js:43:61']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 To send a message, you need the sender's <private key:> and the recipient's <address:>.
 To encrypt a message, you additionally need the recipient's <public key:>.
@@ -60,7 +60,7 @@ The recipient's public key and address are derived from their private key.
 
 ### Sending a Plain Text Message
 
-{{ tutorial.code_snippet(['py:94:110', 'js:84:99']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 You can combine mosaic transfers with messages by including both the `mosaics` and `message` fields in the transaction
 descriptor.
@@ -85,7 +85,7 @@ The transaction is then signed and announced following the same process as in
 
 ### Receiving a Plain Text Message
 
-{{ tutorial.code_snippet(['py:135:148', 'js:119:129']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 After announcing the transaction, the `retrieve_confirmed_transaction` helper function polls the
 <get:/transactions/confirmed/{transactionId}>  endpoint until the transaction is confirmed.
@@ -95,7 +95,7 @@ To retrieve the original message, it converts the hex string to bytes and decode
 
 ### Sending an Encrypted Message
 
-{{ tutorial.code_snippet(['py:151:177', 'js:132:156']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 Encrypted messages provide confidentiality by protecting the message content using a shared secret derived from the
 sender's private key and the recipient's public key.
@@ -121,7 +121,7 @@ The transaction is then signed and announced following the same process as in
 
 ### Receiving an Encrypted Message
 
-{{ tutorial.code_snippet(['py:202:228', 'js:177:200']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 After announcing the encrypted message transaction, the `retrieve_confirmed_transaction` helper function polls for
 confirmation.

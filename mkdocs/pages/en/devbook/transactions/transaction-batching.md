@@ -66,13 +66,13 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/transaction-batching', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/transaction-batching', ['py', 'js']) }}
 
 ## Code Explanation
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:16:35', 'js:14:35']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The signer account is loaded from the `SIGNER_PRIVATE_KEY` environment variable.
 If not provided, a test key is used as default.
@@ -82,14 +82,14 @@ If not provided, test addresses are used as defaults.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:38:56', 'js:38:56']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](./transfer.md) tutorial.
 
 ### Creating Embedded Transactions
 
-{{ tutorial.code_snippet(['py:58:79', 'js:58:79']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Each transfer is created as an <embedded transaction:> that will be wrapped inside the aggregate.
 All embedded transactions use the same `signer_public_key` because they all originate from the same account.
@@ -112,7 +112,7 @@ These are inherited from the enclosing aggregate transaction.
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:81:93', 'js:81:94']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The aggregate transaction wraps all embedded transactions:
 
@@ -134,7 +134,7 @@ Since no cosignatures are needed, there is no need to reserve extra space for co
 
 ### Signing and Announcing
 
-{{ tutorial.code_snippet(['py:95:110', 'js:96:111']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The aggregate is signed with <dy:SymbolFacade.signTransaction> and serialized into a payload using
 <dy:SymbolTransactionFactory.attachSignature>.
@@ -143,7 +143,7 @@ regular transactions described in the [Transfer Transaction](./transfer.md#annou
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:112:133', 'js:113:139']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 After announcement, the transaction status is monitored using <get:/transactionStatus/{hash}>.
 The polling loop checks the status every second until the transaction is confirmed or fails.

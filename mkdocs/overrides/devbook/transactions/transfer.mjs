@@ -8,16 +8,16 @@ import {
 
 const NODE_URL = 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
-
+// [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
-
+// [<step-1]
 const facade = new SymbolFacade('testnet');
 
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -26,8 +26,8 @@ try {
 		timeJSON.communicationTimestamps.receiveTimestamp);
 	console.log('  Network time:', timestamp.timestamp,
 		'ms since nemesis');
-
-	// Fetch recommended fees
+	// [<step-2]
+	// Fetch recommended fees [>step-3]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -36,8 +36,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Build the transaction
+	// [<step-3]
+	// Build the transaction [>step-4]
 	const transaction = facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -50,15 +50,15 @@ try {
 		}]
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
-
-	// Sign transaction and generate final payload
+	// [<step-4]
+	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction, signature);
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
-
-	// Announce the transaction
+	// [<step-5]
+	// Announce the transaction [>step-6]
 	const announcePath = '/transactions';
 	console.log('Announcing transaction to', announcePath);
 	const announceResponse = await fetch(`${NODE_URL}${announcePath}`, {
@@ -67,8 +67,8 @@ try {
 		body: jsonPayload
 	});
 	console.log('  Response:', await announceResponse.text());
-
-	// Wait for confirmation
+	// [<step-6]
+	// Wait for confirmation [>step-7]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
@@ -113,7 +113,7 @@ try {
 				}
 			});
 	}
-	pollStatus();
+	pollStatus(); // [<step-7]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

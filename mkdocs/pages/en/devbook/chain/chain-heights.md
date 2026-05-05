@@ -20,7 +20,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/chain-heights', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/chain-heights', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default one is used.
@@ -32,7 +32,7 @@ A keyboard interrupt (`Ctrl+C`) stops the loop.
 
 ### Fetching Chain Information
 
-{{ tutorial.code_snippet(['py:17:22', 'js:12:20']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 On each iteration, the code sends a `GET` request to the <get:/chain/info> endpoint.
 The response contains:
@@ -55,7 +55,7 @@ See the [Consensus](../../textbook/consensus.md#finalization) textbook section f
 
 ### Tracking Height Changes
 
-{{ tutorial.code_snippet(['py:26:41', 'js:24:37']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 To show how long ago each height last changed, the code stores the previous values and their timestamps.
 When a height differs from the previous value, the timestamp is updated to the current time.
@@ -65,7 +65,7 @@ Once a change occurs, the counter starts from `0s ago` and increments each secon
 
 ### Polling Loop
 
-{{ tutorial.code_snippet(['py:43:52', 'js:39:49']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Each iteration prints a single status line showing:
 

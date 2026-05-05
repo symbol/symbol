@@ -50,7 +50,7 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv(
 	'SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -66,9 +66,9 @@ NAMESPACE_NAME = os.getenv('NAMESPACE_NAME', 'testnamespace')
 namespace_id = generate_namespace_id(NAMESPACE_NAME)
 print(f'Namespace name: {NAMESPACE_NAME}')
 print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -87,16 +87,16 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
+	# [<step-2]
 	# --- ADDING NEW METADATA ---
 	print('\n--- Adding new metadata ---')
 
-	# Define metadata key and value
+	# Define metadata key and value [>step-3]
 	key_string = f'description_{int(time.time())}'
 	scoped_metadata_key = metadata_generate_key(key_string)
 	metadata_value = 'My first namespace'.encode('utf8')
-
-	# Create the embedded metadata transaction
+	# [<step-3]
+	# Create the embedded metadata transaction [>step-4]
 	embedded_transaction = facade.transaction_factory.create_embedded({
 		'type': 'namespace_metadata_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -110,8 +110,8 @@ try:
 	})
 	print('Created embedded metadata transaction:')
 	print(json.dumps(embedded_transaction.to_json(), indent=2))
-
-	# Build the aggregate transaction
+	# [<step-4]
+	# Build the aggregate transaction [>step-5]
 	embedded_transactions = [embedded_transaction]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
@@ -122,8 +122,8 @@ try:
 		'transactions': embedded_transactions
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
-
-	# Sign and generate final payload
+	# [<step-5]
+	# Sign and generate final payload [>step-6]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction, signature)
@@ -133,11 +133,11 @@ try:
 	print(f'Built aggregate transaction with hash: {transaction_hash}')
 	announce_transaction(json_payload, 'aggregate transaction')
 	wait_for_confirmation(transaction_hash, 'aggregate transaction')
-
+	# [<step-6]
 	# --- MODIFYING EXISTING METADATA ---
 	print('\n--- Modifying existing metadata ---')
 
-	# Fetch current metadata value from network
+	# Fetch current metadata value from network [>step-7]
 	metadata_path = (
 		f'/metadata?sourceAddress={signer_address}'
 		f'&targetAddress={signer_address}'
@@ -156,8 +156,8 @@ try:
 	metadata_entry = response_json['data'][0]['metadataEntry']
 	current_value = bytes.fromhex(metadata_entry['value'])
 	print(f'  Current value: {current_value.decode("utf8")}')
-
-	# XOR the current and new values
+	# [<step-7]
+	# XOR the current and new values [>step-8]
 	new_value = 'Updated namespace'.encode('utf8')
 	update_value = metadata_update_value(current_value, new_value)
 
@@ -175,8 +175,8 @@ try:
 	})
 	print('Created embedded update transaction:')
 	print(json.dumps(embedded_update.to_json(), indent=2))
-
-	# Build the aggregate for the update
+	# [<step-8]
+	# Build the aggregate for the update [>step-9]
 	embedded_transactions = [embedded_update]
 	update_transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
@@ -199,6 +199,6 @@ try:
 	print(f'Built aggregate transaction with hash: {update_hash}')
 	announce_transaction(json_payload, 'aggregate transaction')
 	wait_for_confirmation(update_hash, 'aggregate transaction')
-
+	# [<step-9]
 except Exception as e:
 	print(e)

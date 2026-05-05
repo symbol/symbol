@@ -52,7 +52,7 @@ digraph FeeSponsorshipProblem {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/fee-sponsorship', ['py', 'js'], show=false) }}
+{{ tutorial.code_full_tagged('devbook/transactions/fee-sponsorship', ['py', 'js'], show=false) }}
 
 ## オプション 1: 手数料前払い {: #option-1-prefunded-fees }
 
@@ -97,13 +97,13 @@ digraph Option1 {
 
 開発者の署名が得られれば、アプリケーションはユーザーの署名を付加してアグリゲートトランザクションをアナウンスできます。これは、ユーザーのアカウント残高がゼロであっても可能です。
 
-{{ tutorial.code_snippet(['py:15:69', 'js:11:73']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 ### メッセージトランザクション {: #message-transaction }
 
 ユーザーから受信者へメッセージを送信する埋め込みトランザクションは、標準的な [転送トランザクション](default: トランザクション) です。
 
-{{ tutorial.code_snippet(['py:16:23', 'js:12:19']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 ### 事前資金供給トランザクション {: #prefund-transaction }
 
@@ -113,7 +113,7 @@ digraph Option1 {
 
 このトランザクションの送信者はアプリケーションアカウントで、受信者はユーザーアカウントです。
 
-{{ tutorial.code_snippet(['py:25:38', 'js:21:34']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 ### アグリゲートトランザクション {: #aggregate-transaction }
 
@@ -128,14 +128,14 @@ digraph Option1 {
 
     コードに示されているように、 `transactions_hash` フィールドを設定する際は、モデル固有の型である `sc.Hash256` (:simple-python:) または `models.Hash256` (:simple-javascript:) を使用し、汎用的な暗号化型である `Hash256` は使用しないでください。
 
-{{ tutorial.code_snippet(['py:40:55', 'js:36:55']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 ### 署名 {: #signatures }
 
 ユーザーアカウントは、アグリゲートトランザクションの署名者であるため、 <dy:SymbolTransactionFactory.attachSignature> を使用して自身の署名を追加します。
 その後、前述のようにオンチェーンまたはオフチェーンのいずれかの方法で取得されたアプリケーションアカウントの [連署](default: マルチシグアカウント) 、 <dy:SymbolFacade.cosignTransaction> を使用して追加されます。
 
-{{ tutorial.code_snippet(['py:57:67', 'js:57:70']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 ペイロードが取得できれば、トランザクションをアナウンスし、承認を確認する準備が整います。
 
@@ -181,27 +181,27 @@ digraph Option2 {
 
 また、フィラートランザクションは事前資金供給の転送よりもサイズが小さいため、オプション 2 の方がわずかに安価です。
 
-{{ tutorial.code_snippet(['py:73:119', 'js:77:129']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 ### メッセージトランザクション {: #message-transaction }
 
 ユーザーから受信者へメッセージを送信する埋め込みトランザクションは、標準的な転送トランザクションです。
 
-{{ tutorial.code_snippet(['py:74:81', 'js:78:85']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 ### フィラートランザクション {: #filler-transaction }
 
 これもアプリケーションアカウントから自分自身への転送トランザクションであり、資金は転送されません。
 前述のように、その唯一の目的は、アプリケーションアカウントがアグリゲートトランザクションに署名し、手数料を支払うことを可能にすることです。
 
-{{ tutorial.code_snippet(['py:83:92', 'js:87:96']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 ### アグリゲートトランザクション {: #aggregate-transaction }
 
 アグリゲートコンプリートトランザクションは通常通り構築され、トランザクションサイズが判明した時点でその `fee` フィールドを更新します。
 オプション 1 とは異なり、さらに修正を加える必要はありません。
 
-{{ tutorial.code_snippet(['py:94:105', 'js:98:111']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 ### 署名 {: #signatures }
 
@@ -210,7 +210,7 @@ digraph Option2 {
 
 その後、ユーザーアカウントの [連署](default: マルチシグアカウント) が <dy:SymbolFacade.cosignTransaction> を使用して追加されます。
 
-{{ tutorial.code_snippet(['py:107:117', 'js:113:126']) }}
+{{ tutorial.code_snippet_tagged('step-10') }}
 
 ペイロードが取得できれば、トランザクションをアナウンスし、承認を確認する準備が整います。
 

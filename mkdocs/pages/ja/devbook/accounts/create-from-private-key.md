@@ -15,20 +15,20 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/create-from-private-key', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/create-from-private-key', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
 ### ファサードの初期化 {: #initializing-the-facade }
 
-{{ tutorial.code_snippet(['py:5:6', 'js:5:6']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 <dy:SymbolFacade> は、Symbolの暗号化処理とネットワークユーティリティへのアクセスを提供します。
 [アドレス](default:アドレス) などのネットワーク固有の値が正しく生成されるように、ネットワーク名（`testnet` または `mainnet`）を指定して初期化します。
 
 ### 秘密鍵の定義 {: #defining-a-private-key }
 
-{{ tutorial.code_snippet(['py:8:16', 'js:8:17']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 この例では、まず環境変数 `PRIVATE_KEY` から16進数文字列として秘密鍵を取得することから始めます。
 変数が設定されている場合、その値は <dy:PrivateKey> オブジェクトに変換されます。
@@ -43,7 +43,7 @@ tutorial_level: beginner
 
 ### アカウントの作成 {: #creating-the-account }
 
-{{ tutorial.code_snippet(['py:18:30', 'js:19:32']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 秘密鍵を定義した後、 公開鍵とアドレスを導出してアカウントを作成します。
 

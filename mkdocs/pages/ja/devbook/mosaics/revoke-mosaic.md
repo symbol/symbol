@@ -30,13 +30,13 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/revoke-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/revoke-mosaic', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
 ### アカウントの設定 {: #setting-up-the-accounts }
 
-{{ tutorial.code_snippet(['py:25:40', 'js:21:40']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、署名者の秘密鍵を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合はテストキーがデフォルトとして使用されます 。
 署名者のアドレは公開鍵から派生します 。
@@ -49,20 +49,20 @@ tutorial_level: beginner
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:43:61', 'js:43:61']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します 。
 
 ### 初期残高の確認 {: #checking-initial-balance }
 
-{{ tutorial.code_snippet(['py:65:69', 'js:65:70']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 回収を行う前に、ヘルパー関数 `get_account_mosaics` が <get:/accounts/{accountId}> エンドポイントからソースアカウントの対象モザイクの現在残高を取得します 。
 これにより、回収後の結果と比較するための基準が得られます 。
 
 ### 回収トランザクションの構築 {: #building-the-revocation-transaction }
 
-{{ tutorial.code_snippet(['py:74:84', 'js:75:85']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 回収トランザクションは、ソースアカウントからモザイクユニットを回収し、作成者の残高に戻します 。
 
@@ -84,17 +84,17 @@ tutorial_level: beginner
 
 ### 回収の送信 {: #submitting-the-revocation }
 
-{{ tutorial.code_snippet(['py:86:106', 'js:87:104']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 回収トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます 。
 
-{{ tutorial.code_snippet(['py:108:125', 'js:106:138']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます 。
 
 ### 回収の検証 {: #verifying-the-revocation }
 
-{{ tutorial.code_snippet(['py:129:133', 'js:142:147']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 回収を検証するために、ヘルパー関数 `get_account_mosaics` がソースアカウントの残高を再度取得します 。
 残高は [初期残高](#checking-initial-balance) よりも回収量分だけ少なくなっているはずです 。

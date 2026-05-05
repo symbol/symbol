@@ -30,13 +30,13 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/link-namespace-to-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/link-namespace-to-mosaic', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
 ### アカウントの設定 {: #setting-up-the-account }
 
-{{ tutorial.code_snippet(['py:17:25', 'js:14:22']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、署名者の秘密鍵を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合はデフォルトのテストキーが使用されます。
 署名者のアドレスは公開鍵から派生します。
@@ -44,7 +44,7 @@ tutorial_level: intermediate
 
 ### ネームスペースとターゲットモザイクの定義 {: #defining-the-namespace-and-target-mosaic }
 
-{{ tutorial.code_snippet(['py:27:35', 'js:24:35']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 コードでは以下を定義しています。
 
@@ -66,13 +66,13 @@ tutorial_level: intermediate
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:38:56', 'js:38:57']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
 ### トランザクションの構築 {: #building-the-transaction }
 
-{{ tutorial.code_snippet(['py:58:67', 'js:59:68']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 モザイクエイリアストランザクションでは以下を指定します。
 
@@ -94,17 +94,17 @@ tutorial_level: intermediate
 
 ### トランザクションの送信 {: #submitting-the-transaction }
 
-{{ tutorial.code_snippet(['py:69:88', 'js:70:90']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
-{{ tutorial.code_snippet(['py:90:108', 'js:92:126']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
 ### エイリアスの検証 {: #verifying-the-alias }
 
-{{ tutorial.code_snippet(['py:110:122', 'js:128:141']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 エイリアスが作成されたことを確認するために、コードは <get:/namespaces/{namespaceId}> エンドポイントを使用してネットワークからネームスペース情報を取得します。
 
@@ -112,7 +112,7 @@ tutorial_level: intermediate
 
 ### エイリアスの使用 {: #using-the-alias }
 
-{{ tutorial.code_snippet(['py:124:144', 'js:143:162']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 ネームスペースがモザイクにリンクされると、トランザクション内でモザイクIDの代わりにネームスペースを使用できるようになります。
 コードでは、16進数のモザイクIDではなく、モザイク配列内でエイリアスを使用した [転送トランザクション](default: 転送トランザクション) の作成を実演しています。
