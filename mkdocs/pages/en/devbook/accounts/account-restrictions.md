@@ -52,7 +52,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/account-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account-restrictions', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -78,7 +78,7 @@ and finally, [a test transfer](#sending-a-test-transfer) is submitted.
 
 ### Setting Up the Accounts
 
-{{ tutorial.code_snippet(['py:105:113', 'js:111:119']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 An account can only configure restrictions on itself, so this tutorial requires a single <private key:>.
 The private key can be provided through the `SIGNER_PRIVATE_KEY` environment variable
@@ -93,7 +93,7 @@ The restriction will later limit outgoing transactions to this address only.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:116:134', 'js:122:140']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -104,13 +104,13 @@ The following function retrieves the current account restrictions applied to a g
 <get:/restrictions/account/{address}> endpoint.
 If no restrictions are configured, the function returns an empty list.
 
-{{ tutorial.code_snippet(['py:47:60', 'js:53:66']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The returned list is then evaluated to determine the tutorial's execution path.
 Based on its contents, the appropriate configuration transaction is constructed,
 either to enable or to remove the restriction.
 
-{{ tutorial.code_snippet(['py:138:146', 'js:144:155']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 If multiple restrictions are configured on the account, only the first one returned by the endpoint is removed.
 This situation should not occur in this tutorial.
@@ -124,7 +124,7 @@ The other two account restriction types, not covered in this tutorial, are:
 - <ser:AccountMosaicRestrictionTransactionV1>
 - <ser:AccountOperationRestrictionTransactionV1>
 
-{{ tutorial.code_snippet(['py:63:80', 'js:69:87']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The transaction includes the following fields:
 
@@ -154,7 +154,7 @@ The transaction includes the following fields:
 
 Disabling the restriction requires clearing both the configured flags and the listed addresses.
 
-{{ tutorial.code_snippet(['py:83:101', 'js:90:107']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The same `restriction_flags` values used when enabling the restriction are provided again.
 Because the flags are XOR'ed by the network, supplying the same values toggles them off,
@@ -171,13 +171,13 @@ into the address representation expected when constructing a transaction.
 The constructed transaction is signed, announced and confirmed as described in the
 [Transfer transaction](../transactions/transfer.md) tutorial.
 
-{{ tutorial.code_snippet(['py:148:154', 'js:157:164']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 ### Sending a Test Transfer
 
 A test transfer is then attempted to an unauthorized address.
 
-{{ tutorial.code_snippet(['py:156:170', 'js:166:180']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 If the restriction has been enabled, the transfer fails with an `Address_Interaction_Prohibited` error.
 If the restriction has been removed, the transfer is confirmed successfully.

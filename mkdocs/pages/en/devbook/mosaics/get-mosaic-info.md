@@ -19,7 +19,7 @@ Before you start, make sure to [set up your development environment](../start/se
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/get-mosaic-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/get-mosaic-info', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
@@ -31,7 +31,7 @@ If not set, it defaults to the <XYM:> <mosaic ID:> on testnet (`72C0212E67A08BCE
 
 ### Fetching Mosaic Information
 
-{{ tutorial.code_snippet(['py:14:29', 'js:11:32']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The <get:/mosaics/{mosaicId}> endpoint retrieves the current properties of a mosaic, including:
 
@@ -53,7 +53,7 @@ The <get:/mosaics/{mosaicId}> endpoint retrieves the current properties of a mos
 
 ### Formatting the Supply
 
-{{ tutorial.code_snippet(['py:31:36', 'js:34:41']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The supply value returned by the API is expressed in <divisibility:|atomic> units.
 To convert it to whole units, the code divides the supply into whole and fractional parts
@@ -63,7 +63,7 @@ For XYM (divisibility `6`), a supply of `8325447775994408` atomic units equals `
 
 ### Fetching Namespace Aliases
 
-{{ tutorial.code_snippet(['py:38:53', 'js:43:58']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Mosaics can be linked to human-readable namespace aliases.
 The <post:/namespaces/mosaic/names> endpoint accepts mosaic IDs and returns any namespace names currently linked to

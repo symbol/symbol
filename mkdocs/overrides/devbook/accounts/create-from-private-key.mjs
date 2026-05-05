@@ -2,10 +2,10 @@ import { PrivateKey } from 'symbol-sdk';
 import { SymbolFacade } from 'symbol-sdk/symbol';
 import process from 'process';
 
-// Initialize the facade for the testnet network
+// Initialize the facade for the testnet network [>step-1]
 const facade = new SymbolFacade('testnet');
-
-// Use an existing private key if provided,
+// [<step-1]
+// Use an existing private key if provided, [>step-2]
 // Otherwise generate a random one.
 const privateKeyString = process.env.PRIVATE_KEY;
 let privateKey;
@@ -14,9 +14,9 @@ if (privateKeyString) {
 	privateKey = new PrivateKey(privateKeyString);
 } else {
 	console.log('Generating random account...');
-	privateKey = PrivateKey.random();
+	privateKey = PrivateKey.random(); // [<step-2]
 }
-
+// [>step-3]
 // Create a key pair from the private key
 const keyPair = new SymbolFacade.KeyPair(privateKey);
 
@@ -29,4 +29,4 @@ const address = facade.network.publicKeyToAddress(publicKey);
 // Output the account details
 console.log('Address:', address.toString());
 console.log('Public key:', publicKey.toString());
-console.log('Private key:', privateKey.toString());
+console.log('Private key:', privateKey.toString()); // [<step-3]

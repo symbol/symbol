@@ -7,9 +7,9 @@ import {
 } from 'symbol-sdk/symbol';
 
 // OPTION 1
-
+// [>step-1]
 function buildPrefundedMessageTransaction(recipientAddress, message) {
-	// Build the embedded message transaction
+	// Build the embedded message transaction [>step-2]
 	const messageTransaction = facade.transactionFactory.createEmbedded({
 		type: 'transfer_transaction_v1',
 		// Account sending the message
@@ -17,8 +17,8 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 		recipientAddress,
 		message
 	});
-
-	// Build the embedded prefund transaction
+	// [<step-2]
+	// Build the embedded prefund transaction [>step-3]
 	const prefundTransaction = facade.transactionFactory.createEmbedded({
 		type: 'transfer_transaction_v1',
 		// Account funding the transaction fee
@@ -32,8 +32,8 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 			amount: 0 // To be filled once value is known
 		}]
 	});
-
-	// Build the wrapper complete aggregate transaction
+	// [<step-3]
+	// Build the wrapper complete aggregate transaction [>step-4]
 	const transaction = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
 		// This is the account that will pay for the transaction
@@ -53,8 +53,8 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 			[messageTransaction, prefundTransaction]
 		).bytes
 	);
-
-	// Sign the aggregate transaction using the user's signature
+	// [<step-4]
+	// Sign the aggregate transaction using the user's signature [>step-5]
 	facade.transactionFactory.static.attachSignature(
 		transaction,
 		facade.signTransaction(userKeyPair, transaction)
@@ -68,14 +68,14 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 		transaction,
 		facade.signTransaction(userKeyPair, transaction)
 	);
-
+	// [<step-5]
 	return { transaction, jsonPayload };
 }
-
+// [<step-1]
 // OPTION 2
-
+// [>step-6]
 function buildSponsoredMessageTransaction(recipientAddress, message) {
-	// Build the embedded message transaction
+	// Build the embedded message transaction [>step-7]
 	const messageTransaction = facade.transactionFactory.createEmbedded({
 		type: 'transfer_transaction_v1',
 		// Account sending the message
@@ -83,8 +83,8 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 		recipientAddress,
 		message
 	});
-
-	// Build the embedded filler transaction
+	// [<step-7]
+	// Build the embedded filler transaction [>step-8]
 	const fillerTransaction = facade.transactionFactory.createEmbedded({
 		type: 'transfer_transaction_v1',
 		// The application account is both the sender and the recipient
@@ -94,8 +94,8 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 			appKeyPair.publicKey
 		)
 	});
-
-	// Build the wrapper complete aggregate transaction
+	// [<step-8]
+	// Build the wrapper complete aggregate transaction [>step-9]
 	const transaction = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
 		// This is the account that will pay for the transaction
@@ -109,8 +109,8 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 	transaction.fee = new models.Amount(
 		feeMult * (transaction.size + 104)
 	);
-
-	// Sign the aggregate transaction using the app's signature
+	// [<step-9]
+	// Sign the aggregate transaction using the app's signature [>step-10]
 	facade.transactionFactory.static.attachSignature(
 		transaction,
 		facade.signTransaction(appKeyPair, transaction)
@@ -124,10 +124,10 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 		transaction,
 		facade.signTransaction(appKeyPair, transaction)
 	);
-
+	// [<step-10]
 	return { transaction, jsonPayload };
 }
-
+// [<step-6]
 const NODE_URL = 'https://reference.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 

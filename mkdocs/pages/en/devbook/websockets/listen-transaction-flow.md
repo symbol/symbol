@@ -48,7 +48,7 @@ Additionally, install the language-specific WebSocket library:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/websockets/listen-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen-transaction-flow', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.
@@ -59,7 +59,7 @@ The WebSocket URL is derived from `NODE_URL` by replacing the HTTP protocol with
 
 ### Setting Up the Monitored Address and Signer
 
-{{ tutorial.code_snippet(['py:16:27', 'js:9:17']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 Each transaction WebSocket channel is scoped to a specific address.
 The `MONITOR_ADDRESS` environment variable sets the address to watch.
@@ -75,7 +75,7 @@ the same account.
 
 ### Connecting to the WebSocket
 
-{{ tutorial.code_snippet(['py:31:35', 'js:20:28']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The code opens a WebSocket connection to the node's `/ws` endpoint.
 Upon connecting, the server sends a message containing a unique identifier (`uid`) that must be included in all
@@ -85,7 +85,7 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 ### Subscribing to Channels
 
-{{ tutorial.code_snippet(['py:37:48', 'js:30:40']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The code subscribes to three address-scoped channels, appending the monitored address to each channel name:
 
@@ -100,7 +100,7 @@ monitored address.
 
 ### Building and Signing a Transfer Transaction
 
-{{ tutorial.code_snippet(['py:50:75', 'js:42:65']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 This tutorial builds a minimal [Transfer Transaction](../transactions/transfer.md) to the monitored address, with no
 mosaics and no message.
@@ -112,7 +112,7 @@ The hash is computed locally so it can be matched against incoming WebSocket mes
 
 ### Announcing and Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:77:98', 'js:67:95']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The code announces the transaction and then listens for incoming messages, printing each one.
 
@@ -139,7 +139,7 @@ The expected sequence for a successful transaction is described in the
 
 ### Unsubscribing from Channels
 
-{{ tutorial.code_snippet(['py:100:106', 'js:97:102']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 After confirmation, the code sends unsubscribe messages for all three channels before closing the connection.
 

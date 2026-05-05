@@ -14,7 +14,7 @@ TX_HASH = os.getenv('TRANSACTION_HASH',
 print(f'Transaction hash: {TX_HASH}')
 
 try:
-	# Fetch the confirmed transaction to get its block height
+	# Fetch the confirmed transaction to get its block height [>step-1]
 	tx_path = f'/transactions/confirmed/{TX_HASH}'
 	print(f'Fetching transaction from {tx_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{tx_path}') as response:
@@ -24,8 +24,8 @@ try:
 	block_height = tx_data['meta']['height']
 	merkle_component_hash = Hash256(
 		tx_data['meta']['merkleComponentHash'])
-
-	# Fetch the block header to get the transactions hash
+	# [<step-1]
+	# Fetch the block header to get the transactions hash [>step-2]
 	block_path = f'/blocks/{block_height}'
 	print(f'Fetching block from {block_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{block_path}') as response:
@@ -37,8 +37,8 @@ try:
 	}, indent=2))
 	transactions_hash = Hash256(
 		block_data['block']['transactionsHash'])
-
-	# Fetch the merkle proof path for the transaction
+	# [<step-2]
+	# Fetch the merkle proof path for the transaction [>step-3]
 	merkle_path = (f'/blocks/{block_height}'
 		f'/transactions/{TX_HASH}/merkle')
 	print('Fetching merkle proof:')
@@ -54,8 +54,8 @@ try:
 		for part in merkle_data['merklePath']
 	]
 	print(f'  Merkle path length: {len(merkle_proof_path)}')
-
-	# Verify that the transaction is included in the block
+	# [<step-3]
+	# Verify that the transaction is included in the block [>step-4]
 	is_proven = prove_merkle(
 		merkle_component_hash, merkle_proof_path,
 		transactions_hash)
@@ -68,6 +68,6 @@ try:
 		raise RuntimeError(
 			f'Transaction {TX_HASH[:16]}...'
 			f' NOT proven in block {block_height}')
-
+	# [<step-4]
 except Exception as e:
 	print(e)

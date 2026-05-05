@@ -20,11 +20,11 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/start/hello-world', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/start/hello-world', ['py', 'js']) }}
 
 ### SDK の呼び出し {: #making-sdk-calls }
 
-{{ tutorial.code_snippet(['py:7:11', 'js:6:10']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 <dy:SymbolFacade> クラスは、Symbol SDK への主要なエントリポイントです。
 トランザクションの構築や署名から、ネットワーク関連情報の取得まで、Symbol を操作する際に必要となるほとんどのメソッドを提供します。
@@ -37,7 +37,7 @@ tutorial_level: beginner
 
 ### ノードからの情報取得 {: #retrieving-information-from-a-node }
 
-{{ tutorial.code_snippet(['py:13:27', 'js:12:28']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Symbolブロックチェーンとの対話は、ネットワーク状態の照会やトランザクションの送信のための REST インターフェースを公開している [API ノード](default:API ノード)を通じて行われます。
 すべてのノードがこのインターフェースを提供しているわけではないため、 **API Node** とラベル付けされたものに接続することが重要です。

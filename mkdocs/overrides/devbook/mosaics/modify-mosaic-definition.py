@@ -12,7 +12,7 @@ from symbolchain.sc import Amount
 NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(
@@ -22,9 +22,9 @@ facade = SymbolFacade('testnet')
 signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(
@@ -45,8 +45,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Build the modification transaction
+	# [<step-2]
+	# Build the modification transaction [>step-3]
 	MOSAIC_NONCE = int(os.getenv('MOSAIC_NONCE', '0'))
 	print(f'Mosaic nonce: {MOSAIC_NONCE}')
 
@@ -63,8 +63,8 @@ try:
 		'flags': 'revokable'
 	})
 	modify_tx.fee = Amount(fee_mult * modify_tx.size)
-
-	# Sign and generate final payload
+	# [<step-3]
+	# Sign and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, modify_tx)
 	json_payload = facade.transaction_factory.attach_signature(
 		modify_tx, signature)
@@ -84,8 +84,8 @@ try:
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
-
-	# Wait for confirmation
+	# [<step-4]
+	# Wait for confirmation [>step-5]
 	print('Waiting for mosaic modification confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
@@ -104,8 +104,8 @@ try:
 					'Mosaic modification failed:', status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-
-	# Retrieve the mosaic
+	# [<step-5]
+	# Retrieve the mosaic [>step-6]
 	mosaic_id_hex = f'{mosaic_id:x}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
@@ -119,6 +119,6 @@ try:
 		print(f'  Divisibility: {mosaic_info["divisibility"]}')
 		print(f'  Flags: {mosaic_info["flags"]}')
 		print(f'  Duration: {mosaic_info["duration"]}')
-
+	# [<step-6]
 except Exception as e:
 	print(e)

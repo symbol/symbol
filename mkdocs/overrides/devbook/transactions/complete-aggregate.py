@@ -13,7 +13,7 @@ NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
-# Account A (initiates the aggregate tx and sends XYM to Account B)
+# Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
 ACCOUNT_A_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -34,9 +34,9 @@ account_b_address = facade.network.public_key_to_address(
 	account_b_key_pair.public_key)
 print(f'Account A: {account_a_address}')
 print(f'Account B: {account_b_address}')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -55,8 +55,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Embedded tx 1: Account A transfers 10 XYM to Account B
+	# [<step-2]
+	# Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	embedded_transaction_1 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': account_a_key_pair.public_key,
@@ -78,8 +78,8 @@ try:
 			'amount': 1  # 1 custom mosaic (divisibility = 0)
 		}]
 	})
-
-	# Build the aggregate transaction
+	# [<step-3]
+	# Build the aggregate transaction [>step-4]
 	embedded_transactions = [
 		embedded_transaction_1, embedded_transaction_2]
 	transaction = facade.transaction_factory.create({
@@ -95,8 +95,8 @@ try:
 	transaction.fee = Amount(fee_mult * (transaction.size + 104))
 	print('Built aggregate transaction without signatures:')
 	print(json.dumps(transaction.to_json(), indent=2))
-
-	# --- ACCOUNT A (Initiator) ---
+	# [<step-4]
+	# --- ACCOUNT A (Initiator) --- [>step-5]
 	print('[Account A] Signing the aggregate...')
 	signature_a = facade.sign_transaction(account_a_key_pair, transaction)
 	transaction_payload = facade.transaction_factory.attach_signature(
@@ -109,8 +109,8 @@ try:
 	# Account A sends the payload to Account B
 	shared_payload = transaction_payload
 	print('[Account A] ==> Payload sent to Account B (offchain)')
-
-	# --- ACCOUNT B (Cosignatory) ---
+	# [<step-5]
+	# --- ACCOUNT B (Cosignatory) --- [>step-6]
 	received_transaction = facade.transaction_factory.deserialize(
 		bytes.fromhex(json.loads(shared_payload)['payload']))
 
@@ -124,16 +124,16 @@ try:
 	# Account B sends the cosignature back to Account A
 	shared_cosignature = cosignature_b
 	print('[Account B] <== Cosignature sent back to Account A (offchain)')
-
-	# --- ACCOUNT A (Initiator) ---
+	# [<step-6]
+	# --- ACCOUNT A (Initiator) --- [>step-7]
 	# Add cosignature to the transaction and rebuild payload
 	transaction.cosignatures.append(shared_cosignature)
 	transaction_payload = facade.transaction_factory.attach_signature(
 		transaction, signature_a)
 	json_payload = transaction_payload
 	print('[Account A] Ready to announce')
-
-	# Announce the transaction
+	# [<step-7]
+	# Announce the transaction [>step-8]
 	announce_path = '/transactions'
 	print(f'Announcing transaction to {announce_path}')
 	announce_request = urllib.request.Request(
@@ -147,8 +147,8 @@ try:
 
 	# Compute hash of final transaction (with cosignatures)
 	transaction_hash = facade.hash_transaction(transaction)
-
-	# Wait for confirmation
+	# [<step-8]
+	# Wait for confirmation [>step-9]
 	status_path = f'/transactionStatus/{transaction_hash}'
 	print(f'Waiting for confirmation from {status_path}')
 	for attempt in range(60):
@@ -169,6 +169,6 @@ try:
 			print(f'  Transaction status: unknown | Cause: ({e.msg})')
 	else:
 		print('Confirmation took too long.')
-
+	# [<step-9]
 except Exception as e:
 	print(e)

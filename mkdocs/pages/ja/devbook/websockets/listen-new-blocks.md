@@ -33,7 +33,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/websockets/listen-new-blocks', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen-new-blocks', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -45,7 +45,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### WebSocket への接続 {: #connecting-to-the-websocket }
 
-{{ tutorial.code_snippet(['py:13:17', 'js:7:16']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 最初のステップは、ノードの `/ws` エンドポイントへの WebSocket 接続を開くことです。
 接続すると、サーバーは以降のすべてのサブスクリプションリクエストに含める必要がある一意の識別子（ `uid` ）を含むメッセージを送信します。
@@ -54,7 +54,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### チャネルのサブスクライブ {: #subscribing-to-channels }
 
-{{ tutorial.code_snippet(['py:19:27', 'js:18:24']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 コードは2つのチャネルをサブスクライブします。
 
@@ -65,7 +65,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### メッセージの処理 {: #handling-messages }
 
-{{ tutorial.code_snippet(['py:29:48', 'js:26:50']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 コードは、プログラムが中断されるまで受信メッセージをリスニングします。
 各メッセージには、チャネルを識別する `topic` フィールドと、イベントペイロードを含む `data` オブジェクトが含まれます。
@@ -89,7 +89,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 ### 終了時のサブスクライブ解除 {: #unsubscribing-on-exit }
 
-{{ tutorial.code_snippet(['py:50:57', 'js:52:60']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 プログラムが中断されたとき（ `Ctrl+C` ）、コードは接続を閉じる前に両方のチャネルのサブスクライブ解除メッセージを送信します。
 これにより、ノードからのクリーンな切断が保証されます。

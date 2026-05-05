@@ -18,13 +18,13 @@ If you have not done so already, start with [Setting Up a Development Environmen
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/create-from-mnemonic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/create-from-mnemonic', ['py', 'js']) }}
 
 ## Code Explanation
 
 ### Initializing the Facade
 
-{{ tutorial.code_snippet(['py:5:6', 'js:5:6']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The <dy:SymbolFacade> provides access to Symbol's cryptographic operations and network utilities.
 It is initialized with a network name (`testnet` or `mainnet`) to ensure that network-specific values,
@@ -32,7 +32,7 @@ such as <addresses:>, are generated correctly.
 
 ### Defining a Mnemonic
 
-{{ tutorial.code_snippet(['py:8:16', 'js:8:17']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The example checks for an existing mnemonic in the `MNEMONIC` environment variable.
 If the variable is set, the mnemonic is loaded from it.
@@ -50,7 +50,7 @@ These words encode the entropy (randomness) used to create all derived private k
 
 ### Deriving the Root Node
 
-{{ tutorial.code_snippet(['py:18:23', 'js:19:24']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 After defining the mnemonic, <dy:Bip32.fromMnemonic> converts the mnemonic and a password into a root node,
 which serves as the starting point for deriving child accounts.
@@ -70,7 +70,7 @@ If not set, the snippet uses a default one.
 
 ### Deriving the Child Account
 
-{{ tutorial.code_snippet(['py:25:27', 'js:26:28']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The root node can generate multiple accounts, each with its own unique keys and address.
 This allows a single mnemonic to manage many accounts while keeping them cryptographically isolated.
@@ -86,7 +86,7 @@ Each index produces a completely different account.
 
 ### Creating the Account
 
-{{ tutorial.code_snippet(['py:29:38', 'js:30:39']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Once the child node is derived, it is converted into a usable key pair and address.
 

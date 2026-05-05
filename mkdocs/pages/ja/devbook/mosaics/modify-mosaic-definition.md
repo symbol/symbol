@@ -38,13 +38,13 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/modify-mosaic-definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/modify-mosaic-definition', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
 ### アカウントの設定 {: #setting-up-the-account }
 
-{{ tutorial.code_snippet(['py:16:24', 'js:13:21']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、署名者の [秘密鍵](default:秘密鍵) を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合はデフォルトのテストキーが使用されます。
 署名者の [アドレス](default:アドレス) は [公開鍵](default:公開鍵) から派生します。
@@ -52,7 +52,7 @@ tutorial_level: intermediate
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:27:47', 'js:24:42']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
@@ -63,7 +63,7 @@ tutorial_level: intermediate
 
 このチュートリアルでは、前のチュートリアルでモザイクが [作成および取得](./create-mosaic.md#retrieving-the-mosaic) された直後であるため、現在の値は既知であると仮定します。
 
-{{ tutorial.code_snippet(['py:49:65', 'js:44:61']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 `MOSAIC_NONCE` 環境変数は、変更するモザイクの [ノンス](default:ノンス) を指定します。同じモザイクを対象とするために、[モザイクの作成](./create-mosaic.md) 時に使用したものと一致させる必要があります。
 
@@ -105,17 +105,17 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 ### 変更の送信 {: #submitting-the-modification }
 
-{{ tutorial.code_snippet(['py:67:86', 'js:63:85']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 変更トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
-{{ tutorial.code_snippet(['py:88:106', 'js:87:121']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
 ### モザイクの取得 {: #retrieving-the-mosaic }
 
-{{ tutorial.code_snippet(['py:108:121', 'js:123:136']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 変更が適用されたことを確認するために、コードは <get:/mosaics/{mosaicId}> エンドポイントを使用してネットワークからモザイクを取得し、更新されたプロパティを表示します。
 
