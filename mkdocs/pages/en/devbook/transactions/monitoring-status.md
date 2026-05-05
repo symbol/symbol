@@ -30,7 +30,7 @@ WebSockets provide a more responsive solution without the overhead of repeated A
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/monitoring-status', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/monitoring-status', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default one is used.
@@ -39,7 +39,7 @@ If no value is provided, a default one is used.
 
 ### Finding the Transaction Hash
 
-{{ tutorial.code_snippet(['py:13:16', 'js:7:8']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 To monitor a transaction, you need its hash, which is generated after signing.
 The hash uniquely identifies the transaction on the Symbol network.
@@ -52,7 +52,7 @@ In practice, you would obtain this hash immediately after signing a transaction 
 
 ### Querying the Status Endpoint
 
-{{ tutorial.code_snippet(['py:21:57', 'js:12:55']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The `wait_for_transaction_confirmation` function is the core of this tutorial.
 It monitors a transaction until it is confirmed or fails.
@@ -86,7 +86,7 @@ states.
 
 ### Checking for Confirmation
 
-{{ tutorial.code_snippet(['py:59:62', 'js:57:61']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 After parsing the response, the function checks the `group` field.
 If it is `confirmed`, the transaction was successfully included in a <block:> through <harvesting:>, and the function
@@ -94,7 +94,7 @@ returns successfully.
 
 ### Checking for Failure
 
-{{ tutorial.code_snippet(['py:64:71', 'js:63:69']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 If the transaction status group is `failed`, the function raises an error with the status code.
 
@@ -105,7 +105,7 @@ See [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusE
 
 ### Handling Unknown Status
 
-{{ tutorial.code_snippet(['py:73:80', 'js:71:80']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 If the endpoint returns HTTP 404, the transaction status is not yet available.
 This can happen immediately after announcing a transaction, before the <node:> processes it, or if the hash is invalid.
@@ -116,14 +116,14 @@ immediately.
 
 ### Waiting Between Attempts
 
-{{ tutorial.code_snippet(['py:82:84', 'js:82:87']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 Between polling attempts, the function waits for a configurable delay (default: 2 seconds).
 This prevents overwhelming the <node:> with requests and allows time for network processing.
 
 ### Handling Timeouts
 
-{{ tutorial.code_snippet(['py:86:89', 'js:90:95']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 If the transaction is not confirmed after the specified number of attempts, the function raises a `RuntimeError`
 explaining the problem.

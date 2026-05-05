@@ -14,7 +14,7 @@ from symbolchain.symbol.Network import Address
 NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv(
 	'SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -23,8 +23,8 @@ signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 facade = SymbolFacade('testnet')
 signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
-print(f'Signer address: {signer_address}')
-
+print(f'Signer address: {signer_address}') # [<step-1]
+# [>step-2]
 namespace_name = os.getenv('NAMESPACE_NAME', 'my_namespace')
 print(f'Namespace name: {namespace_name}')
 
@@ -36,9 +36,9 @@ target_address = Address(
 	os.getenv('TARGET_ADDRESS',
 	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI'))
 print(f'Target address: {target_address}')
-
+# [<step-2]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-3]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -57,8 +57,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Build the alias transaction
+	# [<step-3]
+	# Build the alias transaction [>step-4]
 	transaction = facade.transaction_factory.create({
 		'type': 'address_alias_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -68,8 +68,8 @@ try:
 		'alias_action': 'link'
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
-
-	# Sign transaction and generate final payload
+	# [<step-4]
+	# Sign transaction and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction, signature)
@@ -89,8 +89,8 @@ try:
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
-
-	# Wait for confirmation
+	# [<step-5]
+	# Wait for confirmation [>step-6]
 	print('Waiting for transaction confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
@@ -109,8 +109,8 @@ try:
 					status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-
-	# Retrieve the namespace to verify the alias
+	# [<step-6]
+	# Retrieve the namespace to verify the alias [>step-7]
 	namespace_path = f'/namespaces/{namespace_id:x}'
 	print(f'Fetching namespace information from {namespace_path}')
 	with urllib.request.urlopen(
@@ -122,10 +122,10 @@ try:
 		print(f'  Alias type: {alias_type}')
 		if alias_type == 2:  # ADDRESS type
 			aliased_address = Address.from_decoded_address_hex_string(
-				namespace_info['alias']['address'])
+				namespace_info['alias']['address']) # [<step-7]
 			print(f'  Linked address: {aliased_address}')
 
-	# Send a transfer using the alias instead of a raw address
+	# Send a transfer using the alias instead of a raw address [>step-8]
 	print(f'Using alias in transfer: {namespace_name}')
 
 	# Encode the namespace ID as a recipient address
@@ -145,6 +145,6 @@ try:
 	})
 	print('Transfer transaction:')
 	print(f'  Recipient address (alias): {recipient_address}')
-
+	# [<step-8]
 except Exception as e:
 	print(e)

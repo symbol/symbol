@@ -35,7 +35,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/register-subnamespace', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/register-subnamespace', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -47,7 +47,7 @@ see [Registering a Root Namespace](./register-root-namespace.md).
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:48:67', 'js:46:66']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The main difference when registering a subnamespace is in the transaction descriptor:
 
@@ -89,7 +89,7 @@ The transaction is then signed, announced, and confirmed following the same proc
 
 ### Retrieving the Subnamespace
 
-{{ tutorial.code_snippet(['py:110:135', 'js:126:158']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 To verify the subnamespace was registered, the code retrieves it from the network
 using the <get:/namespaces/{namespaceId}> endpoint and displays its properties.

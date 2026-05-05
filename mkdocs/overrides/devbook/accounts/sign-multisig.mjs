@@ -8,7 +8,7 @@ import {
 
 const NODE_URL = 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
-
+// [>step-1]
 const MULTISIG_PRIVATE_KEY = process.env.MULTISIG_PRIVATE_KEY || (
 	'0000000000000000000000000000000000000000000000000000000000000001');
 const multisigKeyPair = new SymbolFacade.KeyPair(
@@ -19,11 +19,11 @@ const COSIGNATORY0_PRIVATE_KEY = process.env.COSIGNATORY0_PRIVATE_KEY || (
 const cosignatoryKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(COSIGNATORY0_PRIVATE_KEY));
 console.log(`Cosignatory public key: ${cosignatoryKeyPair.publicKey}`);
-
+// [<step-1]
 const facade = new SymbolFacade('testnet');
 
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -42,8 +42,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Build the embedded transfer transaction
+	// [<step-2]
+	// Build the embedded transfer transaction [>step-3]
 	const transferTransaction = facade.transactionFactory.createEmbedded({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: multisigKeyPair.publicKey.toString(),
@@ -54,8 +54,8 @@ try {
 			amount: 1_000_000n // 1 XYM
 		}]
 	});
-
-	// Build the wrapper aggregate transaction
+	// [<step-3]
+	// Build the wrapper aggregate transaction [>step-4]
 	const transaction = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
 		// This is the account that will pay for the transaction
@@ -66,15 +66,15 @@ try {
 		transactions: [transferTransaction]
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
-
-	// Sign the aggregate transaction using the cosignatory's signature
+	// [<step-4]
+	// Sign the aggregate transaction using the cosignatory's signature [>step-5]
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction,
 		facade.signTransaction(cosignatoryKeyPair, transaction));
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
-
-	// Announce the transaction
+	// [<step-5]
+	// Announce the transaction [>step-6]
 	const announcePath = '/transactions';
 	console.log('Announcing transaction to', announcePath);
 	const announceResponse = await fetch(`${NODE_URL}${announcePath}`, {
@@ -129,7 +129,7 @@ try {
 				}
 			});
 	}
-	pollStatus();
+	pollStatus(); // [<step-6]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

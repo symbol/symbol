@@ -17,7 +17,7 @@ Before you start, make sure to [set up your development environment](../start/se
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/get-namespace-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/get-namespace-info', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
@@ -29,7 +29,7 @@ If not set, it defaults to `symbol.xym`, the namespace linked to the network's n
 
 ### Generating the Namespace ID
 
-{{ tutorial.code_snippet(['py:16:20', 'js:11:15']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 Namespace IDs are computed locally from the namespace name using <dy:IdGenerator.generateNamespacePath>.
 This function takes a fully qualified name like `symbol.xym`, splits it by `.`, and returns an array of namespace IDs
@@ -38,7 +38,7 @@ The last element is the ID of the deepest namespace.
 
 ### Fetching Namespace Information
 
-{{ tutorial.code_snippet(['py:22:44', 'js:17:46']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The <get:/namespaces/{namespaceId}> endpoint retrieves the current properties of a namespace, including:
 
@@ -56,7 +56,7 @@ The <get:/namespaces/{namespaceId}> endpoint retrieves the current properties of
 
 ### Checking the Alias
 
-{{ tutorial.code_snippet(['py:46:58', 'js:48:59']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Each level in a namespace hierarchy is an independent namespace that can have its own
 [alias](../../textbook/namespaces.md#linking).

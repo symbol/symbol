@@ -83,7 +83,7 @@ Before you start, make sure to:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/cross-chain-swap', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/cross-chain-swap', ['py', 'js']) }}
 
 ## Ethereum HTLC Contract
 
@@ -181,7 +181,7 @@ which a production implementation must do to prevent rollback-related risks.
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:181:210', 'js:155:188']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The `ALICE_XYM_PRIVATE_KEY` and `BOB_XYM_PRIVATE_KEY` environment variables set the Symbol keys, while
 `ALICE_ETH_PRIVATE_KEY` and `BOB_ETH_PRIVATE_KEY` set the Ethereum keys.
@@ -190,7 +190,7 @@ funds.
 
 ### Alice: Generating the Proof and Hashlock
 
-{{ tutorial.code_snippet(['py:214:221', 'js:192:199']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 As the swap initiator, Alice generates a random 32-byte value as the **proof**.
 She then hashes it using double SHA-256 to produce the **hashlock**.
@@ -205,7 +205,7 @@ Using the same algorithm on both chains is essential for the swap to work.
 
 ### Step 1. Alice: Locking ETH on Ethereum
 
-{{ tutorial.code_snippet(['py:224:247', 'js:202:223']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Alice calls `newContract` on the Ethereum HTLC contract, locking 0.01 ETH for Bob:
 
@@ -220,7 +220,7 @@ Bob will need this `contractId` later to withdraw the ETH.
 
 ### Step 2. Bob: Creating a Secret Lock on Symbol
 
-{{ tutorial.code_snippet(['py:250:288', 'js:226:269']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 Bob first queries the Ethereum HTLC contract using `getContract` to retrieve the hashlock that Alice used.
 
@@ -246,7 +246,7 @@ Bob then creates a <ser:SecretLockTransactionV1> on Symbol, locking 1 XYM for Al
 
 ### Step 3. Alice: Claiming XYM on Symbol
 
-{{ tutorial.code_snippet(['py:291:317', 'js:272:302']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Once Bob's secret lock is confirmed and Alice has verified it matches the expected amount, hashlock, recipient, and
 timelock, she claims the locked XYM
@@ -265,7 +265,7 @@ Bob (or anyone) can read it from the transaction data.
 
 ### Step 4. Bob: Withdrawing ETH on Ethereum
 
-{{ tutorial.code_snippet(['py:320:338', 'js:305:318']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 Bob discovers Alice's proof on-chain without needing the transaction hash from her.
 

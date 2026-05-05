@@ -21,7 +21,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/network-currency/query-currency-supply', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query-currency-supply', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
@@ -35,7 +35,7 @@ If no value is provided, a default <testnet:> node is used.
 
 ### Fetching Supply Values
 
-{{ tutorial.code_snippet(['py:10:23', 'js:7:19']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 Each supply value is available through a dedicated endpoint:
 
@@ -58,7 +58,7 @@ All three endpoints return a plain-text number (not JSON), already expressed in 
 
 ### Deriving Additional Metrics
 
-{{ tutorial.code_snippet(['py:25:29', 'js:21:25']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 After fetching all three values, the code derives two additional metrics:
 

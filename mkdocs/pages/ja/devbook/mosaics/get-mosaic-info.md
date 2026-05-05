@@ -19,7 +19,7 @@ Symbol上のすべての[モザイク](default:モザイク)には、供給量�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/get-mosaic-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/get-mosaic-info', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol APIノードを設定します。
 値が指定されない場合は、デフォルトの[テストネット](default:テストネット)ノードが使用されます。
@@ -31,7 +31,7 @@ Symbol上のすべての[モザイク](default:モザイク)には、供給量�
 
 ### モザイク情報の取得 {: #fetching-mosaic-information }
 
-{{ tutorial.code_snippet(['py:14:29', 'js:11:32']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 <get:/mosaics/{mosaicId}> エンドポイントは、以下のモザイクの現在のプロパティを取得します。
 
@@ -53,7 +53,7 @@ Symbol上のすべての[モザイク](default:モザイク)には、供給量�
 
 ### 供給量のフォーマット {: #formatting-the-supply }
 
-{{ tutorial.code_snippet(['py:31:36', 'js:34:41']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 APIによって返される供給量の値は、絶対量単位で表されます。
 これを全体の単位に変換するために、コードはモザイクの可分性を使用して、供給量を整数部分と小数部分に分割します。
@@ -62,7 +62,7 @@ XYM（可分性 `6` ）の場合、 `8325447775994408` 絶対単位の供給量�
 
 ### ネームスペースエイリアスの取得 {: #fetching-namespace-aliases }
 
-{{ tutorial.code_snippet(['py:38:53', 'js:43:58']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 モザイクは、人間が読めるネームスペースエイリアスにリンクさせることができます。
 <post:/namespaces/mosaic/names> エンドポイントはモザイクIDを受け取り、現在それらにリンクされているネームスペース名を返します。

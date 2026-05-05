@@ -42,7 +42,7 @@ def retrieve_confirmed_transaction(hash_value, label):
 			f"{label} not confirmed after {max_attempts} attempts"
 		)
 
-# Set up sender and recipient accounts
+# Set up sender and recipient accounts [>step-1]
 facade = SymbolFacade("testnet")
 
 sender_private_key_string = os.getenv(
@@ -69,7 +69,7 @@ recipient_address = facade.network.public_key_to_address(
 
 print(f"Sender address: {sender_address}")
 print(f"Recipient address: {recipient_address}\n")
-
+# [<step-1]
 # Fetch current network time
 time_path = "/node/time"
 print(f"Fetching current network time from {time_path}")
@@ -91,7 +91,7 @@ with urllib.request.urlopen(f"{NODE_URL}{fee_path}") as response:
 	print(f"  Fee multiplier: {fee_mult}\n")
 
 # ===== PLAIN TEXT MESSAGE =====
-print("==> Sending Plain Text Message")
+print("==> Sending Plain Text Message") # [>step-2]
 
 # Create a plain text message
 plain_message = "Hello, Symbol!".encode("utf-8")
@@ -107,7 +107,7 @@ plain_transaction = facade.transaction_factory.create(
 		"mosaics": [],
 		"message": plain_message,
 	}
-)
+) # [<step-2]
 plain_transaction.fee = Amount(fee_mult * plain_transaction.size)
 
 # Sign and announce the transaction
@@ -132,7 +132,7 @@ with urllib.request.urlopen(plain_announce_request) as response:
 	print(f"Plain message transaction announced\n")
 
 # ===== RECEIVING PLAIN TEXT MESSAGE =====
-print("<== Receiving Plain Text Message")
+print("<== Receiving Plain Text Message") # [>step-3]
 
 # Wait for confirmation
 plain_tx_data = retrieve_confirmed_transaction(
@@ -146,9 +146,9 @@ received_plain_message = bytes.fromhex(
 print(
 	f"Received plain message: {received_plain_message.decode('utf-8')}\n"
 )
-
+# [<step-3]
 # ===== ENCRYPTED MESSAGE =====
-print("==> Sending Encrypted Message")
+print("==> Sending Encrypted Message") # [>step-4]
 
 # Create a message encoder with sender's key pair
 sender_message_encoder = MessageEncoder(sender_key_pair)
@@ -174,7 +174,7 @@ encrypted_transaction = facade.transaction_factory.create(
 		"mosaics": [],
 		"message": encrypted_payload,
 	}
-)
+) # [<step-4]
 encrypted_transaction.fee = Amount(fee_mult * encrypted_transaction.size)
 
 # Sign and announce the transaction
@@ -199,7 +199,7 @@ with urllib.request.urlopen(encrypted_announce_request) as response:
 	print(f"Encrypted message transaction announced\n")
 
 # ===== RECEIVING ENCRYPTED MESSAGE =====
-print("<== Receiving Encrypted Message")
+print("<== Receiving Encrypted Message") # [>step-5]
 
 # Wait for confirmation
 encrypted_tx_data = retrieve_confirmed_transaction(
@@ -225,4 +225,4 @@ if is_decoded:
 	message_text = decrypted_message.decode("utf-8")
 	print(f"Recipient decrypted message: {message_text}")
 else:
-	print(f"Recipient failed to decrypt message")
+	print(f"Recipient failed to decrypt message") # [<step-5]

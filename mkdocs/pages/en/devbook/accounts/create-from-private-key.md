@@ -16,13 +16,13 @@ If you have not done so already, start with [Setting Up a Development Environmen
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/create-from-private-key', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/create-from-private-key', ['py', 'js']) }}
 
 ## Code Explanation
 
 ### Initializing the Facade
 
-{{ tutorial.code_snippet(['py:5:6', 'js:5:6']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The <dy:SymbolFacade> provides access to Symbol’s cryptographic operations and network utilities.
 It is initialized with a network name (`testnet` or `mainnet`) to ensure that network-specific values,
@@ -30,7 +30,7 @@ such as <addresses:>, are generated correctly.
 
 ### Defining a Private Key
 
-{{ tutorial.code_snippet(['py:8:16', 'js:8:17']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The example starts by retrieving a private key from the environment variable `PRIVATE_KEY` as a hexadecimal string.
 If the variable is set, the value is converted into a <dy:PrivateKey> object.
@@ -45,7 +45,7 @@ Otherwise, a new random private key is generated using <dy:PrivateKey.random> in
 
 ### Creating the Account
 
-{{ tutorial.code_snippet(['py:18:30', 'js:19:32']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 After defining the private key, an account is created by deriving its public key and address.
 

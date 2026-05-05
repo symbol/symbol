@@ -9,13 +9,13 @@ NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
-# Hash of a confirmed tx that used a namespace alias
+# Hash of a confirmed tx that used a namespace alias [>step-1]
 TX_HASH = os.getenv('TRANSACTION_HASH',
 	'BA0C65DB752A3BF1B25285540642537ECE8C2CA716577EDF8BF0F8597A85ADC4')
 print(f'Transaction hash: {TX_HASH}')
-
+# [<step-1]
 try:
-	# Retrieve the confirmed transaction
+	# Retrieve the confirmed transaction [>step-2]
 	tx_path = f'/transactions/confirmed/{TX_HASH}'
 	print(f'Fetching transaction from {tx_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{tx_path}') as response:
@@ -27,14 +27,14 @@ try:
 	# primaryId is 1-based, meta.index is 0-based
 	tx_index = int(tx_data['meta']['index'])
 	tx_primary = tx_index + 1
-	print(f'  Transaction index: {tx_index} (primaryId: {tx_primary})')
-
+	print(f'  Transaction index: {tx_index} (primaryId: {tx_primary})') # [<step-2]
+	# [>step-3]
 	recipient_hex = tx_data['transaction']['recipientAddress']
 	recipient_bytes = bytes.fromhex(recipient_hex)
 	is_address_alias = (recipient_bytes[0] & 0x01) == 1
 	print(f'  Recipient: {recipient_hex}')
-	print(f'  Is address alias: {is_address_alias}')
-
+	print(f'  Is address alias: {is_address_alias}') # [<step-3]
+	# [>step-4]
 	aliased_mosaics = set()
 	mosaics = tx_data['transaction']['mosaics']
 	for mosaic in mosaics:
@@ -44,9 +44,9 @@ try:
 			aliased_mosaics.add(mosaic['id'])
 		print(f'  Mosaic: {mosaic["id"]}')
 		print(f'  Is mosaic alias: {is_alias}')
-
+	# [<step-4]
 	# Query address resolution statements
-	if is_address_alias:
+	if is_address_alias: # [>step-5]
 		address_path = ('/statements/resolutions/address'
 			f'?height={block_height}')
 		print(f'\nFetching address resolutions from {address_path}')
@@ -56,8 +56,8 @@ try:
 
 		address_statements = address_data['data']
 		print(f'  Found {len(address_statements)}'
-			+ ' resolution statement(s)')
-
+			+ ' resolution statement(s)') # [<step-5]
+		# [>step-6]
 		for item in address_statements:
 			statement = item['statement']
 			if statement['unresolved'] != recipient_hex:
@@ -72,9 +72,9 @@ try:
 				print('\nAddress resolution:')
 				print(f'  Unresolved:  {statement["unresolved"]}')
 				print(f'  Resolved:   {address}')
-
+		# [<step-6]
 	# Query mosaic resolution statements
-	if len(aliased_mosaics):
+	if len(aliased_mosaics): # [>step-7]
 		mosaic_path = ('/statements/resolutions/mosaic'
 			f'?height={block_height}')
 		print(f'\nFetching mosaic resolutions from {mosaic_path}')
@@ -98,6 +98,6 @@ try:
 				print('\nMosaic resolution:')
 				print(f'  Unresolved: {statement["unresolved"]}')
 				print(f'  Resolved:   {resolved}')
-
+	# [<step-7]
 except Exception as e:
 	print(e)

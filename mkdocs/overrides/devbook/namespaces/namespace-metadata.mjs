@@ -48,7 +48,7 @@ async function waitForConfirmation(transactionHash, label) {
 	}
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
-
+// [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY || (
 	'0000000000000000000000000000000000000000000000000000000000000000');
 const signerKeyPair = new SymbolFacade.KeyPair(
@@ -65,9 +65,9 @@ const namespaceId = generateNamespaceId(NAMESPACE_NAME);
 console.log('Namespace name:', NAMESPACE_NAME);
 console.log('Namespace ID:',
 	namespaceId.toString(), `(0x${namespaceId.toString(16)})`);
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -86,16 +86,16 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
+	// [<step-2]
 	// --- ADDING NEW METADATA ---
 	console.log('\n--- Adding new metadata ---');
 
-	// Define metadata key and value
+	// Define metadata key and value [>step-3]
 	const keyString = `description_${Date.now()}`;
 	const scopedMetadataKey = metadataGenerateKey(keyString);
 	const metadataValue = new TextEncoder().encode('My first namespace');
-
-	// Create the embedded metadata transaction
+	// [<step-3]
+	// Create the embedded metadata transaction [>step-4]
 	const embeddedTransaction = facade.transactionFactory
 		.createEmbedded({
 			type: 'namespace_metadata_transaction_v1',
@@ -110,8 +110,8 @@ try {
 		});
 	console.log('Created embedded metadata transaction:');
 	console.log(JSON.stringify(embeddedTransaction.toJson(), null, 2));
-
-	// Build the aggregate transaction
+	// [<step-4]
+	// Build the aggregate transaction [>step-5]
 	const embeddedTransactions = [embeddedTransaction];
 	const transaction = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
@@ -122,8 +122,8 @@ try {
 		transactions: embeddedTransactions
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
-
-	// Sign and generate final payload
+	// [<step-5]
+	// Sign and generate final payload [>step-6]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction, signature);
@@ -135,11 +135,11 @@ try {
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(jsonPayload, 'aggregate transaction');
 	await waitForConfirmation(transactionHash, 'aggregate transaction');
-
+	// [<step-6]
 	// --- MODIFYING EXISTING METADATA ---
 	console.log('\n--- Modifying existing metadata ---');
 
-	// Fetch current metadata value from network
+	// Fetch current metadata value from network [>step-7]
 	const scopedKeyHex = scopedMetadataKey.toString(16)
 		.toUpperCase().padStart(16, '0');
 	const namespaceIdHex = namespaceId.toString(16)
@@ -161,8 +161,8 @@ try {
 	const metadataEntry = metadataJSON.data[0].metadataEntry;
 	const currentValue = Buffer.from(metadataEntry.value, 'hex');
 	console.log('  Current value:', currentValue.toString('utf8'));
-
-	// XOR the current and new values
+	// [<step-7]
+	// XOR the current and new values [>step-8]
 	const newValue = new TextEncoder().encode('Updated namespace');
 	const updateValue = metadataUpdateValue(currentValue, newValue);
 
@@ -181,8 +181,8 @@ try {
 		});
 	console.log('Created embedded update transaction:');
 	console.log(JSON.stringify(embeddedUpdate.toJson(), null, 2));
-
-	// Build the aggregate for the update
+	// [<step-8]
+	// Build the aggregate for the update [>step-9]
 	const updateEmbedded = [embeddedUpdate];
 	const updateTransaction = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
@@ -208,7 +208,7 @@ try {
 		'Built aggregate transaction with hash:', updateHash);
 	await announceTransaction(updatePayload, 'aggregate transaction');
 	await waitForConfirmation(updateHash, 'aggregate transaction');
-
+	// [<step-9]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

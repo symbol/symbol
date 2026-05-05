@@ -44,13 +44,13 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/modify-mosaic-definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/modify-mosaic-definition', ['py', 'js']) }}
 
 ## Code Explanation
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:16:24', 'js:13:21']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -59,7 +59,7 @@ This account must be the original creator of the mosaic.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:27:47', 'js:24:42']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -74,7 +74,7 @@ The mosaic can be retrieved using the <get:/mosaics/{mosaicId}> endpoint or look
 In this tutorial, the current values are already known because the mosaic was just
 [created and retrieved](./create-mosaic.md#retrieving-the-mosaic) in the previous tutorial.
 
-{{ tutorial.code_snippet(['py:49:65', 'js:44:61']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The `MOSAIC_NONCE` environment variable specifies the <nonce:> of the mosaic to modify.
 The nonce must match the one used when [creating the mosaic](./create-mosaic.md) to target the same mosaic.
@@ -122,19 +122,19 @@ duration.
 
 ### Submitting the Modification
 
-{{ tutorial.code_snippet(['py:67:86', 'js:63:85']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The modification transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:88:106', 'js:87:121']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The code then waits for the transaction to be confirmed by polling the <get:/transactionStatus/{hash}> endpoint
 until the status changes to `confirmed`.
 
 ### Retrieving the Mosaic
 
-{{ tutorial.code_snippet(['py:108:121', 'js:123:136']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 To verify the modification was applied, the code retrieves the mosaic from the network using the
 <get:/mosaics/{mosaicId}> endpoint and displays its updated properties.

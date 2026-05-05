@@ -20,7 +20,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/query-balance', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/query-balance', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default one is used.
@@ -36,7 +36,7 @@ The tutorial defines the following functions:
 
 ### Fetching Account Information
 
-{{ tutorial.code_snippet(['py:10:33', 'js:6:32']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The <get:/accounts/{accountId}> endpoint retrieves the state of an account, including all the mosaics it holds.
 
@@ -44,7 +44,7 @@ You can query an account using either its <address:> or its <public key:>.
 
 ### Fetching Mosaic Names
 
-{{ tutorial.code_snippet(['py:36:60', 'js:34:57']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Mosaics are identified by 64-bit numeric <Mosaic ID:|IDs>, which can be hard to read and remember.
 To improve usability, mosaics can be linked to human-readable <namespace:> aliases.
@@ -58,7 +58,7 @@ The method returns a map because a mosaic can have multiple namespace aliases
 
 ### Fetching Mosaic Properties
 
-{{ tutorial.code_snippet(['py:63:87', 'js:59:82']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 To format mosaic balances correctly, the snippet fetches their properties from the network.
 The key property required is <divisibility:>, which defines how many decimal places a mosaic supports.
@@ -69,7 +69,7 @@ and returns detailed information about each mosaic, including its divisibility.
 
 ### Formatting Amounts
 
-{{ tutorial.code_snippet(['py:90:105', 'js:84:101']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 This utility function converts _atomic_ amounts into human-friendly representations:
 
@@ -82,7 +82,7 @@ The fractional part is then zero-padded to ensure it always displays the correct
 
 ### Putting It All Together
 
-{{ tutorial.code_snippet(['py:108:150', 'js:103:148']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The main code reads the `ADDRESS` environment variable to determine which account to query.
 If no value is provided, it uses a default sample address.

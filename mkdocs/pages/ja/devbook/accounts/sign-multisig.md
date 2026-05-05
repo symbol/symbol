@@ -38,7 +38,7 @@ digraph "Multisignature Tree" {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/sign-multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/sign-multisig', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -48,7 +48,7 @@ digraph "Multisignature Tree" {
 
 ### アカウントの設定 {: #setting-up-the-accounts }
 
-{{ tutorial.code_snippet(['py:16:27', 'js:12:21']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このチュートリアルでは2つの個別のアカウントが必要です。
 それらの [秘密鍵](default:秘密鍵) は環境変数を通じて提供できます。設定されていない場合は、デフォルト値が使用されます。
@@ -66,13 +66,13 @@ digraph "Multisignature Tree" {
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:32:49', 'js:26:44']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
 ### トランザクションの構築 {: #building-the-transaction }
 
-{{ tutorial.code_snippet(['py:51:62', 'js:46:56']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 埋め込まれた [転送トランザクション](default:トランザクション) には以下のフィールドが含まれます。
 
@@ -84,7 +84,7 @@ digraph "Multisignature Tree" {
 
 埋め込みトランザクションは、内部トランザクションが1つだけの場合でも、アグリゲートトランザクションにラップされます。
 
-{{ tutorial.code_snippet(['py:64:74', 'js:58:68']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 主なフィールドは以下の通りです。
 
@@ -97,7 +97,7 @@ digraph "Multisignature Tree" {
 
 最後に、連署者によってアグリゲートトランザクションに署名が行われます。
 
-{{ tutorial.code_snippet(['py:76:81', 'js:70:75']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 !!! note "複数の連署者"
 
@@ -109,7 +109,7 @@ digraph "Multisignature Tree" {
 
 最後のステップは、[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているように、トランザクションをアナウンスして承認を待つことです。
 
-{{ tutorial.code_snippet(['py:83:116', 'js:77:132']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 プロトコル制約に違反した場合、トランザクションは拒否されます。以下の表は、最も一般的なエラーの原因をまとめたものです。
 

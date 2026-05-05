@@ -59,7 +59,7 @@ def wait_for_status(hash_value, expected_status, label):
 		f'{label} not {expected_status} after {max_attempts} attempts'
 	)
 
-# Account A (initiates the aggregate tx and sends XYM to Account B)
+# Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
 ACCOUNT_A_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -80,9 +80,9 @@ account_b_address = facade.network.public_key_to_address(
 	account_b_key_pair.public_key)
 print(f'Account A: {account_a_address}')
 print(f'Account B: {account_b_address}')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -101,8 +101,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Embedded tx 1: Account A transfers 10 XYM to Account B
+	# [<step-2]
+	# Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	embedded_transaction_1 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': account_a_key_pair.public_key,
@@ -124,8 +124,8 @@ try:
 			'amount': 1  # 1 custom mosaic (divisibility = 0)
 		}]
 	})
-
-	# Build the bonded aggregate transaction
+	# [<step-3]
+	# Build the bonded aggregate transaction [>step-4]
 	embedded_transactions = [
 		embedded_transaction_1, embedded_transaction_2]
 	bonded_transaction = facade.transaction_factory.create({
@@ -142,8 +142,8 @@ try:
 		fee_mult * (bonded_transaction.size + 104))
 	print('Built aggregate without signatures:')
 	print(json.dumps(bonded_transaction.to_json(), indent=2))
-
-	# --- ACCOUNT A (Initiator) ---
+	# [<step-4]
+	# --- ACCOUNT A (Initiator) --- [>step-5]
 	# Sign the bonded aggregate transaction
 	print('[Account A] Signing the bonded aggregate...')
 	bonded_signature = facade.sign_transaction(
@@ -152,8 +152,8 @@ try:
 		bonded_transaction, bonded_signature)
 	bonded_hash = facade.hash_transaction(bonded_transaction)
 	print(f'Bonded aggregate transaction hash: {bonded_hash}')
-
-	# Create hash lock transaction
+	# [<step-5]
+	# Create hash lock transaction [>step-6]
 	print('Creating hash lock transaction...')
 	hash_lock = facade.transaction_factory.create({
 		'type': 'hash_lock_transaction_v1',
@@ -180,8 +180,8 @@ try:
 	# Announce hash lock and wait for confirmation
 	announce_transaction(hash_lock_payload, '/transactions', 'Hash lock')
 	wait_for_status(hash_lock_hash, 'confirmed', 'Hash lock')
-
-	# Announce bonded aggregate and wait for partial status
+	# [<step-6]
+	# Announce bonded aggregate and wait for partial status [>step-7]
 	announce_transaction(
 		bonded_json_payload, '/transactions/partial',
 		'Bonded aggregate transaction'
@@ -190,8 +190,8 @@ try:
 		bonded_hash, 'partial',
 		'Bonded aggregate transaction'
 	)
-
-	# --- ACCOUNT B (Cosigner) ---
+	# [<step-7]
+	# --- ACCOUNT B (Cosigner) --- [>step-8]
 	# Retrieves partial transactions waiting for signature
 	partial_path = f'/transactions/partial?address={account_b_address}'
 	print(
@@ -215,8 +215,8 @@ try:
 			f'Expected transaction {bonded_hash} not found in '
 			f'partial transactions')
 	print(f'Found matching transaction: {bonded_hash}')
-
-	# Fetch full transaction details using the hash
+	# [<step-8]
+	# Fetch full transaction details using the hash [>step-9]
 	detail_path = f'/transactions/partial/{bonded_hash}'
 	with urllib.request.urlopen(f'{NODE_URL}{detail_path}') as response:
 		partial_tx_json = json.loads(response.read().decode())
@@ -227,8 +227,8 @@ try:
 		f'[Account B] Verifying transaction: '
 		f'{len(tx_data["transactions"])} embedded transactions'
 	)
-
-	# Submit Account B's cosignature using the transaction hash
+	# [<step-9]
+	# Submit Account B's cosignature using the transaction hash [>step-10]
 	cosignature_path = '/transactions/cosignature'
 	print('[Account B] Cosigning the bonded aggregate...')
 	cosignature = facade.cosign_transaction_hash(
@@ -244,12 +244,12 @@ try:
 	announce_transaction(
 		cosignature_payload, cosignature_path, 'cosignature'
 	)
-
-	# Wait for final confirmation
+	# [<step-10]
+	# Wait for final confirmation [>step-11]
 	wait_for_status(
 		bonded_hash, 'confirmed',
 		'Bonded aggregate transaction'
 	)
-
+	# [<step-11]
 except Exception as e:
 	print(e)

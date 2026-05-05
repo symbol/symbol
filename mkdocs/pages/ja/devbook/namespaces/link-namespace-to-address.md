@@ -30,7 +30,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/link-namespace-to-address', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/link-namespace-to-address', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -113,7 +113,7 @@ tutorial_level: intermediate
 
 ### エイリアスの使用 {: #using-the-alias }
 
-{{ tutorial.code_snippet(['py:128:147', 'js:148:169']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 ネームスペースがアドレスにリンクされると、トランザクションにおいてアドレスの代わりにネームスペースを使用できるようになります。
 コードは、完全な16進数アドレスの代わりにエイリアスを受信者アドレスとして使用する [転送トランザクション](default: 転送トランザクション) の作成を示しています。

@@ -14,7 +14,7 @@ NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 try:
-	# Fetch the network currency mosaic ID
+	# Fetch the network currency mosaic ID [>step-1]
 	url = f'{NODE_URL}/network/properties'
 	with urllib.request.urlopen(url) as response:
 		props = json.loads(response.read().decode())
@@ -31,8 +31,8 @@ try:
 		mosaic_data = json.loads(response.read().decode())
 	mosaic = mosaic_data['mosaic']
 	print(json.dumps(mosaic, indent=2))
-
-	# Serialize and hash the mosaic properties
+	# [<step-1]
+	# Serialize and hash the mosaic properties [>step-2]
 	writer = BufferWriter()
 	writer.write_int(int(mosaic['version']), 2)
 	writer.write_int(int(mosaic['id'], 16), 8)
@@ -51,8 +51,8 @@ try:
 	writer.write_int(int(mosaic['id'], 16), 8)
 	encoded_key = Hash256(hashlib.sha3_256(writer.buffer).digest())
 	print(f'Encoded key: {encoded_key}')
-
-	# Fetch the current network height
+	# [<step-2]
+	# Fetch the current network height [>step-3]
 	url = f'{NODE_URL}/chain/info'
 	with urllib.request.urlopen(url) as response:
 		chain_info = json.loads(response.read().decode())
@@ -69,8 +69,8 @@ try:
 	sub_cache_key = 'stateHashSubCacheMerkleRoots'
 	roots = [Hash256(r) for r in block_data['meta'][sub_cache_key]]
 	print(f'State hash: {state_hash}')
-
-	# Fetch the patricia tree path
+	# [<step-3]
+	# Fetch the patricia tree path [>step-4]
 	tree_url = f'/mosaics/{mosaic_id_hex}/merkle'
 	print(f'Fetching tree path from {tree_url}')
 	url = f'{NODE_URL}{tree_url}'
@@ -95,8 +95,8 @@ try:
 			print(f'  [{i}] branch{path_str}'
 				f'  links: [{",".join(active)}]'
 				f'  -> follow {nibble}')
-
-	# Verify the mosaic state
+	# [<step-4]
+	# Verify the mosaic state [>step-5]
 	result = prove_patricia_merkle(
 		encoded_key, hashed_value, merkle_path, state_hash, roots)
 
@@ -105,6 +105,6 @@ try:
 	else:
 		raise RuntimeError(
 			f'Mosaic {mosaic_id_hex} proof failed: {result.name}')
-
+	# [<step-5]
 except Exception as e:
 	print(e)

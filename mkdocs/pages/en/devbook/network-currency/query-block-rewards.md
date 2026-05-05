@@ -23,7 +23,7 @@ This tutorial only reads data from the network. No <account:> or <XYM:> balance 
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/network-currency/query-block-rewards', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query-block-rewards', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -34,7 +34,7 @@ Finally, it derives the transaction fees by subtracting inflation from the total
 
 ### Fetching Block Information
 
-{{ tutorial.code_snippet(['py:15:26', 'js:13:23']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet retrieves the block header using the `NODE_URL` and `BLOCK_HEIGHT` environment variables to select the API
 node and the target block.
@@ -46,7 +46,7 @@ The beneficiary address is needed later to identify beneficiary receipts.
 
 ### Fetching the Network Sink Address
 
-{{ tutorial.code_snippet(['py:28:34', 'js:25:31']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The `harvestNetworkFeeSinkAddress` is fetched from <get:/network/properties> and needed later to identify sink receipts.
 Since the property is in base32 format and receipt addresses are hex-encoded, the SDK's `Address` class converts it
@@ -54,7 +54,7 @@ to hex for comparison.
 
 ### Fetching the Inflation Reward
 
-{{ tutorial.code_snippet(['py:36:42', 'js:33:37']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The <get:/network/inflation/at/{height}> endpoint returns the inflation reward amount for the given block height.
 This value is in <divisibility:|atomic> units, so for XYM (divisibility 6), `113474978` atomic units represent
@@ -64,7 +64,7 @@ The inflation schedule is defined in the network configuration and decreases ove
 
 ### Querying the Reward Distribution
 
-{{ tutorial.code_snippet(['py:44:72', 'js:39:67']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 To see how the total reward (inflation + transaction fees) was distributed, the code queries the
 <get:/statements/transaction> endpoint filtered by
@@ -95,7 +95,7 @@ The sum of all `Harvest_Fee` receipts equals the total block reward (inflation +
 
 ### Calculating the Fee Breakdown
 
-{{ tutorial.code_snippet(['py:74:79', 'js:69:74']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Finally, subtracting the inflation amount from the total block reward gives the transaction fees collected in the block.
 All values are converted from atomic units to whole units for display.

@@ -46,7 +46,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/account-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account-metadata', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -54,7 +54,7 @@ This tutorial demonstrates adding new metadata to an account and then updating t
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:53:61', 'js:51:59']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -65,7 +65,7 @@ Adding metadata to a different account requires the target to cosign the transac
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:64:82', 'js:62:80']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -82,7 +82,7 @@ Each account metadata entry is uniquely identified by:
     human-readable string using SHA3-256 hashing.
     This approach makes keys more meaningful and reduces the chance of collisions.
 
-{{ tutorial.code_snippet(['py:87:90', 'js:85:88']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 In this example, the key is derived from the string `username`.
 For demonstration purposes, a timestamp is appended to the key string,
@@ -104,7 +104,7 @@ In this example, the value is the string `alice` encoded in UTF-8.
 
 ### Creating the Embedded Account Metadata Transaction
 
-{{ tutorial.code_snippet(['py:92:104', 'js:90:103']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 An account metadata transaction attaches a key-value pair to an account on the blockchain.
 The same transaction type handles both adding new metadata entries and updating existing ones.
@@ -139,7 +139,7 @@ This transaction specifies:
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:106:116', 'js:105:115']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The code adds the embedded account metadata transaction to an <aggregate transaction:>.
 
@@ -156,14 +156,14 @@ Since the signer is modifying their own account, no <cosignatures:> are required
 
 ### Submitting the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:118:127', 'js:117:128']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The aggregate transaction is signed and announced following the same process as in
 [Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction).
 
 ### Retrieving Metadata
 
-{{ tutorial.code_snippet(['py:132:149', 'js:133:150']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 To retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
 with filters for `sourceAddress`, `targetAddress`, `scopedMetadataKey`, and `metadataType`
@@ -173,7 +173,7 @@ The endpoint returns the list of entries matching the filters, which in this cas
 
 ### Modifying Existing Metadata
 
-{{ tutorial.code_snippet(['py:151:165', 'js:152:167']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 Updating an existing metadata entry requires the current value, retrieved from the network as previously shown.
 
@@ -202,7 +202,7 @@ not the length of the XOR'd bytes themselves.
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
 in an aggregate transaction and then signed and announced.
 
-{{ tutorial.code_snippet(['py:167:189', 'js:169:194']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 ## Output
 

@@ -13,7 +13,7 @@ from symbolchain.symbol.Network import Address
 NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv(
 	'SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -23,9 +23,9 @@ facade = SymbolFacade('testnet')
 signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -44,8 +44,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Build the transaction
+	# [<step-2]
+	# Build the transaction [>step-3]
 	namespace_name = f'ns_{int(time.time())}'
 	print(f'Creating root namespace: {namespace_name}')
 
@@ -58,8 +58,8 @@ try:
 		'name': namespace_name
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
-
-	# Sign transaction and generate final payload
+	# [<step-3]
+	# Sign transaction and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction, signature)
@@ -79,8 +79,8 @@ try:
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
-
-	# Wait for confirmation
+	# [<step-4]
+	# Wait for confirmation [>step-5]
 	print('Waiting for namespace registration confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
@@ -99,8 +99,8 @@ try:
 					status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-
-	# Retrieve the namespace
+	# [<step-5]
+	# Retrieve the namespace [>step-6]
 	namespace_id = generate_namespace_id(namespace_name)
 	print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
 
@@ -116,7 +116,7 @@ try:
 		owner_address = Address.from_decoded_address_hex_string(
 			namespace_info["ownerAddress"])
 		print(f'  Owner address: {owner_address}')
-		print(f'  Start height: {namespace_info["startHeight"]}')
+		print(f'  Start height: {namespace_info["startHeight"]}') # [<step-6]
 		print(f'  End height: {namespace_info["endHeight"]}')
 
 except Exception as e:

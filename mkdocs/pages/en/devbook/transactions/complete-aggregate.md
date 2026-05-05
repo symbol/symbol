@@ -82,7 +82,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/complete-aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/complete-aggregate', ['py', 'js']) }}
 
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.
@@ -99,7 +99,7 @@ This tutorial demonstrates the multi-party case but combines both roles in a sin
 
 ### Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:16:37', 'js:13:31']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 This example includes both <private keys:> in one script for simplicity.
 In practice, each party signs on their own machine.
@@ -114,14 +114,14 @@ The addresses for both accounts are derived from their public keys using the fac
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:39:57', 'js:34:52']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](./transfer.md) tutorial.
 
 ### Creating Embedded Transactions
 
-{{ tutorial.code_snippet(['py:59:80', 'js:54:77']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The <embedded transactions:> define the operations to execute atomically.
 Each embedded transaction specifies:
@@ -152,7 +152,7 @@ The example creates two <transfer transactions:> for the swap:
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:82:97', 'js:79:96']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 Once the embedded transactions are prepared, create the complete aggregate transaction that wraps them:
 
@@ -181,7 +181,7 @@ space reserved for one cosignature (104 bytes).
 
 ### Signing the Transaction
 
-{{ tutorial.code_snippet(['py:99:111', 'js:98:112']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Account A signs the transaction using <dy:SymbolFacade.signTransaction> and produces an intermediate payload using
 <dy:SymbolTransactionFactory.attachSignature>.
@@ -202,7 +202,7 @@ Account A sends this intermediate payload to Account B through an off-chain chan
 
 ### Verifying and Cosigning
 
-{{ tutorial.code_snippet(['py:113:126', 'js:114:131']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 Account B receives the payload and deserializes it using <dy:SymbolTransactionFactory.deserialize> to reconstruct the
 transaction object.
@@ -221,7 +221,7 @@ Only this cosignature is sent back to Account A.
 
 ### Collecting the Cosignature
 
-{{ tutorial.code_snippet(['py:128:134', 'js:133:139']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 Account A receives Account B's cosignature, adds it to the transaction object's `cosignatures` array, and rebuilds the
 payload for announcement.
@@ -231,7 +231,7 @@ payload for announcement.
 Now that the transaction is ready to be announced, it follows the same process as regular, non-aggregate transactions,
 as shown in the [Transfer Transaction](./transfer.md#announcing-the-transaction) tutorial.
 
-{{ tutorial.code_snippet(['py:136:149', 'js:141:153']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 Once all signatures are collected, the transaction is announced to a <node:> using the <put:/transactions> endpoint.
 
@@ -240,7 +240,7 @@ If validation passes, the transaction is added to the <unconfirmed pool:> and br
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet(['py:151:171', 'js:155:179']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 After announcement, the transaction status is monitored using <get:/transactionStatus/{hash}>.
 

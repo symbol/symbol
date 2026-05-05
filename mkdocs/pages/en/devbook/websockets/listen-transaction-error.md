@@ -42,7 +42,7 @@ Additionally, install the language-specific WebSocket library:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/websockets/listen-transaction-error', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen-transaction-error', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.
@@ -53,7 +53,7 @@ The WebSocket URL is derived from `NODE_URL` by replacing the HTTP protocol with
 
 ### Setting Up the Monitored Address and Signer
 
-{{ tutorial.code_snippet(['py:17:27', 'js:14:22']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The `status` channel is scoped to a specific address.
 The `MONITOR_ADDRESS` environment variable sets the address to watch.
@@ -68,7 +68,7 @@ account.
 
 ### Connecting to the WebSocket
 
-{{ tutorial.code_snippet(['py:31:35', 'js:25:33']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The code opens a WebSocket connection to the node's `/ws` endpoint.
 Upon connecting, the server sends a message containing a unique identifier (`uid`) that must be included in all
@@ -78,7 +78,7 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 ### Subscribing to the Status Channel
 
-{{ tutorial.code_snippet(['py:37:42', 'js:35:38']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The code subscribes to the <ws:status&#47;{address}> channel scoped to the monitored address.
 This channel notifies whenever a transaction involving the address is rejected by the network, providing the error code
@@ -86,7 +86,7 @@ and the transaction hash.
 
 ### Building and Signing an Invalid Transfer Transaction
 
-{{ tutorial.code_snippet(['py:44:73', 'js:40:67']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 This tutorial builds a [Transfer Transaction](../transactions/transfer.md) sent to the monitored address, including
 a mosaic with the alias `symbol.unknown`.
@@ -98,7 +98,7 @@ The hash is computed locally so it can be matched against the incoming WebSocket
 
 ### Announcing and Waiting for the Error
 
-{{ tutorial.code_snippet(['py:75:96', 'js:69:93']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The code announces the transaction and then listens for incoming messages.
 Each message follows the [TransactionStatusDTO](../reference/rest/symbol.md#model/TransactionStatusDTO) schema
@@ -113,7 +113,7 @@ When the received hash matches the announced transaction, the program prints the
 
 ### Unsubscribing from the Channel
 
-{{ tutorial.code_snippet(['py:98:102', 'js:95:98']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 After receiving the error, the code sends an unsubscribe message before closing the connection.
 

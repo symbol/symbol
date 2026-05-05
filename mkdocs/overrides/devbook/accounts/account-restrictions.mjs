@@ -50,7 +50,7 @@ async function waitForConfirmation(transactionHash, label) {
 }
 
 // Returns the list of restrictions currently applied to the account
-async function getAccountRestrictions(address) {
+async function getAccountRestrictions(address) { // [>step-3]
 	const restrictionsPath = `/restrictions/account/${address}`;
 	console.log(`Getting restrictions from ${restrictionsPath}`);
 	try {
@@ -64,9 +64,9 @@ async function getAccountRestrictions(address) {
 		return [];
 	}
 }
-
+// [<step-3]
 // Returns a transaction that restricts an account
-function restrictionEnableTransaction(timestamp, feeMult) {
+function restrictionEnableTransaction(timestamp, feeMult) { // [>step-5]
 	const transaction = facade.transactionFactory.create({
 		type: 'account_address_restriction_transaction_v1',
 		// This is the account that will be restricted
@@ -85,9 +85,9 @@ function restrictionEnableTransaction(timestamp, feeMult) {
 
 	return transaction;
 }
-
+// [<step-5]
 // Returns a transaction that removes a restriction from an account
-function restrictionDisableTransaction(timestamp, feeMult, restriction) {
+function restrictionDisableTransaction(timestamp, feeMult, restriction) { // [>step-6]
 	const transaction = facade.transactionFactory.create({
 		type: 'account_address_restriction_transaction_v1',
 		// This is the account whose restriction will be lifted
@@ -105,9 +105,9 @@ function restrictionDisableTransaction(timestamp, feeMult, restriction) {
 
 	return transaction;
 }
-
+// [<step-6]
 const facade = new SymbolFacade('testnet');
-
+// [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new KeyPair(new PrivateKey(SIGNER_PRIVATE_KEY));
@@ -117,9 +117,9 @@ console.log(`Signer address: ${signerAddress}`);
 
 const authAddress = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
 console.log(`Authorized address: ${authAddress}`);
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -138,10 +138,10 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
+	// [<step-2]
 	// Get current state of the restriction and decide which
 	// operation to perform
-	const restrictions = await getAccountRestrictions(signerAddress);
+	const restrictions = await getAccountRestrictions(signerAddress); // [>step-4]
 	let transaction;
 	if (restrictions.length === 0) {
 		// Enable the restriction
@@ -153,8 +153,8 @@ try {
 		transaction = restrictionDisableTransaction(timestamp, feeMult,
 			restrictions[0]);
 	}
-
-	// Sign, announce and wait for confirmation
+	// [<step-4]
+	// Sign, announce and wait for confirmation [>step-7]
 	let payload = SymbolTransactionFactory.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));
@@ -162,8 +162,8 @@ try {
 		facade.hashTransaction(transaction).toString();
 	await announceTransaction(payload, 'restriction transaction');
 	await waitForConfirmation(hash, 'restriction transaction');
-
-	// Try a dummy transfer to a random address with no mosaics
+	// [<step-7]
+	// Try a dummy transfer to a random address with no mosaics [>step-8]
 	transaction = facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey,
@@ -178,7 +178,7 @@ try {
 	console.log('\n--- Attempting transfer to unauthorized address ---');
 	await announceTransaction(payload, 'test transfer');
 	await waitForConfirmation(hash, 'test transfer');
-
+	// [<step-8]
 } catch (e) {
 	console.error(e.message);
 }

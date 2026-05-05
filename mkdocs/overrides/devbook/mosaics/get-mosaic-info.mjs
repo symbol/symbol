@@ -8,7 +8,7 @@ const MOSAIC_ID = process.env.MOSAIC_ID || '72C0212E67A08BCE';
 console.log('Mosaic ID:', MOSAIC_ID);
 
 try {
-	// Fetch mosaic information
+	// Fetch mosaic information [>step-1]
 	const mosaicPath = `/mosaics/${MOSAIC_ID}`;
 	console.log('Fetching mosaic information from', mosaicPath);
 	const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);
@@ -30,8 +30,8 @@ try {
 	console.log('  Duration:', mosaic.duration);
 	console.log('  Start height:', mosaic.startHeight);
 	console.log('  Revision:', mosaic.revision);
-
-	// Display formatted supply
+	// [<step-1]
+	// Display formatted supply [>step-2]
 	const supply = BigInt(mosaic.supply);
 	const divisor = 10n ** BigInt(divisibility);
 	const whole = supply / divisor;
@@ -39,8 +39,8 @@ try {
 	const fractionalStr = fractional.toString()
 		.padStart(divisibility, '0');
 	console.log(`\nSupply in whole units: ${whole}.${fractionalStr}`);
-
-	// Fetch namespace names linked to the mosaic
+	// [<step-2]
+	// Fetch namespace names linked to the mosaic [>step-3]
 	console.log(`\nFetching namespace names for mosaic ${MOSAIC_ID}`);
 	const namesResponse = await fetch(
 		`${NODE_URL}/namespaces/mosaic/names`, {
@@ -55,7 +55,7 @@ try {
 		} else {
 			console.log('  No namespace aliases linked');
 		}
-	}
+	} // [<step-3]
 } catch (e) {
 	console.error(e.message);
 }

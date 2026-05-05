@@ -10,7 +10,7 @@ const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-// Account A (initiates the aggregate tx and sends XYM to Account B)
+// Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
 const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY || (
 	'0000000000000000000000000000000000000000000000000000000000000000');
 const accountAKeyPair = new SymbolFacade.KeyPair(
@@ -29,9 +29,9 @@ const accountBAddress = facade.network.publicKeyToAddress(
 	accountBKeyPair.publicKey);
 console.log('Account A:', accountAAddress.toString());
 console.log('Account B:', accountBAddress.toString());
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -50,8 +50,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Embedded tx 1: Account A transfers 10 XYM to Account B
+	// [<step-2]
+	// Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	const embeddedTransaction1 = facade.transactionFactory
 		.createEmbedded({
 			type: 'transfer_transaction_v1',
@@ -75,8 +75,8 @@ try {
 				amount: 1n  // 1 custom mosaic (divisibility = 0)
 			}]
 		});
-
-	// Build the aggregate transaction
+	// [<step-3]
+	// Build the aggregate transaction [>step-4]
 	const embeddedTransactions = [
 		embeddedTransaction1, embeddedTransaction2];
 	const transaction = facade.transactionFactory.create({
@@ -94,8 +94,8 @@ try {
 	);
 	console.log('Built aggregate transaction without signatures:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
-
-	// --- ACCOUNT A (Initiator) ---
+	// [<step-4]
+	// --- ACCOUNT A (Initiator) --- [>step-5]
 	console.log('[Account A] Signing the aggregate...');
 	const signatureA = facade.signTransaction(
 		accountAKeyPair, transaction);
@@ -110,8 +110,8 @@ try {
 	// Account A sends the payload to Account B
 	const sharedPayload = transactionPayload;
 	console.log('[Account A] ==> Payload sent to Account B (offchain)');
-
-	// --- ACCOUNT B (Cosignatory) ---
+	// [<step-5]
+	// --- ACCOUNT B (Cosignatory) --- [>step-6]
 	const payloadHex = JSON.parse(sharedPayload).payload;
 	const receivedTransaction = facade.transactionFactory.static
 		.deserialize(Buffer.from(payloadHex, 'hex'));
@@ -129,16 +129,16 @@ try {
 	const sharedCosignature = cosignatureB;
 	console.log('[Account B] <== Cosignature sent back to Account A',
 		'(offchain)');
-
-	// --- ACCOUNT A (Initiator) ---
+	// [<step-6]
+	// --- ACCOUNT A (Initiator) --- [>step-7]
 	// Add cosignature to the transaction and rebuild payload
 	transaction.cosignatures.push(sharedCosignature);
 	const transactionPayloadFinal = facade.transactionFactory.static
 		.attachSignature(transaction, signatureA);
 	const jsonPayload = transactionPayloadFinal;
 	console.log('[Account A] Ready to announce');
-
-	// Announce the transaction
+	// [<step-7]
+	// Announce the transaction [>step-8]
 	const announcePath = '/transactions';
 	console.log('Announcing transaction to', announcePath);
 	const announceResponse = await fetch(`${NODE_URL}${announcePath}`, {
@@ -151,8 +151,8 @@ try {
 	// Compute hash of final transaction (with cosignatures)
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
-
-	// Wait for confirmation
+	// [<step-8]
+	// Wait for confirmation [>step-9]
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	console.log('Waiting for confirmation from', statusPath);
 
@@ -176,7 +176,7 @@ try {
 			console.log('  Transaction status: unknown | Cause:',
 				e.message);
 		}
-	}
+	} // [<step-9]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

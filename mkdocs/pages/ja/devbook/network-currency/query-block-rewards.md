@@ -20,7 +20,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/network-currency/query-block-rewards', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query-block-rewards', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -30,7 +30,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 ### ブロック情報の取得 {: #fetching-block-information }
 
-{{ tutorial.code_snippet(['py:15:26', 'js:13:23']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、 `NODE_URL` および `BLOCK_HEIGHT` 環境変数を使用して、APIノードと対象ブロックを選択し、ブロックヘッダーを取得します。
 設定されていない場合は、デフォルトで参照用のテストネットノードとブロック `3222290` が使用されます。
@@ -40,14 +40,14 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 ### ネットワークシンクアドレスの取得 {: #fetching-the-network-sink-address }
 
-{{ tutorial.code_snippet(['py:28:34', 'js:25:31']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 `harvestNetworkFeeSinkAddress` は <get:/network/properties> から取得され、後でシンクレシートを特定するために必要になります。
 このプロパティは base32 形式であり、レシートのアドレスは16進数エンコードされているため、比較のために SDK の `Address` クラスを使用して16進数に変換します。
 
 ### インフレーション報酬の取得 {: #fetching-the-inflation-reward }
 
-{{ tutorial.code_snippet(['py:36:42', 'js:33:37']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 <get:/network/inflation/at/{height}> エンドポイントは、指定されたブロック高におけるインフレーション報酬額を返します。
 この値は[絶対単位](default: 可分性)であるため、XYM（可分性 6）の場合、 `113474978` 絶対単位は `113.474978` ユニット単位を表します。
@@ -56,7 +56,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 ### 報酬の分配の照会 {: #querying-the-reward-distribution }
 
-{{ tutorial.code_snippet(['py:44:72', 'js:39:67']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 合計報酬（インフレーション + トランザクション手数料）がどのように分配されたかを確認するため、コードは `receiptType=8515` （ `Harvest_Fee` ）でフィルタリングして <get:/statements/transaction> エンドポイントを照会します。これにより、各参加者がブロックのハーベストに対して受け取った正確な金額が返されます。
 
@@ -81,7 +81,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 ### 手数料の内訳の計算 {: #calculating-the-fee-breakdown }
 
-{{ tutorial.code_snippet(['py:74:79', 'js:69:74']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 最後に、ブロック報酬の合計からインフレーション額を差し引くことで、ブロックで収集されたトランザクション手数料が求められます。
 表示のために、すべての値は絶対単位からユニット単位に変換されます。

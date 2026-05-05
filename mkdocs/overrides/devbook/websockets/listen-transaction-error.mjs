@@ -10,7 +10,7 @@ const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
 const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
 console.log(`Using node ${NODE_URL}`);
-
+// [>step-1]
 const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS
 	|| 'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I';
 console.log(`Monitoring address: ${MONITOR_ADDRESS}`);
@@ -20,9 +20,9 @@ const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
 const facade = new SymbolFacade('testnet');
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
-
+// [<step-1]
 try {
-	// Connect to WebSocket
+	// Connect to WebSocket [>step-2]
 	const websocket = new WebSocket(WS_URL);
 	const uid = await new Promise((resolve) => {
 		websocket.addEventListener('message', (event) => {
@@ -31,13 +31,13 @@ try {
 		}, { once: true });
 	});
 	console.log(`Connected to ${WS_URL} with uid ${uid}`);
-
-	// Subscribe to status channel
+	// [<step-2]
+	// Subscribe to status channel [>step-3]
 	const channel = `status/${MONITOR_ADDRESS}`;
 	websocket.send(JSON.stringify({ uid, subscribe: channel }));
 	console.log('Subscribed to status channel');
-
-	// Build a transfer transaction with a non-existent mosaic
+	// [<step-3]
+	// Build a transfer transaction with a non-existent mosaic [>step-4]
 	const timeResponse = await fetch(`${NODE_URL}/node/time`);
 	const timeJSON = await timeResponse.json();
 	const timestamp = new NetworkTimestamp(
@@ -64,8 +64,8 @@ try {
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction, signature);
-	const transactionHash = facade.hashTransaction(transaction).toString();
-
+	const transactionHash = facade.hashTransaction(transaction).toString(); // [<step-4]
+	// [>step-5]
 	const rejected = new Promise((resolve) => {
 		websocket.addEventListener('message', (event) => {
 			const msg = JSON.parse(event.data);
@@ -91,11 +91,11 @@ try {
 
 	// Wait for error via WebSocket
 	await rejected;
-
-	// Unsubscribe before closing
+	// [<step-5]
+	// Unsubscribe before closing [>step-6]
 	websocket.send(JSON.stringify({ uid, unsubscribe: channel }));
 	console.log('Unsubscribed from status channel');
-	websocket.close();
+	websocket.close(); // [<step-6]
 } catch (error) {
 	console.error(error);
 }

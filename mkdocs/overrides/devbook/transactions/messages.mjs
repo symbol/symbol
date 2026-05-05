@@ -40,7 +40,7 @@ async function retrieveConfirmedTransaction(hash, label) {
 	}
 }
 
-// Set up sender and recipient accounts
+// Set up sender and recipient accounts [>step-1]
 const facade = new SymbolFacade('testnet');
 
 const senderPrivateKeyString = process.env.SENDER_PRIVATE_KEY ||
@@ -59,7 +59,7 @@ const recipientAddress = facade.network.publicKeyToAddress(
 
 console.log('Sender address:', senderAddress.toString());
 console.log('Recipient address:', recipientAddress.toString(), '\n');
-
+// [<step-1]
 // Fetch current network time
 const timePath = '/node/time';
 console.log('Fetching current network time from', timePath);
@@ -81,7 +81,7 @@ const feeMult = Math.max(medianMult, minimumMult);
 console.log('  Fee multiplier:', feeMult, '\n');
 
 // ===== PLAIN TEXT MESSAGE =====
-console.log('==> Sending Plain Text Message');
+console.log('==> Sending Plain Text Message'); // [>step-2]
 
 // Create a plain text message
 const plainMessage = new TextEncoder().encode('Hello, Symbol!');
@@ -96,7 +96,7 @@ const plainTransaction = facade.transactionFactory.create({
 	recipientAddress: recipientAddress.toString(),
 	mosaics: [],
 	message: plainMessage
-});
+}); // [<step-2]
 plainTransaction.fee = new models.Amount(feeMult * plainTransaction.size);
 
 // Sign and announce the transaction
@@ -116,7 +116,7 @@ await fetch(`${NODE_URL}/transactions`, {
 console.log('Plain message transaction announced\n');
 
 // ===== RECEIVING PLAIN TEXT MESSAGE =====
-console.log('<== Receiving Plain Text Message');
+console.log('<== Receiving Plain Text Message'); // [>step-3]
 
 // Wait for confirmation
 const plainTxData = await retrieveConfirmedTransaction(
@@ -127,9 +127,9 @@ const receivedPlainMessage = Buffer.from(
 	plainTxData.transaction.message, 'hex');
 console.log('Received plain message:',
 	new TextDecoder().decode(receivedPlainMessage), '\n');
-
+// [<step-3]
 // ===== ENCRYPTED MESSAGE =====
-console.log('==> Sending Encrypted Message');
+console.log('==> Sending Encrypted Message'); // [>step-4]
 
 // Create a message encoder with sender's key pair
 const senderMessageEncoder = new MessageEncoder(senderKeyPair);
@@ -153,7 +153,7 @@ const encryptedTransaction = facade.transactionFactory.create({
 	recipientAddress: recipientAddress.toString(),
 	mosaics: [],
 	message: encryptedPayload
-});
+}); // [<step-4]
 encryptedTransaction.fee = new models.Amount(
 	feeMult * encryptedTransaction.size);
 
@@ -174,7 +174,7 @@ await fetch(`${NODE_URL}/transactions`, {
 console.log('Encrypted message transaction announced\n');
 
 // ===== RECEIVING ENCRYPTED MESSAGE =====
-console.log('<== Receiving Encrypted Message');
+console.log('<== Receiving Encrypted Message'); // [>step-5]
 
 // Wait for confirmation
 const encryptedTxData = await retrieveConfirmedTransaction(
@@ -197,4 +197,4 @@ if (result.isDecoded) {
 		new TextDecoder().decode(result.message));
 } else {
 	console.log('Recipient failed to decrypt message');
-}
+} // [<step-5]

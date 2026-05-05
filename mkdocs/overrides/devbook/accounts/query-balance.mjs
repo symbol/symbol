@@ -2,7 +2,7 @@ const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-
+// [>step-1]
 /**
  * Fetch account information by address or public key.
  *
@@ -29,8 +29,8 @@ async function getAccountInfo(accountIdentifier) {
 	}
 	const accountInfo = await accountResponse.json();
 	return accountInfo.account;
-}
-
+} // [<step-1]
+// [>step-2]
 /**
  * Fetch friendly names for a set of mosaics.
  *
@@ -54,8 +54,8 @@ async function getMosaicNames(mosaicIds) {
 		namesMap.set(mosaicId, entry.names);
 	}
 	return namesMap;
-}
-
+} // [<step-2]
+// [>step-3]
 /**
  * Fetch information for multiple mosaics in a single request.
  *
@@ -79,8 +79,8 @@ async function getMosaicsInfo(mosaicIds) {
 		mosaicsMap.set(mosaicId, entry.mosaic);
 	}
 	return mosaicsMap;
-}
-
+} // [<step-3]
+// [>step-4]
 /**
  * Format an atomic amount with decimal places.
  *
@@ -99,8 +99,8 @@ function formatAmount(amount, divisibility) {
 		.padStart(divisibility, '0');
 	return `${wholePart}.${fractionalStr}`;
 }
-
-// The account address to query
+// [<step-4]
+// The account address to query [>step-5]
 const ADDRESS = process.env.ADDRESS ||
 	'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ';
 console.log('Fetching account information from', ADDRESS);
@@ -145,4 +145,4 @@ if (accountMosaics.length === 0) {
 		console.log(`  Balance (atomic): ${balance.toString()}`);
 		console.log(`  Divisibility: ${divisibility}`);
 	}
-}
+} // [<step-5]

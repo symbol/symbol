@@ -45,7 +45,7 @@ try:
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
 
-	# Build the transaction
+	# Build the transaction [>step-1]
 	root_namespace_name = 'ns_root'
 	child_namespace_name = f'sub_{int(time.time())}'
 	full_namespace_name = (
@@ -65,7 +65,7 @@ try:
 		'name': child_namespace_name
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
-
+	# [<step-1]
 	# Sign transaction and generate final payload
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = facade.transaction_factory.attach_signature(
@@ -107,7 +107,7 @@ try:
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 
-	# Retrieve the namespace
+	# Retrieve the namespace [>step-2]
 	namespace_id = generate_namespace_id(
 		child_namespace_name, parent_id)
 	print(f'Child namespace ID: {namespace_id} ({hex(namespace_id)})')
@@ -132,7 +132,7 @@ try:
 		if int(namespace_info['depth']) >= 2 and \
 				'level2' in namespace_info:
 			print(f'  Level 2: {namespace_info["level2"]}')
-		print(f'  Start height: {namespace_info["startHeight"]}')
+		print(f'  Start height: {namespace_info["startHeight"]}') # [<step-2]
 		print(f'  End height: {namespace_info["endHeight"]}')
 
 except Exception as e:

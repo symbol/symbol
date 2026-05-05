@@ -8,13 +8,13 @@ const NAMESPACE_NAME = process.env.NAMESPACE_NAME || 'symbol.xym';
 console.log('Namespace name:', NAMESPACE_NAME);
 
 try {
-	// Generate namespace ID from name
+	// Generate namespace ID from name [>step-1]
 	const path = generateNamespacePath(NAMESPACE_NAME);
 	const namespaceId = path[path.length - 1];
 	const namespaceIdHex = namespaceId.toString(16);
 	console.log('Namespace ID:', `${namespaceId} (0x${namespaceIdHex})`);
-
-	// Fetch namespace information
+	// [<step-1]
+	// Fetch namespace information [>step-2]
 	const namespacePath = `/namespaces/${namespaceIdHex}`;
 	console.log(
 		'Fetching namespace information from', namespacePath);
@@ -44,8 +44,8 @@ try {
 	const endHeight = BigInt(ns.endHeight);
 	console.log('  End height:',
 		`${endHeight} (0x${endHeight.toString(16).toUpperCase()})`);
-
-	// Display alias information
+	// [<step-2]
+	// Display alias information [>step-3]
 	const alias = ns.alias;
 	console.log('  Alias type:', alias.type);
 	if (alias.type === 1) {
@@ -56,7 +56,7 @@ try {
 		console.log('  Linked address:', linkedAddress.toString());
 	} else {
 		console.log('  No alias linked');
-	}
+	} // [<step-3]
 } catch (e) {
 	console.error(e.message);
 }

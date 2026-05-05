@@ -75,7 +75,7 @@ HTLCプロトコル、タイミングの制約、および制限の背景につ�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/cross-chain-swap', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/cross-chain-swap', ['py', 'js']) }}
 
 ## イーサリアムHTLCコントラクト {: #ethereum-htlc-contract }
 
@@ -162,14 +162,14 @@ digraph CrossChainSwapSteps {
 
 ### アカウントのセットアップ {: #setting-up-accounts }
 
-{{ tutorial.code_snippet(['py:181:210', 'js:155:188']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 `ALICE_XYM_PRIVATE_KEY` と `BOB_XYM_PRIVATE_KEY` 環境変数はSymbolの鍵を設定し、 `ALICE_ETH_PRIVATE_KEY` と `BOB_ETH_PRIVATE_KEY` はイーサリアムの鍵を設定します。
 便宜上、事前に資金が提供されたテストキーがデフォルトとして提供されていますが、これらは保守されておらず、資金が枯渇する可能性があります。
 
 ### アリス：証明とハッシュロックの生成 {: #alice-generating-the-proof-and-hashlock }
 
-{{ tutorial.code_snippet(['py:214:221', 'js:192:199']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 スワップの開始者として、アリスはランダムな32バイトの値を**証明**として生成します。
 次に、ダブルSHA-256を使用してそれをハッシュ化し、**ハッシュロック**を生成します。
@@ -183,7 +183,7 @@ digraph CrossChainSwapSteps {
 
 ### ステップ1. アリス：イーサリアムでETHをロックする {: #step-1-alice-locking-eth-on-ethereum }
 
-{{ tutorial.code_snippet(['py:224:247', 'js:202:223']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 アリスはイーサリアムHTLCコントラクトの `newContract` を呼び出し、ボブのために0.01 ETHをロックします。
 
@@ -197,7 +197,7 @@ digraph CrossChainSwapSteps {
 
 ### ステップ2. ボブ：Symbolでシークレットロックを作成する {: #step-2-bob-creating-a-secret-lock-on-symbol }
 
-{{ tutorial.code_snippet(['py:250:288', 'js:226:269']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 ボブはまず、 `getContract` を使用してイーサリアムHTLCコントラクトをクエリし、アリスが使用したハッシュロックを取得します。
 
@@ -222,7 +222,7 @@ digraph CrossChainSwapSteps {
 
 ### ステップ3. アリス：SymbolでXYMを請求する {: #step-3-alice-claiming-xym-on-symbol }
 
-{{ tutorial.code_snippet(['py:291:317', 'js:272:302']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 ボブのシークレットロックが承認され、それが予想される金額、ハッシュロック、受信者、およびタイムロックと一致することをアリスが検証したら、彼女は証明を公開することによってSymbol上でロックされたXYMを請求します。
 
@@ -238,7 +238,7 @@ digraph CrossChainSwapSteps {
 
 ### ステップ4. ボブ：イーサリアムでETHを引き出す {: #step-4-bob-withdrawing-eth-on-ethereum }
 
-{{ tutorial.code_snippet(['py:320:338', 'js:305:318']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 ボブは、アリスからトランザクションハッシュをもらう必要なしに、オンチェーンでアリスの証明を発見します。
 

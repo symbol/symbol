@@ -52,7 +52,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/mosaic-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic-restrictions', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -72,7 +72,7 @@ tutorial_level: advanced
 
 チュートリアルは、この例に関与するアカウントの設定から始まります。
 
-{{ tutorial.code_snippet(['py:112:128', 'js:123:142']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 コードでは以下を定義しています。
 
@@ -91,7 +91,7 @@ tutorial_level: advanced
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:131:149', 'js:145:163']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
@@ -99,7 +99,7 @@ tutorial_level: advanced
 
 コードはまず、モザイクに設定されたキーに対してグローバル制限がすでに定義されているかどうかを確認します。
 
-{{ tutorial.code_snippet(['py:151:164', 'js:165:179']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 これは <get:/restrictions/mosaic> を照会し、`mosaicId` と `entryType=1` （**グローバル制限** を選択）でフィルタリングすることによって行われます。返されたエントリはさらに、選択された `restriction_key` に関するものだけに絞り込まれます。
 
@@ -122,13 +122,13 @@ tutorial_level: advanced
 
 グローバル制限が有効な状態で、次のステップではターゲットアカウントにそのキーの制限値がすでに定義されているかどうかを確認します。
 
-{{ tutorial.code_snippet(['py:49:76', 'js:54:85']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 グローバル制限の場合と同様に、現在の値は <get:/restrictions/mosaic> を照会し、`mosaicId`、`targetAddress`、および `entryType=0` （**アドレス制限** を選択）でフィルタリングすることで取得されます。
 
 ターゲットアカウントの制限の現在値に応じて、アカウントを許可または禁止するトランザクションが作成されます。このトランザクションは、アナウンスするトランザクションリストに追加されます。
 
-{{ tutorial.code_snippet(['py:167:182', 'js:182:198']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 - アカウントにまだ制限値がない、または値が `1` でない場合、コードは値 `1` を割り当て、モザイクの使用を許可します。
 - アカウントにすでに値 `1` が設定されている場合、コードはそれを `0` に置き換え、許可を取り消します。
@@ -145,7 +145,7 @@ tutorial_level: advanced
 
 上記で作成されたすべての設定トランザクションは、単一の [アグリゲートコンプリートトランザクション](default: アグリゲートコンプリートトランザクション) に結論られます。これにより、ユーザーは各トランザクションが個別に承認されるのを待つ必要がなくなります。
 
-{{ tutorial.code_snippet(['py:185:194', 'js:201:211']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 手数料を支払うのはアグリゲートトランザクションのみであるため、 [埋め込みトランザクション] (default: 埋め込みトランザクション) では `fee` フィールドを使用しません。
 
@@ -153,13 +153,13 @@ tutorial_level: advanced
 
 構築されたアグリゲートトランザクションは、[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されている通り、署名、アナウンス、承認されます。
 
-{{ tutorial.code_snippet(['py:197:202', 'js:214:219']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 ### テスト転送の送信 {: #sending-a-test-transfer }
 
 最後に、チュートリアルでは標準的な [転送トランザクション] (default: 転送トランザクション) を使用して、所有者アカウントからターゲットアカウントへモザイク1ユニットの送信を試みます。
 
-{{ tutorial.code_snippet(['py:205:222', 'js:222:240']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 ターゲットアカウントが現在制限を満たしている（`security_level ≥ 1`）場合、転送は正常に承認されます。
 

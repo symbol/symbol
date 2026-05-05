@@ -46,7 +46,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/sign-multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/sign-multisig', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -60,7 +60,7 @@ since this is the account that can authorize the transaction.
 
 ### Setting Up the Accounts
 
-{{ tutorial.code_snippet(['py:16:27', 'js:12:21']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The tutorial requires two separate accounts.
 Their <private keys:> can be provided through environment variables.
@@ -80,14 +80,14 @@ The snippet above derives and stores the <key pair:> of each account for later u
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:32:49', 'js:26:44']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:51:62', 'js:46:56']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The embedded <transfer transaction:> includes the following fields:
 
@@ -102,7 +102,7 @@ The embedded <transfer transaction:> includes the following fields:
 
 The embedded transaction is then wrapped in an aggregate transaction, even though it is the only inner transaction:
 
-{{ tutorial.code_snippet(['py:64:74', 'js:58:68']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 Its most relevant fields are:
 
@@ -118,7 +118,7 @@ See the tutorials on [complete](../transactions/complete-aggregate.md) and
 
 Finally, the aggregate transaction is signed by the cosignatory:
 
-{{ tutorial.code_snippet(['py:76:81', 'js:70:75']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 !!! note "Multiple cosignatories"
 
@@ -134,7 +134,7 @@ Finally, the aggregate transaction is signed by the cosignatory:
 The final step is to announce the transaction and wait for its confirmation, as described in the
 [Transfer transaction](../transactions/transfer.md) tutorial.
 
-{{ tutorial.code_snippet(['py:83:116', 'js:77:132']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 Transactions are rejected if they violate protocol constraints.
 The following table summarizes the most common error sources:

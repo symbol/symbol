@@ -20,11 +20,11 @@ If you have not done so already, start with [Setting Up a Development Environmen
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/start/hello-world', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/start/hello-world', ['py', 'js']) }}
 
 ### Making SDK Calls
 
-{{ tutorial.code_snippet(['py:7:11', 'js:6:10']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The <dy:SymbolFacade> class is the main entry point to the Symbol SDK.
 It provides most of the methods you will need when working with Symbol:
@@ -40,7 +40,7 @@ the network's launch date.
 
 ### Retrieving Information From a Node
 
-{{ tutorial.code_snippet(['py:13:27', 'js:12:28']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Interaction with the Symbol blockchain happens through <API nodes:>, which expose a REST interface for
 querying network state and submitting transactions.

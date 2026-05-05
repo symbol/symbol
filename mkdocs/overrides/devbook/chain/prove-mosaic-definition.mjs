@@ -26,7 +26,7 @@ const concat = (...arrays) => {
 };
 
 try {
-	// Fetch the network currency mosaic ID
+	// Fetch the network currency mosaic ID [>step-1]
 	const propsRes = await fetch(`${NODE_URL}/network/properties`);
 	const props = await propsRes.json();
 	const rawId = props.chain.currencyMosaicId;
@@ -42,8 +42,8 @@ try {
 	const mosaicData = await mosaicRes.json();
 	const mosaic = mosaicData.mosaic;
 	console.log(JSON.stringify(mosaic, undefined, 2));
-
-	// Serialize and hash the mosaic properties
+	// [<step-1]
+	// Serialize and hash the mosaic properties [>step-2]
 	const serialized = concat(
 		intToBytes(parseInt(mosaic.version), 2),
 		intToBytes(BigInt(`0x${mosaic.id}`), 8),
@@ -61,8 +61,8 @@ try {
 	const keyBytes = intToBytes(BigInt(`0x${mosaic.id}`), 8);
 	const encodedKey = new Hash256(sha3_256(keyBytes));
 	console.log('Encoded key:', encodedKey.toString());
-
-	// Fetch the current network height
+	// [<step-2]
+	// Fetch the current network height [>step-3]
 	const chainRes = await fetch(`${NODE_URL}/chain/info`);
 	const chainInfo = await chainRes.json();
 	const height = parseInt(chainInfo.height, 10);
@@ -77,8 +77,8 @@ try {
 	const roots = blockData.meta.stateHashSubCacheMerkleRoots
 		.map(r => new Hash256(r));
 	console.log('State hash:', stateHash.toString());
-
-	// Fetch the patricia tree path
+	// [<step-3]
+	// Fetch the patricia tree path [>step-4]
 	const treeUrl = `/mosaics/${mosaicIdHex}/merkle`;
 	console.log('Fetching tree path from', treeUrl);
 	const treeRes = await fetch(
@@ -107,8 +107,8 @@ try {
 				+ `  -> follow ${nibble}`);
 		}
 	});
-
-	// Verify the mosaic state
+	// [<step-4]
+	// Verify the mosaic state [>step-5]
 	const result = provePatriciaMerkle(
 		encodedKey, hashedValue, merklePath, stateHash, roots);
 
@@ -118,7 +118,7 @@ try {
 	} else {
 		throw new Error(
 			`Mosaic ${mosaicIdHex} proof failed: ${result}`);
-	}
+	} // [<step-5]
 } catch (e) {
 	console.error(e.message);
 }

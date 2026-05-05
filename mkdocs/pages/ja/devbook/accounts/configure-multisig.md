@@ -48,7 +48,7 @@ digraph "Multisignature Tree" {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/configure-multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/configure-multisig', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -62,7 +62,7 @@ digraph "Multisignature Tree" {
 
 ### アカウントの設定 {: #setting-up-the-accounts }
 
-{{ tutorial.code_snippet(['py:157:177', 'js:167:190']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このチュートリアルでは3つの個別のアカウントが必要です。
 それらの [秘密鍵](default: 秘密鍵) は環境変数を通じて提供できます。設定されていない場合は、デフォルト値が使用されます。
@@ -81,7 +81,7 @@ digraph "Multisignature Tree" {
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:180:198', 'js:193:211']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
@@ -90,11 +90,11 @@ digraph "Multisignature Tree" {
 以下の関数は、<get:/account/{address}/multisig> エンドポイントを使用して、指定されたアドレスの現在の連署者リストを取得します。
 アカウントがマルチシグとして設定されていない、または一度も使用されていない場合、関数は空のリストを返します。
 
-{{ tutorial.code_snippet(['py:46:61', 'js:51:66']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 このリストはチュートリアルの動作モードを決定し、適切な設定トランザクションを構築して署名するために使用されます。
 
-{{ tutorial.code_snippet(['py:200:215', 'js:213:231']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 マルチシグの有効化と無効化の唯一の違いは、作成されるトランザクションとそれに署名するアカウントです（次の2つのセクションで説明します）。
 
@@ -102,7 +102,7 @@ digraph "Multisignature Tree" {
 
 連署者の追加や削除を含む、アカウントのマルチシグ設定へのすべての変更は、<ser:MultisigAccountModificationTransactionV1> を使用して行われます。これは**必ず** [アグリゲートトランザクション](default: アグリゲートトランザクション) 内に埋め込まれる必要があります。
 
-{{ tutorial.code_snippet(['py:65:76', 'js:70:82']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 埋め込まれた <ser:MultisigAccountModificationTransactionV1> には以下のフィールドが含まれます。
 
@@ -132,7 +132,7 @@ digraph "Multisignature Tree" {
 
 埋め込みトランザクションは、それが唯一の内部トランザクションであっても、アグリゲートトランザクションにラップされます。
 
-{{ tutorial.code_snippet(['py:78:94', 'js:84:100']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 簡単にするため、このチュートリアルでは [アグリゲートコンプリートトランザクション] (default: アグリゲートコンプリートトランザクション) を使用します。
 詳細については、[コンプリート](../transactions/complete-aggregate.md) および [ボンデッド](../transactions/bonded-aggregate.md) アグリゲートトランザクションのチュートリアルを参照してください。
@@ -141,7 +141,7 @@ digraph "Multisignature Tree" {
 
 最後に、署名がアグリゲートトランザクションに付加されます。
 
-{{ tutorial.code_snippet(['py:96:104', 'js:102:110']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 このケースでは、マルチシグに変換されるアカウントの署名と、新しい責任を追うことを明示的に承認するために連署者の署名が必要です。
 
@@ -155,7 +155,7 @@ digraph "Multisignature Tree" {
 
 このため、2つの <ser:MultisigAccountModificationTransactionV1> が作成されます。
 
-{{ tutorial.code_snippet(['py:110:129', 'js:117:138']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 両方のトランザクションで、 `signer_public_key` はマルチシグアカウントの公開鍵に設定されます。
 
@@ -166,7 +166,7 @@ digraph "Multisignature Tree" {
 
 その後、両方の埋め込みトランザクションはアグリゲートトランザクションにラップされ、署名されます。
 
-{{ tutorial.code_snippet(['py:131:151', 'js:140:160']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 アグリゲートトランザクションは `cosignatory_addresses[0]` によって署名されます。
 これが唯一の有効な選択肢です。一度アカウントに連署者が設定されると、そのアカウント自身でトランザクションに署名することはできなくなり、また `cosignatory_addresses[1]` は最初の埋め込みトランザクションが実行された後にマルチシグから削除されるためです。
@@ -180,7 +180,7 @@ digraph "Multisignature Tree" {
 
 最後のステップは、構築されたトランザクションをアナウンスし、[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているように承認を待つことです。
 
-{{ tutorial.code_snippet(['py:217:221', 'js:233:239']) }}
+{{ tutorial.code_snippet_tagged('step-10') }}
 
 ## 出力 {: #output }
 

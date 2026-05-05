@@ -10,14 +10,14 @@ NODE_URL = os.getenv(
 print(f'Using node {NODE_URL}')
 
 # Transaction hash to monitor
-transaction_hash = os.getenv(
+transaction_hash = os.getenv( # [>step-1]
 	"TRANSACTION_HASH",
 	"2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA",
 )
-
+# [<step-1]
 print(f"Monitoring transaction: {transaction_hash}")
 
-
+# [>step-2]
 def wait_for_transaction_confirmation(
 	transaction_hash, max_attempts=60, wait_seconds=2
 ):
@@ -55,21 +55,21 @@ def wait_for_transaction_confirmation(
 				print(f"    Code: {status_code}")
 				print(f"    Hash: {status_hash}")
 				print(f"    Deadline: {status_deadline}")
-
-				# Check if the transaction has been confirmed
+# [<step-2]
+				# Check if the transaction has been confirmed [>step-3]
 				if status_group == "confirmed":
 					print(f"\nTransaction confirmed!")
 					return True
-
-				# Check if the transaction failed
+				# [<step-3]
+				# Check if the transaction failed [>step-4]
 				if status_group == "failed":
 					print(
 						f"\nTransaction failed with code: {status_code}"
 					)
 					raise RuntimeError(
 						f"Transaction failed: {status_code}"
-					)
-
+					) # [<step-4]
+		# [>step-5]
 		except Exception as e:
 			if hasattr(e, 'code') and e.code == 404:
 				print(
@@ -78,16 +78,16 @@ def wait_for_transaction_confirmation(
 				)
 			else:
 				raise
-
-		# Wait before next attempt (except on last attempt)
+		# [<step-5]
+		# Wait before next attempt (except on last attempt) [>step-6]
 		if attempt < max_attempts:
-			time.sleep(wait_seconds)
-
+			time.sleep(wait_seconds) # [<step-6]
+	# [>step-7]
 	print(f"\nTransaction not confirmed after {max_attempts} attempts")
 	raise RuntimeError(
 		f"Transaction {transaction_hash} not confirmed in time"
 	)
-
+	# [<step-7]
 
 # Monitor the transaction until it's confirmed
 wait_for_transaction_confirmation(transaction_hash)

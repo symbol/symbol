@@ -31,7 +31,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/create-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/create-mosaic', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -42,7 +42,7 @@ Creating a mosaic requires announcing two transactions:
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:50:59', 'js:50:58']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -51,14 +51,14 @@ This account will own the created mosaic.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:62:80', 'js:61:79']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Mosaic Definition Transaction
 
-{{ tutorial.code_snippet(['py:85:100', 'js:84:100']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The mosaic definition transaction registers a new mosaic on the network with the following properties:
 
@@ -118,7 +118,7 @@ The mosaic definition transaction registers a new mosaic on the network with the
 
 ### Submitting the Mosaic Definition
 
-{{ tutorial.code_snippet(['py:102:113', 'js:102:115']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The mosaic definition transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
@@ -128,7 +128,7 @@ The code then waits for the transaction to be confirmed by polling the
 
 ### Building the Mosaic Supply Change Transaction
 
-{{ tutorial.code_snippet(['py:118:126', 'js:120:129']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Once the mosaic definition is confirmed, a second transaction increases the mosaic's supply:
 
@@ -145,7 +145,7 @@ Once the mosaic definition is confirmed, a second transaction increases the mosa
 
 ### Submitting the Supply Change
 
-{{ tutorial.code_snippet(['py:128:140', 'js:131:143']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The mosaic supply change transaction is signed and announced following the same process as the mosaic definition
 transaction.
@@ -162,7 +162,7 @@ Once any units are distributed to other accounts, the supply becomes permanently
 
 ### Retrieving the Mosaic
 
-{{ tutorial.code_snippet(['py:145:156', 'js:148:159']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 To verify the mosaic was created successfully, the code retrieves it from the network
 using the <get:/mosaics/{mosaicId}> endpoint and displays its properties.

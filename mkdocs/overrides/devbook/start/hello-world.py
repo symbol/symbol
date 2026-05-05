@@ -3,13 +3,13 @@ import urllib.request
 
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.Network import NetworkTimestamp
-
+# [>step-1]
 facade = SymbolFacade('mainnet')
 print(f"Network name: {facade.network.name}")
 # NetworkTimestamp(0) is the genesis block timestamp
 launch_date = facade.network.to_datetime(NetworkTimestamp(0))
-print(f"Network launch date: {launch_date}")
-
+print(f"Network launch date: {launch_date}") # [<step-1]
+# [>step-2]
 NODE_URL = 'https://reference.symboltest.net:3001'
 print(f'Using node {NODE_URL}')
 try:
@@ -24,4 +24,4 @@ try:
 		print(f"  Blockchain height: {height:,} blocks")
 
 except urllib.error.URLError as e:
-	print(e.reason)
+	print(e.reason) # [<step-2]

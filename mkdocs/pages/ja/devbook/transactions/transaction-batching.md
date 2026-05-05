@@ -62,13 +62,13 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/transaction-batching', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/transaction-batching', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
 ### アカウントの設定 {: #setting-up-the-account }
 
-{{ tutorial.code_snippet(['py:16:35', 'js:14:35']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 署名者アカウントは、 `SIGNER_PRIVATE_KEY` 環境変数から読み込まれます。
 指定されていない場合は、デフォルトでテストキーが使用されます。
@@ -78,13 +78,13 @@ digraph {
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:38:56', 'js:38:56']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 ネットワーク時間と推奨手数料は、[転送トランザクション](./transfer.md) のチュートリアルで説明されているプロセスに従い、それぞれ <get:/node/time> と <get:/network/fees/transaction> から取得されます。
 
 ### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
-{{ tutorial.code_snippet(['py:58:79', 'js:58:79']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 各転送は、アグリゲート内にラップされる[埋め込みトランザクション](default:埋め込みトランザクション)として作成されます。
 すべての埋め込みトランザクションは同じアカウントから発生するため、同じ `signer_public_key` を使用します。
@@ -106,7 +106,7 @@ digraph {
 
 ### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction }
 
-{{ tutorial.code_snippet(['py:81:93', 'js:81:94']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 * **Type:** <ser:AggregateCompleteTransactionV3|aggregate_complete_transaction_v3> を使用します。
 
@@ -124,14 +124,14 @@ digraph {
 
 ### 署名とアナウンス {: #signing-and-announcing }
 
-{{ tutorial.code_snippet(['py:95:110', 'js:96:111']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 アグリゲートは <dy:SymbolFacade.signTransaction> で署名され、 <dy:SymbolTransactionFactory.attachSignature> を使用してペイロードにシリアライズされます。
 署名されたペイロードはその後、[転送トランザクション](./transfer.md) チュートリアルで説明されている通常のトランザクションと同じプロセスに従って、 <put:/transactions> エンドポイントを使用して [ノード](default:ノード) にアナウンスされます。
 
 ### 承認の待機 {: #waiting-for-confirmation }
 
-{{ tutorial.code_snippet(['py:112:133', 'js:113:139']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 アナウンス後、 <get:/transactionStatus/{hash}> を使用してトランザクションステータスが監視されます。
 ポーリングループは、トランザクションが承認されるか失敗するまで、毎秒ステータスを確認します。

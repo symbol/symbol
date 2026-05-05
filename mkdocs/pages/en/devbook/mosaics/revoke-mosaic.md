@@ -33,13 +33,13 @@ For more details on revocability, see [Revocability](../../textbook/mosaics.md#r
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/revoke-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/revoke-mosaic', ['py', 'js']) }}
 
 ## Code Explanation
 
 ### Setting Up the Accounts
 
-{{ tutorial.code_snippet(['py:25:40', 'js:21:40']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a test
 key if not set.
@@ -53,14 +53,14 @@ See [Querying Account Balance](../accounts/query-balance.md) to list the mosaics
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:43:61', 'js:43:61']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Checking Initial Balance
 
-{{ tutorial.code_snippet(['py:65:69', 'js:65:70']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Before revoking, the helper function `get_account_mosaics` fetches the source account's current balance for the target
 mosaic from the <get:/accounts/{accountId}> endpoint.
@@ -68,7 +68,7 @@ This provides a baseline to compare against after the revocation.
 
 ### Building the Revocation Transaction
 
-{{ tutorial.code_snippet(['py:74:84', 'js:75:85']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The revocation transaction reclaims mosaic units from the source account and returns them to the creator's balance:
 
@@ -91,19 +91,19 @@ The revocation transaction reclaims mosaic units from the source account and ret
 
 ### Submitting the Revocation
 
-{{ tutorial.code_snippet(['py:86:106', 'js:87:104']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The revocation transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:108:125', 'js:106:138']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Verifying the Revocation
 
-{{ tutorial.code_snippet(['py:129:133', 'js:142:147']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 To verify the revocation, the helper function `get_account_mosaics` fetches the source account's balance again.
 The balance should be lower than the [initial balance](#checking-initial-balance) by the revoked amount.

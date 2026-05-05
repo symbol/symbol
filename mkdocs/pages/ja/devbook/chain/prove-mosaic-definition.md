@@ -21,7 +21,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/prove-mosaic-definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove-mosaic-definition', ['py', 'js']) }}
 
 この例では、 <get:/network/properties> から自動的に検出された ID を持つ、ネットワークの通貨モザイク（[メインネット](default: メインネット) では [XYM](default: XYM) ）を検証します。
 通貨モザイクはすべての Symbol ネットワークに存在するため便利な選択肢ですが、ID を置き換えればどのモザイクでも同じプロセスが機能します。
@@ -30,7 +30,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 ### モザイク定義の取得 {: #fetching-the-mosaic-definition }
 
-{{ tutorial.code_snippet(['py:17:33', 'js:29:44']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 コードはまず、 <get:/network/properties> からネットワーク通貨モザイク ID を取得します。
 `currencyMosaicId` フィールドは、アポストロフィが埋め込まれた16進文字列（例: `0x72C0212E'67A08BCE` ）であるため、コードはパースする前にそれらを取り除きます。
@@ -40,7 +40,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 ### キーと値のハッシュの計算 {: #computing-the-Key-and-value-hashes }
 
-{{ tutorial.code_snippet(['py:35:53', 'js:46:63']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 モザイク定義を検証するために、コードはチェーンが内部に保存している正確なハッシュを再現する必要があります。
 これには、 <ser:MosaicEntry> スキーマで定義されている正確なフィールドの順序とサイズで、すべてのフィールドをバイナリバッファにシリアライズし、その結果の SHA3-256ハッシュを計算する必要があります。
@@ -56,7 +56,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 ### ブロックステートハッシュの取得 {: #fetching-the-block-state-hash }
 
-{{ tutorial.code_snippet(['py:55:71', 'js:65:79']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 コードは <get:/chain/info> から現在のチェーン高を取得し、それを使用して <get:/blocks/{height}> から対応するブロックヘッダーを取得します。
 
@@ -65,7 +65,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 ### ツリーパスの取得 {: #fetching-the-tree-path }
 
-{{ tutorial.code_snippet(['py:73:97', 'js:81:109']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 <get:/mosaics/{mosaicId}/merkle> エンドポイントは、モザイクサブキャッシュを通るルートから、モザイクのハッシュ値を保存するリーフまでの生のパスを返します。
 `deserializePatriciaTreeNodes` は、この生のバイナリをツリーノードのリストに変換します。
@@ -77,7 +77,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 ### 証明の検証 {: #verifying-the-proof }
 
-{{ tutorial.code_snippet(['py:99:107', 'js:111:121']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 <dy:Merkle.provePatriciaMerkle> は5つの引数を受け取ります。これらはそれぞれ前のステップで計算されています。
 

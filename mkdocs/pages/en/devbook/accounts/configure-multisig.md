@@ -58,7 +58,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/configure-multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/configure-multisig', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -77,7 +77,7 @@ Finally, the transaction is [announced and confirmed](#submitting-the-aggregate-
 
 ### Setting Up the Accounts
 
-{{ tutorial.code_snippet(['py:157:177', 'js:167:190']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The tutorial requires three separate accounts.
 Their <private keys:> can be provided through environment variables.
@@ -98,7 +98,7 @@ The snippet above derives and stores the <key pair:> and <address:> of each acco
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:180:198', 'js:193:211']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -109,12 +109,12 @@ The following function retrieves the list of current cosignatories for a given a
 <get:/account/{address}/multisig> endpoint.
 If the account is not configured as a multisig, or has never been used, the function returns an empty list.
 
-{{ tutorial.code_snippet(['py:46:61', 'js:51:66']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 This list is then used to determine the tutorial's mode of operation,
 build the appropriate configuration transaction, and sign it.
 
-{{ tutorial.code_snippet(['py:200:215', 'js:213:231']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The only differences between enabling and disabling the multisig are the transaction that is created and
 the account that signs it, as shown in the next two sections.
@@ -125,7 +125,7 @@ All changes to the multisig configuration of an account, including adding or rem
 are performed using a <ser:MultisigAccountModificationTransactionV1>, which **must** be embedded in an
 <aggregate transaction:>:
 
-{{ tutorial.code_snippet(['py:65:76', 'js:70:82']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The embedded <ser:MultisigAccountModificationTransactionV1> includes the following fields:
 
@@ -161,7 +161,7 @@ The embedded <ser:MultisigAccountModificationTransactionV1> includes the followi
 
 The embedded transaction is then wrapped in an aggregate transaction, even though it is the only inner transaction:
 
-{{ tutorial.code_snippet(['py:78:94', 'js:84:100']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 For simplicity, the tutorial uses a <complete aggregate transaction:>.
 See the tutorials on [complete](../transactions/complete-aggregate.md) and
@@ -171,7 +171,7 @@ Care is taken when calculating the transaction fee to account for the space requ
 
 Finally, signatures are attached to the aggregate transaction:
 
-{{ tutorial.code_snippet(['py:96:104', 'js:102:110']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 In this case, the signature of the account being converted into a multisig is required,
 along with the signatures of the cosignatories, which explicitly acknowledge their new responsibility.
@@ -191,7 +191,7 @@ cosignatories must be removed one by one, and the multisig account itself cannot
 
 For this reason, two <ser:MultisigAccountModificationTransactionV1>s are created:
 
-{{ tutorial.code_snippet(['py:110:129', 'js:117:138']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 In both transactions, `signer_public_key` is set to the multisig account's public key.
 
@@ -205,7 +205,7 @@ and the desired value is `0`, so the delta is `-1`.
 
 Both embedded transactions are then wrapped in an aggregate transaction and signed:
 
-{{ tutorial.code_snippet(['py:131:151', 'js:140:160']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 The aggregate transaction is signed by `cosignatory_addresses[0]`.
 This is the only valid option: once an account has cosignatories, it can no longer sign transactions on its own,
@@ -224,7 +224,7 @@ The only difference would be which account signs the transaction and pays the tr
 The final step is to announce the constructed transaction and wait for its confirmation, as described in the
 [Transfer transaction](../transactions/transfer.md) tutorial.
 
-{{ tutorial.code_snippet(['py:217:221', 'js:233:239']) }}
+{{ tutorial.code_snippet_tagged('step-10') }}
 
 ## Output
 

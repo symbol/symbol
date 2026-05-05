@@ -14,7 +14,7 @@ NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')
 WS_URL = NODE_URL.replace('http', 'ws', 1) + '/ws'
 print(f'Using node {NODE_URL}')
-
+# [>step-1]
 ACCOUNT_A_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -33,7 +33,7 @@ account_b_address = facade.network.public_key_to_address(
 	account_b_key_pair.public_key)
 print(f'Account A: {account_a_address}')
 print(f'Account B: {account_b_address}')
-
+# [<step-1]
 
 async def main():
 	# Fetch current network time
@@ -53,7 +53,7 @@ async def main():
 			fee_json['medianFeeMultiplier'],
 			fee_json['minFeeMultiplier'])
 
-	# [Account A] Build embedded transactions for the swap
+	# [Account A] Build embedded transactions for the swap [>step-2]
 	embedded_tx_1 = (
 		facade.transaction_factory.create_embedded({
 			'type': 'transfer_transaction_v1',
@@ -167,8 +167,8 @@ async def main():
 				'uid': uid,
 				'unsubscribe': channel
 			}))
-
-	# [Account B] Connect to WebSocket for bonded flow
+# [<step-2]
+	# [Account B] Connect to WebSocket for bonded flow [>step-3]
 	async with connect(WS_URL) as websocket:
 		response = json.loads(await websocket.recv())
 		uid = response['uid']
@@ -190,8 +190,8 @@ async def main():
 			))
 			name = channel.split('/')[0]
 			print(f'[Account B] Subscribed to {name} channel')
-
-		# [Account A] Announce bonded aggregate
+# [<step-3]
+		# [Account A] Announce bonded aggregate [>step-4]
 		request = urllib.request.Request(
 			f'{NODE_URL}/transactions/partial',
 			data=bonded_payload.encode(),
@@ -201,8 +201,8 @@ async def main():
 		with urllib.request.urlopen(request) as resp:
 			resp.read()
 		print(f'[Account A] Announced bonded {str(bonded_hash)[:16]}...')
-
-		# [Account B] Listen for bonded transaction flow
+		# [<step-4]
+		# [Account B] Listen for bonded transaction flow [>step-5]
 		async for raw_message in websocket:
 			message = json.loads(raw_message)
 			topic = message['topic']
@@ -255,15 +255,15 @@ async def main():
 			else:
 				message_hash = (message['data']['meta']['hash'])
 				print(f'{name}: hash={message_hash[:16]}...')
-
-		# Unsubscribe before closing
+# [<step-5]
+		# Unsubscribe before closing [>step-6]
 		for channel in channels:
 			await websocket.send(json.dumps({
 				'uid': uid,
 				'unsubscribe': channel
 			}))
 		print('[Account B] Unsubscribed from all channels')
-
+		# [<step-6]
 
 try:
 	asyncio.run(main())

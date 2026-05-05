@@ -33,13 +33,13 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/link-namespace-to-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/link-namespace-to-mosaic', ['py', 'js']) }}
 
 ## Code Explanation
 
 ### Setting Up the Account
 
-{{ tutorial.code_snippet(['py:17:25', 'js:14:22']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -48,7 +48,7 @@ This account must own both the namespace and the mosaic being linked.
 
 ### Defining the Namespace and Target Mosaic
 
-{{ tutorial.code_snippet(['py:27:35', 'js:24:35']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The code defines:
 
@@ -73,14 +73,14 @@ The code defines:
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:38:56', 'js:38:57']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet(['py:58:67', 'js:59:68']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The mosaic alias transaction specifies:
 
@@ -103,19 +103,19 @@ The mosaic alias transaction specifies:
 
 ### Submitting the Transaction
 
-{{ tutorial.code_snippet(['py:69:88', 'js:70:90']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet(['py:90:108', 'js:92:126']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Verifying the Alias
 
-{{ tutorial.code_snippet(['py:110:122', 'js:128:141']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 To verify the alias was created, the code retrieves the namespace information from the network
 using the <get:/namespaces/{namespaceId}> endpoint.
@@ -125,7 +125,7 @@ specified mosaic.
 
 ### Using the Alias
 
-{{ tutorial.code_snippet(['py:124:144', 'js:143:162']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 Once the namespace is linked to a mosaic, the namespace can be used in place of the mosaic ID in transactions.
 The code demonstrates creating a <transfer transaction:> using the alias in the mosaics array instead of

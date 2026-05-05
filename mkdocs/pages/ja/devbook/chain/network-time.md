@@ -18,7 +18,7 @@ HTTP リクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/network-time', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/network-time', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -27,7 +27,7 @@ HTTP リクエストを行う方法さえあれば実行可能です。
 
 ### ネメシスタイムスタンプの取得 {: #fetch-nemesis-timestamp }
 
-{{ tutorial.code_snippet(['py:12:19', 'js:7:14']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 ネメシスブロックの作成時間は固定のネットワークプロパティであり、 <get:/network/properties> エンドポイントを使用して取得できます。
 返される値（ `epochAdjustment` ）は、 `s` サフィックスを削除して整数に変換すると、 [UNIX タイムスタンプ](https://ja.wikipedia.org/wiki/UNIX%E6%99%82%E9%96%93) になります。
@@ -38,7 +38,7 @@ Symbolの [メインネット](default: メインネット) の場合、値は `
 
 ### 現在のネットワーク時間の取得 {: #fetch-current-network-time }
 
-{{ tutorial.code_snippet(['py:22:27', 'js:17:22']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 照会先の [ノード](default: ノード) が認識している現在のネットワーク時間は、 <get:/node/time> エンドポイントを使用して取得されます。
 ネットワーク内のノードは通常同期されているため、ほぼ同じ時間を返します。
@@ -51,7 +51,7 @@ Symbolの [メインネット](default: メインネット) の場合、値は `
 
 現在のネットワーク時間から UTC への変換は、単位（秒またはミリ秒）を揃えることに注意しながら、2つの数値を足し合わせるだけで済みます。
 
-{{ tutorial.code_snippet(['py:29:34', 'js:24:29']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 このチュートリアルでは、プロセスを示すために手動で加算を行っています。
 Symbol SDK を使用している場合は、 <dy:NetworkTimestampDatetimeConverter> がより便利な抽象化を提供します。

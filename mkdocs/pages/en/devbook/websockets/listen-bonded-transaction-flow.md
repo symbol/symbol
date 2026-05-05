@@ -55,7 +55,7 @@ To use your own accounts, complete the following steps:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/websockets/listen-bonded-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen-bonded-transaction-flow', ['py', 'js']) }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B and any additional cosigners) that monitor
@@ -69,7 +69,7 @@ This tutorial combines both roles in a single script for simplicity.
 
 ### Account A: Setting Up Accounts
 
-{{ tutorial.code_snippet(['py:18:35', 'js:14:31']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 This example includes both <private keys:> in one script for simplicity.
 In practice, each party signs on their own machine.
@@ -83,7 +83,7 @@ The addresses are derived from the public keys using the facade's network config
 
 ### Account A: Building the Aggregate and Announcing the Hash Lock
 
-{{ tutorial.code_snippet(['py:56:170', 'js:47:162']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Account A creates the bonded aggregate that swaps 10 XYM for 1 custom mosaic from Account B, signs it, and announces the
 required hash lock, following the same pattern described in the
@@ -95,7 +95,7 @@ uses WebSockets, following the same approach described in the
 
 ### Account B: Connecting and Subscribing to Channels
 
-{{ tutorial.code_snippet(['py:171:193', 'js:164:189']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.
@@ -117,14 +117,14 @@ use extra channels:
 
 ### Account A: Announcing the Bonded Aggregate
 
-{{ tutorial.code_snippet(['py:194:203', 'js:257:267']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 Once Account B is subscribed, Account A announces the bonded aggregate to <put:/transactions/partial> (not the
 regular <put:/transactions> endpoint).
 
 ### Account B: Handling WebSocket Messages and Cosigning
 
-{{ tutorial.code_snippet(['py:205:258', 'js:191:255']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Account B listens for incoming messages and dispatches them by channel.
 The message schemas are the same as in the [regular transaction flow](./listen-transaction-flow.md) tutorial,
@@ -150,7 +150,7 @@ The expected message sequence for a successful bonded aggregate is described in 
 
 ### Account B: Unsubscribing from Channels
 
-{{ tutorial.code_snippet(['py:259:265', 'js:269:274']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 After confirmation, Account B sends unsubscribe messages for all channels before closing the connection.
 

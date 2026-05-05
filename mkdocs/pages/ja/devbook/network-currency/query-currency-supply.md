@@ -20,7 +20,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/network-currency/query-currency-supply', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query-currency-supply', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol API[ノード](default: ノード)を設定します。
 値が指定されない場合は、デフォルトの[テストネット](default: テストネット)ノードが使用されます。
@@ -34,7 +34,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### 供給量の値の取得 {: #fetching-supply-values }
 
-{{ tutorial.code_snippet(['py:10:23', 'js:7:19']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 各供給量の値は、専用のエンドポイントを通じて利用できます。
 
@@ -51,7 +51,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 ### 追加の指標の導出 {: #deriving-additional-metrics }
 
-{{ tutorial.code_snippet(['py:25:29', 'js:21:25']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 3つの値をすべて取得した後、コードは2つの追加の指標を導き出します。
 

@@ -4,13 +4,13 @@ const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-// Hash of a confirmed tx that used a namespace alias
+// Hash of a confirmed tx that used a namespace alias [>step-1]
 const TX_HASH = process.env.TRANSACTION_HASH ||
 	'BA0C65DB752A3BF1B25285540642537ECE8C2CA716577EDF8BF0F8597A85ADC4';
 console.log('Transaction hash:', TX_HASH);
-
+// [<step-1]
 try {
-	// Retrieve the confirmed transaction
+	// Retrieve the confirmed transaction [>step-2]
 	const txPath = `/transactions/confirmed/${TX_HASH}`;
 	console.log('Fetching transaction from', txPath);
 	const txResponse = await fetch(`${NODE_URL}${txPath}`);
@@ -23,14 +23,14 @@ try {
 	const txIndex = txData.meta.index;
 	const txPrimary = txIndex + 1;
 	console.log(
-		`  Transaction index: ${txIndex} (primaryId: ${txPrimary})`);
-
+		`  Transaction index: ${txIndex} (primaryId: ${txPrimary})`); // [<step-2]
+	// [>step-3]
 	const recipientHex = txData.transaction.recipientAddress;
 	const recipientBytes = Buffer.from(recipientHex, 'hex');
 	const isAddressAlias = (recipientBytes[0] & 0x01) === 1;
 	console.log('  Recipient:', recipientHex);
-	console.log('  Is address alias:', isAddressAlias);
-
+	console.log('  Is address alias:', isAddressAlias); // [<step-3]
+	// [>step-4]
 	const aliasedMosaics = new Set();
 	const mosaics = txData.transaction.mosaics;
 	for (const mosaic of mosaics) {
@@ -40,9 +40,9 @@ try {
 		console.log(`  Mosaic: ${mosaic.id}`);
 		console.log(`  Is mosaic alias: ${isAlias}`);
 	}
-
+	// [<step-4]
 	// Query address resolution statements
-	if (isAddressAlias) {
+	if (isAddressAlias) { // [>step-5]
 		const addressPath =
 			'/statements/resolutions/address'
 			+ `?height=${blockHeight}`;
@@ -53,8 +53,8 @@ try {
 
 		const addressStatements = addressData.data;
 		console.log(`  Found ${addressStatements.length}`
-			+ ' resolution statement(s)');
-
+			+ ' resolution statement(s)'); // [<step-5]
+		// [>step-6]
 		for (const item of addressStatements) {
 			const statement = item.statement;
 			if (statement.unresolved !== recipientHex)
@@ -74,9 +74,9 @@ try {
 			}
 		}
 	}
-
+		// [<step-6]
 	// Query mosaic resolution statements
-	if (aliasedMosaics.size) {
+	if (aliasedMosaics.size) { // [>step-7]
 		const mosaicPath =
 			'/statements/resolutions/mosaic'
 			+ `?height=${blockHeight}`;
@@ -106,7 +106,7 @@ try {
 			}
 		}
 	}
-
+	// [<step-7]
 } catch (e) {
 	console.error(e.message);
 }

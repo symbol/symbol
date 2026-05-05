@@ -61,7 +61,7 @@ payment, which users can remove individually once they choose to manage fees the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/fee-sponsorship', ['py', 'js'], show=false) }}
+{{ tutorial.code_full_tagged('devbook/transactions/fee-sponsorship', ['py', 'js'], show=false) }}
 
 ## Option 1: Prefunded Fees
 
@@ -111,13 +111,13 @@ API, or build a <bonded aggregate transaction:> and request the signature exclus
 Once the developer's signature is obtained, the application can attach the user's signature and announce the
 aggregate transaction, even if the user's account balance is zero.
 
-{{ tutorial.code_snippet(['py:15:69', 'js:11:73']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 ### Message Transaction
 
 The embedded transaction that sends the message from the user to the recipient is a standard <transfer transaction:>.
 
-{{ tutorial.code_snippet(['py:16:23', 'js:12:19']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 ### Prefund Transaction
 
@@ -127,7 +127,7 @@ For this reason, the amount is initially set to `0`.
 
 The sender of this transaction is the application account, and the recipient is the user account.
 
-{{ tutorial.code_snippet(['py:25:38', 'js:21:34']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 ### Aggregate Transaction
 
@@ -145,7 +145,7 @@ case it must be updated afterwards, once the prefund transaction has been modifi
     As shown in the code, when setting the `transactions_hash` field, use the model-specific type `sc.Hash256`
     (:simple-python:) or `models.Hash256` (:simple-javascript:), and not the generic cryptography type `Hash256`.
 
-{{ tutorial.code_snippet(['py:40:55', 'js:36:55']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 ### Signatures
 
@@ -154,7 +154,7 @@ since it is the signer of the aggregate transaction.
 The application account's cosignature is then added using <dy:SymbolFacade.cosignTransaction>,
 which can be obtained through either on-chain or off-chain methods, as explained above.
 
-{{ tutorial.code_snippet(['py:57:67', 'js:57:70']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Once the payload is obtained, the transaction is ready to be announced and confirmed.
 
@@ -205,27 +205,27 @@ to empower users to eventually manage their own funds and fees.
 
 Option 2 is also slightly cheaper, since the filler transaction is smaller than the prefunding transfer.
 
-{{ tutorial.code_snippet(['py:73:119', 'js:77:129']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 ### Message Transaction
 
 The embedded transaction that sends the message from the user to the recipient is a standard <transfer transaction:>.
 
-{{ tutorial.code_snippet(['py:74:81', 'js:78:85']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 ### Filler Transaction
 
 This is also a <transfer transaction:>, from the application account to itself, in which no funds are transferred.
 As explained above, its only purpose is to allow the application account to sign and pay for the aggregate transaction.
 
-{{ tutorial.code_snippet(['py:83:92', 'js:87:96']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 ### Aggregate Transaction
 
 The <complete aggregate transaction:> is built as usual, updating its `fee` field once the transaction size is known.
 But unlike Option 1, it does not need to be further modified.
 
-{{ tutorial.code_snippet(['py:94:105', 'js:98:111']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 ### Signatures
 
@@ -235,7 +235,7 @@ This signature can be obtained through either on-chain or off-chain methods, as 
 
 The user account's cosignature is then added using <dy:SymbolFacade.cosignTransaction>.
 
-{{ tutorial.code_snippet(['py:107:117', 'js:113:126']) }}
+{{ tutorial.code_snippet_tagged('step-10') }}
 
 Once the payload is obtained, the transaction is ready to be announced and confirmed.
 

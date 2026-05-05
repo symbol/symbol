@@ -19,7 +19,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/network-time', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/network-time', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -28,7 +28,7 @@ Then it adds them together to obtain the current time in standard UTC.
 
 ### Fetch Nemesis Timestamp
 
-{{ tutorial.code_snippet(['py:12:19', 'js:7:14']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The Nemesis block creation time is a fixed network property and can be retrieved using the <get:/network/properties>
 endpoint.
@@ -43,7 +43,7 @@ For Symbol's <mainnet:|main network>, the value is `1615853185` which correspond
 
 ### Fetch Current Network Time
 
-{{ tutorial.code_snippet(['py:22:27', 'js:17:22']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The current network time, as understood by the queried node, is obtained using the <get:/node/time> endpoint.
 Nodes in the network are typically synchronized, so they return similar times.
@@ -58,7 +58,7 @@ This value is expressed in <network time:>, that is, milliseconds elapsed since 
 The conversion from the current network time to UTC only requires adding the two numbers together,
 taking care to use consistent units (seconds or milliseconds).
 
-{{ tutorial.code_snippet(['py:29:34', 'js:24:29']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 This tutorial makes the addition manually to show the process.
 If you are using the Symbol SDK, <dy:NetworkTimestampDatetimeConverter> provides a more convenient abstraction.

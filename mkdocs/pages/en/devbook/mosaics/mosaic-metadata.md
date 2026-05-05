@@ -48,7 +48,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/mosaic-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic-metadata', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -56,7 +56,7 @@ This tutorial demonstrates adding new metadata to a mosaic and then updating tha
 
 ### Setting Up the Account and Mosaic
 
-{{ tutorial.code_snippet(['py:53:66', 'js:51:65']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The snippet reads the signer's private key from the `SIGNER_PRIVATE_KEY` environment variable, which defaults to a
 test key if not set.
@@ -74,7 +74,7 @@ This is as an unprefixed hexadecimal string, which defaults to a test value if n
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:69:87', 'js:68:86']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -92,7 +92,7 @@ Each mosaic metadata entry is uniquely identified by:
     human-readable string using SHA3-256 hashing.
     This approach makes keys more meaningful and reduces the chance of collisions.
 
-{{ tutorial.code_snippet(['py:92:95', 'js:91:94']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 In this example, the key is derived from the string `description`.
 For demonstration purposes, a timestamp is appended to the key string,
@@ -114,7 +114,7 @@ In this example, the value is the string `My first mosaic` encoded in UTF-8.
 
 ### Creating the Embedded Mosaic Metadata Transaction
 
-{{ tutorial.code_snippet(['py:97:110', 'js:96:110']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 A mosaic metadata transaction attaches a key-value pair to a mosaic on the blockchain.
 The same transaction type handles both adding new metadata entries and updating existing ones.
@@ -148,7 +148,7 @@ so the code defines the mosaic metadata transaction as an <embedded transaction:
 
 ### Building the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:112:122', 'js:112:122']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The code adds the embedded mosaic metadata transaction to an <aggregate transaction:>.
 
@@ -165,14 +165,14 @@ Since the signer is the mosaic owner, no <cosignatures:> are required and the ag
 
 ### Submitting the Aggregate Transaction
 
-{{ tutorial.code_snippet(['py:124:133', 'js:124:135']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The aggregate transaction is signed and announced following the same process as in
 [Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction).
 
 ### Retrieving Metadata
 
-{{ tutorial.code_snippet(['py:138:156', 'js:140:161']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 To retrieve the current value of a metadata entry, the code uses the <get:/metadata> endpoint
 with filters for `sourceAddress`, `targetAddress`, `scopedMetadataKey`, `targetId` (the mosaic ID), and
@@ -182,7 +182,7 @@ The endpoint returns the list of entries matching the filters, which in this cas
 
 ### Modifying Existing Metadata
 
-{{ tutorial.code_snippet(['py:158:175', 'js:163:181']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 Updating an existing metadata entry requires the current value, retrieved from the network as previously shown.
 
@@ -212,7 +212,7 @@ not the length of the XOR'd bytes themselves.
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
 in an aggregate transaction and then signed and announced.
 
-{{ tutorial.code_snippet(['py:177:199', 'js:183:208']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 ## Output
 

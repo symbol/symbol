@@ -4,7 +4,7 @@ const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
 console.log(`Using node ${NODE_URL}`);
 
 try {
-	const websocket = new WebSocket(WS_URL);
+	const websocket = new WebSocket(WS_URL); // [>step-1]
 
 	// Connect to websocket endpoint
 	const uid = await new Promise((resolve) => {
@@ -14,16 +14,16 @@ try {
 		}, { once: true });
 	});
 	console.log(`Connected to ${WS_URL} with uid ${uid}`);
-
-	// Subscribe to block channel
+	// [<step-1]
+	// Subscribe to block channel [>step-2]
 	websocket.send(JSON.stringify({ uid, subscribe: 'block' }));
 	console.log('Subscribed to block channel');
 
 	// Subscribe to finalizedBlock channel
 	websocket.send(JSON.stringify({ uid, subscribe: 'finalizedBlock' }));
 	console.log('Subscribed to finalizedBlock channel');
-
-	// Handle incoming messages
+	// [<step-2]
+	// Handle incoming messages [>step-3]
 	websocket.addEventListener('message', (event) => {
 		const message = JSON.parse(event.data);
 		const topic = message.topic;
@@ -48,8 +48,8 @@ try {
 			);
 		}
 	});
-
-	// Unsubscribe on exit
+	// [<step-3]
+	// Unsubscribe on exit [>step-4]
 	process.on('SIGINT', () => {
 		websocket.send(JSON.stringify({ uid, unsubscribe: 'block' }));
 		websocket.send(
@@ -57,7 +57,7 @@ try {
 		console.log('Unsubscribed from all channels');
 		websocket.close();
 		process.exit(0);
-	});
+	}); // [<step-4]
 } catch (error) {
 	console.error(error);
 }

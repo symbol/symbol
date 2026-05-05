@@ -46,7 +46,7 @@ def wait_for_confirmation(transaction_hash, label):
 
 # Returns a filtered list of restrictions currently applied to the mosaic
 # matching the given restriction key
-def get_mosaic_restrictions(query, key):
+def get_mosaic_restrictions(query, key): # [>step-5] [>step-4]
 	restrictions_path = f'/restrictions/mosaic?{query}'
 	print(f'  Getting restrictions from {restrictions_path}')
 	res = []
@@ -69,12 +69,12 @@ def get_mosaic_restrictions(query, key):
 def get_mosaic_global_restrictions(mosaic_id, key):
 	return get_mosaic_restrictions(
 		f'mosaicId={mosaic_id:X}&entryType=1', key)
-
+# [<step-4]
 def get_mosaic_address_restrictions(mosaic_id, address, key):
 	return get_mosaic_restrictions(
 		f'mosaicId={mosaic_id:X}&entryType=0&targetAddress={address}',
 		key)
-
+# [<step-5]
 # Returns a transaction enabling a mosaic's global restriction
 def global_restriction_enable_transaction():
 	transaction = facade.transaction_factory.create_embedded({
@@ -108,7 +108,7 @@ def address_restriction_set_value(prev_value, new_value, address):
 	return transaction
 
 facade = SymbolFacade('testnet')
-
+# [>step-1]
 OWNER_PRIVATE_KEY = os.getenv('OWNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 owner_key_pair = SymbolFacade.KeyPair(PrivateKey(OWNER_PRIVATE_KEY))
@@ -126,9 +126,9 @@ restriction_name = os.getenv('RESTRICTION_NAME', 'security_level')
 restriction_key = mosaic_restriction_generate_key(restriction_name)
 print(f'Restriction name: "{restriction_name}"'
 	f' (key: 0x{restriction_key:016X})')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -147,8 +147,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Enable global restriction if required
+	# [<step-2]
+	# Enable global restriction if required [>step-3]
 	transactions = []
 	print("Checking if the global restriction is enabled:")
 	global_restrictions = get_mosaic_global_restrictions(
@@ -162,9 +162,9 @@ try:
 		print('+ Authorizing owner account')
 		transactions.append(address_restriction_set_value(
 			0xFFFFFFFF_FFFFFFFF, 1, owner_address))
-
+	# [<step-3]
 	# Toggle target address restriction
-	print("Checking if target account is authorized:")
+	print("Checking if target account is authorized:") # [>step-6]
 	address_restrictions = get_mosaic_address_restrictions(
 		mosaic_id, target_address, restriction_key)
 	prev_value = 0xFFFFFFFF_FFFFFFFF
@@ -180,9 +180,9 @@ try:
 		print('+ Deauthorizing target account')
 		transactions.append(address_restriction_set_value(
 			prev_value, 0, target_address))
-
+	# [<step-6]
 	# Build an aggregate transaction
-	print('Bundling', len(transactions),'transaction(s) in an aggregate')
+	print('Bundling', len(transactions),'transaction(s) in an aggregate') # [>step-7]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		'signer_public_key': owner_key_pair.public_key,
@@ -192,17 +192,17 @@ try:
 		'transactions': transactions
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
-
+	# [<step-7]
 	# Sign, announce and wait for confirmation
-	payload = facade.transaction_factory.attach_signature(
+	payload = facade.transaction_factory.attach_signature( # [>step-8]
 		transaction,
 		facade.sign_transaction(owner_key_pair, transaction))
 	transaction_hash = facade.hash_transaction(transaction)
 	announce_transaction(payload, 'aggregate')
 	wait_for_confirmation(transaction_hash, 'aggregate')
-
+	# [<step-8]
 	# Try to transfer the mosaic to the target address
-	transaction = facade.transaction_factory.create({
+	transaction = facade.transaction_factory.create({ # [>step-9]
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': owner_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
@@ -220,6 +220,6 @@ try:
 	print('\nAttempting transfer to the target account')
 	announce_transaction(payload, 'test transfer')
 	wait_for_confirmation(transaction_hash, 'test transfer')
-
+	# [<step-9]
 except Exception as e:
 	print(e)

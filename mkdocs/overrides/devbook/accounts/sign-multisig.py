@@ -12,7 +12,7 @@ from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 NODE_URL = 'https://reference.symboltest.net:3001'
 print(f'Using node {NODE_URL}')
 
-
+# [>step-1]
 MULTISIG_PRIVATE_KEY = os.getenv(
 	'MULTISIG_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000001')
@@ -25,11 +25,11 @@ COSIGNATORY0_PRIVATE_KEY = os.getenv(
 cosignatory_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(COSIGNATORY0_PRIVATE_KEY))
 print(f'Cosignatory public key: {cosignatory_key_pair.public_key}')
-
+# [<step-1]
 facade = SymbolFacade('testnet')
 
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -47,8 +47,8 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
-	# Build the embedded transfer transaction
+	# [<step-2]
+	# Build the embedded transfer transaction [>step-3]
 	transfer_transaction = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': multisig_key_pair.public_key,
@@ -60,8 +60,8 @@ try:
 			'amount': 1_000_000 # 1 XYM
 		}]
 	})
-
-	# Build the wrapper aggregate transaction
+	# [<step-3]
+	# Build the wrapper aggregate transaction [>step-4]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		# This is the account that will pay for the transaction
@@ -72,15 +72,15 @@ try:
 		'transactions': [transfer_transaction]
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
-
-	# Sign the aggregate transaction using the cosignatory's signature
+	# [<step-4]
+	# Sign the aggregate transaction using the cosignatory's signature [>step-5]
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(cosignatory_key_pair, transaction))
 	print('Built transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
-
-	# Announce the transaction
+	# [<step-5]
+	# Announce the transaction [>step-6]
 	announce_path = '/transactions'
 	print(f'Announcing transaction to {announce_path}')
 	announce_request = urllib.request.Request(
@@ -114,6 +114,6 @@ try:
 			print(f'  Transaction status: unknown | Cause: ({e.msg})')
 	else:
 		print('Confirmation took too long.')
-
+	# [<step-6]
 except urllib.error.URLError as e:
 	print(e.reason)

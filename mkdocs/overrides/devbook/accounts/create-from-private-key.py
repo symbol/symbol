@@ -2,10 +2,10 @@ import os
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 
-# Initialize the facade for the testnet network
+# Initialize the facade for the testnet network [>step-1]
 facade = SymbolFacade('testnet')
-
-# Use an existing private key if provided,
+# [<step-1]
+# Use an existing private key if provided, [>step-2]
 # Otherwise generate a random one.
 private_key_string = os.getenv('PRIVATE_KEY')
 if private_key_string:
@@ -14,8 +14,8 @@ if private_key_string:
 else:
 	print("Generating random account...")
 	private_key = PrivateKey.random()
-
-# Create a key pair from the private key
+# [<step-2]
+# Create a key pair from the private key [>step-3]
 key_pair = facade.KeyPair(private_key)
 
 # Derive the public key from the private key
@@ -27,4 +27,4 @@ address = facade.network.public_key_to_address(public_key)
 # Output the account details
 print(f'Address: {address}')
 print(f'Public key: {public_key}')
-print(f'Private key: {private_key}')
+print(f'Private key: {private_key}') # [<step-3]

@@ -10,7 +10,7 @@ const TX_HASH = process.env.TRANSACTION_HASH ||
 console.log('Transaction hash:', TX_HASH);
 
 try {
-	// Fetch the confirmed transaction to get its block height
+	// Fetch the confirmed transaction to get its block height [>step-1]
 	const txPath = `/transactions/confirmed/${TX_HASH}`;
 	console.log('Fetching transaction from', txPath);
 	const txResponse = await fetch(`${NODE_URL}${txPath}`);
@@ -20,8 +20,8 @@ try {
 	const blockHeight = txData.meta.height;
 	const merkleComponentHash = new Hash256(
 		txData.meta.merkleComponentHash);
-
-	// Fetch the block header to get the transactions hash
+	// [<step-1]
+	// Fetch the block header to get the transactions hash [>step-2]
 	const blockPath = `/blocks/${blockHeight}`;
 	console.log('Fetching block from', blockPath);
 	const blockResponse = await fetch(`${NODE_URL}${blockPath}`);
@@ -33,8 +33,8 @@ try {
 	}, undefined, 2));
 	const transactionsHash = new Hash256(
 		blockData.block.transactionsHash);
-
-	// Fetch the merkle proof path for the transaction
+	// [<step-2]
+	// Fetch the merkle proof path for the transaction [>step-3]
 	const merklePath = `/blocks/${blockHeight}`
 		+ `/transactions/${TX_HASH}/merkle`;
 	console.log('Fetching merkle proof:');
@@ -51,8 +51,8 @@ try {
 			isLeft: part.position === 'left',
 		}));
 	console.log('  Merkle path length:', merkleProofPath.length);
-
-	// Verify that the transaction is included in the block
+	// [<step-3]
+	// Verify that the transaction is included in the block [>step-4]
 	const isProven = proveMerkle(
 		merkleComponentHash, merkleProofPath, transactionsHash);
 
@@ -64,7 +64,7 @@ try {
 		throw new Error(
 			`Transaction ${TX_HASH.slice(0, 16)}...`
 			+ ` NOT proven in block ${blockHeight}`);
-	}
+	} // [<step-4]
 } catch (e) {
 	console.error(e.message);
 }

@@ -27,7 +27,7 @@ This tutorial only reads data from the network. No <account:> or <XYM:> balance 
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/prove-transaction', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove-transaction', ['py', 'js']) }}
 
 The snippet reads the hash of the transaction to prove from the `TRANSACTION_HASH` environment variable.
 If not set, a known transaction from block `55` of the Symbol testnet is used as the default.
@@ -36,7 +36,7 @@ If not set, a known transaction from block `55` of the Symbol testnet is used as
 
 ### Fetching the Confirmed Transaction
 
-{{ tutorial.code_snippet(['py:17:26', 'js:13:22']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The code fetches the confirmed transaction from the <get:/transactions/confirmed/{transactionId}> endpoint.
 
@@ -50,7 +50,7 @@ public keys of the cosignatories.
 
 ### Fetching the Block Header
 
-{{ tutorial.code_snippet(['py:28:39', 'js:24:35']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 The <get:/blocks/{height}> endpoint returns block metadata, including the `transactionsHash` field.
 This hash is the root of the Merkle tree built from the
@@ -60,7 +60,7 @@ The code wraps the hex string in a `Hash256` object, which is the format expecte
 
 ### Fetching the Merkle Proof Path
 
-{{ tutorial.code_snippet(['py:41:56', 'js:37:53']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The <get:/blocks/{height}/transactions/{hash}/merkle> endpoint returns a **Merkle proof path**:
 the minimum set of intermediate hashes needed to recompute the `transactionsHash` starting from the
@@ -76,7 +76,7 @@ expected by the <dy:Merkle.proveMerkle> function.
 
 ### Verifying the Proof
 
-{{ tutorial.code_snippet(['py:58:70', 'js:55:67']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 <dy:Merkle.proveMerkle> recomputes the Merkle root by iteratively combining the `merkleComponentHash` with each intermediate
 hash in the proof path, following the specified position order.

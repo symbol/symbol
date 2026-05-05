@@ -17,7 +17,7 @@ async function getAccountMosaics(address) {
 	const responseJSON = await response.json();
 	return responseJSON.account.mosaics;
 }
-
+// [>step-1]
 const SIGNER_PRIVATE_KEY =
 	process.env.SIGNER_PRIVATE_KEY
 	|| '0000000000000000000000000000000000000000000000000000000000000000';
@@ -38,9 +38,9 @@ const MOSAIC_ID_HEX = process.env.MOSAIC_ID
 const mosaicId = BigInt(`0x${MOSAIC_ID_HEX}`);
 console.log(
 	`Mosaic ID: ${mosaicId} (0x${MOSAIC_ID_HEX})`);
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -59,19 +59,19 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
+	// [<step-2]
 	// --- CHECKING INITIAL BALANCE ---
 	console.log('\n--- Checking initial balance ---');
-	let mosaics = await getAccountMosaics(SOURCE_ADDRESS);
+	let mosaics = await getAccountMosaics(SOURCE_ADDRESS); // [>step-3]
 	for (const mosaic of mosaics) {
 		if (mosaic.id === MOSAIC_ID_HEX.toUpperCase())
 			console.log(`  Mosaic ID: ${mosaic.id},`
 				+ ` Amount: ${mosaic.amount}`);
 	}
-
+	// [<step-3]
 	// --- REVOKING MOSAIC ---
 	console.log('\n--- Revoking mosaic ---');
-
+	// [>step-4]
 	const revokeTx = facade.transactionFactory.create({
 		type: 'mosaic_supply_revocation_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -83,8 +83,8 @@ try {
 		}
 	});
 	revokeTx.fee = new models.Amount(feeMult * revokeTx.size);
-
-	// Sign and generate final payload
+	// [<step-4]
+	// Sign and generate final payload [>step-5]
 	const signature = facade.signTransaction(signerKeyPair, revokeTx);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 			revokeTx, signature);
@@ -102,8 +102,8 @@ try {
 		body: jsonPayload
 	});
 	console.log('  Response:', await announceResponse.text());
-
-	// Wait for confirmation
+	// [<step-5]
+	// Wait for confirmation [>step-6]
 	console.log('Waiting for mosaic revocation confirmation...');
 	for (let attempt = 0; attempt < 60; attempt++) {
 		await new Promise(resolve => setTimeout(resolve, 1000));
@@ -136,15 +136,15 @@ try {
 			console.log('  Transaction status: unknown');
 		}
 	}
-
+	// [<step-6]
 	// --- VERIFYING REVOCATION ---
 	console.log('\n--- Verifying revocation ---');
-	mosaics = await getAccountMosaics(SOURCE_ADDRESS);
+	mosaics = await getAccountMosaics(SOURCE_ADDRESS); // [>step-7]
 	for (const mosaic of mosaics) {
 		if (mosaic.id === MOSAIC_ID_HEX.toUpperCase())
 			console.log(`  Mosaic ID: ${mosaic.id},`
 				+ ` Amount: ${mosaic.amount}`);
-	}
+	} // [<step-7]
 } catch (e) {
 	console.error(e.message);
 }
