@@ -86,13 +86,7 @@ multiplier (`minFeeMultiplier`), and stores it for later use once the transactio
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet({
-  'py': { 'range': [42, 55] },
-  'js': {
-    'range': [40, 52],
-    'descriptor': 'TransferTransactionV1Descriptor'
-  }
-}) }}
+{{ tutorial.code_snippet(['py:42:55', 'js:40:52']) }}
 
 All required transaction properties must be provided when building the transfer transaction.
 The snippet includes the following fields:
