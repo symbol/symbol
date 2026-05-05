@@ -43,7 +43,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/account-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account-restrictions', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -65,7 +65,7 @@ tutorial_level: advanced
 
 ### アカウントの設定 {: #setting-up-the-accounts }
 
-{{ tutorial.code_snippet(['py:105:113', 'js:111:119']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 アカウントは自分自身に対してのみ制限を設定できるため、このチュートリアルでは単一の [秘密鍵](default: 秘密鍵) が必要です。
 秘密鍵は `SIGNER_PRIVATE_KEY` 環境変数（64文字の16進数文字列）を通じて提供できます。提供されない場合は、デフォルト値が使用されます。
@@ -76,7 +76,7 @@ tutorial_level: advanced
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:116:134', 'js:122:140']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
@@ -84,11 +84,11 @@ tutorial_level: advanced
 
 以下の関数は、<get:/restrictions/account/{address}> エンドポイントを使用して、指定されたアドレスに適用されている現在のアカウント制限を取得します。制限が設定されていない場合、関数は空のリストを返します。
 
-{{ tutorial.code_snippet(['py:47:60', 'js:53:66']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 返されたリストを評価して、チュートリアルの実行パスを決定します。その内容に基づいて、制限を有効化するか解除するか、適切な設定トランザクションが構築されます。
 
-{{ tutorial.code_snippet(['py:138:146', 'js:144:155']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 アカウントに複数の制限が設定されている場合、エンドポイントから返された最初の制限のみが削除されます。このチュートリアルの範囲内では、そのような状況は発生しないはずです。
 
@@ -101,7 +101,7 @@ tutorial_level: advanced
 - <ser:AccountMosaicRestrictionTransactionV1>
 - <ser:AccountOperationRestrictionTransactionV1>
 
-{{ tutorial.code_snippet(['py:63:80', 'js:69:87']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 トランザクションには以下のフィールドが含まれます。
 
@@ -126,7 +126,7 @@ tutorial_level: advanced
 
 制限を無効にするには、設定されているフラグとリストされたアドレスの両方をクリアする必要があります。
 
-{{ tutorial.code_snippet(['py:83:101', 'js:90:107']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 制限を有効にした時と同じ `restriction_flags` の値が再度提供されます。フラグはネットワークによって XOR されるため、同じ値を提供するとそれらがオフに切り替わり、実質的に制限がクリアされます。
 
@@ -138,13 +138,13 @@ tutorial_level: advanced
 
 構築されたトランザクションは、[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されている通り、署名、アナウンス、承認されます。
 
-{{ tutorial.code_snippet(['py:148:154', 'js:157:164']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 ### テスト転送の送信 {: #sending-a-test-transfer }
 
 その後、未承認のアドレスに対してテスト用の転送が試行されます。
 
-{{ tutorial.code_snippet(['py:156:170', 'js:166:180']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 制限が有効になっている場合、転送は `Address_Interaction_Prohibited` エラーで失敗します。制限が解除されている場合、転送は正常に承認されます。
 

@@ -24,7 +24,7 @@ section.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/chain/prove-mosaic-definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove-mosaic-definition', ['py', 'js']) }}
 
 This example verifies the network's currency mosaic (<XYM:> on mainnet), whose ID is discovered automatically from
 <get:/network/properties>.
@@ -35,7 +35,7 @@ for any mosaic by replacing the ID.
 
 ### Fetching the Mosaic Definition
 
-{{ tutorial.code_snippet(['py:17:33', 'js:29:44']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The code starts by fetching the network currency mosaic ID from <get:/network/properties>.
 The `currencyMosaicId` field is a hex string with embedded apostrophes (e.g. `0x72C0212E'67A08BCE`), so the code strips
@@ -47,7 +47,7 @@ The response includes all the fields that make up the mosaic's definition: `vers
 
 ### Computing the Key and Value Hashes
 
-{{ tutorial.code_snippet(['py:35:53', 'js:46:63']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 To verify the mosaic's definition, the code must reproduce the exact hash that the chain stores internally.
 This requires serializing all fields into a binary buffer in the exact field order and sizes defined by the
@@ -68,7 +68,7 @@ the mosaic's leaf node in the tree.
 
 ### Fetching the Block State Hash
 
-{{ tutorial.code_snippet(['py:55:71', 'js:65:79']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The code fetches the current chain height from <get:/chain/info>, then uses it to retrieve the corresponding block
 header from <get:/blocks/{height}>.
@@ -79,7 +79,7 @@ The `stateHashSubCacheMerkleRoots` array contains the individual root hash for e
 
 ### Fetching the Tree Path
 
-{{ tutorial.code_snippet(['py:73:97', 'js:81:109']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 The <get:/mosaics/{mosaicId}/merkle> endpoint returns the raw path through the mosaic sub-cache, from the root down to
 the leaf that stores the mosaic's hashed value.
@@ -93,7 +93,7 @@ The leaf node at the end stores the remaining path nibbles and the hashed value.
 
 ### Verifying the Proof
 
-{{ tutorial.code_snippet(['py:99:107', 'js:111:121']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 <dy:Merkle.provePatriciaMerkle> takes five arguments, each computed in an earlier step:
 

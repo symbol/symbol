@@ -10,13 +10,13 @@ print(f'Using node {NODE_URL}')
 
 
 async def main():
-	async with connect(WS_URL) as websocket:
+	async with connect(WS_URL) as websocket: # [>step-1]
 		# Connect to websocket endpoint
 		response = json.loads(await websocket.recv())
 		uid = response['uid']
 		print(f'Connected to {WS_URL} with uid {uid}')
-
-		# Subscribe to block channel
+	# [<step-1]
+		# Subscribe to block channel [>step-2]
 		await websocket.send(json.dumps(
 			{'uid': uid, 'subscribe': 'block'}))
 		print('Subscribed to block channel')
@@ -25,8 +25,8 @@ async def main():
 		await websocket.send(json.dumps(
 			{'uid': uid, 'subscribe': 'finalizedBlock'}))
 		print('Subscribed to finalizedBlock channel')
-
-		# Handle incoming messages
+		# [<step-2]
+		# Handle incoming messages [>step-3]
 		try:
 			async for raw_message in websocket:
 				message = json.loads(raw_message)
@@ -46,8 +46,8 @@ async def main():
 						f'Finalized: height={int(finalized["height"]):,}'
 						f' hash={finalized["hash"][:16]}...'
 					)
-
-		# Unsubscribe on exit
+		# [<step-3]
+		# Unsubscribe on exit [>step-4]
 		finally:
 			await websocket.send(json.dumps(
 				{'uid': uid, 'unsubscribe': 'block'}))
@@ -55,7 +55,7 @@ async def main():
 				{'uid': uid, 'unsubscribe': 'finalizedBlock'}))
 			print('Unsubscribed from all channels')
 
-
+		# [<step-4]
 try:
 	asyncio.run(main())
 except KeyboardInterrupt:

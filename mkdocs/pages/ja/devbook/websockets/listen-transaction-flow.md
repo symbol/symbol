@@ -44,7 +44,7 @@ Symbolは、特定の[アカウント](default: アカウント) に対する[�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/websockets/listen-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen-transaction-flow', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol API[ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -54,7 +54,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 ### 監視対象アドレスと署名者の設定 {: #setting-up-the-monitored-address-and-signer }
 
-{{ tutorial.code_snippet(['py:16:27', 'js:9:17']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 各トランザクションWebSocketチャネルは、特定のアドレスをスコープとします。
 `MONITOR_ADDRESS` 環境変数は、監視するアドレスを設定します。
@@ -67,7 +67,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 ### WebSocketへの接続 {: #connecting-to-the-websocket }
 
-{{ tutorial.code_snippet(['py:31:35', 'js:20:28']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 コードは、ノードの `/ws` エンドポイントへのWebSocket接続を開きます。
 接続すると、サーバーは以降のすべてのサブスクリプションリクエストに含める必要がある一意の識別子（ `uid` ）を含むメッセージを送信します。
@@ -76,7 +76,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 ### チャネルのサブスクライブ {: #subscribing-to-channels }
 
-{{ tutorial.code_snippet(['py:37:48', 'js:30:40']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 コードは、監視対象アドレスを各チャネル名に追加して、アドレスをスコープとする3つのチャネルをサブスクライブします。
 
@@ -88,7 +88,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 ### 転送トランザクションの構築と署名 {: #building-and-signing-a-transfer-transaction }
 
-{{ tutorial.code_snippet(['py:50:75', 'js:42:65']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 このチュートリアルでは、モザイクもメッセージも含まない、監視対象アドレスへの最小限の[転送トランザクション](../transactions/transfer.md) を構築します。
 簡略化のために転送が使用されていますが、どのトランザクションタイプでも同じWebSocket通知がトリガーされます。
@@ -98,7 +98,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 ### アナウンスと承認の待機 {: #announcing-and-waiting-for-confirmation }
 
-{{ tutorial.code_snippet(['py:77:98', 'js:67:95']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 コードはトランザクションをアナウンスし、受信メッセージをリスニングして各メッセージを表示します。
 
@@ -122,7 +122,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 ### チャネルのサブスクライブ解除 {: #unsubscribing-from-channels }
 
-{{ tutorial.code_snippet(['py:100:106', 'js:97:102']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 承認後、コードは接続を閉じる前に3つすべてのチャネルのサブスクライブ解除メッセージを送信します。
 

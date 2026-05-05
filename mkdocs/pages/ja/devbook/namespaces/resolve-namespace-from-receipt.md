@@ -21,19 +21,19 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/namespaces/resolve-namespace-from-receipt', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/resolve-namespace-from-receipt', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
 ### トランザクションハッシュの定義 {: #defining-the-transaction-hash }
 
-{{ tutorial.code_snippet(['py:12:15', 'js:7:10']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 コードは、生のアドレスやモザイクIDの代わりにネームスペースエイリアスを使用した、承認済みトランザクションのハッシュを定義します。この ハッシュは `TRANSACTION_HASH` 環境変数から読み取られ、デフォルトでは Symbol [テストネット](default:テストネット) 上の既知のトランザクションが使用されます。
 
 ### 承認済みトランザクションの取得 {: #retrieving-the-confirmed-transaction }
 
-{{ tutorial.code_snippet(['py:18:30', 'js:13:26']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 承認済みトランザクションは、そのハッシュを使用して <get:/transactions/confirmed/{transactionId}> エンドポイントから取得されます。
 
@@ -41,7 +41,7 @@ tutorial_level: intermediate
 
 トランザクションのメタデータには `index` フィールドも含まれており、これはブロック内でのトランザクションの0から始まる位置を示します。コードは、後の解決エントリとの照合のために、これを1から始まる `primaryId` （ `index + 1` ）に変換します。
 
-{{ tutorial.code_snippet(['py:32:36', 'js:28:32']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 取得されたトランザクションには `recipientAddress` フィールドが含まれます。トランザクションが受信者としてネームスペースエイリアスを使用した場合、このフィールドには実際のアドレスではなく、未解決の値（エンコードされたネームスペースID）が保持されます。
 
@@ -50,7 +50,7 @@ tutorial_level: intermediate
 * ビットが `1` の場合、アドレスは [ネームスペースのアドレスへのリンク](./link-namespace-to-address.md#using-the-alias) チュートリアルで説明されているように、エンコードされたネームスペースエイリアスです。
 * ビットが `0` の場合、受信者は通常のアドレスであり、解決は不要です。
 
-{{ tutorial.code_snippet(['py:38:46', 'js:34:42']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 コードはトランザクションの `mosaics` 配列を反復処理し、SDK の <dy:IdGenerator.isMosaicAlias> 関数を使用して、各モザイクIDがネームスペースエイリアスかどうかを確認します。この関数は64ビット値のビット63（最上位ビット）を検査します：
 
@@ -59,7 +59,7 @@ tutorial_level: intermediate
 
 ### アドレス解決ステートメントの照会 {: #querying-address-resolution-statements }
 
-{{ tutorial.code_snippet(['py:49:59', 'js:45:56']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 トランザクションメタデータのブロック高を使用して、コードは <get:/statements/resolutions/address> エンドポイントを照会し、そのブロックのアドレス解決ステートメントを取得します。
 

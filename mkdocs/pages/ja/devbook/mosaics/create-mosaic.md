@@ -27,7 +27,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/create-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/create-mosaic', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -38,7 +38,7 @@ tutorial_level: advanced
 
 ### アカウントの設定 {: #setting-up-the-account }
 
-{{ tutorial.code_snippet(['py:50:59', 'js:50:58']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、署名者の [秘密鍵](default:秘密鍵) を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合はデフォルトのテストキーが使用されます。
 署名者の [アドレス](default: アドレス) は [公開鍵](default:公開鍵) から派生します。
@@ -46,13 +46,13 @@ tutorial_level: advanced
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:62:80', 'js:61:79']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
 ### モザイク定義トランザクションの構築 {: #building-the-mosaic-definition-transaction }
 
-{{ tutorial.code_snippet(['py:85:100', 'js:84:100']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 モザイク定義トランザクションは、以下のプロパティを使用してネットワークに新しいモザイクを登録します。
 
@@ -103,7 +103,7 @@ tutorial_level: advanced
 
 ### モザイク定義の送信 {: #submitting-the-mosaic-definition }
 
-{{ tutorial.code_snippet(['py:102:113', 'js:102:115']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 モザイク定義トランザクションは、 [転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
@@ -111,7 +111,7 @@ tutorial_level: advanced
 
 ### モザイク供給量変更トランザクションの構築 {: #building-the-mosaic-supply-change-transaction }
 
-{{ tutorial.code_snippet(['py:118:126', 'js:120:129']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 モザイク定義が承認されると、2番目のトランザクションでモザイクの供給量を増加させます。
 
@@ -126,7 +126,7 @@ tutorial_level: advanced
 
 ### 供給量変更の送信 {: #submitting-the-supply-change }
 
-{{ tutorial.code_snippet(['py:128:140', 'js:131:143']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 モザイク供給量変更トランザクションは、モザイク定義トランザクションと同じプロセスに従って署名され、アナウンスされます。
 
@@ -140,7 +140,7 @@ tutorial_level: advanced
 
 ### モザイクの取得 {: #retrieving-the-mosaic }
 
-{{ tutorial.code_snippet(['py:145:156', 'js:148:159']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 モザイクが正常に作成されたことを確認するために、コードは <get:/mosaics/{mosaicId}> エンドポイントを使用してネットワークからモザイクを取得し、そのプロパティを表示します。
 

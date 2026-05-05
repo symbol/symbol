@@ -71,7 +71,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/complete-aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/complete-aggregate', ['py', 'js']) }}
 
 コード全体は、単純なエラー処理を提供するために単一の `try` ブロックでラップされていますが、実際のアプリケーションではより詳細な制御が必要になるでしょう。
 
@@ -83,7 +83,7 @@ digraph {
 
 ### アカウントの設定 {: #setting-up-accounts }
 
-{{ tutorial.code_snippet(['py:16:37', 'js:13:31']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 この例では、簡略化のため1つのスクリプトに両方の [秘密鍵](default: 秘密鍵) を含めています。実際には、各当事者が自身のマシンで署名します。
 アカウント A は、 [埋め込みトランザクション](default: 埋め込みトランザクション) の署名者としてアカウント B を設定し、B の [アドレス](default: アドレス) を派生させるために、アカウント B の [公開鍵](default: 公開鍵) のみを必要とします 。
@@ -94,13 +94,13 @@ digraph {
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:39:57', 'js:34:52']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
 ### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
-{{ tutorial.code_snippet(['py:59:80', 'js:54:77']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 [埋め込みトランザクション](default:埋め込みトランザクション) は、アトミックに実行される操作を定義します。各埋め込みトランザクションでは以下を指定します。
 
@@ -123,7 +123,7 @@ digraph {
 
 ### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction}
 
-{{ tutorial.code_snippet(['py:82:97', 'js:79:96']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 埋め込みトランザクションの準備ができたら、それらをラップするアグリゲートコンプリートトランザクションを作成します。
 
@@ -142,7 +142,7 @@ digraph {
 
 ### トランザクションの署名 {: #signing-the-transaction }
 
-{{ tutorial.code_snippet(['py:99:111', 'js:98:112']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 アカウント A は SDK を使用してトランザクションに署名し、中間ペイロードを生成します。アカウント B の連署が欠けているため、このペイロードはまだアナウンスできる状態ではありません。アカウント A はオフチェーンのチャネルを通じて、この中間ペイロードをアカウント B に送信します。
 
@@ -156,7 +156,7 @@ digraph {
 
 ### 検証と連署 {: #verifying-and-cosigning }
 
-{{ tutorial.code_snippet(['py:113:126', 'js:114:131']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 アカウント B はペイロードを受け取り、デシリアライズしてトランザクションオブジェクトを再構築します。アカウント B は、埋め込みトランザクションが自身が署名しようとしている内容と一致しているか検証する必要があります。
 
@@ -170,7 +170,7 @@ digraph {
 
 ### 連署の収集 {: #collecting-the-cosignature }
 
-{{ tutorial.code_snippet(['py:128:134', 'js:133:139']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 アカウント A はアカウント B の連署を受け取り、トランザクションオブジェクトの `cosignatures` 配列に追加し、アナウンス用のペイロードを再構築します。
 
@@ -178,7 +178,7 @@ digraph {
 
 トランザクションのアナウンス準備が整ったので、通常のアグリゲートではないトランザクションと同じプロセスに従います。
 
-{{ tutorial.code_snippet(['py:136:149', 'js:141:153']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 すべての署名が収集されたら、 <put:/transactions> エンドポイントを使用して [ノード](default: ノード) にトランザクションをアナウンスします。
 
@@ -186,7 +186,7 @@ digraph {
 
 ### 承認の待機 {: #waiting-for-confirmation }
 
-{{ tutorial.code_snippet(['py:151:171', 'js:155:179']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 アナウンス後、トランザクションステータスを監視します。
 

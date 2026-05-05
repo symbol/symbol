@@ -9,7 +9,7 @@ let finalizedChangedAt = null;
 
 try {
 	while (true) {
-		const response = await fetch(`${NODE_URL}/chain/info`);
+		const response = await fetch(`${NODE_URL}/chain/info`); // [>step-1]
 		if (!response.ok) {
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -18,9 +18,9 @@ try {
 		const height = parseInt(chainInfo.height, 10);
 		const finalized = chainInfo.latestFinalizedBlock;
 		const finalizedHeight = parseInt(finalized.height, 10);
-
+		// [<step-1]
 		const now = Date.now();
-
+		// [>step-2]
 		if (prevHeight !== null && height !== prevHeight) {
 			heightChangedAt = now;
 		}
@@ -34,8 +34,8 @@ try {
 			: '-';
 		const fAgo = finalizedChangedAt !== null
 			? `${Math.floor((now - finalizedChangedAt) / 1000)}s ago`
-			: '-';
-
+			: '-'; // [<step-2]
+		// [>step-3]
 		const h = height.toLocaleString().padStart(10);
 		const fh = finalizedHeight.toLocaleString().padStart(10);
 		console.log(
@@ -46,7 +46,7 @@ try {
 
 		prevHeight = height;
 		prevFinalizedHeight = finalizedHeight;
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // [<step-3]
 	}
 } catch (error) {
 	throw error;

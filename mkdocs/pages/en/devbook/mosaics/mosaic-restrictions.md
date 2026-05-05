@@ -67,7 +67,7 @@ transactions are announced and confirmed, and how to bundle them.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/mosaics/mosaic-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic-restrictions', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -90,7 +90,7 @@ The tutorial then proceeds to:
 
 The tutorial starts by configuring the accounts involved in the example.
 
-{{ tutorial.code_snippet(['py:112:128', 'js:123:142']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 The code defines:
 
@@ -114,18 +114,18 @@ If the default one is used, it may already be funded.
 
 ### Fetching Network Time and Fees
 
-{{ tutorial.code_snippet(['py:131:149', 'js:145:163']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Enabling the Global Restriction
 
-{{ tutorial.code_snippet(['py:151:164', 'js:165:179']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 The code first checks whether the mosaic already defines a global restriction for the configured key:
 
-{{ tutorial.code_snippet(['py:49:71', 'js:54:79']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 This is done by querying <get:/restrictions/mosaic> and filtering by `mosaicId` and `entryType=1`, which selects
 **global restrictions**.
@@ -160,7 +160,7 @@ If no restriction is found, one is created by adding two transactions to the lis
 With the global restriction in effect, the next step checks whether the target account already has a restriction value
 defined for the key.
 
-{{ tutorial.code_snippet(['py:49:76', 'js:54:85']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 As in the global restriction case, the current value is obtained by querying <get:/restrictions/mosaic> and filtering
 by `mosaicId`, `targetAddress`, and `entryType=0`, which selects **address restrictions**.
@@ -170,7 +170,7 @@ Depending on the current value of the restriction for the target account,
 a transaction is created that authorizes or deauthorizes the account.
 This transaction is added to the list of transactions to announce.
 
-{{ tutorial.code_snippet(['py:167:182', 'js:182:198']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 - If the account does not yet have a restriction value, or the value is not `1`, the code assigns the value `1`,
     authorizing it to use the mosaic.
@@ -193,7 +193,7 @@ When no previous restriction exists, the special value `0xFFFFFFFF_FFFFFFFF` mus
 All configuration transactions created above are bundled into a single <complete aggregate transaction:>,
 so the user does not need to wait for them to be confirmed individually.
 
-{{ tutorial.code_snippet(['py:185:194', 'js:201:211']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 Only the aggregate transaction pays fees, so <embedded transactions:> do not use the `fee` field.
 
@@ -202,14 +202,14 @@ Only the aggregate transaction pays fees, so <embedded transactions:> do not use
 The constructed aggregate transaction is signed, announced, and confirmed as described in the
 [Transfer transaction](../transactions/transfer.md) tutorial.
 
-{{ tutorial.code_snippet(['py:197:202', 'js:214:219']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 ### Sending a Test Transfer
 
 Finally, the tutorial attempts to send one unit of the mosaic from the owner account to the target account
 using a standard <transfer transaction:>.
 
-{{ tutorial.code_snippet(['py:205:222', 'js:222:240']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 If the target account currently satisfies the restriction (`security_level ≥ 1`),
 the transfer is confirmed successfully.

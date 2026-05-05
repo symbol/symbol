@@ -29,7 +29,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/transactions/monitoring-status', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/monitoring-status', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API ノードを設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -38,7 +38,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 ### トランザクションハッシュの特定 {: #finding-the-transaction-hash }
 
-{{ tutorial.code_snippet(['py:13:16', 'js:7:8']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 トランザクションを監視するには、署名後に生成されるハッシュが必要です。
 ハッシュは、Symbol ネットワーク上でトランザクションを一意に識別します。
@@ -50,7 +50,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 ### ステータスエンドポイントへの照会 {: #querying-the-status-endpoint }
 
-{{ tutorial.code_snippet(['py:21:57', 'js:12:55']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 `wait_for_transaction_confirmation` 関数は、このチュートリアルの中核です。
 トランザクションが承認されるか失敗するまで監視します。
@@ -80,14 +80,14 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 ### 承認の確認 {: #checking-for-confirmation }
 
-{{ tutorial.code_snippet(['py:59:62', 'js:57:61']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 レスポンスを解析した後、関数は `group` フィールドを確認します。
 それが `confirmed` の場合、トランザクションは [ハーベスティング](default: ハーベスティング) を通じて正常に[ブロック](default:ブロック)に含まれており、関数は正常に終了します。
 
 ### 失敗の確認 {: #checking-for-failure }
 
-{{ tutorial.code_snippet(['py:64:71', 'js:63:69']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 トランザクションのステータスグループが `failed` の場合、関数はステータスコードとともにエラーを発生させます。
 
@@ -98,7 +98,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 ### 不明なステータスの処理 {: #handling-unknown-status }
 
-{{ tutorial.code_snippet(['py:73:80', 'js:71:80']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 エンドポイントが HTTP 404 を返した場合、トランザクションのステータスはまだ利用できません。
 これは、トランザクションをアナウンスした直後で [ノード](default: ノード) が処理する前、またはハッシュが無効な場合に発生する可能性があります。
@@ -108,14 +108,14 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 ### 試行間の待機 {: #waiting-between-attempts }
 
-{{ tutorial.code_snippet(['py:82:84', 'js:82:87']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 ポーリングの試行間に、関数は設定可能な遅延時間（デフォルト：2秒）だけ待機します。
 これにより、ノードへのリクエストの過負荷を防ぎ、ネットワーク処理のための時間を確保します。
 
 ### タイムアウトの処理 {: #handling-timeouts }
 
-{{ tutorial.code_snippet(['py:86:89', 'js:90:95']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 指定された回数試行してもトランザクションが承認されない場合、関数は問題を説明する `RuntimeError` を発生させます。
 

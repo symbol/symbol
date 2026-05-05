@@ -178,7 +178,7 @@ def wait_for_secret_proof(signer_address, hashlock):
 		f'Secret proof not found after {max_attempts} attempts')
 
 
-# Symbol accounts
+# Symbol accounts [>step-1]
 facade = SymbolFacade('testnet')
 
 ALICE_XYM_PRIVATE_KEY = os.getenv('ALICE_XYM_PRIVATE_KEY',
@@ -208,10 +208,10 @@ BOB_ETH_PRIVATE_KEY = os.getenv('BOB_ETH_PRIVATE_KEY',
 	'0x8e85561005f27d926af79a7ce3e76e75108a09ff2ab78bf65b5578d2e5d509bf')
 bob_eth_account = w3.eth.account.from_key(BOB_ETH_PRIVATE_KEY)
 print(f'Bob ETH address: {bob_eth_account.address}')
-
+# [<step-1]
 try:
 	# --- Alice: Generate proof and hashlock ---
-	print('\n--- Alice: Generate proof and hashlock ---')
+	print('\n--- Alice: Generate proof and hashlock ---') # [>step-2]
 
 	proof = os.urandom(32)
 	print(f'Proof (hex): {proof.hex()}')
@@ -219,9 +219,9 @@ try:
 	first_hash = hashlib.sha256(proof).digest()
 	secret = hashlib.sha256(first_hash).digest()
 	print(f'Secret (double SHA-256): {secret.hex()}')
-
+	# [<step-2]
 	# --- Step 1. Alice: Lock ETH on Ethereum ---
-	print('\n--- Step 1. Alice: Lock ETH on Ethereum ---')
+	print('\n--- Step 1. Alice: Lock ETH on Ethereum ---') # [>step-3]
 
 	htlc = w3.eth.contract(address=HTLC_ADDRESS, abi=HTLC_ABI)
 	timelock = int(time.time()) + 72 * 60 * 60
@@ -245,9 +245,9 @@ try:
 	# Extract the contractId from the LogHTLCNew event
 	contract_id = lock_receipt.logs[0].topics[1]
 	print(f'HTLC contract ID: {contract_id.hex()}')
-
+	# [<step-3]
 	# --- Step 2. Bob: Create secret lock on Symbol ---
-	print('\n--- Step 2. Bob: Create secret lock on Symbol ---')
+	print('\n--- Step 2. Bob: Create secret lock on Symbol ---') # [>step-4]
 
 	# Bob queries the Ethereum contract to get the hashlock
 	contract_info = htlc.functions.getContract(contract_id).call()
@@ -286,9 +286,9 @@ try:
 	print(f'Secret lock transaction hash: {lock_hash}')
 	announce_transaction(lock_payload, '/transactions', 'secret lock')
 	wait_for_status(lock_hash, 'confirmed', 'Secret lock')
-
+	# [<step-4]
 	# --- Step 3. Alice: Claim XYM on Symbol ---
-	print('\n--- Step 3. Alice: Claim XYM on Symbol ---')
+	print('\n--- Step 3. Alice: Claim XYM on Symbol ---') # [>step-5]
 
 	secret_proof_transaction = facade.transaction_factory.create({
 		'type': 'secret_proof_transaction_v1',
@@ -315,9 +315,9 @@ try:
 	print(f'Secret proof transaction hash: {proof_hash}')
 	announce_transaction(proof_payload, '/transactions', 'secret proof')
 	wait_for_status(proof_hash, 'confirmed', 'Secret proof')
-
+	# [<step-5]
 	# --- Step 4. Bob: Withdraw ETH on Ethereum ---
-	print('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---')
+	print('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---') # [>step-6]
 
 	# Bob waits for Alice to reveal the proof on Symbol.
 	revealed_proof = wait_for_secret_proof(alice_xym_address, hashlock)
@@ -336,7 +336,7 @@ try:
 	withdraw_receipt = w3.eth.wait_for_transaction_receipt(
 		withdraw_tx_hash)
 	print(f'Withdraw confirmed in block {withdraw_receipt.blockNumber}')
-
+	# [<step-6]
 	print('\n--- Cross-chain swap complete ---')
 
 except urllib.error.URLError as e:

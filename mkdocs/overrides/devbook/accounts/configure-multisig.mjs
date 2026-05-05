@@ -48,7 +48,7 @@ async function waitForConfirmation(transactionHash, label) {
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
 
-// Returns the cosignatory addresses of the provided multisig account,
+// Returns the cosignatory addresses of the provided multisig account, [>step-3]
 // or an empty list if the account is not multisig or has never been used
 async function getMultisigCosignatories(address) {
 	const multisigPath = `/account/${address}/multisig`;
@@ -64,10 +64,10 @@ async function getMultisigCosignatories(address) {
 		return [];
 	}
 }
-
+// [<step-3]
 // Returns a transaction that turns a regular account into a multisig
 function multisigEnableTransaction(timestamp, feeMult) {
-	// Create an embedded multisig account modification transaction
+	// Create an embedded multisig account modification transaction [>step-5]
 	// that adds two cosignatories
 	const embeddedTransaction = facade.transactionFactory
 		.createEmbedded({
@@ -80,8 +80,8 @@ function multisigEnableTransaction(timestamp, feeMult) {
 			minRemovalDelta: 1,
 			addressAdditions: cosignatoryAddresses
 		});
-
-	// Build the aggregate transaction
+	// [<step-5]
+	// Build the aggregate transaction [>step-6]
 	const embeddedTransactions = [embeddedTransaction];
 	const transaction = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
@@ -98,8 +98,8 @@ function multisigEnableTransaction(timestamp, feeMult) {
 		feeMult * (transaction.size + 104 * cosignatoryKeyPairs.length));
 	console.log('Enabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
-
-	// Sign the aggregate transaction with the multisig's signature
+	// [<step-6]
+	// Sign the aggregate transaction with the multisig's signature [>step-7]
 	SymbolTransactionFactory.attachSignature(transaction,
 		facade.signTransaction(multisigKeyPair, transaction));
 
@@ -108,13 +108,13 @@ function multisigEnableTransaction(timestamp, feeMult) {
 		transaction.cosignatures.push(
 			facade.cosignTransaction(cosignatoryKeyPair, transaction));
 	}
-
+	// [<step-7]
 	return transaction;
 }
 
 // Returns a transaction that turns a multisig into a regular account
 function multisigDisableTransaction(timestamp, feeMult) {
-	// Create two embedded multisig account modification transactions
+	// Create two embedded multisig account modification transactions [>step-8]
 	// because cosignatories must be removed one by one
 	const embeddedTransaction1 = facade.transactionFactory
 		.createEmbedded({
@@ -136,8 +136,8 @@ function multisigDisableTransaction(timestamp, feeMult) {
 			minRemovalDelta: -1,
 			addressDeletions: [cosignatoryAddresses[0]]
 		});
-
-	// Build the aggregate transaction
+	// [<step-8]
+	// Build the aggregate transaction [>step-9]
 	const embeddedTransactions = [embeddedTransaction1,
 		embeddedTransaction2];
 	const transaction = facade.transactionFactory.create({
@@ -158,12 +158,12 @@ function multisigDisableTransaction(timestamp, feeMult) {
 	// Sign the aggregate transaction using the first cosigner's signature
 	SymbolTransactionFactory.attachSignature(transaction,
 		facade.signTransaction(cosignatoryKeyPairs[0], transaction));
-
+	// [<step-9]
 	return transaction;
 }
 
 const facade = new SymbolFacade('testnet');
-
+// [>step-1]
 const KEY_PREFIX = '0'.repeat(63);
 
 // Setup the keys for the multisig account and its two cosignatories
@@ -188,9 +188,9 @@ for (let i = 0; i < 2; i++) {
 	console.log(`Cosignatory ${i} address: ${addr}`,
 		`(public key ${kp.publicKey})`);
 }
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -209,8 +209,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Get current state of the multisig account and decide which
+	// [<step-2]
+	// Get current state of the multisig account and decide which [>step-4]
 	// operation to perform
 	const cosignatories = await getMultisigCosignatories(multisigAddress);
 	let transaction;
@@ -229,15 +229,15 @@ try {
 	const payload = SymbolTransactionFactory.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));
-
-	// Announce and wait for confirmation
+	// [<step-4]
+	// Announce and wait for confirmation [>step-10]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(payload, 'aggregate transaction');
 	await waitForConfirmation(transactionHash, 'aggregate transaction');
-
+	// [<step-10]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

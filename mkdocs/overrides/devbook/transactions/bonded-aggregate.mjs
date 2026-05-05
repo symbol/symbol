@@ -72,7 +72,7 @@ async function waitForStatus(hash, expectedStatus, label) {
 	);
 }
 
-// Account A (initiates the aggregate tx and sends XYM to Account B)
+// Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
 const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY || (
 	'0000000000000000000000000000000000000000000000000000000000000000');
 const accountAKeyPair = new SymbolFacade.KeyPair(
@@ -91,9 +91,9 @@ const accountBAddress = facade.network.publicKeyToAddress(
 	accountBKeyPair.publicKey);
 console.log('Account A:', accountAAddress.toString());
 console.log('Account B:', accountBAddress.toString());
-
+// [<step-1]
 try {
-	// Fetch current network time
+	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
 	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
@@ -112,8 +112,8 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-
-	// Embedded tx 1: Account A transfers 10 XYM to Account B
+// [<step-2]
+	// Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	const embeddedTransaction1 = facade.transactionFactory
 		.createEmbedded({
 			type: 'transfer_transaction_v1',
@@ -137,8 +137,8 @@ try {
 				amount: 1n  // 1 custom mosaic (divisibility = 0)
 			}]
 		});
-
-	// Build the bonded aggregate transaction
+// [<step-3]
+	// Build the bonded aggregate transaction [>step-4]
 	const embeddedTransactions = [
 		embeddedTransaction1, embeddedTransaction2];
 	const bondedTransaction = facade.transactionFactory.create({
@@ -156,8 +156,8 @@ try {
 	);
 	console.log('Built aggregate without signatures:');
 	console.log(JSON.stringify(bondedTransaction.toJson(), null, 2));
-
-	// --- ACCOUNT A (Initiator) ---
+// [<step-4]
+	// --- ACCOUNT A (Initiator) --- [>step-5]
 	// Sign the bonded aggregate transaction
 	console.log('[Account A] Signing the bonded aggregate...');
 	const bondedSignature = facade.signTransaction(
@@ -167,8 +167,8 @@ try {
 	const bondedHash = facade.hashTransaction(
 		bondedTransaction).toString();
 	console.log('Bonded aggregate transaction hash:', bondedHash);
-
-	// Create hash lock transaction
+// [<step-5]
+	// Create hash lock transaction [>step-6]
 	console.log('Creating hash lock transaction...');
 	const hashLock = facade.transactionFactory.create({
 		type: 'hash_lock_transaction_v1',
@@ -198,17 +198,17 @@ try {
 		hashLockPayload, '/transactions', 'Hash lock'
 	);
 	await waitForStatus(hashLockHash, 'confirmed', 'Hash lock');
-
+// [<step-6]
 	// Announce bonded aggregate and wait for partial status
-	await announceTransaction(
+	await announceTransaction( // [>step-7]
 		bondedJsonPayload, '/transactions/partial',
 		'Bonded aggregate transaction'
 	);
 	await waitForStatus(
 		bondedHash, 'partial', 'Bonded aggregate transaction'
 	);
-
-	// --- ACCOUNT B (Cosigner) ---
+// [<step-7]
+	// --- ACCOUNT B (Cosigner) --- [>step-8]
 	// Retrieves partial transactions waiting for signature
 	const partialPath =
 		`/transactions/partial?address=${accountBAddress}`;
@@ -235,8 +235,8 @@ try {
 		);
 	}
 	console.log(`Found matching transaction: ${bondedHash}`);
-
-	// Fetch full transaction details using the hash
+// [<step-8]
+	// Fetch full transaction details using the hash [>step-9]
 	const detailPath = `/transactions/partial/${bondedHash}`;
 	const detailResponse = await fetch(`${NODE_URL}${detailPath}`);
 	const partialTxJson = await detailResponse.json();
@@ -247,8 +247,8 @@ try {
 		`[Account B] Verifying transaction: ` +
 		`${txData.transactions.length} embedded transactions`
 	);
-
-	// Submit Account B's cosignature using the transaction hash
+// [<step-9]
+	// Submit Account B's cosignature using the transaction hash [>step-10]
 	const cosignaturePath = '/transactions/cosignature';
 	console.log('[Account B] Cosigning the bonded aggregate...');
 	const cosignature = SymbolFacade.cosignTransactionHash(
@@ -265,12 +265,12 @@ try {
 	await announceTransaction(
 		cosignaturePayload, cosignaturePath, 'cosignature'
 	);
-
-	// Wait for final confirmation
+// [<step-10]
+	// Wait for final confirmation [>step-11]
 	await waitForStatus(
 		new Hash256(bondedHash), 'confirmed',
 		'Bonded aggregate transaction'
-	);
+	); // [<step-11]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

@@ -17,20 +17,20 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full('devbook/accounts/create-from-mnemonic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/create-from-mnemonic', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
 ### ファサードの初期化 {: #initializing-the-facade }
 
-{{ tutorial.code_snippet(['py:5:6', 'js:5:6']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 <dy:SymbolFacade> は、Symbolの暗号化操作とネットワークユーティリティへのアクセスを提供します。
 [アドレス](default:アドレス) などのネットワーク固有の値が正しく生成されるように、ネットワーク名（`testnet` または `mainnet`）を指定して初期化されます。
 
 ### ニーモニックの定義 {: #defining-a-mnemonic }
 
-{{ tutorial.code_snippet(['py:8:16', 'js:8:17']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 この例では、`MNEMONIC` 環境変数に既存のニーモニックがあるかを確認します。
 変数に値がある場合は、そこからニーモニックが読み込まれます。
@@ -47,7 +47,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 ### ルートノードの導出 {: #deriving-the-root-node }
 
-{{ tutorial.code_snippet(['py:18:23', 'js:19:24']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 ニーモニックを定義した後、 <dy:Bip32.fromMnemonic> はニーモニックとパスワードをルートノードに変換します。これが子アカウントを派生させるための起点となります。
 
@@ -66,7 +66,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 ### 子アカウントの導出 {: #deriving-the-child-account }
 
-{{ tutorial.code_snippet(['py:25:27', 'js:26:28']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 ルートノードは複数のアカウントを生成でき、それぞれが独自の一意の鍵とアドレスを持ちます。
 これにより、単一のニーモニックで多くのアカウントを管理しながら、それらを暗号学的に分離しておくことができます。
@@ -80,7 +80,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 ### アカウントの作成 {: #creating-the-account }
 
-{{ tutorial.code_snippet(['py:29:38', 'js:30:39']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 子ノードを導出すると、鍵ペアとアドレスに変換されます。
 

@@ -44,7 +44,7 @@ def wait_for_confirmation(transaction_hash, label):
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
 # Returns the list of restrictions currently applied to the account
-def get_account_restrictions(address):
+def get_account_restrictions(address): # [>step-3]
 	restrictions_path = f'/restrictions/account/{address}'
 	print(f'Getting restrictions from {restrictions_path}')
 	try:
@@ -58,9 +58,9 @@ def get_account_restrictions(address):
 		# The address has never been used
 		print('  Response: No restrictions found')
 	return []
-
+# [<step-3]
 # Returns a transaction that restricts an account
-def restriction_enable_transaction():
+def restriction_enable_transaction(): # [>step-5]
 	transaction = facade.transaction_factory.create({
 		'type': 'account_address_restriction_transaction_v1',
 		# This is the account that will be restricted
@@ -78,9 +78,9 @@ def restriction_enable_transaction():
 	print(json.dumps(transaction.to_json(), indent=2))
 
 	return transaction
-
+# [<step-5]
 # Returns a transaction that removes a restriction from an account
-def restriction_disable_transaction(restriction):
+def restriction_disable_transaction(restriction): # [>step-6]
 	transaction = facade.transaction_factory.create({
 		'type': 'account_address_restriction_transaction_v1',
 		# This is the account whose restriction will be lifted
@@ -99,9 +99,9 @@ def restriction_disable_transaction(restriction):
 	print(json.dumps(transaction.to_json(), indent=2))
 
 	return transaction
-
+# [<step-6]
 facade = SymbolFacade('testnet')
-
+# [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
@@ -111,9 +111,9 @@ print(f'Signer address: {signer_address}')
 
 auth_address = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA'
 print(f'Authorized address: {auth_address}')
-
+# [<step-1]
 try:
-	# Fetch current network time
+	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
@@ -132,10 +132,10 @@ try:
 		minimum_mult = response_json['minFeeMultiplier']
 		fee_mult = max(median_mult, minimum_mult)
 		print(f'  Fee multiplier: {fee_mult}')
-
+	# [<step-2]
 	# Get current state of the restriction and decide which
 	# operation to perform
-	restrictions = get_account_restrictions(signer_address)
+	restrictions = get_account_restrictions(signer_address) # [>step-4]
 	if len(restrictions) == 0:
 		# Enable the restriction
 		print('\n--- Enabling restriction ---')
@@ -144,16 +144,16 @@ try:
 		# Disable the restriction
 		print('\n--- Disabling restriction ---')
 		transaction = restriction_disable_transaction(restrictions[0])
-
-	# Sign, announce and wait for confirmation
+	# [<step-4]
+	# Sign, announce and wait for confirmation [>step-7]
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(signer_key_pair, transaction))
 	transaction_hash = facade.hash_transaction(transaction)
 	announce_transaction(json_payload, 'restriction transaction')
 	wait_for_confirmation(transaction_hash, 'restriction transaction')
-
-	# Try a dummy transfer to a random address with no mosaics
+	# [<step-7]
+	# Try a dummy transfer to a random address with no mosaics [>step-8]
 	transaction = facade.transaction_factory.create({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -168,6 +168,6 @@ try:
 	print('\n--- Attempting transfer to unauthorized address ---')
 	announce_transaction(json_payload, 'test transfer')
 	wait_for_confirmation(transaction_hash, 'test transfer')
-
+	# [<step-8]
 except Exception as e:
 	print(e)
