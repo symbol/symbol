@@ -88,3 +88,48 @@
 
 {% endfor %}
 {%- endmacro %}
+
+{% macro code_full_tagged(filename, langs, show=true) -%}
+{%- set ns.filename = filename -%}
+
+{# Convert list to dictionary with empty values #}
+{%- if langs is sequence -%}
+    {%- set parsed = {} -%}
+    {%- for l in langs -%}
+        {%- set _ = parsed.update({ l: {} }) -%}
+    {%- endfor -%}
+    {%- set langs = parsed %}
+{%- endif -%}
+{%- set ns.langs = langs -%}
+
+{# Now iterate over the normalized dictionary #}
+{%- if show -%}
+{%- for l, props in langs.items() -%}
+=== "{{lang_icon[l]}} {{lang_name[l]}}"
+
+    ```{{ l }} linenums="1"
+    {% for line in config['extra']['symbol']['tutorial_code'][filename ~ '.' ~ lang_ext[l]]['full'].split('\n') %}
+    {{- line }}
+    {% endfor %}
+    ```
+
+    [Download source]({{ config.repo_url }}/raw/refs/heads/{{config.extra.symbol.branch}}/mkdocs/overrides/{{filename}}.{{lang_ext[l]}}){ .source-link }
+
+{% endfor %}
+{%- endif -%}
+{%- endmacro %}
+
+{% macro code_snippet_tagged(section) -%}
+{# Iterate over the langs of the full code #}
+{%- for l, props in ns.langs.items() -%}
+{%- set snippet = config['extra']['symbol']['tutorial_code'][ns.filename ~ '.' ~ lang_ext[l]]['snippets'][section] -%}
+=== "{{lang_icon[l]}} {{lang_name[l]}}"
+
+    ```{{ l }} linenums="{{snippet['start_line']}}"
+    {% for line in snippet['code'].split('\n') %}
+    {{- line }}
+    {% endfor %}
+    ```
+
+{% endfor %}
+{%- endmacro %}
