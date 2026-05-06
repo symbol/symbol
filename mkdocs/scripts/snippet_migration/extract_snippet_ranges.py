@@ -31,7 +31,6 @@ from typing import Any
 
 import yaml
 
-
 MACRO_RE = re.compile(
 	r"""
 	\{\{\s*

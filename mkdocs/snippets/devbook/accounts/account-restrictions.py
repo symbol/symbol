@@ -4,8 +4,8 @@ import time
 import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
-from symbolchain.facade.SymbolFacade import SymbolFacade, Address
-from symbolchain.sc import Amount, AccountRestrictionFlags
+from symbolchain.facade.SymbolFacade import Address, SymbolFacade
+from symbolchain.sc import AccountRestrictionFlags, Amount
 from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.environ.get(

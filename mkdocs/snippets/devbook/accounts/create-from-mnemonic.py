@@ -1,4 +1,5 @@
 import os
+
 from symbolchain.Bip32 import Bip32
 from symbolchain.facade.SymbolFacade import SymbolFacade
 

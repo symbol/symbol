@@ -10,7 +10,6 @@ from pathlib import Path
 
 import yaml
 
-
 LANG_EXT = {
 	"py": ".py",
 	"js": ".mjs",

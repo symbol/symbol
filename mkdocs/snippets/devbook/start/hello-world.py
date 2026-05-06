@@ -3,6 +3,7 @@ import urllib.request
 
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.Network import NetworkTimestamp
+
 # [>step-1]
 facade = SymbolFacade('mainnet')
 print(f"Network name: {facade.network.name}")

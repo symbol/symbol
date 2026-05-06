@@ -1,13 +1,15 @@
-import sys
-import os
 import logging
-import mkdocs.plugins
-from mkdocs.structure import files
-from mkdocs.config import Config, base
-import shutil
-from pathlib import Path
+import os
 import re
+import shutil
+import sys
+from pathlib import Path
+
+import mkdocs.plugins
 import yaml
+from mkdocs.structure import files
+
+from mkdocs.config import Config, base
 
 log = logging.getLogger('mkdocs')
 
