@@ -1,7 +1,7 @@
+import re
 from pathlib import Path
 
 import mkdocs_gen_files
-import re
 
 nav = mkdocs_gen_files.Nav()
 

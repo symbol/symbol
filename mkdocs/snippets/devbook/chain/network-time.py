@@ -1,6 +1,6 @@
+import datetime
 import json
 import os
-import datetime
 import urllib.request
 
 NODE_URL = os.getenv(

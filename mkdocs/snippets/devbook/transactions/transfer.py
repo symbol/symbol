@@ -6,9 +6,9 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.symbol.Network import NetworkTimestamp
-from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.sc import Amount
+from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
+from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = 'https://reference.symboltest.net:3001'
 print(f'Using node {NODE_URL}')

@@ -7,9 +7,9 @@ from binascii import hexlify
 
 from symbolchain.CryptoTypes import PrivateKey, PublicKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.sc import Amount
 from symbolchain.symbol.MessageEncoder import MessageEncoder
 from symbolchain.symbol.Network import NetworkTimestamp
-from symbolchain.sc import Amount
 
 # Configuration
 NODE_URL = os.getenv(

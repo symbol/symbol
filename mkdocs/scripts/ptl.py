@@ -11,7 +11,9 @@
 # 5. Copy stdout to the `Task list chart.ods` to generate plot.
 
 import math
+
 import pandas as pd
+
 
 def iterate_count(id):
 	prog = 0
