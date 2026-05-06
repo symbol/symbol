@@ -83,7 +83,7 @@ digraph {
 
 ### アカウントの設定 {: #setting-up-accounts }
 
-{{ tutorial.code_snippet(['py:62:82', 'js:76:94']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 この例では、簡略化のため1つのスクリプトに両方の [秘密鍵](default: 秘密鍵) を含めています。実際には、各当事者が自身のマシンで署名します。
 アカウント A は、埋め込みトランザクションの署名者としてアカウント B を設定し、B の [アドレス](default:アドレス) を派生させるために、アカウント B の [公開鍵](default:公開鍵) のみを必要とします。
@@ -95,13 +95,13 @@ digraph {
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:85:103', 'js:97:115']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](./transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
 ### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
-{{ tutorial.code_snippet(['py:105:126', 'js:117:140']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 [埋め込みトランザクション](default: 埋め込みトランザクション) は、アトミック（不可分）に実行される操作を定義します。各埋め込みトランザクションでは以下を指定します。
 
@@ -126,7 +126,7 @@ digraph {
 
 ### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction }
 
-{{ tutorial.code_snippet(['py:128:144', 'js:142:159']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 埋め込みトランザクションの準備ができたら、それらをラップするアグリゲートボンデッドトランザクションを作成します：
 
@@ -148,7 +148,7 @@ digraph {
 
 ### ボンデッドトランザクションの署名 {: #signing-the-bonded-transaction }
 
-{{ tutorial.code_snippet(['py:146:154', 'js:161:170']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 アカウント A がボンデッドトランザクションに署名し、メインの署名を作成してトランザクションハッシュを確定させます。
 
@@ -156,7 +156,7 @@ digraph {
 
 ### ハッシュロックの作成 {: #creating-the-hash-lock }
 
-{{ tutorial.code_snippet(['py:156:182', 'js:172:201']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 アグリゲートボンデッドをアナウンスする前に、ハッシュロックトランザクションを作成し、承認させる必要があります。ハッシュロックは、スパムを防止し、未完了の [部分トランザクション](default:アグリゲートボンデッドトランザクション) によってネットワークリソースが枯渇しないようにするためのデポジットとして機能します。
 
@@ -186,7 +186,7 @@ digraph {
 
 ### トランザクションの復元 {: #recovering-the-transaction }
 
-{{ tutorial.code_snippet(['py:194:217', 'js:212:238']) }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 トランザクションペイロードがオフチェーンで共有されるアグリゲートコンプリートとは異なり、アグリゲートボンデッドはオンチェーンでの調整を可能にします。
 
@@ -196,7 +196,7 @@ digraph {
 
 ### トランザクションの検証 {: #verifying-the-transaction }
 
-{{ tutorial.code_snippet(['py:219:229', 'js:240:250']) }}
+{{ tutorial.code_snippet_tagged('step-9') }}
 
 トランザクションが見つかったら、アカウント B はそのハッシュを使用して、<get:/transactions/partial/{transactionId}> から詳細（埋め込みトランザクションを含む）を完全に取得します。
 
@@ -208,7 +208,7 @@ digraph {
 
 ### トランザクションへの連署 {: #cosigning-the-transaction }
 
-{{ tutorial.code_snippet(['py:231:246', 'js:252:268']) }}
+{{ tutorial.code_snippet_tagged('step-10') }}
 
 アカウント B は、トランザクションハッシュと `detached` パラメータを `true` に設定した <dy:SymbolFacade.cosignTransactionHash> を使用して、トランザクションに連署します。
 
@@ -227,7 +227,7 @@ digraph {
 
 ### 承認の待機 {: #waiting-for-confirmation }
 
-{{ tutorial.code_snippet(['py:248:252', 'js:270:274']) }}
+{{ tutorial.code_snippet_tagged('step-11') }}
 
 `wait_for_status` ヘルパー関数が、トランザクションが承認されるか失敗するまで <get:/transactionStatus/{hash}> をポーリングします。
 

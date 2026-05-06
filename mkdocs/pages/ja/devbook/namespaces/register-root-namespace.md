@@ -33,7 +33,7 @@ tutorial_level: intermediate
 
 ### アカウントの設定 {: #setting-up-the-account }
 
-{{ tutorial.code_snippet(['py:17:25', 'js:13:21']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、署名者の [秘密鍵](default: 秘密鍵) を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合は、デフォルトのテストキーが使用されます。
 署名者の [アドレス](default:アドレス) は [公開鍵](default:公開鍵) から派生します。
@@ -41,13 +41,13 @@ tutorial_level: intermediate
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:28:46', 'js:24:43']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
 ### トランザクションの構築 {: #building-the-transaction }
 
-{{ tutorial.code_snippet(['py:48:60', 'js:45:57']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 ネームスペース登録トランザクションでは以下を指定します。
 
@@ -75,17 +75,17 @@ tutorial_level: intermediate
 
 ### トランザクションの送信 {: #submitting-the-transaction }
 
-{{ tutorial.code_snippet(['py:62:81', 'js:59:79']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
-{{ tutorial.code_snippet(['py:83:101', 'js:81:115']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
 ### ネームスペースの取得 {: #retrieving-the-namespace }
 
-{{ tutorial.code_snippet(['py:103:120', 'js:117:138']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 ネームスペースが登録されたことを確認するために、コードは <get:/namespaces/{namespaceId}> エンドポイントを使用してネットワークからネームスペースを取得し、そのプロパティを表示します。
 
