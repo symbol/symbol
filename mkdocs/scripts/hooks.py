@@ -122,7 +122,7 @@ COMMENT_RE = re.compile(r"(?P<prefix>[ \t]*(#|//))\s*(?P<body>.*)$")
 
 def extract_tutorial_code(config: base.Config) -> None:
 	"""
-	Scans all .py and .mjs files under overrides/devbook and reads all tutorial code, separating it into
+	Scans all .py and .mjs files under snippets/devbook and reads all tutorial code, separating it into
 	sections using [>start] and [<end] markers, and removing the markers.
 	Stores the result in config.extra.symbol.tutorial_code:
 	{
@@ -141,7 +141,7 @@ def extract_tutorial_code(config: base.Config) -> None:
 	}
 
 	Notes:
-	- Paths are relative to the `overrides` folder (POSIX-style).
+	- Paths are relative to the `snippets` folder (POSIX-style).
 	- Tag-only comment lines are replaced with blank lines in "full.code" to preserve line numbers.
 	- Inline tag comments are stripped, preserving the code before the tag.
 	"""
@@ -251,7 +251,7 @@ def extract_tutorial_code(config: base.Config) -> None:
 			"snippets": snippets,
 		}
 
-	root = Path(__file__).parent.parent.joinpath("overrides").resolve()
+	root = Path(__file__).parent.parent.joinpath("snippets").resolve()
 	examples_dir = root / "devbook"
 
 	config["extra"]["symbol"]["tutorial_code"] = {}
