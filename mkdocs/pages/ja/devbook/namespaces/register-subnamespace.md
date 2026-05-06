@@ -44,7 +44,7 @@ tutorial_level: intermediate
 
 ### トランザクションの構築 {: #building-the-transaction }
 
-{{ tutorial.code_snippet(['py:48:67', 'js:45:65']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 サブネームスペースを登録する際の主な違いは、トランザクション記述子にあります：
 
@@ -80,7 +80,7 @@ tutorial_level: intermediate
 
 ### サブネームスペースの取得 {: #retrieving-the-subnamespace }
 
-{{ tutorial.code_snippet(['py:110:136', 'js:125:157']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 サブネームスペースが登録されたことを確認するために、コードは <get:/namespaces/{namespaceId}> エンドポイントを使用してネットワークから情報を取得し、そのプロパティを表示します。
 

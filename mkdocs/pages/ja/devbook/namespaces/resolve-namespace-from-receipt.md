@@ -69,7 +69,7 @@ tutorial_level: intermediate
 * **Unresolved**: トランザクションで使用された（アドレスとしてエンコードされた）ネームスペースエイリアス。
 * **Resolution entries**: 承認時点でのエイリアスと実際のアドレスをマッピングする配列。
 
-{{ tutorial.code_snippet(['py:61:74', 'js:58:77']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 エンドポイントはブロックのすべてのアドレス解決ステートメントを返します。異なるネームスペースエイリアスが使用された場合、単一のブロックに複数の解決ステートメントが含まれる可能性があるため、コードは `unresolved` フィールドがトランザクションの `recipientAddress` と一致しないステートメントをスキップします。
 
@@ -84,7 +84,7 @@ tutorial_level: intermediate
 
 ### モザイク解決ステートメントの照会 {: #querying-mosaic-resolution-statements }
 
-{{ tutorial.code_snippet(['py:77:100', 'js:80:109']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 同じトランザクションでは、生のモザイクIDの代わりに `symbol.xym` をモザイクエイリアスとしても使用しています。コードは同じブロック高で <get:/statements/resolutions/mosaic> エンドポイントを照会し、モザイク解決ステートメントを取得します。
 
