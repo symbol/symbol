@@ -36,7 +36,7 @@ tutorial_level: intermediate
 
 ### アカウントの設定 {: #setting-up-the-account }
 
-{{ tutorial.code_snippet(['py:18:26', 'js:14:22']) }}
+{{ tutorial.code_snippet_tagged('step-1') }}
 
 このスニペットは、署名者の秘密鍵を `SIGNER_PRIVATE_KEY` 環境変数から読み取ります。設定されていない場合はデフォルトのテストキーが使用されます。
 署名者のアドレスは公開鍵から派生します。
@@ -44,7 +44,7 @@ tutorial_level: intermediate
 
 ### ネームスペースとターゲットアドレスの定義 {: #defining-the-namespace-and-target-address }
 
-{{ tutorial.code_snippet(['py:28:38', 'js:24:37']) }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 コードでは以下を定義しています。
 
@@ -67,13 +67,13 @@ tutorial_level: intermediate
 
 ### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
 
-{{ tutorial.code_snippet(['py:41:59', 'js:40:59']) }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
 ### トランザクションの構築 {: #building-the-transaction }
 
-{{ tutorial.code_snippet(['py:61:70', 'js:61:70']) }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 アドレスエイリアストランザクションでは以下を指定します。
 
@@ -95,17 +95,17 @@ tutorial_level: intermediate
 
 ### トランザクションの送信 {: #submitting-the-transaction }
 
-{{ tutorial.code_snippet(['py:72:91', 'js:72:92']) }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
-{{ tutorial.code_snippet(['py:93:111', 'js:94:128']) }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
 ### エイリアスの検証 {: #verifying-the-alias }
 
-{{ tutorial.code_snippet(['py:113:126', 'js:130:146']) }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 エイリアスが作成されたことを確認するために、コードは <get:/namespaces/{namespaceId}> エンドポイントを使用してネットワークからネームスペース情報を取得します。
 
