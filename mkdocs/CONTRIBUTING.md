@@ -135,53 +135,22 @@ Add as many `step_begin()` / `step_end()` pairs as required.
 
 These macros create a tab group with a code block and optional caption.
 
-There are two versions:
-
-The simplified one accepts a list of strings, describing the language and line range, and optionally a caption.
-
 ```jinja
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full("devbook/hello-world", ["py", "js"]) }}
-{{ tutorial.code_snippet(["py:4:4", "js:4:4"])}}
-{{ tutorial.code_snippet(["py:6:16", "js:6:16:The <js:TransferTransactionV1Descriptor> constructor only accepts parameters of the right type, \
-making it easier to use during development. We can do almost any markdown here:\n
-* One **black**\n
-* Two"]) }}
+{{ tutorial.code_full_tagged("devbook/hello-world", ["py", "js"]) }}
+{{ tutorial.code_snippet_tagged("step-1")}}
 ```
-
-The extended syntax accepts a list of objects, keyed by language code:
-
-```jinja
-{% import 'tutorial.jinja2' as tutorial with context %}
-
-{{ tutorial.code_snippet({
-  'py': { 'range': [41, 54] },
-  'js': {
-    'range': [40, 52],
-    'descriptor': 'TransferTransactionV1Descriptor'
-  }
-}) }}
-```
-
-Available parameters are:
-
-* `range`: List of two values indicating the start and end lines of the code snippet.
-* `descriptor`: If present, includes an admonition about typed descriptors including a link to this descriptor.
-* `caption`: Free text to add below the snippet.
 
 `code_snippet` uses the filename of the previous `code_full`.
 
 [Usage example](./pages/en/devbook/start/hello-world.md).
 
 `code_full` inserts the whole source file, for all the listed languages, and sets the file name to be used by the snippet macros.
-Each language tab can have an optional caption, separated from the language code by a colon.
 
-`code_snippet` inserts a range of lines, with an optional caption.
-
-**Captions allow complex markdown like lists and term links, but they are formatted differently.**
-Lines must be continued by escaping the line break, and line breaks are inserted with \n.
-See the example above.
+`code_snippet` inserts the specified named range.
+Ranges are set with comment tags in the source code: `[>step-1]` and `[<step-1]`.
+[Example](./snippets/devbook/start/hello-world.py).
 
 Supported languages are: Python (`py`) and JavaScript (`js`).
 See [`tutorial.jinja2`](./templates/macros/tutorial.jinja2) for details.
