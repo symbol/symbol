@@ -8,7 +8,8 @@ from symbolchain.BufferWriter import BufferWriter
 from symbolchain.CryptoTypes import Hash256
 from symbolchain.symbol.Merkle import (
 	deserialize_patricia_tree_nodes,
-	prove_patricia_merkle)
+	prove_patricia_merkle
+)
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')

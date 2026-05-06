@@ -10,7 +10,6 @@ from pathlib import Path
 
 import yaml
 
-
 MACRO_RE = re.compile(
 	r"\{\{\s*tutorial\.code_snippet\(\s*\[\s*"
 	r"'py:(\d+):(\d+)'\s*,\s*'js:(\d+):(\d+)'\s*"

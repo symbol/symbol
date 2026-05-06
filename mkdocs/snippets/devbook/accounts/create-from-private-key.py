@@ -1,4 +1,5 @@
 import os
+
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 
