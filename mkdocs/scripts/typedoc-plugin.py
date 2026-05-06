@@ -5,11 +5,11 @@
 # GitHub: https://github.com/JakubAndrysek/mkdocs-typedoc
 # PyPI: https://pypi.org/project/mkdocs-typedoc/
 
+import logging
 import os
 import subprocess
-import logging
-import mkdocs.plugins
 
+import mkdocs.plugins
 from mkdocs.structure.files import File
 
 log: logging.Logger = logging.getLogger("mkdocs")

@@ -5,11 +5,12 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.symbol.Network import NetworkTimestamp
-from symbolchain.symbol.IdGenerator import (
-	generate_namespace_path, generate_mosaic_alias_id)
 from symbolchain.sc import Amount, NamespaceId
-from symbolchain.symbol.Network import Address
+from symbolchain.symbol.IdGenerator import (
+	generate_mosaic_alias_id,
+	generate_namespace_path
+)
+from symbolchain.symbol.Network import Address, NetworkTimestamp
 
 NODE_URL = os.getenv(
 	'NODE_URL', 'https://reference.symboltest.net:3001')

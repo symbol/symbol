@@ -6,9 +6,9 @@ import urllib.request
 
 from symbolchain.CryptoTypes import Hash256, PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
-from symbolchain.sc import Amount
 from web3 import Web3
 
 SYMBOL_NODE_URL = os.getenv(
