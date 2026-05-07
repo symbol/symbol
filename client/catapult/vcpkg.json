@@ -1,47 +1,47 @@
 {
-    "builtin-baseline": "4b77da7fed37817f124936239197833469f1b9a8",
-    "dependencies": [
-        "benchmark",
-        "boost-headers",
-        "boost-atomic",
-        "boost-chrono",
-        "boost-date-time",
-        "boost-dll",
-        "boost-filesystem",
-        "boost-log",
-        "boost-math",
-        "boost-multiprecision",
-        "boost-program-options",
-        "boost-thread",
-        "boost-regex",
-        "boost-system",
-        "cppzmq",
-        "gtest",
-        "mongo-cxx-driver",
-        "mongo-c-driver",
-        "openssl",
-        "rocksdb"
-    ],
-    "overrides": [
-        {
-            "name": "cppzmq",
-            "version": "4.11.0#0"
-        },
-        {
-            "name": "mongo-c-driver",
-            "version": "2.2.3#0"
-        },
-        {
-            "name": "mongo-cxx-driver",
-            "version": "4.1.4#0"
-        },
-        {
-            "name": "openssl",
-            "version": "3.6.1#0"
-        },
-        {
-            "name": "zeromq",
-            "version": "4.3.5#1"
-        }
-    ]
+  "builtin-baseline": "77826283b4676c526da3a5c59e6717e3775ba722",
+  "dependencies": [
+    "benchmark",
+    "boost-headers",
+    "boost-atomic",
+    "boost-chrono",
+    "boost-date-time",
+    "boost-dll",
+    "boost-filesystem",
+    "boost-log",
+    "boost-math",
+    "boost-multiprecision",
+    "boost-program-options",
+    "boost-thread",
+    "boost-regex",
+    "boost-system",
+    "cppzmq",
+    "gtest",
+    "mongo-cxx-driver",
+    "mongo-c-driver",
+    "openssl",
+    "rocksdb"
+  ],
+  "overrides": [
+    {
+      "name": "cppzmq",
+      "version": "4.11.0#0"
+    },
+    {
+      "name": "mongo-c-driver",
+      "version": "2.2.3#0"
+    },
+    {
+      "name": "mongo-cxx-driver",
+      "version": "4.1.4#0"
+    },
+    {
+      "name": "openssl",
+      "version": "3.6.1#0"
+    },
+    {
+      "name": "zeromq",
+      "version": "4.3.5#1"
+    }
+  ]
 }
