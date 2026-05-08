@@ -8,7 +8,7 @@ The scripts shared in these documents have been tested on servers with the follo
 
 * CPU: 4+ cores, with **little endian** architecture
 * Memory: 8+ GB
-* HD: 20+ GB
+* HD: 100+ GB
 
 Runtime server requirements are network dependent.
 For example, networks with higher throughput will likely have higher requirements.
@@ -61,12 +61,6 @@ Linux:
 OS X:
 
 * Apple Clang: 11.0.3
-
-Windows:
-
-* Visual Studio 2019 (16.8)
-* Visual Studio 2022 (17.9)
-* Visual Studio 2026 (18.0)
 
 ### Guides
 
