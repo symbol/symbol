@@ -2,7 +2,7 @@
 ### define version helpers
 if(MSVC)
 	function(set_win_version_definitions TARGET_NAME FILETYPE)
-		add_compile_definitions(
+		target_compile_definitions(${TARGET_NAME} PUBLIC
 			CATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}"
 			WIN_FILETYPE=${FILETYPE}
 			$<$<BOOL:${CATAPULT_BUILD_RELEASE}>:CATAPULT_BUILD_RELEASE=1>
@@ -41,9 +41,6 @@ function(catapult_shared_library_target TARGET_NAME)
 	add_library(${TARGET_NAME} SHARED)
 	add_target_sources(${TARGET_NAME} DIRS ${ARGN})
 	target_sources(${TARGET_NAME} PRIVATE ${VERSION_RESOURCES})
-	add_compile_definitions(DLL_EXPORTS)
-	#target_compile_definitions(${TARGET_NAME} PUBLIC DLL_EXPORTS)
-
 	if(MSVC)
 		set_win_version_definitions(${TARGET_NAME} VFT_DLL)
 	endif()
