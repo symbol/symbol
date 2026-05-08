@@ -213,7 +213,6 @@ function(add_target_sources TARGET_NAME)
 	_subdirectories_resolve_base(_arg_BASE "${_arg_BASE}")
 
 	file(GLOB _files LIST_DIRECTORIES false CONFIGURE_DEPENDS "${_arg_BASE}/*.h" "${_arg_BASE}/*.cpp")
-	SOURCE_GROUP("src" FILES ${_files})
 	target_sources(${TARGET_NAME} PRIVATE ${_files})
 
 	# traverse all subdirs if provided still only looking for .h and .cpp files, and add them to the target sources as well
@@ -230,7 +229,6 @@ function(add_target_sources TARGET_NAME)
 		endif()
 		message(TRACE "[i]\tadding sources to '${TARGET_NAME}' (${TARGET_TYPE}) < ${_item}")
 		file(GLOB _subdir_files LIST_DIRECTORIES false CONFIGURE_DEPENDS "${_resolved_dir}/*.h" "${_resolved_dir}/*.cpp")
-		SOURCE_GROUP("${_item}" FILES ${_subdir_files})
 		target_sources(${TARGET_NAME} PRIVATE ${_subdir_files})
 	endforeach()
 
