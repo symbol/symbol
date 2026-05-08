@@ -307,13 +307,13 @@ def page_markdown_js_typedoc(content, page, config, files):
 		return f'# :simple-javascript: <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_wbr}'
 
 	# Add object type icon at the header
-	content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, 1)
+	content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, count=1)
 
 	# Add glossary definition to page title
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
 	content = re.sub(
 		r'^(.*?)\n\n([^#].*?)\n\n',
-		rf'\1\n\n<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\n\n', content, 1)
+		rf'\1\n\n<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\n\n', content, count=1)
 
 	# Add glossary definition to accessors
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
@@ -337,7 +337,7 @@ def page_markdown_js_typedoc(content, page, config, files):
 		rf'<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\1\2\3', content, flags=re.DOTALL)
 
 	# Add special anchor because the typedoc-md plugin forgot to add it?
-	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, 1)
+	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, count=1)
 
 	# Replace \c with code tags
 	content = re.sub(r'\\c ([^ ]*?) ', r'`\1` ', content)
