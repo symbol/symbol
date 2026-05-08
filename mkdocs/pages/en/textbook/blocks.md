@@ -49,13 +49,14 @@ In Symbol, the name _nemesis_ is a playful reference to its predecessor, NEM.
 
 All blocks that follow are created through a process called <harvesting:>, Symbol's equivalent of mining in other
 blockchains.
-Harvesters validate transactions and add them to the chain, receiving transaction fees as a reward.
+Harvesters validate transactions, group them into blocks, and add the blocks to the chain, receiving transaction fees as
+a reward.
 
 ## Network Time
 
 Network Time
 :   Symbol defines time as the number of milliseconds elapsed since the creation of its first block,
-    known as the <Nemesis block:> (or Genesis block, for the rest of blockchains).
+    known as the <Nemesis block:>.
 
     All timestamps are calculated relative to this origin.
 
@@ -83,14 +84,14 @@ The following quantity is defined for each block, to aid in the <consensus:> pro
 
 Block Score
 :   A numerical value assigned to each block that reflects how hard it was to <harvesting:|harvest>.
-    Higher scores indicate higher difficulty and are therefore preferred when resolving <forks:>.
 
 $$
 \textit{block score} = difficulty − \textit{time elapsed since last block}
 $$
 
 Chain Score
-:   Sum of the <block scores:> of all blocks produced in a given period of time.
+:   Sum of the <block scores:> of all blocks in a chain, used to choose between competing <forks:>.
+    The chain with the higher score wins.
 
 ## Receipts
 
