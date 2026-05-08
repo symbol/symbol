@@ -10,6 +10,8 @@ making interactions clearer and less error-prone.
 
 Additional arbitrary data can be attached to namespaces using <metadata:>.
 
+The account that registers a namespace is called its _owner_ and is the only account that can modify or extend it.
+
 Because namespaces are a limited resource, they are leased for a fixed period rather than owned permanently,
 but leases can be renewed.
 
@@ -27,8 +29,8 @@ Root namespace
     Each root namespace can have up to 256 subnamespaces.
 
 Subnamespace
-:   A namespace that belongs to a parent root namespace.
-    Subnamespaces expire when the parent namespace expires (see [Duration](#duration)).
+:   A namespace that belongs to a parent namespace, either the root or another subnamespace.
+    Subnamespaces expire when the root namespace expires (see [Duration](#duration)).
 
 ## Properties
 
@@ -44,17 +46,17 @@ Once registered, a name cannot be changed.
 
 ### Duration
 
-When a root namespace is created, it is leased for a fixed period, between 30 days and 5 years.
-During this time, the creator can perform operations such as:
+When a root namespace is registered, it is leased for a fixed period, between 30 days and 5 years.
+During this time, its owner can perform operations such as:
 
 * Linking the namespace to a <mosaic:> or an <account:>, turning it into an alias that is easier to reference.
-* Creating subnamespaces under the root namespace.
+* Registering subnamespaces under the root namespace.
 * Renewing the root namespace to extend its duration.
     Subnamespaces do not need to be renewed, as they have the same duration as their root namespace.
 
 If the namespace is not renewed before expiration, it enters a 30-day  _grace period_.
 During this time, the namespace is effectively disabled, but it is not yet available for others to register.
-Only the original creator can renew a namespace during the grace period.
+Only the original owner can renew a namespace during the grace period.
 Once the grace period ends, the namespace is fully expired and becomes available for others to register.
 
 ```dot
@@ -70,7 +72,7 @@ digraph "Namespace registration" {
     Registered -> "Grace Period" [label="Expiration"];
     Registered -> Registered [label="Renewal" dir=back];
     "Grace Period" -> Registered [label="\nRenewal" constraint=false];
-    "Grace Period" -> "Available Again" [label="Deletion"];
+    "Grace Period" -> "Available Again" [label="Release"];
 }
 ```
 
@@ -86,7 +88,7 @@ The following operations are permitted depending on the state of the namespace r
 
 !!! note
     Unlike <mosaics:>, namespaces **can** be renewed before expiration.
-    This allows them to remain active indefinitely, as long as the creator continues to renew them.
+    This allows them to remain active indefinitely, as long as the owner continues to renew them.
 
 ## Lease Fee
 
@@ -107,6 +109,14 @@ The fee must be paid at the time of registration or renewal, and is non-refundab
     Registering or renewing any kind of namespace requires announcing a transaction, which also has an associated fee.
     However, this transaction fee is typically negligible compared to the lease fee.
 
+## Reserved Names
+
+The following root names are reserved by the protocol and cannot be claimed by users:
+
+* `symbol`, `symbl`, `xym`, `xem`, `nem`, `user`, `account`, `org`, `com`, `biz`, `net`, `edu`, `mil`, `gov`, `info`.
+
+The `symbol` namespace, in particular, hosts the native currency `symbol.xym` and is permanently active.
+
 ## Linking
 
 Namespaces can be linked to either a <mosaic:> or an <account:>, turning the name into an _alias_ for that object.
@@ -123,7 +133,7 @@ For example:
 Each namespace can be linked to **only one object at a time**, and the link must be either to a mosaic or to an account.
 However, the same object can be linked by multiple namespaces.
 
-* **When linking to a mosaic**: Only the creator of the mosaic can establish the link.
+* **When linking to a mosaic**: Only the owner of the mosaic can establish the link.
     This prevents unauthorized aliasing of third-party assets.
 
 * **When linking to an account**: The linking transaction must not be blocked by an <account operation restriction:>.
@@ -145,16 +155,16 @@ but it is of limited practical use unless linked.
     even if the alias has since changed or been removed.
 
     Additionally, before accepting an alias from a user, wallets can query the currently linked object and the date
-    the link was created, so users can verify that the alias points to the intended destination.
+    the link was registered, so users can verify that the alias points to the intended destination.
 
 ## Ownership
 
-A namespace is controlled by the account that created the root namespace.
+A namespace is controlled by the account that registered the root namespace.
 
 Only the owner can:
 
 * Link or unlink the namespace.
-* Create subnamespaces.
+* Register subnamespaces.
 * Renew the root namespace.
 
 Namespace ownership cannot be transferred directly.

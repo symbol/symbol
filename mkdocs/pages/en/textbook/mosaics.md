@@ -43,6 +43,10 @@ The maximum allowed divisibility in Symbol is `6`.
 ### Initial Supply
 
 This property defines the total number of mosaic units created at issuance.
+
+A mosaic's total supply cannot exceed **9 × 10^15^** atomic units, regardless of divisibility.
+To be precise, 8'999'999'999'000'000.
+
 The supply is fixed unless [supply mutability](#supply-mutability) is enabled.
 
 ### Supply Mutability
@@ -67,7 +71,8 @@ Mosaics can be created with a specific duration or as eternal:
 * **Expiring mosaics** have a duration expressed in blocks.
     If a duration is provided, the maximum allowed value in Symbol is 10 years (3650 days).
     Once this period ends, the mosaic expires and can no longer be transferred or used in transactions.
-    Balances remain in accounts but are effectively frozen.
+    Balances remain in accounts but are effectively frozen, and no new mosaics can be created with the same
+    <Mosaic ID:>.
 
 !!! warning
     Mosaic duration can only be extended while the total supply is `0`.
@@ -133,7 +138,7 @@ Mosaic ID
 Nonce
 :   An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) chosen by the creator when defining a mosaic.
     Each unique nonce produces a different <mosaic ID:> for the same account.
-    The same account cannot reuse a nonce that already identifies an active mosaic.
+    The same account cannot reuse a nonce that already identifies a mosaic, active or not.
 
 For example, **XYM**, the native network currency on Symbol, has the mosaic ID `0x6BED913FA20223F8` on <mainnet:>.
 
