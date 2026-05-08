@@ -114,6 +114,7 @@ add_library(build.tests INTERFACE)
 
 # Common compiler settings for all builds
 target_compile_definitions(build.defaults INTERFACE 
+	DLL_EXPORTS
 	BOOST_ALL_DYN_LINK
 	BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT
 	BOOST_ASIO_NO_DEPRECATED
