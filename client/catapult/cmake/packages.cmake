@@ -11,6 +11,8 @@ find_package(RocksDB 10.6.2 ${_CONFIG_FLAG} REQUIRED)
 set(RocksDB_IMPORTED_TARGETS $<IF:$<TARGET_EXISTS:RocksDB::rocksdb>,RocksDB::rocksdb,RocksDB::rocksdb-shared>)
 
 find_package(mongocxx 4.1.4 ${_CONFIG_FLAG} REQUIRED)
+set(MongoDB_IMPORTED_TARGETS $<IF:$<TARGET_EXISTS:mongo::mongocxx_static>,mongo::mongocxx_static,mongo::mongocxx_shared>>)
+
 find_package(mongoc 2.2.1 ${_CONFIG_FLAG} REQUIRED)
 find_package(cppzmq 4.11.0 ${_CONFIG_FLAG} REQUIRED)
 
