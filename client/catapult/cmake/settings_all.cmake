@@ -107,6 +107,13 @@ else()
 	set(CMAKE_SKIP_BUILD_RPATH TRUE)
 endif()
 
+if(MSVC)
+	# embed the version rc file
+	set(VERSION_RESOURCES ${CMAKE_SOURCE_DIR}/src/catapult/version/win/win_version.rc)
+else()
+	# since strings are not referenced, in order for the linker to include them, they must be forcibly linked via an object file
+	set(VERSION_RESOURCES $<TARGET_OBJECTS:catapult.version.nix>)
+endif()
 
 # Create interface libraries for compiler settings
 add_library(build.defaults INTERFACE)
