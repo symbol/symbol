@@ -1,3 +1,3 @@
 project(catapult LANGUAGES CXX)
 
-subdirectories(ADD BASE .)
+subdirectories(ADD)

@@ -3,4 +3,4 @@ set(TARGET_NAME tests.catapult.mongo.plugins.multisig)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/txes/multisig)
 catapult_mongo_plugin_tests_with_deps(${TARGET_NAME} mappers)
 
-subdirectories(ADD BASE .)
+subdirectories(ADD)

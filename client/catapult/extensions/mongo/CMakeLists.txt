@@ -8,10 +8,10 @@ function(catapult_int_test_executable_target TARGET_NAME)
 
 endfunction()
 
-subdirectories(ADD BASE . DIRS plugins)
+subdirectories(ADD DIRS plugins)
 
 catapult_define_extension_no_group(mongo)
-target_link_libraries(${TARGET_NAME} ${MongoDB_IMPORTED_TARGETS})
+target_link_libraries(extension.mongo ${MongoDB_IMPORTED_TARGETS})
 
 # add extension to mongo group
 add_dependencies(mongo extension.mongo)

@@ -1,2 +1,2 @@
 include_directories(.)
-subdirectories(ADD BASE .)
+subdirectories(ADD)
