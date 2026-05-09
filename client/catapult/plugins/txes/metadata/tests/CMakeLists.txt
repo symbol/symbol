@@ -1,4 +1,4 @@
-subdirectories(ADD BASE . DIRS test)
+subdirectories(ADD DIRS test)
 
 set(TARGET_NAME tests.catapult.plugins.metadata)
 

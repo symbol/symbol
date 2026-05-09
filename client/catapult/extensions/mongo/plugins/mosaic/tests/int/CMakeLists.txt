@@ -1,8 +1,8 @@
 set(TARGET_NAME tests.catapult.int.mongo.plugins.mosaic)
 
 catapult_int_test_executable_target(${TARGET_NAME} storages)
-catapult_add_mongo_dependencies(${TARGET_NAME})
 target_link_libraries(${TARGET_NAME}
+	${MongoDB_IMPORTED_TARGETS}
 	tests.catapult.test.mongo.plugins.mosaic
 	tests.catapult.test.plugins.mosaic
 	tests.catapult.test.cache

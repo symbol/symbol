@@ -1,4 +1,4 @@
-subdirectories(ADD BASE . DIRS blockhashes)
+subdirectories(ADD DIRS blockhashes)
 
 catapult_define_tool(nemgen)
 target_link_libraries(

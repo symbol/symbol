@@ -1,1 +1,1 @@
-subdirectories(ADD BASE .)
+subdirectories(ADD)

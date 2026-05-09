@@ -7,4 +7,4 @@ function(catapult_int_test_executable_target TARGET_NAME)
 	target_link_libraries(${TARGET_NAME} build.tests)
 endfunction()
 
-subdirectories(ADD BASE .)
+subdirectories(ADD)

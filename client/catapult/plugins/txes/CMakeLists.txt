@@ -46,4 +46,4 @@ function(catapult_plugin_test_library TARGET_NAME)
 	target_link_libraries(${TARGET_NAME} ${GTest_IMPORTED_TARGETS})
 endfunction()
 
-subdirectories(ADD BASE .)
+subdirectories(ADD)
