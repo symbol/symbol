@@ -81,8 +81,9 @@ Although applications can use a fixed fee for simplicity, it is more efficient t
 As with network time, there is no need to query the multiplier for every transaction,
 but it should be refreshed regularly.
 
-The snippet above takes the greater of the recommended multiplier (`medianFeeMultiplier`) and the node's minimum
-multiplier (`minFeeMultiplier`), and stores it for later use once the transaction size is known.
+The snippet above takes the greater of the network's recommended multiplier (`medianFeeMultiplier`) and the
+minimum multiplier (`minFeeMultiplier`) required by the node where the transactions will be sent.
+The result is stored for later use once the transaction size is known.
 
 ### Building the Transaction
 
