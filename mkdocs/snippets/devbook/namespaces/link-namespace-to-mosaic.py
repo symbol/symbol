@@ -111,8 +111,7 @@ try:
 	# Retrieve the namespace to verify the alias [>step-7]
 	namespace_path = f'/namespaces/{namespace_id:x}'
 	print(f'Fetching namespace information from {namespace_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{namespace_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{namespace_path}') as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Alias information:')

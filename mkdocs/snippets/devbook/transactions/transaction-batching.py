@@ -93,8 +93,8 @@ try:
 	# [<step-4]
 	# Sign transaction and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
-	json_payload = (facade.transaction_factory.attach_signature(
-			transaction, signature))
+	json_payload = facade.transaction_factory.attach_signature(
+		transaction, signature)
 
 	# Announce the transaction
 	announce_path = '/transactions'
@@ -102,7 +102,7 @@ try:
 	announce_request = urllib.request.Request(
 		f'{NODE_URL}{announce_path}',
 		data=json_payload.encode(),
-		headers={ 'Content-Type': 'application/json' },
+		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
 	with urllib.request.urlopen(announce_request) as response:
