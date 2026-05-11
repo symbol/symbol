@@ -16,13 +16,10 @@ try {
 	// [<step-1]
 	// Fetch namespace information [>step-2]
 	const namespacePath = `/namespaces/${namespaceIdHex}`;
-	console.log(
-		'Fetching namespace information from', namespacePath);
-	const namespaceResponse =
-		await fetch(`${NODE_URL}${namespacePath}`);
+	console.log('Fetching namespace information from', namespacePath);
+	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	if (!namespaceResponse.ok) {
-		throw new Error(
-			`HTTP error! status: ${namespaceResponse.status}`);
+		throw new Error(`HTTP error! status: ${namespaceResponse.status}`);
 	}
 	const namespaceJSON = await namespaceResponse.json();
 	const ns = namespaceJSON.namespace;

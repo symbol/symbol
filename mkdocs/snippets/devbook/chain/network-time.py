@@ -10,8 +10,7 @@ try:
 	# Fetch Nemesis timestamp
 	properties_path = '/network/properties'  # [>step-1]
 	print(f'Fetching network properties from {properties_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{properties_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{properties_path}') as response:
 		response_json = json.loads(response.read().decode())
 		nemesis_datetime = datetime.datetime.fromtimestamp(
 			int(response_json['network']['epochAdjustment'].rstrip('s')),

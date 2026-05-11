@@ -86,7 +86,7 @@ try:
 	announce_request = urllib.request.Request(
 		f'{NODE_URL}{announce_path}',
 		data=json_payload.encode(),
-		headers={ 'Content-Type': 'application/json' },
+		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
 	with urllib.request.urlopen(announce_request) as response:

@@ -121,17 +121,13 @@ try {
 		'Namespace ID:',
 		`${namespaceId} (0x${namespaceId.toString(16)})`);
 
-	const namespacePath =
-		`/namespaces/${namespaceId.toString(16)}`;
-	console.log(
-		'Fetching namespace information from', namespacePath);
-	const namespaceResponse =
-		await fetch(`${NODE_URL}${namespacePath}`);
+	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
+	console.log('Fetching namespace information from', namespacePath);
+	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();
 	const namespaceInfo = namespaceJSON.namespace;
 	console.log('Namespace information:');
-	console.log(
-		'  Registration type:', namespaceInfo.registrationType);
+	console.log('  Registration type:', namespaceInfo.registrationType);
 	const ownerAddress = Address.fromDecodedAddressHexString(
 		namespaceInfo.ownerAddress);
 	console.log('  Owner address:', ownerAddress.toString());

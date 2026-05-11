@@ -11,8 +11,8 @@ console.log(`Using node ${NODE_URL}`);
 const BLOCK_HEIGHT = process.env.BLOCK_HEIGHT || '3222290';
 
 // Get the block header [>step-1]
-const block = await (await fetch(
-	`${NODE_URL}/blocks/${BLOCK_HEIGHT}`)).json();
+const blockUrl = `${NODE_URL}/blocks/${BLOCK_HEIGHT}`;
+const block = await (await fetch(blockUrl)).json();
 const signer = Network.TESTNET.publicKeyToAddress(
 	new PublicKey(block.block.signerPublicKey));
 const beneficiary = block.block.beneficiaryAddress;
@@ -23,23 +23,23 @@ const beneficiaryB32 = Address.fromDecodedAddressHexString(
 console.log(`Beneficiary: ${beneficiaryB32}`);
 // [<step-1]
 // Get the network sink address [>step-2]
-const properties = await (await fetch(
-	`${NODE_URL}/network/properties`)).json();
+const propertiesUrl = `${NODE_URL}/network/properties`;
+const properties = await (await fetch(propertiesUrl)).json();
 const sinkB32 = properties.chain.harvestNetworkFeeSinkAddress;
 const sink = Array.from(new Address(sinkB32).bytes)
 	.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
 console.log(`Network sink: ${sinkB32}`);
 // [<step-2]
 // Get the inflation reward at this height [>step-3]
-const inflation = await (await fetch(
-	`${NODE_URL}/network/inflation/at/${BLOCK_HEIGHT}`)).json();
+const inflationUrl = `${NODE_URL}/network/inflation/at/${BLOCK_HEIGHT}`;
+const inflation = await (await fetch(inflationUrl)).json();
 const reward = parseInt(inflation.rewardAmount, 10);
 console.log(`Inflation reward: ${fmt(reward)} XYM`);
 // [<step-3]
 // Get harvest fee receipts for this block [>step-4]
-const receipts = await (await fetch(
-	`${NODE_URL}/statements/transaction`
-	+ `?height=${BLOCK_HEIGHT}&receiptType=8515`)).json();
+const receiptsUrl = `${NODE_URL}/statements/transaction`
+	+ `?height=${BLOCK_HEIGHT}&receiptType=8515`
+const receipts = await (await fetch(receiptsUrl)).json();
 
 // Label and display the reward distribution
 let total = 0;

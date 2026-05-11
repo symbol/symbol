@@ -18,8 +18,8 @@ def get_account_info(account_identifier):  # [>step-1]
 	"""
 	account_path = f'/accounts/{account_identifier}'
 	try:
-		with urllib.request.urlopen(
-				f'{NODE_URL}{account_path}') as response:
+		account_url = f'{NODE_URL}{account_path}'
+		with urllib.request.urlopen(account_url) as response:
 			account_info = json.loads(response.read().decode())
 			return account_info['account']
 	except urllib.error.HTTPError as e:

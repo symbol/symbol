@@ -129,12 +129,9 @@ try {
 	}
 	// [<step-6]
 	// Retrieve the namespace to verify the alias [>step-7]
-	const namespacePath =
-		`/namespaces/${namespaceId.toString(16)}`;
-	console.log(
-		'Fetching namespace information from', namespacePath);
-	const namespaceResponse =
-		await fetch(`${NODE_URL}${namespacePath}`);
+	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
+	console.log('Fetching namespace information from', namespacePath);
+	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();
 	const namespaceInfo = namespaceJSON.namespace;
 	console.log('Alias information:');

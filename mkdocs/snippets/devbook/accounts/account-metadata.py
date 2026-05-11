@@ -135,8 +135,7 @@ try:
 		'&metadataType=0'
 	)
 	print(f'Fetching current metadata from {metadata_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{metadata_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{metadata_path}') as response:
 		response_json = json.loads(response.read().decode())
 
 	# Get the metadata entry

@@ -150,8 +150,7 @@ try {
 	if (namespaceInfo.depth >= 1) {
 		console.log('  Level 1:', namespaceInfo.level1);
 	}
-	if (namespaceInfo.depth >= 2 &&
-			namespaceInfo.level2) {
+	if (namespaceInfo.depth >= 2 && namespaceInfo.level2) {
 		console.log('  Level 2:', namespaceInfo.level2);
 	}
 	console.log('  Start height:', namespaceInfo.startHeight);

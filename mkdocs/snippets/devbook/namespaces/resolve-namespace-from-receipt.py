@@ -49,8 +49,8 @@ try:
 		address_path = ('/statements/resolutions/address'
 			f'?height={block_height}')
 		print(f'\nFetching address resolutions from {address_path}')
-		with urllib.request.urlopen(
-				f'{NODE_URL}{address_path}') as response:
+		address_url = f'{NODE_URL}{address_path}'
+		with urllib.request.urlopen(address_url) as response:
 			address_data = json.loads(response.read().decode())
 
 		address_statements = address_data['data']
@@ -77,8 +77,8 @@ try:
 		mosaic_path = ('/statements/resolutions/mosaic'
 			f'?height={block_height}')
 		print(f'\nFetching mosaic resolutions from {mosaic_path}')
-		with urllib.request.urlopen(
-				f'{NODE_URL}{mosaic_path}') as response:
+		mosaic_url = f'{NODE_URL}{mosaic_path}'
+		with urllib.request.urlopen(mosaic_url) as response:
 			mosaic_data = json.loads(response.read().decode())
 
 		mosaic_statements = mosaic_data['data']

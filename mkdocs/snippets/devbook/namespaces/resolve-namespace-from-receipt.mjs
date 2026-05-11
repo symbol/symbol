@@ -47,8 +47,7 @@ try {
 			'/statements/resolutions/address'
 			+ `?height=${blockHeight}`;
 		console.log('\nFetching address resolutions from', addressPath);
-		const addressResponse =
-			await fetch(`${NODE_URL}${addressPath}`);
+		const addressResponse = await fetch(`${NODE_URL}${addressPath}`);
 		const addressData = await addressResponse.json();
 
 		const addressStatements = addressData.data;
