@@ -14,36 +14,36 @@ print(f'Using node {NODE_URL}')
 
 
 # Helper function to announce a transaction
-def announce_transaction(payload, label):
+def announce_transaction(announce_payload, label):
 	print(f'Announcing {label} to /transactions')
 	request = urllib.request.Request(
 		f'{NODE_URL}/transactions',
-		data=payload.encode(),
+		data=announce_payload.encode(),
 		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
-	with urllib.request.urlopen(request) as response:
-		print(f'  Response: {response.read().decode()}')
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
 
 
 # Helper function to wait for transaction confirmation
-def wait_for_confirmation(transaction_hash, label):
+def wait_for_confirmation(tx_hash, label):
 	print(f'Waiting for {label} confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
 		try:
-			url = f'{NODE_URL}/transactionStatus/{transaction_hash}'
-			with urllib.request.urlopen(url) as response:
-				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status["group"]}')
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
+				print(f"  Transaction status: {status['group']}")
 				if status['group'] == 'confirmed':
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise Exception(f'{label} failed: {status["code"]}')
+					raise RuntimeError(f"{label} failed: {status['code']}")
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-	raise Exception(f'{label} not confirmed after 60 seconds')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')
 
 
 # Returns a filtered list of restrictions currently applied to the mosaic
@@ -54,8 +54,8 @@ def get_mosaic_restrictions(query, key):  # [>step-4]
 	res = []
 	try:
 		url = f'{NODE_URL}{restrictions_path}'
-		with urllib.request.urlopen(url) as response:
-			status = json.loads(response.read().decode())
+		with urllib.request.urlopen(url) as restr_response:
+			status = json.loads(restr_response.read().decode())
 			data = status['data']
 			if len(data) > 0:
 				# Look at the first returned restriction
@@ -69,20 +69,21 @@ def get_mosaic_restrictions(query, key):  # [>step-4]
 	return res
 
 
-def get_mosaic_global_restrictions(mosaic_id, key):
+def get_mosaic_global_restrictions(queried_mosaic_id, key):
 	return get_mosaic_restrictions(
-		f'mosaicId={mosaic_id:X}&entryType=1', key)  # [<step-4]
+		f'mosaicId={queried_mosaic_id:X}&entryType=1', key)  # [<step-4]
 
 
-def get_mosaic_address_restrictions(mosaic_id, address, key):  # [>step-5]
+def get_mosaic_address_restrictions(queried_mosaic_id, address, key):  # [>step-5]
 	return get_mosaic_restrictions(
-		f'mosaicId={mosaic_id:X}&entryType=0&targetAddress={address}',
+		f'mosaicId={queried_mosaic_id:X}&'
+		f'entryType=0&targetAddress={address}',
 		key)  # [<step-5]
 
 
 # Returns a transaction enabling a mosaic's global restriction
-def global_restriction_enable_transaction():
-	transaction = facade.transaction_factory.create_embedded({
+def set_global_restriction_transaction():
+	restr_transaction = facade.transaction_factory.create_embedded({
 		'type': 'mosaic_global_restriction_transaction_v1',
 		'signer_public_key': owner_key_pair.public_key,
 		'mosaic_id': mosaic_id,
@@ -93,25 +94,25 @@ def global_restriction_enable_transaction():
 		'new_restriction_type': 'ge',
 		'new_restriction_value': 1
 	})
-	print(json.dumps(transaction.to_json(), indent=2))
+	print(json.dumps(restr_transaction.to_json(), indent=2))
 
-	return transaction
+	return restr_transaction
 
 
 # Returns a transaction setting an address restriction's value
-def address_restriction_set_value(prev_value, new_value, address):
-	transaction = facade.transaction_factory.create_embedded({
+def address_restriction_set_value(previous_value, new_value, address):
+	restr_transaction = facade.transaction_factory.create_embedded({
 		'type': 'mosaic_address_restriction_transaction_v1',
 		'signer_public_key': owner_key_pair.public_key,
 		'mosaic_id': mosaic_id,
 		'restriction_key': restriction_key,
-		'previous_restriction_value': prev_value,
+		'previous_restriction_value': previous_value,
 		'new_restriction_value': new_value,
 		'target_address': address
 	})
-	print(json.dumps(transaction.to_json(), indent=2))
+	print(json.dumps(restr_transaction.to_json(), indent=2))
 
-	return transaction
+	return restr_transaction
 
 
 facade = SymbolFacade('testnet')
@@ -157,13 +158,13 @@ try:
 	# [<step-2]
 	# Enable global restriction if required [>step-3]
 	transactions = []
-	print("Checking if the global restriction is enabled:")
+	print('Checking if the global restriction is enabled:')
 	global_restrictions = get_mosaic_global_restrictions(
 		mosaic_id, restriction_key)
 	if len(global_restrictions) == 0:
 		# Enable the global restriction
 		print('+ Enabling global restriction')
-		transactions.append(global_restriction_enable_transaction())
+		transactions.append(set_global_restriction_transaction())
 
 		# Enable the address restriction
 		print('+ Authorizing owner account')
@@ -171,7 +172,7 @@ try:
 			0xFFFFFFFF_FFFFFFFF, 1, owner_address))
 	# [<step-3]
 	# Toggle target address restriction
-	print("Checking if target account is authorized:")  # [>step-6]
+	print('Checking if target account is authorized:')  # [>step-6]
 	address_restrictions = get_mosaic_address_restrictions(
 		mosaic_id, target_address, restriction_key)
 	prev_value = 0xFFFFFFFF_FFFFFFFF
