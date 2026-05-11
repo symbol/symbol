@@ -26,13 +26,13 @@
     "eslint-plugin-jsdoc": "^62.0.0",
     "minimist": "^1.2.8",
     "mocha": "^11.0.1",
-    "sinon": "^21.0.3",
+    "sinon": "^22.0.0",
     "tmp": "^0.2.1"
   },
   "dependencies": {
     "@noble/hashes": "^2.0.0",
     "bs58": "^6.0.0",
-    "ini": "^6.0.0",
+    "ini": "^7.0.0",
     "long": "^5.2.3",
     "mongodb": "^7.0.0",
     "node-cache": "^5.1.2",

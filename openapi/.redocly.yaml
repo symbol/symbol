@@ -2,8 +2,8 @@ extends:
   - recommended
 
 rules:
-  no-ambiguous-paths: off
-  operation-4xx-response: off
+  no-ambiguous-paths: "off"
+  operation-4xx-response: "off"
 
 apis:
   main:

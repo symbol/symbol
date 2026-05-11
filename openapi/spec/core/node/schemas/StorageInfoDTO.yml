@@ -1,31 +1,39 @@
 type: object
 description: |
-  Storage statistics: number of blocks, transactions, and accounts stored by the node.
+  Storage statistics for the node: estimated document counts in the REST server's
+  MongoDB collections (blocks, transactions, accounts) plus database allocation
+  stats from `db.stats()`. Counts use estimated collection sizes and may differ
+  slightly from exact figures under load.
 required:
   - numBlocks
   - numTransactions
   - numAccounts
+  - database
 properties:
   numBlocks:
     type: integer
+    format: int64
     description: |
-      Number of blocks stored. Under normal operation, this equals the chain height
-      (see chain info). When the node is synchronizing with the network, both values
-      are lower than the network chain height.
+      Estimated number of block documents in the `blocks` collection. Under normal
+      operation this tracks chain height; when synchronizing, it lags the network.
     examples:
       - 245053
   numTransactions:
     type: integer
+    format: int64
     description: |
-      Number of confirmed transactions stored, i.e. transactions included in blocks.
-      Excludes unconfirmed transactions in the mempool. For aggregate transactions
-      (e.g. multisig), each inner transaction counts as a separate document.
+      Estimated number of confirmed transaction documents in the `transactions`
+      collection. Excludes unconfirmed transactions. For aggregate transactions,
+      each inner transaction is stored as a separate document.
     examples:
       - 58590
   numAccounts:
     type: integer
+    format: int64
     description: |
-      Number of accounts with on-chain state, i.e. addresses that have participated
-      in at least one confirmed transaction (e.g. as sender, recipient, or cosigner).
+      Estimated number of account documents in the `accounts` collection (addresses
+      with persisted on-chain state).
     examples:
       - 177
+  database:
+    $ref: ./StorageInfoDatabaseDTO.yml
