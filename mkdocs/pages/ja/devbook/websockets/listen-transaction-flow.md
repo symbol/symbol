@@ -44,7 +44,7 @@ Symbolは、特定の[アカウント](default: アカウント) に対する[�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_flow', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol API[ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -129,7 +129,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 ## 出力 {: #output }
 
 ```text linenums="1" hl_lines="2 3 4-6 7 8-10 11 12"
---8<-- 'devbook/websockets/listen-transaction-flow.log'
+--8<-- 'devbook/websockets/listen_transaction_flow.log'
 ```
 
 出力の主なポイント:

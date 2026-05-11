@@ -17,7 +17,7 @@ Before you start, make sure to [set up your development environment](../start/se
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/get-namespace-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/get_namespace_info', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
@@ -72,7 +72,7 @@ account:
 The output shown below corresponds to a typical run of the program, querying the `symbol.xym` namespace on testnet.
 
 ```text linenums="1" hl_lines="3 6 7 8 9 10 11 12 13 14"
---8<-- 'devbook/namespaces/get-namespace-info.log'
+--8<-- 'devbook/namespaces/get_namespace_info.log'
 ```
 
 Some highlights from the output:

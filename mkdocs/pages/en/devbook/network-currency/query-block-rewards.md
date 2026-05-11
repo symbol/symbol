@@ -23,7 +23,7 @@ This tutorial only reads data from the network. No <account:> or <XYM:> balance 
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query-block-rewards', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -108,7 +108,7 @@ bytes multiplied by the block header's `feeMultiplier`.
 The following output shows a typical run querying the rewards for block 3,222,290:
 
 ```text linenums="1" hl_lines="3-5 9-12 15-17"
---8<-- 'devbook/network-currency/query-block-rewards.log'
+--8<-- 'devbook/network-currency/query_block_rewards.log'
 ```
 
 Some highlights from the output:

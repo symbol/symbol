@@ -42,7 +42,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/namespace-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/namespace_metadata', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -187,7 +187,7 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="3 4 18 19 20 23 37 47 48 50"
---8<-- 'devbook/namespaces/namespace-metadata.log'
+--8<-- 'devbook/namespaces/namespace_metadata.log'
 ```
 
 出力の主なポイント:

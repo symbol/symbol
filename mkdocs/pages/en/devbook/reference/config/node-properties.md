@@ -15,7 +15,7 @@ The header of each of the tables below indicates which file contains that table'
 
 <div class="md-typeset__scrollwrap">
 <div class="md-typeset__table">
---8<-- 'devbook/reference/config/config-user.properties.html'
+--8<-- 'devbook/reference/config/config_user.properties.html'
 </div>
 </div>
 
@@ -23,7 +23,7 @@ The header of each of the tables below indicates which file contains that table'
 
 <div class="md-typeset__scrollwrap">
 <div class="md-typeset__table">
---8<-- 'devbook/reference/config/config-node.properties.html'
+--8<-- 'devbook/reference/config/config_node.properties.html'
 </div>
 </div>
 
@@ -31,7 +31,7 @@ The header of each of the tables below indicates which file contains that table'
 
 <div class="md-typeset__scrollwrap">
 <div class="md-typeset__table">
---8<-- 'devbook/reference/config/config-harvesting.properties.html'
+--8<-- 'devbook/reference/config/config_harvesting.properties.html'
 </div>
 </div>
 

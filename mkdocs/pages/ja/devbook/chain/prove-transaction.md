@@ -22,7 +22,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/prove-transaction', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove_transaction', ['py', 'js']) }}
 
 このスニペットは、証明するトランザクションの [ハッシュ](default:ハッシュ) を `TRANSACTION_HASH` 環境変数から読み取ります。設定されていない場合は、Symbolテストネットのブロック `55` にある既知のトランザクションがデフォルトとして使用されます。
 
@@ -70,7 +70,7 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 以下に示す出力は、プログラムの典型的な実行結果に対応しています：
 
 ```text linenums="1" hl_lines="5-6 15 39 40"
---8<-- 'devbook/chain/prove-transaction.log'
+--8<-- 'devbook/chain/prove_transaction.log'
 ```
 
 出力の主なポイント：

@@ -46,7 +46,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/account-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account_metadata', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -209,7 +209,7 @@ in an aggregate transaction and then signed and announced.
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="16 17 18 20 31 40 41 43"
---8<-- 'devbook/accounts/account-metadata.log'
+--8<-- 'devbook/accounts/account_metadata.log'
 ```
 
 Key points in the output:

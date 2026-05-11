@@ -43,7 +43,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/account-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account_restrictions', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -159,7 +159,7 @@ tutorial_level: advanced
 === ":material-lock-plus: 制限の有効化"
 
     ```text linenums="1" hl_lines="2-3 9 21-24 41"
-    --8<-- 'devbook/accounts/account-restrictions-enable.log'
+    --8<-- 'devbook/accounts/account_restrictions_enable.log'
     ```
 
     出力の主なポイント:
@@ -173,7 +173,7 @@ tutorial_level: advanced
 === ":material-lock-open: 制限の解除"
 
     ```text linenums="1" hl_lines="2-3 9 21 23-25 44"
-    --8<-- 'devbook/accounts/account-restrictions-disable.log'
+    --8<-- 'devbook/accounts/account_restrictions_disable.log'
     ```
 
     出力の主なポイント:

@@ -33,7 +33,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen-new-blocks', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_new_blocks', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -99,7 +99,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 以下の出力は、新しいブロックとファイナライズイベントをリスニングする典型的な実行例を示しています。
 
 ```text linenums="1" hl_lines="2 3 4 5 8 11"
---8<-- 'devbook/websockets/listen-new-blocks.log'
+--8<-- 'devbook/websockets/listen_new_blocks.log'
 ```
 
 出力の主なポイント:

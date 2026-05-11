@@ -19,7 +19,7 @@ Symbol上のすべての[モザイク](default:モザイク)には、供給量�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/get-mosaic-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/get_mosaic_info', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol APIノードを設定します。
 値が指定されない場合は、デフォルトの[テストネット](default:テストネット)ノードが使用されます。
@@ -75,7 +75,7 @@ XYM（可分性 `6` ）の場合、 `8325447775994408` 絶対単位の供給量�
 以下に示す出力は、テストネット上のXYMモザイクを照会する、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="5 6 7 8 9 10 11 13 16"
---8<-- 'devbook/mosaics/get-mosaic-info.log'
+--8<-- 'devbook/mosaics/get_mosaic_info.log'
 ```
 
 出力の主なポイント:

@@ -20,7 +20,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/chain-heights', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/chain_heights', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default one is used.
@@ -79,7 +79,7 @@ The loop then sleeps for one second between iterations.
 The following output shows a typical run monitoring the chain and finalization heights:
 
 ```text
---8<-- 'devbook/chain/chain-heights.log'
+--8<-- 'devbook/chain/chain_heights.log'
 ```
 
 The output shows:

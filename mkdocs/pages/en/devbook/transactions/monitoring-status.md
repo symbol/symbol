@@ -30,7 +30,7 @@ WebSockets provide a more responsive solution without the overhead of repeated A
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/monitoring-status', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/monitoring_status', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default one is used.
@@ -140,7 +140,7 @@ take appropriate action, such as:
 The following output shows a typical run monitoring a transaction as it moves from unconfirmed to confirmed:
 
 ```text
---8<-- 'devbook/transactions/monitoring-status.log'
+--8<-- 'devbook/transactions/monitoring_status.log'
 ```
 
 The output shows:

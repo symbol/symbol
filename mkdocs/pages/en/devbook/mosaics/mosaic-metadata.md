@@ -48,7 +48,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/mosaic-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_metadata', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -219,7 +219,7 @@ in an aggregate transaction and then signed and announced.
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="3 17 18 19 22 36 46 47 49"
---8<-- 'devbook/mosaics/mosaic-metadata.log'
+--8<-- 'devbook/mosaics/mosaic_metadata.log'
 ```
 
 Key points in the output:

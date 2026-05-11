@@ -19,7 +19,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/network-time', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/network_time', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -68,7 +68,7 @@ If you are using the Symbol SDK, <dy:NetworkTimestampDatetimeConverter> provides
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="5 7"
---8<-- 'devbook/chain/network-time.log'
+--8<-- 'devbook/chain/network_time.log'
 ```
 
 Line 5 shows the Nemesis block timestamp, and always displays the same value.

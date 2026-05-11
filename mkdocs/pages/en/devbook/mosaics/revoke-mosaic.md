@@ -33,7 +33,7 @@ For more details on revocability, see [Revocability](../../textbook/mosaics.md#r
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/revoke-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/revoke_mosaic', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -113,7 +113,7 @@ The balance should be lower than the [initial balance](#checking-initial-balance
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="4 12 24 26 27 47"
---8<-- 'devbook/mosaics/revoke-mosaic.log'
+--8<-- 'devbook/mosaics/revoke_mosaic.log'
 ```
 
 Some highlights from the output:

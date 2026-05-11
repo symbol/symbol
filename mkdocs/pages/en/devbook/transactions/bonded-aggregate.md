@@ -81,7 +81,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/bonded-aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/bonded_aggregate', ['py', 'js']) }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that poll for pending
@@ -289,7 +289,7 @@ If the deadline expires or any cosignature is invalid, the transaction fails and
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="14 18 48 51 54 63 67 71 73"
---8<-- 'devbook/transactions/bonded-aggregate.log'
+--8<-- 'devbook/transactions/bonded_aggregate.log'
 ```
 
 Key points in the output:

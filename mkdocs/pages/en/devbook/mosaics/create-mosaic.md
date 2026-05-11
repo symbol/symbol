@@ -31,7 +31,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/create-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/create_mosaic', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -174,7 +174,7 @@ A successful response confirms the mosaic exists on the network with the expecte
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="9 10 18 20 21 23 24 46 60 61 62 63 64"
---8<-- 'devbook/mosaics/create-mosaic.log'
+--8<-- 'devbook/mosaics/create_mosaic.log'
 ```
 
 Some highlights from the output:

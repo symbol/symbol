@@ -30,7 +30,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/link-namespace-to-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/link_namespace_to_mosaic', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -138,7 +138,7 @@ tutorial_level: intermediate
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="3 5 23 32 33 36"
---8<-- 'devbook/namespaces/link-namespace-to-mosaic.log'
+--8<-- 'devbook/namespaces/link_namespace_to_mosaic.log'
 ```
 
 出力の主なポイント:

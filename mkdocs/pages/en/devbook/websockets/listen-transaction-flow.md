@@ -48,7 +48,7 @@ Additionally, install the language-specific WebSocket library:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_flow', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.
@@ -146,7 +146,7 @@ After confirmation, the code sends unsubscribe messages for all three channels b
 ## Output
 
 ```text linenums="1" hl_lines="2 3 4-6 7 8-10 11 12"
---8<-- 'devbook/websockets/listen-transaction-flow.log'
+--8<-- 'devbook/websockets/listen_transaction_flow.log'
 ```
 
 The output shows:

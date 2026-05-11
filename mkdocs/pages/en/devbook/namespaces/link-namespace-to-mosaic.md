@@ -33,7 +33,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/link-namespace-to-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/link_namespace_to_mosaic', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -159,7 +159,7 @@ For more details on how to announce transfer transactions, see the
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="3 5 23 32 33 36"
---8<-- 'devbook/namespaces/link-namespace-to-mosaic.log'
+--8<-- 'devbook/namespaces/link_namespace_to_mosaic.log'
 ```
 
 Some highlights from the output:

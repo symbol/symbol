@@ -20,7 +20,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query-block-rewards', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -93,10 +93,10 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 以下の出力は、ブロック 3,222,290 の報酬を照会する典型的な実行例を示しています。
 
 ```text linenums="1" hl_lines="3-5 9-12 15-17"
---8<-- 'devbook/network-currency/query-block-rewards.log'
+--8<-- 'devbook/network-currency/query_block_rewards.log'
 ```
 
-### 出力の主なポイント:
+### 出力の主なポイント
 
 * **アドレス** (3-5行目): 署名者アドレスは、ブロックの signerPublicKey から派生します。
 受益者はノードオペレーターによって設定され、ネットワークシンクはネットワーク設定で定義された固定のシステムアカウントです。

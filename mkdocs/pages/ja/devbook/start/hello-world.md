@@ -20,7 +20,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/start/hello-world', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/start/hello_world', ['py', 'js']) }}
 
 ### SDK の呼び出し {: #making-sdk-calls }
 
@@ -51,7 +51,7 @@ Symbolブロックチェーンとの対話は、ネットワーク状態の照�
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text
---8<-- 'devbook/start/hello-world.log'
+--8<-- 'devbook/start/hello_world.log'
 ```
 
 ## 結論 {: #conclusion }

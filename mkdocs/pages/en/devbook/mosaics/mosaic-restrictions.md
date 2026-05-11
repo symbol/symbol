@@ -67,7 +67,7 @@ transactions are announced and confirmed, and how to bundle them.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/mosaic-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_restrictions', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -226,7 +226,7 @@ The output shown below corresponds to two typical runs of the program.
 === ":material-lock-open: Enabling the Restriction and Authorizing the Account"
 
     ```text linenums="1" hl_lines="2-5 12-13 27 41-42 72"
-    --8<-- 'devbook/mosaics/mosaic-restrictions-enable.log'
+    --8<-- 'devbook/mosaics/mosaic_restrictions_enable.log'
     ```
 
     Key points in the output:
@@ -252,7 +252,7 @@ The output shown below corresponds to two typical runs of the program.
 === ":material-lock-plus: Deauthorizing the Account"
 
     ```text linenums="1" hl_lines="2-5 12 15-16 43"
-    --8<-- 'devbook/mosaics/mosaic-restrictions-disable.log'
+    --8<-- 'devbook/mosaics/mosaic_restrictions_disable.log'
     ```
 
     Key points in the output:

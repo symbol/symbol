@@ -44,7 +44,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/modify-mosaic-definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/modify_mosaic_definition', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -146,7 +146,7 @@ A successful response confirms the mosaic now has the expected flags value.
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="7 8 19 21 22 36 37 38"
---8<-- 'devbook/mosaics/modify-mosaic-definition.log'
+--8<-- 'devbook/mosaics/modify_mosaic_definition.log'
 ```
 
 Some highlights from the output:

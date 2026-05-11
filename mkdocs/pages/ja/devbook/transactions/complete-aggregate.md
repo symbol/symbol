@@ -71,7 +71,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/complete-aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/complete_aggregate', ['py', 'js']) }}
 
 コード全体は、単純なエラー処理を提供するために単一の `try` ブロックでラップされていますが、実際のアプリケーションではより詳細な制御が必要になるでしょう。
 
@@ -197,7 +197,7 @@ digraph {
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="10 14 18 48 53 60 66"
---8<-- 'devbook/transactions/complete-aggregate.log'
+--8<-- 'devbook/transactions/complete_aggregate.log'
 ```
 
 出力の主なポイント:

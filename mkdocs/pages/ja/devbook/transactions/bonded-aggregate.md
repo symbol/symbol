@@ -71,7 +71,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/bonded-aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/bonded_aggregate', ['py', 'js']) }}
 
 アグリゲートボンデッドトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築・署名・アナウンスする **開始者**（アカウント A）と、保留中のトランザクションをポーリングし、内容を確認した後に署名を追加する1人以上の **連署者**（アカウント B）です。
 
@@ -240,7 +240,7 @@ digraph {
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="14 18 48 51 54 63 67 71 73"
---8<-- 'devbook/transactions/bonded-aggregate.log'
+--8<-- 'devbook/transactions/bonded_aggregate.log'
 ```
 
 出力の主なポイント：

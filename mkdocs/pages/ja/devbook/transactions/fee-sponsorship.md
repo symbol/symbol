@@ -52,7 +52,7 @@ digraph FeeSponsorshipProblem {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/fee-sponsorship', ['py', 'js'], show=false) }}
+{{ tutorial.code_full_tagged('devbook/transactions/fee_sponsorship', ['py', 'js'], show=false) }}
 
 ## オプション 1: 手数料前払い {: #option-1-prefunded-fees }
 

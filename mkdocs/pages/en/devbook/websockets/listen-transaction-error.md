@@ -42,7 +42,7 @@ Additionally, install the language-specific WebSocket library:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen-transaction-error', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_error', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.
@@ -120,7 +120,7 @@ After receiving the error, the code sends an unsubscribe message before closing 
 ## Output
 
 ```text linenums="1" hl_lines="2 3 4 5 6 7"
---8<-- 'devbook/websockets/listen-transaction-error.log'
+--8<-- 'devbook/websockets/listen_transaction_error.log'
 ```
 
 The output shows:

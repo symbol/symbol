@@ -52,7 +52,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/account-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account_restrictions', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -195,7 +195,7 @@ The output shown below corresponds to two typical runs of the program.
 === ":material-lock-plus: Enabling the Restriction"
 
     ```text linenums="1" hl_lines="2-3 9 21-24 41"
-    --8<-- 'devbook/accounts/account-restrictions-enable.log'
+    --8<-- 'devbook/accounts/account_restrictions_enable.log'
     ```
 
     Key points in the output:
@@ -211,7 +211,7 @@ The output shown below corresponds to two typical runs of the program.
 === ":material-lock-open: Removing the Restriction"
 
     ```text linenums="1" hl_lines="2-3 9 21 23-25 44"
-    --8<-- 'devbook/accounts/account-restrictions-disable.log'
+    --8<-- 'devbook/accounts/account_restrictions_disable.log'
     ```
 
     Key points in the output:

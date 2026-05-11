@@ -138,7 +138,7 @@ These macros create a tab group with a code block and optional caption.
 ```jinja
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged("devbook/hello-world", ["py", "js"]) }}
+{{ tutorial.code_full_tagged("devbook/hello_world", ["py", "js"]) }}
 {{ tutorial.code_snippet_tagged("step-1")}}
 ```
 

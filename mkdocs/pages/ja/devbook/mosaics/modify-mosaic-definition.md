@@ -38,7 +38,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/modify-mosaic-definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/modify_mosaic_definition', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -126,7 +126,7 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="7 8 19 21 22 36 37 38"
---8<-- 'devbook/mosaics/modify-mosaic-definition.log'
+--8<-- 'devbook/mosaics/modify_mosaic_definition.log'
 ```
 
 出力の主なポイント:

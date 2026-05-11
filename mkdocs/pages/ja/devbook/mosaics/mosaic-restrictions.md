@@ -52,7 +52,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/mosaic-restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_restrictions', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -174,7 +174,7 @@ tutorial_level: advanced
 === ":material-lock-open: 制限の有効化とアカウントの許可"
 
     ```text linenums="1" hl_lines="2-5 12-13 27 41-42 72"
-    --8<-- 'devbook/mosaics/mosaic-restrictions-enable.log'
+    --8<-- 'devbook/mosaics/mosaic_restrictions_enable.log'
     ```
 
     出力の主なポイント:
@@ -192,7 +192,7 @@ tutorial_level: advanced
 === ":material-lock-plus: アカウントの許可取り消し"
 
     ```text linenums="1" hl_lines="2-5 12 15-16 43"
-    --8<-- 'devbook/mosaics/mosaic-restrictions-disable.log'
+    --8<-- 'devbook/mosaics/mosaic_restrictions_disable.log'
     ```
 
     出力の主なポイント:

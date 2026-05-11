@@ -75,7 +75,7 @@ HTLCプロトコル、タイミングの制約、および制限の背景につ�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/cross-chain-swap', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap', ['py', 'js']) }}
 
 ## イーサリアムHTLCコントラクト {: #ethereum-htlc-contract }
 
@@ -263,7 +263,7 @@ digraph CrossChainSwapSteps {
 以下に示す出力は、プログラムの一般的な実行例に対応しています。
 
 ```text linenums="1" hl_lines="9 10 15 16 19 50 70 80 87 89"
---8<-- 'devbook/transactions/cross-chain-swap.log'
+--8<-- 'devbook/transactions/cross_chain_swap.log'
 ```
 
 出力の重要なポイント：

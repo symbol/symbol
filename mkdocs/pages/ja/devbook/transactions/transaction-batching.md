@@ -62,7 +62,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/transaction-batching', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/transaction_batching', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -141,7 +141,7 @@ digraph {
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="16 26 29 30 40 43 44 50"
---8<-- 'devbook/transactions/transaction-batching.log'
+--8<-- 'devbook/transactions/transaction_batching.log'
 ```
 
 出力の主なポイント:
