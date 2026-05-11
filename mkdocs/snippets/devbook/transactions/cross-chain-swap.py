@@ -75,6 +75,7 @@ HTLC_ABI = [
 	}
 ]
 
+
 # Helper function to fetch current Symbol network time
 def get_network_time():
 	time_path = '/node/time'
@@ -211,7 +212,7 @@ print(f'Bob ETH address: {bob_eth_account.address}')
 # [<step-1]
 try:
 	# --- Alice: Generate proof and hashlock ---
-	print('\n--- Alice: Generate proof and hashlock ---') # [>step-2]
+	print('\n--- Alice: Generate proof and hashlock ---')  # [>step-2]
 
 	proof = os.urandom(32)
 	print(f'Proof (hex): {proof.hex()}')
@@ -221,7 +222,7 @@ try:
 	print(f'Secret (double SHA-256): {secret.hex()}')
 	# [<step-2]
 	# --- Step 1. Alice: Lock ETH on Ethereum ---
-	print('\n--- Step 1. Alice: Lock ETH on Ethereum ---') # [>step-3]
+	print('\n--- Step 1. Alice: Lock ETH on Ethereum ---')  # [>step-3]
 
 	htlc = w3.eth.contract(address=HTLC_ADDRESS, abi=HTLC_ABI)
 	timelock = int(time.time()) + 72 * 60 * 60
@@ -247,7 +248,7 @@ try:
 	print(f'HTLC contract ID: {contract_id.hex()}')
 	# [<step-3]
 	# --- Step 2. Bob: Create secret lock on Symbol ---
-	print('\n--- Step 2. Bob: Create secret lock on Symbol ---') # [>step-4]
+	print('\n--- Step 2. Bob: Create secret lock on Symbol ---')  # [>step-4]
 
 	# Bob queries the Ethereum contract to get the hashlock
 	contract_info = htlc.functions.getContract(contract_id).call()
@@ -288,7 +289,7 @@ try:
 	wait_for_status(lock_hash, 'confirmed', 'Secret lock')
 	# [<step-4]
 	# --- Step 3. Alice: Claim XYM on Symbol ---
-	print('\n--- Step 3. Alice: Claim XYM on Symbol ---') # [>step-5]
+	print('\n--- Step 3. Alice: Claim XYM on Symbol ---')  # [>step-5]
 
 	secret_proof_transaction = facade.transaction_factory.create({
 		'type': 'secret_proof_transaction_v1',
@@ -317,7 +318,7 @@ try:
 	wait_for_status(proof_hash, 'confirmed', 'Secret proof')
 	# [<step-5]
 	# --- Step 4. Bob: Withdraw ETH on Ethereum ---
-	print('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---') # [>step-6]
+	print('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---')  # [>step-6]
 
 	# Bob waits for Alice to reveal the proof on Symbol.
 	revealed_proof = wait_for_secret_proof(alice_xym_address, hashlock)

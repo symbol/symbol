@@ -9,8 +9,7 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_namespace_id
 from symbolchain.symbol.Network import Address, NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 SIGNER_PRIVATE_KEY = os.getenv(
@@ -131,7 +130,7 @@ try:
 		if int(namespace_info['depth']) >= 2 and \
 				'level2' in namespace_info:
 			print(f'  Level 2: {namespace_info["level2"]}')
-		print(f'  Start height: {namespace_info["startHeight"]}') # [<step-2]
+		print(f'  Start height: {namespace_info["startHeight"]}')  # [<step-2]
 		print(f'  End height: {namespace_info["endHeight"]}')
 
 except Exception as e:

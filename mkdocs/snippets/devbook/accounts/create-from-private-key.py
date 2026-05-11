@@ -28,4 +28,4 @@ address = facade.network.public_key_to_address(public_key)
 # Output the account details
 print(f'Address: {address}')
 print(f'Public key: {public_key}')
-print(f'Private key: {private_key}') # [<step-3]
+print(f'Private key: {private_key}')  # [<step-3]
