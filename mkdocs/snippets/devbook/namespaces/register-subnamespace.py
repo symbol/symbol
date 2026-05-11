@@ -112,8 +112,7 @@ try:
 
 	namespace_path = f'/namespaces/{namespace_id:x}'
 	print(f'Fetching namespace information from {namespace_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{namespace_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{namespace_path}') as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Namespace information:')
@@ -127,9 +126,9 @@ try:
 		print(f'  Level 0: {namespace_info["level0"]}')
 		if int(namespace_info['depth']) >= 1:
 			print(f'  Level 1: {namespace_info["level1"]}')
-		if int(namespace_info['depth']) >= 2 and \
-				'level2' in namespace_info:
-			print(f'  Level 2: {namespace_info["level2"]}')
+		if int(namespace_info['depth']) >= 2:
+			if 'level2' in namespace_info:
+				print(f'  Level 2: {namespace_info["level2"]}')
 		print(f'  Start height: {namespace_info["startHeight"]}')  # [<step-2]
 		print(f'  End height: {namespace_info["endHeight"]}')
 

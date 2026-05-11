@@ -140,10 +140,9 @@ const secretMessage = new TextEncoder().encode(
 const encryptedPayload = senderMessageEncoder.encode(
 	recipientKeyPair.publicKey, secretMessage
 );
-console.log('Original message:',
-	new TextDecoder().decode(secretMessage));
-const hex = Buffer.from(encryptedPayload).toString('hex');
-console.log('Encrypted payload:', hex);
+console.log('Original message:', new TextDecoder().decode(secretMessage));
+console.log('Encrypted payload:',
+	Buffer.from(encryptedPayload).toString('hex'));
 
 // Build transfer transaction with encrypted message
 const encryptedTransaction = facade.transactionFactory.create({
