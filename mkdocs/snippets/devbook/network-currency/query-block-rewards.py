@@ -12,8 +12,8 @@ BLOCK_HEIGHT = os.getenv('BLOCK_HEIGHT', '3222290')
 
 try:
 	# Get the block header [>step-1]
-	with urllib.request.urlopen(
-			f'{NODE_URL}/blocks/{BLOCK_HEIGHT}') as response:
+	block_url = f'{NODE_URL}/blocks/{BLOCK_HEIGHT}'
+	with urllib.request.urlopen(block_url) as response:
 		block = json.loads(response.read())
 	signer = Network.TESTNET.public_key_to_address(
 		PublicKey(block['block']['signerPublicKey']))
@@ -25,26 +25,25 @@ try:
 	print(f'Beneficiary: {beneficiary_b32}')
 	# [<step-1]
 	# Get the network sink address [>step-2]
-	with urllib.request.urlopen(
-			f'{NODE_URL}/network/properties') as response:
+	properties_url = f'{NODE_URL}/network/properties'
+	with urllib.request.urlopen(properties_url) as response:
 		properties = json.loads(response.read())
 	sink_b32 = properties['chain']['harvestNetworkFeeSinkAddress']
 	sink = Address(sink_b32).bytes.hex().upper()
 	print(f'Network sink: {sink_b32}')
 	# [<step-2]
 	# Get the inflation reward at this height [>step-3]
-	with urllib.request.urlopen(
-			f'{NODE_URL}/network/inflation'
-			f'/at/{BLOCK_HEIGHT}') as response:
+	inflation_url = f'{NODE_URL}/network/inflation/at/{BLOCK_HEIGHT}'
+	with urllib.request.urlopen(inflation_url) as response:
 		inflation = json.loads(response.read())
 	reward = int(inflation['rewardAmount'])
 	print(f'Inflation reward: {reward / 1e6:,.6f} XYM')
 	# [<step-3]
 	# Get harvest fee receipts for this block [>step-4]
-	with urllib.request.urlopen(
-			f'{NODE_URL}/statements/transaction'
-			f'?height={BLOCK_HEIGHT}'
-			f'&receiptType=8515') as response:
+	receipts_url = (f'{NODE_URL}/statements/transaction'
+		f'?height={BLOCK_HEIGHT}'
+		f'&receiptType=8515')
+	with urllib.request.urlopen(receipts_url) as response:
 		receipts = json.loads(response.read())
 
 	# Label and display the reward distribution
