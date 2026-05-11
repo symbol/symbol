@@ -9,9 +9,9 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.Network import NetworkTimestamp
 from symbolchain.symbol.Restriction import mosaic_restriction_generate_key
 
-NODE_URL = os.environ.get(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
+
 
 # Helper function to announce a transaction
 def announce_transaction(payload, label):
@@ -24,6 +24,7 @@ def announce_transaction(payload, label):
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
+
 
 # Helper function to wait for transaction confirmation
 def wait_for_confirmation(transaction_hash, label):
@@ -44,9 +45,10 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
+
 # Returns a filtered list of restrictions currently applied to the mosaic
 # matching the given restriction key
-def get_mosaic_restrictions(query, key): # [>step-5] [>step-4]
+def get_mosaic_restrictions(query, key):  # [>step-4]
 	restrictions_path = f'/restrictions/mosaic?{query}'
 	print(f'  Getting restrictions from {restrictions_path}')
 	res = []
@@ -66,15 +68,18 @@ def get_mosaic_restrictions(query, key): # [>step-5] [>step-4]
 	print(f'  Response: {res}')
 	return res
 
+
 def get_mosaic_global_restrictions(mosaic_id, key):
 	return get_mosaic_restrictions(
-		f'mosaicId={mosaic_id:X}&entryType=1', key)
-# [<step-4]
-def get_mosaic_address_restrictions(mosaic_id, address, key):
+		f'mosaicId={mosaic_id:X}&entryType=1', key)  # [<step-4]
+
+
+def get_mosaic_address_restrictions(mosaic_id, address, key):  # [>step-5]
 	return get_mosaic_restrictions(
 		f'mosaicId={mosaic_id:X}&entryType=0&targetAddress={address}',
-		key)
-# [<step-5]
+		key)  # [<step-5]
+
+
 # Returns a transaction enabling a mosaic's global restriction
 def global_restriction_enable_transaction():
 	transaction = facade.transaction_factory.create_embedded({
@@ -92,6 +97,7 @@ def global_restriction_enable_transaction():
 
 	return transaction
 
+
 # Returns a transaction setting an address restriction's value
 def address_restriction_set_value(prev_value, new_value, address):
 	transaction = facade.transaction_factory.create_embedded({
@@ -106,6 +112,7 @@ def address_restriction_set_value(prev_value, new_value, address):
 	print(json.dumps(transaction.to_json(), indent=2))
 
 	return transaction
+
 
 facade = SymbolFacade('testnet')
 # [>step-1]
@@ -164,7 +171,7 @@ try:
 			0xFFFFFFFF_FFFFFFFF, 1, owner_address))
 	# [<step-3]
 	# Toggle target address restriction
-	print("Checking if target account is authorized:") # [>step-6]
+	print("Checking if target account is authorized:")  # [>step-6]
 	address_restrictions = get_mosaic_address_restrictions(
 		mosaic_id, target_address, restriction_key)
 	prev_value = 0xFFFFFFFF_FFFFFFFF
@@ -182,7 +189,7 @@ try:
 			prev_value, 0, target_address))
 	# [<step-6]
 	# Build an aggregate transaction
-	print('Bundling', len(transactions),'transaction(s) in an aggregate') # [>step-7]
+	print('Bundling', len(transactions), 'transaction(s) in an aggregate')  # [>step-7]
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		'signer_public_key': owner_key_pair.public_key,
@@ -194,7 +201,7 @@ try:
 	transaction.fee = Amount(fee_mult * transaction.size)
 	# [<step-7]
 	# Sign, announce and wait for confirmation
-	payload = facade.transaction_factory.attach_signature( # [>step-8]
+	payload = facade.transaction_factory.attach_signature(  # [>step-8]
 		transaction,
 		facade.sign_transaction(owner_key_pair, transaction))
 	transaction_hash = facade.hash_transaction(transaction)
@@ -202,7 +209,7 @@ try:
 	wait_for_confirmation(transaction_hash, 'aggregate')
 	# [<step-8]
 	# Try to transfer the mosaic to the target address
-	transaction = facade.transaction_factory.create({ # [>step-9]
+	transaction = facade.transaction_factory.create({  # [>step-9]
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': owner_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,

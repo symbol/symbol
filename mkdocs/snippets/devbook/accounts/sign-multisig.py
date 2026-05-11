@@ -9,7 +9,7 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = 'https://reference.symboltest.net:3001'
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 # [>step-1]
@@ -57,7 +57,7 @@ try:
 				multisig_key_pair.public_key),
 		'mosaics': [{
 			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 1_000_000 # 1 XYM
+			'amount': 1_000_000  # 1 XYM
 		}]
 	})
 	# [<step-3]

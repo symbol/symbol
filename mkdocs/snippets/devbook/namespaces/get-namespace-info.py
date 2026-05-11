@@ -5,8 +5,7 @@ import urllib.request
 from symbolchain.symbol.IdGenerator import generate_namespace_path
 from symbolchain.symbol.Network import Address
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 NAMESPACE_NAME = os.getenv('NAMESPACE_NAME', 'symbol.xym')

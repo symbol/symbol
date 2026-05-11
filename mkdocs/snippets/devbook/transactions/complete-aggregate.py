@@ -9,8 +9,7 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 # Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
@@ -67,7 +66,7 @@ try:
 		}]
 	})
 
-	## Embedded tx 2: Account B transfers 1 custom mosaic to Account A
+	# Embedded tx 2: Account B transfers 1 custom mosaic to Account A
 	custom_mosaic_id = 0x6D1314BE751B62C2
 	embedded_transaction_2 = facade.transaction_factory.create_embedded({
 		'type': 'transfer_transaction_v1',

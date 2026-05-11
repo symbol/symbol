@@ -9,8 +9,7 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 # [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
@@ -27,8 +26,7 @@ try:
 	# Fetch current network time [>step-2]
 	time_path = '/node/time'
 	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{time_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
 		response_json = json.loads(response.read().decode())
 		receive_timestamp = (
 			response_json['communicationTimestamps']['receiveTimestamp'])
@@ -38,8 +36,7 @@ try:
 	# Fetch recommended fees
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{fee_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
 		median_mult = response_json['medianFeeMultiplier']
 		minimum_mult = response_json['minFeeMultiplier']
@@ -109,8 +106,7 @@ try:
 	mosaic_id_hex = f'{mosaic_id:x}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{mosaic_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{mosaic_path}') as response:
 		response_json = json.loads(response.read().decode())
 		mosaic_info = response_json['mosaic']
 		print('Mosaic information:')

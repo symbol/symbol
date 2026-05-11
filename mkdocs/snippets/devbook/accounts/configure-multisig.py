@@ -8,9 +8,9 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.environ.get(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
+
 
 # Helper function to announce a transaction
 def announce_transaction(payload, label):
@@ -23,6 +23,7 @@ def announce_transaction(payload, label):
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
+
 
 # Helper function to wait for transaction confirmation
 def wait_for_confirmation(transaction_hash, label):
@@ -43,6 +44,7 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
+
 # Returns the cosignatory addresses of the provided multisig account, [>step-3]
 # or an empty list if the account is not multisig or has never been used
 def get_multisig_cosignatories(address):
@@ -58,8 +60,9 @@ def get_multisig_cosignatories(address):
 	except urllib.error.HTTPError:
 		# The address has never been used
 		print('  Response: No cosignatories')
-	return []
-# [<step-3]
+	return []  # [<step-3]
+
+
 # Returns a transaction that turns a regular account into a multisig
 def multisig_enable_transaction():
 	# Create an embedded multisig account modification transaction [>step-5]
@@ -104,6 +107,7 @@ def multisig_enable_transaction():
 		)
 	# [<step-7]
 	return transaction
+
 
 # Returns a transaction that turns a multisig into a regular account
 def multisig_disable_transaction():
@@ -151,6 +155,7 @@ def multisig_disable_transaction():
 		facade.sign_transaction(cosignatory_key_pairs[0], transaction))
 	# [<step-9]
 	return transaction
+
 
 facade = SymbolFacade('testnet')
 # [>step-1]

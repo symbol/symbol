@@ -12,8 +12,7 @@ from symbolchain.symbol.Metadata import (
 )
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 
@@ -49,9 +48,8 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
-# [>step-1]
-SIGNER_PRIVATE_KEY = os.getenv(
-	'SIGNER_PRIVATE_KEY',
+
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 
@@ -144,8 +142,7 @@ try:
 		'&metadataType=1'
 	)
 	print(f'Fetching current metadata from {metadata_path}')
-	with urllib.request.urlopen(
-			f'{NODE_URL}{metadata_path}') as response:
+	with urllib.request.urlopen(f'{NODE_URL}{metadata_path}') as response:
 		response_json = json.loads(response.read().decode())
 
 	# Get the metadata entry

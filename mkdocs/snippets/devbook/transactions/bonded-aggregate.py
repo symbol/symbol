@@ -9,9 +9,9 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
+
 
 # Helper function to announce transaction
 def announce_transaction(payload, endpoint, label):
@@ -24,6 +24,7 @@ def announce_transaction(payload, endpoint, label):
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
+
 
 # Helper function to wait for transaction status
 def wait_for_status(hash_value, expected_status, label):
@@ -59,16 +60,15 @@ def wait_for_status(hash_value, expected_status, label):
 		f'{label} not {expected_status} after {max_attempts} attempts'
 	)
 
+
 # Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
-ACCOUNT_A_PRIVATE_KEY = os.getenv(
-	'ACCOUNT_A_PRIVATE_KEY',
+ACCOUNT_A_PRIVATE_KEY = os.getenv('ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 account_a_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(ACCOUNT_A_PRIVATE_KEY))
 
 # Account B (sends custom mosaic to Account A)
-ACCOUNT_B_PRIVATE_KEY = os.getenv(
-	'ACCOUNT_B_PRIVATE_KEY',
+ACCOUNT_B_PRIVATE_KEY = os.getenv('ACCOUNT_B_PRIVATE_KEY',
 	'1111111111111111111111111111111111111111111111111111111111111111')
 account_b_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(ACCOUNT_B_PRIVATE_KEY))

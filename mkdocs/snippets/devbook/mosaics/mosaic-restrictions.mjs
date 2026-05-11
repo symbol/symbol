@@ -51,7 +51,7 @@ async function waitForConfirmation(transactionHash, label) {
 
 // Returns a filtered list of restrictions currently applied to the mosaic
 // matching the given restriction key
-async function getMosaicRestrictions(query, key) { // [>step-5] [>step-4]
+async function getMosaicRestrictions(query, key) {  // [>step-4]
 	const restrictionsPath = `/restrictions/mosaic?${query}`;
 	console.log(`  Getting restrictions from ${restrictionsPath}`);
 	let res = [];
@@ -77,7 +77,7 @@ function getMosaicGlobalRestrictions(mosaicId, key) {
 		`mosaicId=${mosaicId.toString(16)}&entryType=1`,
 		key);
 }
-// [<step-4]
+// [<step-4] [>step-5] 
 function getMosaicAddressRestrictions(mosaicId, address, key) {
 	return getMosaicRestrictions(
 		`mosaicId=${mosaicId.toString(16)}&entryType=0` +

@@ -9,8 +9,7 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 
@@ -46,9 +45,8 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
-# [>step-1]
-SIGNER_PRIVATE_KEY = os.getenv(
-	'SIGNER_PRIVATE_KEY',
+
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(SIGNER_PRIVATE_KEY))
@@ -102,7 +100,7 @@ try:
 	# Sign and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, definition_tx)
 	json_payload = facade.transaction_factory.attach_signature(
-			definition_tx, signature)
+		definition_tx, signature)
 	print('Built mosaic definition transaction:')
 	print(json.dumps(definition_tx.to_json(), indent=2))
 
@@ -128,7 +126,7 @@ try:
 	# Sign and generate final payload [>step-6]
 	signature = facade.sign_transaction(signer_key_pair, supply_tx)
 	json_payload = facade.transaction_factory.attach_signature(
-			supply_tx, signature)
+		supply_tx, signature)
 	print(
 		'Built mosaic supply change transaction:')
 	print(json.dumps(supply_tx.to_json(), indent=2))

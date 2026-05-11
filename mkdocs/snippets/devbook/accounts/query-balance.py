@@ -2,12 +2,11 @@ import json
 import os
 import urllib.request
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
-# [>step-1]
-def get_account_info(account_identifier):
+
+def get_account_info(account_identifier):  # [>step-1]
 	"""
 	Fetch account information by address or public key.
 
@@ -30,10 +29,10 @@ def get_account_info(account_identifier):
 			print(f'Address is not properly formatted: {e}')
 		else:
 			print(f'Unexpected error: {e}')
-		raise SystemExit(1)
-# [<step-1]
-# [>step-2]
-def get_mosaic_names(mosaic_ids):
+		raise SystemExit(1)  # [<step-1]
+
+
+def get_mosaic_names(mosaic_ids):  # [>step-2]
 	"""
 	Fetch friendly names for a set of mosaics.
 
@@ -57,10 +56,10 @@ def get_mosaic_names(mosaic_ids):
 		for entry in names_info['mosaicNames']:
 			mosaic_id = int(entry['mosaicId'], 16)
 			names_map[mosaic_id] = entry['names']
-		return names_map
-# [<step-2]
-# [>step-3]
-def get_mosaics_info(mosaic_ids):
+		return names_map  # [<step-2]
+
+
+def get_mosaics_info(mosaic_ids):  # [>step-3]
 	"""
 	Fetch information for multiple mosaics in a single request.
 
@@ -84,10 +83,10 @@ def get_mosaics_info(mosaic_ids):
 		for entry in mosaics_info:
 			mosaic_id = int(entry['mosaic']['id'], 16)
 			mosaics_map[mosaic_id] = entry['mosaic']
-		return mosaics_map
-# [<step-3]
-# [>step-4]
-def format_amount(amount, divisibility):
+		return mosaics_map  # [<step-3]
+
+
+def format_amount(amount, divisibility):  # [>step-4]
 	"""
 	Format an atomic amount with decimal places.
 
@@ -102,8 +101,8 @@ def format_amount(amount, divisibility):
 		return str(amount)
 	whole_part = amount // (10 ** divisibility)
 	fractional_part = amount % (10 ** divisibility)
-	return f'{whole_part}.{fractional_part:0{divisibility}d}'
-# [<step-4]
+	return f'{whole_part}.{fractional_part:0{divisibility}d}'  # [<step-4]
+
 
 # The account address to query [>step-5]
 ADDRESS = os.getenv(
@@ -147,4 +146,4 @@ for mosaic_entry in account_mosaics:
 
 	print(f'  Balance: {formatted_balance}')
 	print(f'  Balance (atomic): {balance}')
-	print(f'  Divisibility: {divisibility}') # [<step-5]
+	print(f'  Divisibility: {divisibility}')  # [<step-5]

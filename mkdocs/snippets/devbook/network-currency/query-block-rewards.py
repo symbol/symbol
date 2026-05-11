@@ -5,8 +5,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PublicKey
 from symbolchain.symbol.Network import Address, Network
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 BLOCK_HEIGHT = os.getenv('BLOCK_HEIGHT', '3222290')
