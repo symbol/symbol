@@ -15,22 +15,22 @@ print(f"Monitoring transaction: {transaction_hash}")
 
 
 def wait_for_transaction_confirmation(  # [>step-2]
-	transaction_hash, max_attempts=60, wait_seconds=2
+	tx_hash, max_attempts=60, wait_seconds=2
 ):
 	"""
 	Poll the transaction status endpoint until the transaction
 	is confirmed.
 
 	Args:
-		transaction_hash: The hash of the transaction to monitor
+		tx_hash: The hash of the transaction to monitor
 		max_attempts: Maximum number of polling attempts for confirmation
 		wait_seconds: Seconds to wait between attempts
 
 	Returns:
 		True if transaction was confirmed
 	"""
-	status_path = f"/transactionStatus/{transaction_hash}"
-	print(f"\nWaiting for transaction confirmation")
+	status_path = f"/transactionStatus/{tx_hash}"
+	print("\nWaiting for transaction confirmation")
 	print(f"Polling {status_path}")
 
 	for attempt in range(1, max_attempts + 1):
@@ -54,7 +54,7 @@ def wait_for_transaction_confirmation(  # [>step-2]
 				# [<step-2]
 				# Check if the transaction has been confirmed [>step-3]
 				if status_group == "confirmed":
-					print(f"\nTransaction confirmed!")
+					print("\nTransaction confirmed!")
 					return True
 				# [<step-3]
 				# Check if the transaction failed [>step-4]
@@ -66,8 +66,8 @@ def wait_for_transaction_confirmation(  # [>step-2]
 						f"Transaction failed: {status_code}"
 					)  # [<step-4]
 		# [>step-5]
-		except Exception as e:
-			if hasattr(e, 'code') and e.code == 404:
+		except urllib.error.HTTPError as err:
+			if err.status == 404:
 				print(
 					f"  Attempt {attempt}: Transaction status not "
 					"yet available"

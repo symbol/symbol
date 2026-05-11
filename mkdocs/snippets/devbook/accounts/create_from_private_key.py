@@ -10,10 +10,10 @@ facade = SymbolFacade('testnet')
 # Otherwise generate a random one.
 private_key_string = os.getenv('PRIVATE_KEY')
 if private_key_string:
-	print("Loading account from environment variable...")
+	print('Loading account from environment variable...')
 	private_key = PrivateKey(private_key_string)
 else:
-	print("Generating random account...")
+	print('Generating random account...')
 	private_key = PrivateKey.random()
 # [<step-2]
 # Create a key pair from the private key [>step-3]
