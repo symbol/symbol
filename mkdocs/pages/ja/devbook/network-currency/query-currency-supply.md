@@ -20,7 +20,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query-currency-supply', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_currency_supply', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol API[ノード](default: ノード)を設定します。
 値が指定されない場合は、デフォルトの[テストネット](default: テストネット)ノードが使用されます。
@@ -63,7 +63,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 以下の出力は、通貨供給量を照会する典型的な実行例を示しています。
 
 ```text
---8<-- 'devbook/network-currency/query-currency-supply.log'
+--8<-- 'devbook/network-currency/query_currency_supply.log'
 ```
 
 これらの値はテストネットノードからのものであり、メインネットの供給量の数値を反映していません。

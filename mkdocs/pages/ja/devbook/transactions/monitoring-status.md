@@ -29,7 +29,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/monitoring-status', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/monitoring_status', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API ノードを設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -130,7 +130,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 以下の出力は、トランザクションが未承認から承認済みへと移行する様子を監視する典型的な実行例を示しています。
 
 ```text
---8<-- 'devbook/transactions/monitoring-status.log'
+--8<-- 'devbook/transactions/monitoring_status.log'
 ```
 
 出力のポイント:

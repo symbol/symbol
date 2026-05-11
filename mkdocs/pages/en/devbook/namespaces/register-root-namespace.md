@@ -33,7 +33,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/register-root-namespace', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/register_root_namespace', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -122,7 +122,7 @@ A successful response confirms the namespace was registered and is active on the
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="7 15 18 20 30 33 34 35 36"
---8<-- 'devbook/namespaces/register-root-namespace.log'
+--8<-- 'devbook/namespaces/register_root_namespace.log'
 ```
 
 Some highlights from the output:

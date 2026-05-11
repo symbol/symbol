@@ -48,7 +48,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/namespace-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/namespace_metadata', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -220,7 +220,7 @@ in an aggregate transaction and then signed and announced.
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="3 4 18 19 20 23 37 47 48 50"
---8<-- 'devbook/namespaces/namespace-metadata.log'
+--8<-- 'devbook/namespaces/namespace_metadata.log'
 ```
 
 Key points in the output:

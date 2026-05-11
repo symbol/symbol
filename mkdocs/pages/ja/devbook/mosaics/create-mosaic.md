@@ -27,7 +27,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/create-mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/create_mosaic', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -151,7 +151,7 @@ tutorial_level: advanced
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="9 10 18 20 21 23 24 46 60 61 62 63 64"
---8<-- 'devbook/mosaics/create-mosaic.log'
+--8<-- 'devbook/mosaics/create_mosaic.log'
 ```
 
 出力の主なポイント:

@@ -16,7 +16,7 @@ If you have not done so already, start with [Setting Up a Development Environmen
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/create-from-private-key', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/create_from_private_key', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -61,7 +61,7 @@ After defining the private key, an account is created by deriving its public key
 The output shown below corresponds to a typical run of the program.
 
 ```text
---8<-- 'devbook/accounts/create-from-private-key.log'
+--8<-- 'devbook/accounts/create_from_private_key.log'
 ```
 
 Each time the program runs without the environment variable, it generates a different random account.
