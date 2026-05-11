@@ -9,13 +9,13 @@ Expected macro form:
 Output shape:
 
 	- page: devbook/transactions/transfer.md
-	  snippets:
-		py:
-		  start: 16
-		  end: 18
-		js:
-		  start: 12
-		  end: 15
+		snippets:
+			py:
+				start: 16
+				end: 18
+			js:
+				start: 12
+				end: 15
 
 The source file is assumed to match the Markdown file path with the language
 extension replacing .md, so it is intentionally omitted.
@@ -55,8 +55,8 @@ def parse_snippet_arg(args_text: str, md_path: Path) -> dict[str, dict[str, int]
 	Returns:
 
 		{
-		  "py": {"start": 16, "end": 18},
-		  "js": {"start": 12, "end": 15}
+			"py": {"start": 16, "end": 18},
+			"js": {"start": 12, "end": 15}
 		}
 	"""
 	try:

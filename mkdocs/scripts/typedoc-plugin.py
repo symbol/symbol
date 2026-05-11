@@ -14,6 +14,7 @@ from mkdocs.structure.files import File
 
 log: logging.Logger = logging.getLogger("mkdocs")
 
+
 @mkdocs.plugins.event_priority(10)
 def on_files(files, config):
 	plugin_config = config["extra"]["symbol"]["ts-sdk"]
@@ -51,7 +52,8 @@ def on_files(files, config):
 	# Check if TypeDoc is installed
 	if not is_typedoc_installed():
 		log.error(
-			"TypeDoc is not installed. Please install it with `npm install typedoc --save-dev`. See https://typedoc.kubaandrysek.cz for more information."
+			"""TypeDoc is not installed. Please install it with `npm install typedoc --save-dev`.
+			See https://typedoc.kubaandrysek.cz for more information."""
 		)
 		return files
 
@@ -95,8 +97,10 @@ def on_files(files, config):
 
 	return files
 
+
 def get_npx_filename():
 	return "npx.cmd" if os.name == "nt" else "npx"
+
 
 def is_node_installed():
 	try:
@@ -109,6 +113,7 @@ def is_node_installed():
 	except Exception as e:
 		log.error(f"TypeDoc: Node.js failed with error: {e}")
 		return False
+
 
 def is_typedoc_installed():
 	try:

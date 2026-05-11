@@ -51,8 +51,9 @@ def add_tag_to_line(line: str, tag: str, comment_prefix: str, comment_re: re.Pat
 	return f"{body} {comment_prefix} {tag}{newline}"
 
 
-def find_indent(l: str) -> int:
-	return len(l) - len(l.lstrip('\t'))
+def find_indent(line: str) -> int:
+	return len(line) - len(line.lstrip('\t'))
+
 
 def add_opening_tag(lines: list[str], start_line: int, tag: str, comment_prefix: str, comment_re: re.Pattern[str], indent: int) -> None:
 	index = start_line - 1
