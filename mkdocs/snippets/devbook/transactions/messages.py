@@ -19,27 +19,24 @@ print(f"Using node {NODE_URL}")
 # Helper function to poll for confirmed transaction
 def retrieve_confirmed_transaction(hash_value, label):
 	print(f"Polling for {label} confirmation...")
-	confirmed = False
 	attempts = 0
 	max_attempts = 60
 
-	while not confirmed and attempts < max_attempts:
+	while attempts < max_attempts:
 		try:
 			url = f"{NODE_URL}/transactions/confirmed/{hash_value}"
-			with urllib.request.urlopen(url) as response:
-				confirmed = True
+			with urllib.request.urlopen(url) as transaction_confirmed:
 				print(f"  {label} confirmed!")
-				return json.loads(response.read().decode())
+				return json.loads(transaction_confirmed.read().decode())
 		except urllib.error.HTTPError:
 			# Transaction not yet confirmed
 			pass
 		attempts += 1
 		time.sleep(2)
 
-	if not confirmed:
-		raise Exception(
-			f"{label} not confirmed after {max_attempts} attempts"
-		)
+	raise TimeoutError(
+		f"{label} not confirmed after {max_attempts} attempts"
+	)
 
 
 # Set up sender and recipient accounts [>step-1]
@@ -76,7 +73,7 @@ print(f"Fetching current network time from {time_path}")
 with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
 	response_json = json.loads(response.read().decode())
 	timestamp = NetworkTimestamp(int(
-		response_json['communicationTimestamps']['receiveTimestamp'])
+		response_json["communicationTimestamps"]["receiveTimestamp"])
 	)
 	print(f"  Network time: {timestamp.timestamp} ms since nemesis")
 
@@ -129,7 +126,7 @@ plain_announce_request = urllib.request.Request(
 	method="PUT",
 )
 with urllib.request.urlopen(plain_announce_request) as response:
-	print(f"Plain message transaction announced\n")
+	print("Plain message transaction announced\n")
 
 # ===== RECEIVING PLAIN TEXT MESSAGE =====
 print("<== Receiving Plain Text Message")  # [>step-3]
@@ -144,7 +141,7 @@ received_plain_message = bytes.fromhex(
 	plain_tx_data["transaction"]["message"]
 )
 print(
-	f"Received plain message: {received_plain_message.decode('utf-8')}\n"
+	f'Received plain message: {received_plain_message.decode("utf-8")}\n'
 )
 # [<step-3]
 # ===== ENCRYPTED MESSAGE =====
@@ -193,7 +190,7 @@ encrypted_announce_request = urllib.request.Request(
 	method="PUT",
 )
 with urllib.request.urlopen(encrypted_announce_request) as response:
-	print(f"Encrypted message transaction announced\n")
+	print("Encrypted message transaction announced\n")
 
 # ===== RECEIVING ENCRYPTED MESSAGE =====
 print("<== Receiving Encrypted Message")  # [>step-5]
@@ -222,4 +219,4 @@ if is_decoded:
 	message_text = decrypted_message.decode("utf-8")
 	print(f"Recipient decrypted message: {message_text}")
 else:
-	print(f"Recipient failed to decrypt message")  # [<step-5]
+	print("Recipient failed to decrypt message")  # [<step-5]

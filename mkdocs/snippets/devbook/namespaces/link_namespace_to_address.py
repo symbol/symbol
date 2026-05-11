@@ -105,7 +105,7 @@ try:
 					attempt, 'seconds')
 				break
 			if status['group'] == 'failed':
-				raise Exception('Address alias transaction failed:',
+				raise RuntimeError('Address alias transaction failed:',
 					status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')

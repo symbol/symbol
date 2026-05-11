@@ -156,20 +156,22 @@ try:
 		print(f'  Fee multiplier: {fee_mult}')
 
 	# Choose one
-	(transaction, json_payload) = build_prefunded_message_transaction(
-		'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I', 'Hello world!')
-	# (transaction, json_payload) = build_sponsored_message_transaction(
-	# 'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I', 'Hello world!')
+	(agg_transaction,
+		agg_json_payload) = build_prefunded_message_transaction(
+			'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I', 'Hello world!')
+	# (agg_transaction,
+	# 	agg_json_payload) = build_sponsored_message_transaction(
+	# 		'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I', 'Hello world!')
 
 	print('Built transaction:')
-	print(json.dumps(transaction.to_json(), indent=2))
+	print(json.dumps(agg_transaction.to_json(), indent=2))
 
 	# Announce the transaction
 	announce_path = '/transactions'
 	print(f'Announcing transaction to {announce_path}')
 	announce_request = urllib.request.Request(
 		f'{NODE_URL}{announce_path}',
-		data=json_payload.encode(),
+		data=agg_json_payload.encode(),
 		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
@@ -178,7 +180,7 @@ try:
 
 	# Wait for confirmation
 	status_path = (
-		f'/transactionStatus/{facade.hash_transaction(transaction)}')
+		f'/transactionStatus/{facade.hash_transaction(agg_transaction)}')
 	print(f'Waiting for confirmation from {status_path}')
 	for attempt in range(60):
 		time.sleep(1)

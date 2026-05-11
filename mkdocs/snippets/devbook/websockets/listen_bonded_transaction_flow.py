@@ -150,15 +150,15 @@ async def main():
 			name = message['topic'].split('/')[0]
 
 			if name == 'confirmedAdded':
-				message_hash = (message['data']['meta']['hash'])
+				message_hash = message['data']['meta']['hash']
 				if message_hash == str(hash_lock_hash):
 					print('Hash lock confirmed')
 					break
 
 			if name == 'status':
-				status_hash = (message['data']['hash'])
+				status_hash = message['data']['hash']
 				if status_hash == str(hash_lock_hash):
-					raise Exception(
+					raise RuntimeError(
 						'Hash lock failed: ' + message['data']['code'])
 
 		for channel in lock_channels:
@@ -208,18 +208,18 @@ async def main():
 			name = topic.split('/')[0]
 
 			if name == 'cosignature':
-				signer = (message['data']['signerPublicKey'])
+				signer = message['data']['signerPublicKey']
 				print(f'cosignature: signer={signer[:16]}...')
 
 			elif name == 'status':
 				status_hash = message['data']['hash']
 				print(f'status: hash={status_hash[:16]}...')
 				if status_hash == str(bonded_hash):
-					raise Exception(
+					raise RuntimeError(
 						'Transaction failed: ' + message['data']['code'])
 
 			elif name == 'partialAdded':
-				message_hash = (message['data']['meta']['hash'])
+				message_hash = message['data']['meta']['hash']
 				print(f'partialAdded: hash={message_hash[:16]}...')
 				if message_hash == str(bonded_hash):
 					cosignature = facade.cosign_transaction_hash(
@@ -244,7 +244,7 @@ async def main():
 					print('[Account B] Submitted cosignature')
 
 			elif name == 'confirmedAdded':
-				message_hash = (message['data']['meta']['hash'])
+				message_hash = message['data']['meta']['hash']
 				print(f'confirmedAdded: hash={message_hash[:16]}...')
 				if message_hash == str(bonded_hash):
 					print('Transaction '
@@ -252,7 +252,7 @@ async def main():
 					break
 
 			else:
-				message_hash = (message['data']['meta']['hash'])
+				message_hash = message['data']['meta']['hash']
 				print(f'{name}: hash={message_hash[:16]}...')
 # [<step-5]
 		# Unsubscribe before closing [>step-6]

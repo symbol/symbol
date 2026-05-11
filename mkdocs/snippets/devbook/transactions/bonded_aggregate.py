@@ -3,7 +3,7 @@ import os
 import time
 import urllib.request
 
-from symbolchain.CryptoTypes import Hash256, PrivateKey
+from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
@@ -22,8 +22,8 @@ def announce_transaction(payload, endpoint, label):
 		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
-	with urllib.request.urlopen(request) as response:
-		print(f'  Response: {response.read().decode()}')
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
 
 
 # Helper function to wait for transaction status
@@ -35,28 +35,28 @@ def wait_for_status(hash_value, expected_status, label):
 	while attempts < max_attempts:
 		try:
 			url = f'{NODE_URL}/transactionStatus/{hash_value}'
-			with urllib.request.urlopen(url) as response:
-				status = json.loads(response.read().decode())
+			with urllib.request.urlopen(url) as status_response:
+				status = json.loads(status_response.read().decode())
 
 				print(f'  Transaction status: {status["group"]}')
 
 				if status['group'] == 'failed':
-					raise Exception(f'{label} failed: {status["code"]}')
+					raise RuntimeError(f'{label} failed: {status["code"]}')
 
 				if status['group'] == expected_status:
 					print(f'{label} {expected_status} ' +
 					f'in {attempts} seconds')
 					return
 
-		except urllib.error.HTTPError as e:
-			if e.code != 404:
+		except urllib.error.HTTPError as err:
+			if err.code != 404:
 				raise
 			print('  Transaction status: not yet available')
 
 		attempts += 1
 		time.sleep(1)
 
-	raise Exception(
+	raise TimeoutError(
 		f'{label} not {expected_status} after {max_attempts} attempts'
 	)
 
@@ -201,7 +201,7 @@ try:
 	with urllib.request.urlopen(f'{NODE_URL}{partial_path}') as response:
 		partial_txs = json.loads(response.read().decode())
 		if not partial_txs['data']:
-			raise Exception('No partial transactions found')
+			raise RuntimeError('No partial transactions found')
 
 	print(f'Found {len(partial_txs["data"])} partial transaction(s)')
 
@@ -211,7 +211,7 @@ try:
 		for tx in partial_txs['data']
 	)
 	if not found:
-		raise Exception(
+		raise RuntimeError(
 			f'Expected transaction {bonded_hash} not found in '
 			f'partial transactions')
 	print(f'Found matching transaction: {bonded_hash}')

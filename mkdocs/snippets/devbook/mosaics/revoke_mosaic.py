@@ -16,9 +16,9 @@ print(f'Using node {NODE_URL}')
 def get_account_mosaics(address):
 	account_path = f'/accounts/{address}'
 	print(f'Fetching account information from {account_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{account_path}') as response:
-		response_json = json.loads(response.read().decode())
-		return response_json['account']['mosaics']
+	with urllib.request.urlopen(f'{NODE_URL}{account_path}') as resp:
+		resp_json = json.loads(resp.read().decode())
+		return resp_json['account']['mosaics']
 
 
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
@@ -118,7 +118,7 @@ try:
 					attempt, 'seconds')
 				break
 			if status['group'] == 'failed':
-				raise Exception(
+				raise RuntimeError(
 					f'Mosaic revocation failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')

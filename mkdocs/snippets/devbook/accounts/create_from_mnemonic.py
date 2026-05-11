@@ -10,9 +10,9 @@ facade = SymbolFacade('testnet')
 bip32 = Bip32()
 mnemonic = os.getenv('MNEMONIC')
 if mnemonic:
-	print("Loading mnemonic phrase from environment variable...")
+	print('Loading mnemonic phrase from environment variable...')
 else:
-	print("Generating random mnemonic phrase...")
+	print('Generating random mnemonic phrase...')
 	mnemonic = bip32.random()
 print(f'Mnemonic phrase: {mnemonic}')
 # [<step-2]

@@ -128,35 +128,35 @@ def wait_for_status(hash_value, expected_status, label):
 
 	while attempts < max_attempts:
 		try:
-			url = (f'{SYMBOL_NODE_URL}/transactionStatus/{hash_value}')
+			url = f'{SYMBOL_NODE_URL}/transactionStatus/{hash_value}'
 			with urllib.request.urlopen(url) as response:
 				status = json.loads(response.read().decode())
 				print(f'  Transaction status: {status["group"]}')
 
 				if status['group'] == 'failed':
-					raise Exception(f'{label} failed: {status["code"]}')
+					raise RuntimeError(f'{label} failed: {status["code"]}')
 
 				if status['group'] == expected_status:
 					print(f'{label} {expected_status}'
 						f' in {attempts} seconds')
 					return
 
-		except urllib.error.HTTPError as e:
-			if e.code != 404:
+		except urllib.error.HTTPError as err:
+			if err.code != 404:
 				raise
 			print('  Transaction status: not yet available')
 
 		attempts += 1
 		time.sleep(1)
 
-	raise Exception(
+	raise TimeoutError(
 		f'{label} not {expected_status} after {max_attempts} attempts')
 
 
 # Poll Symbol for a confirmed secret proof transaction matching
 # a hashlock.
-def wait_for_secret_proof(signer_address, hashlock):
-	hashlock_hex = hashlock.hex().upper()
+def wait_for_secret_proof(signer_address, hlock):
+	hashlock_hex = hlock.hex().upper()
 	url = (f'{SYMBOL_NODE_URL}/transactions/confirmed'
 		f'?address={signer_address}&type=16978&order=desc')
 	print(f'Polling {url}')
@@ -167,15 +167,15 @@ def wait_for_secret_proof(signer_address, hashlock):
 	while attempts < max_attempts:
 		with urllib.request.urlopen(url) as response:
 			data = json.loads(response.read().decode())
-		for tx in data.get('data', []):
-			secret = tx['transaction'].get('secret', '')
-			if secret.upper() == hashlock_hex:
+		for trans in data.get('data', []):
+			found_secret = trans['transaction'].get('secret', '')
+			if found_secret.upper() == hashlock_hex:
 				print(f'  Found proof transaction after {attempts}s')
-				return bytes.fromhex(tx['transaction']['proof'])
+				return bytes.fromhex(trans['transaction']['proof'])
 		attempts += 1
 		time.sleep(1)
 
-	raise Exception(
+	raise TimeoutError(
 		f'Secret proof not found after {max_attempts} attempts')
 
 

@@ -14,18 +14,16 @@ console.log('Using node', NODE_URL);
 // Helper function to poll for confirmed transaction
 async function retrieveConfirmedTransaction(hash, label) {
 	console.log(`Polling for ${label} confirmation...`);
-	let confirmed = false;
 	let attempts = 0;
 	const maxAttempts = 60;
 
-	while (!confirmed && attempts < maxAttempts) {
+	while (attempts < maxAttempts) {
 		try {
-			const response = await fetch(
+			const transaction_confirmed = await fetch(
 				`${NODE_URL}/transactions/confirmed/${hash}`);
-			if (response.ok) {
-				confirmed = true;
+			if (transaction_confirmed.ok) {
 				console.log(`  ${label} confirmed!`);
-				return await response.json();
+				return await transaction_confirmed.json();
 			}
 		} catch (error) {
 			// Transaction not yet confirmed
@@ -34,10 +32,8 @@ async function retrieveConfirmedTransaction(hash, label) {
 		await new Promise(resolve => setTimeout(resolve, 2000));
 	}
 
-	if (!confirmed) {
-		throw new Error(
-			`${label} not confirmed after ${maxAttempts} attempts`);
-	}
+	throw new Error(
+		`${label} not confirmed after ${maxAttempts} attempts`);
 }
 
 // Set up sender and recipient accounts [>step-1]

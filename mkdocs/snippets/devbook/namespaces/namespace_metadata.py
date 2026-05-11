@@ -26,28 +26,28 @@ def announce_transaction(payload, label):
 		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
-	with urllib.request.urlopen(request) as response:
-		print(f'  Response: {response.read().decode()}')
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
 
 
 # Helper function to wait for transaction confirmation
-def wait_for_confirmation(transaction_hash, label):
+def wait_for_confirmation(tx_hash, label):
 	print(f'Waiting for {label} confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
 		try:
-			url = f'{NODE_URL}/transactionStatus/{transaction_hash}'
-			with urllib.request.urlopen(url) as response:
-				status = json.loads(response.read().decode())
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
 				print(f'  Transaction status: {status["group"]}')
 				if status['group'] == 'confirmed':
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise Exception(f'{label} failed: {status["code"]}')
+					raise RuntimeError(f'{label} failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-	raise Exception(f'{label} not confirmed after 60 seconds')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')
 
 
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
@@ -149,7 +149,7 @@ try:
 
 	# Get the metadata entry
 	if not response_json['data']:
-		raise Exception('Metadata entry not found')
+		raise RuntimeError('Metadata entry not found')
 	metadata_entry = response_json['data'][0]['metadataEntry']
 	current_value = bytes.fromhex(metadata_entry['value'])
 	print(f'  Current value: {current_value.decode("utf8")}')

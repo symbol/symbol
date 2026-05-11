@@ -103,7 +103,7 @@ try:
 					attempt, 'seconds')
 				break
 			if status['group'] == 'failed':
-				raise Exception('Mosaic alias transaction failed:',
+				raise RuntimeError('Mosaic alias transaction failed:',
 					status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')

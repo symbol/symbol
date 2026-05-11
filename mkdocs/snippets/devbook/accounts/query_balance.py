@@ -22,14 +22,14 @@ def get_account_info(account_identifier):  # [>step-1]
 		with urllib.request.urlopen(account_url) as response:
 			account_info = json.loads(response.read().decode())
 			return account_info['account']
-	except urllib.error.HTTPError as e:
-		if e.status == 404:
-			print(f'Address does not exist: {e}')
-		elif e.status == 409:
-			print(f'Address is not properly formatted: {e}')
+	except urllib.error.HTTPError as err:
+		if err.status == 404:
+			print(f'Address does not exist: {err}')
+		elif err.status == 409:
+			print(f'Address is not properly formatted: {err}')
 		else:
-			print(f'Unexpected error: {e}')
-		raise SystemExit(1)  # [<step-1]
+			print(f'Unexpected error: {err}')
+		raise SystemExit(1) from err  # [<step-1]
 
 
 def get_mosaic_names(mosaic_ids):  # [>step-2]
@@ -54,8 +54,8 @@ def get_mosaic_names(mosaic_ids):  # [>step-2]
 		# Build a dictionary mapping mosaic IDs to their names
 		names_map = {}
 		for entry in names_info['mosaicNames']:
-			mosaic_id = int(entry['mosaicId'], 16)
-			names_map[mosaic_id] = entry['names']
+			entry_id = int(entry['mosaicId'], 16)
+			names_map[entry_id] = entry['names']
 		return names_map  # [<step-2]
 
 
@@ -81,8 +81,8 @@ def get_mosaics_info(mosaic_ids):  # [>step-3]
 		# Build a dictionary mapping mosaic IDs to their properties
 		mosaics_map = {}
 		for entry in mosaics_info:
-			mosaic_id = int(entry['mosaic']['id'], 16)
-			mosaics_map[mosaic_id] = entry['mosaic']
+			entry_id = int(entry['mosaic']['id'], 16)
+			mosaics_map[entry_id] = entry['mosaic']
 		return mosaics_map  # [<step-3]
 
 
@@ -120,24 +120,24 @@ else:
 	print(f'Account holds {len(account_mosaics)} mosaic(s):')
 
 # Fetch mosaic properties and names for all mosaics
-mosaic_ids = [int(m['id'], 16) for m in account_mosaics]
-mosaic_names = get_mosaic_names(mosaic_ids)
-mosaics_info = get_mosaics_info(mosaic_ids)
+acc_mosaic_ids = [int(m['id'], 16) for m in account_mosaics]
+acc_mosaic_names = get_mosaic_names(acc_mosaic_ids)
+acc_mosaics_info = get_mosaics_info(acc_mosaic_ids)
 
 for mosaic_entry in account_mosaics:
 	mosaic_id = int(mosaic_entry['id'], 16)
 	balance = int(mosaic_entry['amount'])
 
 	# Get mosaic properties
-	info = mosaics_info[mosaic_id]
-	divisibility = info['divisibility']
+	info = acc_mosaics_info[mosaic_id]
+	mosaic_divisibility = info['divisibility']
 
 	# Format and display the balance
-	formatted_balance = format_amount(balance, divisibility)
+	formatted_balance = format_amount(balance, mosaic_divisibility)
 	mosaic_id_hex = f'0x{mosaic_id:016X}'
 
 	# Display mosaic ID and names (if available)
-	names = mosaic_names.get(mosaic_id, [])
+	names = acc_mosaic_names.get(mosaic_id, [])
 	if names:
 		names_str = ', '.join(names)
 		print(f'- Mosaic {mosaic_id_hex} ({names_str})')
@@ -146,4 +146,4 @@ for mosaic_entry in account_mosaics:
 
 	print(f'  Balance: {formatted_balance}')
 	print(f'  Balance (atomic): {balance}')
-	print(f'  Divisibility: {divisibility}')  # [<step-5]
+	print(f'  Divisibility: {mosaic_divisibility}')  # [<step-5]

@@ -87,13 +87,13 @@ try:
 				f'{NODE_URL}/transactionStatus/{transaction_hash}')
 			with urllib.request.urlopen(status_url) as response:
 				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status["group"]}')
+				print(f"  Transaction status: {status['group']}")
 			if status['group'] == 'confirmed':
 				print('Namespace registration confirmed in',
 					attempt, 'seconds')
 				break
 			if status['group'] == 'failed':
-				raise Exception('Namespace registration failed:',
+				raise RuntimeError('Namespace registration failed:',
 					status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
@@ -108,13 +108,13 @@ try:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Namespace information:')
-		reg_type = namespace_info["registrationType"]
+		reg_type = namespace_info['registrationType']
 		print(f'  Registration type: {reg_type}')
 		owner_address = Address.from_decoded_address_hex_string(
-			namespace_info["ownerAddress"])
+			namespace_info['ownerAddress'])
 		print(f'  Owner address: {owner_address}')
-		print(f'  Start height: {namespace_info["startHeight"]}')  # [<step-6]
-		print(f'  End height: {namespace_info["endHeight"]}')
+		print(f"  Start height: {namespace_info['startHeight']}")  # [<step-6]
+		print(f"  End height: {namespace_info['endHeight']}")
 
 except Exception as e:
 	print(e)
