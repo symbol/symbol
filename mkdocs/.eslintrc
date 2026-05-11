@@ -3,7 +3,23 @@ extends:
   - airbnb
   - plugin:jsdoc/recommended-error
   - ../linters/javascript/default.eslintrc
+globals:
+  WebSocket: readonly
 rules:
   import/extensions:
     - error
     - ignorePackages
+  no-console: off
+  max-len:
+    - error
+    - code: 75
+      ignoreTrailingComments: true
+  function-paren-newline:
+    - off
+  prefer-destructuring:
+    - off
+  no-restricted-syntax:
+    - error
+    - ForInStatement
+    - LabeledStatement
+    - WithStatement
