@@ -17,7 +17,7 @@ The header of each of the tables below indicates which file contains that table'
 
 <div class="md-typeset__scrollwrap">
 <div class="md-typeset__table">
---8<-- 'devbook/reference/config/config-network.properties.html'
+--8<-- 'devbook/reference/config/config_network.properties.html'
 </div>
 </div>
 

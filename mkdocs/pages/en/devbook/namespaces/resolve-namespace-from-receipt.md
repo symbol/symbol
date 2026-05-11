@@ -27,7 +27,7 @@ balance is needed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/resolve-namespace-from-receipt', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/resolve_namespace_from_receipt', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -134,7 +134,7 @@ The same matching logic applies: the last entry whose `primaryId` is less than o
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="2 4 5 6 7 8 9 15 16 22 23"
---8<-- 'devbook/namespaces/resolve-namespace-from-receipt.log'
+--8<-- 'devbook/namespaces/resolve_namespace_from_receipt.log'
 ```
 
 Some highlights from the output:

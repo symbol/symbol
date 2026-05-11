@@ -61,7 +61,7 @@ payment, which users can remove individually once they choose to manage fees the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/fee-sponsorship', ['py', 'js'], show=false) }}
+{{ tutorial.code_full_tagged('devbook/transactions/fee_sponsorship', ['py', 'js'], show=false) }}
 
 ## Option 1: Prefunded Fees
 

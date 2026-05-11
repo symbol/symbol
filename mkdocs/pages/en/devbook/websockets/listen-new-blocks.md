@@ -36,7 +36,7 @@ This tutorial shows how to subscribe to both channels and display each update as
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen-new-blocks', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_new_blocks', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.
@@ -108,7 +108,7 @@ This ensures a clean disconnection from the node.
 The following output shows a typical run listening to new blocks and finalization events:
 
 ```text linenums="1" hl_lines="2 3 4 5 8 11"
---8<-- 'devbook/websockets/listen-new-blocks.log'
+--8<-- 'devbook/websockets/listen_new_blocks.log'
 ```
 
 The output shows:

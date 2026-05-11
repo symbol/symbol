@@ -17,7 +17,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/create-from-mnemonic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/create_from_mnemonic', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -94,7 +94,7 @@ Symbolは [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text
---8<-- 'devbook/accounts/create-from-mnemonic.log'
+--8<-- 'devbook/accounts/create_from_mnemonic.log'
 ```
 
 環境変数を指定せずにコードを実行するたびに、異なるランダムなニーモニックとアカウントが生成されます。

@@ -17,7 +17,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/chain-heights', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/chain_heights', ['py', 'js']) }}
 
 このスニペットでは、`NODE_URL` 環境変数を使用して Symbol API [ノード](default:ノード) を設定します。値が指定されない場合は、デフォルト値が使用されます。
 
@@ -66,7 +66,7 @@ tutorial_level: beginner
 以下の出力は、チェーン高とファイナライズ高を監視する典型的な実行例を示しています:
 
 ```text
---8<-- 'devbook/chain/chain-heights.log'
+--8<-- 'devbook/chain/chain_heights.log'
 ```
 
 出力のポイント:

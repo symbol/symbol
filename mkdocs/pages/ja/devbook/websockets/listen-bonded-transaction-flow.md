@@ -48,7 +48,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen-bonded-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow', ['py', 'js']) }}
 
 アグリゲートボンデッドトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築、署名、アナウンスする **開始者** （アカウント A）と、WebSocket チャネルを監視し、トランザクションを検証した後に連署する1人以上の **連署者** （アカウント B）です。
 
@@ -125,7 +125,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 ## 出力 {: #output }
 
 ```text linenums="1" hl_lines="2-3 6 7 8-14 15 16-22"
---8<-- 'devbook/websockets/listen-bonded-transaction-flow.log'
+--8<-- 'devbook/websockets/listen_bonded_transaction_flow.log'
 ```
 
 出力のポイント:
