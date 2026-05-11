@@ -26,6 +26,24 @@ Select the language you prefer:
     ```
     </td></tr></table>
 
+    ??? warning "Troubleshooting"
+
+        On some systems, installing the SDK may require additional system packages,
+        because some Python dependencies are built from source.
+
+        If installation fails with errors related to missing headers, libraries, or compiler tools,
+        install the required **development packages** for your system and run the installation again.
+
+        Common symptoms include errors mentioning `gcc` or `pysha3`.
+
+        On Ubuntu and Debian, it is typically enough to install:
+
+        ```bash
+        sudo apt install python3-dev build-essential
+        ```
+
+        Then run the Symbol SDK installation again.
+
 === ":simple-javascript: JavaScript"
 
     <table markdown class="setup">
