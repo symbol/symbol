@@ -10,8 +10,7 @@ from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 from websockets import connect
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 WS_URL = NODE_URL.replace('http', 'ws', 1) + '/ws'
 print(f'Using node {NODE_URL}')
 # [>step-1]
@@ -32,8 +31,8 @@ account_a_address = facade.network.public_key_to_address(
 account_b_address = facade.network.public_key_to_address(
 	account_b_key_pair.public_key)
 print(f'Account A: {account_a_address}')
-print(f'Account B: {account_b_address}')
-# [<step-1]
+print(f'Account B: {account_b_address}')  # [<step-1]
+
 
 async def main():
 	# Fetch current network time
@@ -160,7 +159,7 @@ async def main():
 				status_hash = (message['data']['hash'])
 				if status_hash == str(hash_lock_hash):
 					raise Exception(
-					'Hash lock failed: ' +message['data']['code'])
+						'Hash lock failed: ' + message['data']['code'])
 
 		for channel in lock_channels:
 			await websocket.send(json.dumps({
@@ -224,7 +223,7 @@ async def main():
 				print(f'partialAdded: hash={message_hash[:16]}...')
 				if message_hash == str(bonded_hash):
 					cosignature = facade.cosign_transaction_hash(
-							account_b_key_pair, bonded_hash, True)
+						account_b_key_pair, bonded_hash, True)
 					cosignature_payload = json.dumps({
 						'version': str(cosignature.version),
 						'signerPublicKey': str(
@@ -236,7 +235,7 @@ async def main():
 						urllib.request.Request(
 							f'{NODE_URL}/transactions/cosignature',
 							data=(cosignature_payload.encode()),
-							headers={'Content-Type':'application/json'},
+							headers={'Content-Type': 'application/json'},
 							method='PUT'))
 					with urllib.request.urlopen(
 						cosignature_request

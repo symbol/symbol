@@ -8,9 +8,9 @@ from symbolchain.facade.SymbolFacade import Address, SymbolFacade
 from symbolchain.sc import AccountRestrictionFlags, Amount
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.environ.get(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
+
 
 # Helper function to announce a transaction
 def announce_transaction(payload, label):
@@ -23,6 +23,7 @@ def announce_transaction(payload, label):
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
+
 
 # Helper function to wait for transaction confirmation
 def wait_for_confirmation(transaction_hash, label):
@@ -43,8 +44,9 @@ def wait_for_confirmation(transaction_hash, label):
 			print('  Transaction status: unknown')
 	raise Exception(f'{label} not confirmed after 60 seconds')
 
+
 # Returns the list of restrictions currently applied to the account
-def get_account_restrictions(address): # [>step-3]
+def get_account_restrictions(address):  # [>step-3]
 	restrictions_path = f'/restrictions/account/{address}'
 	print(f'Getting restrictions from {restrictions_path}')
 	try:
@@ -57,10 +59,11 @@ def get_account_restrictions(address): # [>step-3]
 	except urllib.error.HTTPError:
 		# The address has never been used
 		print('  Response: No restrictions found')
-	return []
-# [<step-3]
+	return []  # [<step-3]
+
+
 # Returns a transaction that restricts an account
-def restriction_enable_transaction(): # [>step-5]
+def restriction_enable_transaction():  # [>step-5]
 	transaction = facade.transaction_factory.create({
 		'type': 'account_address_restriction_transaction_v1',
 		# This is the account that will be restricted
@@ -77,10 +80,11 @@ def restriction_enable_transaction(): # [>step-5]
 	print('Enabling the restriction with transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 
-	return transaction
-# [<step-5]
+	return transaction  # [<step-5]
+
+
 # Returns a transaction that removes a restriction from an account
-def restriction_disable_transaction(restriction): # [>step-6]
+def restriction_disable_transaction(restriction):  # [>step-6]
 	transaction = facade.transaction_factory.create({
 		'type': 'account_address_restriction_transaction_v1',
 		# This is the account whose restriction will be lifted
@@ -98,11 +102,12 @@ def restriction_disable_transaction(restriction): # [>step-6]
 	print('Disabling the restriction with transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 
-	return transaction
-# [<step-6]
+	return transaction  # [<step-6]
+
+
 facade = SymbolFacade('testnet')
-# [>step-1]
-SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
+
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 signer_address = facade.network.public_key_to_address(
@@ -135,7 +140,7 @@ try:
 	# [<step-2]
 	# Get current state of the restriction and decide which
 	# operation to perform
-	restrictions = get_account_restrictions(signer_address) # [>step-4]
+	restrictions = get_account_restrictions(signer_address)  # [>step-4]
 	if len(restrictions) == 0:
 		# Enable the restriction
 		print('\n--- Enabling restriction ---')
