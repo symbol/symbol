@@ -29,11 +29,13 @@ def iterate_count(id):
 	percentage[id] = prog
 	return prog
 
+
 def iterate_print(id, indent):
 	if id in ch:
 		print("--" * (indent - 1) + ("->" if indent > 0 else ""), names[id], ",", percentage[id])
 		for c in ch[id]:
 			iterate_print(c, indent + 1)
+
 
 d = pd.read_csv('filtered.csv')
 
