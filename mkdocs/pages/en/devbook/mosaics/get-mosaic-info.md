@@ -19,7 +19,7 @@ Before you start, make sure to [set up your development environment](../start/se
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/get-mosaic-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/get_mosaic_info', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
@@ -77,7 +77,7 @@ If no namespace is linked, the response indicates that no aliases exist.
 The output shown below corresponds to a typical run of the program, querying the XYM mosaic on testnet.
 
 ```text linenums="1" hl_lines="5 6 7 8 9 10 11 13 16"
---8<-- 'devbook/mosaics/get-mosaic-info.log'
+--8<-- 'devbook/mosaics/get_mosaic_info.log'
 ```
 
 Some highlights from the output:

@@ -17,7 +17,7 @@ Symbolには、カスタマイズ可能なネットワーク関連の設定が�
 
 <div class="md-typeset__scrollwrap">
 <div class="md-typeset__table">
---8<-- 'devbook/reference/config/config-network.properties.html'
+--8<-- 'devbook/reference/config/config_network.properties.html'
 </div>
 </div>
 

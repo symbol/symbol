@@ -17,7 +17,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/get-namespace-info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/get_namespace_info', ['py', 'js']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol APIノードを設定します。
 値が指定されない場合は、デフォルトの [テストネット](default:テストネット) ノードが使用されます。
@@ -69,7 +69,7 @@ tutorial_level: beginner
 以下に示す出力は、テストネット上の `symbol.xym` ネームスペースを照会する、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="3 6 7 8 9 10 11 12 13 14"
---8<-- 'devbook/namespaces/get-namespace-info.log'
+--8<-- 'devbook/namespaces/get_namespace_info.log'
 ```
 
 出力の主なポイント:

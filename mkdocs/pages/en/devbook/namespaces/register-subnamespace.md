@@ -35,7 +35,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/register-subnamespace', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/register_subnamespace', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -110,7 +110,7 @@ A successful response confirms the subnamespace was registered and is active on 
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="7 8 16 19 21 30 33 34 35 36 37 38 39 40"
---8<-- 'devbook/namespaces/register-subnamespace.log'
+--8<-- 'devbook/namespaces/register_subnamespace.log'
 ```
 
 Some highlights from the output:

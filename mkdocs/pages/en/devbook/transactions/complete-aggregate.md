@@ -82,7 +82,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/complete-aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/complete_aggregate', ['py', 'js']) }}
 
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.
@@ -252,7 +252,7 @@ Once confirmed, the swap is complete and both transfers have executed.
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="10 14 18 48 53 60 66"
---8<-- 'devbook/transactions/complete-aggregate.log'
+--8<-- 'devbook/transactions/complete_aggregate.log'
 ```
 
 Key points in the output:

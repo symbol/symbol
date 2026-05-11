@@ -18,7 +18,7 @@ If you have not done so already, start with [Setting Up a Development Environmen
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/create-from-mnemonic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/create_from_mnemonic', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -102,7 +102,7 @@ Once the child node is derived, it is converted into a usable key pair and addre
 The output shown below corresponds to a typical run of the program.
 
 ```text
---8<-- 'devbook/accounts/create-from-mnemonic.log'
+--8<-- 'devbook/accounts/create_from_mnemonic.log'
 ```
 
 Each time the code runs without environment variables, it generates a different random mnemonic and account.

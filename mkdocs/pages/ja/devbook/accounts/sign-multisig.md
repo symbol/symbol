@@ -38,7 +38,7 @@ digraph "Multisignature Tree" {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/sign-multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/sign_multisig', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -124,7 +124,7 @@ digraph "Multisignature Tree" {
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="2-3 11 20 24"
---8<-- 'devbook/accounts/sign-multisig.log'
+--8<-- 'devbook/accounts/sign_multisig.log'
 ```
 
 出力の主なポイント:

@@ -18,7 +18,7 @@ HTTP リクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/network-time', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/network_time', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -61,7 +61,7 @@ Symbol SDK を使用している場合は、 <dy:NetworkTimestampDatetimeConvert
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="5 7"
---8<-- 'devbook/chain/network-time.log'
+--8<-- 'devbook/chain/network_time.log'
 ```
 
 5行目はネメシスブロックのタイムスタンプを示しており、常に同じ値を表示します。

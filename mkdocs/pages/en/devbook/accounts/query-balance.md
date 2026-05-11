@@ -20,7 +20,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/query-balance', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/query_balance', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default one is used.
@@ -99,7 +99,7 @@ It orchestrates the helper functions to:
 The output shown below corresponds to a typical run of the program.
 
 ```text
---8<-- 'devbook/accounts/query-balance.log'
+--8<-- 'devbook/accounts/query_balance.log'
 ```
 
 The output displays all mosaics the account holds. Notice how different mosaics have different divisibility values:
