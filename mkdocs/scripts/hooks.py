@@ -13,6 +13,7 @@ from mkdocs.config import Config, base
 
 log = logging.getLogger('mkdocs')
 
+
 def build_nav_order_and_section(config):
 	order = {}
 	section = {}
@@ -39,6 +40,7 @@ def build_nav_order_and_section(config):
 	walk(config.get("nav", []), 'None')
 	return order, section
 
+
 def parse_page_header(text: str) -> tuple[dict, str | None]:
 	"""
 	Return the YAML frontmatter of a page and its first level 1 header
@@ -62,6 +64,7 @@ def parse_page_header(text: str) -> tuple[dict, str | None]:
 
 	return meta, None
 
+
 @mkdocs.plugins.event_priority(-50)
 def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	"""
@@ -72,7 +75,7 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	out_files: list[File] = []
 	prefixes = tuple(config["extra"]["symbol"]["java-sdk"]["include-prefixes"] + ["links"])
 	config['extra']['symbol']['tutorials'] = {}
-	nav_order,nav_section = build_nav_order_and_section(config)
+	nav_order, nav_section = build_nav_order_and_section(config)
 	section_order = {}
 	for f in in_files:
 		if f.src_uri.startswith("devbook/reference/java"):
@@ -102,7 +105,7 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 		config['extra']['symbol']['tutorials'][section][level].append({
 			"title": meta.get("title") or title,
 			"url": '/'.join(f.url.split('/')[1:-1]) + '.md',
-			"order": nav_order[f.url[:-1]+'.md']
+			"order": nav_order[f.url[:-1] + '.md']
 		})
 		section_order[section] = min(section_order.get(section, 999999), nav_order.get(f.src_path, 999999))
 
@@ -119,8 +122,10 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 	)
 	return files.Files(out_files)
 
+
 TAG_RE = re.compile(r"\[(?P<kind>[<>])(?P<name>[A-Za-z0-9_.:-]+)\]")
 COMMENT_RE = re.compile(r"(?P<prefix>[ \t]*(#|//))\s*(?P<body>.*)$")
+
 
 def extract_tutorial_code(config: base.Config) -> None:
 	"""
@@ -170,11 +175,8 @@ def extract_tutorial_code(config: base.Config) -> None:
 				tags = list(TAG_RE.finditer(comment_match.group("body")))
 
 			has_tags = bool(comment_match and tags)
-			is_tag_only_comment = bool(
-				has_tags
-				and line[:comment_match.start()].strip() == ""
-				and _comment_contains_only_tags(comment_match.group("body"))
-			)
+			comment_only_line = has_tags and (line[:comment_match.start()].strip() == "")
+			is_tag_only_comment = comment_only_line and _comment_contains_only_tags(comment_match.group("body"))
 
 			clean_line = line
 
@@ -269,6 +271,7 @@ def extract_tutorial_code(config: base.Config) -> None:
 		result = _process_file(path)
 		config["extra"]["symbol"]["tutorial_code"][rel_path] = result
 
+
 @mkdocs.plugins.event_priority(50)
 def on_pre_build(config: base.Config):
 	"""
@@ -283,6 +286,7 @@ def on_pre_build(config: base.Config):
 		config['extra']['symbol']['openapi'] = yaml.safe_load(f)
 	extract_tutorial_code(config)
 
+
 def page_markdown_js_typedoc(content, page, config, files):
 	"""
 	Customize markdown for JS API pages. The Typedoc-markdown plugin does not
@@ -293,8 +297,9 @@ def page_markdown_js_typedoc(content, page, config, files):
 
 	symbol_name = ''
 	parent_name = page.parent.title if page.parent else ''
+
 	def symbol_type_repl(m):
-		dict = {"Class":"class", "Function":"method"}
+		dict = {"Class": "class", "Function": "method"}
 		nonlocal symbol_name
 		symbol_name = m.group(2).removesuffix('()')
 		if symbol_name == "default":
@@ -321,7 +326,8 @@ def page_markdown_js_typedoc(content, page, config, files):
 	if m:
 		content = content[:m.start()] + re.sub(
 			r"(\n### )([^\n]*?)(\n\n#### Get Signature\n\n```.*?```\n\n)([^#].*?)(\n\n#####)",
-			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
+			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5',
+			content[m.start():], flags=re.DOTALL)
 
 	# Add glossary definition to methods
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
@@ -329,12 +335,14 @@ def page_markdown_js_typedoc(content, page, config, files):
 	if m:
 		content = content[:m.start()] + re.sub(
 			r"(\n### )([^(]*?)(\(\)\n\n```.*?```\n\n)([^#].*?)(\n\n####)",
-			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5', content[m.start():], flags=re.DOTALL)
+			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5',
+			content[m.start():], flags=re.DOTALL)
 
 	# Add glossary definition to global functions
 	content = re.sub(
 		r"(```ts\nfunction .*?)\n\n(.*?)(\n\n## )",
-		rf'<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\1\2\3', content, flags=re.DOTALL)
+		rf'<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\1\2\3',
+		content, flags=re.DOTALL)
 
 	# Add special anchor because the typedoc-md plugin forgot to add it?
 	content = re.sub(r'(\n## Constructors)', r'\1<a id="constructor"></a>', content, count=1)
@@ -350,9 +358,11 @@ def page_markdown_js_typedoc(content, page, config, files):
 
 	return content
 
+
 def camel_to_snake(name):
 	s1 = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
 	return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
 
 def page_markdown_dylinks(content, page, config, files):
 	"""
@@ -369,6 +379,7 @@ def page_markdown_dylinks(content, page, config, files):
 	class_remaps = config['extra']['symbol']['class-remaps']
 	global_namespaces = config['extra']['symbol']['global-namespaces']
 	rgroup_id = 999
+
 	def class_formatter(m):
 		nonlocal rgroup_id
 		r = '<span markdown class="dylink">'
@@ -376,7 +387,12 @@ def page_markdown_dylinks(content, page, config, files):
 			class_name = m.group(1)
 			if l == 'py' and class_name in class_remaps:
 				class_name = class_remaps[class_name]
-			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}></label>'
+			r += (
+				f'<input type="radio" name="rGroup{rgroup_id}" '
+				f'id="{lang_names[ndx]}" />'
+				f'<label class="dylink-option" for="{lang_names[ndx]}" markdown>'
+				f'<{l}:{class_name}></label>'
+			)
 		r += '</span>'
 		rgroup_id += 1
 		return r
@@ -393,7 +409,11 @@ def page_markdown_dylinks(content, page, config, files):
 				method_name = camel_to_snake(method_name)
 			if l == 'js' and class_name in global_namespaces:
 				class_name = ""
-			r += f'<input type="radio" name="rGroup{rgroup_id}" id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown><{l}:{class_name}{'.' if class_name else ''}{method_name}></label>'
+			r += (
+				f'<input type="radio" name="rGroup{rgroup_id}" '
+				f'id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown>'
+				f'<{l}:{class_name}{'.' if class_name else ''}{method_name}></label>'
+			)
 		r += '</span>'
 		rgroup_id += 1
 		return r
@@ -402,6 +422,7 @@ def page_markdown_dylinks(content, page, config, files):
 	content = re.sub(r'<dy:([A-Za-z0-9]*)\.([A-Za-z0-9_]*)>', method_formatter, content)
 
 	return content
+
 
 def page_markdown_rest(content, page, config, files):
 	def path_formatter(m):
@@ -417,15 +438,20 @@ def page_markdown_rest(content, page, config, files):
 			return f'**INVALID PATH `{method}:{path}`**'
 		spec = spec[method]
 		summary = spec['summary']
-		r = f'[`{path}`&nbsp;`{method.upper()}`{{.rest-method .rest-method-{method}}}](site:/devbook/reference/rest/symbol#tag/{spec['tags'][0].replace(' ', '_')}/{spec['operationId']} "{summary}")'
+		r = (
+			f'[`{path}`&nbsp;`{method.upper()}`{{.rest-method .rest-method-{method}}}]'
+			f'(site:/devbook/reference/rest/symbol#tag/{spec['tags'][0].replace(' ', '_')}/{spec['operationId']} "{summary}")'
+		)
 		return r
 
 	content = re.sub(r'<(get|put|post):([^>]*)>', path_formatter, content)
 	return content
 
+
 def page_markdown_ws(content, page, config, files):
 	content = re.sub(r'(<ws:[^>]*>)', r'\1&nbsp;<code class="rest-method rest-method-ws">WS</code>', content)
 	return content
+
 
 @mkdocs.plugins.event_priority(0)
 def on_page_markdown(content, page, config, files):
@@ -435,9 +461,11 @@ def on_page_markdown(content, page, config, files):
 	content = page_markdown_ws(content, page, config, files)
 	return content
 
+
 class ignoreRESTAnchors(logging.Filter):
 	def filter(self, record):
 		return not re.search(r'reference/rest/symbol.md.*does not contain an anchor', record.msg)
+
 
 def on_startup(*args, **kwargs):
 	"""
@@ -452,6 +480,7 @@ def on_startup(*args, **kwargs):
 	# Silence messages about missing anchors in links to the REST reference guide because that's a dynamic page
 	pagesLog = logging.getLogger('mkdocs.structure.pages')
 	pagesLog.addFilter(ignoreRESTAnchors())
+
 
 def on_nav(nav, config, files):
 	"""
