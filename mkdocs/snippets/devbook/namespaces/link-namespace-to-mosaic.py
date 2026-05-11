@@ -12,8 +12,7 @@ from symbolchain.symbol.IdGenerator import (
 )
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 # [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv(
@@ -24,7 +23,7 @@ signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 facade = SymbolFacade('testnet')
 signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
-print(f'Signer address: {signer_address}') # [<step-1]
+print(f'Signer address: {signer_address}')  # [<step-1]
 # [>step-2]
 namespace_name = os.getenv('NAMESPACE_NAME', 'my_namespace')
 print(f'Namespace name: {namespace_name}')

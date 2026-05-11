@@ -36,4 +36,4 @@ address = facade.network.public_key_to_address(key_pair.public_key)
 # Output the account details
 print(f'Address: {address}')
 print(f'Public key: {key_pair.public_key}')
-print(f'Private key: {key_pair.private_key}') # [<step-5]
+print(f'Private key: {key_pair.private_key}')  # [<step-5]

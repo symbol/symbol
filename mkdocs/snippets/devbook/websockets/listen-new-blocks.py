@@ -10,7 +10,7 @@ print(f'Using node {NODE_URL}')
 
 
 async def main():
-	async with connect(WS_URL) as websocket: # [>step-1]
+	async with connect(WS_URL) as websocket:  # [>step-1]
 		# Connect to websocket endpoint
 		response = json.loads(await websocket.recv())
 		uid = response['uid']

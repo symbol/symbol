@@ -8,8 +8,7 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
 from symbolchain.symbol.Network import NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 
@@ -21,8 +20,8 @@ def get_account_mosaics(address):
 		response_json = json.loads(response.read().decode())
 		return response_json['account']['mosaics']
 
-# [>step-1]
-SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
+
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 
@@ -62,7 +61,7 @@ try:
 	# [<step-2]
 	# --- CHECKING INITIAL BALANCE ---
 	print('\n--- Checking initial balance ---')
-	mosaics = get_account_mosaics(SOURCE_ADDRESS) # [>step-3]
+	mosaics = get_account_mosaics(SOURCE_ADDRESS)  # [>step-3]
 	for mosaic in mosaics:
 		if mosaic['id'] == MOSAIC_ID_HEX.upper():
 			print(f'  Mosaic ID: {mosaic["id"]},'
@@ -126,7 +125,7 @@ try:
 	# [<step-6]
 	# --- VERIFYING REVOCATION ---
 	print('\n--- Verifying revocation ---')
-	mosaics = get_account_mosaics(SOURCE_ADDRESS) # [>step-7]
+	mosaics = get_account_mosaics(SOURCE_ADDRESS)  # [>step-7]
 	for mosaic in mosaics:
 		if mosaic['id'] == MOSAIC_ID_HEX.upper():
 			print(f'  Mosaic ID: {mosaic["id"]},'

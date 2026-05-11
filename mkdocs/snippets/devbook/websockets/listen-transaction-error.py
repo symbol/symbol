@@ -14,21 +14,18 @@ NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 WS_URL = NODE_URL.replace('http', 'ws', 1) + '/ws'
 print(f'Using node {NODE_URL}')
 # [>step-1]
-MONITOR_ADDRESS = os.getenv(
-	'MONITOR_ADDRESS','TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I'
-)
+MONITOR_ADDRESS = os.getenv('MONITOR_ADDRESS',
+	'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I')
 print(f'Monitoring address: {MONITOR_ADDRESS}')
 
-SIGNER_PRIVATE_KEY = os.getenv(
-	'SIGNER_PRIVATE_KEY',
-	'0000000000000000000000000000000000000000000000000000000000000000'
-)
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
+	'0000000000000000000000000000000000000000000000000000000000000000')
 facade = SymbolFacade('testnet')
-signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
-# [<step-1]
+signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))  # [<step-1]
+
 
 async def main():
-	async with connect(WS_URL) as websocket: # [>step-2]
+	async with connect(WS_URL) as websocket:  # [>step-2]
 		# Connect to WebSocket
 		response = json.loads(await websocket.recv())
 		uid = response['uid']
@@ -70,7 +67,7 @@ async def main():
 		signature = facade.sign_transaction(signer_key_pair, transaction)
 		json_payload = facade.transaction_factory.attach_signature(
 			transaction, signature)
-		transaction_hash = str(facade.hash_transaction(transaction)) # [<step-4]
+		transaction_hash = str(facade.hash_transaction(transaction))  # [<step-4]
 		# [>step-5]
 		announce_request = urllib.request.Request(
 			f'{NODE_URL}/transactions',
