@@ -1,7 +1,17 @@
 {
+  "name": "symbol-docs",
+  "description": "Symbol Docs",
+  "scripts": {
+    "lint": "eslint . --ext .js,.mjs"
+  },
   "dependencies": {
     "symbol-sdk": "^3.3.1",
     "typedoc": "^0.28.0",
     "typedoc-plugin-markdown": "^4.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-jsdoc": "^62.0.0"
   }
 }
