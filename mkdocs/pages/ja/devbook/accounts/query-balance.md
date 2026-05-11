@@ -18,7 +18,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/query-balance', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/query_balance', ['py', 'js']) }}
 
 このスニペットでは、`NODE_URL` 環境変数を使用して Symbol API ノードを設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -93,7 +93,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text
---8<-- 'devbook/accounts/query-balance.log'
+--8<-- 'devbook/accounts/query_balance.log'
 ```
 
 出力には、アカウントが保持するすべてのモザイクが表示されます。モザイクごとに可分性の値が異なることに注目してください。

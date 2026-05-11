@@ -83,7 +83,7 @@ Before you start, make sure to:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/cross-chain-swap', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap', ['py', 'js']) }}
 
 ## Ethereum HTLC Contract
 
@@ -293,7 +293,7 @@ Alice already received Bob's 1 XYM at the end of Step 3.
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="9 10 15 16 19 50 70 80 87 89"
---8<-- 'devbook/transactions/cross-chain-swap.log'
+--8<-- 'devbook/transactions/cross_chain_swap.log'
 ```
 
 Key points in the output:

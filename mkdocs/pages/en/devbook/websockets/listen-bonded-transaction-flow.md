@@ -55,7 +55,7 @@ To use your own accounts, complete the following steps:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen-bonded-transaction-flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow', ['py', 'js']) }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B and any additional cosigners) that monitor
@@ -157,7 +157,7 @@ After confirmation, Account B sends unsubscribe messages for all channels before
 ## Output
 
 ```text linenums="1" hl_lines="2-3 6 7 8-14 15 16-22"
---8<-- 'devbook/websockets/listen-bonded-transaction-flow.log'
+--8<-- 'devbook/websockets/listen_bonded_transaction_flow.log'
 ```
 
 The output shows:

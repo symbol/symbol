@@ -46,7 +46,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/sign-multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/sign_multisig', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -150,7 +150,7 @@ The following table summarizes the most common error sources:
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="2-3 11 20 24"
---8<-- 'devbook/accounts/sign-multisig.log'
+--8<-- 'devbook/accounts/sign_multisig.log'
 ```
 
 Key points in the output:

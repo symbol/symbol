@@ -21,7 +21,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query-currency-supply', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_currency_supply', ['py', 'js']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
@@ -70,7 +70,7 @@ After fetching all three values, the code derives two additional metrics:
 The following output shows a typical run querying the currency supply:
 
 ```text
---8<-- 'devbook/network-currency/query-currency-supply.log'
+--8<-- 'devbook/network-currency/query_currency_supply.log'
 ```
 
 These values come from a <testnet:> node and do not reflect mainnet supply figures.

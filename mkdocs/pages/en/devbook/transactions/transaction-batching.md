@@ -66,7 +66,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/transaction-batching', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/transaction_batching', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -153,7 +153,7 @@ The polling loop checks the status every second until the transaction is confirm
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="16 26 29 30 40 43 44 50"
---8<-- 'devbook/transactions/transaction-batching.log'
+--8<-- 'devbook/transactions/transaction_batching.log'
 ```
 
 Key points in the output:

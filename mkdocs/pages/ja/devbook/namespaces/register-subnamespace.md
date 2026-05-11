@@ -33,7 +33,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/register-subnamespace', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/register_subnamespace', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -99,7 +99,7 @@ tutorial_level: intermediate
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="7 8 16 19 21 30 33 34 35 36 37 38 39 40"
---8<-- 'devbook/namespaces/register-subnamespace.log'
+--8<-- 'devbook/namespaces/register_subnamespace.log'
 ```
 
 出力の主なポイント：

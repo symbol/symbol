@@ -41,7 +41,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/account-metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account_metadata', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -184,7 +184,7 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="16 17 18 20 31 40 41 43"
---8<-- 'devbook/accounts/account-metadata.log'
+--8<-- 'devbook/accounts/account_metadata.log'
 ```
 
 出力の主なポイント:

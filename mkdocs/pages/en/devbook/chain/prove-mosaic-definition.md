@@ -24,7 +24,7 @@ section.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/prove-mosaic-definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove_mosaic_definition', ['py', 'js']) }}
 
 This example verifies the network's currency mosaic (<XYM:> on mainnet), whose ID is discovered automatically from
 <get:/network/properties>.
@@ -132,7 +132,7 @@ See <js:PatriciaMerkleProofResult> for the full set of possible result codes.
 The following output shows a typical run of the program:
 
 ```text linenums="1" hl_lines="3-14 15 16 19 22-26 27"
---8<-- 'devbook/chain/prove-mosaic-definition.log'
+--8<-- 'devbook/chain/prove_mosaic_definition.log'
 ```
 
 Some highlights from the output:

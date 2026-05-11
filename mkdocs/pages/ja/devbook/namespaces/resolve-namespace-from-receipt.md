@@ -21,7 +21,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/resolve-namespace-from-receipt', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/resolve_namespace_from_receipt', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -97,7 +97,7 @@ tutorial_level: intermediate
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="2 4 5 6 7 8 9 15 16 22 23"
---8<-- 'devbook/namespaces/resolve-namespace-from-receipt.log'
+--8<-- 'devbook/namespaces/resolve_namespace_from_receipt.log'
 ```
 
 出力の主なポイント：

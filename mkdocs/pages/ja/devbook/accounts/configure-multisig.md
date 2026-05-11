@@ -48,7 +48,7 @@ digraph "Multisignature Tree" {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/configure-multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/configure_multisig', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -189,7 +189,7 @@ digraph "Multisignature Tree" {
 === ":material-plus-thick: マルチシグの有効化"
 
     ```text linenums="1" hl_lines="2-4 10 27-29"
-    --8<-- 'devbook/accounts/configure-multisig-enable.log'
+    --8<-- 'devbook/accounts/configure_multisig_enable.log'
     ```
 
     出力の主なポイント:
@@ -203,7 +203,7 @@ digraph "Multisignature Tree" {
 === ":material-minus-thick: マルチシグの無効化"
 
     ```text linenums="1" hl_lines="2-4 10 27-32 39-44"
-    --8<-- 'devbook/accounts/configure-multisig-disable.log'
+    --8<-- 'devbook/accounts/configure_multisig_disable.log'
     ```
 
     出力の主なポイント:

@@ -20,7 +20,7 @@ If you have not done so already, start with [Setting Up a Development Environmen
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/start/hello-world', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/start/hello_world', ['py', 'js']) }}
 
 ### Making SDK Calls
 
@@ -56,7 +56,7 @@ the environment is set up correctly and can reach the network.
 The output shown below corresponds to a typical run of the program.
 
 ```text
---8<-- 'devbook/start/hello-world.log'
+--8<-- 'devbook/start/hello_world.log'
 ```
 
 ## Conclusion
