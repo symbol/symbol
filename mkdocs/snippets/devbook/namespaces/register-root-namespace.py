@@ -9,8 +9,7 @@ from symbolchain.sc import Amount
 from symbolchain.symbol.IdGenerator import generate_namespace_id
 from symbolchain.symbol.Network import Address, NetworkTimestamp
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 # [>step-1]
 SIGNER_PRIVATE_KEY = os.getenv(
@@ -115,7 +114,7 @@ try:
 		owner_address = Address.from_decoded_address_hex_string(
 			namespace_info["ownerAddress"])
 		print(f'  Owner address: {owner_address}')
-		print(f'  Start height: {namespace_info["startHeight"]}') # [<step-6]
+		print(f'  Start height: {namespace_info["startHeight"]}')  # [<step-6]
 		print(f'  End height: {namespace_info["endHeight"]}')
 
 except Exception as e:

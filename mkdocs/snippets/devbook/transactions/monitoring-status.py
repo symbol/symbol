@@ -4,21 +4,17 @@ import time
 import urllib.request
 
 # Configuration
-NODE_URL = os.getenv(
-	"NODE_URL", "https://reference.symboltest.net:3001"
-)
+NODE_URL = os.getenv("NODE_URL", "https://reference.symboltest.net:3001")
 print(f'Using node {NODE_URL}')
 
 # Transaction hash to monitor
-transaction_hash = os.getenv( # [>step-1]
-	"TRANSACTION_HASH",
-	"2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA",
-)
+transaction_hash = os.getenv("TRANSACTION_HASH",  # [>step-1]
+	"2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA")
 # [<step-1]
 print(f"Monitoring transaction: {transaction_hash}")
 
-# [>step-2]
-def wait_for_transaction_confirmation(
+
+def wait_for_transaction_confirmation(  # [>step-2]
 	transaction_hash, max_attempts=60, wait_seconds=2
 ):
 	"""
@@ -55,7 +51,7 @@ def wait_for_transaction_confirmation(
 				print(f"    Code: {status_code}")
 				print(f"    Hash: {status_hash}")
 				print(f"    Deadline: {status_deadline}")
-# [<step-2]
+				# [<step-2]
 				# Check if the transaction has been confirmed [>step-3]
 				if status_group == "confirmed":
 					print(f"\nTransaction confirmed!")
@@ -68,7 +64,7 @@ def wait_for_transaction_confirmation(
 					)
 					raise RuntimeError(
 						f"Transaction failed: {status_code}"
-					) # [<step-4]
+					)  # [<step-4]
 		# [>step-5]
 		except Exception as e:
 			if hasattr(e, 'code') and e.code == 404:
@@ -81,13 +77,13 @@ def wait_for_transaction_confirmation(
 		# [<step-5]
 		# Wait before next attempt (except on last attempt) [>step-6]
 		if attempt < max_attempts:
-			time.sleep(wait_seconds) # [<step-6]
+			time.sleep(wait_seconds)  # [<step-6]
 	# [>step-7]
 	print(f"\nTransaction not confirmed after {max_attempts} attempts")
 	raise RuntimeError(
 		f"Transaction {transaction_hash} not confirmed in time"
-	)
-	# [<step-7]
+	)  # [<step-7]
+
 
 # Monitor the transaction until it's confirmed
 wait_for_transaction_confirmation(transaction_hash)

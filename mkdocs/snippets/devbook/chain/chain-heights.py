@@ -3,8 +3,7 @@ import os
 import time
 import urllib.request
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 prev_height = None
@@ -14,7 +13,7 @@ finalized_changed_at = None
 
 try:
 	while True:
-		with urllib.request.urlopen(f'{NODE_URL}/chain/info') as response: # [>step-1]
+		with urllib.request.urlopen(f'{NODE_URL}/chain/info') as response:  # [>step-1]
 			chain_info = json.loads(response.read().decode())
 
 		height = int(chain_info['height'])
@@ -38,7 +37,7 @@ try:
 		if finalized_changed_at is not None:
 			f_ago = f"{int(now - finalized_changed_at)}s ago"
 		else:
-			f_ago = "-" # [<step-2]
+			f_ago = "-"  # [<step-2]
 		# [>step-3]
 		print(
 			f"Height: {height:>10,}"

@@ -10,8 +10,7 @@ from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
 
-# OPTION 1
-# [>step-1]
+# OPTION 1 [>step-1]
 def build_prefunded_message_transaction(recipient_address, message):
 	# Build the embedded message transaction [>step-2]
 	message_transaction = facade.transaction_factory.create_embedded({
@@ -33,7 +32,7 @@ def build_prefunded_message_transaction(recipient_address, message):
 				user_key_pair.public_key),
 		'mosaics': [{
 			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 0 # To be filled once value is known
+			'amount': 0  # To be filled once value is known
 		}]
 	})
 	# [<step-3]
@@ -68,8 +67,9 @@ def build_prefunded_message_transaction(recipient_address, message):
 	# [<step-5]
 	return (transaction, json_payload)
 # [<step-1]
-# OPTION 2
-# [>step-6]
+
+
+# OPTION 2 [>step-6]
 def build_sponsored_message_transaction(recipient_address, message):
 	# Build the embedded message transaction [>step-7]
 	message_transaction = facade.transaction_factory.create_embedded({
@@ -114,22 +114,20 @@ def build_sponsored_message_transaction(recipient_address, message):
 	# Obtain the payload
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
-		facade.sign_transaction(app_key_pair, transaction))
-	# [<step-10]
-	return (transaction, json_payload)
-# [<step-6]
-NODE_URL = 'https://reference.symboltest.net:3001'
+		facade.sign_transaction(app_key_pair, transaction))  # [<step-10]
+
+	return (transaction, json_payload)  # [<step-6]
+
+
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
-
-APP_PRIVATE_KEY = os.getenv(
-	'APP_PRIVATE_KEY',
+APP_PRIVATE_KEY = os.getenv('APP_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 app_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(APP_PRIVATE_KEY))
 print(f'App public key: {app_key_pair.public_key}')
-USER_PRIVATE_KEY = os.getenv(
-	'USER_PRIVATE_KEY',
+USER_PRIVATE_KEY = os.getenv('USER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000099')
 user_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(USER_PRIVATE_KEY))
@@ -160,8 +158,8 @@ try:
 	# Choose one
 	(transaction, json_payload) = build_prefunded_message_transaction(
 		'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I', 'Hello world!')
-	#(transaction, json_payload) = build_sponsored_message_transaction(
-	#	'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I', 'Hello world!')
+	# (transaction, json_payload) = build_sponsored_message_transaction(
+	# 'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I', 'Hello world!')
 
 	print('Built transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))

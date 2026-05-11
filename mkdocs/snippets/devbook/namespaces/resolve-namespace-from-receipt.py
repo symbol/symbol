@@ -5,8 +5,7 @@ import urllib.request
 from symbolchain.symbol.IdGenerator import is_mosaic_alias
 from symbolchain.symbol.Network import Address
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 # Hash of a confirmed tx that used a namespace alias [>step-1]
@@ -27,13 +26,13 @@ try:
 	# primaryId is 1-based, meta.index is 0-based
 	tx_index = int(tx_data['meta']['index'])
 	tx_primary = tx_index + 1
-	print(f'  Transaction index: {tx_index} (primaryId: {tx_primary})') # [<step-2]
+	print(f'  Transaction index: {tx_index} (primaryId: {tx_primary})')  # [<step-2]
 	# [>step-3]
 	recipient_hex = tx_data['transaction']['recipientAddress']
 	recipient_bytes = bytes.fromhex(recipient_hex)
 	is_address_alias = (recipient_bytes[0] & 0x01) == 1
 	print(f'  Recipient: {recipient_hex}')
-	print(f'  Is address alias: {is_address_alias}') # [<step-3]
+	print(f'  Is address alias: {is_address_alias}')  # [<step-3]
 	# [>step-4]
 	aliased_mosaics = set()
 	mosaics = tx_data['transaction']['mosaics']
@@ -46,7 +45,7 @@ try:
 		print(f'  Is mosaic alias: {is_alias}')
 	# [<step-4]
 	# Query address resolution statements
-	if is_address_alias: # [>step-5]
+	if is_address_alias:  # [>step-5]
 		address_path = ('/statements/resolutions/address'
 			f'?height={block_height}')
 		print(f'\nFetching address resolutions from {address_path}')
@@ -56,7 +55,7 @@ try:
 
 		address_statements = address_data['data']
 		print(f'  Found {len(address_statements)}'
-			+ ' resolution statement(s)') # [<step-5]
+			+ ' resolution statement(s)')  # [<step-5]
 		# [>step-6]
 		for item in address_statements:
 			statement = item['statement']
@@ -74,7 +73,7 @@ try:
 				print(f'  Resolved:   {address}')
 		# [<step-6]
 	# Query mosaic resolution statements
-	if len(aliased_mosaics): # [>step-7]
+	if len(aliased_mosaics):  # [>step-7]
 		mosaic_path = ('/statements/resolutions/mosaic'
 			f'?height={block_height}')
 		print(f'\nFetching mosaic resolutions from {mosaic_path}')

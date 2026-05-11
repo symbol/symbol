@@ -5,8 +5,7 @@ import urllib.request
 from symbolchain.CryptoTypes import Hash256
 from symbolchain.symbol.Merkle import MerklePart, prove_merkle
 
-NODE_URL = os.getenv(
-	'NODE_URL', 'https://reference.symboltest.net:3001')
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 TX_HASH = os.getenv('TRANSACTION_HASH',
