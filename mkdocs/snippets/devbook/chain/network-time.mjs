@@ -6,8 +6,7 @@ try {
 	// Fetch Nemesis timestamp
 	const propertiesPath = '/network/properties'; // [>step-1]
 	console.log(`Fetching network properties from ${propertiesPath}`);
-	const propertiesResponse = await fetch(
-		`${NODE_URL}${propertiesPath}`);
+	const propertiesResponse = await fetch(`${NODE_URL}${propertiesPath}`);
 	const propertiesJson = await propertiesResponse.json();
 	const nemesisStr = propertiesJson.network.epochAdjustment;
 	const nemesisSeconds = parseInt(nemesisStr.replace('s', ''), 10);

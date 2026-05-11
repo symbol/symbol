@@ -94,8 +94,8 @@ def restriction_disable_transaction(restriction):  # [>step-6]
 		'restriction_flags': restriction['restrictionFlags'],
 		# Remove all addresses currently restricted
 		'restriction_deletions': [
-			Address.from_decoded_address_hex_string(addr) for addr in
-				restriction['values']
+			Address.from_decoded_address_hex_string(addr)
+			for addr in restriction['values']
 		]
 	})
 	transaction.fee = Amount(fee_mult * transaction.size)
