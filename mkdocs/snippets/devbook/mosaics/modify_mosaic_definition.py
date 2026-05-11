@@ -97,7 +97,7 @@ try:
 					attempt, 'seconds')
 				break
 			if status['group'] == 'failed':
-				raise Exception(
+				raise RuntimeError(
 					'Mosaic modification failed:', status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')

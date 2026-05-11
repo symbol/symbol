@@ -94,13 +94,13 @@ try:
 				f'{NODE_URL}/transactionStatus/{transaction_hash}')
 			with urllib.request.urlopen(status_url) as response:
 				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status["group"]}')
+				print(f"  Transaction status: {status['group']}")
 			if status['group'] == 'confirmed':
 				print('Namespace registration confirmed in',
 					attempt, 'seconds')
 				break
 			if status['group'] == 'failed':
-				raise Exception('Namespace registration failed:',
+				raise RuntimeError('Namespace registration failed:',
 					status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
@@ -116,21 +116,21 @@ try:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Namespace information:')
-		reg_type = namespace_info["registrationType"]
+		reg_type = namespace_info['registrationType']
 		print(f'  Registration type: {reg_type}')
 		owner_address = Address.from_decoded_address_hex_string(
-			namespace_info["ownerAddress"])
+			namespace_info['ownerAddress'])
 		print(f'  Owner address: {owner_address}')
-		print(f'  Parent ID: {namespace_info["parentId"]}')
-		print(f'  Depth: {namespace_info["depth"]}')
-		print(f'  Level 0: {namespace_info["level0"]}')
+		print(f"  Parent ID: {namespace_info['parentId']}")
+		print(f"  Depth: {namespace_info['depth']}")
+		print(f"  Level 0: {namespace_info['level0']}")
 		if int(namespace_info['depth']) >= 1:
-			print(f'  Level 1: {namespace_info["level1"]}')
+			print(f"  Level 1: {namespace_info['level1']}")
 		if int(namespace_info['depth']) >= 2:
 			if 'level2' in namespace_info:
-				print(f'  Level 2: {namespace_info["level2"]}')
-		print(f'  Start height: {namespace_info["startHeight"]}')  # [<step-2]
-		print(f'  End height: {namespace_info["endHeight"]}')
+				print(f"  Level 2: {namespace_info['level2']}")
+		print(f"  Start height: {namespace_info['startHeight']}")  # [<step-2]
+		print(f"  End height: {namespace_info['endHeight']}")
 
 except Exception as e:
 	print(e)

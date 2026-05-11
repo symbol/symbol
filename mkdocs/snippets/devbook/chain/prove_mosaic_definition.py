@@ -20,7 +20,7 @@ try:
 	with urllib.request.urlopen(url) as response:
 		props = json.loads(response.read().decode())
 	raw_id = props['chain']['currencyMosaicId']
-	mosaic_id = int(raw_id.replace("'", ""), 16)
+	mosaic_id = int(raw_id.replace('\'', ''), 16)
 	mosaic_id_hex = f'{mosaic_id:016X}'
 	print(f'Currency mosaic ID: {mosaic_id_hex}')
 
@@ -94,7 +94,7 @@ try:
 				f'{j:X}' for j, link in enumerate(node.links) if link
 			]
 			print(f'  [{i}] branch{path_str}'
-				f'  links: [{",".join(active)}]'
+				f"  links: [{','.join(active)}]"
 				f'  -> follow {nibble}')
 	# [<step-4]
 	# Verify the mosaic state [>step-5]

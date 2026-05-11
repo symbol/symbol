@@ -21,28 +21,28 @@ def announce_transaction(payload, label):
 		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
-	with urllib.request.urlopen(request) as response:
-		print(f'  Response: {response.read().decode()}')
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
 
 
 # Helper function to wait for transaction confirmation
-def wait_for_confirmation(transaction_hash, label):
+def wait_for_confirmation(tx_hash, label):
 	print(f'Waiting for {label} confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
 		try:
-			url = f'{NODE_URL}/transactionStatus/{transaction_hash}'
-			with urllib.request.urlopen(url) as response:
-				status = json.loads(response.read().decode())
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
 				print(f'  Transaction status: {status["group"]}')
 				if status['group'] == 'confirmed':
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise Exception(f'{label} failed: {status["code"]}')
+					raise RuntimeError(f'{label} failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-	raise Exception(f'{label} not confirmed after 60 seconds')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')
 
 
 # Returns the list of restrictions currently applied to the account
@@ -51,11 +51,11 @@ def get_account_restrictions(address):  # [>step-3]
 	print(f'Getting restrictions from {restrictions_path}')
 	try:
 		url = f'{NODE_URL}{restrictions_path}'
-		with urllib.request.urlopen(url) as response:
-			status = json.loads(response.read().decode())
-			restrictions = status['accountRestrictions']['restrictions']
-			print(f'  Response: {restrictions}')
-			return restrictions
+		with urllib.request.urlopen(url) as restr_response:
+			status = json.loads(restr_response.read().decode())
+			found_restr = status['accountRestrictions']['restrictions']
+			print(f'  Response: {found_restr}')
+			return found_restr
 	except urllib.error.HTTPError:
 		# The address has never been used
 		print('  Response: No restrictions found')
@@ -64,7 +64,7 @@ def get_account_restrictions(address):  # [>step-3]
 
 # Returns a transaction that restricts an account
 def restriction_enable_transaction():  # [>step-5]
-	transaction = facade.transaction_factory.create({
+	enable_transaction = facade.transaction_factory.create({
 		'type': 'account_address_restriction_transaction_v1',
 		# This is the account that will be restricted
 		'signer_public_key': signer_key_pair.public_key,
@@ -76,16 +76,16 @@ def restriction_enable_transaction():  # [>step-5]
 		# This is the only authorized outgoing address
 		'restriction_additions': [auth_address]
 	})
-	transaction.fee = Amount(fee_mult * transaction.size)
+	enable_transaction.fee = Amount(fee_mult * enable_transaction.size)
 	print('Enabling the restriction with transaction:')
-	print(json.dumps(transaction.to_json(), indent=2))
+	print(json.dumps(enable_transaction.to_json(), indent=2))
 
-	return transaction  # [<step-5]
+	return enable_transaction  # [<step-5]
 
 
 # Returns a transaction that removes a restriction from an account
 def restriction_disable_transaction(restriction):  # [>step-6]
-	transaction = facade.transaction_factory.create({
+	disable_transaction = facade.transaction_factory.create({
 		'type': 'account_address_restriction_transaction_v1',
 		# This is the account whose restriction will be lifted
 		'signer_public_key': signer_key_pair.public_key,
@@ -98,11 +98,11 @@ def restriction_disable_transaction(restriction):  # [>step-6]
 			for addr in restriction['values']
 		]
 	})
-	transaction.fee = Amount(fee_mult * transaction.size)
+	disable_transaction.fee = Amount(fee_mult * disable_transaction.size)
 	print('Disabling the restriction with transaction:')
-	print(json.dumps(transaction.to_json(), indent=2))
+	print(json.dumps(disable_transaction.to_json(), indent=2))
 
-	return transaction  # [<step-6]
+	return disable_transaction  # [<step-6]
 
 
 facade = SymbolFacade('testnet')
@@ -144,17 +144,17 @@ try:
 	if len(restrictions) == 0:
 		# Enable the restriction
 		print('\n--- Enabling restriction ---')
-		transaction = restriction_enable_transaction()
+		agg_transaction = restriction_enable_transaction()
 	else:
 		# Disable the restriction
 		print('\n--- Disabling restriction ---')
-		transaction = restriction_disable_transaction(restrictions[0])
+		agg_transaction = restriction_disable_transaction(restrictions[0])
 	# [<step-4]
 	# Sign, announce and wait for confirmation [>step-7]
 	json_payload = facade.transaction_factory.attach_signature(
-		transaction,
-		facade.sign_transaction(signer_key_pair, transaction))
-	transaction_hash = facade.hash_transaction(transaction)
+		agg_transaction,
+		facade.sign_transaction(signer_key_pair, agg_transaction))
+	transaction_hash = facade.hash_transaction(agg_transaction)
 	announce_transaction(json_payload, 'restriction transaction')
 	wait_for_confirmation(transaction_hash, 'restriction transaction')
 	# [<step-7]

@@ -73,7 +73,7 @@ try:
 				print(f'  Resolved:   {address}')
 		# [<step-6]
 	# Query mosaic resolution statements
-	if len(aliased_mosaics):  # [>step-7]
+	if len(aliased_mosaics) > 0:  # [>step-7]
 		mosaic_path = ('/statements/resolutions/mosaic'
 			f'?height={block_height}')
 		print(f'\nFetching mosaic resolutions from {mosaic_path}')

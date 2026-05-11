@@ -21,28 +21,28 @@ def announce_transaction(payload, label):
 		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
-	with urllib.request.urlopen(request) as response:
-		print(f'  Response: {response.read().decode()}')
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
 
 
 # Helper function to wait for transaction confirmation
-def wait_for_confirmation(transaction_hash, label):
+def wait_for_confirmation(tx_hash, label):
 	print(f'Waiting for {label} confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
 		try:
-			url = f'{NODE_URL}/transactionStatus/{transaction_hash}'
-			with urllib.request.urlopen(url) as response:
-				status = json.loads(response.read().decode())
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
 				print(f'  Transaction status: {status["group"]}')
 				if status['group'] == 'confirmed':
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise Exception(f'{label} failed: {status["code"]}')
+					raise RuntimeError(f'{label} failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-	raise Exception(f'{label} not confirmed after 60 seconds')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')
 
 
 # Returns the cosignatory addresses of the provided multisig account, [>step-3]
@@ -52,11 +52,11 @@ def get_multisig_cosignatories(address):
 	print(f'Getting cosignatories from {multisig_path}')
 	try:
 		url = f'{NODE_URL}{multisig_path}'
-		with urllib.request.urlopen(url) as response:
-			status = json.loads(response.read().decode())
-			cosignatories = status['multisig']['cosignatoryAddresses']
-			print(f'  Response: {cosignatories}')
-			return cosignatories
+		with urllib.request.urlopen(url) as multisig_response:
+			status = json.loads(multisig_response.read().decode())
+			found_cosignatories = status['multisig']['cosignatoryAddresses']
+			print(f'  Response: {found_cosignatories}')
+			return found_cosignatories
 	except urllib.error.HTTPError:
 		# The address has never been used
 		print('  Response: No cosignatories')
@@ -175,11 +175,12 @@ cosignatory_addresses = []
 for i in range(2):
 	COSIGNATORY_PRIVATE_KEY = os.getenv(
 		f'COSIGNATORY{i}_PRIVATE_KEY', KEY_TEMPLATE.format(i + 2))
-	kp = SymbolFacade.KeyPair(PrivateKey(COSIGNATORY_PRIVATE_KEY))
-	cosignatory_key_pairs.append(kp)
-	addr = facade.network.public_key_to_address(kp.public_key)
+	key_pair = SymbolFacade.KeyPair(PrivateKey(COSIGNATORY_PRIVATE_KEY))
+	cosignatory_key_pairs.append(key_pair)
+	addr = facade.network.public_key_to_address(key_pair.public_key)
 	cosignatory_addresses.append(addr)
-	print(f'Cosignatory {i} address: {addr} (public key {kp.public_key})')
+	print(f'Cosignatory {i} address: '
+		f'{addr} (public key {key_pair.public_key})')
 # [<step-1]
 try:
 	# Fetch current network time [>step-2]
@@ -207,23 +208,23 @@ try:
 	cosignatories = get_multisig_cosignatories(multisig_address)
 	if len(cosignatories) == 0:
 		# Enable the multisig
-		transaction = multisig_enable_transaction()
+		agg_transaction = multisig_enable_transaction()
 		# This operation must be signed by the multisig account
 		signer_key_pair = multisig_key_pair
 	else:
 		# Disable the multisig
-		transaction = multisig_disable_transaction()
+		agg_transaction = multisig_disable_transaction()
 		# This operation must be signed by one of the cosigners
 		signer_key_pair = cosignatory_key_pairs[0]
 	json_payload = facade.transaction_factory.attach_signature(
-		transaction,
-		facade.sign_transaction(signer_key_pair, transaction))
+		agg_transaction,
+		facade.sign_transaction(signer_key_pair, agg_transaction))
 	# [<step-4]
 	# Announce and wait for confirmation [>step-10]
-	transaction_hash = facade.hash_transaction(transaction)
-	print(f'Built aggregate transaction with hash: {transaction_hash}')
+	agg_transaction_hash = facade.hash_transaction(agg_transaction)
+	print(f'Built aggregate transaction with hash: {agg_transaction_hash}')
 	announce_transaction(json_payload, 'aggregate transaction')
-	wait_for_confirmation(transaction_hash, 'aggregate transaction')
+	wait_for_confirmation(agg_transaction_hash, 'aggregate transaction')
 	# [<step-10]
 except Exception as e:
 	print(e)
