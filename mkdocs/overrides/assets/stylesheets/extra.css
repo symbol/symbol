@@ -706,3 +706,8 @@ code.doc-symbol-interface::after {
 	background-color: #FDE2E4;
 	color: #8C2F39;
 }
+
+.md-code__nav,
+:hover>.md-code__nav {
+	background-color: transparent;
+}
