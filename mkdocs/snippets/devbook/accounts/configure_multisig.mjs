@@ -121,7 +121,7 @@ function multisigEnableTransaction(timestamp, feeMult) {
 	// Reserve space for two cosignatures (each is 104 bytes)
 	// and calculate fee for the final transaction size
 	transaction.fee = new models.Amount(
-		feeMult * (transaction.size + 104 * cosignatoryKeyPairs.length));
+		feeMult * (transaction.size + (104 * cosignatoryKeyPairs.length)));
 	console.log('Enabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-6]
