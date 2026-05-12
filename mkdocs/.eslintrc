@@ -39,15 +39,6 @@ rules:
   # Polling loops do active waiting inside loops
   no-await-in-loop:
   - off
-  # Allow normal arithmetic expressions like a + b * c
-  no-mixed-operators:
-    - error
-    - groups:
-        - ['&&', '||']
-        - ['&', '|', '^']
-        - ['==', '!=', '===', '!==', '>', '>=', '<', '<=']
-        - ['in', 'instanceof']
-      allowSamePrecedence: true
   # The 'ethers' dependency is only used by one tutorial, we don't want to
   # force it on every user. Specially because it's a heavy dependency.
   import/no-extraneous-dependencies:
