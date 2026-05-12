@@ -1,7 +1,7 @@
 import { models } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 const MOSAIC_ID = process.env.MOSAIC_ID || '72C0212E67A08BCE';

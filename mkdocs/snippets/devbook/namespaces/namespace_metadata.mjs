@@ -8,8 +8,8 @@ import {
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to announce a transaction
@@ -142,12 +142,12 @@ try {
 		.toUpperCase().padStart(16, '0');
 	const namespaceIdHex = namespaceId.toString(16)
 		.toUpperCase().padStart(16, '0');
-	const metadataPath = '/metadata'
-		+ `?sourceAddress=${signerAddress}`
-		+ `&targetAddress=${signerAddress}`
-		+ `&scopedMetadataKey=${scopedKeyHex}`
-		+ `&targetId=${namespaceIdHex}`
-		+ '&metadataType=2';
+	const metadataPath = '/metadata' +
+		`?sourceAddress=${signerAddress}` +
+		`&targetAddress=${signerAddress}` +
+		`&scopedMetadataKey=${scopedKeyHex}` +
+		`&targetId=${namespaceIdHex}` +
+		'&metadataType=2';
 	console.log('Fetching current metadata from', metadataPath);
 	const metadataResponse = await fetch(`${NODE_URL}${metadataPath}`);
 	const metadataJSON = await metadataResponse.json();

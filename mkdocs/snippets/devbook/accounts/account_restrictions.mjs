@@ -8,14 +8,14 @@ import {
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 const facade = new SymbolFacade('testnet');
 // [>step-1]
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new KeyPair(new PrivateKey(SIGNER_PRIVATE_KEY));
 const signerAddress = facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
@@ -86,8 +86,8 @@ function restrictionEnableTransaction(timestamp, feeMult) { // [>step-5]
 		deadline: timestamp.addHours(2).timestamp,
 		// Allow only OUTGOING transactions to the authorized ADDRESS
 		restrictionFlags:
-			models.AccountRestrictionFlags.ADDRESS.value
-			| models.AccountRestrictionFlags.OUTGOING.value,
+			models.AccountRestrictionFlags.ADDRESS.value |
+			models.AccountRestrictionFlags.OUTGOING.value,
 		// This is the only authorized outgoing address
 		restrictionAdditions: [authAddress]
 	});

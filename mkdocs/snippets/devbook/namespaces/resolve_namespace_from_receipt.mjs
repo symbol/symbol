@@ -1,12 +1,12 @@
 import { Address, isMosaicAlias } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Hash of a confirmed tx that used a namespace alias [>step-1]
-const TX_HASH = process.env.TRANSACTION_HASH
-	|| 'BA0C65DB752A3BF1B25285540642537ECE8C2CA716577EDF8BF0F8597A85ADC4';
+const TX_HASH = process.env.TRANSACTION_HASH ||
+	'BA0C65DB752A3BF1B25285540642537ECE8C2CA716577EDF8BF0F8597A85ADC4';
 console.log('Transaction hash:', TX_HASH);
 // [<step-1]
 try {
@@ -44,15 +44,15 @@ try {
 	// [<step-4]
 	// Query address resolution statements
 	if (isAddressAlias) { // [>step-5]
-		const addressPath = '/statements/resolutions/address'
-			+ `?height=${blockHeight}`;
+		const addressPath = '/statements/resolutions/address' +
+			`?height=${blockHeight}`;
 		console.log('\nFetching address resolutions from', addressPath);
 		const addressResponse = await fetch(`${NODE_URL}${addressPath}`);
 		const addressData = await addressResponse.json();
 
 		const addressStatements = addressData.data;
-		console.log(`  Found ${addressStatements.length}`
-			+ ' resolution statement(s)'); // [<step-5]
+		console.log(`  Found ${addressStatements.length}` +
+			' resolution statement(s)'); // [<step-5]
 		// [>step-6]
 		for (const item of addressStatements) {
 			const statement = item.statement;
@@ -74,15 +74,15 @@ try {
 	}
 	// Query mosaic resolution statements
 	if (aliasedMosaics.size) { // [>step-7]
-		const mosaicPath = '/statements/resolutions/mosaic'
-			+ `?height=${blockHeight}`;
+		const mosaicPath = '/statements/resolutions/mosaic' +
+			`?height=${blockHeight}`;
 		console.log('\nFetching mosaic resolutions from', mosaicPath);
 		const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);
 		const mosaicData = await mosaicResponse.json();
 
 		const mosaicStatements = mosaicData.data;
-		console.log(`  Found ${mosaicStatements.length}`
-			+ ' resolution statement(s)');
+		console.log(`  Found ${mosaicStatements.length}` +
+			' resolution statement(s)');
 
 		for (const item of mosaicStatements) {
 			const statement = item.statement;

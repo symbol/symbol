@@ -6,8 +6,8 @@ import {
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to announce transaction
@@ -209,8 +209,8 @@ try {
 	// Retrieves partial transactions waiting for signature
 	const partialPath =		`/transactions/partial?address=${accountBAddress}`;
 	console.log(
-		'[Account B] Checking for partial transactions from '
-		+ '/transactions/partial'
+		'[Account B] Checking for partial transactions from ' +
+		'/transactions/partial'
 	);
 	const partialResponse = await fetch(`${NODE_URL}${partialPath}`);
 	const partialTxs = await partialResponse.json();
@@ -225,8 +225,8 @@ try {
 	);
 	if (!found) {
 		throw new Error(
-			`Expected transaction ${bondedHash} not found in `
-			+ 'partial transactions'
+			`Expected transaction ${bondedHash} not found in ` +
+			'partial transactions'
 		);
 	}
 	console.log(`Found matching transaction: ${bondedHash}`);
@@ -238,8 +238,8 @@ try {
 
 	// Verify transaction content before cosigning
 	const txData = partialTxJson.transaction;
-	console.log('[Account B] Verifying transaction: '
-		+ `${txData.transactions.length} embedded transactions`
+	console.log('[Account B] Verifying transaction: ' +
+		`${txData.transactions.length} embedded transactions`
 	);
 	// [<step-9]
 	// Submit Account B's cosignature using the transaction hash [>step-10]

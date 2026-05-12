@@ -7,12 +7,12 @@ import {
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 // [>step-1]
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -22,10 +22,10 @@ const signerAddress = facade.network.publicKeyToAddress(
 console.log('Signer public key:', signerKeyPair.publicKey.toString());
 console.log('Signer address:', signerAddress.toString());
 
-const RECIPIENT_1 = process.env.RECIPIENT_1
-	|| 'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI';
-const RECIPIENT_2 = process.env.RECIPIENT_2
-	|| 'TCD4NC5VIE2EEB3BCV5JRLBNJXYDW5Q5JK547MI';
+const RECIPIENT_1 = process.env.RECIPIENT_1 ||
+	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI';
+const RECIPIENT_2 = process.env.RECIPIENT_2 ||
+	'TCD4NC5VIE2EEB3BCV5JRLBNJXYDW5Q5JK547MI';
 const recipient1Hex = Buffer.from(
 	new Address(RECIPIENT_1).bytes).toString('hex').toUpperCase();
 const recipient2Hex = Buffer.from(
