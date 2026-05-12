@@ -1,5 +1,5 @@
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // [>step-1]
@@ -96,8 +96,8 @@ function formatAmount(amount, divisibility) {
 }
 // [<step-4]
 // The account address to query [>step-5]
-const ADDRESS = process.env.ADDRESS
-	|| 'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ';
+const ADDRESS = process.env.ADDRESS ||
+	'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ';
 console.log('Fetching account information from', ADDRESS);
 
 // Get account information
