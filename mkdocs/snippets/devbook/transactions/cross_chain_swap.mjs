@@ -201,7 +201,7 @@ try {
 	const htlcAsAlice = new ethers.Contract(
 		HTLC_ADDRESS, HTLC_ABI, aliceEthWallet);
 
-	const timelock = Math.floor(Date.now() / 1000) + 72 * 60 * 60;
+	const timelock = Math.floor(Date.now() / 1000) + (72 * 60 * 60);
 	console.log('Ethereum timelock (Unix):', timelock);
 
 	const lockTx = await htlcAsAlice.newContract(
