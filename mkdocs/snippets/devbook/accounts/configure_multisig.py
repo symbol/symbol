@@ -11,6 +11,31 @@ from symbolchain.symbol.Network import NetworkTimestamp
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
+facade = SymbolFacade('testnet')
+# [>step-1]
+KEY_TEMPLATE = '0' * 63 + '{}'
+
+# Setup the keys for the multisig account and its two cosignatories
+MULTISIG_PRIVATE_KEY = os.getenv(
+	'MULTISIG_PRIVATE_KEY', KEY_TEMPLATE.format(1))
+multisig_key_pair = SymbolFacade.KeyPair(PrivateKey(MULTISIG_PRIVATE_KEY))
+multisig_address = facade.network.public_key_to_address(
+	multisig_key_pair.public_key)
+print(f'Multisig address: {multisig_address} '
+	f'(public key {multisig_key_pair.public_key})')
+
+cosignatory_key_pairs = []
+cosignatory_addresses = []
+for i in range(2):
+	COSIGNATORY_PRIVATE_KEY = os.getenv(
+		f'COSIGNATORY{i}_PRIVATE_KEY', KEY_TEMPLATE.format(i + 2))
+	key_pair = SymbolFacade.KeyPair(PrivateKey(COSIGNATORY_PRIVATE_KEY))
+	cosignatory_key_pairs.append(key_pair)
+	addr = facade.network.public_key_to_address(key_pair.public_key)
+	cosignatory_addresses.append(addr)
+	print(f'Cosignatory {i} address: '
+		f'{addr} (public key {key_pair.public_key})')  # [<step-1]
+
 
 # Helper function to announce a transaction
 def announce_transaction(payload, label):
@@ -157,31 +182,6 @@ def multisig_disable_transaction():
 	return transaction
 
 
-facade = SymbolFacade('testnet')
-# [>step-1]
-KEY_TEMPLATE = '0' * 63 + '{}'
-
-# Setup the keys for the multisig account and its two cosignatories
-MULTISIG_PRIVATE_KEY = os.getenv(
-	'MULTISIG_PRIVATE_KEY', KEY_TEMPLATE.format(1))
-multisig_key_pair = SymbolFacade.KeyPair(PrivateKey(MULTISIG_PRIVATE_KEY))
-multisig_address = facade.network.public_key_to_address(
-	multisig_key_pair.public_key)
-print(f'Multisig address: {multisig_address} '
-	f'(public key {multisig_key_pair.public_key})')
-
-cosignatory_key_pairs = []
-cosignatory_addresses = []
-for i in range(2):
-	COSIGNATORY_PRIVATE_KEY = os.getenv(
-		f'COSIGNATORY{i}_PRIVATE_KEY', KEY_TEMPLATE.format(i + 2))
-	key_pair = SymbolFacade.KeyPair(PrivateKey(COSIGNATORY_PRIVATE_KEY))
-	cosignatory_key_pairs.append(key_pair)
-	addr = facade.network.public_key_to_address(key_pair.public_key)
-	cosignatory_addresses.append(addr)
-	print(f'Cosignatory {i} address: '
-		f'{addr} (public key {key_pair.public_key})')
-# [<step-1]
 try:
 	# Fetch current network time [>step-2]
 	time_path = '/node/time'

@@ -1,19 +1,19 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
-	NetworkTimestamp,
 	Address,
-	models,
+	NetworkTimestamp,
+	SymbolFacade,
+	generateMosaicAliasId,
 	generateNamespacePath,
-	generateMosaicAliasId
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 // [>step-1]
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -33,8 +33,8 @@ console.log(
 
 // Target address to link the namespace to
 const targetAddress = new SymbolFacade.Address(
-	process.env.TARGET_ADDRESS ||
-	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI');
+	process.env.TARGET_ADDRESS
+	|| 'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI');
 console.log('Target address:', targetAddress.toString());
 // [<step-2]
 try {
@@ -64,7 +64,7 @@ try {
 		type: 'address_alias_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
-		namespaceId: namespaceId,
+		namespaceId,
 		address: targetAddress,
 		aliasAction: 'link'
 	});
@@ -73,14 +73,12 @@ try {
 	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
-	const jsonPayload =
-		facade.transactionFactory.static.attachSignature(
-			transaction, signature);
+	const jsonPayload = facade.transactionFactory.static.attachSignature(
+		transaction, signature);
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce transaction
@@ -94,38 +92,30 @@ try {
 	// [<step-5]
 	// Wait for confirmation [>step-6]
 	console.log('Waiting for transaction confirmation...');
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	const statusPath = `/transactionStatus/${transactionHash}`;
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(`${NODE_URL}${statusPath}`);
 
-		try {
-			const statusUrl =
-				`${NODE_URL}/transactionStatus/${transactionHash}`;
-			const statusResponse = await fetch(statusUrl);
-
-			if (!statusResponse.ok) {
-				console.log('  Transaction status: unknown');
-				continue;
-			}
-
-			const status = await statusResponse.json();
+		if (response.ok) {
+			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-
-			if (status.group === 'confirmed') {
-				console.log('Address alias transaction confirmed in',
-					attempt, 'seconds');
+			if ('confirmed' === status.group) {
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
 				break;
 			}
-
-			if (status.group === 'failed') {
-				throw new Error(
-					`Address alias transaction failed: ${status.code}`);
+			if ('failed' === status.group) {
+				console.log('Transaction failed:', status.code);
+				break;
 			}
-		} catch (error) {
-			if (error.message.includes('failed:')) {
-				throw error;
-			}
-			console.log('  Transaction status: unknown');
+		} else {
+			console.log('  Transaction status: unknown | Cause:',
+				response.status
+			);
 		}
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
 	}
 	// [<step-6]
 	// Retrieve the namespace to verify the alias [>step-7]
@@ -136,7 +126,7 @@ try {
 	const namespaceInfo = namespaceJSON.namespace;
 	console.log('Alias information:');
 	console.log('  Alias type:', namespaceInfo.alias.type);
-	if (namespaceInfo.alias.type === 2) { // ADDRESS type
+	if (2 === namespaceInfo.alias.type) { // ADDRESS type
 		const aliasedAddress = Address.fromDecodedAddressHexString(
 			namespaceInfo.alias.address);
 		console.log('  Linked address:', aliasedAddress.toString());
@@ -151,11 +141,11 @@ try {
 	const recipientAddress = Address.fromNamespaceId(
 		new models.NamespaceId(recipientId), facade.network.identifier);
 
-	const transferTx = facade.transactionFactory.create({
+	facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: recipientAddress,
+		recipientAddress,
 		mosaics: [{
 			mosaicId: generateMosaicAliasId('symbol.xym'),
 			amount: 1_000_000n // 1 XYM

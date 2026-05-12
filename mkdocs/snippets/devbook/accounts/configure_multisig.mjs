@@ -1,16 +1,43 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	KeyPair,
-	SymbolTransactionFactory,
-	models,
 	NetworkTimestamp,
-	SymbolFacade
+	SymbolFacade,
+	SymbolTransactionFactory,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
+const facade = new SymbolFacade('testnet');
+// [>step-1]
+const KEY_PREFIX = '0'.repeat(63);
+
+// Setup the keys for the multisig account and its two cosignatories
+const MULTISIG_PRIVATE_KEY = process.env.MULTISIG_PRIVATE_KEY || (
+	`${KEY_PREFIX}1`);
+const multisigKeyPair = new KeyPair(new PrivateKey(MULTISIG_PRIVATE_KEY));
+const multisigAddress = facade.network.publicKeyToAddress(
+	multisigKeyPair.publicKey);
+console.log(`Multisig address: ${multisigAddress}`,
+	`(public key ${multisigKeyPair.publicKey})`);
+
+const cosignatoryKeyPairs = [];
+const cosignatoryAddresses = [];
+for (let i = 0; 2 > i; i++) {
+	const COSIGNATORY_PRIVATE_KEY =
+		process.env[`COSIGNATORY${i}_PRIVATE_KEY`] || (
+			KEY_PREFIX + String(i + 2));
+	const kp = new KeyPair(new PrivateKey(COSIGNATORY_PRIVATE_KEY));
+	cosignatoryKeyPairs.push(kp);
+	const addr = facade.network.publicKeyToAddress(kp.publicKey);
+	cosignatoryAddresses.push(addr);
+	console.log(`Cosignatory ${i} address: ${addr}`,
+		`(public key ${kp.publicKey})`);
+}
+// [<step-1]
 // Helper function to announce a transaction
 async function announceTransaction(payload, label) {
 	console.log(`Announcing ${label} to /transactions`);
@@ -25,20 +52,19 @@ async function announceTransaction(payload, label) {
 // Helper function to wait for transaction confirmation
 async function waitForConfirmation(transactionHash, label) {
 	console.log(`Waiting for ${label} confirmation...`);
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		try {
 			const response = await fetch(
 				`${NODE_URL}/transactionStatus/${transactionHash}`);
 			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log(`${label} confirmed in`, attempt, 'seconds');
 				return;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
-			}
 		} catch (e) {
 			if (e.message.includes('failed'))
 				throw e;
@@ -162,33 +188,6 @@ function multisigDisableTransaction(timestamp, feeMult) {
 	return transaction;
 }
 
-const facade = new SymbolFacade('testnet');
-// [>step-1]
-const KEY_PREFIX = '0'.repeat(63);
-
-// Setup the keys for the multisig account and its two cosignatories
-const MULTISIG_PRIVATE_KEY = process.env.MULTISIG_PRIVATE_KEY || (
-	KEY_PREFIX + '1');
-const multisigKeyPair = new KeyPair(new PrivateKey(MULTISIG_PRIVATE_KEY));
-const multisigAddress = facade.network.publicKeyToAddress(
-	multisigKeyPair.publicKey);
-console.log(`Multisig address: ${multisigAddress}`,
-	`(public key ${multisigKeyPair.publicKey})`);
-
-const cosignatoryKeyPairs = [];
-const cosignatoryAddresses = [];
-for (let i = 0; i < 2; i++) {
-	const COSIGNATORY_PRIVATE_KEY =
-		process.env[`COSIGNATORY${i}_PRIVATE_KEY`] || (
-			KEY_PREFIX + String(i + 2));
-	const kp = new KeyPair(new PrivateKey(COSIGNATORY_PRIVATE_KEY));
-	cosignatoryKeyPairs.push(kp);
-	const addr = facade.network.publicKeyToAddress(kp.publicKey);
-	cosignatoryAddresses.push(addr);
-	console.log(`Cosignatory ${i} address: ${addr}`,
-		`(public key ${kp.publicKey})`);
-}
-// [<step-1]
 try {
 	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
@@ -215,7 +214,7 @@ try {
 	const cosignatories = await getMultisigCosignatories(multisigAddress);
 	let transaction;
 	let signerKeyPair;
-	if (cosignatories.length === 0) {
+	if (0 === cosignatories.length) {
 		// Enable the multisig
 		transaction = multisigEnableTransaction(timestamp, feeMult);
 		// This operation must be signed by the multisig account
@@ -231,8 +230,7 @@ try {
 		facade.signTransaction(signerKeyPair, transaction));
 	// [<step-4]
 	// Announce and wait for confirmation [>step-10]
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash =		facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(payload, 'aggregate transaction');

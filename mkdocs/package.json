@@ -2,7 +2,7 @@
   "name": "symbol-docs",
   "description": "Symbol Docs",
   "scripts": {
-    "lint": "eslint . --ext .js,.mjs"
+    "lint": "eslint snippets --ext .mjs"
   },
   "dependencies": {
     "symbol-sdk": "^3.3.1",

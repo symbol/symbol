@@ -1,16 +1,29 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	KeyPair,
-	SymbolTransactionFactory,
-	models,
 	Address,
+	KeyPair,
 	NetworkTimestamp,
-	SymbolFacade
+	SymbolFacade,
+	SymbolTransactionFactory,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
- 	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
+
+const facade = new SymbolFacade('testnet');
+// [>step-1]
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const signerKeyPair = new KeyPair(new PrivateKey(SIGNER_PRIVATE_KEY));
+const signerAddress = facade.network.publicKeyToAddress(
+	signerKeyPair.publicKey);
+console.log(`Signer address: ${signerAddress}`);
+
+const authAddress = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
+console.log(`Authorized address: ${authAddress}`);
+// [<step-1]
 
 // Helper function to announce a transaction
 async function announceTransaction(payload, label) {
@@ -26,20 +39,19 @@ async function announceTransaction(payload, label) {
 // Helper function to wait for transaction confirmation
 async function waitForConfirmation(transactionHash, label) {
 	console.log(`Waiting for ${label} confirmation...`);
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		try {
 			const response = await fetch(
 				`${NODE_URL}/transactionStatus/${transactionHash}`);
 			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log(`${label} confirmed in`, attempt, 'seconds');
 				return;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
-			}
 		} catch (e) {
 			if (e.message.includes('failed'))
 				throw e;
@@ -74,8 +86,8 @@ function restrictionEnableTransaction(timestamp, feeMult) { // [>step-5]
 		deadline: timestamp.addHours(2).timestamp,
 		// Allow only OUTGOING transactions to the authorized ADDRESS
 		restrictionFlags:
-			models.AccountRestrictionFlags.ADDRESS.value |
-			models.AccountRestrictionFlags.OUTGOING.value,
+			models.AccountRestrictionFlags.ADDRESS.value
+			| models.AccountRestrictionFlags.OUTGOING.value,
 		// This is the only authorized outgoing address
 		restrictionAdditions: [authAddress]
 	});
@@ -106,18 +118,7 @@ function restrictionDisableTransaction(timestamp, feeMult, restriction) { // [>s
 	return transaction;
 }
 // [<step-6]
-const facade = new SymbolFacade('testnet');
-// [>step-1]
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
-const signerKeyPair = new KeyPair(new PrivateKey(SIGNER_PRIVATE_KEY));
-const signerAddress = facade.network.publicKeyToAddress(
-	signerKeyPair.publicKey);
-console.log(`Signer address: ${signerAddress}`);
 
-const authAddress = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
-console.log(`Authorized address: ${authAddress}`);
-// [<step-1]
 try {
 	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
@@ -143,7 +144,7 @@ try {
 	// operation to perform
 	const restrictions = await getAccountRestrictions(signerAddress); // [>step-4]
 	let transaction;
-	if (restrictions.length === 0) {
+	if (0 === restrictions.length) {
 		// Enable the restriction
 		console.log('\n--- Enabling restriction ---');
 		transaction = restrictionEnableTransaction(timestamp, feeMult);
@@ -158,8 +159,7 @@ try {
 	let payload = SymbolTransactionFactory.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));
-	let hash =
-		facade.hashTransaction(transaction).toString();
+	let hash = facade.hashTransaction(transaction).toString();
 	await announceTransaction(payload, 'restriction transaction');
 	await waitForConfirmation(hash, 'restriction transaction');
 	// [<step-7]
