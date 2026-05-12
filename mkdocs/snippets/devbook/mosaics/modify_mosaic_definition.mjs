@@ -1,9 +1,9 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
 	NetworkTimestamp,
-	models,
-	generateMosaicId
+	SymbolFacade,
+	generateMosaicId,
+	models
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL
@@ -63,14 +63,12 @@ try {
 	// Sign and generate final payload [>step-4]
 	const signature = facade.signTransaction(
 		signerKeyPair, modifyTx);
-	const jsonPayload =
-		facade.transactionFactory.static.attachSignature(
-			modifyTx, signature);
+	const jsonPayload = facade.transactionFactory.static.attachSignature(
+		modifyTx, signature);
 	console.log('Built mosaic modification transaction:');
 	console.dir(modifyTx.toJson(), { colors: true });
 
-	const modifyHash =
-		facade.hashTransaction(modifyTx).toString();
+	const modifyHash = facade.hashTransaction(modifyTx).toString();
 	console.log('Transaction hash:', modifyHash);
 
 	// Announce transaction
@@ -86,46 +84,37 @@ try {
 	// [<step-4]
 	// Wait for confirmation [>step-5]
 	console.log('Waiting for mosaic modification confirmation...');
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	const statusPath = `/transactionStatus/${modifyHash}`;
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(`${NODE_URL}${statusPath}`);
 
-		try {
-			const statusUrl =
-				`${NODE_URL}/transactionStatus/${modifyHash}`;
-			const statusResponse = await fetch(statusUrl);
-
-			if (!statusResponse.ok) {
-				console.log('  Transaction status: unknown');
-				continue;
-			}
-
-			const status = await statusResponse.json();
+		if (response.ok) {
+			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-
-			if (status.group === 'confirmed') {
-				console.log('Mosaic modification confirmed in',
-					attempt, 'seconds');
+			if ('confirmed' === status.group) {
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
 				break;
 			}
-
-			if (status.group === 'failed') {
-				throw new Error(
-					`Mosaic modification failed: ${status.code}`);
+			if ('failed' === status.group) {
+				console.log('Transaction failed:', status.code);
+				break;
 			}
-		} catch (error) {
-			if (error.message.includes('failed:')) {
-				throw error;
-			}
-			console.log('  Transaction status: unknown');
+		} else {
+			console.log('  Transaction status: unknown | Cause:',
+				response.status
+			);
 		}
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
 	}
 	// [<step-5]
 	// Retrieve the mosaic [>step-6]
 	const mosaicIdHex = mosaicId.toString(16);
 	const mosaicPath = `/mosaics/${mosaicIdHex}`;
 	console.log('Fetching mosaic information from', mosaicPath);
-	const mosaicResponse =
-		await fetch(`${NODE_URL}${mosaicPath}`);
+	const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);
 	const mosaicJSON = await mosaicResponse.json();
 	const mosaicInfo = mosaicJSON.mosaic;
 	console.log('Mosaic information:');

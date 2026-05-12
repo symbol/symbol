@@ -1,18 +1,18 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
-	NetworkTimestamp,
 	Address,
-	models,
-	generateNamespaceId
+	NetworkTimestamp,
+	SymbolFacade,
+	generateNamespaceId,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -46,8 +46,7 @@ try {
 	// Build the transaction [>step-1]
 	const rootNamespaceName = 'ns_root';
 	const childNamespaceName = `sub_${Date.now()}`;
-	const fullNamespaceName =
-		`${rootNamespaceName}.${childNamespaceName}`;
+	const fullNamespaceName = `${rootNamespaceName}.${childNamespaceName}`;
 	console.log('Creating child namespace:', fullNamespaceName);
 
 	// Generate the parent namespace ID from the root name
@@ -60,7 +59,7 @@ try {
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
 		registrationType: 'child',
-		parentId: parentId,
+		parentId,
 		name: childNamespaceName
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
@@ -68,14 +67,12 @@ try {
 	// Sign transaction and generate final payload
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
-	const jsonPayload =
-		facade.transactionFactory.static.attachSignature(
-			transaction, signature);
+	const jsonPayload = facade.transactionFactory.static.attachSignature(
+		transaction, signature);
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce transaction
@@ -89,38 +86,30 @@ try {
 
 	// Wait for confirmation
 	console.log('Waiting for namespace registration confirmation...');
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	const statusPath = `/transactionStatus/${transactionHash}`;
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(`${NODE_URL}${statusPath}`);
 
-		try {
-			const statusUrl =
-				`${NODE_URL}/transactionStatus/${transactionHash}`;
-			const statusResponse = await fetch(statusUrl);
-
-			if (!statusResponse.ok) {
-				console.log('  Transaction status: unknown');
-				continue;
-			}
-
-			const status = await statusResponse.json();
+		if (response.ok) {
+			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-
-			if (status.group === 'confirmed') {
-				console.log('Namespace registration confirmed in',
-					attempt, 'seconds');
+			if ('confirmed' === status.group) {
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
 				break;
 			}
-
-			if (status.group === 'failed') {
-				throw new Error(
-					`Namespace registration failed: ${status.code}`);
+			if ('failed' === status.group) {
+				console.log('Transaction failed:', status.code);
+				break;
 			}
-		} catch (error) {
-			if (error.message.includes('failed:')) {
-				throw error;
-			}
-			console.log('  Transaction status: unknown');
+		} else {
+			console.log('  Transaction status: unknown | Cause:',
+				response.status
+			);
 		}
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
 	}
 
 	// Retrieve the namespace [>step-2]
@@ -130,12 +119,10 @@ try {
 		'Child namespace ID:',
 		`${namespaceId} (0x${namespaceId.toString(16)})`);
 
-	const namespacePath =
-		`/namespaces/${namespaceId.toString(16)}`;
+	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
 	console.log(
 		'Fetching namespace information from', namespacePath);
-	const namespaceResponse =
-		await fetch(`${NODE_URL}${namespacePath}`);
+	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();
 	const namespaceInfo = namespaceJSON.namespace;
 	console.log('Namespace information:');
@@ -147,12 +134,10 @@ try {
 	console.log('  Parent ID:', namespaceInfo.parentId);
 	console.log('  Depth:', namespaceInfo.depth);
 	console.log('  Level 0:', namespaceInfo.level0);
-	if (namespaceInfo.depth >= 1) {
+	if (1 <= namespaceInfo.depth)
 		console.log('  Level 1:', namespaceInfo.level1);
-	}
-	if (namespaceInfo.depth >= 2 && namespaceInfo.level2) {
+	if (2 <= namespaceInfo.depth && namespaceInfo.level2)
 		console.log('  Level 2:', namespaceInfo.level2);
-	}
 	console.log('  Start height:', namespaceInfo.startHeight);
 	console.log('  End height:', namespaceInfo.endHeight); // [<step-2]
 } catch (e) {

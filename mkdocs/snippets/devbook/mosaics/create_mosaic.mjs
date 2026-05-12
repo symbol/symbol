@@ -1,13 +1,13 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
 	NetworkTimestamp,
-	models,
-	generateMosaicId
+	SymbolFacade,
+	generateMosaicId,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to announce a transaction
@@ -24,20 +24,19 @@ async function announceTransaction(payload, label) {
 // Helper function to wait for transaction confirmation
 async function waitForConfirmation(transactionHash, label) {
 	console.log(`Waiting for ${label} confirmation...`);
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		try {
 			const response = await fetch(
 				`${NODE_URL}/transactionStatus/${transactionHash}`);
 			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log(`${label} confirmed in`, attempt, 'seconds');
 				return;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
-			}
 		} catch (e) {
 			if (e.message.includes('failed'))
 				throw e;
@@ -53,7 +52,7 @@ const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
 const facade = new SymbolFacade('testnet');
-const signerAddress =facade.network.publicKeyToAddress(
+const signerAddress = facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
 console.log('Signer address:', signerAddress.toString());
 // [<step-1]
@@ -84,16 +83,15 @@ try {
 	const nonce = Math.floor(Date.now() / 1000) & 0x7FFFFFFF;
 	console.log('Mosaic nonce:', nonce);
 
-	const definitionTx =
-		facade.transactionFactory.create({
-			type: 'mosaic_definition_transaction_v1',
-			signerPublicKey: signerKeyPair.publicKey.toString(),
-			deadline: timestamp.addHours(2).timestamp,
-			duration: 0n,
-			divisibility: 2,
-			nonce: nonce,
-			flags: 'transferable restrictable'
-		});
+	const definitionTx = facade.transactionFactory.create({
+		type: 'mosaic_definition_transaction_v1',
+		signerPublicKey: signerKeyPair.publicKey.toString(),
+		deadline: timestamp.addHours(2).timestamp,
+		duration: 0n,
+		divisibility: 2,
+		nonce,
+		flags: 'transferable restrictable'
+	});
 	definitionTx.fee = new models.Amount(feeMult * definitionTx.size);
 
 	const mosaicId = generateMosaicId(signerAddress, nonce);
@@ -108,8 +106,7 @@ try {
 	console.dir(definitionTx.toJson(), { colors: true });
 
 	// Announce and wait for confirmation
-	const definitionHash =
-		facade.hashTransaction(definitionTx).toString();
+	const definitionHash = facade.hashTransaction(definitionTx).toString();
 	console.log('Transaction hash:', definitionHash);
 	await announceTransaction(defPayload, 'mosaic definition');
 	await waitForConfirmation(definitionHash, 'mosaic definition');
@@ -117,15 +114,14 @@ try {
 	// --- INCREASING MOSAIC SUPPLY ---
 	console.log('\n--- Increasing mosaic supply ---');
 	// [>step-5]
-	const supplyTx =
-		facade.transactionFactory.create({
-			type: 'mosaic_supply_change_transaction_v1',
-			signerPublicKey: signerKeyPair.publicKey.toString(),
-			deadline: timestamp.addHours(2).timestamp,
-			mosaicId: mosaicId,
-			action: 'increase',
-			delta: 100_00n
-		});
+	const supplyTx = facade.transactionFactory.create({
+		type: 'mosaic_supply_change_transaction_v1',
+		signerPublicKey: signerKeyPair.publicKey.toString(),
+		deadline: timestamp.addHours(2).timestamp,
+		mosaicId,
+		action: 'increase',
+		delta: 100_00n
+	});
 	supplyTx.fee = new models.Amount(feeMult * supplyTx.size);
 	// [<step-5]
 	// Sign and generate final payload [>step-6]

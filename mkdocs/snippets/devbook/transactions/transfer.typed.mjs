@@ -1,17 +1,17 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
 	NetworkTimestamp,
-	models,
+	SymbolFacade,
 	descriptors,
-	generateMosaicAliasId
+	generateMosaicAliasId,
+	models
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-const SIGNER_PRIVATE_KEY =
-	'EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -77,46 +77,30 @@ try {
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	console.log('Waiting for confirmation from', statusPath);
 
-	let attempt = 0;
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		const response = await fetch(`${NODE_URL}${statusPath}`);
 
-	function pollStatus() {
-		attempt++;
-
-		if (attempt > 60) {
-			console.warn('Confirmation took too long.');
-			return;
+		if (response.ok) {
+			const status = await response.json();
+			console.log('  Transaction status:', status.group);
+			if ('confirmed' === status.group) {
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
+				break;
+			}
+			if ('failed' === status.group) {
+				console.log('Transaction failed:', status.code);
+				break;
+			}
+		} else {
+			console.log('  Transaction status: unknown | Cause:',
+				response.status
+			);
 		}
-
-		return fetch(`${NODE_URL}${statusPath}`)
-			.then(response => {
-				if (!response.ok) {
-					console.log('  Transaction status: unknown | Cause:',
-						response.statusText);
-					// HTTP error: schedule a retry
-					return new Promise(resolve =>
-						setTimeout(resolve, 1000)).then(pollStatus);
-				}
-				return response.json();
-			})
-			.then(status => {
-				// Skip if previous step scheduled a retry
-				if (!status) return;
-
-				console.log('  Transaction status:', status.group);
-
-				if (status.group === 'confirmed') {
-					console.log('Transaction confirmed in', attempt,
-						'seconds');
-				} else if (status.group === 'failed') {
-					console.log('Transaction failed:', status.code);
-				} else {
-					// Transaction unconfirmed: schedule a retry
-					return new Promise(resolve =>
-						setTimeout(resolve, 1000)).then(pollStatus);
-				}
-			});
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
 	}
-	pollStatus();
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

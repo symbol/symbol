@@ -127,7 +127,7 @@ try:
 	# Convert namespace to mosaic alias ID
 	mosaic_alias_id = generate_mosaic_alias_id(namespace_name)
 
-	transfer_tx = facade.transaction_factory.create({
+	facade.transaction_factory.create({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,

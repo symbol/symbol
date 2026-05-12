@@ -9,17 +9,45 @@ rules:
   import/extensions:
     - error
     - ignorePackages
+  # Tutorials make heavy use of the console for output
   no-console: off
   max-len:
     - error
-    - code: 75
+    - code: 88
       ignoreTrailingComments: true
   function-paren-newline:
     - off
+  # This rule requires some pretty ugly constructs some times
   prefer-destructuring:
     - off
+  # Allow some simple for loops
   no-restricted-syntax:
     - error
     - ForInStatement
-    - LabeledStatement
-    - WithStatement
+  # No cumbersome JSDocs in tutorial code
+  jsdoc/require-jsdoc:
+    - off
+  # Operators are the only logical place to break some long lines
+  operator-linebreak:
+    - off
+  # Prefer old-style function declarations for clarity
+  func-style:
+  - error
+  - declaration
+  - allowArrowFunctions: true
+  # Polling loops do active waiting inside loops
+  no-await-in-loop:
+  - off
+  # Allow normal arithmetic expressions like a + b * c
+  no-mixed-operators:
+    - error
+    - groups:
+        - ['&&', '||']
+        - ['&', '|', '^']
+        - ['==', '!=', '===', '!==', '>', '>=', '<', '<=']
+        - ['in', 'instanceof']
+      allowSamePrecedence: true
+  # The 'ethers' dependency is only used by one tutorial, we don't want to
+  # force it on every user. Specially because it's a heavy dependency.
+  import/no-extraneous-dependencies:
+  - off

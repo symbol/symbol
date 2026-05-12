@@ -132,7 +132,7 @@ try:
 	recipient_address = Address.from_namespace_id(
 		NamespaceId(recipient_id), facade.network.identifier)
 
-	transfer_tx = facade.transaction_factory.create({
+	facade.transaction_factory.create({
 		'type': 'transfer_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,

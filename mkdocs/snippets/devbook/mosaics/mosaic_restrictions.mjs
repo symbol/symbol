@@ -1,16 +1,39 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	KeyPair,
-	mosaicRestrictionGenerateKey,
+	NetworkTimestamp,
+	SymbolFacade,
 	SymbolTransactionFactory,
 	models,
-	NetworkTimestamp,
-	SymbolFacade
+	mosaicRestrictionGenerateKey
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
+
+const facade = new SymbolFacade('testnet');
+// [>step-1]
+const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const ownerKeyPair = new KeyPair(new PrivateKey(OWNER_PRIVATE_KEY));
+const ownerAddress = facade.network.publicKeyToAddress(
+	ownerKeyPair.publicKey);
+console.log(`Owner address: ${ownerAddress}`);
+
+const targetAddress = process.env.TARGET_ADDRESS
+	|| 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
+console.log(`Target address: ${targetAddress}`);
+
+const mosaicId = BigInt(`0x${process.env.MOSAIC_ID
+	|| '6A5ACF2376E50D4A'}`);
+console.log(`Mosaic ID: 0x${mosaicId.toString(16).toUpperCase()}`);
+
+const restrictionName = process.env.RESTRICTION_NAME || 'security_level';
+const restrictionKey = mosaicRestrictionGenerateKey(restrictionName);
+console.log(`Restriction name: "${restrictionName}" (key: 0x${
+	restrictionKey.toString(16).toUpperCase().padStart(16, '0')})`);
+// [<step-1]
 
 // Helper function to announce a transaction
 async function announceTransaction(payload, label) {
@@ -26,20 +49,19 @@ async function announceTransaction(payload, label) {
 // Helper function to wait for transaction confirmation
 async function waitForConfirmation(transactionHash, label) {
 	console.log(`Waiting for ${label} confirmation...`);
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		try {
 			const response = await fetch(
 				`${NODE_URL}/transactionStatus/${transactionHash}`);
 			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log(`${label} confirmed in`, attempt, 'seconds');
 				return;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
-			}
 		} catch (e) {
 			if (e.message.includes('failed'))
 				throw e;
@@ -51,7 +73,7 @@ async function waitForConfirmation(transactionHash, label) {
 
 // Returns a filtered list of restrictions currently applied to the mosaic
 // matching the given restriction key
-async function getMosaicRestrictions(query, key) {  // [>step-4]
+async function getMosaicRestrictions(query, key) { // [>step-4]
 	const restrictionsPath = `/restrictions/mosaic?${query}`;
 	console.log(`  Getting restrictions from ${restrictionsPath}`);
 	let res = [];
@@ -59,7 +81,7 @@ async function getMosaicRestrictions(query, key) {  // [>step-4]
 		const response = await fetch(`${NODE_URL}${restrictionsPath}`);
 		const status = await response.json();
 		const data = status.data;
-		if (data.length > 0) {
+		if (0 < data.length) {
 			// Look at the first returned restriction
 			const rlist = data[0].mosaicRestrictionEntry.restrictions;
 			// Filter by key
@@ -72,16 +94,16 @@ async function getMosaicRestrictions(query, key) {  // [>step-4]
 	return res;
 }
 
-function getMosaicGlobalRestrictions(mosaicId, key) {
+function getMosaicGlobalRestrictions(queriedMosaicId, key) {
 	return getMosaicRestrictions(
-		`mosaicId=${mosaicId.toString(16)}&entryType=1`,
+		`mosaicId=${queriedMosaicId.toString(16)}&entryType=1`,
 		key);
 }
-// [<step-4] [>step-5] 
-function getMosaicAddressRestrictions(mosaicId, address, key) {
+// [<step-4] [>step-5]
+function getMosaicAddressRestrictions(queriedMosaicId, address, key) {
 	return getMosaicRestrictions(
-		`mosaicId=${mosaicId.toString(16)}&entryType=0` +
-		`&targetAddress=${address}`, key);
+		`mosaicId=${queriedMosaicId.toString(16)}&entryType=0`
+		+ `&targetAddress=${address}`, key);
 }
 // [<step-5]
 // Returns a transaction enabling a mosaic's global restriction
@@ -118,29 +140,6 @@ function addressRestrictionSetValue(prevValue, newValue, address) {
 	return transaction;
 }
 
-const facade = new SymbolFacade('testnet');
-// [>step-1]
-const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
-const ownerKeyPair = new KeyPair(new PrivateKey(OWNER_PRIVATE_KEY));
-const ownerAddress = facade.network.publicKeyToAddress(
-	ownerKeyPair.publicKey);
-console.log(`Owner address: ${ownerAddress}`);
-
-const targetAddress = process.env.TARGET_ADDRESS ||
-	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
-console.log(`Target address: ${targetAddress}`);
-
-const mosaicId = BigInt('0x' + (process.env.MOSAIC_ID ||
-	'6A5ACF2376E50D4A'));
-console.log(`Mosaic ID: 0x${mosaicId.toString(16).toUpperCase()}`);
-
-const restrictionName = process.env.RESTRICTION_NAME || 'security_level';
-const restrictionKey = mosaicRestrictionGenerateKey(restrictionName);
-console.log(`Restriction name: "${restrictionName}" (key: 0x${
-	restrictionKey.toString(16).toUpperCase().padStart(16, '0')
-	})`);
-// [<step-1]
 try {
 	// Fetch current network time [>step-2]
 	const timePath = '/node/time';
@@ -167,7 +166,7 @@ try {
 	console.log('Checking if the global restriction is enabled:');
 	const globalRestrictions = await getMosaicGlobalRestrictions(
 		mosaicId, restrictionKey);
-	if (globalRestrictions.length === 0) {
+	if (0 === globalRestrictions.length) {
 		// Enable the global restriction
 		console.log('+ Enabling global restriction');
 		transactions.push(globalRestrictionEnableTransaction());
@@ -183,9 +182,9 @@ try {
 	const addressRestrictions = await getMosaicAddressRestrictions(
 		mosaicId, targetAddress, restrictionKey);
 	let prevValue = 0xFFFFFFFFFFFFFFFFn;
-	if (addressRestrictions.length > 0)
+	if (0 < addressRestrictions.length)
 		prevValue = BigInt(addressRestrictions[0].value);
-	if (prevValue !== 1n) {
+	if (1n !== prevValue) {
 		// Enable the address restriction
 		console.log('+ Authorizing target account');
 		transactions.push(addressRestrictionSetValue(

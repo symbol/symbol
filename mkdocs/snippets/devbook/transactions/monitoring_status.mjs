@@ -1,30 +1,29 @@
 // Configuration
-const NODE_URL = process.env.NODE_URL||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Transaction hash to monitor.
-const transactionHash = process.env.TRANSACTION_HASH || // [>step-1]
-	'2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA';
+const transactionHash = process.env.TRANSACTION_HASH // [>step-1]
+	|| '2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA';
 // [<step-1]
 console.log(`Monitoring transaction: ${transactionHash}`);
 // [>step-2]
 /**
  * Poll the transaction status endpoint until the transaction is confirmed.
- *
- * @param {string} transactionHash - The hash of the transaction to monitor
+ * @param {string} txHash - The hash of the transaction to monitor
  * @param {number} maxAttempts - Maximum number of polling attempts
  *   for confirmation
  * @param {number} waitSeconds - Seconds to wait between attempts
  * @returns {boolean} True if transaction was confirmed
  */
 async function waitForTransactionConfirmation(
-	transactionHash,
+	txHash,
 	maxAttempts = 60,
 	waitSeconds = 2
 ) {
-	const statusPath = `/transactionStatus/${transactionHash}`;
-	console.log(`\nWaiting for transaction confirmation`);
+	const statusPath = `/transactionStatus/${txHash}`;
+	console.log('\nWaiting for transaction confirmation');
 	console.log(`Polling ${statusPath}`);
 
 	for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -53,15 +52,15 @@ async function waitForTransactionConfirmation(
 			console.log(`    Code: ${statusCode}`);
 			console.log(`    Hash: ${statusHash}`);
 			console.log(`    Deadline: ${statusDeadline}`);
-// [<step-2]
+			// [<step-2]
 			// Check if the transaction has been confirmed [>step-3]
-			if (statusGroup === 'confirmed') {
-				console.log(`\nTransaction confirmed!`);
+			if ('confirmed' === statusGroup) {
+				console.log('\nTransaction confirmed!');
 				return true;
 			}
 			// [<step-3]
 			// Check if the transaction failed [>step-4]
-			if (statusGroup === 'failed') {
+			if ('failed' === statusGroup) {
 				console.log(
 					`\nTransaction failed with code: ${statusCode}`
 				);
@@ -69,10 +68,10 @@ async function waitForTransactionConfirmation(
 			} // [<step-4]
 		// [>step-5]
 		} catch (error) {
-			if (error.status === 404) {
+			if (404 === error.status) {
 				console.log(
-					`  Attempt ${attempt}: Transaction status not yet ` +
-					`available`
+					`  Attempt ${attempt}: Transaction status not yet `
+					+ 'available'
 				);
 			} else {
 				throw error;
@@ -81,9 +80,9 @@ async function waitForTransactionConfirmation(
 		// [<step-5]
 		// Wait before next attempt (except on last attempt) [>step-6]
 		if (attempt < maxAttempts) {
-			await new Promise((resolve) =>
-				setTimeout(resolve, waitSeconds * 1000)
-			);
+			await new Promise(resolve => {
+				setTimeout(resolve, waitSeconds * 1000);
+			});
 		} // [<step-6]
 	}
 	// [>step-7]
@@ -91,7 +90,7 @@ async function waitForTransactionConfirmation(
 		`\nTransaction not confirmed after ${maxAttempts} attempts`
 	);
 	throw new Error(
-		`Transaction ${transactionHash} not confirmed in time`
+		`Transaction ${txHash} not confirmed in time`
 	); // [<step-7]
 }
 

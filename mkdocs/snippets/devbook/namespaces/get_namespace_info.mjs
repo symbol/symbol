@@ -18,9 +18,9 @@ try {
 	const namespacePath = `/namespaces/${namespaceIdHex}`;
 	console.log('Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
-	if (!namespaceResponse.ok) {
+	if (!namespaceResponse.ok)
 		throw new Error(`HTTP error! status: ${namespaceResponse.status}`);
-	}
+
 	const namespaceJSON = await namespaceResponse.json();
 	const ns = namespaceJSON.namespace;
 	console.log('Namespace information:');
@@ -31,12 +31,10 @@ try {
 	const depth = ns.depth;
 	console.log('  Depth:', depth);
 	console.log('  Level 0 ID:', ns.level0);
-	if (depth >= 2) {
+	if (2 <= depth)
 		console.log('  Level 1 ID:', ns.level1);
-	}
-	if (depth === 3 && ns.level2) {
+	if (3 === depth && ns.level2)
 		console.log('  Level 2 ID:', ns.level2);
-	}
 	console.log('  Start height:', ns.startHeight);
 	const endHeight = BigInt(ns.endHeight);
 	console.log('  End height:',
@@ -45,9 +43,9 @@ try {
 	// Display alias information [>step-3]
 	const alias = ns.alias;
 	console.log('  Alias type:', alias.type);
-	if (alias.type === 1) {
+	if (1 === alias.type) {
 		console.log('  Linked mosaic ID:', alias.mosaicId);
-	} else if (alias.type === 2) {
+	} else if (2 === alias.type) {
 		const linkedAddress = Address.fromDecodedAddressHexString(
 			alias.address);
 		console.log('  Linked address:', linkedAddress.toString());

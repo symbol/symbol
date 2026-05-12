@@ -1,9 +1,9 @@
-import crypto from 'crypto';
 import { Hash256, utils } from 'symbol-sdk';
 import {
 	deserializePatriciaTreeNodes,
 	provePatriciaMerkle
 } from 'symbol-sdk/symbol';
+import crypto from 'crypto';
 
 const { hexToUint8, intToBytes } = utils;
 
@@ -11,7 +11,7 @@ const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-const sha3_256 = (data) =>
+const sha3_256 = data =>
 	crypto.createHash('sha3-256').update(data).digest();
 
 const concat = (...arrays) => {
@@ -30,7 +30,7 @@ try {
 	const propsRes = await fetch(`${NODE_URL}/network/properties`);
 	const props = await propsRes.json();
 	const rawId = props.chain.currencyMosaicId;
-	const mosaicId = BigInt(rawId.replaceAll("'", ''));
+	const mosaicId = BigInt(rawId.replaceAll('\'', ''));
 	const mosaicIdHex = mosaicId.toString(16)
 		.toUpperCase().padStart(16, '0');
 	console.log('Currency mosaic ID:', mosaicIdHex);
@@ -45,14 +45,14 @@ try {
 	// [<step-1]
 	// Serialize and hash the mosaic properties [>step-2]
 	const serialized = concat(
-		intToBytes(parseInt(mosaic.version), 2),
+		intToBytes(parseInt(mosaic.version, 10), 2),
 		intToBytes(BigInt(`0x${mosaic.id}`), 8),
 		intToBytes(BigInt(mosaic.supply), 8),
 		intToBytes(BigInt(mosaic.startHeight), 8),
 		hexToUint8(mosaic.ownerAddress),
-		intToBytes(parseInt(mosaic.revision), 4),
-		intToBytes(parseInt(mosaic.flags), 1),
-		intToBytes(parseInt(mosaic.divisibility), 1),
+		intToBytes(parseInt(mosaic.revision, 10), 4),
+		intToBytes(parseInt(mosaic.flags, 10), 1),
+		intToBytes(parseInt(mosaic.divisibility, 10), 1),
 		intToBytes(BigInt(mosaic.duration), 8));
 	const hashedValue = new Hash256(sha3_256(serialized));
 	console.log('Hashed value:', hashedValue.toString());
@@ -100,7 +100,7 @@ try {
 			keyPos += 1;
 			const active = node.links
 				.map((l, j) => (l ? j.toString(16).toUpperCase() : null))
-				.filter(x => x !== null);
+				.filter(x => null !== x);
 			console.log(
 				`  [${i}] branch${pathStr}`
 				+ `  links: [${active}]`
@@ -112,7 +112,7 @@ try {
 	const result = provePatriciaMerkle(
 		encodedKey, hashedValue, merklePath, stateHash, roots);
 
-	if (result === 0x0001) { // VALID_POSITIVE
+	if (0x0001 === result) { // VALID_POSITIVE
 		console.log(
 			`Mosaic ${mosaicIdHex} state verified at height ${height}`);
 	} else {

@@ -1,14 +1,14 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
 	NetworkTimestamp,
-	models,
-	generateMosaicAliasId
+	SymbolFacade,
+	generateMosaicAliasId,
+	models
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
-const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
+const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 // [>step-1]
 const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS
@@ -24,8 +24,8 @@ const signerKeyPair = new SymbolFacade.KeyPair(
 try {
 	// Connect to WebSocket [>step-2]
 	const websocket = new WebSocket(WS_URL);
-	const uid = await new Promise((resolve) => {
-		websocket.addEventListener('message', (event) => {
+	const uid = await new Promise(resolve => {
+		websocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			resolve(message.uid);
 		}, { once: true });
@@ -57,7 +57,7 @@ try {
 		mosaics: [{
 			mosaicId: generateMosaicAliasId('symbol.unknown'),
 			amount: 1n
-		}],
+		}]
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
 
@@ -66,8 +66,8 @@ try {
 		transaction, signature);
 	const transactionHash = facade.hashTransaction(transaction).toString(); // [<step-4]
 	// [>step-5]
-	const rejected = new Promise((resolve) => {
-		websocket.addEventListener('message', (event) => {
+	const rejected = new Promise(resolve => {
+		websocket.addEventListener('message', event => {
 			const msg = JSON.parse(event.data);
 			const txHash = msg.data.hash;
 			const code = msg.data.code;
@@ -75,9 +75,8 @@ try {
 				`Transaction ${txHash.substring(0, 16)}... `
 				+ `rejected with code: ${code}`);
 
-			if (txHash === transactionHash) {
+			if (txHash === transactionHash)
 				resolve();
-			}
 		});
 	});
 	await fetch(`${NODE_URL}/transactions`, {

@@ -1,21 +1,19 @@
 import { Hash256, PrivateKey } from 'symbol-sdk';
 import {
-	generateMosaicAliasId,
-	models,
 	NetworkTimestamp,
-	SymbolFacade
+	SymbolFacade,
+	generateMosaicAliasId,
+	models
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
-const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
+const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 // [>step-1]
-const ACCOUNT_A_PRIVATE_KEY =
-	process.env.ACCOUNT_A_PRIVATE_KEY
+const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY
 	|| '0000000000000000000000000000000000000000000000000000000000000000';
-const ACCOUNT_B_PRIVATE_KEY =
-	process.env.ACCOUNT_B_PRIVATE_KEY
+const ACCOUNT_B_PRIVATE_KEY = process.env.ACCOUNT_B_PRIVATE_KEY
 	|| '1111111111111111111111111111111111111111111111111111111111111111';
 
 const facade = new SymbolFacade('testnet');
@@ -108,8 +106,8 @@ try {
 
 	// Confirm hash lock via WebSocket
 	const lockWebSocket = new WebSocket(WS_URL);
-	const lockUid = await new Promise((resolve) => {
-		lockWebSocket.addEventListener('message', (event) => {
+	const lockUid = await new Promise(resolve => {
+		lockWebSocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			resolve(message.uid);
 		}, { once: true });
@@ -118,7 +116,7 @@ try {
 	const addressA = accountAAddress.toString();
 	const lockChannels = [
 		`confirmedAdded/${addressA}`,
-		`status/${addressA}`,
+		`status/${addressA}`
 	];
 	for (const channel of lockChannels) {
 		lockWebSocket.send(JSON.stringify({
@@ -137,19 +135,19 @@ try {
 
 	// Wait for hash lock confirmation
 	await new Promise((resolve, reject) => {
-		lockWebSocket.addEventListener('message', (event) => {
+		lockWebSocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			const name = message.topic.split('/')[0];
 
-			if (name === 'confirmedAdded'
+			if ('confirmedAdded' === name
 				&& message.data.meta.hash === hashLockHash) {
 				console.log('Hash lock confirmed');
 				resolve();
 			}
 
-			if (name === 'status' && message.data.hash === hashLockHash) {
+			if ('status' === name && message.data.hash === hashLockHash) {
 				reject(new Error(
-					'Hash lock failed: ' + message.data.code));
+					`Hash lock failed: ${message.data.code}`));
 			}
 		});
 	});
@@ -163,8 +161,8 @@ try {
 	// [<step-2]
 	// [Account B] Connect to WebSocket for bonded flow [>step-3]
 	const websocket = new WebSocket(WS_URL);
-	const uid = await new Promise((resolve) => {
-		websocket.addEventListener('message', (event) => {
+	const uid = await new Promise(resolve => {
+		websocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			resolve(message.uid);
 		}, { once: true });
@@ -180,37 +178,34 @@ try {
 		`unconfirmedAdded/${addressB}`,
 		`unconfirmedRemoved/${addressB}`,
 		`confirmedAdded/${addressB}`,
-		`status/${addressB}`,
+		`status/${addressB}`
 	];
 	for (const channel of channels) {
-		websocket.send(JSON.stringify({uid, subscribe: channel}));
+		websocket.send(JSON.stringify({ uid, subscribe: channel }));
 		const name = channel.split('/')[0];
 		console.log(`[Account B] Subscribed to ${name} channel`);
 	}
 	// [<step-3]
 	// [Account B] Listen for bonded transaction flow [>step-5]
 	const confirmed = new Promise((resolve, reject) => {
-		websocket.addEventListener('message', (event) => {
+		websocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			const topic = message.topic;
 			const name = topic.split('/')[0];
 
-			if (name === 'cosignature') {
+			if ('cosignature' === name) {
 				const signer = message.data.signerPublicKey;
 				console.log(
 					`cosignature: signer=${signer.substring(0, 16)}...`);
-
-			} else if (name === 'status') {
+			} else if ('status' === name) {
 				const statusHash = message.data.hash;
 				console.log(
 					`status: hash=${statusHash.substring(0, 16)}...`);
 				if (statusHash === bondedHash) {
 					reject(new Error(
-						'Transaction failed: ' + message.data.code));
-					return;
+						`Transaction failed: ${message.data.code}`));
 				}
-
-			} else if (name === 'partialAdded') {
+			} else if ('partialAdded' === name) {
 				const messageHash = message.data.meta.hash;
 				console.log('partialAdded: hash='
 					+ `${messageHash.substring(0, 16)}...`);
@@ -228,24 +223,22 @@ try {
 					});
 					fetch(`${NODE_URL}/transactions/cosignature`, {
 						method: 'PUT',
-						headers: {'Content-Type': 'application/json'},
+						headers: { 'Content-Type': 'application/json' },
 						body: cosignaturePayload
 					}).then(() => console.log(
 						'[Account B] Submitted cosignature'))
-					.catch((err) => console.error(
-						'Cosignature failed:', err));
+						.catch(err => console.error(
+							'Cosignature failed:', err));
 				}
-
-			} else if (name === 'confirmedAdded') {
+			} else if ('confirmedAdded' === name) {
 				const messageHash = message.data.meta.hash;
-				console.log(`confirmedAdded: hash=`
+				console.log('confirmedAdded: hash='
 					+ `${messageHash.substring(0, 16)}...`);
 				if (messageHash === bondedHash) {
-					console.log('Transaction '
-						+ bondedHash.substring(0, 16) + '... confirmed');
+					console.log(`Transaction ${
+						bondedHash.substring(0, 16)}... confirmed`);
 					resolve();
 				}
-
 			} else {
 				const messageHash = message.data.meta.hash;
 				console.log(
@@ -267,9 +260,8 @@ try {
 	await confirmed;
 	// [<step-4]
 	// Unsubscribe before closing [>step-6]
-	for (const channel of channels) {
-		websocket.send(JSON.stringify({uid, unsubscribe: channel}));
-	}
+	for (const channel of channels)
+		websocket.send(JSON.stringify({ uid, unsubscribe: channel }));
 	console.log('[Account B] Unsubscribed from all channels');
 	websocket.close(); // [<step-6]
 } catch (error) {

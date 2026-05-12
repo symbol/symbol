@@ -1,13 +1,13 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	generateMosaicAliasId,
-	models,
 	NetworkTimestamp,
-	SymbolFacade
+	SymbolFacade,
+	generateMosaicAliasId,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
@@ -59,7 +59,7 @@ try {
 			recipientAddress: accountBAddress.toString(),
 			mosaics: [{
 				mosaicId: generateMosaicAliasId('symbol.xym'),
-				amount: 10_000_000n  // 10 XYM (divisibility = 6)
+				amount: 10_000_000n // 10 XYM (divisibility = 6)
 			}]
 		});
 
@@ -72,7 +72,7 @@ try {
 			recipientAddress: accountAAddress.toString(),
 			mosaics: [{
 				mosaicId: customMosaicId,
-				amount: 1n  // 1 custom mosaic (divisibility = 0)
+				amount: 1n // 1 custom mosaic (divisibility = 0)
 			}]
 		});
 	// [<step-3]
@@ -149,33 +149,34 @@ try {
 	console.log('  Response:', await announceResponse.text());
 
 	// Compute hash of final transaction (with cosignatures)
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	// [<step-8]
 	// Wait for confirmation [>step-9]
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	console.log('Waiting for confirmation from', statusPath);
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(`${NODE_URL}${statusPath}`);
 
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
-		try {
-			const statusResponse = await fetch(
-				`${NODE_URL}${statusPath}`);
-			const status = await statusResponse.json();
+		if (response.ok) {
+			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log('Transaction confirmed in', attempt,
 					'seconds');
 				break;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group) {
 				console.log('Transaction failed:', status.code);
 				break;
 			}
-		} catch (e) {
+		} else {
 			console.log('  Transaction status: unknown | Cause:',
-				e.message);
+				response.status
+			);
 		}
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
 	} // [<step-9]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');

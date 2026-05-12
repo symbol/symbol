@@ -1,18 +1,18 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
 	NetworkTimestamp,
-	models,
+	SymbolFacade,
+	generateMosaicAliasId,
 	generateNamespacePath,
-	generateMosaicAliasId
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 // [>step-1]
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -61,8 +61,8 @@ try {
 		type: 'mosaic_alias_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
-		namespaceId: namespaceId,
-		mosaicId: mosaicId,
+		namespaceId,
+		mosaicId,
 		aliasAction: 'link'
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
@@ -70,14 +70,12 @@ try {
 	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
-	const jsonPayload =
-		facade.transactionFactory.static.attachSignature(
-			transaction, signature);
+	const jsonPayload = facade.transactionFactory.static.attachSignature(
+		transaction, signature);
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce transaction
@@ -90,39 +88,30 @@ try {
 	console.log('  Response:', await announceResponse.text());
 	// [<step-5]
 	// Wait for confirmation [>step-6]
-	console.log('Waiting for transaction confirmation...');
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	const statusPath = `/transactionStatus/${transactionHash}`;
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(`${NODE_URL}${statusPath}`);
 
-		try {
-			const statusUrl =
-				`${NODE_URL}/transactionStatus/${transactionHash}`;
-			const statusResponse = await fetch(statusUrl);
-
-			if (!statusResponse.ok) {
-				console.log('  Transaction status: unknown');
-				continue;
-			}
-
-			const status = await statusResponse.json();
+		if (response.ok) {
+			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-
-			if (status.group === 'confirmed') {
-				console.log('Mosaic alias transaction confirmed in',
-					attempt, 'seconds');
+			if ('confirmed' === status.group) {
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
 				break;
 			}
-
-			if (status.group === 'failed') {
-				throw new Error(
-					`Mosaic alias transaction failed: ${status.code}`);
+			if ('failed' === status.group) {
+				console.log('Transaction failed:', status.code);
+				break;
 			}
-		} catch (error) {
-			if (error.message.includes('failed:')) {
-				throw error;
-			}
-			console.log('  Transaction status: unknown');
+		} else {
+			console.log('  Transaction status: unknown | Cause:',
+				response.status
+			);
 		}
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
 	}
 	// [<step-6]
 	// Retrieve the namespace to verify the alias [>step-7]
@@ -133,7 +122,7 @@ try {
 	const namespaceInfo = namespaceJSON.namespace;
 	console.log('Alias information:');
 	console.log('  Alias type:', namespaceInfo.alias.type);
-	if (namespaceInfo.alias.type === 1) { // MOSAIC type
+	if (1 === namespaceInfo.alias.type) { // MOSAIC type
 		console.log('  Linked mosaic ID:', namespaceInfo.alias.mosaicId);
 	}
 	// [<step-7]
@@ -143,7 +132,7 @@ try {
 	// Convert namespace to mosaic alias ID
 	const mosaicAliasId = generateMosaicAliasId(namespaceName);
 
-	const transferTx = facade.transactionFactory.create({
+	facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,

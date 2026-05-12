@@ -1,19 +1,18 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	Address,
-	generateMosaicAliasId,
-	models,
 	NetworkTimestamp,
-	SymbolFacade
+	SymbolFacade,
+	generateMosaicAliasId,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 // [>step-1]
-const SIGNER_PRIVATE_KEY =
-	process.env.SIGNER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -23,10 +22,10 @@ const signerAddress = facade.network.publicKeyToAddress(
 console.log('Signer public key:', signerKeyPair.publicKey.toString());
 console.log('Signer address:', signerAddress.toString());
 
-const RECIPIENT_1 = process.env.RECIPIENT_1 ||
-	'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI';
-const RECIPIENT_2 = process.env.RECIPIENT_2 ||
-	'TCD4NC5VIE2EEB3BCV5JRLBNJXYDW5Q5JK547MI';
+const RECIPIENT_1 = process.env.RECIPIENT_1
+	|| 'TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI';
+const RECIPIENT_2 = process.env.RECIPIENT_2
+	|| 'TCD4NC5VIE2EEB3BCV5JRLBNJXYDW5Q5JK547MI';
 const recipient1Hex = Buffer.from(
 	new Address(RECIPIENT_1).bytes).toString('hex').toUpperCase();
 const recipient2Hex = Buffer.from(
@@ -63,7 +62,7 @@ try {
 		recipientAddress: RECIPIENT_1,
 		mosaics: [{
 			mosaicId: xymMosaicId,
-			amount: 5_000_000n  // 5 XYM
+			amount: 5_000_000n // 5 XYM
 		}]
 	});
 
@@ -74,7 +73,7 @@ try {
 		recipientAddress: RECIPIENT_2,
 		mosaics: [{
 			mosaicId: xymMosaicId,
-			amount: 3_000_000n  // 3 XYM
+			amount: 3_000_000n // 3 XYM
 		}]
 	});
 	// [<step-3]
@@ -111,24 +110,23 @@ try {
 	console.log('  Response:', await announceResponse.text());
 	// [<step-5]
 	// Wait for confirmation [>step-6]
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	console.log('Waiting for confirmation from', statusPath);
 
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		try {
 			const statusResponse = await fetch(
 				`${NODE_URL}${statusPath}`);
 			const status = await statusResponse.json();
 			console.log('  Transaction status:', status.group);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log('Transaction confirmed in', attempt,
 					'seconds');
 				break;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group) {
 				console.log('Transaction failed:', status.code);
 				break;
 			}

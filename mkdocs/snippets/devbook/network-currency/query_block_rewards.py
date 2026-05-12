@@ -62,11 +62,9 @@ try:
 				label = 'Beneficiary (25%)'
 			else:
 				label = 'Harvester'
-				print(f'  {label}: {amount / 1e6:,.6f} XYM')
-				harvester = Address.from_decoded_address_hex_string(
+				harvester_addr = Address.from_decoded_address_hex_string(
 					target)
-				print(f'  Harvester: {harvester}')
-				continue
+				print(f'  Harvester address: {harvester_addr}')
 			print(f'  {label}: {amount / 1e6:,.6f} XYM')
 	# [<step-4]
 	# Summary [>step-5]

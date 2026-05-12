@@ -1,10 +1,10 @@
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 
 const SUPPLY_PATH = '/network/currency/supply';
 // [>step-1]
-const fmt = (v) => v.toLocaleString('en-US', { minimumFractionDigits: 6 });
+const fmt = v => v.toLocaleString('en-US', { minimumFractionDigits: 6 });
 
 const maxResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/max`);
 const maximum = parseFloat((await maxResponse.text()).trim());

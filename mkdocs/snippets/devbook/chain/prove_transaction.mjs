@@ -1,12 +1,12 @@
 import { Hash256 } from 'symbol-sdk';
 import { proveMerkle } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-const TX_HASH = process.env.TRANSACTION_HASH ||
-	'99011A8DBC086E0C359E9D8A38FEC6714C33726FCD0C1B5C0F772A82400D808B';
+const TX_HASH = process.env.TRANSACTION_HASH
+	|| '99011A8DBC086E0C359E9D8A38FEC6714C33726FCD0C1B5C0F772A82400D808B';
 console.log('Transaction hash:', TX_HASH);
 
 try {
@@ -29,7 +29,7 @@ try {
 
 	console.log(JSON.stringify({
 		height: blockData.block.height,
-		transactionsHash: blockData.block.transactionsHash,
+		transactionsHash: blockData.block.transactionsHash
 	}, undefined, 2));
 	const transactionsHash = new Hash256(
 		blockData.block.transactionsHash);
@@ -48,7 +48,7 @@ try {
 	const merkleProofPath = merkleData.merklePath.map(
 		part => ({
 			hash: new Hash256(part.hash),
-			isLeft: part.position === 'left',
+			isLeft: 'left' === part.position
 		}));
 	console.log('  Merkle path length:', merkleProofPath.length);
 	// [<step-3]
