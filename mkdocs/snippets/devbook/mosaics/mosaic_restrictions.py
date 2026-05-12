@@ -13,6 +13,27 @@ NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
 
+facade = SymbolFacade('testnet')
+# [>step-1]
+OWNER_PRIVATE_KEY = os.getenv('OWNER_PRIVATE_KEY',
+	'0000000000000000000000000000000000000000000000000000000000000000')
+owner_key_pair = SymbolFacade.KeyPair(PrivateKey(OWNER_PRIVATE_KEY))
+owner_address = facade.network.public_key_to_address(
+	owner_key_pair.public_key)
+print(f'Owner address: {owner_address}')
+
+target_address = os.getenv('TARGET_ADDRESS',
+	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA')
+print(f'Target address: {target_address}')
+
+mosaic_id = int(os.getenv('MOSAIC_ID', '6A5ACF2376E50D4A'), 16)
+print(f'Mosaic ID: 0x{mosaic_id:08X}')
+restriction_name = os.getenv('RESTRICTION_NAME', 'security_level')
+restriction_key = mosaic_restriction_generate_key(restriction_name)
+print(f'Restriction name: "{restriction_name}"'
+	f' (key: 0x{restriction_key:016X})')  # [<step-1]
+
+
 # Helper function to announce a transaction
 def announce_transaction(announce_payload, label):
 	print(f'Announcing {label} to /transactions')
@@ -115,26 +136,6 @@ def address_restriction_set_value(previous_value, new_value, address):
 	return restr_transaction
 
 
-facade = SymbolFacade('testnet')
-# [>step-1]
-OWNER_PRIVATE_KEY = os.getenv('OWNER_PRIVATE_KEY',
-	'0000000000000000000000000000000000000000000000000000000000000000')
-owner_key_pair = SymbolFacade.KeyPair(PrivateKey(OWNER_PRIVATE_KEY))
-owner_address = facade.network.public_key_to_address(
-	owner_key_pair.public_key)
-print(f'Owner address: {owner_address}')
-
-target_address = os.getenv('TARGET_ADDRESS',
-	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA')
-print(f'Target address: {target_address}')
-
-mosaic_id = int(os.getenv('MOSAIC_ID', '6A5ACF2376E50D4A'), 16)
-print(f'Mosaic ID: 0x{mosaic_id:08X}')
-restriction_name = os.getenv('RESTRICTION_NAME', 'security_level')
-restriction_key = mosaic_restriction_generate_key(restriction_name)
-print(f'Restriction name: "{restriction_name}"'
-	f' (key: 0x{restriction_key:016X})')
-# [<step-1]
 try:
 	# Fetch current network time [>step-2]
 	time_path = '/node/time'

@@ -1,11 +1,11 @@
 import { PublicKey } from 'symbol-sdk';
 import { Address, Network } from 'symbol-sdk/symbol';
 
-const fmt = (v) => (v / 1e6).toLocaleString(
+const fmt = v => (v / 1e6).toLocaleString(
 	'en-US', { minimumFractionDigits: 6 });
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 
 const BLOCK_HEIGHT = process.env.BLOCK_HEIGHT || '3222290';
@@ -38,7 +38,7 @@ console.log(`Inflation reward: ${fmt(reward)} XYM`);
 // [<step-3]
 // Get harvest fee receipts for this block [>step-4]
 const receiptsUrl = `${NODE_URL}/statements/transaction`
-	+ `?height=${BLOCK_HEIGHT}&receiptType=8515`
+	+ `?height=${BLOCK_HEIGHT}&receiptType=8515`;
 const receipts = await (await fetch(receiptsUrl)).json();
 
 // Label and display the reward distribution
@@ -46,23 +46,22 @@ let total = 0;
 console.log('\nReward distribution:');
 for (const item of receipts.data) {
 	for (const r of item.statement.receipts) {
-		if (r.type !== 8515) continue;
-		const amount = parseInt(r.amount, 10);
-		total += amount;
-		let label;
-		if (r.targetAddress === sink) {
-			label = 'Network sink (5%)';
-		} else if (r.targetAddress === beneficiary) {
-			label = 'Beneficiary (25%)';
-		} else {
-			label = 'Harvester';
-			const harvester = Address.fromDecodedAddressHexString(
-				r.targetAddress);
+		if (8515 === r.type) {
+			const amount = parseInt(r.amount, 10);
+			total += amount;
+			let label;
+			if (r.targetAddress === sink) {
+				label = 'Network sink (5%)';
+			} else if (r.targetAddress === beneficiary) {
+				label = 'Beneficiary (25%)';
+			} else {
+				label = 'Harvester';
+				const harvesterAddress =
+					Address.fromDecodedAddressHexString(r.targetAddress);
+				console.log(`  Harvester address: ${harvesterAddress}`);
+			}
 			console.log(`  ${label}: ${fmt(amount)} XYM`);
-			console.log(`  Harvester: ${harvester}`);
-			continue;
 		}
-		console.log(`  ${label}: ${fmt(amount)} XYM`);
 	}
 }
 // [<step-4]

@@ -1,10 +1,30 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	generateMosaicAliasId,
 	NetworkTimestamp,
 	SymbolFacade,
+	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
+
+const NODE_URL = 'https://reference.symboltest.net:3001';
+console.log(`Using node ${NODE_URL}`);
+
+const APP_PRIVATE_KEY = process.env.APP_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const appKeyPair = new SymbolFacade.KeyPair(
+	new PrivateKey(APP_PRIVATE_KEY));
+console.log(`App public key: ${appKeyPair.publicKey}`);
+
+const USER_PRIVATE_KEY = process.env.USER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000099';
+const userKeyPair = new SymbolFacade.KeyPair(
+	new PrivateKey(USER_PRIVATE_KEY));
+console.log(`User public key: ${userKeyPair.publicKey}`);
+
+const facade = new SymbolFacade('testnet');
+
+let timestamp;
+let feeMult;
 
 // OPTION 1
 // [>step-1]
@@ -128,25 +148,6 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 	return { transaction, jsonPayload };
 }
 // [<step-6]
-const NODE_URL = 'https://reference.symboltest.net:3001';
-console.log(`Using node ${NODE_URL}`);
-
-const APP_PRIVATE_KEY = process.env.APP_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
-const appKeyPair = new SymbolFacade.KeyPair(
-	new PrivateKey(APP_PRIVATE_KEY));
-console.log(`App public key: ${appKeyPair.publicKey}`);
-
-const USER_PRIVATE_KEY = process.env.USER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000099';
-const userKeyPair = new SymbolFacade.KeyPair(
-	new PrivateKey(USER_PRIVATE_KEY));
-console.log(`User public key: ${userKeyPair.publicKey}`);
-
-const facade = new SymbolFacade('testnet');
-
-let timestamp;
-let feeMult;
 
 try {
 	// Fetch current network time
@@ -170,38 +171,35 @@ try {
 	console.log('  Fee multiplier:', feeMult);
 
 	// Choose one
-	const { transaction, jsonPayload } =
-		buildPrefundedMessageTransaction(
-			'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I',
-			'Hello world!'
-		);
-	//const { transaction, jsonPayload } =
-	//	buildSponsoredMessageTransaction(
-	//		'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I',
-	//		'Hello world!'
-	//	);
+	const builders = {
+		prefunded: buildPrefundedMessageTransaction,
+		sponsored: buildSponsoredMessageTransaction
+	};
+	const { transaction, jsonPayload } = builders.prefunded(
+		'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I',
+		'Hello world!'
+	);
 
 	console.log('Built transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
-
 	// Announce the transaction
 	const announcePath = '/transactions';
 	console.log(`Announcing transaction to ${announcePath}`);
-	const response = await fetch(`${NODE_URL}${announcePath}`, {
+	const announceResponse = await fetch(`${NODE_URL}${announcePath}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: jsonPayload
 	});
-	console.log(`  Response: ${await response.text()}`);
+	console.log(`  Response: ${await announceResponse.text()}`);
 
 	// Wait for confirmation
 	const statusPath =
 		`/transactionStatus/${facade.hashTransaction(transaction)}`;
 	console.log(`Waiting for confirmation from ${statusPath}`);
 
-	for (let attempt = 0; attempt < 60; ++attempt) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	for (let attempt = 0; 60 > attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		try {
 			const response = await fetch(`${NODE_URL}${statusPath}`);
 			if (!response.ok)
@@ -209,11 +207,11 @@ try {
 
 			const status = await response.json();
 			console.log(`  Transaction status: ${status.group}`);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log(`Transaction confirmed in ${attempt} seconds`);
 				break;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group) {
 				console.log(`Transaction failed: ${status.code}`);
 				break;
 			}

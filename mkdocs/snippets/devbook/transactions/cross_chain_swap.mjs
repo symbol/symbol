@@ -1,19 +1,19 @@
+import { ethers } from 'ethers';
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
 	NetworkTimestamp,
-	models,
-	generateMosaicAliasId
+	SymbolFacade,
+	generateMosaicAliasId,
+	models
 } from 'symbol-sdk/symbol';
 import { createHash, randomBytes } from 'crypto';
-import { ethers } from 'ethers';
 
-const SYMBOL_NODE_URL = process.env.SYMBOL_NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const SYMBOL_NODE_URL = process.env.SYMBOL_NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using Symbol node', SYMBOL_NODE_URL);
 
-const ETH_RPC_URL = process.env.ETH_RPC_URL ||
-	'https://ethereum-sepolia-rpc.publicnode.com';
+const ETH_RPC_URL = process.env.ETH_RPC_URL
+	|| 'https://ethereum-sepolia-rpc.publicnode.com';
 console.log('Using Ethereum RPC', ETH_RPC_URL);
 
 // Ethereum HTLC contract on Sepolia
@@ -38,8 +38,7 @@ const HTLC_ABI = [
 async function getNetworkTime() {
 	const timePath = '/node/time';
 	console.log('Fetching current network time from', timePath);
-	const timeResponse =
-		await fetch(`${SYMBOL_NODE_URL}${timePath}`);
+	const timeResponse = await fetch(`${SYMBOL_NODE_URL}${timePath}`);
 	const timeJSON = await timeResponse.json();
 	const timestamp = new NetworkTimestamp(
 		timeJSON.communicationTimestamps.receiveTimestamp);
@@ -52,8 +51,7 @@ async function getNetworkTime() {
 async function getFeeMultiplier() {
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
-	const feeResponse =
-		await fetch(`${SYMBOL_NODE_URL}${feePath}`);
+	const feeResponse = await fetch(`${SYMBOL_NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
 	const medianMult = feeJSON.medianFeeMultiplier;
 	const minimumMult = feeJSON.minFeeMultiplier;
@@ -96,9 +94,8 @@ async function waitForStatus(hash, expectedStatus, label) {
 			const status = await response.json();
 			console.log('  Transaction status:', status.group);
 
-			if (status.group === 'failed') {
+			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
-			}
 
 			if (status.group === expectedStatus) {
 				console.log(
@@ -107,15 +104,14 @@ async function waitForStatus(hash, expectedStatus, label) {
 				return;
 			}
 		} catch (error) {
-			if (error.status === 404) {
+			if (404 === error.status)
 				console.log('  Transaction status: not yet available');
-			} else {
+			else
 				throw error;
-			}
 		}
 
 		attempts++;
-		await new Promise(resolve => setTimeout(resolve, 1000));
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 	}
 
 	throw new Error(
@@ -145,7 +141,7 @@ async function waitForSecretProof(signerAddress, hashlock) {
 			}
 		}
 		attempts++;
-		await new Promise(resolve => setTimeout(resolve, 1000));
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 	}
 
 	throw new Error(
@@ -156,8 +152,8 @@ async function waitForSecretProof(signerAddress, hashlock) {
 const facade = new SymbolFacade('testnet');
 
 // Alice (creates the ETH lock, claims XYM on Symbol)
-const ALICE_XYM_PRIVATE_KEY = process.env.ALICE_XYM_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
+const ALICE_XYM_PRIVATE_KEY = process.env.ALICE_XYM_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
 const aliceXymKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(ALICE_XYM_PRIVATE_KEY));
 const aliceXymAddress = facade.network.publicKeyToAddress(
@@ -165,8 +161,8 @@ const aliceXymAddress = facade.network.publicKeyToAddress(
 console.log('Alice Symbol address:', aliceXymAddress.toString());
 
 // Bob (creates the XYM lock, claims ETH on Ethereum)
-const BOB_XYM_PRIVATE_KEY = process.env.BOB_XYM_PRIVATE_KEY ||
-	'1111111111111111111111111111111111111111111111111111111111111111';
+const BOB_XYM_PRIVATE_KEY = process.env.BOB_XYM_PRIVATE_KEY
+	|| '1111111111111111111111111111111111111111111111111111111111111111';
 const bobXymKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(BOB_XYM_PRIVATE_KEY));
 const bobXymAddress = facade.network.publicKeyToAddress(
@@ -176,14 +172,14 @@ console.log('Bob Symbol address:', bobXymAddress.toString());
 // Ethereum accounts
 const ethProvider = new ethers.JsonRpcProvider(ETH_RPC_URL);
 
-const ALICE_ETH_PRIVATE_KEY = process.env.ALICE_ETH_PRIVATE_KEY ||
-	'0xa73276699ba72dc7b5c9d08deaf8cd88eec33c866341b120304432b89586d45d';
+const ALICE_ETH_PRIVATE_KEY = process.env.ALICE_ETH_PRIVATE_KEY
+	|| '0xa73276699ba72dc7b5c9d08deaf8cd88eec33c866341b120304432b89586d45d';
 const aliceEthWallet = new ethers.Wallet(
 	ALICE_ETH_PRIVATE_KEY, ethProvider);
 console.log('Alice ETH address:', aliceEthWallet.address);
 
-const BOB_ETH_PRIVATE_KEY = process.env.BOB_ETH_PRIVATE_KEY ||
-	'0x8e85561005f27d926af79a7ce3e76e75108a09ff2ab78bf65b5578d2e5d509bf';
+const BOB_ETH_PRIVATE_KEY = process.env.BOB_ETH_PRIVATE_KEY
+	|| '0x8e85561005f27d926af79a7ce3e76e75108a09ff2ab78bf65b5578d2e5d509bf';
 const bobEthWallet = new ethers.Wallet(BOB_ETH_PRIVATE_KEY, ethProvider);
 console.log('Bob ETH address:', bobEthWallet.address);
 // [<step-1]
@@ -209,7 +205,7 @@ try {
 
 	const lockTx = await htlcAsAlice.newContract(
 		bobEthWallet.address,
-		'0x' + secret.toString('hex'),
+		`0x${secret.toString('hex')}`,
 		timelock,
 		{ value: ethers.parseEther('0.01') }
 	);
@@ -235,20 +231,19 @@ try {
 	const lockDuration = 5760n; // ~48h at 30s blocks
 	console.log('Lock duration:', lockDuration.toString(), 'blocks');
 
-	const secretLockTransaction =
-		facade.transactionFactory.create({
-			type: 'secret_lock_transaction_v1',
-			signerPublicKey: bobXymKeyPair.publicKey.toString(),
-			deadline: (await getNetworkTime()).addHours(2).timestamp,
-			recipientAddress: aliceXymAddress.toString(),
-			mosaic: {
-				mosaicId: generateMosaicAliasId('symbol.xym'),
-				amount: 1_000000n // 1 XYM
-			},
-			duration: lockDuration,
-			secret: hashlock,
-			hashAlgorithm: 'hash_256'
-		});
+	const secretLockTransaction = facade.transactionFactory.create({
+		type: 'secret_lock_transaction_v1',
+		signerPublicKey: bobXymKeyPair.publicKey.toString(),
+		deadline: (await getNetworkTime()).addHours(2).timestamp,
+		recipientAddress: aliceXymAddress.toString(),
+		mosaic: {
+			mosaicId: generateMosaicAliasId('symbol.xym'),
+			amount: 1_000000n // 1 XYM
+		},
+		duration: lockDuration,
+		secret: hashlock,
+		hashAlgorithm: 'hash_256'
+	});
 	secretLockTransaction.fee = new models.Amount(
 		(await getFeeMultiplier()) * secretLockTransaction.size);
 
@@ -271,17 +266,16 @@ try {
 	// --- Step 3. Alice: Claim XYM on Symbol ---
 	console.log('\n--- Step 3. Alice: Claim XYM on Symbol ---'); // [>step-5]
 
-	const secretProofTransaction =
-		facade.transactionFactory.create({
-			type: 'secret_proof_transaction_v1',
-			signerPublicKey:
+	const secretProofTransaction = facade.transactionFactory.create({
+		type: 'secret_proof_transaction_v1',
+		signerPublicKey:
 				aliceXymKeyPair.publicKey.toString(),
-			deadline: (await getNetworkTime()).addHours(2).timestamp,
-			recipientAddress: aliceXymAddress.toString(),
-			secret: hashlock,
-			hashAlgorithm: 'hash_256',
-			proof: proof
-		});
+		deadline: (await getNetworkTime()).addHours(2).timestamp,
+		recipientAddress: aliceXymAddress.toString(),
+		secret: hashlock,
+		hashAlgorithm: 'hash_256',
+		proof
+	});
 	secretProofTransaction.fee = new models.Amount(
 		(await getFeeMultiplier()) * secretProofTransaction.size);
 

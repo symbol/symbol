@@ -11,6 +11,18 @@ from symbolchain.symbol.Network import NetworkTimestamp
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
+facade = SymbolFacade('testnet')
+
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
+	'0000000000000000000000000000000000000000000000000000000000000000')
+signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
+signer_address = facade.network.public_key_to_address(
+	signer_key_pair.public_key)
+print(f'Signer address: {signer_address}')
+
+auth_address = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA'
+print(f'Authorized address: {auth_address}')  # [<step-1]
+
 
 # Helper function to announce a transaction
 def announce_transaction(payload, label):
@@ -105,18 +117,6 @@ def restriction_disable_transaction(restriction):  # [>step-6]
 	return disable_transaction  # [<step-6]
 
 
-facade = SymbolFacade('testnet')
-
-SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
-	'0000000000000000000000000000000000000000000000000000000000000000')
-signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
-signer_address = facade.network.public_key_to_address(
-	signer_key_pair.public_key)
-print(f'Signer address: {signer_address}')
-
-auth_address = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA'
-print(f'Authorized address: {auth_address}')
-# [<step-1]
 try:
 	# Fetch current network time [>step-2]
 	time_path = '/node/time'

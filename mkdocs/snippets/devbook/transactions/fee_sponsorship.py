@@ -9,6 +9,22 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
+NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
+print(f'Using node {NODE_URL}')
+
+APP_PRIVATE_KEY = os.getenv('APP_PRIVATE_KEY',
+	'0000000000000000000000000000000000000000000000000000000000000000')
+app_key_pair = SymbolFacade.KeyPair(
+	PrivateKey(APP_PRIVATE_KEY))
+print(f'App public key: {app_key_pair.public_key}')
+USER_PRIVATE_KEY = os.getenv('USER_PRIVATE_KEY',
+	'0000000000000000000000000000000000000000000000000000000000000099')
+user_key_pair = SymbolFacade.KeyPair(
+	PrivateKey(USER_PRIVATE_KEY))
+print(f'User public key: {user_key_pair.public_key}')
+
+facade = SymbolFacade('testnet')
+
 
 # OPTION 1 [>step-1]
 def build_prefunded_message_transaction(recipient_address, message):
@@ -118,22 +134,6 @@ def build_sponsored_message_transaction(recipient_address, message):
 
 	return (transaction, json_payload)  # [<step-6]
 
-
-NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
-print(f'Using node {NODE_URL}')
-
-APP_PRIVATE_KEY = os.getenv('APP_PRIVATE_KEY',
-	'0000000000000000000000000000000000000000000000000000000000000000')
-app_key_pair = SymbolFacade.KeyPair(
-	PrivateKey(APP_PRIVATE_KEY))
-print(f'App public key: {app_key_pair.public_key}')
-USER_PRIVATE_KEY = os.getenv('USER_PRIVATE_KEY',
-	'0000000000000000000000000000000000000000000000000000000000000099')
-user_key_pair = SymbolFacade.KeyPair(
-	PrivateKey(USER_PRIVATE_KEY))
-print(f'User public key: {user_key_pair.public_key}')
-
-facade = SymbolFacade('testnet')
 
 try:
 	# Fetch current network time
