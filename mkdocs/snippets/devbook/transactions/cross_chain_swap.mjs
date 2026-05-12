@@ -9,30 +9,30 @@ import {
 } from 'symbol-sdk/symbol';
 import { createHash, randomBytes } from 'crypto';
 
-const SYMBOL_NODE_URL = process.env.SYMBOL_NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const SYMBOL_NODE_URL = process.env.SYMBOL_NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using Symbol node', SYMBOL_NODE_URL);
 
-const ETH_RPC_URL = process.env.ETH_RPC_URL
-	|| 'https://ethereum-sepolia-rpc.publicnode.com';
+const ETH_RPC_URL = process.env.ETH_RPC_URL ||
+	'https://ethereum-sepolia-rpc.publicnode.com';
 console.log('Using Ethereum RPC', ETH_RPC_URL);
 
 // Ethereum HTLC contract on Sepolia
 const HTLC_ADDRESS = '0xd58e030bd21c7788897aE5Ea845DaBA936e91D2B';
 const HTLC_ABI = [
-	'function newContract(address, bytes32, uint) '
-		+ 'external payable returns (bytes32)',
-	'function withdraw(bytes32, bytes) '
-		+ 'external returns (bool)',
-	'function getContract(bytes32) external view '
-		+ 'returns (address sender, address receiver, '
-		+ 'uint amount, bytes32 hashlock, '
-		+ 'uint timelock, bool withdrawn, '
-		+ 'bool refunded, bytes preimage)',
-	'event LogHTLCNew(bytes32 indexed contractId, '
-		+ 'address indexed sender, '
-		+ 'address indexed receiver, uint amount, '
-		+ 'bytes32 hashlock, uint timelock)'
+	'function newContract(address, bytes32, uint) ' +
+		'external payable returns (bytes32)',
+	'function withdraw(bytes32, bytes) ' +
+		'external returns (bool)',
+	'function getContract(bytes32) external view ' +
+		'returns (address sender, address receiver, ' +
+		'uint amount, bytes32 hashlock, ' +
+		'uint timelock, bool withdrawn, ' +
+		'bool refunded, bytes preimage)',
+	'event LogHTLCNew(bytes32 indexed contractId, ' +
+		'address indexed sender, ' +
+		'address indexed receiver, uint amount, ' +
+		'bytes32 hashlock, uint timelock)'
 ];
 
 // Helper function to fetch current Symbol network time
@@ -123,8 +123,8 @@ async function waitForStatus(hash, expectedStatus, label) {
 // a hashlock.
 async function waitForSecretProof(signerAddress, hashlock) {
 	const hashlockHex = hashlock.toUpperCase();
-	const url = `${SYMBOL_NODE_URL}/transactions/confirmed`
-		+ `?address=${signerAddress}&type=16978&order=desc`;
+	const url = `${SYMBOL_NODE_URL}/transactions/confirmed` +
+		`?address=${signerAddress}&type=16978&order=desc`;
 	console.log(`Polling ${url}`);
 	console.log(`  Looking for secret: ${hashlockHex}`);
 
@@ -153,8 +153,8 @@ async function waitForSecretProof(signerAddress, hashlock) {
 const facade = new SymbolFacade('testnet');
 
 // Alice (creates the ETH lock, claims XYM on Symbol)
-const ALICE_XYM_PRIVATE_KEY = process.env.ALICE_XYM_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const ALICE_XYM_PRIVATE_KEY = process.env.ALICE_XYM_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const aliceXymKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(ALICE_XYM_PRIVATE_KEY));
 const aliceXymAddress = facade.network.publicKeyToAddress(
@@ -162,8 +162,8 @@ const aliceXymAddress = facade.network.publicKeyToAddress(
 console.log('Alice Symbol address:', aliceXymAddress.toString());
 
 // Bob (creates the XYM lock, claims ETH on Ethereum)
-const BOB_XYM_PRIVATE_KEY = process.env.BOB_XYM_PRIVATE_KEY
-	|| '1111111111111111111111111111111111111111111111111111111111111111';
+const BOB_XYM_PRIVATE_KEY = process.env.BOB_XYM_PRIVATE_KEY ||
+	'1111111111111111111111111111111111111111111111111111111111111111';
 const bobXymKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(BOB_XYM_PRIVATE_KEY));
 const bobXymAddress = facade.network.publicKeyToAddress(
@@ -173,14 +173,14 @@ console.log('Bob Symbol address:', bobXymAddress.toString());
 // Ethereum accounts
 const ethProvider = new ethers.JsonRpcProvider(ETH_RPC_URL);
 
-const ALICE_ETH_PRIVATE_KEY = process.env.ALICE_ETH_PRIVATE_KEY
-	|| '0xa73276699ba72dc7b5c9d08deaf8cd88eec33c866341b120304432b89586d45d';
+const ALICE_ETH_PRIVATE_KEY = process.env.ALICE_ETH_PRIVATE_KEY ||
+	'0xa73276699ba72dc7b5c9d08deaf8cd88eec33c866341b120304432b89586d45d';
 const aliceEthWallet = new ethers.Wallet(
 	ALICE_ETH_PRIVATE_KEY, ethProvider);
 console.log('Alice ETH address:', aliceEthWallet.address);
 
-const BOB_ETH_PRIVATE_KEY = process.env.BOB_ETH_PRIVATE_KEY
-	|| '0x8e85561005f27d926af79a7ce3e76e75108a09ff2ab78bf65b5578d2e5d509bf';
+const BOB_ETH_PRIVATE_KEY = process.env.BOB_ETH_PRIVATE_KEY ||
+	'0x8e85561005f27d926af79a7ce3e76e75108a09ff2ab78bf65b5578d2e5d509bf';
 const bobEthWallet = new ethers.Wallet(BOB_ETH_PRIVATE_KEY, ethProvider);
 console.log('Bob ETH address:', bobEthWallet.address);
 // [<step-1]

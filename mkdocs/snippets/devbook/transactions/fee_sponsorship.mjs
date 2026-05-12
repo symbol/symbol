@@ -9,14 +9,14 @@ import {
 const NODE_URL = 'https://reference.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 
-const APP_PRIVATE_KEY = process.env.APP_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const APP_PRIVATE_KEY = process.env.APP_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const appKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(APP_PRIVATE_KEY));
 console.log(`App public key: ${appKeyPair.publicKey}`);
 
-const USER_PRIVATE_KEY = process.env.USER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000099';
+const USER_PRIVATE_KEY = process.env.USER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000099';
 const userKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(USER_PRIVATE_KEY));
 console.log(`User public key: ${userKeyPair.publicKey}`);
