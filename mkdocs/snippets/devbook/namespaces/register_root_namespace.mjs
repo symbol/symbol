@@ -1,18 +1,18 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	SymbolFacade,
-	NetworkTimestamp,
 	Address,
-	models,
-	generateNamespaceId
+	NetworkTimestamp,
+	SymbolFacade,
+	generateNamespaceId,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 // [>step-1]
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+	|| '0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -60,14 +60,12 @@ try {
 	// Sign transaction and generate final payload [>step-4]
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
-	const jsonPayload =
-		facade.transactionFactory.static.attachSignature(
-			transaction, signature);
+	const jsonPayload = facade.transactionFactory.static.attachSignature(
+		transaction, signature);
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce transaction
@@ -81,38 +79,30 @@ try {
 	// [<step-4]
 	// Wait for confirmation [>step-5]
 	console.log('Waiting for namespace registration confirmation...');
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	const statusPath = `/transactionStatus/${transactionHash}`;
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(`${NODE_URL}${statusPath}`);
 
-		try {
-			const statusUrl =
-				`${NODE_URL}/transactionStatus/${transactionHash}`;
-			const statusResponse = await fetch(statusUrl);
-
-			if (!statusResponse.ok) {
-				console.log('  Transaction status: unknown');
-				continue;
-			}
-
-			const status = await statusResponse.json();
+		if (response.ok) {
+			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-
-			if (status.group === 'confirmed') {
-				console.log('Namespace registration confirmed in',
-					attempt, 'seconds');
+			if ('confirmed' === status.group) {
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
 				break;
 			}
-
-			if (status.group === 'failed') {
-				throw new Error(
-					`Namespace registration failed: ${status.code}`);
+			if ('failed' === status.group) {
+				console.log('Transaction failed:', status.code);
+				break;
 			}
-		} catch (error) {
-			if (error.message.includes('failed:')) {
-				throw error;
-			}
-			console.log('  Transaction status: unknown');
+		} else {
+			console.log('  Transaction status: unknown | Cause:',
+				response.status
+			);
 		}
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
 	}
 	// [<step-5]
 	// Retrieve the namespace [>step-6]

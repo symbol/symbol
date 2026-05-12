@@ -1,9 +1,9 @@
 import { PrivateKey } from 'symbol-sdk';
-import { SymbolFacade, NetworkTimestamp, models } from 'symbol-sdk/symbol';
+import { NetworkTimestamp, SymbolFacade, models } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL
 	|| 'https://reference.symboltest.net:3001';
-const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
+const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 // [>step-1]
 const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS
@@ -19,8 +19,8 @@ const signerKeyPair = new SymbolFacade.KeyPair(
 try {
 	// Connect to WebSocket [>step-2]
 	const websocket = new WebSocket(WS_URL);
-	const uid = await new Promise((resolve) => {
-		websocket.addEventListener('message', (event) => {
+	const uid = await new Promise(resolve => {
+		websocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			resolve(message.uid);
 		}, { once: true });
@@ -31,7 +31,7 @@ try {
 	const channels = [
 		`unconfirmedAdded/${MONITOR_ADDRESS}`,
 		`unconfirmedRemoved/${MONITOR_ADDRESS}`,
-		`confirmedAdded/${MONITOR_ADDRESS}`,
+		`confirmedAdded/${MONITOR_ADDRESS}`
 	];
 	for (const channel of channels) {
 		websocket.send(JSON.stringify({ uid, subscribe: channel }));
@@ -55,7 +55,7 @@ try {
 		type: 'transfer_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: MONITOR_ADDRESS,
+		recipientAddress: MONITOR_ADDRESS
 	});
 	transaction.fee = new models.Amount(feeMult * transaction.size);
 
@@ -64,8 +64,8 @@ try {
 		transaction, signature);
 	const transactionHash = facade.hashTransaction(transaction).toString(); // [<step-4]
 	// [>step-5]
-	const confirmed = new Promise((resolve) => {
-		websocket.addEventListener('message', (event) => {
+	const confirmed = new Promise(resolve => {
+		websocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			const topic = message.topic;
 			const messageHash = message.data.meta.hash;
@@ -73,12 +73,12 @@ try {
 			console.log(
 				`${name}: hash=${messageHash.substring(0, 16)}...`);
 
-			if (name === 'confirmedAdded'
+			if ('confirmedAdded' === name
 				&& messageHash === transactionHash) {
-					console.log(
-						`Transaction ${transactionHash.substring(0, 16)}`
+				console.log(
+					`Transaction ${transactionHash.substring(0, 16)}`
 						+ '... confirmed');
-					resolve();
+				resolve();
 			}
 		});
 	});
@@ -95,9 +95,8 @@ try {
 	await confirmed;
 	// [<step-5]
 	// Unsubscribe before closing [>step-6]
-	for (const channel of channels) {
+	for (const channel of channels)
 		websocket.send(JSON.stringify({ uid, unsubscribe: channel }));
-	}
 	console.log('Unsubscribed from all channels');
 	websocket.close(); // [<step-6]
 } catch (error) {
