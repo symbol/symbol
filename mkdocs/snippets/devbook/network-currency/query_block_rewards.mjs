@@ -4,8 +4,8 @@ import { Address, Network } from 'symbol-sdk/symbol';
 const fmt = v => (v / 1e6).toLocaleString(
 	'en-US', { minimumFractionDigits: 6 });
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 
 const BLOCK_HEIGHT = process.env.BLOCK_HEIGHT || '3222290';
@@ -37,8 +37,8 @@ const reward = parseInt(inflation.rewardAmount, 10);
 console.log(`Inflation reward: ${fmt(reward)} XYM`);
 // [<step-3]
 // Get harvest fee receipts for this block [>step-4]
-const receiptsUrl = `${NODE_URL}/statements/transaction`
-	+ `?height=${BLOCK_HEIGHT}&receiptType=8515`;
+const receiptsUrl = `${NODE_URL}/statements/transaction` +
+	`?height=${BLOCK_HEIGHT}&receiptType=8515`;
 const receipts = await (await fetch(receiptsUrl)).json();
 
 // Label and display the reward distribution

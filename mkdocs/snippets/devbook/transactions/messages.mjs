@@ -7,8 +7,8 @@ import {
 } from 'symbol-sdk/symbol';
 
 // Configuration
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to poll for confirmed transaction
@@ -39,15 +39,15 @@ async function retrieveConfirmedTransaction(hash, label) {
 // Set up sender and recipient accounts [>step-1]
 const facade = new SymbolFacade('testnet');
 
-const senderPrivateKeyString = process.env.SENDER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const senderPrivateKeyString = process.env.SENDER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const senderKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(senderPrivateKeyString));
 const senderAddress = facade.network.publicKeyToAddress(
 	senderKeyPair.publicKey);
 
-const recipientPrivateKeyString = process.env.RECIPIENT_PRIVATE_KEY
-	|| '1111111111111111111111111111111111111111111111111111111111111111';
+const recipientPrivateKeyString = process.env.RECIPIENT_PRIVATE_KEY ||
+	'1111111111111111111111111111111111111111111111111111111111111111';
 const recipientKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(recipientPrivateKeyString));
 const recipientAddress = facade.network.publicKeyToAddress(

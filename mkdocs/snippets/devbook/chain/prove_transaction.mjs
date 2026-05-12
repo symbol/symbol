@@ -1,12 +1,12 @@
 import { Hash256 } from 'symbol-sdk';
 import { proveMerkle } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-const TX_HASH = process.env.TRANSACTION_HASH
-	|| '99011A8DBC086E0C359E9D8A38FEC6714C33726FCD0C1B5C0F772A82400D808B';
+const TX_HASH = process.env.TRANSACTION_HASH ||
+	'99011A8DBC086E0C359E9D8A38FEC6714C33726FCD0C1B5C0F772A82400D808B';
 console.log('Transaction hash:', TX_HASH);
 
 try {
@@ -35,8 +35,8 @@ try {
 		blockData.block.transactionsHash);
 	// [<step-2]
 	// Fetch the merkle proof path for the transaction [>step-3]
-	const merklePath = `/blocks/${blockHeight}`
-		+ `/transactions/${TX_HASH}/merkle`;
+	const merklePath = `/blocks/${blockHeight}` +
+		`/transactions/${TX_HASH}/merkle`;
 	console.log('Fetching merkle proof:');
 	console.log(`  ${merklePath}`);
 	const merkleResponse = await fetch(`${NODE_URL}${merklePath}`);
@@ -58,12 +58,12 @@ try {
 
 	if (isProven) {
 		console.log(
-			`Transaction ${TX_HASH.slice(0, 16)}...`
-			+ ` proven in block ${blockHeight}`);
+			`Transaction ${TX_HASH.slice(0, 16)}...` +
+			` proven in block ${blockHeight}`);
 	} else {
 		throw new Error(
-			`Transaction ${TX_HASH.slice(0, 16)}...`
-			+ ` NOT proven in block ${blockHeight}`);
+			`Transaction ${TX_HASH.slice(0, 16)}...` +
+			` NOT proven in block ${blockHeight}`);
 	} // [<step-4]
 } catch (e) {
 	console.error(e.message);

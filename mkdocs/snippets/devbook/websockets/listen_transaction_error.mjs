@@ -6,17 +6,17 @@ import {
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 // [>step-1]
-const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS
-	|| 'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I';
+const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS ||
+	'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I';
 console.log(`Monitoring address: ${MONITOR_ADDRESS}`);
 
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const facade = new SymbolFacade('testnet');
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
@@ -72,8 +72,8 @@ try {
 			const txHash = msg.data.hash;
 			const code = msg.data.code;
 			console.log(
-				`Transaction ${txHash.substring(0, 16)}... `
-				+ `rejected with code: ${code}`);
+				`Transaction ${txHash.substring(0, 16)}... ` +
+				`rejected with code: ${code}`);
 
 			if (txHash === transactionHash)
 				resolve();
@@ -85,8 +85,8 @@ try {
 		body: jsonPayload
 	});
 	console.log(
-		'Announced transaction '
-		+ `${transactionHash.substring(0, 16)}...`);
+		'Announced transaction ' +
+		`${transactionHash.substring(0, 16)}...`);
 
 	// Wait for error via WebSocket
 	await rejected;

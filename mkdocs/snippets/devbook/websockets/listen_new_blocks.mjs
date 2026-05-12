@@ -1,5 +1,5 @@
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 
@@ -32,19 +32,19 @@ try {
 			const block = message.data.block;
 			const blockMeta = message.data.meta;
 			console.log(
-				'New block:'
-				+ ` height=${parseInt(block.height, 10).toLocaleString()}`
-				+ ` hash=${blockMeta.hash.substring(0, 16)}...`
+				'New block:' +
+				` height=${parseInt(block.height, 10).toLocaleString()}` +
+				` hash=${blockMeta.hash.substring(0, 16)}...`
 			);
 		}
 
 		if ('finalizedBlock' === topic) {
 			const finalized = message.data;
 			console.log(
-				'Finalized:'
-				+ ' height='
-				+ `${parseInt(finalized.height, 10).toLocaleString()}`
-				+ ` hash=${finalized.hash.substring(0, 16)}...`
+				'Finalized:' +
+				' height=' +
+				`${parseInt(finalized.height, 10).toLocaleString()}` +
+				` hash=${finalized.hash.substring(0, 16)}...`
 			);
 		}
 	});

@@ -1,5 +1,5 @@
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log(`Using node ${NODE_URL}`);
 
 let prevHeight = null;
@@ -22,23 +22,23 @@ for (;;) {
 	// [>step-2]
 	if (null !== prevHeight && height !== prevHeight)
 		heightChangedAt = now;
-	if (null !== prevFinalizedHeight
-		&& finalizedHeight !== prevFinalizedHeight)
+	if (null !== prevFinalizedHeight &&
+		finalizedHeight !== prevFinalizedHeight)
 		finalizedChangedAt = now;
 
-	const hAgo = null !== heightChangedAt
-		? `${Math.floor((now - heightChangedAt) / 1000)}s ago`
-		: '-';
-	const fAgo = null !== finalizedChangedAt
-		? `${Math.floor((now - finalizedChangedAt) / 1000)}s ago`
-		: '-'; // [<step-2]
+	const hAgo = null !== heightChangedAt ?
+		`${Math.floor((now - heightChangedAt) / 1000)}s ago` :
+		'-';
+	const fAgo = null !== finalizedChangedAt ?
+		`${Math.floor((now - finalizedChangedAt) / 1000)}s ago` :
+		'-'; // [<step-2]
 	// [>step-3]
 	const h = height.toLocaleString().padStart(10);
 	const fh = finalizedHeight.toLocaleString().padStart(10);
 	console.log(
-		`Height: ${h}  (changed ${hAgo})`
-		+ `  |  Finalized: ${fh}`
-		+ `  (changed ${fAgo})`
+		`Height: ${h}  (changed ${hAgo})` +
+		`  |  Finalized: ${fh}` +
+		`  (changed ${fAgo})`
 	);
 
 	prevHeight = height;

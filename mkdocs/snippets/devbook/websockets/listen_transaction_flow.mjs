@@ -1,17 +1,17 @@
 import { PrivateKey } from 'symbol-sdk';
 import { NetworkTimestamp, SymbolFacade, models } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 // [>step-1]
-const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS
-	|| 'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I';
+const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS ||
+	'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I';
 console.log(`Monitoring address: ${MONITOR_ADDRESS}`);
 
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const facade = new SymbolFacade('testnet');
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
@@ -73,11 +73,11 @@ try {
 			console.log(
 				`${name}: hash=${messageHash.substring(0, 16)}...`);
 
-			if ('confirmedAdded' === name
-				&& messageHash === transactionHash) {
+			if ('confirmedAdded' === name &&
+				messageHash === transactionHash) {
 				console.log(
-					`Transaction ${transactionHash.substring(0, 16)}`
-						+ '... confirmed');
+					`Transaction ${transactionHash.substring(0, 16)}` +
+						'... confirmed');
 				resolve();
 			}
 		});
@@ -88,8 +88,8 @@ try {
 		body: jsonPayload
 	});
 	console.log(
-		'Announced transaction '
-		+ `${transactionHash.substring(0, 16)}...`);
+		'Announced transaction ' +
+		`${transactionHash.substring(0, 16)}...`);
 
 	// Wait for confirmation via WebSocket
 	await confirmed;

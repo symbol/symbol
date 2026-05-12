@@ -1,11 +1,11 @@
 // Configuration
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Transaction hash to monitor.
-const transactionHash = process.env.TRANSACTION_HASH // [>step-1]
-	|| '2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA';
+const transactionHash = process.env.TRANSACTION_HASH || // [>step-1]
+	'2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA';
 // [<step-1]
 console.log(`Monitoring transaction: ${transactionHash}`);
 // [>step-2]
@@ -70,8 +70,8 @@ async function waitForTransactionConfirmation(
 		} catch (error) {
 			if (404 === error.status) {
 				console.log(
-					`  Attempt ${attempt}: Transaction status not yet `
-					+ 'available'
+					`  Attempt ${attempt}: Transaction status not yet ` +
+					'available'
 				);
 			} else {
 				throw error;

@@ -29,7 +29,8 @@ rules:
     - off
   # Operators are the only logical place to break some long lines
   operator-linebreak:
-    - off
+    - error
+    - after
   # Prefer old-style function declarations for clarity
   func-style:
   - error

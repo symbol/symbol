@@ -7,8 +7,8 @@ import crypto from 'crypto';
 
 const { hexToUint8, intToBytes } = utils;
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 const sha3_256 = data =>
@@ -91,8 +91,8 @@ try {
 	let keyPos = 0;
 	merklePath.forEach((node, i) => {
 		keyPos += node.path.size;
-		const pathStr = node.path.size
-			? `  path: ${node.hexPath}` : '';
+		const pathStr = node.path.size ?
+			`  path: ${node.hexPath}` : '';
 		if ('value' in node) {
 			console.log(`  [${i}] leaf${pathStr}  value: ${node.value}`);
 		} else {
@@ -102,9 +102,9 @@ try {
 				.map((l, j) => (l ? j.toString(16).toUpperCase() : null))
 				.filter(x => null !== x);
 			console.log(
-				`  [${i}] branch${pathStr}`
-				+ `  links: [${active}]`
-				+ `  -> follow ${nibble}`);
+				`  [${i}] branch${pathStr}` +
+				`  links: [${active}]` +
+				`  -> follow ${nibble}`);
 		}
 	});
 	// [<step-4]

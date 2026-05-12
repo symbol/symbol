@@ -8,25 +8,25 @@ import {
 	mosaicRestrictionGenerateKey
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 const facade = new SymbolFacade('testnet');
 // [>step-1]
-const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const ownerKeyPair = new KeyPair(new PrivateKey(OWNER_PRIVATE_KEY));
 const ownerAddress = facade.network.publicKeyToAddress(
 	ownerKeyPair.publicKey);
 console.log(`Owner address: ${ownerAddress}`);
 
-const targetAddress = process.env.TARGET_ADDRESS
-	|| 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
+const targetAddress = process.env.TARGET_ADDRESS ||
+	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
 console.log(`Target address: ${targetAddress}`);
 
-const mosaicId = BigInt(`0x${process.env.MOSAIC_ID
-	|| '6A5ACF2376E50D4A'}`);
+const mosaicId = BigInt(`0x${process.env.MOSAIC_ID ||
+	'6A5ACF2376E50D4A'}`);
 console.log(`Mosaic ID: 0x${mosaicId.toString(16).toUpperCase()}`);
 
 const restrictionName = process.env.RESTRICTION_NAME || 'security_level';
@@ -102,8 +102,8 @@ function getMosaicGlobalRestrictions(queriedMosaicId, key) {
 // [<step-4] [>step-5]
 function getMosaicAddressRestrictions(queriedMosaicId, address, key) {
 	return getMosaicRestrictions(
-		`mosaicId=${queriedMosaicId.toString(16)}&entryType=0`
-		+ `&targetAddress=${address}`, key);
+		`mosaicId=${queriedMosaicId.toString(16)}&entryType=0` +
+		`&targetAddress=${address}`, key);
 }
 // [<step-5]
 // Returns a transaction enabling a mosaic's global restriction

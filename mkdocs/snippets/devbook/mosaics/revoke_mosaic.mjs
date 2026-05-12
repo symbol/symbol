@@ -5,8 +5,8 @@ import {
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to fetch account mosaic balances
@@ -18,8 +18,8 @@ async function getAccountMosaics(address) {
 	return responseJSON.account.mosaics;
 }
 // [>step-1]
-const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
 const signerKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(SIGNER_PRIVATE_KEY));
 
@@ -28,12 +28,12 @@ const signerAddress =
 	facade.network.publicKeyToAddress(signerKeyPair.publicKey);
 console.log('Signer address:', signerAddress.toString());
 
-const SOURCE_ADDRESS = process.env.SOURCE_ADDRESS
-	|| 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
+const SOURCE_ADDRESS = process.env.SOURCE_ADDRESS ||
+	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
 console.log('Source address:', SOURCE_ADDRESS);
 
-const MOSAIC_ID_HEX = process.env.MOSAIC_ID
-	|| '7aed3d514c986941';
+const MOSAIC_ID_HEX = process.env.MOSAIC_ID ||
+	'7aed3d514c986941';
 const mosaicId = BigInt(`0x${MOSAIC_ID_HEX}`);
 console.log(
 	`Mosaic ID: ${mosaicId} (0x${MOSAIC_ID_HEX})`);
@@ -64,8 +64,8 @@ try {
 	let mosaics = await getAccountMosaics(SOURCE_ADDRESS); // [>step-3]
 	for (const mosaic of mosaics) {
 		if (mosaic.id === MOSAIC_ID_HEX.toUpperCase()) {
-			console.log(`  Mosaic ID: ${mosaic.id},`
-				+ ` Amount: ${mosaic.amount}`);
+			console.log(`  Mosaic ID: ${mosaic.id},` +
+				` Amount: ${mosaic.amount}`);
 		}
 	}
 	// [<step-3]
@@ -136,8 +136,8 @@ try {
 	mosaics = await getAccountMosaics(SOURCE_ADDRESS); // [>step-7]
 	for (const mosaic of mosaics) {
 		if (mosaic.id === MOSAIC_ID_HEX.toUpperCase()) {
-			console.log(`  Mosaic ID: ${mosaic.id},`
-				+ ` Amount: ${mosaic.amount}`);
+			console.log(`  Mosaic ID: ${mosaic.id},` +
+				` Amount: ${mosaic.amount}`);
 		}
 	} // [<step-7]
 } catch (e) {
