@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-unresolved
 import { ethers } from 'ethers';
 import { PrivateKey } from 'symbol-sdk';
 import {
