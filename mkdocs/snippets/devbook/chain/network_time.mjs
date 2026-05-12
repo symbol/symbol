@@ -1,5 +1,5 @@
-const NODE_URL = process.env.NODE_URL
-	|| 'https://whydah.symbolmain.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://whydah.symbolmain.net:3001';
 console.log(`Using node ${NODE_URL}`);
 
 try {

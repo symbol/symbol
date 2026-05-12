@@ -6,15 +6,15 @@ import {
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-	|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 // [>step-1]
-const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY
-	|| '0000000000000000000000000000000000000000000000000000000000000000';
-const ACCOUNT_B_PRIVATE_KEY = process.env.ACCOUNT_B_PRIVATE_KEY
-	|| '1111111111111111111111111111111111111111111111111111111111111111';
+const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
+const ACCOUNT_B_PRIVATE_KEY = process.env.ACCOUNT_B_PRIVATE_KEY ||
+	'1111111111111111111111111111111111111111111111111111111111111111';
 
 const facade = new SymbolFacade('testnet');
 const accountAKeyPair = new SymbolFacade.KeyPair(
@@ -81,8 +81,8 @@ try {
 		.static.attachSignature(bondedTx, bondedSignature);
 	const bondedHash = facade
 		.hashTransaction(bondedTx).toString();
-	console.log('[Account A] Bonded aggregate hash: '
-		+ `${bondedHash.substring(0, 16)}...`);
+	console.log('[Account A] Bonded aggregate hash: ' +
+		`${bondedHash.substring(0, 16)}...`);
 
 	// Create the hash lock transaction
 	const hashLock = facade.transactionFactory.create({
@@ -130,8 +130,8 @@ try {
 		headers: { 'Content-Type': 'application/json' },
 		body: hashLockPayload
 	});
-	console.log('[Account A] Announced hash lock '
-		+ `${hashLockHash.substring(0, 16)}...`);
+	console.log('[Account A] Announced hash lock ' +
+		`${hashLockHash.substring(0, 16)}...`);
 
 	// Wait for hash lock confirmation
 	await new Promise((resolve, reject) => {
@@ -139,8 +139,8 @@ try {
 			const message = JSON.parse(event.data);
 			const name = message.topic.split('/')[0];
 
-			if ('confirmedAdded' === name
-				&& message.data.meta.hash === hashLockHash) {
+			if ('confirmedAdded' === name &&
+				message.data.meta.hash === hashLockHash) {
 				console.log('Hash lock confirmed');
 				resolve();
 			}
@@ -207,8 +207,8 @@ try {
 				}
 			} else if ('partialAdded' === name) {
 				const messageHash = message.data.meta.hash;
-				console.log('partialAdded: hash='
-					+ `${messageHash.substring(0, 16)}...`);
+				console.log('partialAdded: hash=' +
+					`${messageHash.substring(0, 16)}...`);
 				if (messageHash === bondedHash) {
 					const cosignature =
 						SymbolFacade.cosignTransactionHash(
@@ -232,8 +232,8 @@ try {
 				}
 			} else if ('confirmedAdded' === name) {
 				const messageHash = message.data.meta.hash;
-				console.log('confirmedAdded: hash='
-					+ `${messageHash.substring(0, 16)}...`);
+				console.log('confirmedAdded: hash=' +
+					`${messageHash.substring(0, 16)}...`);
 				if (messageHash === bondedHash) {
 					console.log(`Transaction ${
 						bondedHash.substring(0, 16)}... confirmed`);
@@ -253,8 +253,8 @@ try {
 		headers: { 'Content-Type': 'application/json' },
 		body: bondedPayload
 	});
-	console.log('[Account A] Announced bonded '
-		+ `${bondedHash.substring(0, 16)}...`);
+	console.log('[Account A] Announced bonded ' +
+		`${bondedHash.substring(0, 16)}...`);
 
 	// Wait for confirmation via WebSocket
 	await confirmed;

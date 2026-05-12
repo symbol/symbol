@@ -1,7 +1,7 @@
 import { Address, generateNamespacePath } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL
-|| 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 const NAMESPACE_NAME = process.env.NAMESPACE_NAME || 'symbol.xym';
