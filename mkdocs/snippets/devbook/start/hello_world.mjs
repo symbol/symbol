@@ -1,6 +1,6 @@
 import {
-	SymbolFacade,
-	NetworkTimestamp
+	NetworkTimestamp,
+	SymbolFacade
 } from 'symbol-sdk/symbol';
 // [>step-1]
 const facade = new SymbolFacade('mainnet');
@@ -17,9 +17,8 @@ try {
 	console.log(`Fetching chain information from ${infoPath}`);
 	const response = await fetch(`${NODE_URL}${infoPath}`,
 		{ timeout: 10000 });
-	if (!response.ok) {
+	if (!response.ok)
 		throw new Error(`HTTP error! status: ${response.status}`);
-	}
 	const responseJson = await response.json();
 	const height = parseInt(responseJson.height, 10);
 	console.log(`  Blockchain height: ${height.toLocaleString()} blocks`);

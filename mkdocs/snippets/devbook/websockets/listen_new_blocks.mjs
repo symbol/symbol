@@ -1,14 +1,14 @@
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
-const WS_URL = NODE_URL.replace('http', 'ws') + '/ws';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
+const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
 
 try {
 	const websocket = new WebSocket(WS_URL); // [>step-1]
 
 	// Connect to websocket endpoint
-	const uid = await new Promise((resolve) => {
-		websocket.addEventListener('message', (event) => {
+	const uid = await new Promise(resolve => {
+		websocket.addEventListener('message', event => {
 			const message = JSON.parse(event.data);
 			resolve(message.uid);
 		}, { once: true });
@@ -24,11 +24,11 @@ try {
 	console.log('Subscribed to finalizedBlock channel');
 	// [<step-2]
 	// Handle incoming messages [>step-3]
-	websocket.addEventListener('message', (event) => {
+	websocket.addEventListener('message', event => {
 		const message = JSON.parse(event.data);
 		const topic = message.topic;
 
-		if (topic === 'block') {
+		if ('block' === topic) {
 			const block = message.data.block;
 			const blockMeta = message.data.meta;
 			console.log(
@@ -38,7 +38,7 @@ try {
 			);
 		}
 
-		if (topic === 'finalizedBlock') {
+		if ('finalizedBlock' === topic) {
 			const finalized = message.data;
 			console.log(
 				'Finalized:'

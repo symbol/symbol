@@ -1,7 +1,7 @@
 import { models } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 const MOSAIC_ID = process.env.MOSAIC_ID || '72C0212E67A08BCE';
@@ -50,11 +50,10 @@ try {
 		});
 	const namesInfo = await namesResponse.json();
 	for (const entry of namesInfo.mosaicNames) {
-		if (entry.names.length > 0) {
+		if (0 < entry.names.length)
 			console.log('  Namespace aliases:', entry.names.join(', '));
-		} else {
+		else
 			console.log('  No namespace aliases linked');
-		}
 	} // [<step-3]
 } catch (e) {
 	console.error(e.message);

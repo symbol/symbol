@@ -1,13 +1,13 @@
 import { Hash256, PrivateKey } from 'symbol-sdk';
 import {
-	generateMosaicAliasId,
-	models,
 	NetworkTimestamp,
-	SymbolFacade
+	SymbolFacade,
+	generateMosaicAliasId,
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to announce transaction
@@ -44,9 +44,8 @@ async function waitForStatus(hash, expectedStatus, label) {
 
 			console.log('  Transaction status:', status.group);
 
-			if (status.group === 'failed') {
+			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
-			}
 
 			if (status.group === expectedStatus) {
 				console.log(
@@ -54,17 +53,15 @@ async function waitForStatus(hash, expectedStatus, label) {
 				);
 				return;
 			}
-
 		} catch (error) {
-			if (error.status === 404) {
+			if (404 === error.status)
 				console.log('  Transaction status: not yet available');
-			} else {
+			else
 				throw error;
-			}
 		}
 
 		attempts++;
-		await new Promise(resolve => setTimeout(resolve, 1000));
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 	}
 
 	throw new Error(
@@ -112,7 +109,7 @@ try {
 	const minimumMult = feeJSON.minFeeMultiplier;
 	const feeMult = Math.max(medianMult, minimumMult);
 	console.log('  Fee multiplier:', feeMult);
-// [<step-2]
+	// [<step-2]
 	// Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	const embeddedTransaction1 = facade.transactionFactory
 		.createEmbedded({
@@ -121,7 +118,7 @@ try {
 			recipientAddress: accountBAddress.toString(),
 			mosaics: [{
 				mosaicId: generateMosaicAliasId('symbol.xym'),
-				amount: 10_000_000n  // 10 XYM (divisibility = 6)
+				amount: 10_000_000n // 10 XYM (divisibility = 6)
 			}]
 		});
 
@@ -134,10 +131,10 @@ try {
 			recipientAddress: accountAAddress.toString(),
 			mosaics: [{
 				mosaicId: customMosaicId,
-				amount: 1n  // 1 custom mosaic (divisibility = 0)
+				amount: 1n // 1 custom mosaic (divisibility = 0)
 			}]
 		});
-// [<step-3]
+	// [<step-3]
 	// Build the bonded aggregate transaction [>step-4]
 	const embeddedTransactions = [
 		embeddedTransaction1, embeddedTransaction2];
@@ -156,7 +153,7 @@ try {
 	);
 	console.log('Built aggregate without signatures:');
 	console.log(JSON.stringify(bondedTransaction.toJson(), null, 2));
-// [<step-4]
+	// [<step-4]
 	// --- ACCOUNT A (Initiator) --- [>step-5]
 	// Sign the bonded aggregate transaction
 	console.log('[Account A] Signing the bonded aggregate...');
@@ -167,7 +164,7 @@ try {
 	const bondedHash = facade.hashTransaction(
 		bondedTransaction).toString();
 	console.log('Bonded aggregate transaction hash:', bondedHash);
-// [<step-5]
+	// [<step-5]
 	// Create hash lock transaction [>step-6]
 	console.log('Creating hash lock transaction...');
 	const hashLock = facade.transactionFactory.create({
@@ -176,9 +173,9 @@ try {
 		deadline: timestamp.addHours(2).timestamp,
 		mosaic: {
 			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 10_000_000n  // 10 XYM deposit
+			amount: 10_000_000n // 10 XYM deposit
 		},
-		duration: 100n,  // Lock duration in blocks
+		duration: 100n, // Lock duration in blocks
 		hash: bondedHash
 	});
 	hashLock.fee = new models.Amount(feeMult * hashLock.size);
@@ -198,7 +195,7 @@ try {
 		hashLockPayload, '/transactions', 'Hash lock'
 	);
 	await waitForStatus(hashLockHash, 'confirmed', 'Hash lock');
-// [<step-6]
+	// [<step-6]
 	// Announce bonded aggregate and wait for partial status
 	await announceTransaction( // [>step-7]
 		bondedJsonPayload, '/transactions/partial',
@@ -207,20 +204,18 @@ try {
 	await waitForStatus(
 		bondedHash, 'partial', 'Bonded aggregate transaction'
 	);
-// [<step-7]
+	// [<step-7]
 	// --- ACCOUNT B (Cosigner) --- [>step-8]
 	// Retrieves partial transactions waiting for signature
-	const partialPath =
-		`/transactions/partial?address=${accountBAddress}`;
+	const partialPath =		`/transactions/partial?address=${accountBAddress}`;
 	console.log(
-		'[Account B] Checking for partial transactions from ' +
-		'/transactions/partial'
+		'[Account B] Checking for partial transactions from '
+		+ '/transactions/partial'
 	);
 	const partialResponse = await fetch(`${NODE_URL}${partialPath}`);
 	const partialTxs = await partialResponse.json();
-	if (!partialTxs.data || partialTxs.data.length === 0) {
+	if (!partialTxs.data || 0 === partialTxs.data.length)
 		throw new Error('No partial transactions found');
-	}
 
 	console.log(`Found ${partialTxs.data.length} partial transaction(s)`);
 
@@ -230,12 +225,12 @@ try {
 	);
 	if (!found) {
 		throw new Error(
-			`Expected transaction ${bondedHash} not found in ` +
-			`partial transactions`
+			`Expected transaction ${bondedHash} not found in `
+			+ 'partial transactions'
 		);
 	}
 	console.log(`Found matching transaction: ${bondedHash}`);
-// [<step-8]
+	// [<step-8]
 	// Fetch full transaction details using the hash [>step-9]
 	const detailPath = `/transactions/partial/${bondedHash}`;
 	const detailResponse = await fetch(`${NODE_URL}${detailPath}`);
@@ -243,11 +238,10 @@ try {
 
 	// Verify transaction content before cosigning
 	const txData = partialTxJson.transaction;
-	console.log(
-		`[Account B] Verifying transaction: ` +
-		`${txData.transactions.length} embedded transactions`
+	console.log('[Account B] Verifying transaction: '
+		+ `${txData.transactions.length} embedded transactions`
 	);
-// [<step-9]
+	// [<step-9]
 	// Submit Account B's cosignature using the transaction hash [>step-10]
 	const cosignaturePath = '/transactions/cosignature';
 	console.log('[Account B] Cosigning the bonded aggregate...');
@@ -265,7 +259,7 @@ try {
 	await announceTransaction(
 		cosignaturePayload, cosignaturePath, 'cosignature'
 	);
-// [<step-10]
+	// [<step-10]
 	// Wait for final confirmation [>step-11]
 	await waitForStatus(
 		new Hash256(bondedHash), 'confirmed',

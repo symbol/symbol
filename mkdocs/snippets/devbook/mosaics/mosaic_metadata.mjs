@@ -1,14 +1,14 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
+	NetworkTimestamp,
+	SymbolFacade,
 	metadataGenerateKey,
 	metadataUpdateValue,
-	models,
-	NetworkTimestamp,
-	SymbolFacade
+	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = process.env.NODE_URL ||
-	'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL
+	|| 'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
 // Helper function to announce a transaction
@@ -25,20 +25,19 @@ async function announceTransaction(payload, label) {
 // Helper function to wait for transaction confirmation
 async function waitForConfirmation(transactionHash, label) {
 	console.log(`Waiting for ${label} confirmation...`);
-	for (let attempt = 0; attempt < 60; attempt++) {
-		await new Promise(resolve => setTimeout(resolve, 1000));
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		try {
 			const response = await fetch(
 				`${NODE_URL}/transactionStatus/${transactionHash}`);
 			const status = await response.json();
 			console.log('  Transaction status:', status.group);
-			if (status.group === 'confirmed') {
+			if ('confirmed' === status.group) {
 				console.log(`${label} confirmed in`, attempt, 'seconds');
 				return;
 			}
-			if (status.group === 'failed') {
+			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
-			}
 		} catch (e) {
 			if (e.message.includes('failed'))
 				throw e;
@@ -127,8 +126,7 @@ try {
 		transaction, signature);
 
 	// Announce and wait for confirmation
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(jsonPayload, 'aggregate transaction');
@@ -142,7 +140,7 @@ try {
 		.toUpperCase().padStart(16, '0');
 	const mosaicIdHex = mosaicId.toString(16)
 		.toUpperCase().padStart(16, '0');
-	const metadataPath = `/metadata`
+	const metadataPath = '/metadata'
 		+ `?sourceAddress=${signerAddress}`
 		+ `&targetAddress=${signerAddress}`
 		+ `&scopedMetadataKey=${scopedKeyHex}`
@@ -153,9 +151,9 @@ try {
 	const metadataJSON = await metadataResponse.json();
 
 	// Get the metadata entry
-	if (!metadataJSON.data.length) {
+	if (!metadataJSON.data.length)
 		throw new Error('Metadata entry not found');
-	}
+
 	const metadataEntry = metadataJSON.data[0].metadataEntry;
 	const currentValue = Buffer.from(metadataEntry.value, 'hex');
 	console.log('  Current value:', currentValue.toString('utf8'));
