@@ -51,7 +51,7 @@ Transactions on Symbol must include a deadline, which defines how long the netwo
 transaction before discarding it.
 Deadlines are expressed in <network time:>, so the first step is to fetch the current network time from a <node:>.
 
-If a transaction's deadline is earlier than the current network time or more than two hours in the future,
+If a transaction's deadline is earlier than the current network time or more than six hours in the future,
 the transaction will be rejected.
 To avoid this, you need to know the current network time before constructing the transaction, using the
 <get:/node/time> endpoint.
@@ -97,7 +97,7 @@ The snippet includes the following fields:
 * **Signer public key**: The signer is the account that will pay the fee.
     In a transfer transaction, it is also the source of the transferred mosaics.
 
-* **Deadline**: This value is set to two hours after the current network time, which is the maximum allowed deadline.
+* **Deadline**: This value is set to two hours after the current network time.
 
 * **Recipient address**: In this example, the recipient is the same as the sender,
     which is useful for demonstration but not terribly practical.
