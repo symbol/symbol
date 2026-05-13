@@ -178,7 +178,9 @@ along with the signatures of the cosignatories, which explicitly acknowledge the
 
 One of the signatures is the main signer of the transaction and is added using <dy:SymbolFacade.signTransaction>.
 The remaining signatures are cosignatures and are added using <dy:SymbolFacade.cosignTransaction>.
-The choice of the main signer only affects which account pays the transaction fee.
+The main signer pays the transaction fee.
+
+!!! info "The account being converted into a multisig must be the main signer."
 
 **Once an account has multisig enabled, its own signature is no longer required.
 Any transaction involving that account instead requires signatures from its cosignatories.**
@@ -232,7 +234,7 @@ The output shown below corresponds to two typical runs of the program.
 
 === ":material-plus-thick: Enabling the Multisig"
 
-    ```text linenums="1" hl_lines="2-4 10 27-29"
+    ```text linenums="1" hl_lines="2-4 10 27-28 30-31"
     --8<-- 'devbook/accounts/configure_multisig_enable.log'
     ```
 
@@ -244,7 +246,7 @@ The output shown below corresponds to two typical runs of the program.
         increased by one.
     * **Line 28** (`"min_removal_delta": 1`): The number of required signatures to remove a cosignatory will be
         increased by one.
-    * **Line 29** (`"address_additions"`): List of addresses that will be added as cosignatories.
+    * **Line 30-31** (`"address_additions"`): List of addresses that will be added as cosignatories.
 
 === ":material-minus-thick: Disabling the Multisig"
 
