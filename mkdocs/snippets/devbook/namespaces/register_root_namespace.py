@@ -38,10 +38,10 @@ try:
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# Build the transaction [>step-3]
 	namespace_name = f'ns_{int(time.time())}'
@@ -55,7 +55,7 @@ try:
 		'duration': 86400,  # approximately 30 days
 		'name': namespace_name
 	})
-	transaction.fee = Amount(fee_mult * transaction.size)
+	transaction.fee = Amount(fee_multiplier * transaction.size)
 	# [<step-3]
 	# Sign transaction and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, transaction)

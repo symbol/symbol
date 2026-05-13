@@ -100,11 +100,11 @@ def get_fee_multiplier():
 		f'{SYMBOL_NODE_URL}{fee_path}'
 	) as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
-		return fee_mult
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
+		return fee_multiplier
 
 
 # Helper function to announce a Symbol transaction

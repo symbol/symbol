@@ -24,7 +24,7 @@ console.log(`User public key: ${userKeyPair.publicKey}`);
 const facade = new SymbolFacade('testnet');
 
 let timestamp;
-let feeMult;
+let feeMultiplier;
 
 // OPTION 1
 // [>step-1]
@@ -63,7 +63,7 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 	});
 	// Calculate total fee, reserving space for a cosignature
 	transaction.fee = new models.Amount(
-		feeMult * (transaction.size + 104)
+		feeMultiplier * (transaction.size + 104)
 	);
 	// Update the prefund amount to match the total fee
 	prefundTransaction.mosaics[0].amount = transaction.fee;
@@ -127,7 +127,7 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 	});
 	// Calculate total fee, reserving space for a cosignature
 	transaction.fee = new models.Amount(
-		feeMult * (transaction.size + 104)
+		feeMultiplier * (transaction.size + 104)
 	);
 	// [<step-9]
 	// Sign the aggregate transaction using the app's signature [>step-10]
@@ -165,10 +165,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 
 	// Choose one
 	const builders = {

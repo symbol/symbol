@@ -33,10 +33,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 
 	// Build the transaction
 	const typedDescriptor =
@@ -52,7 +52,7 @@ try {
 		);
 	const transaction = facade.createTransactionFromTypedDescriptor(
 		typedDescriptor, signerKeyPair.publicKey, 0, 2 * 60 * 60);
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 
 	// Sign transaction and generate final payload
 	const signature = facade.signTransaction(signerKeyPair, transaction);

@@ -38,10 +38,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Build the transaction [>step-3]
 	const namespaceName = `ns_${Date.now()}`;
@@ -55,7 +55,7 @@ try {
 		duration: 86400n, // approximately 30 days
 		name: namespaceName
 	});
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	// [<step-3]
 	// Sign transaction and generate final payload [>step-4]
 	const signature = facade.signTransaction(

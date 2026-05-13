@@ -91,7 +91,7 @@ async function getMultisigCosignatories(address) {
 }
 // [<step-3]
 // Returns a transaction that turns a regular account into a multisig
-function multisigEnableTransaction(timestamp, feeMult) {
+function multisigEnableTransaction(timestamp, feeMultiplier) {
 	// Create an embedded multisig account modification transaction [>step-5]
 	// that adds two cosignatories
 	const embeddedTransaction = facade.transactionFactory
@@ -119,8 +119,8 @@ function multisigEnableTransaction(timestamp, feeMult) {
 	});
 	// Reserve space for two cosignatures (each is 104 bytes)
 	// and calculate fee for the final transaction size
-	transaction.fee = new models.Amount(
-		feeMult * (transaction.size + (104 * cosignatoryKeyPairs.length)));
+	transaction.fee = new models.Amount(feeMultiplier *
+		(transaction.size + (104 * cosignatoryKeyPairs.length)));
 	console.log('Enabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-6]
@@ -138,7 +138,7 @@ function multisigEnableTransaction(timestamp, feeMult) {
 }
 
 // Returns a transaction that turns a multisig into a regular account
-function multisigDisableTransaction(timestamp, feeMult) {
+function multisigDisableTransaction(timestamp, feeMultiplier) {
 	// Create two embedded multisig account modification transactions [>step-8]
 	// because cosignatories must be removed one by one
 	const embeddedTransaction1 = facade.transactionFactory
@@ -176,7 +176,7 @@ function multisigDisableTransaction(timestamp, feeMult) {
 	});
 	// Calculate fee for the final transaction size
 	// (No need to reserve space for cosignatures, as there are none)
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	console.log('Disabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
@@ -203,10 +203,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Get current state of the multisig account and decide which [>step-4]
 	// operation to perform
@@ -214,10 +214,10 @@ try {
 	let transaction;
 	if (0 === cosignatories.length) {
 		// Enable the multisig
-		transaction = multisigEnableTransaction(timestamp, feeMult);
+		transaction = multisigEnableTransaction(timestamp, feeMultiplier);
 	} else {
 		// Disable the multisig
-		transaction = multisigDisableTransaction(timestamp, feeMult);
+		transaction = multisigDisableTransaction(timestamp, feeMultiplier);
 	}
 	const payload = SymbolTransactionFactory.toJson(transaction);
 	// [<step-4]

@@ -72,10 +72,10 @@ try:
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# --- CREATING MOSAIC DEFINITION ---
 	print('\n--- Creating mosaic definition ---')
@@ -92,7 +92,7 @@ try:
 		'nonce': nonce,
 		'flags': 'transferable restrictable'
 	})
-	definition_tx.fee = Amount(fee_mult * definition_tx.size)
+	definition_tx.fee = Amount(fee_multiplier * definition_tx.size)
 
 	mosaic_id = generate_mosaic_id(signer_address, nonce)
 	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
@@ -121,7 +121,7 @@ try:
 		'action': 'increase',
 		'delta': 100_00
 	})
-	supply_tx.fee = Amount(fee_mult * supply_tx.size)
+	supply_tx.fee = Amount(fee_multiplier * supply_tx.size)
 	# [<step-5]
 	# Sign and generate final payload [>step-6]
 	signature = facade.sign_transaction(signer_key_pair, supply_tx)

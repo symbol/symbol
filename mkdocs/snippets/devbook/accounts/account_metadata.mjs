@@ -73,10 +73,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// --- ADDING NEW METADATA ---
 	console.log('\n--- Adding new metadata ---');
@@ -111,7 +111,7 @@ try {
 			embeddedTransactions),
 		transactions: embeddedTransactions
 	});
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	// [<step-5]
 	// Sign and generate final payload [>step-6]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
@@ -176,7 +176,7 @@ try {
 		transactions: updateEmbedded
 	});
 	updateTransaction.fee = new models.Amount(
-		feeMult * updateTransaction.size);
+		feeMultiplier * updateTransaction.size);
 
 	// Sign and announce the update
 	const updateSignature = facade.signTransaction(

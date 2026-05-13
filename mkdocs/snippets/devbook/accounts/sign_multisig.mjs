@@ -38,10 +38,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Build the embedded transfer transaction [>step-3]
 	const transferTransaction = facade.transactionFactory.createEmbedded({
@@ -65,7 +65,7 @@ try {
 			[transferTransaction]),
 		transactions: [transferTransaction]
 	});
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	// [<step-4]
 	// Sign the aggregate transaction using the cosignatory's signature [>step-5]
 	const jsonPayload = facade.transactionFactory.static.attachSignature(

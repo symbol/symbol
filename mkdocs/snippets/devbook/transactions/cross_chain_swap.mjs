@@ -54,11 +54,11 @@ async function getFeeMultiplier() {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${SYMBOL_NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
-	return feeMult;
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
+	return feeMultiplier;
 }
 
 // Helper function to announce a Symbol transaction

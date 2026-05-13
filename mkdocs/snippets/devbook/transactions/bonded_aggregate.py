@@ -97,10 +97,10 @@ try:
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	embedded_transaction_1 = facade.transaction_factory.create_embedded({
@@ -139,7 +139,7 @@ try:
 	# Reserve space for one cosignature (104 bytes)
 	# and calculate fee for the final transaction size
 	bonded_transaction.fee = Amount(
-		fee_mult * (bonded_transaction.size + 104))
+		fee_multiplier * (bonded_transaction.size + 104))
 	print('Built aggregate without signatures:')
 	print(json.dumps(bonded_transaction.to_json(), indent=2))
 	# [<step-4]
@@ -166,7 +166,7 @@ try:
 		'duration': 100,  # Lock duration in blocks
 		'hash': bonded_hash
 	})
-	hash_lock.fee = Amount(fee_mult * hash_lock.size)
+	hash_lock.fee = Amount(fee_multiplier * hash_lock.size)
 
 	# Sign hash lock
 	print('[Account A] Signing the hash lock...')

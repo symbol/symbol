@@ -49,10 +49,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Embedded tx 1: Send 5 XYM to Recipient 1 [>step-3]
 	const xymMosaicId = generateMosaicAliasId('symbol.xym');
@@ -88,7 +88,7 @@ try {
 		transactions: embeddedTransactions
 	});
 	transaction.fee = new models.Amount(
-		feeMult * transaction.size);
+		feeMultiplier * transaction.size);
 	console.log('Built aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-4]

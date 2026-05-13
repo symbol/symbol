@@ -54,10 +54,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// --- CHECKING INITIAL BALANCE ---
 	console.log('\n--- Checking initial balance ---');
@@ -82,7 +82,7 @@ try {
 			amount: 7_00n
 		}
 	});
-	revokeTx.fee = new models.Amount(feeMult * revokeTx.size);
+	revokeTx.fee = new models.Amount(feeMultiplier * revokeTx.size);
 	// [<step-4]
 	// Sign and generate final payload [>step-5]
 	const signature = facade.signTransaction(signerKeyPair, revokeTx);

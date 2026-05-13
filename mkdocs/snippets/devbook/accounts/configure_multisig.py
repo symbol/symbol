@@ -116,8 +116,8 @@ def multisig_enable_transaction():
 	})
 	# Reserve space for two cosignatures (each is 104 bytes)
 	# and calculate fee for the final transaction size
-	transaction.fee = Amount(
-		fee_mult * (transaction.size + 104 * len(cosignatory_key_pairs)))
+	transaction.fee = Amount(fee_multiplier *
+		(transaction.size + 104 * len(cosignatory_key_pairs)))
 	print('Enabling the multisig with the aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-6]
@@ -171,7 +171,7 @@ def multisig_disable_transaction():
 	})
 	# Calculate fee for the final transaction size
 	# (No need to reserve space for cosignatures, as there are none)
-	transaction.fee = Amount(fee_mult * transaction.size)
+	transaction.fee = Amount(fee_multiplier * transaction.size)
 	print('Disabling the multisig with the aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 
@@ -198,10 +198,10 @@ try:
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# Get current state of the multisig account and decide which [>step-4]
 	# operation to perform

@@ -148,10 +148,10 @@ try:
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# Enable global restriction if required [>step-3]
 	transactions = []
@@ -196,7 +196,7 @@ try:
 			transactions),
 		'transactions': transactions
 	})
-	transaction.fee = Amount(fee_mult * transaction.size)
+	transaction.fee = Amount(fee_multiplier * transaction.size)
 	# [<step-7]
 	# Sign, announce and wait for confirmation
 	payload = facade.transaction_factory.attach_signature(  # [>step-8]
@@ -217,7 +217,7 @@ try:
 			'amount': 1
 		}]
 	})
-	transaction.fee = Amount(fee_mult * transaction.size)
+	transaction.fee = Amount(fee_multiplier * transaction.size)
 	payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(owner_key_pair, transaction))
