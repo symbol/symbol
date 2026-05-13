@@ -212,24 +212,17 @@ try {
 	// operation to perform
 	const cosignatories = await getMultisigCosignatories(multisigAddress);
 	let transaction;
-	let signerKeyPair;
 	if (0 === cosignatories.length) {
 		// Enable the multisig
 		transaction = multisigEnableTransaction(timestamp, feeMult);
-		// This operation must be signed by the multisig account
-		signerKeyPair = multisigKeyPair;
 	} else {
 		// Disable the multisig
 		transaction = multisigDisableTransaction(timestamp, feeMult);
-		// This operation must be signed by one of the cosigners
-		signerKeyPair = cosignatoryKeyPairs[0];
 	}
-	const payload = SymbolTransactionFactory.attachSignature(
-		transaction,
-		facade.signTransaction(signerKeyPair, transaction));
+	const payload = SymbolTransactionFactory.toJson(transaction);
 	// [<step-4]
 	// Announce and wait for confirmation [>step-10]
-	const transactionHash =		facade.hashTransaction(transaction).toString();
+	const transactionHash = facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(payload, 'aggregate transaction');

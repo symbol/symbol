@@ -209,16 +209,10 @@ try:
 	if len(cosignatories) == 0:
 		# Enable the multisig
 		agg_transaction = multisig_enable_transaction()
-		# This operation must be signed by the multisig account
-		signer_key_pair = multisig_key_pair
 	else:
 		# Disable the multisig
 		agg_transaction = multisig_disable_transaction()
-		# This operation must be signed by one of the cosigners
-		signer_key_pair = cosignatory_key_pairs[0]
-	json_payload = facade.transaction_factory.attach_signature(
-		agg_transaction,
-		facade.sign_transaction(signer_key_pair, agg_transaction))
+	json_payload = facade.transaction_factory.to_json(agg_transaction)
 	# [<step-4]
 	# Announce and wait for confirmation [>step-10]
 	agg_transaction_hash = facade.hash_transaction(agg_transaction)
