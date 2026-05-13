@@ -73,19 +73,15 @@ def get_mosaic_restrictions(query, key):  # [>step-4]
 	restrictions_path = f'/restrictions/mosaic?{query}'
 	print(f'  Getting restrictions from {restrictions_path}')
 	res = []
-	try:
-		url = f'{NODE_URL}{restrictions_path}'
-		with urllib.request.urlopen(url) as restr_response:
-			status = json.loads(restr_response.read().decode())
-			data = status['data']
-			if len(data) > 0:
-				# Look at the first returned restriction
-				rlist = data[0]['mosaicRestrictionEntry']['restrictions']
-				# Filter by key
-				res = [r for r in rlist if int(r['key']) == key]
-	except urllib.error.HTTPError:
-		# The mosaic has no restrictions applied to this key
-		pass
+	url = f'{NODE_URL}{restrictions_path}'
+	with urllib.request.urlopen(url) as restr_response:
+		status = json.loads(restr_response.read().decode())
+		data = status['data']
+		if len(data) > 0:
+			# Look at the first returned restriction
+			rlist = data[0]['mosaicRestrictionEntry']['restrictions']
+			# Filter by key
+			res = [r for r in rlist if int(r['key']) == key]
 	print(f'  Response: {res}')
 	return res
 
