@@ -102,8 +102,10 @@ def restriction_disable_transaction(restriction):  # [>step-6]
 		# This is the account whose restriction will be lifted
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
-		# Reverse flags
-		'restriction_flags': restriction['restrictionFlags'],
+		# Lift restrictions for OUTGOING ADDRESSES
+		'restriction_flags':
+			AccountRestrictionFlags.ADDRESS |
+			AccountRestrictionFlags.OUTGOING,
 		# Remove all addresses currently restricted
 		'restriction_deletions': [
 			Address.from_decoded_address_hex_string(addr)

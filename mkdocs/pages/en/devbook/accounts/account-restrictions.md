@@ -143,22 +143,17 @@ The transaction includes the following fields:
     To configure the restriction in _blocklist_ mode, where the listed addresses are forbidden,
     include the `BLOCK` flag.
 
-    The network XOR's these flags with the current value, which at this point is 0 because the tutorial makes sure
-    no restriction is present before enabling it.
-
 * `restriction_additions`: list of addresses (or mosaic IDs, or transaction types) to be added to the restriction.
 
     In this case, the list contains only the authorized address.
 
 ### Removing the Restriction
 
-Disabling the restriction requires clearing both the configured flags and the listed addresses.
+Disabling the restriction requires removing the addresses for the set of restriction flags used when enabling it.
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
 The same `restriction_flags` values used when enabling the restriction are provided again.
-Because the flags are XOR'ed by the network, supplying the same values toggles them off,
-effectively clearing the restriction.
 
 The addresses currently configured in the restriction are supplied in the `restriction_deletions` field
 so they can be removed from the configuration.

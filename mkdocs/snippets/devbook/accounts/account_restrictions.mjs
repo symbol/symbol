@@ -104,8 +104,10 @@ function restrictionDisableTransaction(timestamp, feeMult, restriction) { // [>s
 		// This is the account whose restriction will be lifted
 		signerPublicKey: signerKeyPair.publicKey,
 		deadline: timestamp.addHours(2).timestamp,
-		// Reverse flags
-		restrictionFlags: restriction.restrictionFlags,
+		// Lift restrictions for OUTGOING ADDRESSES
+		restrictionFlags:
+			models.AccountRestrictionFlags.ADDRESS.value |
+			models.AccountRestrictionFlags.OUTGOING.value,
 		// Remove all addresses currently restricted
 		restrictionDeletions: restriction.values.map(hex =>
 			Address.fromDecodedAddressHexString(hex))
