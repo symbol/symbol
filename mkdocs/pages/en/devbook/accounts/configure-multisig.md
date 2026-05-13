@@ -41,12 +41,12 @@ digraph "Multisignature Tree" {
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Create 3 <accounts:>: one to turn into a multisig, and the other two to act as cosignatories.
+* Create 3 <accounts:>: one to turn into a multisig, and the other two to act as cosignatories.
     You can do this either [from code](./create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md).
-- Obtain <XYM:> to pay for the transaction fees and fund the accounts.
+* Obtain <XYM:> to pay for the transaction fees and fund the accounts.
     See [Getting Testnet Funds from the Faucet](./testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
@@ -129,9 +129,9 @@ are performed using a <ser:MultisigAccountModificationTransactionV1>, which **mu
 
 The embedded <ser:MultisigAccountModificationTransactionV1> includes the following fields:
 
-- `signer_public_key`: <public key:> of the account whose multisig configuration will be modified.
+* `signer_public_key`: <public key:> of the account whose multisig configuration will be modified.
 
-- `min_approval_delta`: difference between the _desired value_ and the _current value_ of the number of
+* `min_approval_delta`: difference between the _desired value_ and the _current value_ of the number of
     signatures that will be required to approve a transaction from the multisig account.
 
     In this case the account is initially a regular account, so the current required number of signatures is `0`.
@@ -140,12 +140,12 @@ The embedded <ser:MultisigAccountModificationTransactionV1> includes the followi
 
     The delta value can be negative to _reduce_ the current value, as shown in the next section.
 
-- `min_removal_delta`: Difference in the number of signatures required to remove cosignatories from the account
+* `min_removal_delta`: Difference in the number of signatures required to remove cosignatories from the account
     configuration.
     This allows, for example, requiring more signatures to remove a cosignatory than to approve a regular transaction,
     which is often a more sensitive governance operation.
 
-- `address_additions`: list of addresses of the cosignatories that will be added to the account.
+* `address_additions`: list of addresses of the cosignatories that will be added to the account.
     The `cosignatory_addresses` variable was prepared during the [setup phase](#setting-up-the-accounts).
 
 !!! note "Safety measures"
@@ -154,10 +154,10 @@ The embedded <ser:MultisigAccountModificationTransactionV1> includes the followi
     Transactions that would result in an invalid multisig configuration are rejected with an error.
     For example, when:
 
-    - The number of cosignatories is lower than the minimum number of required signatures
-    - An address that is not a consignatory is removed
-    - Required signatures are missing
-    - Unnecessary signatures are included
+    * The number of cosignatories is lower than the minimum number of required signatures
+    * An address that is not a consignatory is removed
+    * Required signatures are missing
+    * Unnecessary signatures are included
 
 The embedded transaction is then wrapped in an aggregate transaction, even though it is the only inner transaction:
 
@@ -238,13 +238,13 @@ The output shown below corresponds to two typical runs of the program.
 
     Key points in the output:
 
-    - **Lines 2-4**: Addresses and public keys of all involved accounts.
-    - **Line 10** (`Response: No cosignatories`): No cosignatories are currently configured.
-    - **Line 27** (`"min_approval_delta": 1`): The number of required signatures to approve transactions will be
+    * **Lines 2-4**: Addresses and public keys of all involved accounts.
+    * **Line 10** (`Response: No cosignatories`): No cosignatories are currently configured.
+    * **Line 27** (`"min_approval_delta": 1`): The number of required signatures to approve transactions will be
         increased by one.
-    - **Line 28** (`"min_removal_delta": 1`): The number of required signatures to remove a cosignatory will be
+    * **Line 28** (`"min_removal_delta": 1`): The number of required signatures to remove a cosignatory will be
         increased by one.
-    - **Line 29** (`"address_additions"`): List of addresses that will be added as cosignatories.
+    * **Line 29** (`"address_additions"`): List of addresses that will be added as cosignatories.
 
 === ":material-minus-thick: Disabling the Multisig"
 
@@ -254,11 +254,11 @@ The output shown below corresponds to two typical runs of the program.
 
     Key points in the output:
 
-    - **Lines 2-4**: Addresses and public keys of all involved accounts.
-    - **Line 10** (`Response: [ ... ]`): Existing cosignatories have been detected.
-    - **Line 27-32** (First embedded transaction): The minimum number of required signatures will remain unchanged,
+    * **Lines 2-4**: Addresses and public keys of all involved accounts.
+    * **Line 10** (`Response: [ ... ]`): Existing cosignatories have been detected.
+    * **Line 27-32** (First embedded transaction): The minimum number of required signatures will remain unchanged,
         no new cosignatories will be added, and one existing cosignatory will be removed.
-    - **Line 39-44** (Second embedded transaction): The minimum number of required signatures will be decreased by one,
+    * **Line 39-44** (Second embedded transaction): The minimum number of required signatures will be decreased by one,
         no new cosignatories will be added, and the last remaining cosignatory will be removed.
 
 The transaction hashes shown in the output can be used to look up the transactions in the

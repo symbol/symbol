@@ -7,9 +7,9 @@ tutorial_level: advanced
 
 Accounts can enforce limits on:
 
-- which other <accounts:> they can interact with
-- which <mosaics:> they can transact with
-- which types of operations they can perform
+* which other <accounts:> they can interact with
+* which <mosaics:> they can transact with
+* which types of operations they can perform
 
 These limits are configured using <account restrictions:>.
 
@@ -37,12 +37,12 @@ showing how the network rejects it.
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:>: to restrict, either [from code](./create-from-private-key.md) or
+* Create an <account:>: to restrict, either [from code](./create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md),
     or use the provided default account.
-- Obtain <XYM:> to pay for the transaction fees.
+* Obtain <XYM:> to pay for the transaction fees.
     See [Getting Testnet Funds from the Faucet](./testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
@@ -63,15 +63,15 @@ The remaining helper functions are described in the sections below.
 
 The tutorial then proceeds to:
 
-- [set up the required keys](#setting-up-the-accounts)
-- [fetch the current network conditions](#fetching-network-time-and-fees)
-- [detect the current restriction state](#detecting-the-restriction-state)
+* [set up the required keys](#setting-up-the-accounts)
+* [fetch the current network conditions](#fetching-network-time-and-fees)
+* [detect the current restriction state](#detecting-the-restriction-state)
 
 Depending on whether the account is already restricted,
 a transaction is created to either:
 
-- [enable the restriction](#enabling-the-restriction), or
-- [remove the restriction](#removing-the-restriction)
+* [enable the restriction](#enabling-the-restriction), or
+* [remove the restriction](#removing-the-restriction)
 
 The transaction is then [announced and confirmed](#submitting-the-transaction),
 and finally, [a test transfer](#sending-a-test-transfer) is submitted.
@@ -121,20 +121,20 @@ To restrict the list of addresses the account can interact with, an <ser:Account
 
 The other two account restriction types, not covered in this tutorial, are:
 
-- <ser:AccountMosaicRestrictionTransactionV1>
-- <ser:AccountOperationRestrictionTransactionV1>
+* <ser:AccountMosaicRestrictionTransactionV1>
+* <ser:AccountOperationRestrictionTransactionV1>
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
 The transaction includes the following fields:
 
-- `signer_public_key`: <public key:> of the account whose restriction configuration will be modified.
+* `signer_public_key`: <public key:> of the account whose restriction configuration will be modified.
 
-- `restriction_flags`: These are <ser:AccountRestrictionFlags>.
+* `restriction_flags`: These are <ser:AccountRestrictionFlags>.
 
-    - `ADDRESS` specifies that the restriction applies to addresses.
+    * `ADDRESS` specifies that the restriction applies to addresses.
         Other possible scopes are `MOSAIC_ID` and `TRANSACTION_TYPE`.
-    - `OUTGOING` specifies that only outgoing transactions are affected.
+    * `OUTGOING` specifies that only outgoing transactions are affected.
         Incoming transaction restrictions can be configured independently by omitting this flag.
 
     By default, the listed values form an _allowlist_.
@@ -146,7 +146,7 @@ The transaction includes the following fields:
     The network XOR's these flags with the current value, which at this point is 0 because the tutorial makes sure
     no restriction is present before enabling it.
 
-- `restriction_additions`: list of addresses (or mosaic IDs, or transaction types) to be added to the restriction.
+* `restriction_additions`: list of addresses (or mosaic IDs, or transaction types) to be added to the restriction.
 
     In this case, the list contains only the authorized address.
 
@@ -200,12 +200,12 @@ The output shown below corresponds to two typical runs of the program.
 
     Key points in the output:
 
-    - **Lines 2-3**: Addresses of the involved accounts.
-    - **Line 9** (`Response: No restrictions found`): No restrictions are currently configured.
-    - **Line 21** (`"restriction_flags": 16385`): `0x4001` corresponds to the combination of `ADDRESS` and `OUTGOING`.
-    - **Line 22-24** (`"restriction_additions"`): List of allowed addresses, in decoded hexadecimal format.
+    * **Lines 2-3**: Addresses of the involved accounts.
+    * **Line 9** (`Response: No restrictions found`): No restrictions are currently configured.
+    * **Line 21** (`"restriction_flags": 16385`): `0x4001` corresponds to the combination of `ADDRESS` and `OUTGOING`.
+    * **Line 22-24** (`"restriction_additions"`): List of allowed addresses, in decoded hexadecimal format.
         The value corresponds to the address shown in line 3.
-    - **Line 41** (`test transfer failed`): The unauthorized recipient address results in an
+    * **Line 41** (`test transfer failed`): The unauthorized recipient address results in an
         `Address_Interaction_Prohibited` error, as expected.
 
 === ":material-lock-open: Removing the Restriction"
@@ -216,11 +216,11 @@ The output shown below corresponds to two typical runs of the program.
 
     Key points in the output:
 
-    - **Lines 2-3**: Addresses of the involved accounts.
-    - **Line 9** (`Response: [ ... ]`): Existing restrictions are detected.
-    - **Line 21** (`restriction_flags`): Same flag value used when enabling the restriction.
-    - **Line 23-25** (`restriction_deletions`): The previously configured address is removed.
-    - **Line 44** (`test transfer confirmed`): The transfer is confirmed successfully because the restriction has been
+    * **Lines 2-3**: Addresses of the involved accounts.
+    * **Line 9** (`Response: [ ... ]`): Existing restrictions are detected.
+    * **Line 21** (`restriction_flags`): Same flag value used when enabling the restriction.
+    * **Line 23-25** (`restriction_deletions`): The previously configured address is removed.
+    * **Line 44** (`test transfer confirmed`): The transfer is confirmed successfully because the restriction has been
         lifted.
 
 The transaction hashes shown in the output can be used to look up the transactions in the

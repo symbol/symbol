@@ -33,9 +33,9 @@ digraph "Multisignature Tree" {
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Complete the [Configuring a Multisignature Account](./configure-multisig.md) tutorial.
+* Complete the [Configuring a Multisignature Account](./configure-multisig.md) tutorial.
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
 transactions are announced and confirmed, and the
@@ -91,13 +91,13 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 The embedded <transfer transaction:> includes the following fields:
 
-- `signer_public_key`: <public key:> of the account whose funds are being transferred, that is,
+* `signer_public_key`: <public key:> of the account whose funds are being transferred, that is,
     the multisignature account.
 
-- `recipient_address`: in this particular example, the funds are sent back to the sender, so the recipient is also
+* `recipient_address`: in this particular example, the funds are sent back to the sender, so the recipient is also
     the multisig account.
 
-- `mosaics`: 1'000'000 atomic units of the `symbol.xym` mosaic, corresponding to 1 <XYM:>,
+* `mosaics`: 1'000'000 atomic units of the `symbol.xym` mosaic, corresponding to 1 <XYM:>,
     as explained in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 The embedded transaction is then wrapped in an aggregate transaction, even though it is the only inner transaction:
@@ -106,10 +106,10 @@ The embedded transaction is then wrapped in an aggregate transaction, even thoug
 
 Its most relevant fields are:
 
-- `signer_public_key`: this time this is the <public key:> of the cosignatory that will be authorizing the transaction
+* `signer_public_key`: this time this is the <public key:> of the cosignatory that will be authorizing the transaction
     and paying its fees.
 
-- `transactions`: the list of embedded transactions.
+* `transactions`: the list of embedded transactions.
     This example has only one, but there could be any number of them.
 
 For simplicity, the tutorial uses a <complete aggregate transaction:>.
@@ -155,12 +155,12 @@ The output shown below corresponds to a typical run of the program.
 
 Key points in the output:
 
-- **Lines 2-3**: Public keys of all involved accounts.
-- **Line 11** (`signer_public_key`): Signer of the aggregate transaction.
+* **Lines 2-3**: Public keys of all involved accounts.
+* **Line 11** (`signer_public_key`): Signer of the aggregate transaction.
     Note that it matches the cosignatory account.
-- **Line 20** (`signer_public_key`): Signer of the embedded transfer transaction.
+* **Line 20** (`signer_public_key`): Signer of the embedded transfer transaction.
     Note that it matches the multisig account.
-- **Line 24** (`recipient_address`): Encoded <address:> of the multisig account.
+* **Line 24** (`recipient_address`): Encoded <address:> of the multisig account.
 
 The transaction hashes shown in the output can be used to look up the transactions in the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/).

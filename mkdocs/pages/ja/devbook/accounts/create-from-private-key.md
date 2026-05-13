@@ -78,5 +78,5 @@ tutorial_level: beginner
 
 アカウントを作成したら、以下のことができます。
 
-- [蛇口 (Faucet) からテストネットの通貨を入手する](./testnet-faucet.md)
-- [最初のトランザクションを送信する](../transactions/transfer.md)
+* [蛇口 (Faucet) からテストネットの通貨を入手する](./testnet-faucet.md)
+* [最初のトランザクションを送信する](../transactions/transfer.md)

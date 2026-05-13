@@ -8,8 +8,8 @@ tutorial_level: advanced
 The owner of a <mosaic:> can restrict which accounts are allowed to transact with it.
 The conditions are called <mosaic restrictions:> and are defined in two parts:
 
-- <Mosaic global restrictions:> define the required conditions as key-value-relation tuples.
-- <Mosaic address restrictions:> assign values for those keys to individual accounts.
+* <Mosaic global restrictions:> define the required conditions as key-value-relation tuples.
+* <Mosaic address restrictions:> assign values for those keys to individual accounts.
 
 An account can transact with the mosaic only if its assigned values satisfy all the mosaic's global conditions.
 
@@ -49,14 +49,14 @@ This avoids waiting for each transaction to be confirmed individually.
 
 Before you start, make sure to:
 
-- Set up your development environment.
+* Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-- Create an <account:>: to own the mosaic, either [from code](../accounts/create-from-private-key.md) or
+* Create an <account:>: to own the mosaic, either [from code](../accounts/create-from-private-key.md) or
     [by using a wallet](../../userbook/wallet/create-account.md),
     or use the provided default account.
-- Create a restrictable <mosaic:> or use the provided default one.
+* Create a restrictable <mosaic:> or use the provided default one.
     See [Creating a Mosaic](./create-mosaic.md).
-- Obtain <XYM:> to pay for the transaction fees.
+* Obtain <XYM:> to pay for the transaction fees.
     See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) and
@@ -78,13 +78,13 @@ The remaining helper functions are described in the sections below.
 
 The tutorial then proceeds to:
 
-- [set up the required keys](#setting-up-the-accounts)
-- [fetch the current network conditions](#fetching-network-time-and-fees)
-- [enable the global restriction if necessary](#enabling-the-global-restriction)
-- [toggle the address restriction](#toggling-the-address-restriction)
-- [bundle all transactions](#building-the-aggregate-transaction) in a single aggregate transaction
-- [announce and confirm](#submitting-the-transaction) the aggregate
-- [send a test transfer](#sending-a-test-transfer)
+* [set up the required keys](#setting-up-the-accounts)
+* [fetch the current network conditions](#fetching-network-time-and-fees)
+* [enable the global restriction if necessary](#enabling-the-global-restriction)
+* [toggle the address restriction](#toggling-the-address-restriction)
+* [bundle all transactions](#building-the-aggregate-transaction) in a single aggregate transaction
+* [announce and confirm](#submitting-the-transaction) the aggregate
+* [send a test transfer](#sending-a-test-transfer)
 
 ### Setting Up the Accounts
 
@@ -94,14 +94,14 @@ The tutorial starts by configuring the accounts involved in the example.
 
 The code defines:
 
-- the **owner account**, which controls the mosaic and is responsible for configuring its restrictions.
+* the **owner account**, which controls the mosaic and is responsible for configuring its restrictions.
     Its private key can be provided through the `OWNER_PRIVATE_KEY` environment variable as a 64-character hexadecimal
     string.
-- the **target account**, which will later receive authorization to transact with the mosaic.
+* the **target account**, which will later receive authorization to transact with the mosaic.
     Its address can be provided through the `TARGET_ADDRESS` environment variable as a Symbol testnet address.
-- the **mosaic identifier**, read from `MOSAIC_ID` as 16 hexadecimal characters.
-- the **restriction name**, read from `RESTRICTION_NAME` as a string.
-- the corresponding **restriction key**, derived from the restriction name using the SDK's
+* the **mosaic identifier**, read from `MOSAIC_ID` as 16 hexadecimal characters.
+* the **restriction name**, read from `RESTRICTION_NAME` as a string.
+* the corresponding **restriction key**, derived from the restriction name using the SDK's
     <dy:Restriction.mosaicRestrictionGenerateKey> function, which hashes the name with SHA3-256 and takes the first
     eight bytes of the hash.
     This approach allows applications to use human-readable names while producing deterministic keys.
@@ -133,13 +133,13 @@ The returned entries are then filtered to keep only those involving the selected
 
 If no restriction is found, one is created by adding two transactions to the list of transactions to announce:
 
-- a **mosaic global restriction transaction** defining the restriction condition.
+* a **mosaic global restriction transaction** defining the restriction condition.
     See the <ser:MosaicGlobalRestrictionTransactionV1> serialization table for details about each of its fields.
 
     The restriction created in this tutorial requires the value associated with the key
     `security_level` to be **greater than or equal to 1**.
 
-- a **mosaic address restriction transaction** authorizing the owner account.
+* a **mosaic address restriction transaction** authorizing the owner account.
     See the <ser:MosaicAddressRestrictionTransactionV1> serialization table for details about each of its fields.
 
     The code assigns the value 1 to the owner's `security_level` so the owner account can continue transacting with
@@ -172,10 +172,10 @@ This transaction is added to the list of transactions to announce.
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
-- If the account does not yet have a restriction value, or the value is not `1`, the code assigns the value `1`,
+* If the account does not yet have a restriction value, or the value is not `1`, the code assigns the value `1`,
     authorizing it to use the mosaic.
 
-- If the account already has the value `1`, the code replaces it with `0`, revoking the authorization.
+* If the account already has the value `1`, the code replaces it with `0`, revoking the authorization.
 
 Running the tutorial repeatedly therefore alternates between authorizing and deauthorizing the
 target account.
@@ -231,22 +231,22 @@ The output shown below corresponds to two typical runs of the program.
 
     Key points in the output:
 
-    - **Lines 2-3**: Addresses of the involved accounts.
-    - **Line 4**: The mosaic being restricted.
-    - **Line 5**: The restriction name and its corresponding key.
-    - **Line 12** (`Response: []`): The mosaic currently has no global restrictions.
-    - **Line 13**: The transaction configuring the mosaic restriction.
+    * **Lines 2-3**: Addresses of the involved accounts.
+    * **Line 4**: The mosaic being restricted.
+    * **Line 5**: The restriction name and its corresponding key.
+    * **Line 12** (`Response: []`): The mosaic currently has no global restrictions.
+    * **Line 13**: The transaction configuring the mosaic restriction.
         It includes the mosaic ID (in decimal), the restriction key (in decimal), the restriction value (`1`), and
         the restriction condition (`6`, which corresponds to the `greater-or-equal` <ser:MosaicRestrictionType>)
-    - **Line 27**: The transaction authorizing the owner account.
+    * **Line 27**: The transaction authorizing the owner account.
         It includes the mosaic ID (in decimal), the restriction key (in decimal), and the necessary restriction
         value (`1`).
-    - **Line 41** (`Response: []`): The target account is currently unauthorized because it has no value associated with
+    * **Line 41** (`Response: []`): The target account is currently unauthorized because it has no value associated with
         the restriction key.
-    - **Line 42**: The transaction authorizing the target account.
+    * **Line 42**: The transaction authorizing the target account.
         It includes the mosaic ID (in decimal), the restriction key (in decimal), and the necessary restriction
         value (`1`).
-    - **Line 72** (`test transfer confirmed`): The test transaction succeeded because both accounts satisfy the
+    * **Line 72** (`test transfer confirmed`): The test transaction succeeded because both accounts satisfy the
         restriction and are therefore authorized.
 
 === ":material-lock-plus: Deauthorizing the Account"
@@ -257,15 +257,15 @@ The output shown below corresponds to two typical runs of the program.
 
     Key points in the output:
 
-    - **Lines 2-3**: Addresses of the involved accounts.
-    - **Line 4**: The mosaic being restricted.
-    - **Line 5**: The restriction name and its corresponding key.
-    - **Line 12** (`Response: [ ... ]`): Existing restrictions are detected.
-    - **Line 15** (`Response: [ ... ]`): The target account has a restriction value of `1`, meaning it is authorized.
-    - **Line 16**: The transaction deauthorizing the target account.
+    * **Lines 2-3**: Addresses of the involved accounts.
+    * **Line 4**: The mosaic being restricted.
+    * **Line 5**: The restriction name and its corresponding key.
+    * **Line 12** (`Response: [ ... ]`): Existing restrictions are detected.
+    * **Line 15** (`Response: [ ... ]`): The target account has a restriction value of `1`, meaning it is authorized.
+    * **Line 16**: The transaction deauthorizing the target account.
         It includes the mosaic ID (in decimal), the restriction key (in decimal), and the necessary restriction
         value (`0`).
-    - **Line 43** (`test transfer failed`): The test transaction failed because the target account no longer satisfies
+    * **Line 43** (`test transfer failed`): The test transaction failed because the target account no longer satisfies
         the restriction, as expected.
 
 The transaction hashes shown in the output can be used to look up the transactions in the

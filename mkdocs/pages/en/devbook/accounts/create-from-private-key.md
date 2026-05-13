@@ -82,5 +82,5 @@ This tutorial showed how to:
 
 Now that you have an account, you can:
 
-- [Get testnet funds from the faucet](./testnet-faucet.md)
-- [Send your first transaction](../transactions/transfer.md)
+* [Get testnet funds from the faucet](./testnet-faucet.md)
+* [Send your first transaction](../transactions/transfer.md)
