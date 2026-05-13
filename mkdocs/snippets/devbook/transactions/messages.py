@@ -82,10 +82,10 @@ fee_path = "/network/fees/transaction"
 print(f"Fetching recommended fees from {fee_path}")
 with urllib.request.urlopen(f"{NODE_URL}{fee_path}") as response:
 	response_json = json.loads(response.read().decode())
-	median_mult = response_json["medianFeeMultiplier"]
-	minimum_mult = response_json["minFeeMultiplier"]
-	fee_mult = max(median_mult, minimum_mult)
-	print(f"  Fee multiplier: {fee_mult}\n")
+	median_multiplier = response_json["medianFeeMultiplier"]
+	minimum_multiplier = response_json["minFeeMultiplier"]
+	fee_multiplier = max(median_multiplier, minimum_multiplier)
+	print(f"  Fee multiplier: {fee_multiplier}\n")
 
 # ===== PLAIN TEXT MESSAGE =====
 print("==> Sending Plain Text Message")  # [>step-2]
@@ -105,7 +105,7 @@ plain_transaction = facade.transaction_factory.create(
 		"message": plain_message,
 	}
 )  # [<step-2]
-plain_transaction.fee = Amount(fee_mult * plain_transaction.size)
+plain_transaction.fee = Amount(fee_multiplier * plain_transaction.size)
 
 # Sign and announce the transaction
 plain_signature = facade.sign_transaction(
@@ -169,7 +169,8 @@ encrypted_transaction = facade.transaction_factory.create(
 		"message": encrypted_payload,
 	}
 )  # [<step-4]
-encrypted_transaction.fee = Amount(fee_mult * encrypted_transaction.size)
+encrypted_transaction.fee = Amount(
+	fee_multiplier * encrypted_transaction.size)
 
 # Sign and announce the transaction
 encrypted_signature = facade.sign_transaction(

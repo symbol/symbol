@@ -152,10 +152,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Enable global restriction if required [>step-3]
 	const transactions = [];
@@ -203,7 +203,7 @@ try {
 			transactions),
 		transactions
 	});
-	aggregate.fee = new models.Amount(feeMult * aggregate.size);
+	aggregate.fee = new models.Amount(feeMultiplier * aggregate.size);
 	// [<step-7]
 	// Sign, announce and wait for confirmation
 	let payload = SymbolTransactionFactory.attachSignature( // [>step-8]
@@ -224,7 +224,7 @@ try {
 			amount: 1n
 		}]
 	});
-	transfer.fee = new models.Amount(feeMult * transfer.size);
+	transfer.fee = new models.Amount(feeMultiplier * transfer.size);
 
 	payload = SymbolTransactionFactory.attachSignature(
 		transfer,

@@ -54,10 +54,10 @@ try:
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# --- CHECKING INITIAL BALANCE ---
 	print('\n--- Checking initial balance ---')
@@ -80,7 +80,7 @@ try:
 			'amount': 7_00
 		}
 	})
-	revoke_tx.fee = Amount(fee_mult * revoke_tx.size)
+	revoke_tx.fee = Amount(fee_multiplier * revoke_tx.size)
 	# [<step-4]
 	# Sign and generate final payload [>step-5]
 	signature = facade.sign_transaction(

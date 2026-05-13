@@ -77,7 +77,7 @@ async function getAccountRestrictions(address) { // [>step-3]
 }
 // [<step-3]
 // Returns a transaction that restricts an account
-function restrictionEnableTransaction(timestamp, feeMult) { // [>step-5]
+function restrictionEnableTransaction(timestamp, feeMultiplier) { // [>step-5]
 	const transaction = facade.transactionFactory.create({
 		type: 'account_address_restriction_transaction_v1',
 		// This is the account that will be restricted
@@ -90,7 +90,7 @@ function restrictionEnableTransaction(timestamp, feeMult) { // [>step-5]
 		// This is the only authorized outgoing address
 		restrictionAdditions: [authAddress]
 	});
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	console.log('Enabling the restriction with transaction:');
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
@@ -98,7 +98,8 @@ function restrictionEnableTransaction(timestamp, feeMult) { // [>step-5]
 }
 // [<step-5]
 // Returns a transaction that removes a restriction from an account
-function restrictionDisableTransaction(timestamp, feeMult, restriction) { // [>step-6]
+function restrictionDisableTransaction(timestamp, feeMultiplier, // [>step-6]
+	restriction) {
 	const transaction = facade.transactionFactory.create({
 		type: 'account_address_restriction_transaction_v1',
 		// This is the account whose restriction will be lifted
@@ -112,7 +113,7 @@ function restrictionDisableTransaction(timestamp, feeMult, restriction) { // [>s
 		restrictionDeletions: restriction.values.map(hex =>
 			Address.fromDecodedAddressHexString(hex))
 	});
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	console.log('Disabling the restriction with transaction:');
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
@@ -136,10 +137,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Get current state of the restriction and decide which
 	// operation to perform
@@ -148,12 +149,13 @@ try {
 	if (0 === restrictions.length) {
 		// Enable the restriction
 		console.log('\n--- Enabling restriction ---');
-		transaction = restrictionEnableTransaction(timestamp, feeMult);
+		transaction = restrictionEnableTransaction(timestamp,
+			feeMultiplier);
 	} else {
 		// Disable the restriction
 		console.log('\n--- Disabling restriction ---');
-		transaction = restrictionDisableTransaction(timestamp, feeMult,
-			restrictions[0]);
+		transaction = restrictionDisableTransaction(timestamp,
+			feeMultiplier, restrictions[0]);
 	}
 	// [<step-4]
 	// Sign, announce and wait for confirmation [>step-7]
@@ -171,7 +173,7 @@ try {
 		deadline: timestamp.addHours(2).timestamp,
 		recipientAddress: 'TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y'
 	});
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	payload = SymbolTransactionFactory.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));

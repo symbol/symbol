@@ -46,7 +46,7 @@ try {
 	const feeResponse = await fetch(
 		`${NODE_URL}/network/fees/transaction`);
 	const feeJSON = await feeResponse.json();
-	const feeMult = Math.max(
+	const feeMultiplier = Math.max(
 		feeJSON.medianFeeMultiplier, feeJSON.minFeeMultiplier);
 
 	const transaction = facade.transactionFactory.create({
@@ -59,7 +59,7 @@ try {
 			amount: 1n
 		}]
 	});
-	transaction.fee = new models.Amount(feeMult * transaction.size);
+	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
