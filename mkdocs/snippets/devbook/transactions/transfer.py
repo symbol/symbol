@@ -78,7 +78,6 @@ try:
 		f'/transactionStatus/{facade.hash_transaction(transaction)}')
 	print(f'Waiting for confirmation from {status_path}')
 	for attempt in range(60):
-		time.sleep(1)
 		try:
 			with urllib.request.urlopen(
 				f'{NODE_URL}{status_path}'
@@ -93,6 +92,7 @@ try:
 					break
 		except urllib.error.HTTPError as e:
 			print(f'  Transaction status: unknown | Cause: ({e.msg})')
+		time.sleep(1)
 	else:
 		print('Confirmation took too long.')
 	# [<step-7]
