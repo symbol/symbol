@@ -1,3 +1,3 @@
 include_directories(.)
 
-subdirectories(ADD)
+add_subdirs()

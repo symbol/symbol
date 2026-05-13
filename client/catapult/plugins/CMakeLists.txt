@@ -10,4 +10,4 @@ set(PLUGIN_CATAPULT_LIBS
 	catapult.state
 	catapult.validators)
 
-subdirectories(ADD)
+add_subdirs()

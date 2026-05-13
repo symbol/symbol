@@ -130,3 +130,8 @@ target_compile_definitions(build.defaults INTERFACE
 	$<$<BOOL:${CATAPULT_DOCKER_TESTS}>:CATAPULT_DOCKER_TESTS>
 	$<$<BOOL:${CATAPULT_TEST_DB_URL}>:CATAPULT_TEST_DB_URL="${CATAPULT_TEST_DB_URL}">
 )
+
+target_include_directories(build.defaults SYSTEM BEFORE INTERFACE 
+	${Boost_INCLUDE_DIR}
+	${PROJECT_SOURCE_DIR}/src
+)

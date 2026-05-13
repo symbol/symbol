@@ -1,3 +1,2 @@
 project(catapult LANGUAGES CXX)
-
-subdirectories(ADD)
+add_subdirs()

@@ -1,7 +1,6 @@
-set(TARGET_NAME catapult.recovery)
-
-catapult_executable(${TARGET_NAME})
-target_link_libraries(${TARGET_NAME} catapult.local.recovery catapult.process)
-catapult_target(${TARGET_NAME})
-
-add_dependencies(server ${TARGET_NAME})
+add_target(catapult.recovery
+    EXECUTABLE 
+    LINK catapult.local.recovery catapult.process
+    DEPENDENTS server
+    SOURCES
+)

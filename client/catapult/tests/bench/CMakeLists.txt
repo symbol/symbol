@@ -8,4 +8,4 @@ function(catapult_bench_executable_target TARGET_NAME)
 	install(TARGETS ${TARGET_NAME})
 endfunction()
 
-subdirectories(ADD)
+add_subdirs()
