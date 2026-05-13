@@ -171,9 +171,6 @@ If the status group is `failed`, the transaction has been rejected, for example,
 
 In any other case, the code waits one second and tries again, up to a maximum of 60 times.
 
-Note that the code performs the first wait **before** performing the first status check.
-This gives the node some time to begin processing the transaction after it is announced.
-
 ## Output
 
 The output shown below corresponds to a typical run of the program.
