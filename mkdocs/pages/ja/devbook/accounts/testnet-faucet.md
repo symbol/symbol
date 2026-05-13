@@ -16,8 +16,8 @@ Symbol [テストネット](default:テストネット) では、テスト目的
 
 開始する前に、以下を確認してください。
 
-- 資金を受け取るためのテストネット [アカウント](default:アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
-- Faucet で本人確認を行うための 𝕏 アカウントを持っていること。
+* 資金を受け取るためのテストネット [アカウント](default:アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
+* Faucet で本人確認を行うための 𝕏 アカウントを持っていること。
 
 ## テストネット資金を請求する方法 {: #how-to-claim-testnet-funds }
 
