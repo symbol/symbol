@@ -65,16 +65,15 @@ async function waitForConfirmation(transactionHash, label) {
 async function getAccountRestrictions(address) { // [>step-3]
 	const restrictionsPath = `/restrictions/account/${address}`;
 	console.log(`Getting restrictions from ${restrictionsPath}`);
-	try {
-		const response = await fetch(`${NODE_URL}${restrictionsPath}`);
-		const json = await response.json();
-		const restrictions = json.accountRestrictions.restrictions;
-		console.log('  Response:', restrictions);
-		return restrictions;
-	} catch {
+	const response = await fetch(`${NODE_URL}${restrictionsPath}`);
+	if (!response.ok) {
 		console.log('  Response: No restrictions found');
 		return [];
 	}
+	const json = await response.json();
+	const restrictions = json.accountRestrictions.restrictions;
+	console.log('  Response:', restrictions);
+	return restrictions;
 }
 // [<step-3]
 // Returns a transaction that restricts an account

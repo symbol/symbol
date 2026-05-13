@@ -77,18 +77,14 @@ async function getMosaicRestrictions(query, key) { // [>step-4]
 	const restrictionsPath = `/restrictions/mosaic?${query}`;
 	console.log(`  Getting restrictions from ${restrictionsPath}`);
 	let res = [];
-	try {
-		const response = await fetch(`${NODE_URL}${restrictionsPath}`);
-		const status = await response.json();
-		const data = status.data;
-		if (0 < data.length) {
-			// Look at the first returned restriction
-			const rlist = data[0].mosaicRestrictionEntry.restrictions;
-			// Filter by key
-			res = rlist.filter(r => BigInt(r.key) === key);
-		}
-	} catch {
-		// The mosaic has no restrictions applied to this key
+	const response = await fetch(`${NODE_URL}${restrictionsPath}`);
+	const status = await response.json();
+	const data = status.data;
+	if (0 < data.length) {
+		// Look at the first returned restriction
+		const rlist = data[0].mosaicRestrictionEntry.restrictions;
+		// Filter by key
+		res = rlist.filter(r => BigInt(r.key) === key);
 	}
 	console.log('  Response:', res);
 	return res;

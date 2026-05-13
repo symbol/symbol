@@ -79,16 +79,15 @@ async function waitForConfirmation(transactionHash, label) {
 async function getMultisigCosignatories(address) {
 	const multisigPath = `/account/${address}/multisig`;
 	console.log(`Getting cosignatories from ${multisigPath}`);
-	try {
-		const response = await fetch(`${NODE_URL}${multisigPath}`);
-		const json = await response.json();
-		const cosignatories = json.multisig.cosignatoryAddresses;
-		console.log('  Response:', JSON.stringify(cosignatories));
-		return cosignatories;
-	} catch {
+	const response = await fetch(`${NODE_URL}${multisigPath}`);
+	if (!response.ok) {
 		console.log('  Response: No cosignatories');
 		return [];
 	}
+	const json = await response.json();
+	const cosignatories = json.multisig.cosignatoryAddresses;
+	console.log('  Response:', JSON.stringify(cosignatories));
+	return cosignatories;
 }
 // [<step-3]
 // Returns a transaction that turns a regular account into a multisig
