@@ -116,8 +116,8 @@ build the appropriate configuration transaction, and sign it.
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-The only differences between enabling and disabling the multisig are the transaction that is created and
-the account that signs it, as shown in the next two sections.
+The only differences between enabling and disabling the multisig is the transaction that is created,
+as shown in the next two sections.
 
 ### Enabling the Multisig
 
