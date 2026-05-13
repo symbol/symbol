@@ -71,10 +71,10 @@ const feePath = '/network/fees/transaction';
 console.log('Fetching recommended fees from', feePath);
 const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 const feeJSON = await feeResponse.json();
-const medianMult = feeJSON.medianFeeMultiplier;
-const minimumMult = feeJSON.minFeeMultiplier;
-const feeMult = Math.max(medianMult, minimumMult);
-console.log('  Fee multiplier:', feeMult, '\n');
+const medianMultiplier = feeJSON.medianFeeMultiplier;
+const minimumMultiplier = feeJSON.minFeeMultiplier;
+const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+console.log('  Fee multiplier:', feeMultiplier, '\n');
 
 // ===== PLAIN TEXT MESSAGE =====
 console.log('==> Sending Plain Text Message'); // [>step-2]
@@ -93,7 +93,8 @@ const plainTransaction = facade.transactionFactory.create({
 	mosaics: [],
 	message: plainMessage
 }); // [<step-2]
-plainTransaction.fee = new models.Amount(feeMult * plainTransaction.size);
+plainTransaction.fee = new models.Amount(
+	feeMultiplier * plainTransaction.size);
 
 // Sign and announce the transaction
 const plainSignature = facade.signTransaction(
@@ -150,7 +151,7 @@ const encryptedTransaction = facade.transactionFactory.create({
 	message: encryptedPayload
 }); // [<step-4]
 encryptedTransaction.fee = new models.Amount(
-	feeMult * encryptedTransaction.size);
+	feeMultiplier * encryptedTransaction.size);
 
 // Sign and announce the transaction
 const encryptedSignature = facade.signTransaction(
