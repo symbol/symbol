@@ -26,7 +26,7 @@ You only need a way to make HTTP requests.
 
 This tutorial uses polling to check the transaction status.
 Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
-WebSockets provide a more responsive solution without the overhead of repeated API calls.
+[WebSockets](../websockets/listen-transaction-flow.md) provide a more responsive solution without the overhead of repeated API calls.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 

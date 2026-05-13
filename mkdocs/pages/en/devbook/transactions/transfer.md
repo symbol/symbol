@@ -153,7 +153,7 @@ as shown in the next step.
     This step uses polling to check whether the transaction has been confirmed.
     Polling is used here for illustration purposes, but it is not the recommended approach for real applications.
 
-    WebSockets provide a more responsive solution without the overhead of repeated API calls.
+    [WebSockets](../websockets/listen-transaction-flow.md) provide a more responsive solution without the overhead of repeated API calls.
 
     In addition, the logic for checking transaction status is reusable.
     It can be moved into a utility function or module, since it is needed after announcing every transaction.
