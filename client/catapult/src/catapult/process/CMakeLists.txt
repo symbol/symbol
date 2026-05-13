@@ -1,6 +1,9 @@
-catapult_library_target(catapult.process)
-target_link_libraries(catapult.process catapult.version)
+add_target(catapult.process
+    LIBRARY
+    LINK catapult.version
+    SOURCES
+)
 
-subdirectories(ADD)
+add_subdirs()
 
 install(TARGETS catapult.broker catapult.importer catapult.recovery catapult.server)

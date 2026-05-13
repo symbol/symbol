@@ -1,6 +1,6 @@
 set(TARGET_NAME tests.catapult.mongo)
 
-subdirectories(ADD)
+add_subdirs()
 
 catapult_test_executable_target(${TARGET_NAME} mongo mappers NOLIB)
 target_link_libraries(${TARGET_NAME} 

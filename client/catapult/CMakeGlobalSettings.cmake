@@ -14,31 +14,31 @@ endfunction()
 
 # combines catapult_library and catapult_target
 function(catapult_library_target TARGET_NAME)
-	add_target(${TARGET_NAME} TYPE LIBRARY SOURCE_DIRS ${ARGN})
+	add_target(${TARGET_NAME} LIBRARY LINK SOURCES ${ARGN})
 endfunction()
 
 # used to define a catapult shared library target, creating an appropriate source group and adding a library
 function(catapult_shared_library_target TARGET_NAME)
-	add_target(${TARGET_NAME} TYPE LIBRARY LINKAGE SHARED SOURCE_DIRS ${ARGN})
+	add_target(${TARGET_NAME} LIBRARY TYPE SHARED LINK SOURCES ${ARGN})
 endfunction()
 
 # used to define a catapult executable, creating an appropriate source group and adding an executable
 function(catapult_executable TARGET_NAME)
-	add_target(${TARGET_NAME} TYPE EXECUTABLE SOURCE_DIRS ${ARGN})
+	add_target(${TARGET_NAME} EXECUTABLE LINK SOURCES ${ARGN})
 endfunction()
 
 # used to define a catapult header only target, creating an appropriate source group in order to allow VS to create an appropriate folder
 function(catapult_header_only_target TARGET_NAME)
 	if(MSVC)
-		add_custom_target(${TARGET_NAME})
-		add_target_sources(${TARGET_NAME} DIRS ${ARGN})
+		add_target(${TARGET_NAME} CUSTOM SOURCES ${ARGN})
+		#add_custom_target(${TARGET_NAME})
+		#add_target_sources(${TARGET_NAME} DIRS ${ARGN})
 	endif()
 endfunction()
 
 # used to define a catapult test executable
 function(catapult_test_executable TARGET_NAME)
-	catapult_executable(${TARGET_NAME} ${ARGN})
-	add_test(NAME ${TARGET_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TARGET_NAME})
+	add_target(${TARGET_NAME} TEST LINK SOURCES ${ARGN})
 endfunction()
 
 # used to define a catapult test executable for a catapult library by combining catapult_test_executable and
@@ -69,9 +69,9 @@ function(catapult_define_tool TOOL_NAME)
 	set(TARGET_NAME catapult.tools.${TOOL_NAME})
 
 	catapult_executable(${TARGET_NAME})
-	target_link_libraries(${TARGET_NAME} catapult.tools)
 	catapult_target(${TARGET_NAME})
 
+	target_link_libraries(${TARGET_NAME} catapult.tools)
 	add_dependencies(${TARGET_NAME} catapult_sdk_publish)
 	add_dependencies(tools ${TARGET_NAME})
 

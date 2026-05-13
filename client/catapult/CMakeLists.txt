@@ -59,7 +59,7 @@ include(CMakeGlobalSettings.cmake)
 
 # used to add openssl dependencies to a target
 function(catapult_add_openssl_dependencies TARGET_NAME)
-    target_include_directories(${TARGET_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+    #target_include_directories(${TARGET_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
 	target_link_libraries(${TARGET_NAME} OpenSSL::SSL)
 endfunction()
 
@@ -71,7 +71,18 @@ add_custom_target(server)
 add_custom_target(tools)
 
 # add source directories
-subdirectories(ADD DIRS external src tests sdk plugins extensions resources internal tools)
+# order matters here ?
+add_subdirs(
+    external
+    src
+    tests
+    sdk
+    plugins
+    extensions
+    resources
+    internal
+    tools
+)
 
 if(USE_CONAN)
 	install(DIRECTORY ${CMAKE_BINARY_DIR}/deps/ DESTINATION deps)

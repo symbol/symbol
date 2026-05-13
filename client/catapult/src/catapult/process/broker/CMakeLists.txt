@@ -1,7 +1,6 @@
-set(TARGET_NAME catapult.broker)
-
-catapult_executable(${TARGET_NAME})
-target_link_libraries(${TARGET_NAME} catapult.local.broker catapult.process)
-catapult_target(${TARGET_NAME})
-
-add_dependencies(server ${TARGET_NAME})
+add_target(catapult.broker 
+    EXECUTABLE 
+    LINK catapult.local.broker catapult.process
+    DEPENDENTS server
+    SOURCES
+)

@@ -3,4 +3,4 @@ set(TARGET_NAME tests.catapult.mongo.plugins.metadata)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/txes/metadata)
 catapult_mongo_plugin_tests_with_deps(${TARGET_NAME} mappers)
 
-subdirectories(ADD)
+add_subdirs()

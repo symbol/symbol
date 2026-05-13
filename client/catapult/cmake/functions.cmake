@@ -1,343 +1,450 @@
 # This file contains custom CMake functions that are used across the project.
 
-# Validates and resolves the base directory for subdirectory discovery
-macro(_subdirectories_resolve_base _output_variable _provided_base)
-	if(_provided_base)
-		set(${_output_variable} "${_provided_base}")
-	else()
-		set(${_output_variable} "${CMAKE_CURRENT_SOURCE_DIR}")
-	endif()
-
-	if(NOT IS_ABSOLUTE "${${_output_variable}}")
-		cmake_path(
-			ABSOLUTE_PATH "${${_output_variable}}"
-			BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-			OUTPUT_VARIABLE ${_output_variable}
-		)
-	endif()
-
-	if(NOT IS_DIRECTORY "${${_output_variable}}")
-		message(FATAL_ERROR "subdirectories: base directory '${${_output_variable}}' is not a valid directory")
-	endif()
-endmacro()
-
 # Description:
-#	Retrieves the list of subdirectories from a provided base path
-	# Optionally filters to only include subdirectories that contain a CMakeLists.txt file
-	# so the result(s) can be directly used for add_subdirectory calls
-# Syntax: 
-#	_subdirectories_collect(<out-variable> <base-dir> [FOLLOW_SYMLINKS] [WITH_CMAKELISTS])
-function(_subdirectories_collect OUT_VAR BASE_DIR)
-	if(ARGC LESS 2)
-		message(FATAL_ERROR "[!] _subdirectories_collect: missing required arguments. Expected OUT_VAR and BASE_DIR.")
-	endif()
+#   This wrap the file globbing functionality to retrieve a list of source files from a provided
+#   list of directories. Sources globbing expressions are defined as *.h, *.c, *.hpp, *.cpp.
+#   Note : CONFIGURE_DEPENDS is used to ensure that CMake re-evaluates the glob and updates the list of sources
+#
+# Syntax:
+#   glob_sources(<out-variable> [RECURSE] [FOLLOW_SYMLINKS] dir1 [dir2 ...])
+function(glob_sources OUT_VAR)
+	
+	set(_fn_options RECURSE FOLLOW_SYMLINKS)
+	set(_fn_single)
+	set(_fn_multi)
 
-	set(_fn_options FOLLOW_SYMLINKS WITH_CMAKELISTS)
 	cmake_parse_arguments(
-		PARSE_ARGV 2
+		PARSE_ARGV 1
 		_arg
 		"${_fn_options}"
-		""
-		""
+		"${_fn_single}"
+		"${_fn_multi}"
 	)
 
-	if(_arg_UNPARSED_ARGUMENTS)
-		message(FATAL_ERROR "[!] _subdirectories_collect: unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
-	endif()
-
-	set(_glob_args LIST_DIRECTORIES true CONFIGURE_DEPENDS)
-	if(_arg_FOLLOW_SYMLINKS)
-		list(APPEND _glob_args FOLLOW_SYMLINKS)
+	if(_arg_KEYWORDS_MISSING_VALUES)
+		message(FATAL_ERROR "glob_sources: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
 	endif()
 	
-	file(GLOB _items ${_glob_args} "${BASE_DIR}/*")
+	set(_paths)
+	if(NOT _arg_UNPARSED_ARGUMENTS)
+		list(APPEND _paths "${CMAKE_CURRENT_SOURCE_DIR}")
+	else()
+		set(_paths ${_arg_UNPARSED_ARGUMENTS})
+	endif()
 
-	set(_dirs)
-	foreach(_item IN LISTS _items)
-		if(IS_DIRECTORY "${_item}")
-			if(_arg_WITH_CMAKELISTS AND NOT EXISTS "${_item}/CMakeLists.txt")
-				continue()
-			endif()
-			list(APPEND _dirs "${_item}")
+	set(_all_sources)
+	foreach(_path IN LISTS _paths)
+
+		cmake_path(
+			ABSOLUTE_PATH _path
+			BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+			NORMALIZE
+			OUTPUT_VARIABLE _abs_path
+		)
+		cmake_path(
+			RELATIVE_PATH _abs_path
+			BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
+			OUTPUT_VARIABLE _display_path
+		)
+
+		if(NOT IS_DIRECTORY "${_abs_path}")
+			message(TRACE "[i] glob_sources: skipping '${_display_path}' since it is not a valid directory")
+			continue()
 		endif()
-	endforeach()
 
-	set(${OUT_VAR} ${_dirs} PARENT_SCOPE)
+		set(_sources)
+		set(_call_args)
+		if(_arg_RECURSE)
+			list(APPEND _call_args GLOB_RECURSE _sources)
+			if(_arg_FOLLOW_SYMLINKS)
+				list(APPEND _call_args FOLLOW_SYMLINKS)
+			endif()
+			list(APPEND _call_args LIST_DIRECTORIES false)
+		else()
+			list(APPEND _call_args GLOB _sources)
+		endif()
+		if(_arg_RELATIVE)
+			list(APPEND _call_args RELATIVE "${_arg_RELATIVE}")
+		endif()
+		list(APPEND _call_args CONFIGURE_DEPENDS)
+		
+		file(${_call_args} "${_abs_path}/*.h" "${_abs_path}/*.c" "${_abs_path}/*.hpp" "${_abs_path}/*.cpp")
+		list(LENGTH _sources _num_sources)
+		message(TRACE "[i] glob_sources: '${_display_path}' - found ${_num_sources} source files")
+		list(APPEND _all_sources ${_sources})
+
+	endforeach()
+	set(${OUT_VAR} ${_all_sources} PARENT_SCOPE)
+
 endfunction()
 
 # Description:
-#	Main function to either get a list of subdirectories or add subdirectories based 
-#   on a provided base path.
+#   This is a wrapper around file(GLOB) to retrieve a list of subdirectories from provided path.
+#   If not path is provided, current cmake source directory is used as the base path for globbing.
+#
 # Syntax:
-#   subdirectories(LIST <out-var> BASE <path> [RELATIVE] [WITH_CMAKELISTS] [FOLLOW_SYMLINKS])
-#   subdirectories(ADD  BASE <path> [WITH_TESTS true | false] [FOLLOW_SYMLINKS])
-#   subdirectories(ADD  BASE <path> [DIRS path1 path2 pathN] [WITH_TESTS true | false] [FOLLOW_SYMLINKS])
-function(subdirectories)
-	if(ARGC EQUAL 0)
-		message(FATAL_ERROR "[!] subdirectories: missing subcommand. Expected LIST or ADD.")
+#   glob_subdirs(<out-variable> [RECURSE] [FOLLOW_SYMLINKS] [RELATIVE <base-dir>] [WITH_CMAKELISTS] [WITH_TESTS true | false] <path>)
+function(glob_subdirs OUT_VAR)
+	set(_fn_options RECURSE FOLLOW_SYMLINKS WITH_CMAKELISTS)
+	set(_fn_single RELATIVE WITH_TESTS)
+	set(_fn_multi)
+
+	cmake_parse_arguments(
+		PARSE_ARGV 1
+		_arg
+		"${_fn_options}"
+		"${_fn_single}"
+		"${_fn_multi}"
+	)
+
+
+	if(_arg_KEYWORDS_MISSING_VALUES)
+		message(FATAL_ERROR "glob_subdirs: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
+	endif()
+	if(NOT DEFINED _arg_WITH_TESTS)
+		set(_arg_WITH_TESTS ${ENABLE_TESTS})
 	endif()
 
-	set(_mode "${ARGV0}")
+	set(_path)
+	if(NOT _arg_UNPARSED_ARGUMENTS)
+		set(_path "${CMAKE_CURRENT_SOURCE_DIR}")
+	else()
+		list(LENGTH _arg_UNPARSED_ARGUMENTS _num_paths)
+		if(_num_paths GREATER 1)
+			message(FATAL_ERROR "glob_subdirs: too many paths provided.\nExpected only one base path for globbing, but got ${_num_paths}.")
+		endif()
+		list(GET _arg_UNPARSED_ARGUMENTS 0 _path)
+	endif()
+	if(NOT IS_DIRECTORY "${_path}")
+		message(TRACE "[i] glob_subdirs: skipping '${_path}' - not a directory")
+		return(PROPAGATE ${OUT_VAR})
+	endif()
 
-	if(_mode STREQUAL "LIST")
-		
-		if(ARGC LESS 3)
-			message(FATAL_ERROR "[!] subdirectories LIST: missing required arguments. Expected <out-var> and <base-dir>")
+	set(_items)
+	set(_call_args)
+	if(_arg_RECURSE)
+		list(APPEND _call_args GLOB_RECURSE _items)
+		if(_arg_FOLLOW_SYMLINKS)
+			list(APPEND _call_args FOLLOW_SYMLINKS)
+		endif()
+		list(APPEND _call_args LIST_DIRECTORIES true)
+	else()
+		list(APPEND _call_args GLOB _items)
+	endif()
+	if(_arg_RELATIVE)
+		list(APPEND _call_args RELATIVE "${_arg_RELATIVE}")
+	endif()
+
+	if(IS_ABSOLUTE "${_path}")
+		cmake_path(
+			RELATIVE_PATH _path
+			BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
+			OUTPUT_VARIABLE _rel_path
+		)
+	else()
+		set(_abs_path "${CMAKE_CURRENT_SOURCE_DIR}/${_item}")
+		cmake_path(
+			RELATIVE_PATH _abs_path
+			BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
+			OUTPUT_VARIABLE _rel_path
+		)
+	endif()
+
+	message(TRACE "[i] glob_subdirs: base '${_rel_path}'")
+
+	list(APPEND _call_args CONFIGURE_DEPENDS)
+	file(${_call_args} "${_path}/*")
+
+	foreach(_item IN LISTS _items)
+		if(IS_DIRECTORY "${_item}")
+			if(_arg_WITH_CMAKELISTS AND NOT EXISTS "${_item}/CMakeLists.txt")
+				message(TRACE "[i] glob_subdirs: skipping '${_item}' - missing CMakeLists.txt file")
+				continue()
+			endif()
+			if(NOT _arg_WITH_TESTS AND "${_item}" MATCHES "tests$")
+				message(TRACE "[i] glob_subdirs: skipping '${_item}' - WITH_TESTS is false")
+				continue()
+			endif()
+			list(APPEND ${OUT_VAR} "${_item}")
+		endif()
+	endforeach()
+	return(PROPAGATE ${OUT_VAR})
+
+endfunction()
+
+# Description:
+#   This is a wrapper around add_subdirectory that allows to add multiple subdirectories based on
+#   a provided base path and optional list of subdirs. If no subdirs are provided, all subdirectories
+#   from current cmake directory are added.
+# 
+# Syntax:
+#   add_subdirs([FOLLOW_SYMLINKS] [EXCLUDE_FROM_ALL] [SYSTEM] [WITH_TESTS] [<dir1> [dir2 ...]])
+function(add_subdirs)
+
+	set(_fn_options FOLLOW_SYMLINKS EXCLUDE_FROM_ALL SYSTEM)
+	set(_fn_single WITH_TESTS)
+	set(_fn_multi)
+
+	cmake_parse_arguments(
+		PARSE_ARGV 0
+		_arg
+		"${_fn_options}"
+		"${_fn_single}"
+		"${_fn_multi}"
+	)
+
+	set(_glob)
+	if(NOT _arg_UNPARSED_ARGUMENTS)
+		glob_subdirs(_glob ${ARGN} RELATIVE ${CMAKE_SOURCE_DIR} WITH_CMAKELISTS "${CMAKE_CURRENT_SOURCE_DIR}")
+	else()
+		# Traverse each item and transform to relative path if needed, then set to _glob
+		foreach(_item IN LISTS _arg_UNPARSED_ARGUMENTS)
+			if(IS_ABSOLUTE "${_item}")
+				cmake_path(
+					RELATIVE_PATH _item
+					BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
+					OUTPUT_VARIABLE _relative_item
+				)
+			else()
+				set(_abs_item "${CMAKE_CURRENT_SOURCE_DIR}/${_item}")
+				cmake_path(
+					RELATIVE_PATH _abs_item
+					BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
+					OUTPUT_VARIABLE _relative_item
+				)
+			endif()
+			list(APPEND _glob "${_relative_item}")
+		endforeach()
+	endif()
+
+	if(NOT DEFINED _arg_WITH_TESTS)
+		set(_arg_WITH_TESTS ${ENABLE_TESTS})
+	endif()
+
+	foreach(_dir IN LISTS _glob)
+		if(NOT IS_DIRECTORY "${_dir}")
+			message(TRACE "[i] add_subdirs: skipping '${_dir}' - not a directory")
+			continue()
+		endif()
+		if(NOT EXISTS "${_dir}/CMakeLists.txt")
+			message(TRACE "[i] add_subdirs: skipping '${_dir}' - missing CMakeLists.txt file")
+			continue()
+		endif()
+		if(NOT _arg_WITH_TESTS AND "${_dir}" MATCHES "tests$")
+			message(TRACE "[i] add_subdirs: skipping '${_dir}' - WITH_TESTS is false")
+			continue()
 		endif()
 
-		set(_out_var "${ARGV1}")
+		message(TRACE "[+] adding subdir '${_dir}'")
+		add_subdirectory("${CMAKE_SOURCE_DIR}/${_dir}")
+	endforeach()
 
-		set(_fn_options RELATIVE WITH_CMAKELISTS FOLLOW_SYMLINKS)
-		set(_fn_single BASE)
+endfunction()
+
+# Ancillary macro to add_target : 
+# parse the arguments provided to add_target and set appropriate variables for further processing.
+macro(_parse_arguments)
 		cmake_parse_arguments(
 			PARSE_ARGV 2
 			_arg
 			"${_fn_options}"
 			"${_fn_single}"
-			""
-		)
-		if(_arg_UNPARSED_ARGUMENTS)
-			message(FATAL_ERROR "[!] subdirectories LIST: unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
-		endif()
-		if(NOT _arg_BASE)
-			set(_arg_BASE "${CMAKE_CURRENT_SOURCE_DIR}")
-		endif()
-
-		set(_call_args)
-		if(_arg_WITH_CMAKELISTS)
-			list(APPEND _call_args WITH_CMAKELISTS)
-		endif()
-		if(_arg_FOLLOW_SYMLINKS)
-			list(APPEND _call_args FOLLOW_SYMLINKS)
-		endif()
-
-		_subdirectories_resolve_base(_base "${_arg_BASE}")
-		_subdirectories_collect(_collected "${_base}" ${_call_args})
-
-		set(_result)
-		foreach(_dir IN LISTS _collected)
-			if(_arg_RELATIVE)
-				file(RELATIVE_PATH _dir "${_base}" "${_dir}")
-			endif()
-			list(APPEND _result "${_dir}")
-		endforeach()
-
-		set(${_out_var} ${_result} PARENT_SCOPE)
-
-	elseif(_mode STREQUAL "ADD")
-
-		set(_fn_options FOLLOW_SYMLINKS)
-		set(_fn_single BASE WITH_TESTS)
-		set(_fn_multi DIRS)
-
-		cmake_parse_arguments(
-			PARSE_ARGV 1
-			_arg
-			"${_fn_options}"
-			"${_fn_single}"
 			"${_fn_multi}"
 		)
-
 		if(_arg_UNPARSED_ARGUMENTS)
-			message(FATAL_ERROR "[!] subdirectories ADD: unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
+			message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
 		endif()
+endmacro()
 
-		_subdirectories_resolve_base(_arg_BASE "${_arg_BASE}")
-
-		if(NOT DEFINED _arg_WITH_TESTS)
-			set(_arg_WITH_TESTS ${ENABLE_TESTS})
-		endif()
-
-		if(NOT _arg_DIRS)
-
-			set(_call_args WITH_CMAKELISTS)
-			if(_arg_FOLLOW_SYMLINKS)
-				list(APPEND _call_args FOLLOW_SYMLINKS)
-			endif()
-
-			# Call self with LIST mode to discover all
-			subdirectories(LIST _collected BASE "${_arg_BASE}" ${_call_args})
-		else()
-			# Use provided list of directories, 
-			# but validate them and filter to only those that contain CMakeLists.txt 
-			# (if any don't, print a warning and skip them)
-			set(_collected)
-			foreach(_dir IN LISTS _arg_DIRS)
-				# resolve the directory path relative to the base
-				if(IS_ABSOLUTE "${_dir}")
-					set(_resolved_dir "${_dir}")
-				else()
-					set(_resolved_dir "${_arg_BASE}/${_dir}")
-				endif()
-				if(NOT IS_DIRECTORY "${_resolved_dir}")
-					message(TRACE "[i] subdirectories ADD: skipping '${_dir}' since it is not a valid directory (resolved path: '${_resolved_dir}')")
-					continue()
-				endif()
-				list(APPEND _collected "${_resolved_dir}")
-			endforeach()
-		endif()
-
-		foreach(_dir IN LISTS _collected)
-			if(NOT EXISTS "${_dir}/CMakeLists.txt")
-				message(TRACE "[i] subdirectories ADD: directory '${_dir}' no longer contains a CMakeLists.txt file. Skipped")
-				continue()
-			endif()
-			if(NOT _arg_WITH_TESTS AND "${_dir}" MATCHES "tests$")
-				message(TRACE "[i] subdirectories ADD: skipping '${_dir}' subdirectory since WITH_TESTS is false")
-				continue()
-			endif()
-			message(TRACE "[+] Adding subdirectory '${_dir}'")
-			add_subdirectory("${_dir}")
-		endforeach()
-
-	else()
-		message(FATAL_ERROR "subdirectories: unsupported subcommand '${_mode}'. Expected LIST or ADD.")
-	endif()
-endfunction()
-
-# Description:
-#	Main function to add source files to a target based on a provided base path and optional list
-#	of subdirectories. Only .h and .cpp files are added. 
-#	If no subdirectories are provided, all .h and .cpp files in the base directory are added.
-# Syntax:
-#    add_target_sources(<target-name> BASE <path> [DIRS path1 path2 pathN])
-# Note: 
-#	the target must already exist when calling this function, otherwise an error is raised.
-function(add_target_sources TARGET_NAME)
-
-	if(NOT TARGET ${TARGET_NAME})
-		message(FATAL_ERROR "add_target_sources: target '${TARGET_NAME}' does not exist yet.")
-	endif()
-	
-	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
-	message(TRACE "[i]\tadding sources to '${TARGET_NAME}' (${TARGET_TYPE}) from .")
-
-	# find all source files in the BASE directory if provided, otherwise in the current source directory
-	set(_fn_single BASE)
-	set(_fn_multi DIRS)
-
-	cmake_parse_arguments(
-		PARSE_ARGV 1
-		_arg
-		""
-		"${_fn_single}"
-		"${_fn_multi}"
-	)
-	_subdirectories_resolve_base(_arg_BASE "${_arg_BASE}")
-
-	file(GLOB _files LIST_DIRECTORIES false CONFIGURE_DEPENDS "${_arg_BASE}/*.h" "${_arg_BASE}/*.cpp")
-	target_sources(${TARGET_NAME} PRIVATE ${_files})
-
-	# traverse all subdirs if provided still only looking for .h and .cpp files, and add them to the target sources as well
-	foreach(_item IN LISTS _arg_DIRS)
-		# resolve the directory path relative to the base
-		if(IS_ABSOLUTE "${_item}")
-			set(_resolved_dir "${_item}")
-		else()
-			set(_resolved_dir "${_arg_BASE}/${_item}")
-		endif()
-		if(NOT IS_DIRECTORY "${_resolved_dir}")
-			message(TRACE "[i]\tskipping '${_resolved_dir}' for target '${TARGET_NAME}' since it is not a valid directory")
-			continue()
-		endif()
-		message(TRACE "[i]\tadding sources to '${TARGET_NAME}' (${TARGET_TYPE}) from ./${_item}")
-		file(GLOB _subdir_files LIST_DIRECTORIES false CONFIGURE_DEPENDS "${_resolved_dir}/*.h" "${_resolved_dir}/*.cpp")
-		target_sources(${TARGET_NAME} PRIVATE ${_subdir_files})
+# Ancillary macro to add_target
+# handle the dependencies and dependents for the target based on the provided arguments.
+macro(_handle_dependencies_dependents)
+	foreach(_dep IN LISTS _arg_DEPENDENCIES)
+		add_dependencies(${TNAME} ${_dep})
 	endforeach()
-endfunction()
+	foreach(_dep IN LISTS _arg_DEPENDENTS)
+		add_dependencies(${_dep} ${TNAME})
+	endforeach()
+endmacro()
+
+# Ancillary macro to add_target
+# handle the sources for the target based on the provided arguments.
+macro(_handle_sources)
+	if(_arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+		set(_sources_list)
+		glob_sources(_sources_list . ${_arg_SOURCES})
+		target_sources(${TNAME} PRIVATE ${_sources_list})
+	endif()
+endmacro()
 
 # Description:
-#	Wraps the add_library or add_executable call for a target, allowing to define 
+#
+#	Wraps the add_library, add_executable, add_test call for a target, allowing to define 
 #	custom target types (e.g. header-only) without having to duplicate the logic for 
 #	adding sources, setting properties, etc.
+#
+#   Unlike wrapped original methods where sources are expected to be a list of files, 
+#   here the sources are expected to be provided as a list of directories, which are then 
+#   traversed to find .h and .cpp files to add to the target. 
+#   This allows for more flexible organization of source files without having to update 
+#   CMakeLists.txt every time a new file is added.
+#   Use '.' to add sources from current cmake directory, or provide a list of subdirs 
+#   relative to the current cmake directory (e.g. SOURCES . utils)
+#
+# Syntax:
+#	add_target(<target-name> LIBRARY 
+#		[TYPE STATIC|SHARED|MODULE|OBJECT|INTERFACE] 
+#		[EXCLUDE_FROM_ALL] 
+#		[LINK [lib1 lib2 ...]] 
+#		[DEPENDENCIES target1 target2 ...]
+#		[DEPENDENTS target1 target2 ...]
+#		[SOURCES <sources>...])
+#
+#   for this project we create tests along with executables and eventually add_test for them 
+#   assuming COMMAND is the executable itself.
+#	add_target(<target-name> EXECUTABLE|TEST 
+#		[WIN32] [MACOSX_BUNDLE] [EXCLUDE_FROM_ALL] 
+#		[LINK [lib1 lib2 ...]] 
+#		[DEPENDENCIES target1 target2 ...]
+#		[DEPENDENTS target1 target2 ...]
+#		[SOURCES <sources>...])
+#
 # Note:
 #	the target must not already exist when calling this function, otherwise an error is raised.
-function(add_target TARGET_NAME)
+function(add_target TNAME TTYPE)
 
-	if(TARGET ${TARGET_NAME})
-		message(FATAL_ERROR "add_target: target '${TARGET_NAME}' already exists.")
+	set(_supported_target_types "LIBRARY;EXECUTABLE;TEST;TOOL;CUSTOM")
+
+	if(${TNAME} STREQUAL "")
+		message(FATAL_ERROR "add_target: target name cannot be empty.")
+	elseif(TARGET ${TNAME})
+		message(FATAL_ERROR "add_target: target '${TNAME}' already exists.")
+	elseif(NOT "${TTYPE}" IN_LIST _supported_target_types)
+		message(FATAL_ERROR "add_target: unsupported target type '${TTYPE}'. Supported types are: ${_supported_target_types}.")
 	endif()
-
-	set(_supported_target_types "LIBRARY;EXECUTABLE")
-
-	# Parse arguments
+	
+	# Prepare for argument parsing
 	set(_fn_options)
-	set(_fn_single TYPE LINKAGE)
-	set(_fn_multi SOURCE_DIRS)
-
-	cmake_parse_arguments(
-		PARSE_ARGV 1
-		_arg
-		"${_fn_options}"
-		"${_fn_single}"
-		"${_fn_multi}"
-	)
-
-	# Validate arguments
-	if(NOT DEFINED _arg_TYPE OR NOT ${_arg_TYPE} IN_LIST _supported_target_types)
-		message(FATAL_ERROR "add_target: unsupported target type '${_arg_TYPE}'. Supported types are: ${_supported_target_types}.")
-	endif()
+	set(_fn_single)
+	set(_fn_multi LINK DEPENDENCIES DEPENDENTS SOURCES)
 
 	# Call appropriate add_* function based on the target type
-	if(_arg_TYPE STREQUAL "LIBRARY")
-		if(NOT DEFINED _arg_LINKAGE)
+	if(TTYPE STREQUAL "LIBRARY")
+		
+		set(_supported_types "STATIC;SHARED;MODULE;OBJECT;INTERFACE")		
+		
+		list(APPEND _fn_options EXCLUDE_FROM_ALL)
+		list(APPEND _fn_single TYPE)
+		_parse_arguments()
+
+		if(NOT DEFINED _arg_TYPE)
 			if(BUILD_SHARED_LIBS)
-				set(_arg_LINKAGE "SHARED")
+				set(_arg_TYPE "SHARED")
 			else()
-				set(_arg_LINKAGE "STATIC")
+				set(_arg_TYPE "STATIC")
 			endif()
 		endif()
-
-		set(_supported_linkages "STATIC;SHARED;MODULE")
-		if(NOT _arg_LINKAGE IN_LIST _supported_linkages)
-			message(FATAL_ERROR "add_target: missing or unsupported LINKAGE ${_arg_LINKAGE} for library '${TARGET_NAME}'. Supported linkages are: ${_supported_linkages}.")
+		if(NOT _arg_TYPE IN_LIST _supported_types)
+			message(FATAL_ERROR "add_target LIBRARY: missing or unsupported TYPE ${_arg_TYPE} for '${TNAME}'. Supported types are: ${_supported_types}.")
 		endif()
 
-		add_library(${TARGET_NAME} ${_arg_LINKAGE})
+		message(TRACE "[+] adding ${_arg_TYPE} LIBRARY '${TNAME}'")
+		add_library(${TNAME} ${_arg_TYPE})
 
-		if(DEFINED _arg_SOURCE_DIRS OR "SOURCE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-			add_target_sources(${TARGET_NAME} BASE . DIRS ${_arg_SOURCE_DIRS})
+		if(DEFINED _arg_LINK OR "LINK" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(PREPEND _arg_LINK build.defaults ${Boost_LIBRARIES})
+			target_link_libraries(${TNAME} ${_arg_LINK})
 		endif()
 
-		if(_arg_LINKAGE STREQUAL "SHARED")
-			target_sources(${TARGET_NAME} PRIVATE ${VERSION_RESOURCES})
+		if(_arg_EXCLUDE_FROM_ALL)
+			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+		endif()
+
+		_handle_sources()
+		_handle_dependencies_dependents()
+
+		if(_arg_TYPE STREQUAL "SHARED")
+			target_sources(${TNAME} PRIVATE ${VERSION_RESOURCES})
 			if(MSVC)
 				# Old set_win_version_definitions logic
-				target_compile_definitions(${TARGET_NAME} PUBLIC
+				target_compile_definitions(${TNAME} PUBLIC
 					CATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}"
 					WIN_FILETYPE=VFT_DLL
 					$<$<BOOL:${CATAPULT_BUILD_RELEASE}>:CATAPULT_BUILD_RELEASE=1>
 				)
 			endif()
+			install(TARGETS ${TNAME})
 		endif()
 
-		# Old catapult_target logic
-		target_link_libraries(${TARGET_NAME} build.defaults ${Boost_LIBRARIES})
-		string(REGEX MATCH "\.(plugins|tools)" _folder "${TARGET_NAME}")
-		if(_folder)
-			set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "${_folder}") 
-		endif()
+	elseif(TTYPE STREQUAL "EXECUTABLE")
 
-		if(_arg_LINKAGE STREQUAL "SHARED")
-			install(TARGETS ${TARGET_NAME})
-		endif()
-
-	elseif(_arg_TYPE STREQUAL "EXECUTABLE")
+		list(APPEND _fn_options WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL)
+		_parse_arguments()
 		
-		add_executable(${TARGET_NAME} ${VERSION_RESOURCES})
-		if(DEFINED _arg_SOURCE_DIRS OR "SOURCE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-			add_target_sources(${TARGET_NAME} BASE . DIRS ${_arg_SOURCE_DIRS})
+		message(TRACE "[+] adding EXECUTABLE '${TNAME}'")
+		add_executable(${TNAME} ${VERSION_RESOURCES})
+
+		if(DEFINED _arg_LINK OR "LINK" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(PREPEND _arg_LINK build.defaults ${Boost_LIBRARIES})
+			target_link_libraries(${TNAME} ${_arg_LINK})
 		endif()
+
+		if(_arg_EXCLUDE_FROM_ALL)
+			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+		endif()
+		if(_arg_WIN32)
+			set_target_properties(${TNAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+		endif()
+		if(_arg_MACOSX_BUNDLE)
+			set_target_properties(${TNAME} PROPERTIES MACOSX_BUNDLE TRUE)
+		endif()
+
+		_handle_sources()
+
+		_handle_dependencies_dependents()
+
 		if(MSVC)
-			target_compile_definitions(${TARGET_NAME} PUBLIC
+			target_compile_definitions(${TNAME} PUBLIC
 				CATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}"
 				WIN_FILETYPE=VFT_APP
 				$<$<BOOL:${CATAPULT_BUILD_RELEASE}>:CATAPULT_BUILD_RELEASE=1>
 			)
 		endif()
 		if(WIN32 AND MINGW)
-			target_link_libraries(${TARGET_NAME} wsock32 ws2_32)
+			target_link_libraries(${TNAME} wsock32 ws2_32)
 		endif()
+
+	elseif(TTYPE STREQUAL "TEST")
+
+		_parse_arguments()
+		
+		list(PREPEND _arg_LINK build.tests)
+		set(_call_args EXECUTABLE LINK ${_arg_LINK} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
+		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(APPEND _call_args SOURCES ${_arg_SOURCES})
+		endif()
+		add_target(${TNAME} ${_call_args})
+		add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
+		
+	elseif(TTYPE STREQUAL "TOOL")
+		
+		_parse_arguments()
+
+		set(TNAME catapult.tools.${TNAME})
+		list(PREPEND _arg_LINK catapult.tools)
+		list(PREPEND _arg_DEPENDENCIES catapult.tools)
+		list(PREPEND _arg_DEPENDENTS tools)
+		set(_call_args EXECUTABLE LINK ${_arg_LINK} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
+		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(APPEND _call_args SOURCES ${_arg_SOURCES})
+		endif()
+		add_target(${TNAME} ${_call_args})
+
+	elseif(TTYPE STREQUAL "CUSTOM")
+		
+		_parse_arguments()
+		add_custom_target(${TNAME})
+		_handle_sources()
 
 	endif()
 

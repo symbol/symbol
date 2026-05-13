@@ -1,4 +1,4 @@
-subdirectories(ADD DIRS test)
+add_subdirs(test)
 
 set(TARGET_NAME tests.catapult.plugins.namespace)
 

@@ -49,4 +49,4 @@ function(catapult_mongo_plugin_test_library TARGET_NAME)
 	target_link_libraries(${TARGET_NAME} ${MongoDB_IMPORTED_TARGETS} ${GTest_IMPORTED_TARGETS})
 endfunction()
 
-subdirectories(ADD)
+add_subdirs()

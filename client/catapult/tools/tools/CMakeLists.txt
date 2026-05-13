@@ -1,4 +1,4 @@
-subdirectories(ADD DIRS plugins)
+add_subdirs(plugins)
 
 catapult_library_target(catapult.tools)
 target_link_libraries(

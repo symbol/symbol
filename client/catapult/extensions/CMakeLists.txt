@@ -1,7 +1,7 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
 
 function(catapult_define_extension_no_group EXTENSION_NAME)
-	subdirectories(ADD DIRS src tests)
+	add_subdirs(src tests)
 	catapult_shared_library_target(extension.${EXTENSION_NAME})
 	target_link_libraries(extension.${EXTENSION_NAME} catapult.${EXTENSION_NAME})
 	set_property(TARGET extension.${EXTENSION_NAME} PROPERTY FOLDER "extensions")
@@ -23,4 +23,4 @@ function(catapult_define_extension_test EXTENSION_NAME)
 	set_property(TARGET tests.catapult.${EXTENSION_NAME} PROPERTY FOLDER "extensions")
 endfunction()
 
-subdirectories(ADD)
+add_subdirs()
