@@ -72,10 +72,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// --- CREATING MOSAIC DEFINITION ---
 	console.log('\n--- Creating mosaic definition ---');
@@ -92,7 +92,8 @@ try {
 		nonce,
 		flags: 'transferable restrictable'
 	});
-	definitionTx.fee = new models.Amount(feeMult * definitionTx.size);
+	definitionTx.fee = new models.Amount(
+		feeMultiplier * definitionTx.size);
 
 	const mosaicId = generateMosaicId(signerAddress, nonce);
 	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
@@ -122,7 +123,7 @@ try {
 		action: 'increase',
 		delta: 100_00n
 	});
-	supplyTx.fee = new models.Amount(feeMult * supplyTx.size);
+	supplyTx.fee = new models.Amount(feeMultiplier * supplyTx.size);
 	// [<step-5]
 	// Sign and generate final payload [>step-6]
 	const supSignature = facade.signTransaction(

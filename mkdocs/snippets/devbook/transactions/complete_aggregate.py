@@ -50,10 +50,10 @@ try:
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
 		response_json = json.loads(response.read().decode())
-		median_mult = response_json['medianFeeMultiplier']
-		minimum_mult = response_json['minFeeMultiplier']
-		fee_mult = max(median_mult, minimum_mult)
-		print(f'  Fee multiplier: {fee_mult}')
+		median_multiplier = response_json['medianFeeMultiplier']
+		minimum_multiplier = response_json['minFeeMultiplier']
+		fee_multiplier = max(median_multiplier, minimum_multiplier)
+		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	embedded_transaction_1 = facade.transaction_factory.create_embedded({
@@ -91,7 +91,7 @@ try:
 	})
 	# Reserve space for one cosignature (104 bytes)
 	# and calculate fee for the final transaction size
-	transaction.fee = Amount(fee_mult * (transaction.size + 104))
+	transaction.fee = Amount(fee_multiplier * (transaction.size + 104))
 	print('Built aggregate transaction without signatures:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-4]

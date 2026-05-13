@@ -36,10 +36,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Build the modification transaction [>step-3]
 	const MOSAIC_NONCE = parseInt(process.env.MOSAIC_NONCE || '0', 10);
@@ -58,7 +58,7 @@ try {
 		nonce: MOSAIC_NONCE,
 		flags: 'revokable'
 	});
-	modifyTx.fee = new models.Amount(feeMult * modifyTx.size);
+	modifyTx.fee = new models.Amount(feeMultiplier * modifyTx.size);
 	// [<step-3]
 	// Sign and generate final payload [>step-4]
 	const signature = facade.signTransaction(

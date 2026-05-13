@@ -48,7 +48,7 @@ async def main():
 			f'{NODE_URL}/network/fees/transaction'
 		) as resp:
 			fee_json = json.loads(resp.read().decode())
-			fee_mult = max(
+			fee_multiplier = max(
 				fee_json['medianFeeMultiplier'],
 				fee_json['minFeeMultiplier'])
 
@@ -62,7 +62,7 @@ async def main():
 				'amount': 1
 			}],
 		})
-		transaction.fee = Amount(fee_mult * transaction.size)
+		transaction.fee = Amount(fee_multiplier * transaction.size)
 
 		signature = facade.sign_transaction(signer_key_pair, transaction)
 		json_payload = facade.transaction_factory.attach_signature(

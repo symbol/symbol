@@ -46,10 +46,10 @@ try {
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
 	const feeJSON = await feeResponse.json();
-	const medianMult = feeJSON.medianFeeMultiplier;
-	const minimumMult = feeJSON.minFeeMultiplier;
-	const feeMult = Math.max(medianMult, minimumMult);
-	console.log('  Fee multiplier:', feeMult);
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	const embeddedTransaction1 = facade.transactionFactory
@@ -90,7 +90,7 @@ try {
 	// Reserve space for one cosignature (104 bytes)
 	// and calculate fee for the final transaction size
 	transaction.fee = new models.Amount(
-		feeMult * (transaction.size + 104)
+		feeMultiplier * (transaction.size + 104)
 	);
 	console.log('Built aggregate transaction without signatures:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
