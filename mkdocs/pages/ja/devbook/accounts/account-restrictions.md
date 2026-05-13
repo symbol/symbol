@@ -7,9 +7,9 @@ tutorial_level: advanced
 
 アカウントは、以下の項目に対して制限を課すことができます。
 
-- インタラクション可能な他の [アカウント](default: アカウント)
-- 取引可能な [モザイク](default: モザイク)
-- 実行可能な操作（トランザクションタイプ）の種類
+* インタラクション可能な他の [アカウント](default: アカウント)
+* 取引可能な [モザイク](default: モザイク)
+* 実行可能な操作（トランザクションタイプ）の種類
 
 これらの制限は[アカウント制限](default: アカウント制限)を使用して設定されます。
 
@@ -31,10 +31,10 @@ tutorial_level: advanced
 
 開始する前に、以下を確認してください。
 
-- 開発環境をセットアップしていること。
+* 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
-- 制限を課すための [アカウント](default: アカウント) を、[コード](./create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること（あるいは提供されているデフォルトアカウントを使用してください）。
-- トランザクション手数料を支払うための [XYM](default: XYM) を入手していること。
+* 制限を課すための [アカウント](default: アカウント) を、[コード](./create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること（あるいは提供されているデフォルトアカウントを使用してください）。
+* トランザクション手数料を支払うための [XYM](default: XYM) を入手していること。
     [蛇口 (Faucet) からのテストネット通貨の入手](./testnet-faucet.md) を参照してください。
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために、[転送トランザクション](../transactions/transfer.md) のチュートリアルを復習してください。
@@ -52,14 +52,14 @@ tutorial_level: advanced
 
 その後、チュートリアルは以下の手順で進みます。
 
-- [必要な鍵の設定](#setting-up-the-accounts)
-- [現在のネットワーク状態の取得](#fetching-network-time-and-fees)
-- [現在の制限状態の検出](#detecting-the-restriction-state)
+* [必要な鍵の設定](#setting-up-the-accounts)
+* [現在のネットワーク状態の取得](#fetching-network-time-and-fees)
+* [現在の制限状態の検出](#detecting-the-restriction-state)
 
 アカウントがすでに制限されているかどうかに応じて、以下のいずれかのトランザクションが作成されます。
 
-- [制限の有効化](#enabling-the-restriction)
-- [制限の解除](#removing-the-restriction)
+* [制限の有効化](#enabling-the-restriction)
+* [制限の解除](#removing-the-restriction)
 
 その後、トランザクションは [アナウンスおよび承認](#submitting-the-transaction) され、最後に [テスト転送](#sending-a-test-transfer) が送信されます。
 
@@ -98,19 +98,19 @@ tutorial_level: advanced
 
 このチュートリアルでは扱いませんが、他の2つのアカウント制限タイプは以下の通りです。
 
-- <ser:AccountMosaicRestrictionTransactionV1>
-- <ser:AccountOperationRestrictionTransactionV1>
+* <ser:AccountMosaicRestrictionTransactionV1>
+* <ser:AccountOperationRestrictionTransactionV1>
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
 トランザクションには以下のフィールドが含まれます。
 
-- `signer_public_key`: 制限設定を変更するアカウントの [公開鍵](default: 公開鍵)。
+* `signer_public_key`: 制限設定を変更するアカウントの [公開鍵](default: 公開鍵)。
 
-- `restriction_flags`: これらは <ser:AccountRestrictionFlags> です。
+* `restriction_flags`: これらは <ser:AccountRestrictionFlags> です。
 
-    - `ADDRESS` は、制限がアドレスに適用されることを指定します。他の可能なスコープは `MOSAIC_ID` と `TRANSACTION_TYPE` です。
-    - `OUTGOING` は、送信トランザクションのみが影響を受けることを指定します。受信トランザクションの制限は、このフラグを除外することで独立して設定できます。
+    * `ADDRESS` は、制限がアドレスに適用されることを指定します。他の可能なスコープは `MOSAIC_ID` と `TRANSACTION_TYPE` です。
+    * `OUTGOING` は、送信トランザクションのみが影響を受けることを指定します。受信トランザクションの制限は、このフラグを除外することで独立して設定できます。
 
     デフォルトでは、リストされた値は「許可リスト（allowlist）」を形成します。指定されたアドレスのみが許可されます。
 
@@ -118,7 +118,7 @@ tutorial_level: advanced
 
     ネットワークはこれらのフラグを現在の値と XOR（排他的論理和）演算します。このチュートリアルでは、有効化する前に制限が存在しないことを確認しているため、この時点での現在の値は 0 です。
 
-- `restriction_additions`: 制限に追加するアドレス（またはモザイクID、トランザクションタイプ）のリスト。
+* `restriction_additions`: 制限に追加するアドレス（またはモザイクID、トランザクションタイプ）のリスト。
 
     この例では、リストには許可されたアドレスのみが含まれます。
 
@@ -164,11 +164,11 @@ tutorial_level: advanced
 
     出力の主なポイント:
 
-    - **2-3行目**: 関与するアカウントのアドレス。
-    - **9行目** (`Response: No restrictions found`): 現在制限は設定されていません。
-    - **21行目** (`"restriction_flags": 16385`): `0x4001` は `ADDRESS` と `OUTGOING` の組み合わせに対応します。
-    - **22-24行目** (`"restriction_additions"`): デコードされた16進数形式の、許可されたアドレスのリスト。この値は3行目に示されているアドレスに対応します。
-    - **41行目** (`test transfer failed`): 期待通り、未承認の受信者アドレスにより `Address_Interaction_Prohibited` エラーが発生しています。
+    * **2-3行目**: 関与するアカウントのアドレス。
+    * **9行目** (`Response: No restrictions found`): 現在制限は設定されていません。
+    * **21行目** (`"restriction_flags": 16385`): `0x4001` は `ADDRESS` と `OUTGOING` の組み合わせに対応します。
+    * **22-24行目** (`"restriction_additions"`): デコードされた16進数形式の、許可されたアドレスのリスト。この値は3行目に示されているアドレスに対応します。
+    * **41行目** (`test transfer failed`): 期待通り、未承認の受信者アドレスにより `Address_Interaction_Prohibited` エラーが発生しています。
 
 === ":material-lock-open: 制限の解除"
 
@@ -178,11 +178,11 @@ tutorial_level: advanced
 
     出力の主なポイント:
 
-    - **2-3行目**: 関与するアカウントのアドレス。
-    - **9行目** (`Response: [ ... ]`): 既存の制限が検出されました。
-    - **21行目** (`restriction_flags`): 制限を有効にした時と同じフラグ値。
-    - **23-25行目** (`restriction_deletions`): 以前に設定されていたアドレスが削除されます。
-    - **44行目** (`test transfer confirmed`): 制限が解除されたため、転送が正常に承認されました。
+    * **2-3行目**: 関与するアカウントのアドレス。
+    * **9行目** (`Response: [ ... ]`): 既存の制限が検出されました。
+    * **21行目** (`restriction_flags`): 制限を有効にした時と同じフラグ値。
+    * **23-25行目** (`restriction_deletions`): 以前に設定されていたアドレスが削除されます。
+    * **44行目** (`test transfer confirmed`): 制限が解除されたため、転送が正常に承認されました。
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
