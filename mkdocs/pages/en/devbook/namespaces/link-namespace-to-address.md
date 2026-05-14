@@ -5,7 +5,7 @@ tutorial_level: intermediate
 
 # Linking and Unlinking Namespaces to Addresses
 
-<Namespaces:> can be linked to <addresses:> to create human-readable aliases that can be used instead of long
+<Namespaces:|Namespaces> can be linked to <addresses:> to create human-readable aliases that can be used instead of long
 hexadecimal addresses in transactions.
 
 This tutorial shows how to link a namespace to an account address and how to unlink it when no longer needed.
