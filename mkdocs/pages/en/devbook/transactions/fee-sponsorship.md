@@ -74,8 +74,9 @@ The aggregate is signed by both the application account and the user, and announ
 **Transaction fees are deducted after all embedded transactions are executed**, which makes the prefunded amount
 available to the message sender for paying all transaction fees.
 
-Note that the prefund amount must be sufficient to cover both embedded transactions' fees,
-and that the order of the embedded transactions does not matter in this case.
+Note that the prefund amount must be sufficient to cover both transactions' fees.
+Also note that, while their order does not matter in this case,
+aggregate transactions are still executed in order in the general case.
 
 ```dot
 digraph Option1 {
