@@ -129,8 +129,7 @@ try:
 	# --- ACCOUNT A (Initiator) --- [>step-7]
 	# Add cosignature to the transaction and rebuild payload
 	transaction.cosignatures.append(shared_cosignature)
-	transaction_payload = facade.transaction_factory.attach_signature(
-		transaction, signature_a)
+	transaction_payload = facade.transaction_factory.to_json(transaction)
 	json_payload = transaction_payload
 	print('[Account A] Ready to announce')
 	# [<step-7]
