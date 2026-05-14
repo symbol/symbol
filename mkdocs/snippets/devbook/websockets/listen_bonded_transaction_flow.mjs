@@ -71,8 +71,9 @@ try {
 			facade.static.hashEmbeddedTransactions(embeddedTxs),
 		transactions: embeddedTxs
 	});
+	const cosignatureSize = new models.Cosignature().size;
 	bondedTx.fee = new models.Amount(
-		feeMultiplier * (bondedTx.size + 104));
+		feeMultiplier * (bondedTx.size + cosignatureSize));
 
 	// Sign the bonded aggregate
 	const bondedSignature = facade.signTransaction(
