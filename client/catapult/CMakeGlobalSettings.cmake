@@ -27,16 +27,6 @@ function(catapult_executable TARGET_NAME)
 	add_target(${TARGET_NAME} EXECUTABLE LINK_LIBS SOURCES ${ARGN})
 endfunction()
 
-# used to define a catapult header only target, creating an appropriate source group in order to allow VS to create an appropriate folder
-function(catapult_header_only_target TARGET_NAME)
-	if(MSVC)
-		add_target(${TARGET_NAME} LIBRARY TYPE INTERFACE SOURCES ${ARGN})
-		#add_target(${TARGET_NAME} CUSTOM SOURCES ${ARGN})
-		#add_custom_target(${TARGET_NAME})
-		#add_target_sources(${TARGET_NAME} DIRS ${ARGN})
-	endif()
-endfunction()
-
 # used to define a catapult test executable
 function(catapult_test_executable TARGET_NAME)
 	add_target(${TARGET_NAME} TEST LINK_LIBS SOURCES ${ARGN})

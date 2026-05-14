@@ -1,1 +1,5 @@
-catapult_header_only_target(catapult.plugins.lockshared cache model observers state validators)
+add_target(
+    catapult.plugins.lockshared LIBRARY
+    TYPE INTERFACE
+    SOURCES ./cache ./model ./observers ./state ./validators
+)
