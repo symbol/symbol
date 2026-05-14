@@ -11,6 +11,43 @@ import {
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
+
+// Helper function to announce a transaction
+async function announceTransaction(payload, label) {
+	console.log(`Announcing ${label} to /transactions`);
+	const response = await fetch(`${NODE_URL}/transactions`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+	console.log('  Response:', await response.text());
+}
+
+// Helper function to wait for transaction confirmation
+async function waitForConfirmation(transactionHash, label) {
+	console.log(`Waiting for ${label} confirmation...`);
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		try {
+			const response = await fetch(
+				`${NODE_URL}/transactionStatus/${transactionHash}`);
+			const status = await response.json();
+			console.log('  Transaction status:', status.group);
+			if ('confirmed' === status.group) {
+				console.log(`${label} confirmed in`, attempt, 'seconds');
+				return;
+			}
+			if ('failed' === status.group)
+				throw new Error(`${label} failed: ${status.code}`);
+		} catch (e) {
+			if (e.message.includes('failed'))
+				throw e;
+			console.log('  Transaction status: unknown');
+		}
+	}
+	throw new Error(`${label} not confirmed after 60 seconds`);
+}
+
 // [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
@@ -71,54 +108,20 @@ try {
 	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
-	const signature = facade.signTransaction(
-		signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
-		transaction, signature);
+		transaction,
+		facade.signTransaction(signerKeyPair, transaction));
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
 	const transactionHash = facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
-	// Announce transaction
-	console.log('Announcing address alias transaction to /transactions');
-	const announceResponse = await fetch(`${NODE_URL}/transactions`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: jsonPayload
-	});
-	console.log('  Response:', await announceResponse.text());
+	// Announce and confirm transaction
+	await announceTransaction(jsonPayload, 'address alias transaction');
+	await waitForConfirmation(transactionHash, 'address alias transaction');
 	// [<step-5]
-	// Wait for confirmation [>step-6]
-	console.log('Waiting for transaction confirmation...');
-	const statusPath = `/transactionStatus/${transactionHash}`;
-	for (let attempt = 1; 60 >= attempt; ++attempt) {
-		await new Promise(resolve => { setTimeout(resolve, 1000); });
-		const response = await fetch(`${NODE_URL}${statusPath}`);
-
-		if (response.ok) {
-			const status = await response.json();
-			console.log('  Transaction status:', status.group);
-			if ('confirmed' === status.group) {
-				console.log('Transaction confirmed in', attempt,
-					'seconds');
-				break;
-			}
-			if ('failed' === status.group) {
-				console.log('Transaction failed:', status.code);
-				break;
-			}
-		} else {
-			console.log('  Transaction status: unknown | Cause:',
-				response.status
-			);
-		}
-		if (60 === attempt)
-			console.warn('Confirmation took too long.');
-	}
-	// [<step-6]
-	// Retrieve the namespace to verify the alias [>step-7]
+	// Retrieve the namespace to verify the alias [>step-6]
 	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
 	console.log('Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
@@ -131,8 +134,8 @@ try {
 			namespaceInfo.alias.address);
 		console.log('  Linked address:', aliasedAddress.toString());
 	}
-	// [<step-7]
-	// Send a transfer using the alias instead of a raw address [>step-8]
+	// [<step-6]
+	// Send a transfer using the alias instead of a raw address [>step-7]
 	console.log('Using alias in transfer:', namespaceName);
 
 	// Encode the namespace ID as a recipient address
@@ -140,8 +143,10 @@ try {
 	const recipientId = recipientPath[recipientPath.length - 1];
 	const recipientAddress = Address.fromNamespaceId(
 		new models.NamespaceId(recipientId), facade.network.identifier);
+	console.log('  Recipient address (alias):',
+		recipientAddress.toString());
 
-	facade.transactionFactory.create({
+	const test_transaction = facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
@@ -151,9 +156,20 @@ try {
 			amount: 1_000_000n // 1 XYM
 		}]
 	});
-	console.log('Transfer transaction:');
-	console.log('  Recipient address (alias):',
-		recipientAddress.toString()); // [<step-8]
+	test_transaction.fee = new models.Amount(
+		feeMultiplier * test_transaction.size);
+	const testJsonPayload =
+		facade.transactionFactory.static.attachSignature(
+			test_transaction,
+			facade.signTransaction(signerKeyPair, test_transaction));
+	console.log('Test transaction:');
+	console.dir(test_transaction.toJson(), { colors: true });
+	const testTransactionHash =
+		facade.hashTransaction(test_transaction).toString();
+	console.log('Transaction hash:', testTransactionHash);
+	await announceTransaction(testJsonPayload, 'test transaction');
+	await waitForConfirmation(testTransactionHash, 'test transaction');
+	// [<step-7]
 } catch (e) {
 	console.error(e.message);
 }

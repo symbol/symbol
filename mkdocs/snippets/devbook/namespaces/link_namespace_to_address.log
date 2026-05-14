@@ -1,36 +1,55 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
-Namespace name: nsaddr_1770541301
-Namespace ID: 12901002700615428842 (0xb309919a9089aaea)
+Namespace name: ns_1778584141043
+Namespace ID: 16980998145596513971 (0xeba89fd81fd8deb3)
 Target address: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
 Fetching current network time from /node/time
-  Network time: 103291999249 ms since nemesis
+  Network time: 111527494401n ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Built transaction:
 {
-  "signature": "88D2148FB1938012BE845D221363768ECBE903032940F37E7227728FD655B73D02B1A78E03F23C25E8F6F1B746C61E8BE3623C5D5F1E5D57BEBBA9A7F56B6604",
-  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
-  "version": 1,
-  "network": 152,
-  "type": 16974,
-  "fee": "16100",
-  "deadline": "103299199249",
-  "namespace_id": "12901002700615428842",
-  "address": "98AD8BAAB80B1DC684542EC175259711AB2C41D2FE4DA9AD",
-  "alias_action": 1
+  signature: 'BDFC6FE36DF7070CD14CCE4F8559D472F18F0BCC231E46767B1BC58C1581AF5DB10E6A3429158CD6C874FD28C8F40D44FEE258DDF60A402993A88AB1E23DFE07',
+  signerPublicKey: '3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29',
+  version: 1,
+  network: 152,
+  type: 16974,
+  fee: '16100',
+  deadline: '111534694401',
+  namespaceId: '16980998145596513971',
+  address: '98AD8BAAB80B1DC684542EC175259711AB2C41D2FE4DA9AD',
+  aliasAction: 1
 }
-Transaction hash: 8312500644961DA08EF4899AE5160C2B810A8B506B74C58D3F4FCF257C309827
+Transaction hash: 868226671E678B3929E8FDE8C89846A494DA3713D290298CB6AD41E62B9E897B
 Announcing address alias transaction to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for transaction confirmation...
+Waiting for address alias transaction confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
-Address alias transaction confirmed in 17 seconds
-Fetching namespace information from /namespaces/b309919a9089aaea
+address alias transaction confirmed in 7 seconds
+Fetching namespace information from /namespaces/eba89fd81fd8deb3
 Alias information:
   Alias type: 2
   Linked address: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
-Using alias in transfer: nsaddr_1770541301
-Transfer transaction:
-  Recipient address (alias): THVKVCMQTKIQTMYAAAAAAAAAAAAAAAAAAAAAAAA
+Using alias in transfer: ns_1778584141043
+  Recipient address (alias): TGZ55WA73CP2R2YAAAAAAAAAAAAAAAAAAAAAAAA
+Test transaction:
+{
+  signature: '0001D617313CD13F5E5283196B711CFECB0AC81F563300B80C1CB30FD43AB40AF03FBCAEC2BDE4C27B58AD183E6D6179CCB8AE873199933A04FB9C7232646008',
+  signerPublicKey: '3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29',
+  version: 1,
+  network: 152,
+  type: 16724,
+  fee: '17600',
+  deadline: '111534694401',
+  recipientAddress: '99B3DED81FD89FA8EB000000000000000000000000000000',
+  mosaics: [ { mosaicId: '16666583871264174062', amount: '1000000' } ],
+  message: ''
+}
+Transaction hash: 9F6F03950D6F4B893F95EEE67AF8CC2BEB3F077BFF738712387EA7555D9D5547
+Announcing test transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for test transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+test transaction confirmed in 30 seconds
