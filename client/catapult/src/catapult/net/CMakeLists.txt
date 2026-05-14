@@ -1,2 +1,5 @@
-catapult_library_target(catapult.net)
-target_link_libraries(catapult.net catapult.ionet catapult.thread)
+add_target(
+    catapult.net LIBRARY
+    LINK_LIBS catapult.ionet catapult.thread
+    SOURCES
+)

@@ -1,4 +1,7 @@
-catapult_library_target(catapult.local)
-target_link_libraries(catapult.local catapult.extensions)
+add_target(
+    catapult.local LIBRARY
+    LINK_LIBS catapult.extensions
+    SOURCES
+)
 
 add_subdirs()

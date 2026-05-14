@@ -1,2 +1,5 @@
-catapult_library_target(catapult.validators)
-target_link_libraries(catapult.validators catapult.cache catapult.thread)
+add_target(
+    catapult.validators LIBRARY
+    LINK_LIBS catapult.cache catapult.thread
+    SOURCES
+)

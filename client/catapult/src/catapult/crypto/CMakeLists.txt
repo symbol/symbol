@@ -1,6 +1,16 @@
-include_directories(../../../external)
-
-catapult_library_target(catapult.crypto)
-
-target_link_libraries(catapult.crypto catapult.utils external)
-catapult_add_openssl_dependencies(catapult.crypto)
+if(EXISTS ${CMAKE_SOURCE_DIR}/external)
+    add_target(
+        catapult.crypto LIBRARY
+        LINK_LIBS catapult.utils external OpenSSL::SSL
+        SOURCES
+    )
+    target_include_directories(catapult.crypto SYSTEM BEFORE PUBLIC
+        ${CMAKE_SOURCE_DIR}/external
+    )
+else()
+    add_target(
+        catapult.crypto LIBRARY
+        LINK_LIBS catapult.utils OpenSSL::SSL
+        SOURCES
+    )
+endif()

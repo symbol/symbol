@@ -1,1 +1,5 @@
-catapult_library_target(catapult.state)
+add_target(
+    catapult.state LIBRARY
+    LINK_LIBS
+    SOURCES
+)

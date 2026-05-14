@@ -1,6 +1,9 @@
-catapult_library_target(catapult.version)
+add_target(
+	catapult.version LIBRARY
+	LINK_LIBS
+	SOURCES
+)
 target_compile_definitions(catapult.version PUBLIC DCATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}")
-
 if(NOT (MSVC OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")))
 	add_subdirs(nix)
 endif()
