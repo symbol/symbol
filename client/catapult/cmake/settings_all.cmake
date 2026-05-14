@@ -133,5 +133,7 @@ target_compile_definitions(build.defaults INTERFACE
 
 target_include_directories(build.defaults SYSTEM BEFORE INTERFACE 
 	${Boost_INCLUDE_DIR}
+	${PROJECT_SOURCE_DIR}
 	${PROJECT_SOURCE_DIR}/src
+	${PROJECT_SOURCE_DIR}/sdk
 )

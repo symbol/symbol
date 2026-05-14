@@ -1,6 +1,7 @@
 add_target(catapult.recovery
     EXECUTABLE 
-    LINK catapult.local.recovery catapult.process
+    WITH_INSTALL
+    LINK_LIBS catapult.local.recovery catapult.process
     DEPENDENTS server
     SOURCES
 )

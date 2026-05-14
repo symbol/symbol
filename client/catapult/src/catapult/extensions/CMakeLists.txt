@@ -1,2 +1,5 @@
-catapult_library_target(catapult.extensions)
-target_link_libraries(catapult.extensions catapult.chain catapult.net catapult.plugins catapult.subscribers)
+add_target(
+    catapult.extensions LIBRARY
+    LINK_LIBS catapult.chain catapult.net catapult.plugins catapult.subscribers
+    SOURCES
+)

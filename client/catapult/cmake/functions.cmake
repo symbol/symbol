@@ -254,6 +254,9 @@ macro(_parse_arguments)
 		if(_arg_UNPARSED_ARGUMENTS)
 			message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
 		endif()
+		if("INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): missing value for INCLUDE_DIRS.")
+		endif()
 endmacro()
 
 # Ancillary macro to add_target
@@ -277,6 +280,14 @@ macro(_handle_sources)
 	endif()
 endmacro()
 
+# Ancillary macro to add_target
+# handle the include directories for the target based on the provided arguments.
+macro(_handle_includes)
+	if(_arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+		target_include_directories(${TNAME} PRIVATE ${_arg_INCLUDE_DIRS})
+	endif()
+endmacro()
+
 # Description:
 #
 #	Wraps the add_library, add_executable, add_test call for a target, allowing to define 
@@ -294,17 +305,22 @@ endmacro()
 # Syntax:
 #	add_target(<target-name> LIBRARY 
 #		[TYPE STATIC|SHARED|MODULE|OBJECT|INTERFACE] 
-#		[EXCLUDE_FROM_ALL] 
-#		[LINK [lib1 lib2 ...]] 
+#		[EXCLUDE_FROM_ALL]
+#		[WITH_INSTALL]
+#		[INCLUDE_DIRS dir1 [dir2 ...]]
+#		[LINK_LIBS [lib1 lib2 ...]] 
 #		[DEPENDENCIES target1 target2 ...]
 #		[DEPENDENTS target1 target2 ...]
 #		[SOURCES <sources>...])
 #
 #   for this project we create tests along with executables and eventually add_test for them 
 #   assuming COMMAND is the executable itself.
-#	add_target(<target-name> EXECUTABLE|TEST 
-#		[WIN32] [MACOSX_BUNDLE] [EXCLUDE_FROM_ALL] 
-#		[LINK [lib1 lib2 ...]] 
+#	add_target(<target-name> EXECUTABLE|TEST|TOOL|CUSTOM
+#		[WIN32] [MACOSX_BUNDLE] 
+#		[WITH_INSTALL]
+#		[EXCLUDE_FROM_ALL]
+#		[INCLUDE_DIRS dir1 [dir2 ...]]
+#		[LINK_LIBS [lib1 lib2 ...]] 
 #		[DEPENDENCIES target1 target2 ...]
 #		[DEPENDENTS target1 target2 ...]
 #		[SOURCES <sources>...])
@@ -326,14 +342,12 @@ function(add_target TNAME TTYPE)
 	# Prepare for argument parsing
 	set(_fn_options)
 	set(_fn_single)
-	set(_fn_multi LINK DEPENDENCIES DEPENDENTS SOURCES)
+	set(_fn_multi INCLUDE_DIRS LINK_LIBS DEPENDENCIES DEPENDENTS SOURCES)
 
 	# Call appropriate add_* function based on the target type
 	if(TTYPE STREQUAL "LIBRARY")
 		
-		set(_supported_types "STATIC;SHARED;MODULE;OBJECT;INTERFACE")		
-		
-		list(APPEND _fn_options EXCLUDE_FROM_ALL)
+		list(APPEND _fn_options EXCLUDE_FROM_ALL WITH_INSTALL)
 		list(APPEND _fn_single TYPE)
 		_parse_arguments()
 
@@ -344,6 +358,7 @@ function(add_target TNAME TTYPE)
 				set(_arg_TYPE "STATIC")
 			endif()
 		endif()
+		set(_supported_types "STATIC;SHARED;MODULE;OBJECT;INTERFACE")		
 		if(NOT _arg_TYPE IN_LIST _supported_types)
 			message(FATAL_ERROR "add_target LIBRARY: missing or unsupported TYPE ${_arg_TYPE} for '${TNAME}'. Supported types are: ${_supported_types}.")
 		endif()
@@ -351,9 +366,9 @@ function(add_target TNAME TTYPE)
 		message(TRACE "[+] adding ${_arg_TYPE} LIBRARY '${TNAME}'")
 		add_library(${TNAME} ${_arg_TYPE})
 
-		if(DEFINED _arg_LINK OR "LINK" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-			list(PREPEND _arg_LINK build.defaults ${Boost_LIBRARIES})
-			target_link_libraries(${TNAME} ${_arg_LINK})
+		if(DEFINED _arg_LINK_LIBS OR "LINK_LIBS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
+			target_link_libraries(${TNAME} ${_arg_LINK_LIBS})
 		endif()
 
 		if(_arg_EXCLUDE_FROM_ALL)
@@ -364,6 +379,7 @@ function(add_target TNAME TTYPE)
 		_handle_dependencies_dependents()
 
 		if(_arg_TYPE STREQUAL "SHARED")
+			set(_arg_WITH_INSTALL ON)
 			target_sources(${TNAME} PRIVATE ${VERSION_RESOURCES})
 			if(MSVC)
 				# Old set_win_version_definitions logic
@@ -373,20 +389,24 @@ function(add_target TNAME TTYPE)
 					$<$<BOOL:${CATAPULT_BUILD_RELEASE}>:CATAPULT_BUILD_RELEASE=1>
 				)
 			endif()
+
+		endif()
+
+		if(_arg_WITH_INSTALL)
 			install(TARGETS ${TNAME})
 		endif()
 
 	elseif(TTYPE STREQUAL "EXECUTABLE")
 
-		list(APPEND _fn_options WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL)
+		list(APPEND _fn_options WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL WITH_INSTALL)
 		_parse_arguments()
 		
 		message(TRACE "[+] adding EXECUTABLE '${TNAME}'")
 		add_executable(${TNAME} ${VERSION_RESOURCES})
 
-		if(DEFINED _arg_LINK OR "LINK" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-			list(PREPEND _arg_LINK build.defaults ${Boost_LIBRARIES})
-			target_link_libraries(${TNAME} ${_arg_LINK})
+		if(DEFINED _arg_LINK_LIBS OR "LINK_LIBS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
+			target_link_libraries(${TNAME} ${_arg_LINK_LIBS})
 		endif()
 
 		if(_arg_EXCLUDE_FROM_ALL)
@@ -414,12 +434,16 @@ function(add_target TNAME TTYPE)
 			target_link_libraries(${TNAME} wsock32 ws2_32)
 		endif()
 
+		if(_arg_WITH_INSTALL)
+			install(TARGETS ${TNAME})
+		endif()
+
 	elseif(TTYPE STREQUAL "TEST")
 
 		_parse_arguments()
 		
-		list(PREPEND _arg_LINK build.tests)
-		set(_call_args EXECUTABLE LINK ${_arg_LINK} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
+		list(PREPEND _arg_LINK_LIBS build.tests)
+		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
 		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
 			list(APPEND _call_args SOURCES ${_arg_SOURCES})
 		endif()
@@ -431,10 +455,10 @@ function(add_target TNAME TTYPE)
 		_parse_arguments()
 
 		set(TNAME catapult.tools.${TNAME})
-		list(PREPEND _arg_LINK catapult.tools)
-		list(PREPEND _arg_DEPENDENCIES catapult.tools)
+		list(PREPEND _arg_LINK_LIBS catapult.tools)
+		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
 		list(PREPEND _arg_DEPENDENTS tools)
-		set(_call_args EXECUTABLE LINK ${_arg_LINK} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
+		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
 		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
 			list(APPEND _call_args SOURCES ${_arg_SOURCES})
 		endif()

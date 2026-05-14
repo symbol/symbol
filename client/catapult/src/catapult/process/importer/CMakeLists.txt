@@ -1,6 +1,7 @@
 add_target(catapult.importer
     EXECUTABLE 
-    LINK catapult.local.importer catapult.process
+    WITH_INSTALL
+    LINK_LIBS catapult.local.importer catapult.process
     DEPENDENTS server
     SOURCES
 )

@@ -1,2 +1,5 @@
-catapult_library_target(catapult.thread)
-target_link_libraries(catapult.thread catapult.model catapult.utils)
+add_target(
+    catapult.thread LIBRARY
+    LINK_LIBS catapult.model catapult.utils
+    SOURCES
+)

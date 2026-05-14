@@ -1,10 +1,13 @@
-catapult_library_target(catapult.chain)
-target_link_libraries(catapult.chain
-	catapult.api
-	catapult.cache_core
-	catapult.cache_tx
-	catapult.disruptor
-	catapult.model
-	catapult.observers
-	catapult.utils
-	catapult.validators)
+add_target(
+    catapult.chain LIBRARY
+	LINK_LIBS 
+		catapult.api
+		catapult.cache_core
+		catapult.cache_tx
+		catapult.disruptor
+		catapult.model
+		catapult.observers
+		catapult.utils
+		catapult.validators	
+    SOURCES
+)
