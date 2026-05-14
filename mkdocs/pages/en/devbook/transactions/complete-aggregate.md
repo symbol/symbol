@@ -177,7 +177,7 @@ Once the embedded transactions are prepared, create the complete aggregate trans
 * **Transactions:** The array of embedded transactions to execute.
 
 The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus
-space reserved for one cosignature (104 bytes).
+space reserved for one cosignature.
 
 ### Signing the Transaction
 
