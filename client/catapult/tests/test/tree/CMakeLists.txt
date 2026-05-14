@@ -1,1 +1,5 @@
-catapult_header_only_target(tests.catapult.test.tree)
+add_target(
+    tests.catapult.test.tree LIBRARY
+    TYPE INTERFACE
+    SOURCES
+)
