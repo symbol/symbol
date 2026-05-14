@@ -62,8 +62,9 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 		transactions: [messageTransaction, prefundTransaction]
 	});
 	// Calculate total fee, reserving space for a cosignature
+	const cosignatureSize = new models.Cosignature().size;
 	transaction.fee = new models.Amount(
-		feeMultiplier * (transaction.size + 104)
+		feeMultiplier * (transaction.size + cosignatureSize)
 	);
 	// Update the prefund amount to match the total fee
 	prefundTransaction.mosaics[0].amount = transaction.fee;
@@ -126,8 +127,9 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 		transactions: [messageTransaction, fillerTransaction]
 	});
 	// Calculate total fee, reserving space for a cosignature
+	const cosignatureSize = new models.Cosignature().size;
 	transaction.fee = new models.Amount(
-		feeMultiplier * (transaction.size + 104)
+		feeMultiplier * (transaction.size + cosignatureSize)
 	);
 	// [<step-9]
 	// Sign the aggregate transaction using the app's signature [>step-10]

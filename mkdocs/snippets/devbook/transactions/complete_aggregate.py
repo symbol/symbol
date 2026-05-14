@@ -5,7 +5,7 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
+from symbolchain.sc import Amount, Cosignature
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -89,9 +89,11 @@ try:
 			embedded_transactions),
 		'transactions': embedded_transactions
 	})
-	# Reserve space for one cosignature (104 bytes)
+	# Reserve space for one cosignature
 	# and calculate fee for the final transaction size
-	transaction.fee = Amount(fee_multiplier * (transaction.size + 104))
+	cosignature_size = Cosignature().size
+	transaction.fee = Amount(
+		fee_multiplier * (transaction.size + cosignature_size))
 	print('Built aggregate transaction without signatures:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-4]

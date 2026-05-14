@@ -61,7 +61,9 @@ def build_prefunded_message_transaction(recipient_address, message):
 		'transactions': [message_transaction, prefund_transaction]
 	})
 	# Calculate total fee, reserving space for a cosignature
-	transaction.fee = sc.Amount(fee_multiplier * (transaction.size + 104))
+	cosignature_size = sc.Cosignature().size
+	transaction.fee = sc.Amount(
+		fee_multiplier * (transaction.size + cosignature_size))
 	# Update the prefund amount to match the total fee
 	prefund_transaction.mosaics[0].amount = transaction.fee
 	# Update the embedded transaction hashes
@@ -118,7 +120,9 @@ def build_sponsored_message_transaction(recipient_address, message):
 		'transactions': [message_transaction, filler_transaction]
 	})
 	# Calculate total fee, reserving space for a cosignature
-	transaction.fee = sc.Amount(fee_multiplier * (transaction.size + 104))
+	cosignature_size = sc.Cosignature().size
+	transaction.fee = sc.Amount(
+		fee_multiplier * (transaction.size + cosignature_size))
 	# [<step-9]
 	# Sign the aggregate transaction using the app's signature [>step-10]
 	facade.transaction_factory.attach_signature(

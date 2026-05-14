@@ -87,10 +87,11 @@ try {
 			embeddedTransactions),
 		transactions: embeddedTransactions
 	});
-	// Reserve space for one cosignature (104 bytes)
+	// Reserve space for one cosignature
 	// and calculate fee for the final transaction size
+	const cosignatureSize = new models.Cosignature().size;
 	transaction.fee = new models.Amount(
-		feeMultiplier * (transaction.size + 104)
+		feeMultiplier * (transaction.size + cosignatureSize)
 	);
 	console.log('Built aggregate transaction without signatures:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));

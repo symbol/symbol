@@ -5,7 +5,7 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
+from symbolchain.sc import Amount, Cosignature
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 from websockets import connect
@@ -86,7 +86,9 @@ async def main():
 			embedded_txs),
 		'transactions': embedded_txs
 	})
-	bonded_tx.fee = Amount(fee_multiplier * (bonded_tx.size + 104))
+	cosignature_size = Cosignature().size
+	bonded_tx.fee = Amount(
+		fee_multiplier * (bonded_tx.size + cosignature_size))
 
 	# Sign the bonded aggregate
 	bonded_signature = facade.sign_transaction(
