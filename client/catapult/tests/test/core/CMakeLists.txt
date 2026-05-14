@@ -4,5 +4,5 @@ add_target(
 		tests.catapult.test.nodeps
 		${CORE_CATAPULT_LIBS}
 		catapult.sdk		
-	SOURCES ./mocks
+	SOURCES ./ ./mocks
 )

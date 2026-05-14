@@ -3,5 +3,5 @@ add_target(catapult.broker
     WITH_INSTALL
     LINK_LIBS catapult.local.broker catapult.process
     DEPENDENTS server
-    SOURCES
+    SOURCES ./
 )

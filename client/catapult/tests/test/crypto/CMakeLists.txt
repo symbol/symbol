@@ -3,5 +3,5 @@ add_target(
     LIBRARY
     INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/external
     LINK_LIBS tests.catapult.test.nodeps OpenSSL::SSL
-    SOURCES
+    SOURCES ./
 )

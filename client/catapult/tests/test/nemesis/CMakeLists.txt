@@ -8,5 +8,5 @@ add_target(
 		catapult.plugins.mosaic
 		catapult.plugins.namespace
 		catapult.plugins.transfer # shared lib dependencies allow tests to create real transaction plugins
-	SOURCES
+	SOURCES ./
 )

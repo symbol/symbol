@@ -9,5 +9,5 @@ add_target(
 		catapult.observers
 		catapult.utils
 		catapult.validators	
-    SOURCES
+    SOURCES ./
 )

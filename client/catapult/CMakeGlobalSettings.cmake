@@ -14,22 +14,22 @@ endfunction()
 
 # combines catapult_library and catapult_target
 function(catapult_library_target TARGET_NAME)
-	add_target(${TARGET_NAME} LIBRARY LINK_LIBS SOURCES ${ARGN})
+	add_target(${TARGET_NAME} LIBRARY SOURCES ./ ${ARGN})
 endfunction()
 
 # used to define a catapult shared library target, creating an appropriate source group and adding a library
 function(catapult_shared_library_target TARGET_NAME)
-	add_target(${TARGET_NAME} LIBRARY TYPE SHARED LINK_LIBS SOURCES ${ARGN})
+	add_target(${TARGET_NAME} LIBRARY TYPE SHARED SOURCES ./ ${ARGN})
 endfunction()
 
 # used to define a catapult executable, creating an appropriate source group and adding an executable
 function(catapult_executable TARGET_NAME)
-	add_target(${TARGET_NAME} EXECUTABLE LINK_LIBS SOURCES ${ARGN})
+	add_target(${TARGET_NAME} EXECUTABLE SOURCES ./ ${ARGN})
 endfunction()
 
 # used to define a catapult test executable
 function(catapult_test_executable TARGET_NAME)
-	add_target(${TARGET_NAME} TEST LINK_LIBS SOURCES ${ARGN})
+	add_target(${TARGET_NAME} TEST SOURCES ./ ${ARGN})
 endfunction()
 
 # used to define a catapult test executable for a catapult library by combining catapult_test_executable and

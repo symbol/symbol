@@ -287,6 +287,9 @@ endfunction()
 # Ancillary macro to add_target : 
 # parse the arguments provided to add_target and set appropriate variables for further processing.
 macro(_parse_arguments)
+		if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+			message(FATAL_ERROR "_parse_arguments: must only be used from add_target().")
+		endif()
 		cmake_parse_arguments(
 			PARSE_ARGV 2
 			_arg
@@ -297,14 +300,21 @@ macro(_parse_arguments)
 		if(_arg_UNPARSED_ARGUMENTS)
 			message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
 		endif()
-		if("INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-			message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): missing value for INCLUDE_DIRS.")
+		if(_arg_KEYWORDS_MISSING_VALUES)
+			message(FATAL_ERROR "glob_sources: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
 		endif()
+
+		#if("INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+		#	message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): missing value for INCLUDE_DIRS.")
+		#endif()
 endmacro()
 
 # Ancillary macro to add_target
 # handle the dependencies and dependents for the target based on the provided arguments.
 macro(_handle_dependencies_dependents)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_dependencies_dependents: must only be used from add_target().")
+	endif()
 	foreach(_dep IN LISTS _arg_DEPENDENCIES)
 		add_dependencies(${TNAME} ${_dep})
 	endforeach()
@@ -316,9 +326,12 @@ endmacro()
 # Ancillary macro to add_target
 # handle the sources for the target based on the provided arguments.
 macro(_handle_sources)
-	if(_arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_sources: must only be used from add_target().")
+	endif()
+	if(DEFINED _arg_SOURCES)
 		set(_sources_list)
-		glob_sources(_sources_list . ${_arg_SOURCES})
+		glob_sources(_sources_list ${_arg_SOURCES})
 		if(_arg_TYPE STREQUAL "INTERFACE")
 			list(FILTER _sources_list EXCLUDE REGEX "\\.c(pp)?$")
 			target_sources(${TNAME} INTERFACE ${_sources_list})
@@ -331,6 +344,9 @@ endmacro()
 # Ancillary macro to add_target
 # handle the include directories for the target based on the provided arguments.
 macro(_handle_includes)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_includes: must only be used from add_target().")
+	endif()
 	if(_arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
 		if(_arg_TYPE STREQUAL "INTERFACE")
 			target_include_directories(${TNAME} INTERFACE ${_arg_INCLUDE_DIRS})
@@ -338,6 +354,25 @@ macro(_handle_includes)
 			target_include_directories(${TNAME} PRIVATE ${_arg_INCLUDE_DIRS})
 		endif()
 	endif()
+endmacro()
+
+# Ancillary macro to add_target
+# handle the link libraries for the target based on the provided arguments.
+macro(_handle_link_libs)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_link_libs: must only be used from add_target().")
+	endif()
+
+	set(_link_libs
+		build.defaults		# Default compiler and linker flags for all targets
+		${Boost_LIBRARIES}	# Ubiquitous Boost libraries for all targets (if any)
+		${_arg_LINK_LIBS}	# Any user-provided link libraries for this target
+	)
+	if(_arg_TYPE STREQUAL "INTERFACE")
+		set(_link_mode INTERFACE)
+	endif()
+	target_link_libraries(${TNAME} ${_link_mode} ${_link_libs})
+
 endmacro()
 
 # Description:
@@ -351,8 +386,8 @@ endmacro()
 #   traversed to find .h and .cpp files to add to the target. 
 #   This allows for more flexible organization of source files without having to update 
 #   CMakeLists.txt every time a new file is added.
-#   Use '.' to add sources from current cmake directory, or provide a list of subdirs 
-#   relative to the current cmake directory (e.g. SOURCES . utils)
+#   List each source directory explicitly. Use './' to add sources from current cmake directory
+#   and list any additional subdirs relative to the current cmake directory (e.g. SOURCES ./ utils)
 #
 # Syntax:
 #	add_target(<target-name> LIBRARY 
@@ -360,9 +395,9 @@ endmacro()
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
-#		[LINK_LIBS [lib1 lib2 ...]] 
-#		[DEPENDENCIES target1 target2 ...]
-#		[DEPENDENTS target1 target2 ...]
+#		[LINK_LIBS lib1 [lib2 ...]] 
+#		[DEPENDENCIES target1 [target2 ...]]
+#		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
 #
 #   for this project we create tests along with executables and eventually add_test for them 
@@ -373,14 +408,14 @@ endmacro()
 #		[EXCLUDE_FROM_ALL]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS [lib1 lib2 ...]] 
-#		[DEPENDENCIES target1 target2 ...]
-#		[DEPENDENTS target1 target2 ...]
+#		[DEPENDENCIES target1 [target2 ...]]
+#		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
 #	add_target(<target-name> TEST|TOOL
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
-#		[LINK_LIBS [lib1 lib2 ...]] 
-#		[DEPENDENCIES target1 target2 ...]
-#		[DEPENDENTS target1 target2 ...]
+#		[LINK_LIBS lib1 [lib2 ...]] 
+#		[DEPENDENCIES target1 [target2 ...]]
+#		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
 #	add_target(<target-name> CUSTOM
 #		[SOURCES <sources>...])
@@ -426,22 +461,14 @@ function(add_target TNAME TTYPE)
 		message(TRACE "[+] adding ${_arg_TYPE} LIBRARY '${TNAME}'")
 		add_library(${TNAME} ${_arg_TYPE})
 
-		if(DEFINED _arg_LINK_LIBS OR "LINK_LIBS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-			list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
-			if(_arg_TYPE STREQUAL "INTERFACE")
-				target_link_libraries(${TNAME} INTERFACE ${_arg_LINK_LIBS})
-			else()
-				target_link_libraries(${TNAME} ${_arg_LINK_LIBS})
-			endif()
-		endif()
+		_handle_link_libs()
+		_handle_includes()
+		_handle_sources()
+		_handle_dependencies_dependents()
 
 		if(_arg_EXCLUDE_FROM_ALL)
 			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 		endif()
-
-		_handle_includes()
-		_handle_sources()
-		_handle_dependencies_dependents()
 
 		if(_arg_TYPE STREQUAL "SHARED")
 			set(_arg_WITH_INSTALL ON)
@@ -454,7 +481,6 @@ function(add_target TNAME TTYPE)
 					$<$<BOOL:${CATAPULT_BUILD_RELEASE}>:CATAPULT_BUILD_RELEASE=1>
 				)
 			endif()
-
 		endif()
 
 		if(_arg_WITH_INSTALL)
@@ -469,10 +495,8 @@ function(add_target TNAME TTYPE)
 		message(TRACE "[+] adding EXECUTABLE '${TNAME}'")
 		add_executable(${TNAME} ${VERSION_RESOURCES})
 
-		if(DEFINED _arg_LINK_LIBS OR "LINK_LIBS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-			list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
-			target_link_libraries(${TNAME} ${_arg_LINK_LIBS})
-		endif()
+		set(_link_libs build.defaults ${Boost_LIBRARIES} ${_arg_LINK_LIBS})
+		target_link_libraries(${TNAME} ${_link_libs})
 
 		if(_arg_EXCLUDE_FROM_ALL)
 			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
@@ -486,7 +510,6 @@ function(add_target TNAME TTYPE)
 
 		_handle_includes()
 		_handle_sources()
-
 		_handle_dependencies_dependents()
 
 		if(MSVC)
@@ -509,11 +532,17 @@ function(add_target TNAME TTYPE)
 		_parse_arguments()
 		
 		list(PREPEND _arg_LINK_LIBS build.tests)
-		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
-		if(DEFINED _arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS})
+		if(DEFINED _arg_DEPENDENCIES)
+			list(APPEND _call_args DEPENDENCIES ${_arg_DEPENDENCIES})
+		endif()
+		if(DEFINED _arg_DEPENDENTS)
+			list(APPEND _call_args DEPENDENTS ${_arg_DEPENDENTS})
+		endif()
+		if(DEFINED _arg_INCLUDE_DIRS)
 			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
 		endif()
-		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+		if(DEFINED _arg_SOURCES)
 			list(APPEND _call_args SOURCES ${_arg_SOURCES})
 		endif()
 		add_target(${TNAME} ${_call_args})
@@ -528,19 +557,26 @@ function(add_target TNAME TTYPE)
 		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
 		list(PREPEND _arg_DEPENDENTS tools)
 		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
-		if(DEFINED _arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+
+		if(DEFINED _arg_INCLUDE_DIRS)
 			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
 		endif()
-		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+		if(DEFINED _arg_SOURCES)
 			list(APPEND _call_args SOURCES ${_arg_SOURCES})
 		endif()
+
 		add_target(${TNAME} ${_call_args})
 
 	elseif(TTYPE STREQUAL "CUSTOM")
 		
 		_parse_arguments()
+
 		add_custom_target(${TNAME})
+
+		_handle_link_libs()
+		_handle_includes()
 		_handle_sources()
+		_handle_dependencies_dependents()
 
 	endif()
 

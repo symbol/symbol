@@ -1,7 +1,7 @@
 add_target(
     catapult.local LIBRARY
     LINK_LIBS catapult.extensions
-    SOURCES
+    SOURCES ./
 )
 
 add_subdirs()
