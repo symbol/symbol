@@ -42,7 +42,8 @@ digraph {
     <Aggregate transactions:|Aggregate transactions> group multiple <transactions:> in a single operation,
     and require <signatures:> from all involved accounts.
 
-    A _bonded aggregate transaction_ collects signatures on-chain after being announced.
+    A _bonded aggregate transaction_ remains pending on the network until all required <cosignatures:> have been
+    announced.
     This works well when off-chain coordination is impractical. For example:
 
     * **No shared infrastructure:** Parties cannot coordinate through a common system, so the blockchain serves
@@ -50,7 +51,8 @@ digraph {
     * **Asynchronous workflows:** Cosigners are not available at the same time or cannot coordinate in real-time.
 
     To prevent spam, bonded aggregates require a *hash lock* (a deposit of 10 XYM).
-    The network returns this deposit when all <cosignatures:> arrive and the transaction reaches confirmation.
+    The network returns this deposit when all cosignatures arrive and the transaction reaches confirmation.
+    If the transaction times out, the deposit is forfeited.
 
     If parties can communicate off-chain to exchange signatures, <complete aggregate transactions:> don't require this
     deposit.
@@ -195,7 +197,8 @@ The hash lock transaction specifies:
 
 * **Duration:** The number of blocks the deposit remains locked (100 blocks in this example).
   If all cosignatures are collected and the bonded aggregate confirms before the duration expires,
-  the deposit is returned. Otherwise, it is forfeited.
+  the deposit is returned.
+  Otherwise, it is forfeited and sent to the harvester of the block where the transactions expired.
 
 * **Hash:** The hash of the bonded aggregate transaction being locked.
 
@@ -222,8 +225,8 @@ cosignatures.
 
 {{ tutorial.code_snippet_tagged('step-8') }}
 
-Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable on-chain
-coordination.
+Unlike complete aggregates where the transaction payload is shared off-chain, bonded aggregates enable coordination
+through the network.
 
 First, Account B polls <get:/transactions/partial> with the `address` parameter to find transactions waiting for its
 signature.
@@ -296,7 +299,7 @@ Key points in the output:
 
 * **Line 14** (`"type": 16961`): Indicates this is an <ser:AggregateBondedTransactionV3>.
 * **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
-* **Line 48** (`"cosignatures": []`): Initially empty. Cosignatures are submitted on-chain after announcement.
+* **Line 48** (`"cosignatures": []`): Initially empty. Cosignatures are submitted after announcement.
 * **Line 51** (`Bonded aggregate transaction hash:`): The hash of the bonded aggregate, required for creating the hash
     lock and announcing the transaction.
 * **Line 54** (`Announcing Hash lock to /transactions`): A hash lock must be announced and confirmed before the bonded
@@ -304,7 +307,7 @@ Key points in the output:
 * **Line 63** (`Announcing Bonded aggregate transaction to /transactions/partial`): Bonded aggregates use a different
     endpoint than regular transactions.
 * **Line 67** (`Bonded aggregate transaction partial in 1 seconds`): The bonded aggregate is now waiting for
-    cosignatures to be submitted on-chain.
+    cosignatures to be submitted to the network.
 * **Line 71** (`[Account B] Verifying transaction: 2 embedded transactions`): Account B inspects the transaction content
     before cosigning to ensure they agree with all operations.
 * **Line 73** (`Announcing cosignature to /transactions/cosignature`): The cosignature is submitted to the network.
