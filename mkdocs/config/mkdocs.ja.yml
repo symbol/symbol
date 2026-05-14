@@ -156,19 +156,25 @@ nav:
               - ノード: devbook/reference/config/node-properties.md
   - テキストブック:
       - textbook/intro.md
+      - textbook/glossary.md
+      # Foundations
       - textbook/cryptography.md
       - textbook/accounts.md
-      - textbook/consensus.md
       - textbook/transactions.md
       - textbook/transfer_transactions.md
+      # State and Assets
       - textbook/mosaics.md
       - textbook/namespaces.md
-      - textbook/blocks.md
       - textbook/metadata.md
-      - textbook/nodes.md
       - textbook/restrictions.md
-      - textbook/cross-chain-swaps.md
+      # Blockchain Structure
+      - textbook/blocks.md
+      - textbook/consensus.md
+      # Network and Operation
+      - textbook/nodes.md
       - textbook/harvesting.md
+      # Advanced Topics
+      - textbook/cross-chain-swaps.md
+      # Implementation
       - textbook/catapult.md
       - textbook/cats.md
-      - textbook/glossary.md
