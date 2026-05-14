@@ -136,4 +136,5 @@ target_include_directories(build.defaults SYSTEM BEFORE INTERFACE
 	${PROJECT_SOURCE_DIR}
 	${PROJECT_SOURCE_DIR}/src
 	${PROJECT_SOURCE_DIR}/sdk
+	${PROJECT_SOURCE_DIR}/extensions
 )
