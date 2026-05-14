@@ -34,54 +34,52 @@ export default {
 	register: (server, db, services) => {
 		const sender = routeUtils.createSender(routeResultTypes.account);
 
-		server.get('/accounts', (req, res, next) => {
-			const address = req.params.address ? routeUtils.parseArgument(req.params, 'address', 'address') : undefined;
-			const mosaicId = req.params.mosaicId ? routeUtils.parseArgument(req.params, 'mosaicId', 'uint64hex') : undefined;
+		server.get('/accounts', async (request, reply) => {
+			const address = request.params.address ? routeUtils.parseArgument(request.params, 'address', 'address') : undefined;
+			const mosaicId = request.params.mosaicId ? routeUtils.parseArgument(request.params, 'mosaicId', 'uint64hex') : undefined;
 
 			const offsetParsers = {
 				id: 'objectId',
 				balance: 'uint64'
 			};
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, offsetParsers);
+			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, offsetParsers);
 
 			if ('balance' === options.sortField && !mosaicId)
 				throw errors.createInvalidArgumentError('mosaicId must be provided when sorting by balance');
 
-			return db.accounts(address, mosaicId, options)
-				.then(result => sender.sendPage(res, next)(result));
+			const result = await db.accounts(address, mosaicId, options);
+			return reply.send(sender.sendPage()(result));
 		});
 
-		server.get('/accounts/:accountId', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-			return db.accountsByIds([{ [type]: accountId }])
-				.then(sender.sendOne(req.params.accountId, res, next));
+		server.get('/accounts/:accountId', async (request, reply) => {
+			const [type, accountId] = routeUtils.parseArgument(request.params, 'accountId', 'accountId');
+			const result = await db.accountsByIds([{ [type]: accountId }]);
+			return reply.send(sender.sendOne(request.params.accountId)(result));
 		});
 
-		server.post('/accounts', (req, res, next) => {
-			if (req.params.publicKeys && req.params.addresses)
+		server.post('/accounts', async (request, reply) => {
+			if (request.params.publicKeys && request.params.addresses)
 				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
 
-			const idOptions = Array.isArray(req.params.publicKeys)
+			const idOptions = Array.isArray(request.params.publicKeys)
 				? { keyName: 'publicKeys', parserName: 'publicKey', type: AccountType.publicKey }
 				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
 
-			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
+			const accountIds = routeUtils.parseArgumentAsArray(request.params, idOptions.keyName, idOptions.parserName);
 
-			return db.accountsByIds(accountIds.map(accountId => ({ [idOptions.type]: accountId })))
-				.then(sender.sendArray(idOptions.keyName, res, next));
+			const result = await db.accountsByIds(accountIds.map(accountId => ({ [idOptions.type]: accountId })));
+			return reply.send(sender.sendArray(idOptions.keyName)(result));
 		});
 
 		// this endpoint is here because it is expected to support requests by block other than <current block>
-		server.get('/accounts/:accountId/merkle', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/accounts/:accountId/merkle', async (request, reply) => {
+			const [type, accountId] = routeUtils.parseArgument(request.params, 'accountId', 'accountId');
 			const encodedAddress = 'publicKey' === type
 				? NetworkLocator.findByIdentifier(Network.NETWORKS, db.networkId).publicKeyToAddress(new PublicKey(accountId)).bytes
 				: accountId;
 			const state = PacketType.accountStatePath;
-			return merkleUtils.requestTree(services, state, encodedAddress).then(response => {
-				res.send(response);
-				next();
-			});
+			const response = await merkleUtils.requestTree(services, state, encodedAddress);
+			return reply.send(response);
 		});
 	}
 };

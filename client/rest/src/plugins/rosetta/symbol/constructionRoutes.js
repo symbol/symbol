@@ -61,7 +61,7 @@ export default {
 
 		const constructionPostRoute = (...args) => rosettaPostRouteWithNetwork(blockchainDescriptor, ...args);
 
-		server.post('/construction/derive', constructionPostRoute(ConstructionDeriveRequest, typedRequest => {
+		server.post('/construction/derive', constructionPostRoute(ConstructionDeriveRequest, async typedRequest => {
 			const publicKey = publicKeyProcessor.parsePublicKey(typedRequest.public_key);
 			const address = facade.network.publicKeyToAddress(publicKey);
 
@@ -70,7 +70,7 @@ export default {
 			return response;
 		}));
 
-		server.post('/construction/preprocess', constructionPostRoute(ConstructionPreprocessRequest, typedRequest => {
+		server.post('/construction/preprocess', constructionPostRoute(ConstructionPreprocessRequest, async typedRequest => {
 			const response = new ConstructionPreprocessResponse();
 			response.options = {};
 			response.required_public_keys = [];

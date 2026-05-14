@@ -186,7 +186,7 @@ describe('receipts routes', () => {
 						type: 'transactionStatement',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -200,7 +200,7 @@ describe('receipts routes', () => {
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 					expect(dbTransactionStatementsFake.firstCall.args[0].height).to.deep.equal(123n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -214,7 +214,7 @@ describe('receipts routes', () => {
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 					expect(dbTransactionStatementsFake.firstCall.args[0].fromHeight).to.deep.equal(123n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -228,7 +228,7 @@ describe('receipts routes', () => {
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 					expect(dbTransactionStatementsFake.firstCall.args[0].toHeight).to.deep.equal(123n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -243,7 +243,7 @@ describe('receipts routes', () => {
 						expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 						expect(dbTransactionStatementsFake.firstCall.args[0].receiptType).to.deep.equal([456]);
 
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -257,7 +257,7 @@ describe('receipts routes', () => {
 						expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 						expect(dbTransactionStatementsFake.firstCall.args[0].receiptType).to.deep.equal([456, 457]);
 
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 			});
@@ -273,7 +273,7 @@ describe('receipts routes', () => {
 					expect(dbTransactionStatementsFake.firstCall.args[0].recipientAddress)
 						.to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -287,7 +287,7 @@ describe('receipts routes', () => {
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 					expect(dbTransactionStatementsFake.firstCall.args[0].senderAddress).to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -301,7 +301,7 @@ describe('receipts routes', () => {
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 					expect(dbTransactionStatementsFake.firstCall.args[0].targetAddress).to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -315,7 +315,7 @@ describe('receipts routes', () => {
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 					expect(dbTransactionStatementsFake.firstCall.args[0].artifactId).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -333,7 +333,7 @@ describe('receipts routes', () => {
 						type: 'transactionStatement',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 		});
@@ -464,7 +464,7 @@ describe('receipts routes', () => {
 						type: 'addressResolutionStatement',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -482,7 +482,7 @@ describe('receipts routes', () => {
 						type: 'mosaicResolutionStatement',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -496,7 +496,7 @@ describe('receipts routes', () => {
 					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
 					expect(dbArtifactStatementsFake.firstCall.args[0]).to.deep.equal(123n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -510,7 +510,7 @@ describe('receipts routes', () => {
 					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
 					expect(dbArtifactStatementsFake.firstCall.args[1]).to.equal('address');
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -524,7 +524,7 @@ describe('receipts routes', () => {
 					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
 					expect(dbArtifactStatementsFake.firstCall.args[1]).to.equal('mosaic');
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -533,11 +533,11 @@ describe('receipts routes', () => {
 				const req = { params: { artifact: 'namespace' } };
 
 				// Act:
-				mockServer.callRoute(route, req);
-
-				// Assert:
-				expect(mockServer.next.calledOnce).to.equal(true);
-				expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(404);
+				});
 			});
 
 			it('fails if no artifact provided', () => {
@@ -545,11 +545,11 @@ describe('receipts routes', () => {
 				const req = { params: {} };
 
 				// Act:
-				mockServer.callRoute(route, req);
-
-				// Assert:
-				expect(mockServer.next.calledOnce).to.equal(true);
-				expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(404);
+				});
 			});
 
 			it('returns page with results', () => {
@@ -567,7 +567,7 @@ describe('receipts routes', () => {
 						type: 'addressResolutionStatement',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 		});

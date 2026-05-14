@@ -150,7 +150,7 @@ describe('lock secret routes', () => {
 							expect(dbSecretLocksFake.calledOnce).to.equal(true);
 							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddress).bytes]);
 
-							expect(mockServer.next.calledOnce).to.equal(true);
+							expect(mockServer.done.calledOnce).to.equal(true);
 						});
 					});
 
@@ -164,7 +164,7 @@ describe('lock secret routes', () => {
 							expect(dbSecretLocksFake.calledOnce).to.equal(true);
 							expect(dbSecretLocksFake.firstCall.args[1]).to.deep.equal(utils.hexToUint8(testSecret));
 
-							expect(mockServer.next.calledOnce).to.equal(true);
+							expect(mockServer.done.calledOnce).to.equal(true);
 						});
 					});
 
@@ -183,7 +183,7 @@ describe('lock secret routes', () => {
 								type: 'secretLockInfo',
 								structure: 'page'
 							});
-							expect(mockServer.next.calledOnce).to.equal(true);
+							expect(mockServer.done.calledOnce).to.equal(true);
 						});
 					});
 
@@ -202,7 +202,7 @@ describe('lock secret routes', () => {
 								type: 'secretLockInfo',
 								structure: 'page'
 							});
-							expect(mockServer.next.calledOnce).to.equal(true);
+							expect(mockServer.done.calledOnce).to.equal(true);
 						});
 					});
 
@@ -211,7 +211,10 @@ describe('lock secret routes', () => {
 						const req = { params: { address: 'AB12345' } };
 
 						// Act + Assert:
-						expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
+						return mockServer.callRoute(route, req).then(() => {
+							expect(mockServer.done.calledOnce).to.equal(true);
+							expect(mockServer.done.firstCall.args[0].message).to.include('address has an invalid format');
+						});
 					});
 				});
 			});

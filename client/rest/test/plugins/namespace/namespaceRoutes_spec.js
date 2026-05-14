@@ -168,7 +168,7 @@ describe('namespace routes', () => {
 						type: 'namespaceDescriptor',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -185,7 +185,7 @@ describe('namespace routes', () => {
 					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(undefined);
 					expect(dbNamespacesFake.firstCall.args[3]).to.deep.equal(undefined);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -200,7 +200,7 @@ describe('namespace routes', () => {
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
 					expect(dbNamespacesFake.firstCall.args[0]).to.equal(aliasType);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -215,7 +215,7 @@ describe('namespace routes', () => {
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
 					expect(dbNamespacesFake.firstCall.args[1]).to.deep.equal(BigInt(`0x${level0}`));
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -230,7 +230,7 @@ describe('namespace routes', () => {
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
 					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(new Address(ownerAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -245,7 +245,7 @@ describe('namespace routes', () => {
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
 					expect(dbNamespacesFake.firstCall.args[3]).to.equal(registrationType);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -261,7 +261,7 @@ describe('namespace routes', () => {
 						type: 'namespaceDescriptor',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -270,7 +270,10 @@ describe('namespace routes', () => {
 				const req = { params: { aliasType: 'ABC' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('aliasType has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('aliasType has an invalid format');
+				});
 			});
 
 			it('throws error if level0 is invalid', () => {
@@ -278,7 +281,10 @@ describe('namespace routes', () => {
 				const req = { params: { level0: '12345678' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('level0 has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('level0 has an invalid format');
+				});
 			});
 
 			it('throws error if ownerAddress is invalid', () => {
@@ -286,7 +292,10 @@ describe('namespace routes', () => {
 				const req = { params: { ownerAddress: 'AB12345' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('ownerAddress has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('ownerAddress has an invalid format');
+				});
 			});
 
 			it('throws error if registrationType is invalid', () => {
@@ -294,7 +303,10 @@ describe('namespace routes', () => {
 				const req = { params: { registrationType: 'ABC' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('registrationType has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('registrationType has an invalid format');
+				});
 			});
 		});
 	});

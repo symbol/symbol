@@ -25,7 +25,6 @@ import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
 import transactionRoutes from '../../src/routes/transactionRoutes.js';
 import { expect } from 'chai';
-import restifyErrors from 'restify-errors';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
@@ -85,8 +84,11 @@ describe('transaction routes', () => {
 					const req = { params: { group: TransactionGroups.confirmed, transactionId: '12345' } };
 
 					// Act + Assert:
-					expect(() => mockServer.callRoute(route, req))
-						.to.throw(restifyErrors.InvalidArgumentError, 'invalid length of transaction id \'12345\'');
+					return mockServer.callRoute(route, req).then(() => {
+						expect(mockServer.done.calledOnce).to.equal(true);
+						expect(mockServer.done.firstCall.args[0].message).to.include('invalid length of transaction id \'12345\'');
+						expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+					});
 				});
 
 				it('calls parseArgument with correct parser for id', () => runParseArgumentParamTest(validObjectId, 'objectId'));
@@ -126,11 +128,11 @@ describe('transaction routes', () => {
 						const req = { params: { group: 'nonExistingGroup', transactionId: validObjectId } };
 
 						// Act:
-						mockServer.callRoute(route, req);
-
-						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+						return mockServer.callRoute(route, req).then(() => {
+							// Assert:
+							expect(mockServer.done.calledOnce).to.equal(true);
+							expect(mockServer.done.firstCall.args[0].statusCode).to.equal(404);
+						});
 					});
 				});
 
@@ -149,7 +151,7 @@ describe('transaction routes', () => {
 								payload: fakeTransaction,
 								type: routeResultTypes.transaction
 							});
-							expect(mockServer.next.calledOnce).to.equal(true);
+							expect(mockServer.done.calledOnce).to.equal(true);
 						});
 					});
 
@@ -167,7 +169,7 @@ describe('transaction routes', () => {
 								payload: fakeTransaction,
 								type: routeResultTypes.transaction
 							});
-							expect(mockServer.next.calledOnce).to.equal(true);
+							expect(mockServer.done.calledOnce).to.equal(true);
 						});
 					});
 				});
@@ -224,7 +226,7 @@ describe('transaction routes', () => {
 								type: routeResultTypes.transaction,
 								structure: 'page'
 							});
-							expect(mockServer.next.calledOnce).to.equal(true);
+							expect(mockServer.done.calledOnce).to.equal(true);
 						});
 					});
 				});
@@ -357,9 +359,10 @@ describe('transaction routes', () => {
 						};
 
 						// Act + Assert
-						mockServer.callRoute(route, req);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(409);
-						expect(mockServer.next.firstCall.args[0].message).to.equal(errorMessage);
+						return mockServer.callRoute(route, req).then(() => {
+							expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+							expect(mockServer.done.firstCall.args[0].message).to.equal(errorMessage);
+						});
 					});
 
 					it('address and recipient address', () => {
@@ -368,9 +371,10 @@ describe('transaction routes', () => {
 						};
 
 						// Act + Assert
-						mockServer.callRoute(route, req);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(409);
-						expect(mockServer.next.firstCall.args[0].message).to.equal(errorMessage);
+						return mockServer.callRoute(route, req).then(() => {
+							expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+							expect(mockServer.done.firstCall.args[0].message).to.equal(errorMessage);
+						});
 					});
 				});
 
@@ -386,10 +390,11 @@ describe('transaction routes', () => {
 						};
 
 						// Act + Assert
-						mockServer.callRoute(route, req);
-						expect(mockServer.next.calledOnce).to.equal(true);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(409);
-						expect(mockServer.next.firstCall.args[0].message).to.equal(errorMessage);
+						return mockServer.callRoute(route, req).then(() => {
+							expect(mockServer.done.calledOnce).to.equal(true);
+							expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+							expect(mockServer.done.firstCall.args[0].message).to.equal(errorMessage);
+						});
 					});
 
 					it('does not allow filtering by toTransferAmount if transferMosaicId is not provided', () => {
@@ -401,10 +406,11 @@ describe('transaction routes', () => {
 						};
 
 						// Act + Assert
-						mockServer.callRoute(route, req);
-						expect(mockServer.next.calledOnce).to.equal(true);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(409);
-						expect(mockServer.next.firstCall.args[0].message).to.equal(errorMessage);
+						return mockServer.callRoute(route, req).then(() => {
+							expect(mockServer.done.calledOnce).to.equal(true);
+							expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+							expect(mockServer.done.firstCall.args[0].message).to.equal(errorMessage);
+						});
 					});
 				});
 
@@ -456,11 +462,11 @@ describe('transaction routes', () => {
 						const req = { params: { group: 'nonExistingGroup' } };
 
 						// Act:
-						mockServer.callRoute(route, req);
-
-						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+						return mockServer.callRoute(route, req).then(() => {
+							// Assert:
+							expect(mockServer.done.calledOnce).to.equal(true);
+							expect(mockServer.done.firstCall.args[0].statusCode).to.equal(404);
+						});
 					});
 				});
 			});
@@ -492,8 +498,11 @@ describe('transaction routes', () => {
 				const req = { params: { group: TransactionGroups.confirmed } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req))
-					.to.throw(restifyErrors.InvalidArgumentError, 'either ids or hashes must be provided');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('either ids or hashes must be provided');
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+				});
 			});
 
 			it('throws if both ids and hashes are provided', () => {
@@ -501,8 +510,11 @@ describe('transaction routes', () => {
 				const req = { params: { group: TransactionGroups.confirmed, transactionIds: [], hashes: [] } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req))
-					.to.throw(restifyErrors.InvalidArgumentError, 'either ids or hashes must be provided');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('either ids or hashes must be provided');
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+				});
 			});
 
 			describe('checks correct group is provided', () => {
@@ -538,11 +550,11 @@ describe('transaction routes', () => {
 					const req = { params: { group: 'nonExistingGroup', transactionIds: [validObjectId] } };
 
 					// Act:
-					mockServer.callRoute(route, req);
-
-					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(mockServer.done.calledOnce).to.equal(true);
+						expect(mockServer.done.firstCall.args[0].statusCode).to.equal(404);
+					});
 				});
 			});
 
@@ -583,7 +595,7 @@ describe('transaction routes', () => {
 							payload: fakeTransactions,
 							type: routeResultTypes.transaction
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -601,7 +613,7 @@ describe('transaction routes', () => {
 							payload: fakeTransactions,
 							type: routeResultTypes.transaction
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -619,7 +631,7 @@ describe('transaction routes', () => {
 							payload: fakeTransactions,
 							type: routeResultTypes.transaction
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 			});

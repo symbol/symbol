@@ -99,7 +99,7 @@ const registerRoutes = (server, db, services) => {
 (() => {
 	let configFiles = process.argv.slice(2);
 	if (0 === configFiles.length)
-		configFiles = ['../resources/rest.json'];
+		configFiles = ['resources/rest.json'];
 
 	runProcess(configFiles, (config, serviceManager) => {
 		// Loading and caching certificates.

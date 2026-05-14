@@ -49,7 +49,7 @@ export default {
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;
 
-		server.get('/node/health', (req, res, next) => {
+		server.get('/node/health', async (request, reply) => {
 			const parseNodeInfoPacket = packet => {
 				const binaryParser = new BinaryParser();
 				binaryParser.push(packet.payload);
@@ -74,57 +74,45 @@ export default {
 
 			const dbStatusPromise = db.client.db().admin().ping();
 
-			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise]).then(results => {
-				const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
-				const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
+			const results = await Promise.allSettled([dbStatusPromise, apiNodeStatusPromise]);
+			const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
+			const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
 
-				res.status(statusCode);
-				res.send({
-					payload: {
-						status: {
-							apiNode: checkResult(results[1]),
-							db: checkResult(results[0])
-						}
-					},
-					type: routeResultTypes.nodeHealth
-				});
-				next();
+			reply.code(statusCode);
+			return reply.send({
+				payload: {
+					status: {
+						apiNode: checkResult(results[1]),
+						db: checkResult(results[0])
+					}
+				},
+				type: routeResultTypes.nodeHealth
 			});
 		});
 
-		server.get('/node/info', (req, res, next) => {
+		server.get('/node/info', async (request, reply) => {
 			const packetBuffer = packetHeader.createBuffer(
 				PacketType.nodeDiscoveryPullPing,
 				packetHeader.size
 			);
-			return connections
-				.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, timeout))
-				.then(packet => {
-					const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
-					response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
-					res.send(response);
-					next();
-				});
+			const packet = await connections.singleUse().then(connection => connection.pushPull(packetBuffer, timeout));
+			const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
+			response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
+			return reply.send(response);
 		});
 
-		server.get('/node/peers', (req, res, next) => {
+		server.get('/node/peers', async (request, reply) => {
 			const packetBuffer = packetHeader.createBuffer(
 				PacketType.nodeDiscoveryPullPeers,
 				packetHeader.size
 			);
-			return connections
-				.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, timeout))
-				.then(packet => {
-					res.send(buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo));
-					next();
-				});
+			const packet = await connections.singleUse().then(connection => connection.pushPull(packetBuffer, timeout));
+			return reply.send(buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo));
 		});
 
-		server.get('/node/server', (req, res, next) => {
+		server.get('/node/server', async (request, reply) => {
 			const { deployment } = services.config;
-			res.send({
+			return reply.send({
 				payload: {
 					serverInfo: {
 						restVersion,
@@ -139,49 +127,33 @@ export default {
 				},
 				type: routeResultTypes.serverInfo
 			});
-			return next();
 		});
 
-		server.get('/node/storage', (req, res, next) =>
-			db.storageInfo().then(storageInfo => {
-				res.send({ payload: storageInfo, type: routeResultTypes.storageInfo });
-				next();
-			}));
+		server.get('/node/storage', async (request, reply) => {
+			const storageInfo = await db.storageInfo();
+			return reply.send({ payload: storageInfo, type: routeResultTypes.storageInfo });
+		});
 
-		server.get('/node/time', (req, res, next) => {
+		server.get('/node/time', async (request, reply) => {
 			const packetBuffer = packetHeader.createBuffer(
 				PacketType.timeSyncNodeTime,
 				packetHeader.size
 			);
-			return connections
-				.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, timeout))
-				.then(packet => {
-					res.send(buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime));
-					next();
-				});
+			const packet = await connections.singleUse().then(connection => connection.pushPull(packetBuffer, timeout));
+			return reply.send(buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime));
 		});
 
-		server.get('/node/unlockedaccount', (req, res, next) => {
+		server.get('/node/unlockedaccount', async (request, reply) => {
 			const headerBuffer = packetHeader.createBuffer(
 				PacketType.unlockedAccount,
 				packetHeader.size
 			);
 			const packetBuffer = headerBuffer;
-			return connections
-				.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, timeout))
-				.then(packet => {
-					const unlockedKeys = utils.uint8ToHex(packet.payload)
-						.match(/.{1,64}/g);
-					res.send({ unlockedAccount: !unlockedKeys ? [] : unlockedKeys });
-					next();
-				});
+			const packet = await connections.singleUse().then(connection => connection.pushPull(packetBuffer, timeout));
+			const unlockedKeys = utils.uint8ToHex(packet.payload).match(/.{1,64}/g);
+			return reply.send({ unlockedAccount: !unlockedKeys ? [] : unlockedKeys });
 		});
 
-		server.get('/node/metadata', (req, res, next) => {
-			res.send(services.config.nodeMetadata);
-			next();
-		});
+		server.get('/node/metadata', async (request, reply) => reply.send(services.config.nodeMetadata));
 	}
 };

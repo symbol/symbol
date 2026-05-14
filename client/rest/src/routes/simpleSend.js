@@ -19,52 +19,45 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const sendUnformatted = (res, next, contentType, description) => (data, statusCode) => {
+const sendUnformatted = (reply, contentType, description) => (data, statusCode) => {
 	if (!data)
 		throw Error(`error retrieving ${description}`);
 
 	if (statusCode)
-		res.statusCode = statusCode;
+		reply.code(statusCode);
 
-	res.setHeader('content-type', contentType);
-	res.send(data);
-
-	next();
+	return reply.type(contentType).send(data);
 };
 
 /**
  * Creates a data handler that forwards a plain text result.
- * @param {object} res Restify response object.
- * @param {Function} next Restify next callback handler.
+ * @param {object} reply Fastify reply object.
  * @returns {Function} An appropriate object handler.
  */
-export const sendPlainText = (res, next) => sendUnformatted(res, next, 'text/plain', 'plain text');
+export const sendPlainText = reply => sendUnformatted(reply, 'text/plain', 'plain text');
 
 /**
  * Creates a data handler that forwards a JSON object that bypasses the formatting subsystem.
- * @param {object} res Restify response object.
- * @param {Function} next Restify next callback handler.
+ * @param {object} reply Fastify reply object.
  * @returns {Function} An appropriate object handler.
  */
-export const sendJson = (res, next) => sendUnformatted(res, next, 'application/json', 'JSON object');
+export const sendJson = reply => sendUnformatted(reply, 'application/json', 'JSON object');
 
 /**
  * Creates a data handler that forwards binary data result.
- * @param {object} res Restify response object.
- * @param {Function} next Restify next callback handler.
+ * @param {object} reply Fastify reply object.
  * @returns {Function} An appropriate object handler.
  */
-export const sendMetalData = (res, next) => {
+export const sendMetalData = reply => {
 	const isAttachment = (download, mimeType) => 'true' === download || 'application/octet-stream' === mimeType;
 	return (data, mimeType, fileName, text, download) => {
-		res.setHeader('content-type', mimeType);
+		reply.header('content-type', mimeType);
 		let disposition = isAttachment(download, mimeType) ? 'attachment;' : 'inline;';
 		disposition += fileName ? ` filename="${fileName}"` : '';
-		res.setHeader('Content-Disposition', disposition);
+		reply.header('Content-Disposition', disposition);
 		if (text)
-			res.setHeader('Content-MetalText', text);
-		res.write(data);
-		res.end();
-		next();
+			reply.header('Content-MetalText', text);
+
+		return reply.send(data);
 	};
 };
