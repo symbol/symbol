@@ -79,9 +79,7 @@ def build_prefunded_message_transaction(recipient_address, message):
 	transaction.cosignatures.append(
 		facade.cosign_transaction(app_key_pair, transaction))
 	# Obtain the payload
-	json_payload = facade.transaction_factory.attach_signature(
-		transaction,
-		facade.sign_transaction(user_key_pair, transaction))
+	json_payload = facade.transaction_factory.to_json(transaction)
 	# [<step-5]
 	return (transaction, json_payload)
 # [<step-1]
@@ -132,9 +130,7 @@ def build_sponsored_message_transaction(recipient_address, message):
 	transaction.cosignatures.append(
 		facade.cosign_transaction(user_key_pair, transaction))
 	# Obtain the payload
-	json_payload = facade.transaction_factory.attach_signature(
-		transaction,
-		facade.sign_transaction(app_key_pair, transaction))  # [<step-10]
+	json_payload = facade.transaction_factory.to_json(transaction)  # [<step-10]
 
 	return (transaction, json_payload)  # [<step-6]
 
