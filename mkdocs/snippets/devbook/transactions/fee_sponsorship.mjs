@@ -85,11 +85,9 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 		facade.cosignTransaction(appKeyPair, transaction)
 	);
 	// Obtain the payload
-	const jsonPayload = facade.transactionFactory.static.attachSignature(
-		transaction,
-		facade.signTransaction(userKeyPair, transaction)
-	);
-	// [<step-5]
+	const jsonPayload = facade.transactionFactory.static.toJson(
+		transaction); // [<step-5]
+
 	return { transaction, jsonPayload };
 }
 // [<step-1]
@@ -142,10 +140,8 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 		facade.cosignTransaction(userKeyPair, transaction)
 	);
 	// Obtain the payload
-	const jsonPayload = facade.transactionFactory.static.attachSignature(
-		transaction,
-		facade.signTransaction(appKeyPair, transaction)
-	);
+	const jsonPayload = facade.transactionFactory.static.toJson(
+		transaction);
 	// [<step-10]
 	return { transaction, jsonPayload };
 }

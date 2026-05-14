@@ -135,7 +135,7 @@ try {
 	// Add cosignature to the transaction and rebuild payload
 	transaction.cosignatures.push(sharedCosignature);
 	const transactionPayloadFinal = facade.transactionFactory.static
-		.attachSignature(transaction, signatureA);
+		.toJson(transaction);
 	const jsonPayload = transactionPayloadFinal;
 	console.log('[Account A] Ready to announce');
 	// [<step-7]
