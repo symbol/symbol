@@ -3,5 +3,5 @@ add_target(catapult.importer
     WITH_INSTALL
     LINK_LIBS catapult.local.importer catapult.process
     DEPENDENTS server
-    SOURCES
+    SOURCES ./
 )

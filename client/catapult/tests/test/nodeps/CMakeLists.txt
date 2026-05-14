@@ -6,5 +6,5 @@ add_target(
         catapult.version
         ${GTest_IMPORTED_TARGETS}
         ${CMAKE_DL_LIBS}
-    SOURCES
+    SOURCES ./
 )

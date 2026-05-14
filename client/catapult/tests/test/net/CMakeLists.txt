@@ -5,5 +5,5 @@ add_target(
         tests.catapult.test.crypto
         catapult.net
         OpenSSL::SSL
-    SOURCES ./mocks
+    SOURCES ./ ./mocks
 )
