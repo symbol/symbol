@@ -109,14 +109,9 @@ The address alias transaction specifies:
 The transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet_tagged('step-6') }}
-
-The code then waits for the transaction to be confirmed by polling the
-<get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
-
 ### Verifying the Alias
 
-{{ tutorial.code_snippet_tagged('step-7') }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 To verify the alias was created, the code retrieves the namespace information from the network
 using the <get:/namespaces/{namespaceId}> endpoint.
@@ -126,21 +121,20 @@ specified address.
 
 ### Using the Alias
 
-{{ tutorial.code_snippet_tagged('step-8') }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 Once the namespace is linked to an address, the namespace can be used in place of the address in transactions.
 The code demonstrates creating a <transfer transaction:> using the alias as the recipient address instead of
 the full hexadecimal address.
-
-For simplicity, this example creates the transaction but does not announce it or wait for its confirmation.
 
 To use a namespace as a recipient address, the namespace ID is converted into a 24-byte address using
 <dy:Address.fromNamespaceId>.
 As described in the [previous section](#defining-the-namespace-and-target-address), the last component of the
 namespace path is used as the namespace ID.
 
-For more details on how to announce transfer transactions, see the
-[Transfer Transaction](../transactions/transfer.md) tutorial.
+The rest of the transaction is a conventional <transfer transaction:>.
+For more details on how to sign, announce, and confirm transactions,
+see the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 !!! note "Address Resolution Receipt"
     When the network processes a transaction that uses a namespace alias as a recipient address, it generates an
@@ -158,14 +152,13 @@ For more details on how to announce transfer transactions, see the
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="3 5 23 32 33 36"
+```text linenums="1" hl_lines="3 5 23 32 33 35"
 --8<-- 'devbook/namespaces/link_namespace_to_address.log'
 ```
 
 Some highlights from the output:
 
-* **Namespace and target** (lines 3, 5): The namespace `nsaddr_1770541301` is being linked to the target address
-    `TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI`.
+* **Namespace and target** (lines 3, 5): The namespace and the address being linked.
 
 * **Transaction hash** (line 23): The transaction hash can be used to search for the transaction in the
     [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -173,7 +166,7 @@ Some highlights from the output:
 * **Alias verification** (lines 32-33): The namespace information confirms the alias type is `2` (address) and
     shows the linked address.
 
-* **Using the alias** (line 36): A transfer transaction is created using the alias as the recipient,
+* **Using the alias** (line 35): A transfer transaction is created using the alias as the recipient,
     demonstrating that it can be used in place of the full address.
 
     !!! note "Different recipient address"
