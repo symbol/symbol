@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import secrets
 import time
 import urllib.request
 
@@ -214,7 +215,7 @@ try:
 	# --- Alice: Generate proof and hashlock ---
 	print('\n--- Alice: Generate proof and hashlock ---')  # [>step-2]
 
-	proof = os.urandom(32)
+	proof = secrets.token_bytes(32)
 	print(f'Proof (hex): {proof.hex()}')
 
 	first_hash = hashlib.sha256(proof).digest()
