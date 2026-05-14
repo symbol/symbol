@@ -10,7 +10,7 @@
 function(glob_sources OUT_VAR)
 	
 	set(_fn_options RECURSE FOLLOW_SYMLINKS)
-	set(_fn_single)
+	set(_fn_single RELATIVE)
 	set(_fn_multi)
 
 	cmake_parse_arguments(
@@ -23,6 +23,14 @@ function(glob_sources OUT_VAR)
 
 	if(_arg_KEYWORDS_MISSING_VALUES)
 		message(FATAL_ERROR "glob_sources: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
+	endif()
+	if(_arg_RELATIVE)
+		cmake_path(
+			ABSOLUTE_PATH _arg_RELATIVE
+			BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+			NORMALIZE
+			OUTPUT_VARIABLE _abs_relative
+		)
 	endif()
 	
 	set(_paths)
@@ -64,7 +72,7 @@ function(glob_sources OUT_VAR)
 			list(APPEND _call_args GLOB _sources)
 		endif()
 		if(_arg_RELATIVE)
-			list(APPEND _call_args RELATIVE "${_arg_RELATIVE}")
+			list(APPEND _call_args RELATIVE "${_abs_relative}")
 		endif()
 		list(APPEND _call_args CONFIGURE_DEPENDS)
 		
@@ -115,8 +123,29 @@ function(glob_subdirs OUT_VAR)
 		endif()
 		list(GET _arg_UNPARSED_ARGUMENTS 0 _path)
 	endif()
-	if(NOT IS_DIRECTORY "${_path}")
-		message(TRACE "[i] glob_subdirs: skipping '${_path}' - not a directory")
+
+	cmake_path(
+		ABSOLUTE_PATH _path
+		BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+		NORMALIZE
+		OUTPUT_VARIABLE _abs_path
+	)
+	if(_arg_RELATIVE)
+		cmake_path(
+			ABSOLUTE_PATH _arg_RELATIVE
+			BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+			NORMALIZE
+			OUTPUT_VARIABLE _abs_relative
+		)
+	endif()
+	cmake_path(
+		RELATIVE_PATH _abs_path
+		BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		OUTPUT_VARIABLE _display_path
+	)
+
+	if(NOT IS_DIRECTORY "${_abs_path}")
+		message(TRACE "[i] glob_subdirs: skipping '${_display_path}' - not a directory")
 		return(PROPAGATE ${OUT_VAR})
 	endif()
 
@@ -132,32 +161,35 @@ function(glob_subdirs OUT_VAR)
 		list(APPEND _call_args GLOB _items)
 	endif()
 	if(_arg_RELATIVE)
-		list(APPEND _call_args RELATIVE "${_arg_RELATIVE}")
+		list(APPEND _call_args RELATIVE "${_abs_relative}")
 	endif()
 
-	if(IS_ABSOLUTE "${_path}")
-		cmake_path(
-			RELATIVE_PATH _path
-			BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
-			OUTPUT_VARIABLE _rel_path
-		)
-	else()
-		set(_abs_path "${CMAKE_CURRENT_SOURCE_DIR}/${_item}")
-		cmake_path(
-			RELATIVE_PATH _abs_path
-			BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
-			OUTPUT_VARIABLE _rel_path
-		)
-	endif()
-
-	message(TRACE "[i] glob_subdirs: base '${_rel_path}'")
+	message(TRACE "[i] glob_subdirs: base '${_display_path}'")
 
 	list(APPEND _call_args CONFIGURE_DEPENDS)
-	file(${_call_args} "${_path}/*")
+	file(${_call_args} "${_abs_path}/*")
 
 	foreach(_item IN LISTS _items)
-		if(IS_DIRECTORY "${_item}")
-			if(_arg_WITH_CMAKELISTS AND NOT EXISTS "${_item}/CMakeLists.txt")
+		if(IS_ABSOLUTE "${_item}")
+			set(_abs_item "${_item}")
+		elseif(_arg_RELATIVE)
+			cmake_path(
+				ABSOLUTE_PATH _item
+				BASE_DIRECTORY "${_abs_relative}"
+				NORMALIZE
+				OUTPUT_VARIABLE _abs_item
+			)
+		else()
+			cmake_path(
+				ABSOLUTE_PATH _item
+				BASE_DIRECTORY "${_abs_path}"
+				NORMALIZE
+				OUTPUT_VARIABLE _abs_item
+			)
+		endif()
+
+		if(IS_DIRECTORY "${_abs_item}")
+			if(_arg_WITH_CMAKELISTS AND NOT EXISTS "${_abs_item}/CMakeLists.txt")
 				message(TRACE "[i] glob_subdirs: skipping '${_item}' - missing CMakeLists.txt file")
 				continue()
 			endif()
@@ -193,50 +225,61 @@ function(add_subdirs)
 		"${_fn_multi}"
 	)
 
-	set(_glob)
-	if(NOT _arg_UNPARSED_ARGUMENTS)
-		glob_subdirs(_glob ${ARGN} RELATIVE ${CMAKE_SOURCE_DIR} WITH_CMAKELISTS "${CMAKE_CURRENT_SOURCE_DIR}")
-	else()
-		# Traverse each item and transform to relative path if needed, then set to _glob
-		foreach(_item IN LISTS _arg_UNPARSED_ARGUMENTS)
-			if(IS_ABSOLUTE "${_item}")
-				cmake_path(
-					RELATIVE_PATH _item
-					BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
-					OUTPUT_VARIABLE _relative_item
-				)
-			else()
-				set(_abs_item "${CMAKE_CURRENT_SOURCE_DIR}/${_item}")
-				cmake_path(
-					RELATIVE_PATH _abs_item
-					BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
-					OUTPUT_VARIABLE _relative_item
-				)
-			endif()
-			list(APPEND _glob "${_relative_item}")
-		endforeach()
-	endif()
-
 	if(NOT DEFINED _arg_WITH_TESTS)
 		set(_arg_WITH_TESTS ${ENABLE_TESTS})
 	endif()
 
+	set(_glob)
+
+	if(NOT _arg_UNPARSED_ARGUMENTS)
+		set(_glob_args)
+		if(_arg_FOLLOW_SYMLINKS)
+			list(APPEND _glob_args FOLLOW_SYMLINKS)
+		endif()
+		list(APPEND _glob_args WITH_TESTS ${_arg_WITH_TESTS})
+		glob_subdirs(_glob ${_glob_args} WITH_CMAKELISTS "${CMAKE_CURRENT_SOURCE_DIR}")
+	else()
+		# Traverse each item and transform to absolute path if needed, then set to _glob
+		foreach(_item IN LISTS _arg_UNPARSED_ARGUMENTS)
+			cmake_path(
+				ABSOLUTE_PATH _item
+				BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+				NORMALIZE
+				OUTPUT_VARIABLE _abs_item
+			)
+			list(APPEND _glob "${_abs_item}")
+		endforeach()
+	endif()
+
 	foreach(_dir IN LISTS _glob)
+		cmake_path(
+			RELATIVE_PATH _dir
+			BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
+			OUTPUT_VARIABLE _display_path
+		)
+
 		if(NOT IS_DIRECTORY "${_dir}")
-			message(TRACE "[i] add_subdirs: skipping '${_dir}' - not a directory")
+			message(TRACE "[i] add_subdirs: skipping '${_display_path}' - not a directory")
 			continue()
 		endif()
 		if(NOT EXISTS "${_dir}/CMakeLists.txt")
-			message(TRACE "[i] add_subdirs: skipping '${_dir}' - missing CMakeLists.txt file")
+			message(TRACE "[i] add_subdirs: skipping '${_display_path}' - missing CMakeLists.txt file")
 			continue()
 		endif()
-		if(NOT _arg_WITH_TESTS AND "${_dir}" MATCHES "tests$")
-			message(TRACE "[i] add_subdirs: skipping '${_dir}' - WITH_TESTS is false")
+		if(NOT _arg_WITH_TESTS AND "${_display_path}" MATCHES "tests$")
+			message(TRACE "[i] add_subdirs: skipping '${_display_path}' - WITH_TESTS is false")
 			continue()
 		endif()
 
-		message(TRACE "[+] adding subdir '${_dir}'")
-		add_subdirectory("${CMAKE_SOURCE_DIR}/${_dir}")
+		message(TRACE "[+] adding subdir '${_display_path}'")
+		set(_add_subdirectory_args "${_dir}")
+		if(_arg_EXCLUDE_FROM_ALL)
+			list(APPEND _add_subdirectory_args EXCLUDE_FROM_ALL)
+		endif()
+		if(_arg_SYSTEM)
+			list(APPEND _add_subdirectory_args SYSTEM)
+		endif()
+		add_subdirectory(${_add_subdirectory_args})
 	endforeach()
 
 endfunction()
@@ -276,7 +319,12 @@ macro(_handle_sources)
 	if(_arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
 		set(_sources_list)
 		glob_sources(_sources_list . ${_arg_SOURCES})
-		target_sources(${TNAME} PRIVATE ${_sources_list})
+		if(_arg_TYPE STREQUAL "INTERFACE")
+			list(FILTER _sources_list EXCLUDE REGEX "\\.c(pp)?$")
+			target_sources(${TNAME} INTERFACE ${_sources_list})
+		else()
+			target_sources(${TNAME} PRIVATE ${_sources_list})
+		endif()
 	endif()
 endmacro()
 
@@ -284,7 +332,11 @@ endmacro()
 # handle the include directories for the target based on the provided arguments.
 macro(_handle_includes)
 	if(_arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-		target_include_directories(${TNAME} PRIVATE ${_arg_INCLUDE_DIRS})
+		if(_arg_TYPE STREQUAL "INTERFACE")
+			target_include_directories(${TNAME} INTERFACE ${_arg_INCLUDE_DIRS})
+		else()
+			target_include_directories(${TNAME} PRIVATE ${_arg_INCLUDE_DIRS})
+		endif()
 	endif()
 endmacro()
 
@@ -315,7 +367,7 @@ endmacro()
 #
 #   for this project we create tests along with executables and eventually add_test for them 
 #   assuming COMMAND is the executable itself.
-#	add_target(<target-name> EXECUTABLE|TEST|TOOL|CUSTOM
+#	add_target(<target-name> EXECUTABLE
 #		[WIN32] [MACOSX_BUNDLE] 
 #		[WITH_INSTALL]
 #		[EXCLUDE_FROM_ALL]
@@ -323,6 +375,14 @@ endmacro()
 #		[LINK_LIBS [lib1 lib2 ...]] 
 #		[DEPENDENCIES target1 target2 ...]
 #		[DEPENDENTS target1 target2 ...]
+#		[SOURCES <sources>...])
+#	add_target(<target-name> TEST|TOOL
+#		[INCLUDE_DIRS dir1 [dir2 ...]]
+#		[LINK_LIBS [lib1 lib2 ...]] 
+#		[DEPENDENCIES target1 target2 ...]
+#		[DEPENDENTS target1 target2 ...]
+#		[SOURCES <sources>...])
+#	add_target(<target-name> CUSTOM
 #		[SOURCES <sources>...])
 #
 # Note:
@@ -368,13 +428,18 @@ function(add_target TNAME TTYPE)
 
 		if(DEFINED _arg_LINK_LIBS OR "LINK_LIBS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
 			list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
-			target_link_libraries(${TNAME} ${_arg_LINK_LIBS})
+			if(_arg_TYPE STREQUAL "INTERFACE")
+				target_link_libraries(${TNAME} INTERFACE ${_arg_LINK_LIBS})
+			else()
+				target_link_libraries(${TNAME} ${_arg_LINK_LIBS})
+			endif()
 		endif()
 
 		if(_arg_EXCLUDE_FROM_ALL)
 			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 		endif()
 
+		_handle_includes()
 		_handle_sources()
 		_handle_dependencies_dependents()
 
@@ -419,6 +484,7 @@ function(add_target TNAME TTYPE)
 			set_target_properties(${TNAME} PROPERTIES MACOSX_BUNDLE TRUE)
 		endif()
 
+		_handle_includes()
 		_handle_sources()
 
 		_handle_dependencies_dependents()
@@ -444,6 +510,9 @@ function(add_target TNAME TTYPE)
 		
 		list(PREPEND _arg_LINK_LIBS build.tests)
 		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
+		if(DEFINED _arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
+		endif()
 		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
 			list(APPEND _call_args SOURCES ${_arg_SOURCES})
 		endif()
@@ -459,6 +528,9 @@ function(add_target TNAME TTYPE)
 		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
 		list(PREPEND _arg_DEPENDENTS tools)
 		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
+		if(DEFINED _arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
+		endif()
 		if(DEFINED _arg_SOURCES OR "SOURCES" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
 			list(APPEND _call_args SOURCES ${_arg_SOURCES})
 		endif()
