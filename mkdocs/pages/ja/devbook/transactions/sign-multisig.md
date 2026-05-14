@@ -9,7 +9,7 @@ tutorial_level: intermediate
 
 ただし、このケースでは送信元が [マルチシグアカウント](default: マルチシグアカウント)（「マルチシグ」とも呼ばれます）であるため、アカウント単体でトランザクションを開始したり署名したりすることはできません。代わりに、連署者アカウントのいずれかがトランザクションを作成し、代理で署名を行います。
 
-このチュートリアルでは、[マルチシグアカウントの設定](./configure-multisig.md) チュートリアルで作成したマルチシグ構成を使用し、連署者 0 がトランザクションの開始と署名を行います。
+このチュートリアルでは、[マルチシグアカウントの設定](../accounts/configure-multisig.md) チュートリアルで作成したマルチシグ構成を使用し、連署者 0 がトランザクションの開始と署名を行います。
 
 ```dot
 digraph "Multisignature Tree" {
@@ -30,7 +30,7 @@ digraph "Multisignature Tree" {
 
 * 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
-* [マルチシグアカウントの設定](./configure-multisig.md) チュートリアルを完了していること。
+* [マルチシグアカウントの設定](../accounts/configure-multisig.md) チュートリアルを完了していること。
 
 さらに、トランザクションがどのようにアナウンスされ承認されるかを理解するために [転送トランザクション](../transactions/transfer.md) チュートリアルを、[アグリゲートトランザクション](default: アグリゲートトランザクション) の仕組みを理解するために [アグリゲートコンプリートトランザクション](../transactions/complete-aggregate.md) のチュートリアルを復習しておいてください。
 
@@ -38,7 +38,7 @@ digraph "Multisignature Tree" {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/sign_multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/sign_multisig', ['py', 'js']) }}
 
 ## コード解説 {: #code-explanation }
 
@@ -103,7 +103,7 @@ digraph "Multisignature Tree" {
 
     他のマルチシグ構成では、より多くの署名が必要になる場合があります。その場合、 <dy:SymbolFacade.signTransaction> ではなく <dy:SymbolFacade.cosignTransaction> を使用して署名を付加します。
 
-    例については [マルチシグアカウントの設定](./configure-multisig.md) チュートリアルを参照してください。
+    例については [マルチシグアカウントの設定](../accounts/configure-multisig.md) チュートリアルを参照してください。
 
 ### アグリゲートトランザクションの送信 {: #submitting-the-aggregate-transaction }
 
@@ -124,7 +124,7 @@ digraph "Multisignature Tree" {
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
 ```text linenums="1" hl_lines="2-3 11 20 24"
---8<-- 'devbook/accounts/sign_multisig.log'
+--8<-- 'devbook/transactions/sign_multisig.log'
 ```
 
 出力の主なポイント:
