@@ -101,16 +101,16 @@ nav:
               - devbook/accounts/testnet-faucet.md
               - devbook/accounts/query-balance.md
               - devbook/accounts/account-metadata.md
-              - devbook/accounts/configure-multisig.md
-              - devbook/accounts/sign-multisig.md
               - devbook/accounts/account-restrictions.md
+              - devbook/accounts/configure-multisig.md
           - トランザクション:
               - devbook/transactions/transfer.md
-              - devbook/transactions/typed-descriptors.md
               - devbook/transactions/messages.md
               - devbook/transactions/monitoring-status.md
+              - devbook/transactions/typed-descriptors.md
               - devbook/transactions/complete-aggregate.md
               - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/sign-multisig.md
               - devbook/transactions/transaction-batching.md
               - devbook/transactions/fee-sponsorship.md
               - devbook/transactions/atomic-swap.md
@@ -118,8 +118,8 @@ nav:
           - ネームスペース:
               - devbook/namespaces/register-root-namespace.md
               - devbook/namespaces/register-subnamespace.md
-              - devbook/namespaces/get-namespace-info.md
               - devbook/namespaces/extend-root-namespace.md
+              - devbook/namespaces/get-namespace-info.md
               - devbook/namespaces/link-namespace-to-address.md
               - devbook/namespaces/link-namespace-to-mosaic.md
               - devbook/namespaces/namespace-metadata.md
@@ -130,8 +130,8 @@ nav:
               - devbook/mosaics/change-mosaic-supply.md
               - devbook/mosaics/modify-mosaic-definition.md
               - devbook/mosaics/mosaic-metadata.md
-              - devbook/mosaics/revoke-mosaic.md
               - devbook/mosaics/mosaic-restrictions.md
+              - devbook/mosaics/revoke-mosaic.md
           - ネットワーク通貨:
               - devbook/network-currency/query-currency-supply.md
               - devbook/network-currency/query-block-rewards.md
@@ -143,8 +143,8 @@ nav:
           - Webソケット:
               - devbook/websockets/listen-new-blocks.md
               - devbook/websockets/listen-transaction-flow.md
-              - devbook/websockets/listen-bonded-transaction-flow.md
               - devbook/websockets/listen-transaction-error.md
+              - devbook/websockets/listen-bonded-transaction-flow.md
       - リファレンスガイド:
           - Python SDK: devbook/reference/py/
           - TypeScript SDK: devbook/reference/ts/

@@ -13,7 +13,7 @@ and therefore it cannot initiate or sign transactions on its own.
 Instead, it relies on one of its cosignatory accounts to create transactions and sign them on its behalf.
 
 This tutorial uses the multisig configuration created in the
-[Configuring a Multisignature Account](./configure-multisig.md) tutorial,
+[Configuring a Multisignature Account](../accounts/configure-multisig.md) tutorial,
 with Cosignatory 0 initiating and signing the transaction:
 
 ```dot
@@ -35,7 +35,7 @@ Before you start, make sure to:
 
 * Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
-* Complete the [Configuring a Multisignature Account](./configure-multisig.md) tutorial.
+* Complete the [Configuring a Multisignature Account](../accounts/configure-multisig.md) tutorial.
 
 Additionally, review the [Transfer transaction](../transactions/transfer.md) tutorial to understand how
 transactions are announced and confirmed, and the
@@ -46,7 +46,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/sign_multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/sign_multisig', ['py', 'js']) }}
 
 ## Code Explanation
 
@@ -126,7 +126,7 @@ Finally, the aggregate transaction is signed by the cosignatory:
     In that case, they are attached using <dy:SymbolFacade.cosignTransaction> instead of
     <dy:SymbolFacade.signTransaction>.
 
-    See the [Configuring a Multisignature Account](./configure-multisig.md#enabling-the-multisig) tutorial for an
+    See the [Configuring a Multisignature Account](../accounts/configure-multisig.md#enabling-the-multisig) tutorial for an
     example.
 
 ### Submitting the Aggregate Transaction
@@ -150,7 +150,7 @@ The following table summarizes the most common error sources:
 The output shown below corresponds to a typical run of the program.
 
 ```text linenums="1" hl_lines="2-3 11 20 24"
---8<-- 'devbook/accounts/sign_multisig.log'
+--8<-- 'devbook/transactions/sign_multisig.log'
 ```
 
 Key points in the output:
