@@ -54,7 +54,7 @@ single atomic transaction.
       No cosignatures are needed in this case.
 
     If off-chain coordination is impractical, use <bonded aggregate transactions:> instead,
-    which allow cosignatures to be added on-chain.
+    which allow cosignatures to be collected on the network.
 
 ## Prerequisites
 
