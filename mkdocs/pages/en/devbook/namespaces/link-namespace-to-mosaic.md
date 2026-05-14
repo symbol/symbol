@@ -5,7 +5,7 @@ tutorial_level: intermediate
 
 # Linking and Unlinking Namespaces to Mosaics
 
-<Namespaces:> can be linked to <mosaics:> to create human-readable aliases that can be used instead of long
+<Namespaces:|Namespaces> can be linked to <mosaics:> to create human-readable aliases that can be used instead of long
 hexadecimal mosaic IDs in transactions.
 
 This tutorial shows how to link a namespace to a mosaic identifier and how to unlink it when no longer needed.
