@@ -202,10 +202,20 @@ describe('rosetta utils', () => {
 			routeContext.headers = [];
 			const res = {
 				statusCode: 200,
-				send: response => { routeContext.responses.push(response); ++routeContext.numDoneCalls; return res; },
-				code: code => { res.statusCode = code; return res; },
+				send: response => {
+					routeContext.responses.push(response);
+					++routeContext.numDoneCalls;
+					return res;
+				},
+				code: code => {
+					res.statusCode = code;
+					return res;
+				},
 				type: () => res,
-				header: (name, value) => { routeContext.headers.push({ name, value }); return res; }
+				header: (name, value) => {
+					routeContext.headers.push({ name, value });
+					return res;
+				}
 			};
 
 			return { routeContext, done, res };

@@ -175,8 +175,8 @@ describe('network routes', () => {
 				return mockServer.callRoute(route).then(() => {
 					// Assert:
 					expect(mockServer.done.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.done.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
 				});
 			});
 		});
@@ -192,8 +192,8 @@ describe('network routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(mockServer.done.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the inflation properties file');
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.done.firstCall.args[0].message).to.equal('there was an error reading the inflation properties file');
 				});
 			};
 
@@ -317,8 +317,8 @@ describe('network routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(mockServer.done.calledOnce).to.equal(true);
-						expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-						expect(mockServer.send.firstCall.args[0].message)
+						expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+						expect(mockServer.done.firstCall.args[0].message)
 							.to.equal('there was an error reading the inflation properties file');
 					});
 				});
@@ -435,8 +435,8 @@ describe('network routes', () => {
 				const route = mockServer.getRoute('/network/fees/rental').get();
 				return mockServer.callRoute(route).then(() => {
 					expect(mockServer.done.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.done.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
 				});
 			});
 

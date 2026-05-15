@@ -110,7 +110,7 @@ describe('namespace utils', () => {
 			const req = {};
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, doneFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(activeNamespacesWithAliasFake.calledOnce).to.equal(true);
 
@@ -125,7 +125,7 @@ describe('namespace utils', () => {
 			const req = {};
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, doneFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(registerNamespaceTransactionsFromNamespaceIdsFake.calledOnce).to.equal(true);
 
@@ -139,7 +139,7 @@ describe('namespace utils', () => {
 			const req = { params: { ids: [1, 2, 3] } };
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, doneFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(getParamsFake.calledOnce).to.equal(true);
 
@@ -152,7 +152,7 @@ describe('namespace utils', () => {
 			const req = {};
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, doneFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(sendFake.firstCall.args[0]).to.deep.equal({
 					payload: {

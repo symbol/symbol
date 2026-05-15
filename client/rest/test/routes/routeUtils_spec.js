@@ -759,9 +759,9 @@ describe('route utils', () => {
 			const req = { params: { height: queriedHeight.toString(), hash: queriedHash } };
 
 			// Act:
-			return processorFunction(req, { send: sendFake }).then(() => {
+			return processorFunction(req, { send: sendFake }).catch(err => {
 				// Assert:
-				expect(sendFake.firstCall.args[0].body).to.deep.equal({
+				expect(err.body).to.deep.equal({
 					code: 'ResourceNotFound',
 					message: `no resource exists with id '${queriedHeight}'`
 				});
@@ -774,9 +774,9 @@ describe('route utils', () => {
 			blockInfoMockData.meta[blockMetaCountField] = 0;
 
 			// Act:
-			return processorFunction(req, { send: sendFake }).then(() => {
+			return processorFunction(req, { send: sendFake }).catch(err => {
 				// Assert:
-				expect(sendFake.firstCall.args[0].body).to.deep.equal({
+				expect(err.body).to.deep.equal({
 					code: 'InvalidArgument',
 					message: `hash '${req.params.hash}' not included in block height '${highestHeight}'`
 				});
@@ -795,9 +795,9 @@ describe('route utils', () => {
 			};
 
 			// Act:
-			return processorFunction(req, { send: sendFake }).then(() => {
+			return processorFunction(req, { send: sendFake }).catch(err => {
 				// Assert:
-				expect(sendFake.firstCall.args[0].body).to.deep.equal({
+				expect(err.body).to.deep.equal({
 					code: 'InvalidArgument',
 					message: `hash '${req.params.hash}' not included in block height '${highestHeight}'`
 				});

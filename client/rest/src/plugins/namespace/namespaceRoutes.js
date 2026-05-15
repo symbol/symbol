@@ -40,8 +40,7 @@ export default {
 
 			const ownerAddress = params.ownerAddress ? routeUtils.parseArgument(params, 'ownerAddress', 'address') : undefined;
 			const registrationType = params.registrationType ? routeUtils.parseArgument(params, 'registrationType', 'uint') : undefined;
-			const level0 = params.level0
-				? routeUtils.parseArgument(params, 'level0', routeUtils.namedParserMap.uint64hex) : undefined;
+			const level0 = params.level0 ? routeUtils.parseArgument(params, 'level0', routeUtils.namedParserMap.uint64hex) : undefined;
 			const aliasType = params.aliasType ? routeUtils.parseArgument(params, 'aliasType', 'uint') : undefined;
 
 			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, { id: 'objectId' });

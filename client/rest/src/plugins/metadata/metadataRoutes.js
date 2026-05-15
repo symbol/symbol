@@ -94,19 +94,19 @@ export default {
 			if (undefined !== cachedPayload) {
 				const { mimeType, fileName } = deriveParams(cachedText, initialMimeType, initialFileName);
 				return sendData(cachedPayload, mimeType, fileName, cachedText, download);
-			} else {
-				const { payload, text } = await db.binDataByMetalId(metalId);
-				const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
-				const estimatedNewCacheSize = cache.getStats().vsize + payload.length + (text?.length || 0);
-
-				if (estimatedNewCacheSize <= sizeLimit) {
-					// Cache the data for cacheTtl
-					cache.set(cachePayloadKey, payload, cacheTtl);
-					if (text)
-						cache.set(cacheTextKey, text, cacheTtl);
-				}
-				return sendData(payload, mimeType, fileName, text, download);
 			}
+
+			const { payload, text } = await db.binDataByMetalId(metalId);
+			const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
+			const estimatedNewCacheSize = cache.getStats().vsize + payload.length + (text?.length || 0);
+
+			if (estimatedNewCacheSize <= sizeLimit) {
+				// Cache the data for cacheTtl
+				cache.set(cachePayloadKey, payload, cacheTtl);
+				if (text)
+					cache.set(cacheTextKey, text, cacheTtl);
+			}
+			return sendData(payload, mimeType, fileName, text, download);
 		});
 	}
 };

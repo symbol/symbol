@@ -58,14 +58,18 @@ describe('errors', () => {
 	});
 
 	describe('create', () => {
-		it('can create not found error', () => {
+		const assertTestNotFoundError = expectedMessage => {
 			// Act:
-			const err = errors.createNotFoundError('not found');
+			const err = expectedMessage ? errors.createNotFoundError(expectedMessage) : errors.createNotFoundError();
 
 			// Assert:
 			expect(err.statusCode).to.equal(404);
-			expect(err.body).to.deep.equal({ code: 'NotFound', message: 'not found' });
-		});
+			expect(err.body).to.deep.equal({ code: 'NotFound', message: expectedMessage || '' });
+		};
+
+		it('can create not found error with default message', () => assertTestNotFoundError());
+
+		it('can create not found error', () => assertTestNotFoundError('Not Found'));
 
 		it('can create resource not found error', () => {
 			// Act:
@@ -102,15 +106,6 @@ describe('errors', () => {
 			// Assert:
 			expect(err.statusCode).to.equal(500);
 			expect(err.body).to.deep.equal({ code: 'Internal', message: 'badness' });
-		});
-
-		it('can create not found error with default message', () => {
-			// Act:
-			const err = errors.createNotFoundError();
-
-			// Assert:
-			expect(err.statusCode).to.equal(404);
-			expect(err.body).to.deep.equal({ code: 'NotFound', message: '' });
 		});
 
 		it('can create unsupported media type error', () => {

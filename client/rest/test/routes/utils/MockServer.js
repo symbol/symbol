@@ -47,10 +47,21 @@ export default class MockServer {
 				self.done();
 				return self.reply;
 			},
-			code: code => { self.status(code); self.reply.statusCode = code; return self.reply; },
+			code: code => {
+				self.status(code);
+				self.reply.statusCode = code;
+				return self.reply;
+			},
 			type: () => self.reply,
-			header: (key, value) => { self.header(key, value); return self.reply; },
-			redirect: url => { self.redirect(url); self.done(); return self.reply; }
+			header: (key, value) => {
+				self.header(key, value);
+				return self.reply;
+			},
+			redirect: url => {
+				self.redirect(url);
+				self.done();
+				return self.reply;
+			}
 		};
 
 		// Keep res alias pointing at reply for backward compatibility in tests

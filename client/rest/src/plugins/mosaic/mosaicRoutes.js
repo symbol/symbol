@@ -32,7 +32,8 @@ export default {
 
 		server.get('/mosaics', async (request, reply) => {
 			const ownerAddress = request.params.ownerAddress
-				? routeUtils.parseArgument(request.params, 'ownerAddress', 'address') : undefined;
+				? routeUtils.parseArgument(request.params, 'ownerAddress', 'address')
+				: undefined;
 
 			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, { id: 'objectId' });
 

@@ -79,7 +79,7 @@ export default {
 	createInternalError: message => new HttpError(500, 'Internal', message),
 
 	/**
-	 * Creates an unsupported media type.
+	 * Creates an unsupported media type error.
 	 * @param {string} message Error message.
 	 * @returns {Error} An appropriate REST error.
 	 */

@@ -28,7 +28,7 @@ export default {
 	 * @param {Function} namespaceFilter Function to filter namespaces based on ids.
 	 * @param {string} aliasFieldName Alias field name to show in the results.
 	 * @param {string} schemaName Schema name to parse results.
-	 * @returns {Function} Restify response function to process alias names requests.
+	 * @returns {Function} Fastify response function to process alias names requests.
 	 */
 	aliasNamesRoutesProcessor: (
 		catapultDb,

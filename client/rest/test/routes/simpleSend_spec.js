@@ -25,18 +25,34 @@ import { expect } from 'chai';
 describe('simple send', () => {
 	const addSendUnformattedTests = (senderFunction, validData, expectedContentType, expectedDescription) => {
 		const createTestSetup = () => {
-			let currentStatusCode = 200;
-			const routeContext = { numNextCalls: 0, responses: [], headers: [] };
+			const routeContext = {
+				currentStatusCode: 200,
+				numNextCalls: 0,
+				responses: [],
+				headers: []
+			};
 
 			// Fastify-style reply mock: chainable, tracks headers/status/send
 			const reply = {
-				code: code => { currentStatusCode = code; return reply; },
-				type: type => { routeContext.headers.push({ name: 'content-type', value: type }); return reply; },
-				header: (name, value) => { routeContext.headers.push({ name, value }); return reply; },
-				send: data => { routeContext.responses.push(data); ++routeContext.numNextCalls; return reply; }
+				code: code => {
+					routeContext.currentStatusCode = code;
+					return reply;
+				},
+				type: type => {
+					routeContext.headers.push({ name: 'content-type', value: type });
+					return reply;
+				},
+				header: (name, value) => {
+					routeContext.headers.push({ name, value });
+					return reply;
+				},
+				send: data => {
+					routeContext.responses.push(data);
+					++routeContext.numNextCalls; return reply;
+				}
 			};
 
-			return { routeContext, reply, getStatusCode: () => currentStatusCode };
+			return { routeContext, reply, getStatusCode: () => routeContext.currentStatusCode };
 		};
 
 		const runTest = (sendParams, assertResponse) => {
@@ -99,8 +115,14 @@ describe('simple send', () => {
 
 			// Fastify-style reply mock for binary data
 			const reply = {
-				header: (name, value) => { headers.push({ name, value }); return reply; },
-				send: writeData => { data.push(writeData); return reply; }
+				header: (name, value) => {
+					headers.push({ name, value });
+					return reply;
+				},
+				send: writeData => {
+					data.push(writeData);
+					return reply;
+				}
 			};
 
 			// Act: send the entity

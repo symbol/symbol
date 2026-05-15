@@ -112,7 +112,7 @@ export default {
 
 				return reply.send(networkProperties);
 			} catch {
-				return reply.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
+				throw errors.createInvalidArgumentError('there was an error reading the network properties file');
 			}
 		});
 
@@ -125,7 +125,7 @@ export default {
 					rewardAmount: point.rewardAmount.toString()
 				})));
 			} catch {
-				return reply.send(errors.createInvalidArgumentError('there was an error reading the inflation properties file'));
+				throw errors.createInvalidArgumentError('there was an error reading the inflation properties file');
 			}
 		});
 
@@ -153,7 +153,7 @@ export default {
 					rewardAmount: point.rewardAmount.toString()
 				});
 			} catch {
-				return reply.send(errors.createInvalidArgumentError('there was an error reading the inflation properties file'));
+				throw errors.createInvalidArgumentError('there was an error reading the inflation properties file');
 			}
 		});
 
@@ -208,7 +208,7 @@ export default {
 					effectiveMosaicRentalFee: (mosaicRentalFee * uint64MedianNetworkMultiplier).toString()
 				});
 			} catch {
-				return reply.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
+				throw errors.createInvalidArgumentError('there was an error reading the network properties file');
 			}
 		});
 	}

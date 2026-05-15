@@ -172,7 +172,7 @@ const routeTestUtils = {
 					() => {
 						// In Fastify, async route rejections are surfaced via setErrorHandler;
 						// the test invoker captures them in routeContext.responses
-						if (routeContext && 0 < routeContext.responses.length) {
+						if (routeContext && routeContext.responses) {
 							verify(routeContext.responses[0]);
 							return;
 						}
@@ -214,7 +214,10 @@ const routeTestUtils = {
 
 			// Fastify-style reply mock: chainable, captures send/redirect calls
 			const reply = {
-				code: code => { routeContext.statusCode = code; return reply; },
+				code: code => {
+					routeContext.statusCode = code;
+					return reply;
+				},
 				type: () => reply,
 				header: () => reply,
 				send: response => {
@@ -561,7 +564,10 @@ const routeTestUtils = {
 
 					// Fastify-style reply mock
 					const reply = {
-						code: code => { routeContext.statusCode = code; return reply; },
+						code: code => {
+							routeContext.statusCode = code;
+							return reply;
+						},
 						type: () => reply,
 						header: () => reply,
 						send: response => {

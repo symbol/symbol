@@ -23,6 +23,7 @@ import SubscriptionManager from './SubscriptionManager.js';
 import errors from './errors.js';
 import websocketMessageHandler from './websocketMessageHandler.js';
 import websocketUtils from './websocketUtils.js';
+import accepts from '@fastify/accepts';
 import rateLimit from '@fastify/rate-limit';
 import Fastify from 'fastify';
 import winston from 'winston';
@@ -91,11 +92,8 @@ const catapultPlugins = {
 	acceptParser: () => async request => {
 		const urlPath = request.url.split('?')[0];
 		const isTextPlainPath = TEXT_PLAIN_PATHS.includes(urlPath);
-		const accepts = isTextPlainPath ? 'text/plain' : 'application/json';
-
-		const acceptHeader = (request.headers.accept || '').toLowerCase();
-		const isAccepted = acceptHeader.includes(accepts) || '' === acceptHeader || '*/*' === acceptHeader;
-		if (!isAccepted) {
+		const acceptType = isTextPlainPath ? 'text/plain' : 'application/json';
+		if (!request.accepts().type(acceptType)) {
 			const requiredType = isTextPlainPath ? 'text/plain' : 'application/json';
 			throw errors.createNotAcceptableError(`Endpoint accepts only ${requiredType}`);
 		}
@@ -149,6 +147,7 @@ export default {
 			disableRequestLogging: true,
 			trustProxy: config.trustProxy || false
 		});
+		server.register(accepts);
 
 		// rate limiting
 		if (throttlingConfig) {
@@ -230,14 +229,8 @@ export default {
 			});
 
 			// check whether a registered route pattern matches a concrete URL path.
-			const matchesPattern = (pattern, urlPath) => {
-				const patternParts = pattern.split('/').filter(Boolean);
-				const urlParts = urlPath.split('/').filter(Boolean);
-				if (patternParts.length !== urlParts.length)
-					return false;
-
-				return patternParts.every((part, i) => part.startsWith(':') || part === urlParts[i]);
-			};
+			const matchesPattern = (pattern, urlPath) =>
+				new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/:[^/]+/g, '[^/]+')}$`).test(urlPath);
 
 			// Returns the HTTP methods (upper-case) registered for routes matching urlPath.
 			const getMethodsForPath = urlPath => {
@@ -251,7 +244,8 @@ export default {
 
 			// Not-found handler: returns 405 for method-not-allowed, 404 for unknown paths.
 			const rateLimitHandler = throttlingConfig && throttlingConfig.max && throttlingConfig.timeWindow
-				? { preHandler: fastify.rateLimit() } : {};
+				? { preHandler: fastify.rateLimit() }
+				: {};
 			fastify.setNotFoundHandler(rateLimitHandler, (request, reply) => {
 				const urlPath = request.url.split('?')[0];
 				const methods = getMethodsForPath(urlPath);
@@ -355,12 +349,7 @@ export default {
 
 			// close the servers
 			wss.close();
-			server.close(err => {
-				if (err)
-					winston.info(`Server closed: ${err}`);
-				else
-					winston.info('Server closed.');
-			});
+			server.close(err => winston.info(`Server closed${err ? `: ${err}` : ''}`));
 		};
 
 		return promiseAwareServer;

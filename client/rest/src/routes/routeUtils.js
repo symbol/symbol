@@ -324,12 +324,12 @@ const routeUtils = {
 		);
 
 		if (!result.isRequestValid)
-			return reply.send(errors.createResourceNotFoundError(height));
+			throw errors.createResourceNotFoundError(height);
 
 		const block = result.payload;
 		const errorMessage = `hash '${request.params.hash}' not included in block height '${height}'`;
 		if (!block.meta[blockMetaCountField])
-			return reply.send(errors.createInvalidArgumentError(errorMessage));
+			throw errors.createInvalidArgumentError(errorMessage);
 
 		const merkleTree = {
 			count: block.meta[blockMetaCountField],
@@ -337,7 +337,7 @@ const routeUtils = {
 		};
 
 		if (0 > indexOfLeafWithHash(hash, merkleTree))
-			return reply.send(errors.createInvalidArgumentError(errorMessage));
+			throw errors.createInvalidArgumentError(errorMessage);
 
 		const merklePath = buildAuditPath(hash, merkleTree);
 		return reply.send({ payload: { merklePath }, type: routeResultTypes.merkleProofInfo });

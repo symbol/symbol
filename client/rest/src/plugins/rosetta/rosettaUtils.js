@@ -137,7 +137,7 @@ export class RosettaPublicKeyProcessor {
  * @param {object} blockchainDescriptor Blockchain descriptor.
  * @param {object} Request Type of request object.
  * @param {Function} handler User callback that is called with request data after validating request.
- * @returns {Function} Restify POST handler.
+ * @returns {Function} Fastify POST handler.
  */
 export const rosettaPostRouteWithNetwork = (blockchainDescriptor, Request, handler) => async (request, reply) => {
 	const send = data => {
