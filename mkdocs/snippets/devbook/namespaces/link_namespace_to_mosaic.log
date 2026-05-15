@@ -1,36 +1,60 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
-Namespace name: nsmos_1770541301
-Namespace ID: 13340994241872799248 (0xb924bb94515c2610)
-Mosaic ID: 5028483883612744386 (0x45c8c3733983aac2)
+Namespace name: ns_1778514754.sub_1778514998
+Namespace ID: 18182428759753405815 (0xfc54f69f52f2b577)
+Mosaic ID: 507540378882865098 (0x70b2549187af7ca)
 Fetching current network time from /node/time
-  Network time: 103292001688 ms since nemesis
+  Network time: 111579658666 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
-Built transaction:
+Mosaic alias transaction:
 {
-  "signature": "538EC97E2E9BF4099A28BCA4E7A7C1FEE53F9D7B85C2EB8DC4690B61F4D0CA350F3DEA096F284C4E8E99B533E383CF6C5602E5DA121244A0742997673A9AC60B",
+  "signature": "D969758584AA819BC7135E817368DBCAFEBFFBE39B7FE30807017F418C770B5D19FBD3E08CA2EE67D54DDBD4C1D3323965AFA87509174B737AAA4BA116AF2604",
   "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
   "version": 1,
   "network": 152,
   "type": 17230,
   "fee": "14500",
-  "deadline": "103299201688",
-  "namespace_id": "13340994241872799248",
-  "mosaic_id": "5028483883612744386",
+  "deadline": "111586858666",
+  "namespace_id": "18182428759753405815",
+  "mosaic_id": "507540378882865098",
   "alias_action": 1
 }
-Transaction hash: CAA9489E08AA66371D4342D420A75622E6394D6198BF130D01A0B31424AD6E38
+Transaction hash: 67D18EB6A8F09B8C94AA96D7EB06AE9D2700A6457AAAD2037BAF5DFB9F51E7DF
 Announcing mosaic alias transaction to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for transaction confirmation...
+Waiting for mosaic alias transaction confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
-Mosaic alias transaction confirmed in 16 seconds
-Fetching namespace information from /namespaces/b924bb94515c2610
+mosaic alias transaction confirmed in 7 seconds
+Fetching namespace information from /namespaces/fc54f69f52f2b577
 Alias information:
   Alias type: 1
-  Linked mosaic ID: 45C8C3733983AAC2
-Using alias in transfer: nsmos_1770541301
-Transfer transaction:
-  Mosaic ID (alias): 13340994241872799248 (0xb924bb94515c2610)
+  Linked mosaic ID: 070B2549187AF7CA
+Using alias in transfer: ns_1778514754.sub_1778514998
+Mosaic ID (alias): 18182428759753405815 (0xfc54f69f52f2b577)
+Test transaction:
+{
+  "signature": "B5EBF90EE702EEBF4788401B4508036CD1E46EE43E383AF0932B4F83B77533BDD0B94670F82A0EB4BCAEAE7987D535599D1D4914FB077D2A55EF52ABB6738906",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16724,
+  "fee": "17600",
+  "deadline": "111586858666",
+  "recipient_address": "988E1191A25A88142C2FB3F69787576E3DC713EFC1CE4DE9",
+  "mosaics": [
+    {
+      "mosaic_id": "18182428759753405815",
+      "amount": "1"
+    }
+  ],
+  "message": ""
+}
+Transaction hash: 631FAB32C1021560995B7619A0BCB92EA436CF525C3116C483B0A0B0E288D8B0
+Announcing test transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for test transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: confirmed
+test transaction confirmed in 29 seconds
