@@ -108,14 +108,9 @@ The mosaic alias transaction specifies:
 The transaction is signed and announced following the same process as in
 [Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
 
-{{ tutorial.code_snippet_tagged('step-6') }}
-
-The code then waits for the transaction to be confirmed by polling the
-<get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
-
 ### Verifying the Alias
 
-{{ tutorial.code_snippet_tagged('step-7') }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 To verify the alias was created, the code retrieves the namespace information from the network
 using the <get:/namespaces/{namespaceId}> endpoint.
@@ -125,22 +120,20 @@ specified mosaic.
 
 ### Using the Alias
 
-{{ tutorial.code_snippet_tagged('step-8') }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 Once the namespace is linked to a mosaic, the namespace can be used in place of the mosaic ID in transactions.
 The code demonstrates creating a <transfer transaction:> using the alias in the mosaics array instead of
 the full hexadecimal mosaic ID.
 
-For simplicity, this example sends the mosaic back to the sender's own address
-and does not announce the transaction or wait for its confirmation.
+This example sends the mosaic back to the sender's own address.
 
 To use a namespace as a mosaic ID, the namespace name is converted to its mosaic alias ID using
 <dy:IdGenerator.generateMosaicAliasId>.
-As described in the [previous section](#defining-the-namespace-and-target-mosaic), the last component of the
-namespace path is used as the namespace ID.
 
-For more details on how to announce transfer transactions, see the
-[Transfer Transaction](../transactions/transfer.md) tutorial.
+The rest of the transaction is a conventional <transfer transaction:>.
+For more details on how to sign, announce, and confirm transactions,
+see the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 !!! note "Mosaic Resolution Receipt"
     When the network processes a transaction that uses a namespace alias as a mosaic ID, it generates a
@@ -158,13 +151,13 @@ For more details on how to announce transfer transactions, see the
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="3 5 23 32 33 36"
+```text linenums="1" hl_lines="3 5 23 32 33 35"
 --8<-- 'devbook/namespaces/link_namespace_to_mosaic.log'
 ```
 
 Some highlights from the output:
 
-* **Namespace and target** (lines 3, 5): The namespace `nsmos_1770541301` is being linked to the target mosaic ID.
+* **Namespace and target** (lines 3, 5): The namespace and mosaic ID being linked.
 
 * **Transaction hash** (line 23): The transaction hash can be used to search for the transaction in the
     [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -172,7 +165,7 @@ Some highlights from the output:
 * **Alias verification** (lines 32-33): The namespace information confirms the alias type is `1` (mosaic) and
     shows the linked mosaic ID.
 
-* **Using the alias** (lines 36): A transfer transaction is created using the alias in the mosaics array,
+* **Using the alias** (line 35): A transfer transaction is created using the alias in the mosaics array,
     demonstrating that it can be used in place of the full mosaic ID.
 
     !!! note "Different mosaic ID"
