@@ -404,8 +404,8 @@ endmacro()
 #   assuming COMMAND is the executable itself.
 #	add_target(<target-name> EXECUTABLE
 #		[WIN32] [MACOSX_BUNDLE] 
-#		[WITH_INSTALL]
 #		[EXCLUDE_FROM_ALL]
+#		[WITH_INSTALL]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS [lib1 lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -529,10 +529,29 @@ function(add_target TNAME TTYPE)
 
 	elseif(TTYPE STREQUAL "TEST")
 
+		# Test targets should be in the form test.xyz so it's possible to derive xyz as the library under test
+		# and automatically link it to the test executable. 
+		# There are cases though where this is not possible or desireable
+		# To allow to skip this automatic linking, pass NO_DERIVE_LIB as an argument.
+		list(APPEND _fn_options NO_DERIVED_LIB)
+
 		_parse_arguments()
+
+		set(_derived_lib)
+		if(NOT _arg_NO_DERIVED_LIB)
+			string(REPLACE "." ";" _parts "${TNAME}")
+			list(LENGTH _parts _num_parts)
+			if(_num_parts LESS 2)
+				message(FATAL_ERROR "add_target TEST: unexpected test target name '${TNAME}'. Expected format is 'test.xyz' where xyz is the library under test.")
+			endif()
+			list(REMOVE_AT _parts 0)
+			string(JOIN "." _derived_lib ${_parts})
+		endif()
 		
-		list(PREPEND _arg_LINK_LIBS build.tests)
+		list(PREPEND _arg_LINK_LIBS build.tests ${_derived_lib})
+
 		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS})
+
 		if(DEFINED _arg_DEPENDENCIES)
 			list(APPEND _call_args DEPENDENCIES ${_arg_DEPENDENCIES})
 		endif()
