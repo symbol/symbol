@@ -62,21 +62,12 @@ The retrieved transaction contains the `recipientAddress` field.
 If the transaction used a namespace alias as recipient, this field holds the unresolved value (the encoded
 namespace ID) instead of a real address.
 
-The code checks whether the recipient is an alias by inspecting the lowest bit of the first byte:
-
-* If the bit is `1`, the address is an encoded namespace alias, as described in the
-    [Linking Namespaces to Addresses](./link-namespace-to-address.md#using-the-alias) tutorial.
-* If the bit is `0`, the recipient is a regular address and no resolution is needed.
+The code checks whether the recipient is an alias by using the SDK's <dy:Address.isAlias> function.
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
 The code iterates through the transaction's `mosaics` array and uses the SDK's <dy:IdGenerator.isMosaicAlias> function
 to check whether each mosaic ID is a namespace alias.
-The function tests bit 63 (the highest bit) of the 64-bit value:
-
-* If the bit is `1`, the value is a namespace ID used as a mosaic alias, as described in the
-    [Linking Namespaces to Mosaics](./link-namespace-to-mosaic.md#using-the-alias) tutorial.
-* If the bit is `0`, the value is a regular mosaic ID and no resolution is needed.
 
 ### Querying Address Resolution Statements
 
