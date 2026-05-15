@@ -26,8 +26,8 @@ try {
 		`  Transaction index: ${txIndex} (primaryId: ${txPrimary})`); // [<step-2]
 	// [>step-3]
 	const recipientHex = txData.transaction.recipientAddress;
-	const recipientBytes = Buffer.from(recipientHex, 'hex');
-	const isAddressAlias = 1 === (recipientBytes[0] & 0x01);
+	const isAddressAlias =
+		Address.fromDecodedAddressHexString(recipientHex).isAlias();
 	console.log('  Recipient:', recipientHex);
 	console.log('  Is address alias:', isAddressAlias); // [<step-3]
 	// [>step-4]

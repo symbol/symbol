@@ -29,8 +29,8 @@ try:
 	print(f'  Transaction index: {tx_index} (primaryId: {tx_primary})')  # [<step-2]
 	# [>step-3]
 	recipient_hex = tx_data['transaction']['recipientAddress']
-	recipient_bytes = bytes.fromhex(recipient_hex)
-	is_address_alias = (recipient_bytes[0] & 0x01) == 1
+	is_address_alias = Address.from_decoded_address_hex_string(
+		recipient_hex).is_alias()
 	print(f'  Recipient: {recipient_hex}')
 	print(f'  Is address alias: {is_address_alias}')  # [<step-3]
 	# [>step-4]
