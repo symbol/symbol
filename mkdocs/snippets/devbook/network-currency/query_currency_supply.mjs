@@ -6,20 +6,22 @@ const SUPPLY_PATH = '/network/currency/supply';
 // [>step-1]
 const fmt = v => v.toLocaleString('en-US', { minimumFractionDigits: 6 });
 
-const maxResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/max`);
-const maximum = parseFloat((await maxResponse.text()).trim());
-console.log(`Maximum supply: ${fmt(maximum)} XYM`);
+const maximumResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/max`);
+const maximumSupply = parseFloat((await maximumResponse.text()).trim());
+console.log(`Maximum supply: ${fmt(maximumSupply)} XYM`);
 
 const totalResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/total`);
-const total = parseFloat((await totalResponse.text()).trim());
-console.log(`Total supply: ${fmt(total)} XYM`);
+const totalSupply = parseFloat((await totalResponse.text()).trim());
+console.log(`Total supply: ${fmt(totalSupply)} XYM`);
 
-const circResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/circulating`);
-const circulating = parseFloat((await circResponse.text()).trim());
-console.log(`Circulating supply: ${fmt(circulating)} XYM`); // [<step-1]
+const circulatingResponse =
+	await fetch(`${NODE_URL}${SUPPLY_PATH}/circulating`);
+const circulatingSupply =
+	parseFloat((await circulatingResponse.text()).trim());
+console.log(`Circulating supply: ${fmt(circulatingSupply)} XYM`); // [<step-1]
 // [>step-2]
-const nonCirculating = total - circulating;
-console.log(`Non-circulating: ${fmt(nonCirculating)} XYM`);
+const nonCirculatingSupply = totalSupply - circulatingSupply;
+console.log(`Non-circulating supply: ${fmt(nonCirculatingSupply)} XYM`);
 
-const unminted = maximum - total;
-console.log(`Unminted: ${fmt(unminted)} XYM`); // [<step-2]
+const unmintedSupply = maximumSupply - totalSupply;
+console.log(`Unminted supply: ${fmt(unmintedSupply)} XYM`); // [<step-2]
