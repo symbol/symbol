@@ -97,6 +97,7 @@ Each resolution entry contains:
 * **Source:** Indicates from which transaction the resolved value applies, using a `primaryId`
     (1-based index of the transaction in the block) and `secondaryId`
     (1-based index within an <aggregate transaction:>, or `0` for standalone transactions).
+    The entries are sorted by `primaryId` and then by `secondaryId`.
 * **Resolved:** The actual address the alias pointed to from the indicated source onward.
 
 To determine the resolved value for the analyzed transaction, the code finds the last entry whose `primaryId` is
