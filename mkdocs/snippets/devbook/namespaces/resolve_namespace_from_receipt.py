@@ -64,8 +64,9 @@ try:
 			resolved = None
 			for entry in statement['resolutionEntries']:
 				source = entry['source']
-				if source['primaryId'] <= tx_primary:
-					resolved = entry['resolved']
+				if source['primaryId'] > tx_primary:
+					break
+				resolved = entry['resolved']
 			if resolved:
 				address = Address.from_decoded_address_hex_string(resolved)
 				print('\nAddress resolution:')

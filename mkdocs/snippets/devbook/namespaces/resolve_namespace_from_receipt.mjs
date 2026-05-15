@@ -59,8 +59,9 @@ try {
 			if (statement.unresolved === recipientHex) {
 				let resolved = null;
 				for (const entry of statement.resolutionEntries) {
-					if (entry.source.primaryId <= txPrimary)
-						resolved = entry.resolved;
+					if (entry.source.primaryId > txPrimary)
+						break;
+					resolved = entry.resolved;
 				}
 				if (resolved) {
 					const resolvedAddress =
