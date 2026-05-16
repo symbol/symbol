@@ -24,12 +24,15 @@
  * @param {number} statusCode HTTP status code.
  * @param {string} code Error code.
  * @param {string} message Error message.
+ * @param {Error} cause Optional cause.
  */
 class HttpError extends Error {
-	constructor(statusCode, code, message) {
+	constructor(statusCode, code, message, cause) {
 		super(message);
 		this.statusCode = statusCode;
 		this.body = { code, message };
+		if (cause)
+			this.cause = cause;
 	}
 }
 
@@ -41,7 +44,7 @@ export default {
 	 */
 	toRestError: err => (err.statusCode
 		? err
-		: new HttpError(500, 'Internal', err.message || 'unexpected error')),
+		: new HttpError(500, 'Internal', err.message || 'unexpected error', err)),
 
 	/**
 	 * Creates a resource not found error.
@@ -60,9 +63,10 @@ export default {
 	/**
 	 * Creates an invalid argument error.
 	 * @param {string} message Error message.
+	 * @param {Error} err Optional invalid argument cause.
 	 * @returns {Error} An appropriate REST error.
 	 */
-	createInvalidArgumentError: message => new HttpError(409, 'InvalidArgument', message),
+	createInvalidArgumentError: (message, err) => new HttpError(409, 'InvalidArgument', message, err),
 
 	/**
 	 * Creates a service-unavailable error.

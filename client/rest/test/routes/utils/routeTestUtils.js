@@ -173,6 +173,7 @@ const routeTestUtils = {
 						// In Fastify, async route rejections are surfaced via setErrorHandler;
 						// the test invoker captures them in routeContext.responses
 						if (routeContext && routeContext.responses) {
+							expect(routeContext.responses.length).to.be.equal(1);
 							verify(routeContext.responses[0]);
 							return;
 						}

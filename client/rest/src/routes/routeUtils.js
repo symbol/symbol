@@ -129,7 +129,7 @@ const routeUtils = {
 		try {
 			return ('string' === typeof parser ? namedParserMap[parser] : parser)(args[key]);
 		} catch (err) {
-			throw errors.createInvalidArgumentError(`${key} has an invalid format`);
+			throw errors.createInvalidArgumentError(`${key} has an invalid format`, err);
 		}
 	},
 
@@ -149,7 +149,7 @@ const routeUtils = {
 		try {
 			return providedArgs.map(realParser);
 		} catch (err) {
-			throw errors.createInvalidArgumentError(`element in array ${key} has an invalid format`);
+			throw errors.createInvalidArgumentError(`element in array ${key} has an invalid format`, err);
 		}
 	},
 

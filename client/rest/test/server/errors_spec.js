@@ -35,11 +35,13 @@ describe('errors', () => {
 
 		it('can map basic error with message', () => {
 			// Act:
-			const err = errors.toRestError(new Error('badness'));
+			const originalError = new Error('badness');
+			const err = errors.toRestError(originalError);
 
 			// Assert:
 			expect(err.statusCode).to.equal(500);
 			expect(err.body).to.deep.equal({ code: 'Internal', message: 'badness' });
+			expect(err.cause).to.deep.equal(originalError);
 		});
 
 		it('returns original error when already a rest error', () => {
@@ -54,6 +56,7 @@ describe('errors', () => {
 
 			// Assert:
 			expect(err).to.deep.equal(originalError);
+			expect(err.cause).to.equal(undefined);
 		});
 	});
 
@@ -87,7 +90,18 @@ describe('errors', () => {
 			// Assert:
 			expect(err.statusCode).to.equal(409);
 			expect(err.body).to.deep.equal({ code: 'InvalidArgument', message: 'badness' });
-			expect(err.jse_cause).to.equal(undefined);
+			expect(err.cause).to.equal(undefined);
+		});
+
+		it('can create invalid argument error with cause', () => {
+			// Act:
+			const err = errors.createInvalidArgumentError('badness', new Error('foo'));
+
+			// Assert:
+			expect(err.statusCode).to.equal(409);
+			expect(err.body).to.deep.equal({ code: 'InvalidArgument', message: 'badness' });
+			expect(err.cause).to.not.equal(undefined);
+			expect(err.cause.message).to.equal('foo');
 		});
 
 		it('can create service unavailable error', () => {
