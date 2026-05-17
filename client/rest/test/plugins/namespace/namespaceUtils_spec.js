@@ -75,7 +75,6 @@ describe('namespace utils', () => {
 		});
 
 		const sendFake = sinon.fake();
-		const doneFake = sinon.fake();
 
 		const db = {
 			activeNamespacesWithAlias: activeNamespacesWithAliasFake,
@@ -98,7 +97,6 @@ describe('namespace utils', () => {
 
 		beforeEach(() => {
 			sendFake.resetHistory();
-			doneFake.resetHistory();
 			activeNamespacesWithAliasFake.resetHistory();
 			registerNamespaceTransactionsFromNamespaceIdsFake.resetHistory();
 			getParamsFake.resetHistory();

@@ -114,6 +114,7 @@ const readSSLFileSync = (path, fileType, pathProperty) => {
 	}
 };
 
+const HTTP_METHODS = ['GET', 'POST', 'PUT'];
 export default {
 	createCrossDomainHeaderAdder,
 
@@ -228,19 +229,7 @@ export default {
 				return jsonString;
 			});
 
-			// check whether a registered route pattern matches a concrete URL path.
-			const matchesPattern = (pattern, urlPath) =>
-				new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/:[^/]+/g, '[^/]+')}$`).test(urlPath);
-
-			// Returns the HTTP methods (upper-case) registered for routes matching urlPath.
-			const getMethodsForPath = urlPath => {
-				const methods = new Set();
-				routeDescriptors.forEach(d => {
-					if (matchesPattern(d.route, urlPath))
-						methods.add(d.method.toUpperCase());
-				});
-				return [...methods].sort();
-			};
+			const getAllowedMethodsForUrl = url => HTTP_METHODS.filter(method => null !== fastify.findRoute({ method, url }));
 
 			// Not-found handler: returns 405 for method-not-allowed, 404 for unknown paths.
 			const rateLimitHandler = throttlingConfig && throttlingConfig.max && throttlingConfig.timeWindow
@@ -248,7 +237,7 @@ export default {
 				: {};
 			fastify.setNotFoundHandler(rateLimitHandler, (request, reply) => {
 				const urlPath = request.url.split('?')[0];
-				const methods = getMethodsForPath(urlPath);
+				const methods = getAllowedMethodsForUrl(urlPath);
 				if (0 < methods.length) {
 					if ('OPTIONS' === request.method) {
 						addCrossDomainHeaders(request, reply);
@@ -298,7 +287,7 @@ export default {
 			}
 		};
 
-		['get', 'put', 'post'].forEach(method => {
+		HTTP_METHODS.map(method => method.toLowerCase()).forEach(method => {
 			promiseAwareServer[method] = (route, handler) => {
 				routeDescriptors.push({ method, route, handler });
 			};
