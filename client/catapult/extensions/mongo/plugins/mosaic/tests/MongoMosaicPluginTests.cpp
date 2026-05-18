@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoPluginTestUtils.h"
+#include "extensions/mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
 #include "plugins/txes/mosaic/src/model/MosaicReceiptType.h"
 #include "tests/TestHarness.h"

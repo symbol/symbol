@@ -20,9 +20,9 @@
 **/
 
 #include "FinalizationBootstrapperServiceTestUtils.h"
-#include "finalization/src/FinalizationConfiguration.h"
+#include "extensions/finalization/src/FinalizationConfiguration.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
-#include "finalization/tests/test/mocks/MockProofStorage.h"
+#include "extensions/finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 

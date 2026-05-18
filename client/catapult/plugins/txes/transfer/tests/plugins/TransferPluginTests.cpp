@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/TransferPlugin.h"
+#include "plugins/txes/transfer/src/plugins/TransferPlugin.h"
 #include "plugins/txes/transfer/src/model/TransferEntityType.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/plugins/PluginManagerFactory.h"

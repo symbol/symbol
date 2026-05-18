@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "transactionsink/src/TransactionSinkService.h"
+#include "extensions/transactionsink/src/TransactionSinkService.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

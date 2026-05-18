@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/FinalizationService.h"
-#include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
+#include "extensions/finalization/src/FinalizationService.h"
+#include "extensions/finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"

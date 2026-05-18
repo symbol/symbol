@@ -21,8 +21,8 @@
 
 #include "FinalizationOrchestrator.h"
 #include "MultiRoundMessageAggregator.h"
-#include "finalization/src/io/ProofStorageCache.h"
-#include "finalization/src/model/FinalizationProofUtils.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/model/FinalizationProofUtils.h"
 #include "src/catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult { namespace chain {

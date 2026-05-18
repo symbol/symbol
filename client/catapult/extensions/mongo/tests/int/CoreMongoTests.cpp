@@ -20,7 +20,7 @@
 **/
 
 #include "extensions/mongo/src/CoreMongo.h"
-#include "mongo/tests/test/MongoPluginTestUtils.h"
+#include "extensions/mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo {

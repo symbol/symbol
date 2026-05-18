@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
+#include "plugins/coresystem/src/observers/Observers.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/InflationCalculator.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"

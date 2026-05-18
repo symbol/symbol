@@ -23,8 +23,8 @@
 #include "extensions/mongo/src/MongoBulkWriter.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "src/catapult/model/TransactionStatus.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>

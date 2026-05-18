@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "finalization/src/chain/RoundContext.h"
-#include "finalization/src/chain/RoundMessageAggregator.h"
-#include "finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/src/chain/RoundContext.h"
+#include "extensions/finalization/src/chain/RoundMessageAggregator.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
 
 namespace catapult { namespace mocks {
 

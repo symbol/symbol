@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/FinalizationMessageSynchronizer.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "finalization/tests/test/mocks/MockFinalizationApi.h"
+#include "extensions/finalization/src/chain/FinalizationMessageSynchronizer.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/tests/test/mocks/MockFinalizationApi.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"
 #include "tests/TestHarness.h"
 

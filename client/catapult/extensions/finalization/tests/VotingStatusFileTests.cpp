@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/VotingStatusFile.h"
+#include "extensions/finalization/src/VotingStatusFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <filesystem>

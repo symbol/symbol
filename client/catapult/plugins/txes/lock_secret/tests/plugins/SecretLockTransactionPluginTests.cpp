@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/SecretLockTransactionPlugin.h"
-#include "../model/SecretLockNotifications.h"
-#include "../model/SecretLockTransaction.h"
+#include "plugins/txes/lock_secret/src/plugins/SecretLockTransactionPlugin.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockNotifications.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

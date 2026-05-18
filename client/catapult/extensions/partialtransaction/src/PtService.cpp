@@ -21,8 +21,8 @@
 
 #include "PtService.h"
 #include "PtBootstrapperService.h"
-#include "partialtransaction/src/api/RemotePtApi.h"
-#include "partialtransaction/src/chain/PtSynchronizer.h"
+#include "extensions/partialtransaction/src/api/RemotePtApi.h"
+#include "extensions/partialtransaction/src/chain/PtSynchronizer.h"
 #include "src/catapult/cache_tx/MemoryPtCache.h"
 #include "src/catapult/config/CatapultKeys.h"
 #include "src/catapult/extensions/NetworkUtils.h"

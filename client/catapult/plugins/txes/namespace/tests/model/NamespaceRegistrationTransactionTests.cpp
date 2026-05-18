@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../model/NamespaceRegistrationTransaction.h"
+#include "plugins/txes/namespace/src/model/NamespaceRegistrationTransaction.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"

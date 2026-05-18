@@ -23,8 +23,8 @@
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/coresystem/src/model/VotingKeyLinkTransaction.h"
 #include "plugins/coresystem/src/model/VrfKeyLinkTransaction.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace mappers {

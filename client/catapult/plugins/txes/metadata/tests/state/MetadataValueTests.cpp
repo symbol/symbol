@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MetadataValue.h"
+#include "plugins/txes/metadata/src/state/MetadataValue.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

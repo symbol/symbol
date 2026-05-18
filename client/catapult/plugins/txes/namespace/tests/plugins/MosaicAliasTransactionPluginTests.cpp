@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/MosaicAliasTransactionPlugin.h"
-#include "../model/AliasNotifications.h"
-#include "../model/MosaicAliasTransaction.h"
-#include "../model/NamespaceNotifications.h"
+#include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
+#include "plugins/txes/namespace/src/model/AliasNotifications.h"
+#include "plugins/txes/namespace/src/model/MosaicAliasTransaction.h"
+#include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
 

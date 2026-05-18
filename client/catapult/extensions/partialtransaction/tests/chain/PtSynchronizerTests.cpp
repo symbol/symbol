@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/chain/PtSynchronizer.h"
-#include "partialtransaction/tests/test/mocks/MockPtApi.h"
+#include "extensions/partialtransaction/src/chain/PtSynchronizer.h"
+#include "extensions/partialtransaction/tests/test/mocks/MockPtApi.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"
 #include "tests/TestHarness.h"
 

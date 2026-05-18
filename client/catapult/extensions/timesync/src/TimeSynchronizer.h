@@ -22,7 +22,7 @@
 #pragma once
 #include "constants.h"
 #include "types.h"
-#include "timesync/src/filters/AggregateSynchronizationFilter.h"
+#include "extensions/timesync/src/filters/AggregateSynchronizationFilter.h"
 
 namespace catapult {
 	namespace cache {

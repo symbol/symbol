@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
+#include "plugins/txes/account_link/src/validators/Validators.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"

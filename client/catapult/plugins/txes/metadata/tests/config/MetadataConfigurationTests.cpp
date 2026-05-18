@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/config/MetadataConfiguration.h"
+#include "plugins/txes/metadata/src/config/MetadataConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

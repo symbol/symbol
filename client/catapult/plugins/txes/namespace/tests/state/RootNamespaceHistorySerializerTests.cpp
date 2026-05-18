@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/RootNamespaceHistorySerializer.h"
-#include "tests/test/RootNamespaceHistoryLoadTests.h"
+#include "plugins/txes/namespace/src/state/RootNamespaceHistorySerializer.h"
+#include "plugins/txes/namespace/tests/test/RootNamespaceHistoryLoadTests.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 

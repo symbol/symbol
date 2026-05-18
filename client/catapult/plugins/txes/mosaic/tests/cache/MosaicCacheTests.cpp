@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/MosaicCache.h"
-#include "tests/test/MosaicCacheTestUtils.h"
-#include "tests/test/MosaicTestUtils.h"
+#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
+#include "plugins/txes/mosaic/tests/test/MosaicCacheTestUtils.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"

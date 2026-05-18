@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/NetworkPacketWritersService.h"
+#include "extensions/sync/src/NetworkPacketWritersService.h"
 #include "src/catapult/api/ChainPackets.h"
 #include "src/catapult/ionet/PacketPayloadFactory.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"

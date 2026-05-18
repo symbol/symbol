@@ -23,7 +23,7 @@
 #include "CryptoUtils.h"
 #include "Hashes.h"
 #include "SecureZero.h"
-#include <donna/catapult.h>
+#include <external/donna/catapult.h>
 
 namespace catapult { namespace crypto {
 

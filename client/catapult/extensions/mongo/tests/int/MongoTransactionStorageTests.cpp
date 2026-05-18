@@ -20,7 +20,7 @@
 **/
 
 #include "extensions/mongo/src/MongoTransactionStorage.h"
-#include "mongo/tests/test/MongoTransactionStorageTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTransactionStorageTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
 

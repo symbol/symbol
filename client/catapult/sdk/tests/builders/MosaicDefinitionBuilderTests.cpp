@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/MosaicDefinitionBuilder.h"
+#include "sdk/src/builders/MosaicDefinitionBuilder.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
 #include "src/catapult/constants.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"

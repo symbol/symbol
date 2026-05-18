@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/TransactionExtensions.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/catapult/model/EntityHasher.h"
 #include "src/catapult/utils/HexParser.h"

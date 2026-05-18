@@ -23,11 +23,11 @@
 #include "NemesisConfiguration.h"
 #include "src/catapult/io/PodIoUtils.h"
 #include "src/catapult/io/RawFile.h"
-#include "src/catapult/model/AggregateEntityType.h"
-#include "src/catapult/model/AggregateNotifications.h"
+#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
+#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/NotificationSubscriber.h"
-#include "src/catapult/model/TransferEntityType.h"
+#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include <filesystem>
 

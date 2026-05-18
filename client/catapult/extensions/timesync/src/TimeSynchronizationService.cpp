@@ -25,7 +25,7 @@
 #include "TimeSynchronizationState.h"
 #include "TimeSynchronizationUtils.h"
 #include "TimeSynchronizer.h"
-#include "timesync/src/handlers/TimeSyncHandlers.h"
+#include "extensions/timesync/src/handlers/TimeSyncHandlers.h"
 #include "src/catapult/config/CatapultKeys.h"
 #include "src/catapult/extensions/NetworkUtils.h"
 #include "src/catapult/extensions/ServiceLocator.h"

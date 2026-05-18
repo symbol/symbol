@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/src/chain/RoundContext.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
+#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "extensions/finalization/src/chain/RoundContext.h"
+#include "extensions/finalization/src/model/FinalizationRoundRange.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 

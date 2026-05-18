@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/MosaicSupplyRevocationTransactionPlugin.h"
-#include "../model/MosaicFlags.h"
-#include "../model/MosaicSupplyRevocationTransaction.h"
+#include "plugins/txes/mosaic/src/plugins/MosaicSupplyRevocationTransactionPlugin.h"
+#include "plugins/txes/mosaic/src/model/MosaicFlags.h"
+#include "plugins/txes/mosaic/src/model/MosaicSupplyRevocationTransaction.h"
 #include "src/catapult/utils/HexParser.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

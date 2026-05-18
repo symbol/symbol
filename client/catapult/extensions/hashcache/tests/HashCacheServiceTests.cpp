@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "hashcache/src/HashCacheService.h"
+#include "extensions/hashcache/src/HashCacheService.h"
 #include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

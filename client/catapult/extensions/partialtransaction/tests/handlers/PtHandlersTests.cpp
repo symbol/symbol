@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/handlers/PtHandlers.h"
+#include "extensions/partialtransaction/src/handlers/PtHandlers.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 #include "src/catapult/utils/Functional.h"
 #include "tests/test/core/PushHandlerTestUtils.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/DelegatePrioritizationPolicy.h"
+#include "extensions/harvesting/src/DelegatePrioritizationPolicy.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "../state/AccountRestriction.h"
+#include "plugins/txes/restriction_account/src/state/AccountRestriction.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Random.h"

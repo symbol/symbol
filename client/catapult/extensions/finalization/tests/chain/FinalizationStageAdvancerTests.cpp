@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/FinalizationStageAdvancer.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
+#include "extensions/finalization/src/chain/FinalizationStageAdvancer.h"
+#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace chain {

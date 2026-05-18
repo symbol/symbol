@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/MosaicDefinitionTransactionPlugin.h"
-#include "../model/MosaicDefinitionTransaction.h"
-#include "../model/MosaicNotifications.h"
+#include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
+#include "plugins/txes/mosaic/src/model/MosaicDefinitionTransaction.h"
+#include "plugins/txes/mosaic/src/model/MosaicNotifications.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"

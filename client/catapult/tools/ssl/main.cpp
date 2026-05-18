@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tools/ToolMain.h"
+#include "tools/tools/ToolMain.h"
 #include "SslClient.h"
-#include "tools/ToolConfigurationUtils.h"
+#include "tools/tools/ToolConfigurationUtils.h"
 #include "src/catapult/config/ConfigurationFileLoader.h"
 #include "src/catapult/ionet/Node.h"
 #include "src/catapult/thread/IoThreadPool.h"

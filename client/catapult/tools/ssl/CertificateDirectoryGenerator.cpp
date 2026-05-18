@@ -21,7 +21,7 @@
 
 #include "CertificateDirectoryGenerator.h"
 #include "CertificateUtils.h"
-#include "tools/ToolKeys.h"
+#include "tools/tools/ToolKeys.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/io/RawFile.h"
 #include "src/catapult/exceptions.h"

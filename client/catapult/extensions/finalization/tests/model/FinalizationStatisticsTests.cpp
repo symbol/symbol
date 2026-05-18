@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/model/FinalizationStatistics.h"
+#include "extensions/finalization/src/model/FinalizationStatistics.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 

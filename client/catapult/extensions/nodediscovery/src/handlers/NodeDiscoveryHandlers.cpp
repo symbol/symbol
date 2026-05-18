@@ -20,7 +20,7 @@
 **/
 
 #include "NodeDiscoveryHandlers.h"
-#include "nodediscovery/src/NodePingUtils.h"
+#include "extensions/nodediscovery/src/NodePingUtils.h"
 #include "src/catapult/handlers/BasicProducer.h"
 #include "src/catapult/handlers/HandlerFactory.h"
 #include "src/catapult/ionet/NetworkNode.h"

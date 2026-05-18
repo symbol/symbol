@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/TasksConfiguration.h"
+#include "extensions/sync/src/TasksConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

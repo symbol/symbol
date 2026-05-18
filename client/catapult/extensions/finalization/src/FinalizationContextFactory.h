@@ -21,7 +21,7 @@
 
 #pragma once
 #include "FinalizationConfiguration.h"
-#include "finalization/src/model/FinalizationContext.h"
+#include "extensions/finalization/src/model/FinalizationContext.h"
 #include "src/catapult/model/FinalizationRound.h"
 
 namespace catapult {

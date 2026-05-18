@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/ConversionExtensions.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {

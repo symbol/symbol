@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/TransactionFeeMaximizer.h"
+#include "extensions/harvesting/src/TransactionFeeMaximizer.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/handlers/CosignatureHandlers.h"
+#include "extensions/partialtransaction/src/handlers/CosignatureHandlers.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
 #include "tests/TestHarness.h"
 

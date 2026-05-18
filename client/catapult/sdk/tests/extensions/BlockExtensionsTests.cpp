@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/BlockExtensions.h"
-#include "src/extensions/TransactionExtensions.h"
+#include "sdk/src/extensions/BlockExtensions.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
 #include "src/catapult/crypto/MerkleHashBuilder.h"
 #include "src/catapult/model/BlockUtils.h"
 #include "src/catapult/model/EntityHasher.h"

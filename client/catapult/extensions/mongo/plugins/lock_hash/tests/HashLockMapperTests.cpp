@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/HashLockMapper.h"
+#include "extensions/mongo/plugins/lock_hash/src/HashLockMapper.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockTransaction.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
-#include "tests/test/HashLockMapperTestUtils.h"
+#include "extensions/mongo/plugins/lock_hash/tests/test/HashLockMapperTestUtils.h"
 
 namespace catapult { namespace mongo { namespace plugins {
 

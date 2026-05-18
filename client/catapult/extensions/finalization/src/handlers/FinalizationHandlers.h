@@ -21,7 +21,7 @@
 
 #pragma once
 #include "FinalizationHandlerTypes.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
+#include "extensions/finalization/src/model/FinalizationRoundRange.h"
 #include "src/catapult/ionet/PacketHandlers.h"
 
 namespace catapult { namespace handlers {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
-#include "tests/test/AliasTestUtils.h"
-#include "tests/test/NamespaceCacheTestUtils.h"
-#include "tests/test/NamespaceTestUtils.h"
+#include "plugins/txes/namespace/src/validators/Validators.h"
+#include "plugins/txes/namespace/tests/test/AliasTestUtils.h"
+#include "plugins/txes/namespace/tests/test/NamespaceCacheTestUtils.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 
 namespace catapult { namespace validators {

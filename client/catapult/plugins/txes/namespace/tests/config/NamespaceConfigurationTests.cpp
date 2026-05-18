@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/config/NamespaceConfiguration.h"
+#include "plugins/txes/namespace/src/config/NamespaceConfiguration.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/utils/HexParser.h"

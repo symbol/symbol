@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/Bip39.h"
+#include "sdk/src/extensions/Bip39.h"
 #include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 

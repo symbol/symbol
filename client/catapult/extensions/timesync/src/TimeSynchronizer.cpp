@@ -21,7 +21,7 @@
 
 #include "TimeSynchronizer.h"
 #include "constants.h"
-#include "timesync/src/filters/filter_constants.h"
+#include "extensions/timesync/src/filters/filter_constants.h"
 #include "src/catapult/cache_core/AccountStateCacheView.h"
 #include "src/catapult/cache_core/ImportanceView.h"
 #include "src/catapult/utils/Functional.h"

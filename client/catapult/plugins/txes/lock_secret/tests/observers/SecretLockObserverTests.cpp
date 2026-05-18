@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
-#include "../model/SecretLockReceiptType.h"
+#include "plugins/txes/lock_secret/src/observers/Observers.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockReceiptType.h"
 #include "plugins/txes/lock_shared/tests/observers/LockObserverTests.h"
-#include "tests/test/SecretLockInfoCacheTestUtils.h"
-#include "tests/test/SecretLockNotificationsTestUtils.h"
+#include "plugins/txes/lock_secret/tests/test/SecretLockInfoCacheTestUtils.h"
+#include "plugins/txes/lock_secret/tests/test/SecretLockNotificationsTestUtils.h"
 
 namespace catapult { namespace observers {
 

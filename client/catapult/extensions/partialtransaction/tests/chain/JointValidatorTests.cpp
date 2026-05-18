@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/chain/JointValidator.h"
+#include "extensions/partialtransaction/src/chain/JointValidator.h"
 #include "src/catapult/plugins/PluginManager.h"
 #include "tests/test/other/mocks/MockCapturingNotificationValidator.h"
 #include "tests/test/plugins/PluginManagerFactory.h"

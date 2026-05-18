@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/FinalizationOrchestrator.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/src/io/ProofStorageCache.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "finalization/tests/test/mocks/MockProofStorage.h"
-#include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
+#include "extensions/finalization/src/chain/FinalizationOrchestrator.h"
+#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/tests/test/mocks/MockProofStorage.h"
+#include "extensions/finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/TestHarness.h"
 

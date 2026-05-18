@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/MemoryBlockStorage.h"
+#include "sdk/src/extensions/MemoryBlockStorage.h"
 #include "tests/test/core/BlockStorageTests.h"
 #include "tests/TestHarness.h"
 

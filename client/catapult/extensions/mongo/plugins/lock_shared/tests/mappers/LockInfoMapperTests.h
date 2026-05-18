@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

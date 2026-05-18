@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/PredicateUtils.h"
+#include "extensions/sync/src/PredicateUtils.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/cache/ReadOnlyCatapultCache.h"
 #include "src/catapult/cache_tx/MemoryUtCache.h"

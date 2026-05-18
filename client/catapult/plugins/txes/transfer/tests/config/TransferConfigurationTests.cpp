@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/config/TransferConfiguration.h"
+#include "plugins/txes/transfer/src/config/TransferConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

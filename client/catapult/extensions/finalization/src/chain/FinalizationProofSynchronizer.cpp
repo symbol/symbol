@@ -20,8 +20,8 @@
 **/
 
 #include "FinalizationProofSynchronizer.h"
-#include "finalization/src/api/RemoteProofApi.h"
-#include "finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/api/RemoteProofApi.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
 #include "src/catapult/io/BlockStorageCache.h"
 #include "src/catapult/model/HeightGrouping.h"
 #include "src/catapult/model/VotingSet.h"

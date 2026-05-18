@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "plugins/txes/lock_secret/src/cache/SecretLockInfoCache.h"
 #include "plugins/txes/lock_secret/src/cache/SecretLockInfoCacheStorage.h"
 #include "plugins/txes/lock_secret/src/cache/SecretLockInfoCacheTypes.h"
 #include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"

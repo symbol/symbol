@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "networkheight/src/NetworkHeightConfiguration.h"
+#include "extensions/networkheight/src/NetworkHeightConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tools/ToolMain.h"
-#include "tools/ToolConfigurationUtils.h"
-#include "src/catapult/builders/AccountKeyLinkBuilder.h"
-#include "src/catapult/builders/VotingKeyLinkBuilder.h"
-#include "src/catapult/builders/VrfKeyLinkBuilder.h"
-#include "src/catapult/extensions/TransactionExtensions.h"
+#include "tools/tools/ToolMain.h"
+#include "tools/tools/ToolConfigurationUtils.h"
+#include "sdk/src/builders/AccountKeyLinkBuilder.h"
+#include "sdk/src/builders/VotingKeyLinkBuilder.h"
+#include "sdk/src/builders/VrfKeyLinkBuilder.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
 #include "src/catapult/io/RawFile.h"
 #include "src/catapult/utils/HexParser.h"
 #include <filesystem>

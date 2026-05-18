@@ -21,8 +21,8 @@
 
 #include "extensions/mongo/src/MongoChainStatisticUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;

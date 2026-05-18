@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/AccountRestrictionCacheStorage.h"
-#include "../cache/AccountRestrictionCache.h"
-#include "../model/AccountRestrictionFlags.h"
-#include "tests/test/AccountRestrictionTestUtils.h"
+#include "plugins/txes/restriction_account/src/cache/AccountRestrictionCacheStorage.h"
+#include "plugins/txes/restriction_account/src/cache/AccountRestrictionCache.h"
+#include "plugins/txes/restriction_account/src/model/AccountRestrictionFlags.h"
+#include "plugins/txes/restriction_account/tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"
 

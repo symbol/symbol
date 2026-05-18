@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/SchedulerService.h"
-#include "sync/src/TasksConfiguration.h"
+#include "extensions/sync/src/SchedulerService.h"
+#include "extensions/sync/src/TasksConfiguration.h"
 #include "src/catapult/thread/Scheduler.h"
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

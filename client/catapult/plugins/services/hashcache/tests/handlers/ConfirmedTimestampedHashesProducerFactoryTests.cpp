@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/handlers/ConfirmedTimestampedHashesProducerFactory.h"
-#include "../cache/HashCache.h"
+#include "plugins/services/hashcache/src/handlers/ConfirmedTimestampedHashesProducerFactory.h"
+#include "plugins/services/hashcache/src/cache/HashCache.h"
 #include "src/catapult/utils/TimeSpan.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/TestHarness.h"

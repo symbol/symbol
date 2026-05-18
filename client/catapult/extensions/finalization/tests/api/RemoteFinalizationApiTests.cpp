@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/api/RemoteFinalizationApi.h"
-#include "finalization/src/model/FinalizationMessage.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/src/api/RemoteFinalizationApi.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"

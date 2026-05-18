@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../mappers/NamespaceDescriptorMapper.h"
+#include "extensions/mongo/plugins/namespace/src/mappers/NamespaceDescriptorMapper.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/state/RootNamespace.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
-#include "tests/test/NamespaceMapperTestUtils.h"
+#include "extensions/mongo/plugins/namespace/tests/test/NamespaceMapperTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 

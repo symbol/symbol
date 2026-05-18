@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/NamespaceCacheSerializers.h"
-#include "tests/test/NamespaceTestUtils.h"
+#include "plugins/txes/namespace/src/cache/NamespaceCacheSerializers.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/core/BufferReader.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../model/LockHashUtils.h"
+#include "plugins/txes/lock_secret/src/model/LockHashUtils.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/utils/Casting.h"
 #include "tests/TestHarness.h"

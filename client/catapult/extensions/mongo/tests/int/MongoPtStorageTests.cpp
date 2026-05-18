@@ -21,8 +21,8 @@
 
 #include "extensions/mongo/src/MongoPtStorage.h"
 #include "src/catapult/model/Cosignature.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionStorageTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTransactionStorageTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 

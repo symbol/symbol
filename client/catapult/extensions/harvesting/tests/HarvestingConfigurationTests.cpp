@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/HarvestingConfiguration.h"
+#include "extensions/harvesting/src/HarvestingConfiguration.h"
 #include "src/catapult/model/Address.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"

@@ -20,7 +20,7 @@
 **/
 
 #include "MultisigTestUtils.h"
-#include "../cache/MultisigCache.h"
+#include "plugins/txes/multisig/src/cache/MultisigCache.h"
 #include "src/catapult/cache/CatapultCacheDelta.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/MemoryUtils.h"

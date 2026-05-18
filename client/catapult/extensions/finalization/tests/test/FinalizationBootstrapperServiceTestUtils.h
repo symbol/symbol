@@ -21,7 +21,7 @@
 
 #pragma once
 #include "FinalizationMessageTestUtils.h"
-#include "finalization/src/FinalizationBootstrapperService.h"
+#include "extensions/finalization/src/FinalizationBootstrapperService.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 

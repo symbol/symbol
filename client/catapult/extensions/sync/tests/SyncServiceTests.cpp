@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/SyncService.h"
+#include "extensions/sync/src/SyncService.h"
 #include "src/catapult/extensions/ServerHooks.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

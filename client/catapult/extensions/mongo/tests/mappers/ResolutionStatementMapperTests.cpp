@@ -21,8 +21,8 @@
 
 #include "extensions/mongo/src/mappers/ResolutionStatementMapper.h"
 #include "src/catapult/model/ResolutionStatement.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoReceiptTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoReceiptTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace mappers {

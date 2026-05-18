@@ -21,7 +21,7 @@
 
 #include "MultisigMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

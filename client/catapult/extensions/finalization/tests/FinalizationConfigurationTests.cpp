@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/FinalizationConfiguration.h"
+#include "extensions/finalization/src/FinalizationConfiguration.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"

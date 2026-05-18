@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "addressextraction/src/AddressExtractionPtChangeSubscriber.h"
-#include "addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
+#include "extensions/addressextraction/src/AddressExtractionPtChangeSubscriber.h"
+#include "extensions/addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 

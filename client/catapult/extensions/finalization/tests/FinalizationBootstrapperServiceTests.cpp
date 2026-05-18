@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/FinalizationBootstrapperService.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/src/io/FilePrevoteChainStorage.h"
-#include "finalization/src/io/ProofStorageCache.h"
-#include "finalization/src/model/FinalizationProofUtils.h"
-#include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
-#include "finalization/tests/test/mocks/MockProofStorage.h"
+#include "extensions/finalization/src/FinalizationBootstrapperService.h"
+#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "extensions/finalization/src/io/FilePrevoteChainStorage.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/model/FinalizationProofUtils.h"
+#include "extensions/finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
+#include "extensions/finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"

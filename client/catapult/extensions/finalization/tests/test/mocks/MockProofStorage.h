@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "finalization/src/io/ProofStorage.h"
+#include "extensions/finalization/src/io/ProofStorage.h"
 
 namespace catapult { namespace mocks {
 

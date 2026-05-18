@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/handlers/FinalizationHandlers.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/src/handlers/FinalizationHandlers.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
 #include "tests/test/plugins/PullHandlerTests.h"

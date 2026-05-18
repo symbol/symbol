@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/model/FinalizationMessageGroup.h"
+#include "extensions/finalization/src/model/FinalizationMessageGroup.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"

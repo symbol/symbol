@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "zeromq/src/ZeroMqEntityPublisher.h"
+#include "extensions/zeromq/src/ZeroMqEntityPublisher.h"
 #include "src/catapult/model/ContainerTypes.h"
 #include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/TransactionRegistry.h"

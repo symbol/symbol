@@ -24,9 +24,9 @@
 #include "MosaicGlobalRestrictionTransactionPlugin.h"
 #include "../cache/MosaicRestrictionCache.h"
 #include "../cache/MosaicRestrictionCacheStorage.h"
-#include "src/config/MosaicRestrictionConfiguration.h"
-#include "src/observers/Observers.h"
-#include "src/validators/Validators.h"
+#include "plugins/txes/restriction_mosaic/src/config/MosaicRestrictionConfiguration.h"
+#include "plugins/txes/restriction_mosaic/src/observers/Observers.h"
+#include "plugins/txes/restriction_mosaic/src/validators/Validators.h"
 #include "src/catapult/plugins/CacheHandlers.h"
 #include "src/catapult/plugins/PluginManager.h"
 

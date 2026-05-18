@@ -20,7 +20,7 @@
 **/
 
 #include "FinalizationMessageSynchronizer.h"
-#include "finalization/src/api/RemoteFinalizationApi.h"
+#include "extensions/finalization/src/api/RemoteFinalizationApi.h"
 #include "src/catapult/chain/EntitiesSynchronizer.h"
 #include "src/catapult/model/NodeIdentity.h"
 

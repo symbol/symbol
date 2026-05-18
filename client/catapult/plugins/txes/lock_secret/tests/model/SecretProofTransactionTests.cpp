@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../model/SecretProofTransaction.h"
+#include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/DispatcherService.h"
+#include "extensions/sync/src/DispatcherService.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"

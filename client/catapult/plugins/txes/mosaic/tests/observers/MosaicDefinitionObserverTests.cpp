@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
-#include "../cache/MosaicCache.h"
+#include "plugins/txes/mosaic/src/observers/Observers.h"
+#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
-#include "tests/test/MosaicCacheTestUtils.h"
-#include "tests/test/MosaicTestUtils.h"
+#include "plugins/txes/mosaic/tests/test/MosaicCacheTestUtils.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 

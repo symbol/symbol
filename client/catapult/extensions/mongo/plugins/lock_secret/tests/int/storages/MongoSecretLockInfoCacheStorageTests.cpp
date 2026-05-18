@@ -23,7 +23,7 @@
 #include "extensions/mongo/plugins/lock_shared/tests/int/storages/MongoLockInfoCacheStorageTestTraits.h"
 #include "extensions/mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "plugins/txes/lock_secret/tests/test/SecretLockInfoCacheTestUtils.h"
-#include "tests/test/SecretLockMapperTestUtils.h"
+#include "extensions/mongo/plugins/lock_secret/tests/test/SecretLockMapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

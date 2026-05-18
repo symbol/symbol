@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
 #include "src/catapult/model/FinalizationRound.h"
 #include <memory>
 

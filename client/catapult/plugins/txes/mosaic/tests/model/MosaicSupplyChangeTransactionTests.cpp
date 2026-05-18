@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../model/MosaicSupplyChangeTransaction.h"
+#include "plugins/txes/mosaic/src/model/MosaicSupplyChangeTransaction.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"

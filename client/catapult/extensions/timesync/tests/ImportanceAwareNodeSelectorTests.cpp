@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/ImportanceAwareNodeSelector.h"
+#include "extensions/timesync/src/ImportanceAwareNodeSelector.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/cache_core/ImportanceView.h"
 #include "src/catapult/ionet/NodeContainer.h"

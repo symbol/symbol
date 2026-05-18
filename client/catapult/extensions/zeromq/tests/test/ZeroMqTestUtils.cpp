@@ -21,8 +21,8 @@
 
 #include "ZeroMqTestUtils.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "zeromq/src/PackedFinalizedBlockHeader.h"
-#include "zeromq/src/PublisherUtils.h"
+#include "extensions/zeromq/src/PackedFinalizedBlockHeader.h"
+#include "extensions/zeromq/src/PublisherUtils.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/Cosignature.h"
 #include "src/catapult/model/Elements.h"

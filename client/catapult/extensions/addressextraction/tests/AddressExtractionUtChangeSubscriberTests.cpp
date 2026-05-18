@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "addressextraction/src/AddressExtractionUtChangeSubscriber.h"
-#include "addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
+#include "extensions/addressextraction/src/AddressExtractionUtChangeSubscriber.h"
+#include "extensions/addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace addressextraction {

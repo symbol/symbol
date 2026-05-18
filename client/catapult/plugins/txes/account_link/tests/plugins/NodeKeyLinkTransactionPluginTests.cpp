@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/NodeKeyLinkTransactionPlugin.h"
-#include "../model/AccountLinkNotifications.h"
-#include "../model/NodeKeyLinkTransaction.h"
+#include "plugins/txes/account_link/src/plugins/NodeKeyLinkTransactionPlugin.h"
+#include "plugins/txes/account_link/src/model/AccountLinkNotifications.h"
+#include "plugins/txes/account_link/src/model/NodeKeyLinkTransaction.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

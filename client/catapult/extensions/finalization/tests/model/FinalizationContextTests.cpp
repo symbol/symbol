@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/model/FinalizationContext.h"
+#include "extensions/finalization/src/model/FinalizationContext.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/Address.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"

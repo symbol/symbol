@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
-#include "tests/test/MultisigCacheTestUtils.h"
-#include "tests/test/MultisigTestUtils.h"
+#include "plugins/txes/multisig/src/observers/Observers.h"
+#include "plugins/txes/multisig/tests/test/MultisigCacheTestUtils.h"
+#include "plugins/txes/multisig/tests/test/MultisigTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 

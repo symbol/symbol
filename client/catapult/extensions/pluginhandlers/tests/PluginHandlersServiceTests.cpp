@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "pluginhandlers/src/PluginHandlersService.h"
+#include "extensions/pluginhandlers/src/PluginHandlersService.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/TestHarness.h"

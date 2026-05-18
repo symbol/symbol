@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "partialtransaction/src/PtTypes.h"
+#include "extensions/partialtransaction/src/PtTypes.h"
 #include "src/catapult/handlers/HandlerTypes.h"
 #include "src/catapult/ionet/PacketHandlers.h"
 

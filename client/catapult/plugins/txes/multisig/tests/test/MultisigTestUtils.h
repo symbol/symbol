@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "../model/MultisigAccountModificationTransaction.h"
-#include "../model/MultisigNotifications.h"
+#include "plugins/txes/multisig/src/model/MultisigAccountModificationTransaction.h"
+#include "plugins/txes/multisig/src/model/MultisigNotifications.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/Cosignature.h"
 #include "src/catapult/utils/HexFormatter.h"

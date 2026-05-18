@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/TimeSynchronizationSample.h"
-#include "timesync/tests/test/TimeSynchronizationTestUtils.h"
+#include "extensions/timesync/src/TimeSynchronizationSample.h"
+#include "extensions/timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"

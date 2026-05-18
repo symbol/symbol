@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MultisigEntry.h"
-#include "tests/test/MultisigTestUtils.h"
+#include "plugins/txes/multisig/src/state/MultisigEntry.h"
+#include "plugins/txes/multisig/tests/test/MultisigTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

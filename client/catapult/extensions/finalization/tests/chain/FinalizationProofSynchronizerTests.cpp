@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/FinalizationProofSynchronizer.h"
-#include "finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/chain/FinalizationProofSynchronizer.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
 #include "src/catapult/io/BlockStorageCache.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "finalization/tests/test/mocks/MockProofApi.h"
-#include "finalization/tests/test/mocks/MockProofStorage.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/tests/test/mocks/MockProofApi.h"
+#include "extensions/finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/TestHarness.h"
 

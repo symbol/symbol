@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/PtDispatcherService.h"
-#include "partialtransaction/src/PtBootstrapperService.h"
+#include "extensions/partialtransaction/src/PtDispatcherService.h"
+#include "extensions/partialtransaction/src/PtBootstrapperService.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "plugins/txes/aggregate/src/validators/Results.h"
@@ -29,7 +29,7 @@
 #include "src/catapult/disruptor/ConsumerDispatcher.h"
 #include "src/catapult/ionet/BroadcastUtils.h"
 #include "src/catapult/model/EntityHasher.h"
-#include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
+#include "extensions/partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

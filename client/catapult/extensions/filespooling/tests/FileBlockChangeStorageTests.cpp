@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "filespooling/src/FileBlockChangeStorage.h"
+#include "extensions/filespooling/src/FileBlockChangeStorage.h"
 #include "src/catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/BufferReader.h"

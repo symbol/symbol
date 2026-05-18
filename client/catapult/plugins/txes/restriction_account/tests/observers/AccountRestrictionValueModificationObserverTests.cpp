@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
-#include "tests/test/AccountRestrictionCacheTestUtils.h"
+#include "plugins/txes/restriction_account/src/observers/Observers.h"
+#include "plugins/txes/restriction_account/tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 #include <algorithm>

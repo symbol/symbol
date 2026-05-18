@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "timesync/src/CommunicationTimestamps.h"
+#include "extensions/timesync/src/CommunicationTimestamps.h"
 #include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace ionet { class PacketIo; } }

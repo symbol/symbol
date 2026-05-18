@@ -23,7 +23,7 @@
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/types.h"
 #include "src/catapult/utils/MemoryUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/TestHarness.h"
 

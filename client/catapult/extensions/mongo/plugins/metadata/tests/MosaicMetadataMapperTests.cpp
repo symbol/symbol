@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/MosaicMetadataMapper.h"
+#include "extensions/mongo/plugins/metadata/src/MosaicMetadataMapper.h"
 #include "plugins/txes/metadata/src/model/MosaicMetadataTransaction.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
-#include "tests/test/MetadataMapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
+#include "extensions/mongo/plugins/metadata/tests/test/MetadataMapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

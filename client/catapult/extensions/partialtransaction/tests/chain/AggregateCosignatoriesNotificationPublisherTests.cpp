@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/chain/AggregateCosignatoriesNotificationPublisher.h"
+#include "extensions/partialtransaction/src/chain/AggregateCosignatoriesNotificationPublisher.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "src/catapult/model/WeakCosignedTransactionInfo.h"
-#include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
+#include "extensions/partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/TestHarness.h"
 

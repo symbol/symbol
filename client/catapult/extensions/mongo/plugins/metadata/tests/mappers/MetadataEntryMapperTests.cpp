@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../mappers/MetadataEntryMapper.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "tests/test/MetadataMapperTestUtils.h"
-#include "tests/test/MetadataTestUtils.h"
+#include "extensions/mongo/plugins/metadata/src/mappers/MetadataEntryMapper.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/plugins/metadata/tests/test/MetadataMapperTestUtils.h"
+#include "plugins/txes/metadata/tests/test/MetadataTestUtils.h"
 #include "tests/TestHarness.h"
 #include <set>
 

@@ -21,9 +21,9 @@
 
 #include "extensions/mongo/src/mappers/TransactionStatementMapper.h"
 #include "src/catapult/model/TransactionStatement.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoReceiptTestUtils.h"
-#include "mongo/tests/test/mocks/MockReceiptMapper.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoReceiptTestUtils.h"
+#include "extensions/mongo/tests/test/mocks/MockReceiptMapper.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace mappers {

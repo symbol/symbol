@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
-#include "src/validators/AccountRestrictionView.h"
+#include "plugins/txes/restriction_account/src/validators/Validators.h"
+#include "plugins/txes/restriction_account/src/validators/AccountRestrictionView.h"
 #include "src/catapult/cache/ReadOnlyCatapultCache.h"
-#include "tests/test/AccountRestrictionCacheTestUtils.h"
+#include "plugins/txes/restriction_account/tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {

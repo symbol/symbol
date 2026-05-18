@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/AccountRestrictionCache.h"
+#include "plugins/txes/restriction_account/src/cache/AccountRestrictionCache.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"

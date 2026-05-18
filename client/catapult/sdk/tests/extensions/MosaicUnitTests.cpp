@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/MosaicUnit.h"
+#include "sdk/src/extensions/MosaicUnit.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/TestHarness.h"
 

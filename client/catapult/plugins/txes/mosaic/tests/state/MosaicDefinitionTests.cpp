@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MosaicDefinition.h"
-#include "../model/MosaicProperties.h"
+#include "plugins/txes/mosaic/src/state/MosaicDefinition.h"
+#include "plugins/txes/mosaic/src/model/MosaicProperties.h"
 #include "src/catapult/constants.h"
-#include "tests/test/MosaicTestUtils.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

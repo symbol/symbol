@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MosaicRestrictionEntry.h"
+#include "plugins/txes/restriction_mosaic/src/state/MosaicRestrictionEntry.h"
 #include "src/catapult/crypto/Hashes.h"
-#include "tests/test/MosaicRestrictionTestUtils.h"
+#include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

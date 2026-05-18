@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/TransactionBuilder.h"
+#include "sdk/src/builders/TransactionBuilder.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 #include <numeric>

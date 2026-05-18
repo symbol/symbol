@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/FinalizationHashTree.h"
+#include "extensions/finalization/src/chain/FinalizationHashTree.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace chain {

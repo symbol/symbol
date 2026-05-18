@@ -20,9 +20,9 @@
 **/
 
 #include "FinalizationMessageFactory.h"
-#include "finalization/src/FinalizationConfiguration.h"
-#include "finalization/src/io/PrevoteChainStorage.h"
-#include "finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/FinalizationConfiguration.h"
+#include "extensions/finalization/src/io/PrevoteChainStorage.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
 #include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "src/catapult/io/BlockStorageCache.h"
 #include "src/catapult/model/HeightGrouping.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tools/ToolMain.h"
+#include "tools/tools/ToolMain.h"
 #include "src/catapult/model/FacilityCode.h"
 #include "src/catapult/utils/HexFormatter.h"
 #include "../../src/catapult/validators/ValidationResult.h" /* notice that validators are not in sdk */

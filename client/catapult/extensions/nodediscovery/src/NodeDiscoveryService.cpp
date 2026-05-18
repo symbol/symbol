@@ -23,7 +23,7 @@
 #include "BatchPeersRequestor.h"
 #include "NodePingRequestor.h"
 #include "PeersProcessor.h"
-#include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
+#include "extensions/nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
 #include "src/catapult/config/CatapultKeys.h"
 #include "src/catapult/extensions/NetworkUtils.h"
 #include "src/catapult/extensions/NodeInteractionUtils.h"

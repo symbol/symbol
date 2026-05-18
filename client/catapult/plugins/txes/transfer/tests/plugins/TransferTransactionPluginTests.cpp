@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/TransferTransactionPlugin.h"
+#include "plugins/txes/transfer/src/plugins/TransferTransactionPlugin.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "../model/TransferNotifications.h"
-#include "../model/TransferTransaction.h"
+#include "plugins/txes/transfer/src/model/TransferNotifications.h"
+#include "plugins/txes/transfer/src/model/TransferTransaction.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

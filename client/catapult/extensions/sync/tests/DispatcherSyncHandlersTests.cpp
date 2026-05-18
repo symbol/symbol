@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/DispatcherSyncHandlers.h"
+#include "extensions/sync/src/DispatcherSyncHandlers.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/extensions/LocalNodeChainScore.h"

@@ -20,7 +20,7 @@
 **/
 
 #include "KeyPair.h"
-#include <donna/catapult.h>
+#include <external/donna/catapult.h>
 
 namespace catapult { namespace crypto {
 

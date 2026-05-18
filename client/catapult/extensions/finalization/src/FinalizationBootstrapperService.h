@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "finalization/src/io/ProofStorage.h"
-#include "finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/src/io/ProofStorage.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
 #include "src/catapult/extensions/BasicServerHooks.h"
 #include "src/catapult/extensions/ServiceRegistrar.h"
 #include "src/catapult/handlers/HandlerTypes.h"

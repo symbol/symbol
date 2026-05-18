@@ -21,7 +21,7 @@
 
 #include "PtUpdater.h"
 #include "PtValidator.h"
-#include "partialtransaction/src/PtUtils.h"
+#include "extensions/partialtransaction/src/PtUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/catapult/cache_tx/MemoryPtCache.h"
 #include "src/catapult/crypto/Signer.h"

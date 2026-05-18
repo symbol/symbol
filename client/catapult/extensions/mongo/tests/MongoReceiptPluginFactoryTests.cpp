@@ -20,7 +20,7 @@
 **/
 
 #include "extensions/mongo/src/MongoReceiptPluginFactory.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/core/mocks/MockReceipt.h"
 #include "tests/TestHarness.h"
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MosaicEntry.h"
-#include "tests/test/MosaicTestUtils.h"
+#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

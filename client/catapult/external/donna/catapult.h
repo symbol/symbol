@@ -45,10 +45,10 @@
 #endif
 
 extern "C" {
-#include <donna/ed25519-donna-batchverify.h>
-#include <donna/ed25519-donna.h>
-#include <donna/ed25519.h>
-#include <donna/modm-donna-64bit.h>
+#include <external/donna/ed25519-donna-batchverify.h>
+#include <external/donna/ed25519-donna.h>
+#include <external/donna/ed25519.h>
+#include <external/donna/modm-donna-64bit.h>
 }
 
 #ifdef __clang__

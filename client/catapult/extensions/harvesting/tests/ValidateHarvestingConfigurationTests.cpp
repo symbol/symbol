@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/ValidateHarvestingConfiguration.h"
-#include "harvesting/src/HarvestingConfiguration.h"
+#include "extensions/harvesting/src/ValidateHarvestingConfiguration.h"
+#include "extensions/harvesting/src/HarvestingConfiguration.h"
 #include "src/catapult/utils/ConfigurationBag.h"
 #include "tests/TestHarness.h"
 

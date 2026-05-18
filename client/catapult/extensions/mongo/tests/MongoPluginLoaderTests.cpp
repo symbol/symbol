@@ -23,7 +23,7 @@
 #include "extensions/mongo/src/MongoPluginManager.h"
 #include "src/catapult/plugins/PluginExceptions.h"
 #include "src/catapult/utils/ExceptionLogging.h"
-#include "mongo/tests/test/MongoTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>

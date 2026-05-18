@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/RollbackStats.h"
+#include "extensions/sync/src/RollbackStats.h"
 #include "src/catapult/utils/NetworkTime.h"
 #include "tests/TestHarness.h"
 

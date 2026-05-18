@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../model/NameChecker.h"
-#include "tests/test/NamespaceTestUtils.h"
+#include "plugins/txes/namespace/src/model/NameChecker.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

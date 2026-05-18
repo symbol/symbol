@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "../cache/HashCacheStorage.h"
+#include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 

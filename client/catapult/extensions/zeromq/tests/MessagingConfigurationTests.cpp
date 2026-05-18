@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "zeromq/src/MessagingConfiguration.h"
+#include "extensions/zeromq/src/MessagingConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

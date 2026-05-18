@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MultisigEntrySerializer.h"
+#include "plugins/txes/multisig/src/state/MultisigEntrySerializer.h"
 #include "src/catapult/utils/HexFormatter.h"
-#include "tests/test/MultisigTestUtils.h"
+#include "plugins/txes/multisig/tests/test/MultisigTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/SerializerOrderingTests.h"
 #include "tests/test/core/SerializerTestUtils.h"

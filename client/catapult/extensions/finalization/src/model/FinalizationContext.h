@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "finalization/src/FinalizationConfiguration.h"
+#include "extensions/finalization/src/FinalizationConfiguration.h"
 #include "src/catapult/utils/Hashers.h"
 #include "src/catapult/types.h"
 #include <unordered_map>

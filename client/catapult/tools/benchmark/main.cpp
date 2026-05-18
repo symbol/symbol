@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tools/ToolMain.h"
-#include "tools/ToolKeys.h"
-#include "tools/ToolThreadUtils.h"
+#include "tools/tools/ToolMain.h"
+#include "tools/tools/ToolKeys.h"
+#include "tools/tools/ToolThreadUtils.h"
 #include "src/catapult/crypto/Signer.h"
 #include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/thread/ParallelFor.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
+#include "plugins/coresystem/src/observers/Observers.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"

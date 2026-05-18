@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/storages/MongoMultisigCacheStorage.h"
+#include "extensions/mongo/plugins/multisig/src/storages/MongoMultisigCacheStorage.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "src/catapult/model/Address.h"
-#include "mongo/tests/test/MongoFlatCacheStorageTests.h"
-#include "mongo/tests/test/MongoTestUtils.h"
+#include "extensions/mongo/tests/test/MongoFlatCacheStorageTests.h"
+#include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/multisig/tests/test/MultisigCacheTestUtils.h"
-#include "tests/test/MultisigMapperTestUtils.h"
+#include "extensions/mongo/plugins/multisig/tests/test/MultisigMapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;

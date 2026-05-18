@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/api/RemoteTimeSyncApi.h"
-#include "timesync/src/api/TimeSyncPackets.h"
+#include "extensions/timesync/src/api/RemoteTimeSyncApi.h"
+#include "extensions/timesync/src/api/TimeSyncPackets.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"
