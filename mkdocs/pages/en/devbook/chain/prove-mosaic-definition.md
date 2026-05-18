@@ -116,9 +116,15 @@ The function then verifies the proof in three stages:
 3. **Match the leaf:** Checks that the leaf's value matches {{ tutorial.var('hashed_value') }} and that the path
     through the tree reconstructs {{ tutorial.var('encoded_key') }}.
 
-If all checks pass, the result is `0x0001` (`VALID_POSITIVE`), confirming that the mosaic definition returned by the API
-is exactly what is recorded in the chain at the given height.
+If all checks pass, the result is `0x0001` (`VALID_POSITIVE`), confirming that the mosaic definition returned by
+the API is exactly what is recorded on the blockchain at the given height.
 
+Symbol's Patricia trees are more powerful than conventional Merkle trees because they can prove not only that a
+given mosaic definition exists on the blockchain, but also that it does not exist.
+A result of `0x0002` (`VALID_NEGATIVE`) indicates precisely this case.
+
+All other return values indicate that the proof could not be conclusively verified, and describe the reason for the
+failure.
 See <js:PatriciaMerkleProofResult> for the full set of possible result codes.
 
 !!! warning "Height consistency"
