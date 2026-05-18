@@ -41,6 +41,10 @@ treated as a constant and hardcoded if desired.
 For Symbol's <mainnet:|main network>, the value is `1615853185` which corresponds to `2021-03-16T00:06:25Z`
 (March 16, 2021 at 12:06:25 AM UTC).
 
+Note that the Symbol protocol and client are open source and can therefore be used to deploy networks other than
+the Symbol main network.
+Such networks might use different nemesis creation times or represent time values in different formats.
+
 ### Fetch Current Network Time
 
 {{ tutorial.code_snippet_tagged('step-2') }}
