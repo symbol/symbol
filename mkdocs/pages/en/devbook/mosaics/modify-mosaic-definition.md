@@ -79,7 +79,7 @@ In this tutorial, the current values are already known because the mosaic was ju
 The `MOSAIC_NONCE` environment variable specifies the <nonce:> of the mosaic to modify.
 The nonce must match the one used when [creating the mosaic](./create-mosaic.md) to target the same mosaic.
 
-The modification transaction uses the same `mosaic_definition_transaction_v1` type as the original creation.
+The modification transaction uses the same <ser:MosaicDefinitionTransactionV1> type as the original creation.
 The key difference is that **the nonce targets an existing mosaic** instead of creating a new one.
 
 When processing the transaction, each property is combined with the mosaic's current value using the following rules:

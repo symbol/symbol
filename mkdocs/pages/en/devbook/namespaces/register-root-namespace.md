@@ -59,7 +59,7 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 The namespace registration transaction specifies:
 
-* **Type:** Namespace registration transactions use the type `namespace_registration_transaction_v1`.
+* **Type:** Namespace registration transactions use the type <ser:NamespaceRegistrationTransactionV1>.
 
 * **Registration type:** The value `root` indicates a root namespace is being created.
     Use `child` to [register a subnamespace](./register-subnamespace.md) instead.

@@ -62,8 +62,8 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
-Before revoking, the helper function `get_account_mosaics` fetches the source account's current balance for the target
-mosaic from the <get:/accounts/{accountId}> endpoint.
+Before revoking, the helper function {{ tutorial.var('get_account_mosaics()') }} fetches the source account's current
+balance for the target mosaic from the <get:/accounts/{accountId}> endpoint.
 This provides a baseline to compare against after the revocation.
 
 ### Building the Revocation Transaction
@@ -72,7 +72,7 @@ This provides a baseline to compare against after the revocation.
 
 The revocation transaction reclaims mosaic units from the source account and returns them to the creator's balance:
 
-* **Type:** Mosaic supply revocation transactions use the type `mosaic_supply_revocation_transaction_v1`.
+* **Type:** Mosaic supply revocation transactions use the type <ser:MosaicSupplyRevocationTransactionV1>.
 
 * **Source address:** The address of the account holding the mosaic units to revoke.
     This can be any account that currently holds units of the specified mosaic.
@@ -105,7 +105,8 @@ The code then waits for the transaction to be confirmed by polling the
 
 {{ tutorial.code_snippet_tagged('step-7') }}
 
-To verify the revocation, the helper function `get_account_mosaics` fetches the source account's balance again.
+To verify the revocation, the helper function {{ tutorial.var('get_account_mosaics()') }} fetches the source account's
+balance again.
 The balance should be lower than the [initial balance](#checking-initial-balance) by the revoked amount.
 
 ## Output

@@ -128,7 +128,7 @@ In this tutorial, the signer is also the namespace owner so only one signature i
 However, the transaction still needs to be inside an aggregate,
 so the code defines the namespace metadata transaction as an <embedded transaction:> with these properties:
 
-* **Type:** Use `namespace_metadata_transaction_v1`.
+* **Type:** Use <ser:NamespaceMetadataTransactionV1>.
 
 * **Signer public key:** The account creating the metadata entry.
 
@@ -188,12 +188,12 @@ The endpoint returns the list of entries matching the filters, which in this cas
 Updating an existing metadata entry requires the current value, retrieved from the network as previously shown.
 
 To demonstrate updating metadata, the code changes the description from `My first namespace` to `Updated namespace`
-by creating another `namespace_metadata_transaction_v1` transaction with the same scoped metadata key.
+by creating another <ser:NamespaceMetadataTransactionV1> transaction with the same scoped metadata key.
 
 Modifying an existing metadata value differs from creating a new one in that the updated value must be defined
 in terms of the current value, using the following fields:
 
-* `value_size_delta`: The difference in length between the new and current values.
+* {{ tutorial.var('value_size_delta') }}: The difference in length between the new and current values.
     In this example, the delta is `-1` because `Updated namespace` (17 bytes) is one byte shorter than
     `My first namespace` (18 bytes).
 
@@ -202,13 +202,14 @@ in terms of the current value, using the following fields:
     The SDK provides a <dy:Metadata.metadataUpdateValue> helper function that handles the XOR calculation.
     The XOR operation compares each byte: matching bytes become zero, and differing bytes capture the change.
 
-Note that `value_size_delta` represents the difference in final value lengths (new vs current),
+Note that {{ tutorial.var('value_size_delta') }} represents the difference in final value lengths (new vs current),
 not the length of the XOR'd bytes themselves.
 
 !!! tip "Deleting a metadata entry"
 
-    To delete a metadata entry, set `value_size_delta` to the negative of the current value length and provide the
-    current value as `value`. The XOR produces an empty result, which removes the entry from the network.
+    To delete a metadata entry, set {{ tutorial.var('value_size_delta') }} to the negative of the current value length
+    and provide the current value as `value`.
+    The XOR produces an empty result, which removes the entry from the network.
 
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
 in an aggregate transaction and then signed and announced.

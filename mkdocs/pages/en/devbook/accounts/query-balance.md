@@ -27,10 +27,10 @@ If no value is provided, a default one is used.
 
 The tutorial defines the following functions:
 
-* `get_account_info()`: Fetches <account:> state by address or public key.
-* `get_mosaic_names()`: Fetches <namespace:> aliases for mosaics.
-* `get_mosaics_info()`: Fetches properties for multiple <mosaics:> in a single request.
-* `format_amount()`: Formats amounts with the appropriate number of decimal places, according to their <divisibility:>.
+* {{ tutorial.var('get_account_info()') }}: Fetches <account:> state by address or public key.
+* {{ tutorial.var('get_mosaic_names()') }}: Fetches <namespace:> aliases for mosaics.
+* {{ tutorial.var('get_mosaics_info()') }}: Fetches properties for multiple <mosaics:> in a single request.
+* {{ tutorial.var('format_amount()') }}: Formats amounts with the appropriate number of decimal places, according to their <divisibility:>.
 
 ## Code Explanation
 

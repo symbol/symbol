@@ -54,7 +54,7 @@ In practice, you would obtain this hash immediately after signing a transaction 
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-The `wait_for_transaction_confirmation` function is the core of this tutorial.
+The {{ tutorial.var('wait_for_transaction_confirmation') }} function is the core of this tutorial.
 It monitors a transaction until it is confirmed or fails.
 
 It uses a `for` loop to check the transaction status up to 60 times by default (2 minutes with 2-second intervals

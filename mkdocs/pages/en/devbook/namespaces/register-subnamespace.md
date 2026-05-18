@@ -65,7 +65,7 @@ The main difference when registering a subnamespace is in the transaction descri
 
     Note that this is just the name of the subnamespace, not the full path.
     For example, to create `company.product`, where `company` is the root, you would set `name: 'product'` and
-    `parent_id: generateNamespaceId('company')`.
+    {{ tutorial.var("`parent_id: generate_namespace_id('company')`") }}.
 
     To ensure the subnamespace name is unique across multiple runs of the tutorial, a timestamp is added to the name.
     In practice, programs would use a fixed name for their namespaces.

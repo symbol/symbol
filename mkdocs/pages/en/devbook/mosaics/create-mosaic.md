@@ -62,7 +62,7 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 The mosaic definition transaction registers a new mosaic on the network with the following properties:
 
-* **Type:** Mosaic definition transactions use the type `mosaic_definition_transaction_v1`.
+* **Type:** Mosaic definition transactions use the type <ser:MosaicDefinitionTransactionV1>.
 
 * **Duration:** The number of blocks the mosaic will remain active. A value of `0` means the mosaic never expires.
     If a duration is provided, the maximum allowed value is
@@ -132,7 +132,7 @@ The code then waits for the transaction to be confirmed by polling the
 
 Once the mosaic definition is confirmed, a second transaction increases the mosaic's supply:
 
-* **Type:** Mosaic supply change transactions use the type `mosaic_supply_change_transaction_v1`.
+* **Type:** Mosaic supply change transactions use the type <ser:MosaicSupplyChangeTransactionV1>.
 
 * **Mosaic ID:** The identifier of the mosaic, computed from the signer's address and nonce using
     <dy:IdGenerator.generateMosaicId>.

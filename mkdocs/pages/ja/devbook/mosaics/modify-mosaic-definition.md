@@ -67,7 +67,7 @@ tutorial_level: intermediate
 
 `MOSAIC_NONCE` 環境変数は、変更するモザイクの [ノンス](default:ノンス) を指定します。同じモザイクを対象とするために、[モザイクの作成](./create-mosaic.md) 時に使用したものと一致させる必要があります。
 
-変更トランザクションは、最初の作成時と同じ `mosaic_definition_transaction_v1` タイプを使用します。
+変更トランザクションは、最初の作成時と同じ <ser:MosaicDefinitionTransactionV1> タイプを使用します。
 大きな違いは、**ノンスが新規作成ではなく既存のモザイクを指している** 点です。
 
 トランザクションを処理する際、各プロパティは以下のルールに従って現在の値と組み合わされます。

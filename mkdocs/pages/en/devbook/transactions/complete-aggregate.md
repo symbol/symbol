@@ -127,7 +127,7 @@ The <embedded transactions:> define the operations to execute atomically.
 Each embedded transaction specifies:
 
 * **Type:** All transaction types can be embedded within aggregates (except other aggregates).
-  For embedded transfers, use `transfer_transaction_v1`, the same as for basic transfer transactions.
+  For embedded transfers, use <ser:TransferTransactionV1>, the same as for basic transfer transactions.
 
 * **Signer public key:** The account that would sign this transaction if it were announced
   independently.

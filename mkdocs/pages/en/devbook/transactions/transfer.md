@@ -92,17 +92,17 @@ The result is stored for later use once the transaction size is known.
 All required transaction properties must be provided when building the transfer transaction.
 The snippet includes the following fields:
 
-* **Type**: Transfer transactions use the type `transfer_transaction_v1`.
+* `type`: Transfer transactions use the type <ser:TransferTransactionV1>.
 
-* **Signer public key**: The signer is the account that will pay the fee.
+* {{ tutorial.var('signer_public_key') }}: The signer is the account that will pay the fee.
     In a transfer transaction, it is also the source of the transferred mosaics.
 
-* **Deadline**: This value is set to two hours after the current network time.
+* `deadline`: This value is set to two hours after the current network time.
 
-* **Recipient address**: In this example, the recipient is the same as the sender,
+* {{ tutorial.var('recipient_address') }}: In this example, the recipient is the same as the sender,
     which is useful for demonstration but not terribly practical.
 
-* **Mosaics**: This is an array, because a transfer transaction can send multiple mosaics at once.
+* `mosaics`: This is an array, because a transfer transaction can send multiple mosaics at once.
     Each entry includes a <mosaic ID:> and an amount.
 
     In the example, the mosaic ID for <XYM:> is obtained using its alias, `symbol.xym`, which is easier to remember

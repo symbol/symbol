@@ -137,14 +137,15 @@ known.
 
 The prefund transaction's amount is then set to match the calculated fee.
 
-Finally, the `transactions_hash` field is updated with the hash of the embedded transactions.
+Finally, the {{ tutorial.var('transactions_hash') }} field is updated with the hash of the embedded transactions.
 This field is normally set when the aggregate is created using <dy:SymbolTransactionFactory.create>, but in this
 case it must be updated afterwards, once the prefund transaction has been modified.
 
 !!! caution
 
-    As shown in the code, when setting the `transactions_hash` field, use the model-specific type `sc.Hash256`
-    (:simple-python:) or `models.Hash256` (:simple-javascript:), and not the generic cryptography type `Hash256`.
+    As shown in the code, when setting the {{ tutorial.var('transactions_hash') }} field, use the model-specific type
+    `sc.Hash256` (:simple-python:) or `models.Hash256` (:simple-javascript:),
+    and not the generic cryptography type `Hash256`.
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 

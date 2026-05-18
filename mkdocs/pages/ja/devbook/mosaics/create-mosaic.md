@@ -56,7 +56,7 @@ tutorial_level: advanced
 
 モザイク定義トランザクションは、以下のプロパティを使用してネットワークに新しいモザイクを登録します。
 
-* **Type:** モザイク定義トランザクションにはタイプ `mosaic_definition_transaction_v1` を使用します。
+* **Type:** モザイク定義トランザクションにはタイプ <ser:MosaicDefinitionTransactionV1> を使用します。
 
 * **Duration (有効期間):** モザイクがアクティブな状態を維持するブロック数。値が `0` の場合、モザイクは期限切れになりません。
     有効期間を指定する場合、最大許容値は [約10年](../../textbook/mosaics.md#duration) です（デフォルトの30秒ブロックターゲットで、3,650日、または約10,512,000ブロック）。
@@ -115,7 +115,7 @@ tutorial_level: advanced
 
 モザイク定義が承認されると、2番目のトランザクションでモザイクの供給量を増加させます。
 
-* **Type:** モザイク供給量変更トランザクションにはタイプ `mosaic_supply_change_transaction_v1` を使用します。
+* **Type:** モザイク供給量変更トランザクションにはタイプ <ser:MosaicSupplyChangeTransactionV1> を使用します。
 
 * **Mosaic ID:** 署名者のアドレスとノンスから <dy:IdGenerator.generateMosaicId> を使用して計算されたモザイクの識別子。
 

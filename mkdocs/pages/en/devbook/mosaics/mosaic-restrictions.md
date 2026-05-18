@@ -129,7 +129,7 @@ The code first checks whether the mosaic already defines a global restriction fo
 
 This is done by querying <get:/restrictions/mosaic> and filtering by `mosaicId` and `entryType=1`, which selects
 **global restrictions**.
-The returned entries are then filtered to keep only those involving the selected `restriction_key`.
+The returned entries are then filtered to keep only those involving the selected {{ tutorial.var('restriction_key') }}.
 
 If no restriction is found, one is created by adding two transactions to the list of transactions to announce:
 
@@ -164,7 +164,7 @@ defined for the key.
 
 As in the global restriction case, the current value is obtained by querying <get:/restrictions/mosaic> and filtering
 by `mosaicId`, `targetAddress`, and `entryType=0`, which selects **address restrictions**.
-The returned entries are then filtered to keep only those involving the selected `restriction_key`.
+The returned entries are then filtered to keep only those involving the selected {{ tutorial.var('restriction_key') }}.
 
 Depending on the current value of the restriction for the target account,
 a transaction is created that authorizes or deauthorizes the account.
@@ -180,8 +180,8 @@ This transaction is added to the list of transactions to announce.
 Running the tutorial repeatedly therefore alternates between authorizing and deauthorizing the
 target account.
 
-Only the first restriction in the returned list is examined, because, after filtering by `restriction_key`,
-the list is either empty or contains a single entry.
+Only the first restriction in the returned list is examined, because, after filtering by
+{{ tutorial.var('restriction_key') }}, the list is either empty or contains a single entry.
 
 The same <ser:MosaicAddressRestrictionTransactionV1> is used in both cases, changing only the value assigned to the
 restriction.
