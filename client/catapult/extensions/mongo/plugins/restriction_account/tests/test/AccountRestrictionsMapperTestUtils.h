@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "mongo/src/mappers/MapperInclude.h"
+#include "extensions/mongo/src/mappers/MapperInclude.h"
 
 namespace catapult {
 	namespace state {

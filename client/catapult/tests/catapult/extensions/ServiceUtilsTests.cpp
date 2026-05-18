@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ServiceUtils.h"
-#include "catapult/config/CatapultKeys.h"
-#include "catapult/extensions/ServerHooks.h"
-#include "catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceUtils.h"
+#include "src/catapult/config/CatapultKeys.h"
+#include "src/catapult/extensions/ServerHooks.h"
+#include "src/catapult/extensions/ServiceLocator.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"

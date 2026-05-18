@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/BatchPacketReader.h"
-#include "catapult/ionet/PacketIo.h"
+#include "src/catapult/ionet/BatchPacketReader.h"
+#include "src/catapult/ionet/PacketIo.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 
 namespace catapult { namespace test {

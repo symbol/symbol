@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/MetadataEntryMapper.h"
+#include "../mappers/MetadataEntryMapper.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/MetadataMapperTestUtils.h"
 #include "tests/test/MetadataTestUtils.h"

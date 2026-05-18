@@ -20,7 +20,7 @@
 **/
 
 #include "src/plugins/AggregatePlugin.h"
-#include "src/model/AggregateEntityType.h"
+#include "../model/AggregateEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

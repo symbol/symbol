@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MongoTestUtils.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 

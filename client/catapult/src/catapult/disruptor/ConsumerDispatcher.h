@@ -24,8 +24,8 @@
 #include "Disruptor.h"
 #include "DisruptorConsumer.h"
 #include "DisruptorInspector.h"
-#include "catapult/thread/ThreadGroup.h"
-#include "catapult/utils/NamedObject.h"
+#include "src/catapult/thread/ThreadGroup.h"
+#include "src/catapult/utils/NamedObject.h"
 #include <atomic>
 
 namespace catapult { namespace disruptor { class ConsumerEntry; } }

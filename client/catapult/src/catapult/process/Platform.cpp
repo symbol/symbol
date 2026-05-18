@@ -20,7 +20,7 @@
 **/
 
 #include "Platform.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Logging.h"
 
 #ifndef _WIN32
 #include <sys/stat.h>

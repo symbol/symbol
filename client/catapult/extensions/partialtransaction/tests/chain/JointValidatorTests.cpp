@@ -20,7 +20,7 @@
 **/
 
 #include "partialtransaction/src/chain/JointValidator.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/plugins/PluginManager.h"
 #include "tests/test/other/mocks/MockCapturingNotificationValidator.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/TestHarness.h"

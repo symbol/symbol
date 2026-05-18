@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BasicBatchHandlerTests.h"
-#include "catapult/handlers/BasicProducer.h"
+#include "src/catapult/handlers/BasicProducer.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/TestHarness.h"
 

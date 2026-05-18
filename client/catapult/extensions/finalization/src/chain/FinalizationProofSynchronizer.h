@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/chain/RemoteNodeSynchronizer.h"
-#include "catapult/types.h"
+#include "src/catapult/chain/RemoteNodeSynchronizer.h"
+#include "src/catapult/types.h"
 
 namespace catapult {
 	namespace api { class RemoteProofApi; }

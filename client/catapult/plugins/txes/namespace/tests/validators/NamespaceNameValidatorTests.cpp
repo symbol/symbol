@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/NamespaceIdGenerator.h"
+#include "../model/NamespaceIdGenerator.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

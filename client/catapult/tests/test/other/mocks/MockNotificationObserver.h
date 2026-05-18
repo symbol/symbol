@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/observers/ObserverTypes.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include <vector>
 

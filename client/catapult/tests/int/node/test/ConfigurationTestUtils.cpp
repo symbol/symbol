@@ -20,7 +20,7 @@
 **/
 
 #include "ConfigurationTestUtils.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Logging.h"
 #include "tests/test/net/CertificateLocator.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>

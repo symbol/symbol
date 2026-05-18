@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_db/RocksDatabase.h"
-#include "catapult/io/FileLock.h"
-#include "catapult/io/RawFile.h"
+#include "src/catapult/cache_db/RocksDatabase.h"
+#include "src/catapult/io/FileLock.h"
+#include "src/catapult/io/RawFile.h"
 #include "tests/catapult/cache_db/test/RdbTestUtils.h"
 #include "tests/catapult/cache_db/test/SliceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"

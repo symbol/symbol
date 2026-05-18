@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/AnnotatedEntityRange.h"
+#include "src/catapult/model/AnnotatedEntityRange.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/TestHarness.h"

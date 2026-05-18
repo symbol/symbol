@@ -20,8 +20,8 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/cache/MosaicCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "../cache/MosaicCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

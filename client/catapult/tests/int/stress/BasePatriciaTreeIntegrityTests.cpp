@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/HexParser.h"
-#include "catapult/utils/StackTimer.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/HexParser.h"
+#include "src/catapult/utils/StackTimer.h"
 #include "tests/int/stress/test/InputDependentTest.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"

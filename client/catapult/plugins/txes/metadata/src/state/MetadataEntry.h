@@ -22,7 +22,7 @@
 #pragma once
 #include "MetadataKey.h"
 #include "MetadataValue.h"
-#include "catapult/plugins.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace state {
 

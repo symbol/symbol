@@ -21,7 +21,7 @@
 
 #pragma once
 #include "tools/Options.h"
-#include "catapult/config/CatapultConfiguration.h"
+#include "src/catapult/config/CatapultConfiguration.h"
 
 namespace catapult { namespace tools {
 

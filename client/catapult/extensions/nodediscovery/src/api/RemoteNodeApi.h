@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeSet.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/ionet/NodeSet.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace ionet { class PacketIo; } }
 

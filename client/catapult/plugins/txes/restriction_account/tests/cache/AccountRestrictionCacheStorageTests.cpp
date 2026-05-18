@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/AccountRestrictionCacheStorage.h"
-#include "src/cache/AccountRestrictionCache.h"
-#include "src/model/AccountRestrictionFlags.h"
+#include "../cache/AccountRestrictionCacheStorage.h"
+#include "../cache/AccountRestrictionCache.h"
+#include "../model/AccountRestrictionFlags.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"

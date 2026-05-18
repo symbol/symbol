@@ -20,7 +20,7 @@
 **/
 
 #include "OpensslKeyUtils.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 #include <fstream>
 
 #ifdef __clang__

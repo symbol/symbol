@@ -21,7 +21,7 @@
 
 #include "TransactionInfoTestUtils.h"
 #include "TransactionTestUtils.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

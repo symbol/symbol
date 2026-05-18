@@ -21,8 +21,8 @@
 
 #pragma once
 #include "ProcessingUndoNotificationSubscriber.h"
-#include "catapult/validators/ValidatorContext.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/validators/ValidatorContext.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace chain {
 

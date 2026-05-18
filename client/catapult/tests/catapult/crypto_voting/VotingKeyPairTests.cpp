@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto_voting/VotingKeyPair.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/crypto_voting/VotingKeyPair.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace crypto {

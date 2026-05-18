@@ -20,7 +20,7 @@
 **/
 
 #include "sync/src/RollbackStats.h"
-#include "catapult/utils/NetworkTime.h"
+#include "src/catapult/utils/NetworkTime.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace sync {

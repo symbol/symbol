@@ -20,10 +20,10 @@
 **/
 
 #include "plugins/services/hashcache/src/cache/HashCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/thread/ThreadGroup.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/thread/ThreadGroup.h"
+#include "src/catapult/utils/SpinLock.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/state/AccountBalances.h"
+#include "src/catapult/state/AccountBalances.h"
 
 namespace catapult { namespace extensions {
 

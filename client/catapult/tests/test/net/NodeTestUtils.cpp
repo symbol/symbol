@@ -20,8 +20,8 @@
 **/
 
 #include "NodeTestUtils.h"
-#include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/utils/Casting.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

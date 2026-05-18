@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/ReceiptMapper.h"
+#include "extensions/mongo/src/mappers/ReceiptMapper.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/mocks/MockReceiptMapper.h"
 #include "tests/test/core/mocks/MockReceipt.h"

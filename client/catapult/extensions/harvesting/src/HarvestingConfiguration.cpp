@@ -20,10 +20,10 @@
 **/
 
 #include "HarvestingConfiguration.h"
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/ConfigurationUtils.h"
+#include "src/catapult/config/ConfigurationFileLoader.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationUtils.h"
 
 DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT_ALLOW_EMPTY(true)
 

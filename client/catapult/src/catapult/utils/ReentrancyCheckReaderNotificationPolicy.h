@@ -21,7 +21,7 @@
 
 #pragma once
 #include "SpinLock.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 #include <thread>
 #include <unordered_set>
 

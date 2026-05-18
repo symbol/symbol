@@ -20,7 +20,7 @@
 **/
 
 #include "partialtransaction/src/api/CosignedTransactionInfoParser.h"
-#include "catapult/ionet/PacketPayloadBuilder.h"
+#include "src/catapult/ionet/PacketPayloadBuilder.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"

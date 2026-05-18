@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/EntityType.h"
-#include "catapult/plugins.h"
+#include "src/catapult/model/EntityType.h"
+#include "src/catapult/plugins.h"
 #include <memory>
 
 namespace catapult {

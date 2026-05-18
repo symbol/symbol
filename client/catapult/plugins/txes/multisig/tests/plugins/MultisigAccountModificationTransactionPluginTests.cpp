@@ -20,9 +20,9 @@
 **/
 
 #include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
-#include "src/model/MultisigAccountModificationTransaction.h"
-#include "src/model/MultisigNotifications.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "../model/MultisigAccountModificationTransaction.h"
+#include "../model/MultisigNotifications.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/SizePrefixedEntityContainer.h"
-#include "catapult/utils/IntegerMath.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/model/SizePrefixedEntityContainer.h"
+#include "src/catapult/utils/IntegerMath.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/TestHarness.h"
 

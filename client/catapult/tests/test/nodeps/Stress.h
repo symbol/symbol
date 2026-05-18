@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/ExceptionLogging.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/ExceptionLogging.h"
+#include "src/catapult/utils/Logging.h"
 #include <sstream>
 #include <gtest/gtest.h>
 

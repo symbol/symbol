@@ -20,11 +20,11 @@
 **/
 
 #include "FileStateChangeStorage.h"
-#include "catapult/cache/CacheChangesStorage.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/subscribers/StateChangeInfo.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/cache/CacheChangesStorage.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace local {
 

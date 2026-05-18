@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "src/cache/HashLockInfoCache.h"
-#include "src/cache/HashLockInfoCacheStorage.h"
-#include "src/cache/HashLockInfoCacheTypes.h"
+#include "plugins/txes/lock_hash/src/cache/HashLockInfoCache.h"
+#include "plugins/txes/lock_hash/src/cache/HashLockInfoCacheStorage.h"
+#include "plugins/txes/lock_hash/src/cache/HashLockInfoCacheTypes.h"
 #include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/TestHarness.h"

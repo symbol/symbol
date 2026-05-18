@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/AccountRestrictionsMapper.h"
+#include "../mappers/AccountRestrictionsMapper.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestriction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/AccountRestrictionTestUtils.h"

@@ -20,8 +20,8 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/cache/MultisigCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "../cache/MultisigCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

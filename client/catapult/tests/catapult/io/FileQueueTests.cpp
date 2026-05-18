@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/FileQueue.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/io/FileQueue.h"
+#include "src/catapult/io/IndexFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <filesystem>

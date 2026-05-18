@@ -21,7 +21,7 @@
 
 #pragma once
 #include "UnsupportedTransactionsChangeSubscribers.h"
-#include "catapult/utils/FileSize.h"
+#include "src/catapult/utils/FileSize.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include <unordered_map>
 

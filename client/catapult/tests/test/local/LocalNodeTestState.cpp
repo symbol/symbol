@@ -21,9 +21,9 @@
 
 #include "LocalNodeTestState.h"
 #include "LocalTestUtils.h"
-#include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/state/CatapultState.h"
+#include "src/catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/state/CatapultState.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 

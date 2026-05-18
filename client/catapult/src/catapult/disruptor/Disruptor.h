@@ -23,10 +23,10 @@
 #include "DisruptorBarriers.h"
 #include "DisruptorElement.h"
 #include "DisruptorTypes.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/EntityRange.h"
-#include "catapult/utils/CircularBuffer.h"
-#include "catapult/utils/NonCopyable.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/EntityRange.h"
+#include "src/catapult/utils/CircularBuffer.h"
+#include "src/catapult/utils/NonCopyable.h"
 #include <vector>
 
 namespace catapult { namespace disruptor {

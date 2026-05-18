@@ -20,10 +20,10 @@
 **/
 
 #include "MosaicSupplyRevocationTransactionPlugin.h"
-#include "src/model/MosaicFlags.h"
-#include "src/model/MosaicSupplyRevocationTransaction.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
+#include "../model/MosaicFlags.h"
+#include "../model/MosaicSupplyRevocationTransaction.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

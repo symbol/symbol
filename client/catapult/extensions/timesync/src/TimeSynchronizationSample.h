@@ -21,8 +21,8 @@
 
 #pragma once
 #include "CommunicationTimestamps.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include <set>
 
 namespace catapult { namespace timesync {

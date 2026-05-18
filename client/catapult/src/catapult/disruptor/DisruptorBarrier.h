@@ -21,7 +21,7 @@
 
 #pragma once
 #include "DisruptorTypes.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Logging.h"
 #include <atomic>
 #include <stddef.h>
 #include <stdint.h>

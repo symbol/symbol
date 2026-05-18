@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/NonCopyable.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/utils/NonCopyable.h"
+#include "src/catapult/utils/SpinLock.h"
 #include <string>
 
 namespace catapult { namespace io {

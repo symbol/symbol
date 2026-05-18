@@ -20,11 +20,11 @@
 **/
 
 #include "tools/ToolMain.h"
-#include "catapult/crypto/SecureRandomGenerator.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
-#include "catapult/io/FileStream.h"
-#include "catapult/model/StepIdentifier.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/crypto/SecureRandomGenerator.h"
+#include "src/catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "src/catapult/io/FileStream.h"
+#include "src/catapult/model/StepIdentifier.h"
+#include "src/catapult/exceptions.h"
 #include <filesystem>
 #include <iostream>
 #include <string>

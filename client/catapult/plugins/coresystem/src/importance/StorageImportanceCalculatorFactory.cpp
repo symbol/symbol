@@ -20,12 +20,12 @@
 **/
 
 #include "StorageImportanceCalculatorFactory.h"
-#include "catapult/cache/StateVersion.h"
-#include "catapult/cache_core/AccountStateCacheDelta.h"
-#include "catapult/io/FileStream.h"
-#include "catapult/io/IndexFile.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/state/AccountStateSerializer.h"
+#include "src/catapult/cache/StateVersion.h"
+#include "src/catapult/cache_core/AccountStateCacheDelta.h"
+#include "src/catapult/io/FileStream.h"
+#include "src/catapult/io/IndexFile.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/state/AccountStateSerializer.h"
 
 namespace catapult { namespace importance {
 

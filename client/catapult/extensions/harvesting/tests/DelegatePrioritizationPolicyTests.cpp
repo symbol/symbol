@@ -20,8 +20,8 @@
 **/
 
 #include "harvesting/src/DelegatePrioritizationPolicy.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"

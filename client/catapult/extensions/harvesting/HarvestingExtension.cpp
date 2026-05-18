@@ -22,7 +22,7 @@
 #include "src/HarvestingConfiguration.h"
 #include "src/HarvestingService.h"
 #include "src/ValidateHarvestingConfiguration.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace harvesting {
 

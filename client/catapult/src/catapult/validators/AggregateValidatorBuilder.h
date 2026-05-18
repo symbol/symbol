@@ -22,7 +22,7 @@
 #pragma once
 #include "AggregateValidationResult.h"
 #include "ValidatorTypes.h"
-#include "catapult/utils/NamedObject.h"
+#include "src/catapult/utils/NamedObject.h"
 #include <vector>
 
 namespace catapult { namespace validators {

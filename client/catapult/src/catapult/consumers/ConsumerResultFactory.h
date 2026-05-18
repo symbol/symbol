@@ -21,8 +21,8 @@
 
 #pragma once
 #include "ConsumerResults.h"
-#include "catapult/disruptor/DisruptorTypes.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/disruptor/DisruptorTypes.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace consumers {
 

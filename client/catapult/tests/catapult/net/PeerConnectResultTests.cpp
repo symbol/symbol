@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/net/PeerConnectResult.h"
+#include "src/catapult/net/PeerConnectResult.h"
 #include "tests/test/core/mocks/MockPacketSocket.h"
 #include "tests/TestHarness.h"
 

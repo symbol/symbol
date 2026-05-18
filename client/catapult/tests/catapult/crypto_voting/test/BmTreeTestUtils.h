@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto_voting/BmOptions.h"
-#include "catapult/crypto_voting/VotingKeyPair.h"
+#include "src/catapult/crypto_voting/BmOptions.h"
+#include "src/catapult/crypto_voting/VotingKeyPair.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

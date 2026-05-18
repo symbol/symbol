@@ -21,7 +21,7 @@
 
 #pragma once
 #include "TreeNodePath.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <bitset>
 #include <memory>
 

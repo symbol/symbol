@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/ionet/IoTypes.h"
-#include "catapult/utils/AtomicIncrementDecrementGuard.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/ionet/IoTypes.h"
+#include "src/catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "tests/test/core/WaitFunctions.h"
 #include "tests/TestHarness.h"
 #include <memory>

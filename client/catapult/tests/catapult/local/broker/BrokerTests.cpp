@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/local/broker/Broker.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/local/broker/Broker.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/catapult/local/broker/test/BrokerTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/MessageIngestionTestContext.h"

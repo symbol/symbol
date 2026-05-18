@@ -25,13 +25,13 @@
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
 #include "finalization/src/model/FinalizationProof.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult { namespace chain {
 
 #define DEFINE_ENUM VerifyFinalizationProofResult
 #define ENUM_LIST VERIFY_FINALIZATION_PROOF_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 

@@ -20,10 +20,10 @@
 **/
 
 #include "BrokerTestUtils.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/io/TransactionInfoSerializer.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/io/TransactionInfoSerializer.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionStatusTestUtils.h"

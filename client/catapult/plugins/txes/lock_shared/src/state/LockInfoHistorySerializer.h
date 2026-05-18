@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace state {
 

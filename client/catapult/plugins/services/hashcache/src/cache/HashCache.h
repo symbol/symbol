@@ -22,7 +22,7 @@
 #pragma once
 #include "HashCacheDelta.h"
 #include "HashCacheView.h"
-#include "catapult/cache/BasicCache.h"
+#include "src/catapult/cache/BasicCache.h"
 
 namespace catapult { namespace cache {
 

@@ -20,8 +20,8 @@
 **/
 
 #include "packetserver/src/NetworkPacketReadersService.h"
-#include "catapult/handlers/BasicProducer.h"
-#include "catapult/handlers/HandlerFactory.h"
+#include "src/catapult/handlers/BasicProducer.h"
+#include "src/catapult/handlers/HandlerFactory.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/NetworkTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

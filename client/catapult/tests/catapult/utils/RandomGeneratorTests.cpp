@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/RandomGenerator.h"
+#include "src/catapult/utils/RandomGenerator.h"
 #include "tests/test/nodeps/RandomnessTestUtils.h"
 #include "tests/TestHarness.h"
 

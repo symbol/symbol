@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/cache_core/AccountStateCacheSubCachePlugin.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"

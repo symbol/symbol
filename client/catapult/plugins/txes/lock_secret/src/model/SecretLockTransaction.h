@@ -22,8 +22,8 @@
 #pragma once
 #include "LockHashAlgorithm.h"
 #include "SecretLockEntityType.h"
-#include "catapult/model/Mosaic.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/model/Mosaic.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 

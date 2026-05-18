@@ -20,7 +20,7 @@
 **/
 
 #include "FinalizationHandlers.h"
-#include "catapult/handlers/HandlerUtils.h"
+#include "src/catapult/handlers/HandlerUtils.h"
 
 namespace catapult { namespace handlers {
 

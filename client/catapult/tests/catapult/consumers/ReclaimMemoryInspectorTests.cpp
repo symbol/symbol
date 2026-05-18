@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/ReclaimMemoryInspector.h"
+#include "src/catapult/consumers/ReclaimMemoryInspector.h"
 #include "tests/catapult/consumers/test/ConsumerInputFactory.h"
 #include "tests/TestHarness.h"
 

@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/chain/BlockExecutor.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/extensions/PluginUtils.h"
-#include "catapult/io/FilesystemUtils.h"
-#include "catapult/observers/NotificationObserverAdapter.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/chain/BlockExecutor.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/extensions/PluginUtils.h"
+#include "src/catapult/io/FilesystemUtils.h"
+#include "src/catapult/observers/NotificationObserverAdapter.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

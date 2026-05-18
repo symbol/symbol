@@ -20,7 +20,7 @@
 **/
 
 #include "MultisigMapperTestUtils.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 

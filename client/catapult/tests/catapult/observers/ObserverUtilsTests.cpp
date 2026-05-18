@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/observers/ObserverUtils.h"
-#include "catapult/cache/CatapultCacheBuilder.h"
+#include "src/catapult/observers/ObserverUtils.h"
+#include "src/catapult/cache/CatapultCacheBuilder.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/NotificationTestUtils.h"

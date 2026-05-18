@@ -20,10 +20,10 @@
 **/
 
 #include "sdk/src/extensions/TransactionExtensions.h"
-#include "catapult/chain/BlockScorer.h"
-#include "catapult/config/ValidateConfiguration.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/ChainScore.h"
+#include "src/catapult/chain/BlockScorer.h"
+#include "src/catapult/config/ValidateConfiguration.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/ChainScore.h"
 #include "tests/int/node/stress/test/BlockchainBuilder.h"
 #include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"

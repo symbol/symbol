@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "src/cache/NamespaceCache.h"
+#include "../cache/NamespaceCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

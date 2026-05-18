@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/FinalizationReader.h"
+#include "src/catapult/subscribers/FinalizationReader.h"
 #include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"

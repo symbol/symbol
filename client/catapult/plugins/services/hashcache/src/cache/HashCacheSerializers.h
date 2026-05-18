@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheSerializerAdapter.h"
-#include "catapult/state/TimestampedHash.h"
+#include "src/catapult/cache/CacheSerializerAdapter.h"
+#include "src/catapult/state/TimestampedHash.h"
 
 namespace catapult { namespace cache {
 

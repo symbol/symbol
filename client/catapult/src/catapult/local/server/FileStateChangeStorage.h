@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/io/Stream.h"
-#include "catapult/subscribers/StateChangeSubscriber.h"
-#include "catapult/functions.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/subscribers/StateChangeSubscriber.h"
+#include "src/catapult/functions.h"
 #include <memory>
 #include <vector>
 

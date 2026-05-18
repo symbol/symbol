@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheConfiguration.h"
+#include "src/catapult/cache/CacheConfiguration.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 

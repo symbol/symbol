@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/RootNamespaceHistory.h"
+#include "../state/RootNamespaceHistory.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/TestHarness.h"
 #include <unordered_set>

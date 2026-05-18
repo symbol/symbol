@@ -20,10 +20,10 @@
 **/
 
 #include "src/plugins/NamespaceRegistrationTransactionPlugin.h"
-#include "src/model/NamespaceNotifications.h"
-#include "src/model/NamespaceRegistrationTransaction.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/constants.h"
+#include "../model/NamespaceNotifications.h"
+#include "../model/NamespaceRegistrationTransaction.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/constants.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

@@ -26,11 +26,11 @@
 #include "finalization/src/io/AggregateProofStorage.h"
 #include "finalization/src/io/FilePrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/extensions/ConfigurationUtils.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/subscribers/FinalizationSubscriber.h"
+#include "src/catapult/extensions/ConfigurationUtils.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult { namespace finalization {
 

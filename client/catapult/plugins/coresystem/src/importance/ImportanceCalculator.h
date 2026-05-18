@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/HeightGrouping.h"
-#include "catapult/types.h"
+#include "src/catapult/model/HeightGrouping.h"
+#include "src/catapult/types.h"
 #include <memory>
 
 namespace catapult {

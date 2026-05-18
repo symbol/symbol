@@ -22,7 +22,7 @@
 #pragma once
 #include "MapperInclude.h"
 #include "MapperUtils.h"
-#include "catapult/model/Receipt.h"
+#include "src/catapult/model/Receipt.h"
 
 namespace catapult { namespace mongo { class MongoReceiptRegistry; } }
 

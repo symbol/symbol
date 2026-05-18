@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/disruptor/DisruptorBarriers.h"
+#include "src/catapult/disruptor/DisruptorBarriers.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace disruptor {

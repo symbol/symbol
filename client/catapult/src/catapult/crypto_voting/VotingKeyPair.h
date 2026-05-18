@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto/BasicKeyPair.h"
-#include "catapult/crypto/SecureByteArray.h"
+#include "src/catapult/crypto/BasicKeyPair.h"
+#include "src/catapult/crypto/SecureByteArray.h"
 
 namespace catapult { namespace crypto {
 

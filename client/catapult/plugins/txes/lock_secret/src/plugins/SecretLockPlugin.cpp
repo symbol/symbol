@@ -20,15 +20,15 @@
 **/
 
 #include "SecretLockPlugin.h"
-#include "src/cache/SecretLockInfoCache.h"
-#include "src/config/SecretLockConfiguration.h"
-#include "src/model/SecretLockReceiptType.h"
-#include "src/observers/Observers.h"
-#include "src/plugins/SecretLockTransactionPlugin.h"
-#include "src/plugins/SecretProofTransactionPlugin.h"
-#include "src/validators/Validators.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
+#include "../cache/SecretLockInfoCache.h"
+#include "../config/SecretLockConfiguration.h"
+#include "../model/SecretLockReceiptType.h"
+#include "../observers/Observers.h"
+#include "../plugins/SecretLockTransactionPlugin.h"
+#include "../plugins/SecretProofTransactionPlugin.h"
+#include "../validators/Validators.h"
+#include "src/catapult/plugins/CacheHandlers.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
 

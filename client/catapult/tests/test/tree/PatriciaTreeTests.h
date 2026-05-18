@@ -21,8 +21,8 @@
 
 #pragma once
 #include "PassThroughEncoder.h"
-#include "catapult/tree/DataSourceVerbosity.h"
-#include "catapult/tree/PatriciaTree.h"
+#include "src/catapult/tree/DataSourceVerbosity.h"
+#include "src/catapult/tree/PatriciaTree.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
 #include <unordered_set>

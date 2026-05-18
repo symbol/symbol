@@ -20,7 +20,7 @@
 **/
 
 #include "RollbackInfo.h"
-#include "catapult/model/Elements.h"
+#include "src/catapult/model/Elements.h"
 
 namespace catapult { namespace sync {
 

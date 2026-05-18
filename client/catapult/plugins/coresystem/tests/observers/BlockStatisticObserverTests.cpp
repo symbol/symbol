@@ -20,7 +20,7 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "catapult/cache_core/BlockStatisticCache.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

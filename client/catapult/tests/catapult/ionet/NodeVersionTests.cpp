@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/NodeVersion.h"
-#include "catapult/version/version.h"
+#include "src/catapult/ionet/NodeVersion.h"
+#include "src/catapult/version/version.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -21,7 +21,7 @@
 
 #include "MultisigAccountModificationMapper.h"
 #include "storages/MongoMultisigCacheStorage.h"
-#include "mongo/src/MongoPluginManager.h"
+#include "extensions/mongo/src/MongoPluginManager.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {

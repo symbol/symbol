@@ -20,7 +20,7 @@
 **/
 
 #include "src/storages/MongoNamespaceCacheStorageUtils.h"
-#include "src/mappers/NamespaceDescriptor.h"
+#include "../mappers/NamespaceDescriptor.h"
 #include "plugins/txes/namespace/src/state/RootNamespaceHistory.h"
 #include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/TestHarness.h"

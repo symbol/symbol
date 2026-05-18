@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/VerifiableEntityPredicate.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/model/VerifiableEntityPredicate.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

@@ -22,7 +22,7 @@
 #include "IdGenerator.h"
 #include "plugins/txes/namespace/src/model/NameChecker.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace extensions {
 

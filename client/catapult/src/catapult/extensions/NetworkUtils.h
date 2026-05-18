@@ -20,12 +20,12 @@
 **/
 
 #pragma once
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/ionet/NodeInfo.h"
-#include "catapult/ionet/RateMonitor.h"
-#include "catapult/net/AsyncTcpServer.h"
-#include "catapult/net/ConnectionSettings.h"
-#include "catapult/thread/MultiServicePool.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/ionet/NodeInfo.h"
+#include "src/catapult/ionet/RateMonitor.h"
+#include "src/catapult/net/AsyncTcpServer.h"
+#include "src/catapult/net/ConnectionSettings.h"
+#include "src/catapult/thread/MultiServicePool.h"
 
 namespace catapult {
 	namespace net { class AcceptedConnectionContainer; }

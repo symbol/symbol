@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/HeightDependentAddress.h"
-#include "catapult/utils/BlockSpan.h"
+#include "src/catapult/model/HeightDependentAddress.h"
+#include "src/catapult/utils/BlockSpan.h"
 #include <unordered_set>
 
 namespace catapult {

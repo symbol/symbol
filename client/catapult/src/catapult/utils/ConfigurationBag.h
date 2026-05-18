@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ConfigurationValueParsers.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 #include <string>
 #include <unordered_map>
 #include <unordered_set>

@@ -20,7 +20,7 @@
 **/
 
 #include "filespooling/src/FileBlockChangeStorage.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/BufferReader.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"

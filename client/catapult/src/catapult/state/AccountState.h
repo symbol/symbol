@@ -24,7 +24,7 @@
 #include "AccountBalances.h"
 #include "AccountImportanceSnapshots.h"
 #include "AccountPublicKeys.h"
-#include "catapult/model/Mosaic.h"
+#include "src/catapult/model/Mosaic.h"
 
 namespace catapult { namespace state {
 

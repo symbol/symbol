@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/AggregateFinalizationSubscriber.h"
+#include "src/catapult/subscribers/AggregateFinalizationSubscriber.h"
 #include "tests/catapult/subscribers/test/AggregateSubscriberTestContext.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/TestHarness.h"

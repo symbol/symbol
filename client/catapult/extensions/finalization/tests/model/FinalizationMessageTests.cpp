@@ -20,7 +20,7 @@
 **/
 
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"

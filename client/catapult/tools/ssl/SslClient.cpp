@@ -21,8 +21,8 @@
 
 #include "SslClient.h"
 #include "tools/ToolNetworkUtils.h"
-#include "catapult/api/RemoteChainApi.h"
-#include "catapult/thread/FutureUtils.h"
+#include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/thread/FutureUtils.h"
 
 namespace catapult { namespace tools { namespace ssl {
 

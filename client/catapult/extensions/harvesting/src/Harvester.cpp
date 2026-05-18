@@ -20,11 +20,11 @@
 **/
 
 #include "Harvester.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/chain/BlockDifficultyScorer.h"
-#include "catapult/chain/BlockScorer.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/chain/BlockDifficultyScorer.h"
+#include "src/catapult/chain/BlockScorer.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/utils/StackLogger.h"
 
 namespace catapult { namespace harvesting {
 

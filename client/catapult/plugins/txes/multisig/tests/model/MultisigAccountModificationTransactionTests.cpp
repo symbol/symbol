@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/MultisigAccountModificationTransaction.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "../model/MultisigAccountModificationTransaction.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"

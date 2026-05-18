@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/BatchUpdateResult.h"
+#include "src/catapult/chain/BatchUpdateResult.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 

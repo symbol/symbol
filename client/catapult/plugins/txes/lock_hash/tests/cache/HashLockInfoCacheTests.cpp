@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/HashLockInfoCache.h"
+#include "../cache/HashLockInfoCache.h"
 #include "plugins/txes/lock_shared/tests/cache/LockInfoCacheTests.h"
 #include "tests/test/HashLockInfoCacheTestUtils.h"
 #include "tests/TestHarness.h"

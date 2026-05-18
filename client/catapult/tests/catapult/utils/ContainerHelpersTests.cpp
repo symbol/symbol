@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/ContainerHelpers.h"
+#include "src/catapult/utils/ContainerHelpers.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
 

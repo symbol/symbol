@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/PatriciaTreeCacheMixins.h"
+#include "src/catapult/cache/PatriciaTreeCacheMixins.h"
 #include "tests/catapult/cache/test/PatriciaTreeTestUtils.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
 #include "tests/TestHarness.h"

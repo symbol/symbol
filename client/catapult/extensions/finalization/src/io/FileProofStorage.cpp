@@ -20,9 +20,9 @@
 **/
 
 #include "FileProofStorage.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/BufferedFileStream.h"
-#include "catapult/io/PodIoUtils.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/BufferedFileStream.h"
+#include "src/catapult/io/PodIoUtils.h"
 
 namespace catapult { namespace io {
 

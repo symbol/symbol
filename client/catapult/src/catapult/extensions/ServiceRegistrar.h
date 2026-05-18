@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ServiceRegistrarPhase.h"
-#include "catapult/plugins.h"
+#include "src/catapult/plugins.h"
 #include <memory>
 #include <string>
 

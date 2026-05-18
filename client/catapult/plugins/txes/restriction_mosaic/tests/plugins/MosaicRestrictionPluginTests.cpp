@@ -20,7 +20,7 @@
 **/
 
 #include "src/plugins/MosaicRestrictionPlugin.h"
-#include "src/model/MosaicRestrictionEntityType.h"
+#include "../model/MosaicRestrictionEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

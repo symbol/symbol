@@ -20,13 +20,13 @@
 **/
 
 #include "MapperTestUtils.h"
-#include "mongo/src/MongoTransactionMetadata.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/ContainerTypes.h"
-#include "catapult/model/Cosignature.h"
-#include "catapult/model/Receipt.h"
-#include "catapult/state/AccountState.h"
+#include "extensions/mongo/src/MongoTransactionMetadata.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/ContainerTypes.h"
+#include "src/catapult/model/Cosignature.h"
+#include "src/catapult/model/Receipt.h"
+#include "src/catapult/state/AccountState.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 #include <bsoncxx/types.hpp>

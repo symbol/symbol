@@ -21,9 +21,9 @@
 
 #pragma once
 #include "ConsumerDispatcher.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/utils/SpinLock.h"
 #include <unordered_map>
 #include <vector>
 

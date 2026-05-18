@@ -20,7 +20,7 @@
 **/
 
 #include "TimestampedHash.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace state {
 

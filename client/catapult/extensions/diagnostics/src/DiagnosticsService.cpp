@@ -20,10 +20,10 @@
 **/
 
 #include "DiagnosticsService.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/handlers/DiagnosticHandlers.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/handlers/DiagnosticHandlers.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace diagnostics {
 

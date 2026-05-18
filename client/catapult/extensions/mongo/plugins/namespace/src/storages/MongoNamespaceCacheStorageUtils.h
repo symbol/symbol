@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 #include <vector>
 
 namespace catapult {

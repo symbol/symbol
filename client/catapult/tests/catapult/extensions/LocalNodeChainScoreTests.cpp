@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/extensions/LocalNodeChainScore.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {

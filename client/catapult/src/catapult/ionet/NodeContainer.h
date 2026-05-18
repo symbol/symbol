@@ -23,8 +23,8 @@
 #include "BannedNodes.h"
 #include "NodeInfo.h"
 #include "NodeSet.h"
-#include "catapult/utils/ArraySet.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/utils/ArraySet.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
 #include <unordered_map>
 
 namespace catapult {

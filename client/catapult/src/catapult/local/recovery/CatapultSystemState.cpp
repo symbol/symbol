@@ -20,7 +20,7 @@
 **/
 
 #include "CatapultSystemState.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/io/IndexFile.h"
 
 namespace catapult { namespace local {
 

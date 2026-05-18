@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeInfo.h"
-#include "catapult/validators/ValidationResult.h"
-#include "catapult/plugins.h"
-#include "catapult/types.h"
+#include "src/catapult/ionet/NodeInfo.h"
+#include "src/catapult/validators/ValidationResult.h"
+#include "src/catapult/plugins.h"
+#include "src/catapult/types.h"
 
 namespace catapult {
 	namespace ionet { class Node; }

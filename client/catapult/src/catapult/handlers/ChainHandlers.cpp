@@ -22,12 +22,12 @@
 #include "ChainHandlers.h"
 #include "HandlerUtils.h"
 #include "HeightRequestProcessor.h"
-#include "catapult/api/ChainPackets.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/api/ChainPackets.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/BlockUtils.h"
 
 namespace catapult { namespace handlers {
 

@@ -21,8 +21,8 @@
 
 #include "src/validators/Validators.h"
 #include "src/validators/ActiveMosaicView.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"

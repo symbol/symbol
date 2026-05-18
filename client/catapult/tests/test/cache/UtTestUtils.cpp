@@ -20,8 +20,8 @@
 **/
 
 #include "UtTestUtils.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/model/EntityRange.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/model/EntityRange.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"

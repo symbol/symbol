@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/ionet/NodeSet.h"
-#include "catapult/net/PacketIoPickerContainer.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/ionet/NodeSet.h"
+#include "src/catapult/net/PacketIoPickerContainer.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace nodediscovery {
 

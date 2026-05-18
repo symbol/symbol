@@ -22,9 +22,9 @@
 #pragma once
 #include "DisruptorTypes.h"
 #include "InputSource.h"
-#include "catapult/model/AnnotatedEntityRange.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/utils/FileSize.h"
+#include "src/catapult/model/AnnotatedEntityRange.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/utils/FileSize.h"
 
 namespace catapult { namespace disruptor {
 

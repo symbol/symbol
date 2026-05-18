@@ -21,8 +21,8 @@
 
 #pragma once
 #include "ApiTypes.h"
-#include "catapult/ionet/PacketIo.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/ionet/PacketIo.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace api {
 

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/MosaicEntrySerializer.h"
+#include "../state/MosaicEntrySerializer.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"

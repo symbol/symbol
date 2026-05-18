@@ -20,8 +20,8 @@
 **/
 
 #include "src/plugins/MosaicSupplyChangeTransactionPlugin.h"
-#include "src/model/MosaicNotifications.h"
-#include "src/model/MosaicSupplyChangeTransaction.h"
+#include "../model/MosaicNotifications.h"
+#include "../model/MosaicSupplyChangeTransaction.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

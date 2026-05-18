@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/AnnotatedEntityRange.h"
+#include "src/catapult/model/AnnotatedEntityRange.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
 

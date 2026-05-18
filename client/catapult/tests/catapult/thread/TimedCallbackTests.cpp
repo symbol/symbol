@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/TimedCallback.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/thread/TimedCallback.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -45,7 +45,7 @@ namespace catapult { namespace thread {
 
 #define ENUM_LIST TIMED_CALLBACK_RESULT_CODE
 #define DEFINE_ENUM TimedCallbackResultCode
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 #undef ENUM_LIST
 

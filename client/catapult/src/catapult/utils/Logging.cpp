@@ -21,7 +21,7 @@
 
 #include "Logging.h"
 #include "BitwiseEnum.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <boost/core/null_deleter.hpp>
 #include <boost/log/attributes.hpp>
 #include <boost/log/detail/default_attribute_names.hpp>

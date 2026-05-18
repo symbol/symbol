@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/disruptor/DisruptorConsumer.h"
+#include "src/catapult/disruptor/DisruptorConsumer.h"
 
 namespace catapult { namespace consumers {
 

@@ -20,13 +20,13 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheDatabaseMixin.h"
-#include "catapult/cache/CacheDescriptorAdapters.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/state/AccountState.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/Hashers.h"
+#include "src/catapult/cache/CacheDatabaseMixin.h"
+#include "src/catapult/cache/CacheDescriptorAdapters.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/state/AccountState.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/Hashers.h"
 
 namespace catapult {
 	namespace cache {

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "src/cache/MultisigCache.h"
-#include "src/cache/MultisigCacheStorage.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "../cache/MultisigCache.h"
+#include "../cache/MultisigCacheStorage.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {

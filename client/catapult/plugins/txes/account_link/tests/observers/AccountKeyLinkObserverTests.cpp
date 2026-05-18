@@ -20,7 +20,7 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"

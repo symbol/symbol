@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/FacilityCode.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/model/FacilityCode.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace validators {
 

@@ -21,8 +21,8 @@
 
 #include "FinalizationMessageSynchronizer.h"
 #include "finalization/src/api/RemoteFinalizationApi.h"
-#include "catapult/chain/EntitiesSynchronizer.h"
-#include "catapult/model/NodeIdentity.h"
+#include "src/catapult/chain/EntitiesSynchronizer.h"
+#include "src/catapult/model/NodeIdentity.h"
 
 namespace catapult { namespace chain {
 

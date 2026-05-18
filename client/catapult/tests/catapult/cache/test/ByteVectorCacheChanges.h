@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheChanges.h"
-#include "catapult/io/PodIoUtils.h"
+#include "src/catapult/cache/CacheChanges.h"
+#include "src/catapult/io/PodIoUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 

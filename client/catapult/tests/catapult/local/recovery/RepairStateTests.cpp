@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/local/recovery/RepairState.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/IndexFile.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/local/recovery/RepairState.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/IndexFile.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/utils/Casting.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/TestHarness.h"

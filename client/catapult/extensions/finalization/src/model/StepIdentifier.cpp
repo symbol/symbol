@@ -20,7 +20,7 @@
 **/
 
 #include "StepIdentifier.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace model {
 

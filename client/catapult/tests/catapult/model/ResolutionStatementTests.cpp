@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/ResolutionStatement.h"
-#include "catapult/crypto/Hashes.h"
+#include "src/catapult/model/ResolutionStatement.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 

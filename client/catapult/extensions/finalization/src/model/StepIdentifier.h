@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/crypto_voting/BmKeyIdentifier.h"
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/types.h"
+#include "src/catapult/crypto_voting/BmKeyIdentifier.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace model {
 

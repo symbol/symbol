@@ -21,9 +21,9 @@
 
 #include "ProcessBootstrapper.h"
 #include "PluginUtils.h"
-#include "catapult/net/PacketIoPicker.h"
-#include "catapult/plugins/PluginExceptions.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/net/PacketIoPicker.h"
+#include "src/catapult/plugins/PluginExceptions.h"
+#include "src/catapult/utils/Logging.h"
 #include <boost/exception_ptr.hpp>
 
 namespace catapult { namespace extensions {

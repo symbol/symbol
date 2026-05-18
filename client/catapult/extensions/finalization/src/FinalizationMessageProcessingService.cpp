@@ -25,12 +25,12 @@
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/ionet/FinalizationMessagePacketUtils.h"
 #include "finalization/src/model/FinalizationRoundRange.h"
-#include "catapult/consumers/RecentHashCache.h"
-#include "catapult/extensions/DispatcherUtils.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/extensions/ServiceUtils.h"
-#include "catapult/thread/MultiServicePool.h"
-#include "catapult/utils/ThrottleLogger.h"
+#include "src/catapult/consumers/RecentHashCache.h"
+#include "src/catapult/extensions/DispatcherUtils.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/extensions/ServiceUtils.h"
+#include "src/catapult/thread/MultiServicePool.h"
+#include "src/catapult/utils/ThrottleLogger.h"
 
 namespace catapult { namespace finalization {
 

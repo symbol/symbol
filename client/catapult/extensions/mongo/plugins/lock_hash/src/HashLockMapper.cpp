@@ -20,8 +20,8 @@
 **/
 
 #include "HashLockMapper.h"
-#include "mongo/src/MongoTransactionPluginFactory.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/MongoTransactionPluginFactory.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockTransaction.h"
 
 using namespace catapult::mongo::mappers;

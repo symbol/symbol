@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockConsumers.h"
-#include "catapult/consumers/TransactionConsumers.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionStatus.h"
-#include "catapult/utils/RandomGenerator.h"
+#include "src/catapult/consumers/BlockConsumers.h"
+#include "src/catapult/consumers/TransactionConsumers.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionStatus.h"
+#include "src/catapult/utils/RandomGenerator.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

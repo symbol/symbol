@@ -21,11 +21,11 @@
 
 #include "ImportanceCalculator.h"
 #include "CalculatorUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/HeightGrouping.h"
-#include "catapult/state/AccountImportanceSnapshots.h"
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/HeightGrouping.h"
+#include "src/catapult/state/AccountImportanceSnapshots.h"
+#include "src/catapult/utils/StackLogger.h"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <memory>
 #include <vector>

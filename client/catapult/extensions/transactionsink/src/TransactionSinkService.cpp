@@ -20,10 +20,10 @@
 **/
 
 #include "TransactionSinkService.h"
-#include "catapult/extensions/ServerHooksUtils.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/handlers/TransactionHandlers.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/extensions/ServerHooksUtils.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/handlers/TransactionHandlers.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace transactionsink {
 

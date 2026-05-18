@@ -20,7 +20,7 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/MultisigCache.h"
+#include "../cache/MultisigCache.h"
 
 namespace catapult { namespace observers {
 

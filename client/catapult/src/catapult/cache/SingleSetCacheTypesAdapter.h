@@ -22,7 +22,7 @@
 #pragma once
 #include "CacheDatabaseMixin.h"
 #include "CachePatriciaTree.h"
-#include "catapult/deltaset/ConditionalContainer.h"
+#include "src/catapult/deltaset/ConditionalContainer.h"
 #include <type_traits>
 
 namespace catapult { namespace cache {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/disruptor/ConsumerDispatcher.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/disruptor/ConsumerDispatcher.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Logging.h"
 #include "tests/TestHarness.h"

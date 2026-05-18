@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/MosaicRestrictionCache.h"
+#include "../cache/MosaicRestrictionCache.h"
 #include "tests/test/MosaicRestrictionTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"

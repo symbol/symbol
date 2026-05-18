@@ -21,7 +21,7 @@
 
 #pragma once
 #include "addressextraction/src/AddressExtractor.h"
-#include "catapult/model/Elements.h"
+#include "src/catapult/model/Elements.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"

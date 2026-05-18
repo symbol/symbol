@@ -20,8 +20,8 @@
 **/
 
 #include "Bip32.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/KeyPair.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/KeyPair.h"
 
 namespace catapult { namespace extensions {
 

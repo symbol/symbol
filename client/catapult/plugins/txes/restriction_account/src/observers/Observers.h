@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/model/AccountRestrictionNotifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "../model/AccountRestrictionNotifications.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace observers {
 

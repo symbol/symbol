@@ -21,11 +21,11 @@
 
 #include "BlockMapper.h"
 #include "MapperUtils.h"
-#include "catapult/crypto/MerkleHashBuilder.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/EntityHasher.h"
-#include "catapult/model/FinalizationRound.h"
+#include "src/catapult/crypto/MerkleHashBuilder.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/EntityHasher.h"
+#include "src/catapult/model/FinalizationRound.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/model/NetworkInfo.h"
-#include "catapult/model/NotificationContext.h"
-#include "catapult/plugins.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/model/NetworkInfo.h"
+#include "src/catapult/model/NotificationContext.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace validators {
 

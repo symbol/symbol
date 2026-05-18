@@ -20,7 +20,7 @@
 **/
 
 #include "UndoBlock.h"
-#include "catapult/chain/BlockExecutor.h"
+#include "src/catapult/chain/BlockExecutor.h"
 
 namespace catapult { namespace consumers {
 

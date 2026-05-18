@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ServerHooks.h"
+#include "src/catapult/extensions/ServerHooks.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"

@@ -20,13 +20,13 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheConfiguration.h"
-#include "catapult/cache/ReadOnlySimpleCache.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
-#include "catapult/cache/SynchronizedCache.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/tree/TreeNode.h"
+#include "src/catapult/cache/CacheConfiguration.h"
+#include "src/catapult/cache/ReadOnlySimpleCache.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/cache/SynchronizedCache.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/tree/TreeNode.h"
 #include "tests/test/nodeps/Atomics.h"
 #include <numeric>
 #include <unordered_set>

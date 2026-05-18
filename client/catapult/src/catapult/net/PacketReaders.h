@@ -23,7 +23,7 @@
 #include "ConnectionContainer.h"
 #include "ConnectionSettings.h"
 #include "PeerConnectResult.h"
-#include "catapult/ionet/PacketHandlers.h"
+#include "src/catapult/ionet/PacketHandlers.h"
 #include <functional>
 #include <memory>
 

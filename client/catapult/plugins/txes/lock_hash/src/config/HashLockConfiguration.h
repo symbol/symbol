@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/BlockSpan.h"
-#include "catapult/types.h"
+#include "src/catapult/utils/BlockSpan.h"
+#include "src/catapult/types.h"
 #include <stdint.h>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }

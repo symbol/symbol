@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/SpinReaderWriterLock.h"
-#include "catapult/types.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace cache {
 

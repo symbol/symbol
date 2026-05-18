@@ -21,7 +21,7 @@
 
 #include "src/builders/MosaicDefinitionBuilder.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
-#include "catapult/constants.h"
+#include "src/catapult/constants.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {

@@ -21,8 +21,8 @@
 
 #include "PtUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/preprocessor.h"
 
 namespace catapult { namespace partialtransaction {
 

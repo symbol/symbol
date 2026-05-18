@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace chain {
 

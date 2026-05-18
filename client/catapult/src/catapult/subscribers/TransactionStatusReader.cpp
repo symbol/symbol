@@ -21,9 +21,9 @@
 
 #include "TransactionStatusReader.h"
 #include "TransactionStatusSubscriber.h"
-#include "catapult/io/EntityIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/io/EntityIoUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace subscribers {
 

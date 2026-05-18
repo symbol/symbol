@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/HeightDependentAddress.h"
-#include "catapult/plugins.h"
+#include "src/catapult/model/HeightDependentAddress.h"
+#include "src/catapult/plugins.h"
 #include <memory>
 
 namespace catapult { namespace model { class TransactionPlugin; } }

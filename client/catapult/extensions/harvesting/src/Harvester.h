@@ -22,10 +22,10 @@
 #pragma once
 #include "HarvesterBlockGenerator.h"
 #include "UnlockedAccounts.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/EntityInfo.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/EntityInfo.h"
 
 namespace catapult { namespace harvesting { struct BlockExecutionHashes; } }
 

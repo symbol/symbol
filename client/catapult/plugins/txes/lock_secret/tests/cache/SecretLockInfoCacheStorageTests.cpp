@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/SecretLockInfoCacheStorage.h"
+#include "../cache/SecretLockInfoCacheStorage.h"
 #include "plugins/txes/lock_shared/tests/cache/LockInfoCacheStorageTests.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/TestHarness.h"

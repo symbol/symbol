@@ -20,9 +20,9 @@
 **/
 
 #include "src/plugins/NamespacePlugin.h"
-#include "src/cache/NamespaceCache.h"
-#include "src/model/NamespaceEntityType.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "../cache/NamespaceCache.h"
+#include "../model/NamespaceEntityType.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"

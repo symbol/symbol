@@ -20,7 +20,7 @@
 **/
 
 #include "SecretLockInfoHistorySerializer.h"
-#include "src/model/LockHashUtils.h"
+#include "../model/LockHashUtils.h"
 
 namespace catapult { namespace state {
 

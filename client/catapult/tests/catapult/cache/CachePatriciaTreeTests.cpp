@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CachePatriciaTree.h"
-#include "catapult/cache_db/RocksInclude.h"
-#include "catapult/tree/BasePatriciaTree.h"
+#include "src/catapult/cache/CachePatriciaTree.h"
+#include "src/catapult/cache_db/RocksInclude.h"
+#include "src/catapult/tree/BasePatriciaTree.h"
 #include "tests/catapult/cache/test/PatriciaTreeTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"

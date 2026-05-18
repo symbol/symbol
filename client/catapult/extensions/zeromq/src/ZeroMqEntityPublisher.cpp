@@ -22,13 +22,13 @@
 #include "ZeroMqEntityPublisher.h"
 #include "PackedFinalizedBlockHeader.h"
 #include "PublisherUtils.h"
-#include "catapult/model/Cosignature.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionStatus.h"
-#include "catapult/model/TransactionUtils.h"
-#include "catapult/thread/IoThreadPool.h"
+#include "src/catapult/model/Cosignature.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionStatus.h"
+#include "src/catapult/model/TransactionUtils.h"
+#include "src/catapult/thread/IoThreadPool.h"
 #include <boost/asio.hpp>
 #include <set>
 

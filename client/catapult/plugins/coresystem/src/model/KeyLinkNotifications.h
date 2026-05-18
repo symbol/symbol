@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Notifications.h"
-#include "catapult/model/PinnedVotingKey.h"
+#include "src/catapult/model/Notifications.h"
+#include "src/catapult/model/PinnedVotingKey.h"
 
 namespace catapult { namespace model {
 

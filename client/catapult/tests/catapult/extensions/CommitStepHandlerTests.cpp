@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/CommitStepHandler.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/extensions/CommitStepHandler.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/IndexFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/BufferInputStreamAdapter.h"
+#include "src/catapult/io/BufferInputStreamAdapter.h"
 #include "tests/catapult/io/test/StreamTests.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"

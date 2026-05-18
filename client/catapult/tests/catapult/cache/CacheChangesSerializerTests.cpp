@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CacheChangesSerializer.h"
+#include "src/catapult/cache/CacheChangesSerializer.h"
 #include "tests/catapult/cache/test/ByteVectorCacheChanges.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"

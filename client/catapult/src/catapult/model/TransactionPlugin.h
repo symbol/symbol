@@ -24,8 +24,8 @@
 #include "ResolverContext.h"
 #include "TransactionRegistry.h"
 #include "WeakEntityInfo.h"
-#include "catapult/utils/TimeSpan.h"
-#include "catapult/plugins.h"
+#include "src/catapult/utils/TimeSpan.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult {
 	namespace model {

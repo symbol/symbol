@@ -23,10 +23,10 @@
 #include "CertificateLocator.h"
 #include "ClientSocket.h"
 #include "NodeTestUtils.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/ConnectionSettings.h"
-#include "catapult/thread/IoThreadPool.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/net/ConnectionSettings.h"
+#include "src/catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/steady_timer.hpp>

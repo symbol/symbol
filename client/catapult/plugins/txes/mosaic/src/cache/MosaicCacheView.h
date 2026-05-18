@@ -22,9 +22,9 @@
 #pragma once
 #include "MosaicBaseSets.h"
 #include "MosaicCacheSerializers.h"
-#include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlyArtifactCache.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/cache/CacheMixinAliases.h"
+#include "src/catapult/cache/ReadOnlyArtifactCache.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
 
 namespace catapult { namespace cache {
 

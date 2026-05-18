@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/net/PacketWriters.h"
+#include "src/catapult/net/PacketWriters.h"
 #include "tests/test/nodeps/Waits.h"
 #include <thread>
 #include <unordered_map>

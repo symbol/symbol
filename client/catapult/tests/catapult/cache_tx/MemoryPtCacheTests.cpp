@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_tx/MemoryPtCache.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/model/Cosignature.h"
+#include "src/catapult/cache_tx/MemoryPtCache.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/model/Cosignature.h"
 #include "tests/catapult/cache_tx/test/TransactionCacheTests.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"

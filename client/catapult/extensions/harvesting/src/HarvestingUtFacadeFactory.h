@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/chain/ExecutionConfiguration.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/chain/ExecutionConfiguration.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 
 namespace catapult { namespace harvesting {
 

@@ -20,9 +20,9 @@
 **/
 
 #include "FinalizationMessageTestUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "src/catapult/model/BlockUtils.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

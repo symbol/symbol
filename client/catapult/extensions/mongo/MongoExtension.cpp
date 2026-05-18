@@ -31,9 +31,9 @@
 #include "src/MongoPtStorage.h"
 #include "src/MongoTransactionStatusStorage.h"
 #include "src/MongoTransactionStorage.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/extensions/RootedService.h"
-#include "catapult/io/BlockStorageChangeSubscriber.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/RootedService.h"
+#include "src/catapult/io/BlockStorageChangeSubscriber.h"
 #include <mongocxx/instance.hpp>
 
 namespace catapult { namespace mongo {

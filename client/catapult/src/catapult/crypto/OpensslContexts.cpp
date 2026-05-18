@@ -20,7 +20,7 @@
 **/
 
 #include "OpensslContexts.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push

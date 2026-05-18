@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/Node.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 #include <sstream>
 

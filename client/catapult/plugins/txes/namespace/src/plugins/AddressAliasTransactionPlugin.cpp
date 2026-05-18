@@ -20,11 +20,11 @@
 **/
 
 #include "AddressAliasTransactionPlugin.h"
-#include "src/model/AddressAliasTransaction.h"
-#include "src/model/AliasNotifications.h"
-#include "src/model/NamespaceNotifications.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
+#include "../model/AddressAliasTransaction.h"
+#include "../model/AliasNotifications.h"
+#include "../model/NamespaceNotifications.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

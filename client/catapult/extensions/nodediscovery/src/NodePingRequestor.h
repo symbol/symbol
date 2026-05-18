@@ -22,7 +22,7 @@
 #pragma once
 #include "NodePingUtils.h"
 #include "nodediscovery/src/api/RemoteNodeApi.h"
-#include "catapult/net/BriefServerRequestor.h"
+#include "src/catapult/net/BriefServerRequestor.h"
 
 namespace catapult { namespace nodediscovery {
 

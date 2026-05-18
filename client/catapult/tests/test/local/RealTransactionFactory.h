@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/types.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/types.h"
 #include <memory>
 #include <vector>
 

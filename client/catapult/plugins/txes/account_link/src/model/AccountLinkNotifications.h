@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/LinkAction.h"
-#include "catapult/model/Mosaic.h"
-#include "catapult/model/Notifications.h"
+#include "src/catapult/model/LinkAction.h"
+#include "src/catapult/model/Mosaic.h"
+#include "src/catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
 

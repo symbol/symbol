@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/BasicAggregateSubscriber.h"
+#include "src/catapult/subscribers/BasicAggregateSubscriber.h"
 #include "tests/catapult/subscribers/test/AggregateSubscriberTestContext.h"
 #include "tests/TestHarness.h"
 

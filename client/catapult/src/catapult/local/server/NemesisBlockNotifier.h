@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 
 namespace catapult {
 	namespace cache { class CatapultCache; }

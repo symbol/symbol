@@ -20,7 +20,7 @@
 **/
 
 #include "PluginModule.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 #ifdef _WIN32
 #include <windows.h>

@@ -20,15 +20,15 @@
 **/
 
 #include "tools/ToolMain.h"
-#include "catapult/crypto/AesDecrypt.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/SharedKey.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/extensions/Bip32.h"
-#include "catapult/extensions/Bip39.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/MosaicIdGenerator.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/crypto/AesDecrypt.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/SharedKey.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/extensions/Bip32.h"
+#include "src/catapult/extensions/Bip39.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/MosaicIdGenerator.h"
+#include "src/catapult/utils/HexParser.h"
 #ifdef _MSC_VER
 #include <boost/config/compiler/visualc.hpp>
 #endif

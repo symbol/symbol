@@ -20,13 +20,13 @@
 **/
 
 #include "PeersConnectionTasks.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/net/PacketWriters.h"
-#include "catapult/thread/FutureUtils.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/net/PacketWriters.h"
+#include "src/catapult/thread/FutureUtils.h"
+#include "src/catapult/utils/Logging.h"
 
 namespace catapult { namespace extensions {
 

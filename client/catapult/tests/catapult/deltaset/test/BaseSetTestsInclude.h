@@ -21,12 +21,12 @@
 
 #pragma once
 #include "ContainerDeltaPair.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/deltaset/BaseSet.h"
-#include "catapult/deltaset/BaseSetDefaultTraits.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/deltaset/OrderedSet.h"
-#include "catapult/utils/traits/StlTraits.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/deltaset/BaseSet.h"
+#include "src/catapult/deltaset/BaseSetDefaultTraits.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/deltaset/OrderedSet.h"
+#include "src/catapult/utils/traits/StlTraits.h"
 #include "tests/test/other/TestElement.h"
 #include "tests/TestHarness.h"
 #include <set>

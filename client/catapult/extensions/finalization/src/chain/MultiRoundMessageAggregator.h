@@ -21,9 +21,9 @@
 
 #pragma once
 #include "RoundMessageAggregator.h"
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/HeightHashPair.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/model/HeightHashPair.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
 
 namespace catapult {
 	namespace chain { struct MultiRoundMessageAggregatorState; }

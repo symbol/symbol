@@ -21,12 +21,12 @@
 
 #include "tools/ToolMain.h"
 #include "tools/ToolConfigurationUtils.h"
-#include "catapult/builders/AccountKeyLinkBuilder.h"
-#include "catapult/builders/VotingKeyLinkBuilder.h"
-#include "catapult/builders/VrfKeyLinkBuilder.h"
-#include "catapult/extensions/TransactionExtensions.h"
-#include "catapult/io/RawFile.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/builders/AccountKeyLinkBuilder.h"
+#include "src/catapult/builders/VotingKeyLinkBuilder.h"
+#include "src/catapult/builders/VrfKeyLinkBuilder.h"
+#include "src/catapult/extensions/TransactionExtensions.h"
+#include "src/catapult/io/RawFile.h"
+#include "src/catapult/utils/HexParser.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace linker {

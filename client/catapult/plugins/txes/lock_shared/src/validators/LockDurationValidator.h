@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/validators/ValidationResult.h"
+#include "src/catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace validators {
 

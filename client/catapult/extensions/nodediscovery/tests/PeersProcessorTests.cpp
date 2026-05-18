@@ -20,8 +20,8 @@
 **/
 
 #include "nodediscovery/src/PeersProcessor.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/utils/ArraySet.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/TestHarness.h"

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MongoStorageContext.h"
-#include "catapult/subscribers/TransactionStatusSubscriber.h"
+#include "src/catapult/subscribers/TransactionStatusSubscriber.h"
 #include <memory>
 
 namespace catapult { namespace mongo {

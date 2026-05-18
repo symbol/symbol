@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Packet.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/tree/PatriciaTreeSerializer.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/ionet/Packet.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/tree/PatriciaTreeSerializer.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace handlers {
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "AccountRestrictionDescriptor.h"
-#include "src/model/AccountRestrictionModification.h"
+#include "../model/AccountRestrictionModification.h"
 #include <set>
 
 namespace catapult { namespace state {

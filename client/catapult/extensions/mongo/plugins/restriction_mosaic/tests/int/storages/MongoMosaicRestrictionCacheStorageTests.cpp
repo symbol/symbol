@@ -20,7 +20,7 @@
 **/
 
 #include "src/storages/MongoMosaicRestrictionCacheStorage.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"

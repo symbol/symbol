@@ -20,18 +20,18 @@
 **/
 
 #include "NemesisBlockNotifier.h"
-#include "catapult/cache/CacheChanges.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/extensions/NemesisBlockLoader.h"
-#include "catapult/io/BlockChangeSubscriber.h"
-#include "catapult/io/BlockStatementSerializer.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/ChainScore.h"
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/subscribers/FinalizationSubscriber.h"
-#include "catapult/subscribers/StateChangeInfo.h"
-#include "catapult/subscribers/StateChangeSubscriber.h"
+#include "src/catapult/cache/CacheChanges.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/extensions/NemesisBlockLoader.h"
+#include "src/catapult/io/BlockChangeSubscriber.h"
+#include "src/catapult/io/BlockStatementSerializer.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/model/ChainScore.h"
+#include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/subscribers/FinalizationSubscriber.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/subscribers/StateChangeSubscriber.h"
 
 namespace catapult { namespace local {
 

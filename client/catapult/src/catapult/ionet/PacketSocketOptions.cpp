@@ -20,8 +20,8 @@
 **/
 
 #include "PacketSocketOptions.h"
-#include "catapult/crypto/CatapultCertificateProcessor.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/crypto/CatapultCertificateProcessor.h"
+#include "src/catapult/exceptions.h"
 #include <boost/asio/ssl.hpp>
 
 namespace catapult { namespace ionet {

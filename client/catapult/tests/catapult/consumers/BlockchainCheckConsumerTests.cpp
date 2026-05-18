@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockConsumers.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/consumers/BlockConsumers.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"

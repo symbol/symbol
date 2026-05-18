@@ -23,7 +23,7 @@
 #include "CacheStorage.h"
 #include "CatapultCacheView.h"
 #include "ChunkedDataLoader.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace cache {
 

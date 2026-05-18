@@ -20,7 +20,7 @@
 **/
 
 #include "EntityType.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult { namespace model {
 

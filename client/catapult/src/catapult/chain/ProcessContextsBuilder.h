@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ExecutionConfiguration.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
 
 namespace catapult {
 	namespace cache {

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "src/cache/MetadataCache.h"
-#include "src/cache/MetadataCacheStorage.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "../cache/MetadataCache.h"
+#include "../cache/MetadataCacheStorage.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {

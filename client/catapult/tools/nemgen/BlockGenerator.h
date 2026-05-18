@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/Elements.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/Elements.h"
 #include <memory>
 
 namespace catapult {

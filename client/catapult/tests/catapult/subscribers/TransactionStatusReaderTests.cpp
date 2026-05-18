@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/TransactionStatusReader.h"
+#include "src/catapult/subscribers/TransactionStatusReader.h"
 #include "tests/test/core/TransactionStatusTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"

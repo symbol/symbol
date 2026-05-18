@@ -26,9 +26,9 @@
 #include "src/ZeroMqPtChangeSubscriber.h"
 #include "src/ZeroMqTransactionStatusSubscriber.h"
 #include "src/ZeroMqUtChangeSubscriber.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/extensions/RootedService.h"
-#include "catapult/model/NotificationPublisher.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/RootedService.h"
+#include "src/catapult/model/NotificationPublisher.h"
 
 namespace catapult { namespace zeromq {
 

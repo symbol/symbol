@@ -20,10 +20,10 @@
 **/
 
 #include "MultisigTestUtils.h"
-#include "src/cache/MultisigCache.h"
-#include "catapult/cache/CatapultCacheDelta.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "../cache/MultisigCache.h"
+#include "src/catapult/cache/CatapultCacheDelta.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {

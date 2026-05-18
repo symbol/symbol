@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BaseSetDefaultTraits.h"
-#include "catapult/utils/traits/StlTraits.h"
+#include "src/catapult/utils/traits/StlTraits.h"
 #include <unordered_set>
 
 namespace catapult { namespace deltaset {

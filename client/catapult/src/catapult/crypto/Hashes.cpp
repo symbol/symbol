@@ -20,8 +20,8 @@
 **/
 
 #include "Hashes.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push

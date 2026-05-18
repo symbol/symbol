@@ -20,9 +20,9 @@
 **/
 
 #include "BlockScorer.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/HeightGrouping.h"
-#include "catapult/utils/IntegerMath.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/HeightGrouping.h"
+#include "src/catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace chain {
 

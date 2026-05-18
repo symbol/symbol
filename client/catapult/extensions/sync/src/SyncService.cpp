@@ -21,17 +21,17 @@
 
 #include "SyncService.h"
 #include "NetworkPacketWritersService.h"
-#include "catapult/api/LocalChainApi.h"
-#include "catapult/api/RemoteChainApi.h"
-#include "catapult/api/RemoteTransactionApi.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/chain/UtSynchronizer.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/extensions/PeersConnectionTasks.h"
-#include "catapult/extensions/SynchronizerTaskCallbacks.h"
-#include "catapult/thread/FutureUtils.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/api/LocalChainApi.h"
+#include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/api/RemoteTransactionApi.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/chain/UtSynchronizer.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/extensions/PeersConnectionTasks.h"
+#include "src/catapult/extensions/SynchronizerTaskCallbacks.h"
+#include "src/catapult/thread/FutureUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace sync {
 

@@ -20,9 +20,9 @@
 **/
 
 #include "Observers.h"
-#include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/state/BlockStatistic.h"
-#include "catapult/state/DynamicFeeMultiplier.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
+#include "src/catapult/state/BlockStatistic.h"
+#include "src/catapult/state/DynamicFeeMultiplier.h"
 
 namespace catapult { namespace observers {
 

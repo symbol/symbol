@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
 #include "tests/int/node/test/LocalNodeApiTraits.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/int/node/test/PeerLocalNodeTestContext.h"

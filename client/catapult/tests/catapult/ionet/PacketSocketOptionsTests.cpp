@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/PacketSocketOptions.h"
+#include "src/catapult/ionet/PacketSocketOptions.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

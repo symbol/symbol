@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CacheConfiguration.h"
+#include "src/catapult/cache/CacheConfiguration.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

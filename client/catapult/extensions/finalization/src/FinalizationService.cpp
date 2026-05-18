@@ -28,14 +28,14 @@
 #include "finalization/src/chain/FinalizationProofSynchronizer.h"
 #include "finalization/src/chain/FinalizationProofVerifier.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "catapult/config/CatapultKeys.h"
-#include "catapult/extensions/NetworkUtils.h"
-#include "catapult/extensions/PeersConnectionTasks.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceUtils.h"
-#include "catapult/extensions/SynchronizerTaskCallbacks.h"
-#include "catapult/net/PacketWriters.h"
-#include "catapult/thread/MultiServicePool.h"
+#include "src/catapult/config/CatapultKeys.h"
+#include "src/catapult/extensions/NetworkUtils.h"
+#include "src/catapult/extensions/PeersConnectionTasks.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceUtils.h"
+#include "src/catapult/extensions/SynchronizerTaskCallbacks.h"
+#include "src/catapult/net/PacketWriters.h"
+#include "src/catapult/thread/MultiServicePool.h"
 
 namespace catapult { namespace finalization {
 

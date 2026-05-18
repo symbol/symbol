@@ -20,7 +20,7 @@
 **/
 
 #include "CatapultKeys.h"
-#include "catapult/crypto/OpensslKeyUtils.h"
+#include "src/catapult/crypto/OpensslKeyUtils.h"
 #include <filesystem>
 
 namespace catapult { namespace config {

@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/consumers/HashCheckOptions.h"
-#include "catapult/disruptor/BatchRangeDispatcher.h"
-#include "catapult/thread/Task.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/consumers/HashCheckOptions.h"
+#include "src/catapult/disruptor/BatchRangeDispatcher.h"
+#include "src/catapult/thread/Task.h"
 
 namespace catapult {
 	namespace config { struct NodeConfiguration; }

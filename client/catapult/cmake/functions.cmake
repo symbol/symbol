@@ -417,6 +417,7 @@ endmacro()
 #		[DEPENDENCIES target1 [target2 ...]]
 #		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
+#		[LABELS label1 [label2 ...]])
 #	add_target(<target-name> CUSTOM
 #		[SOURCES <sources>...])
 #
@@ -529,6 +530,9 @@ function(add_target TNAME TTYPE)
 
 	elseif(TTYPE STREQUAL "TEST")
 
+		
+		list(APPEND _fn_multi LABELS)
+
 		# Test targets should be in the form test.xyz so it's possible to derive xyz as the library under test
 		# and automatically link it to the test executable. 
 		# There are cases though where this is not possible or desireable
@@ -566,6 +570,10 @@ function(add_target TNAME TTYPE)
 		endif()
 		add_target(${TNAME} ${_call_args})
 		add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
+
+		if(_arg_LABELS)
+			set_property(TEST ${TNAME} PROPERTY LABELS ${_arg_LABELS})
+		endif()
 		
 	elseif(TTYPE STREQUAL "TOOL")
 		

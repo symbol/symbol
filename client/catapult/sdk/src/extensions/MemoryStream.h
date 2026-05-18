@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/io/SeekableStream.h"
+#include "src/catapult/io/SeekableStream.h"
 #include <vector>
 
 namespace catapult { namespace extensions {

@@ -26,8 +26,8 @@
 #include "src/FinalizationOrchestratorService.h"
 #include "src/FinalizationService.h"
 #include "src/FinalizationSyncSourceService.h"
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/config/ConfigurationFileLoader.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace finalization {
 

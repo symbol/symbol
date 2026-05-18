@@ -21,9 +21,9 @@
 
 #pragma once
 #include "PtTypes.h"
-#include "catapult/extensions/BasicServerHooks.h"
-#include "catapult/extensions/ServiceRegistrar.h"
-#include "catapult/handlers/HandlerTypes.h"
+#include "src/catapult/extensions/BasicServerHooks.h"
+#include "src/catapult/extensions/ServiceRegistrar.h"
+#include "src/catapult/handlers/HandlerTypes.h"
 
 namespace catapult { namespace cache { class MemoryPtCacheProxy; } }
 

@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoBlockStorage.h"
-#include "mongo/src/MongoBulkWriter.h"
-#include "mongo/src/MongoChainStatisticUtils.h"
-#include "mongo/src/MongoReceiptPlugin.h"
-#include "mongo/src/MongoTransactionMetadata.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/EntityHasher.h"
+#include "extensions/mongo/src/MongoBlockStorage.h"
+#include "extensions/mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/MongoChainStatisticUtils.h"
+#include "extensions/mongo/src/MongoReceiptPlugin.h"
+#include "extensions/mongo/src/MongoTransactionMetadata.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/EntityHasher.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"

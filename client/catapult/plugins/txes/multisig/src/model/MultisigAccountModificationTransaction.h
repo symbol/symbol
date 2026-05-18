@@ -21,8 +21,8 @@
 
 #pragma once
 #include "MultisigEntityType.h"
-#include "catapult/model/ContainerTypes.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/model/ContainerTypes.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 

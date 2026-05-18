@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/Mosaic.h"
+#include "src/catapult/model/Mosaic.h"
 #include <vector>
 
 namespace catapult {

@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "src/model/AliasNotifications.h"
-#include "src/model/NamespaceNotifications.h"
-#include "catapult/model/Notifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "../model/AliasNotifications.h"
+#include "../model/NamespaceNotifications.h"
+#include "src/catapult/model/Notifications.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace observers {
 

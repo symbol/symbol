@@ -20,7 +20,7 @@
 **/
 
 #include "TransactionFeeMaximizer.h"
-#include "catapult/model/FeeUtils.h"
+#include "src/catapult/model/FeeUtils.h"
 
 namespace catapult { namespace harvesting {
 

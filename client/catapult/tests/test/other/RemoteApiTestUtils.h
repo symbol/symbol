@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/api/ApiTypes.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/api/ApiTypes.h"
+#include "src/catapult/utils/Casting.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/TestHarness.h"
 

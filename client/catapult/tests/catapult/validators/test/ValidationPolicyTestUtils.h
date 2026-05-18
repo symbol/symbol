@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Block.h"
-#include "catapult/model/WeakEntityInfo.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/WeakEntityInfo.h"
 
 namespace catapult { namespace test {
 

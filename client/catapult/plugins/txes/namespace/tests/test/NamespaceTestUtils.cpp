@@ -20,7 +20,7 @@
 **/
 
 #include "NamespaceTestUtils.h"
-#include "src/state/RootNamespaceHistory.h"
+#include "../state/RootNamespaceHistory.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

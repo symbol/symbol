@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/FileSize.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/FileSize.h"
+#include "src/catapult/utils/Logging.h"
 #include <string>
 #include <unordered_map>
 

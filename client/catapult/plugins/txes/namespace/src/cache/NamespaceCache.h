@@ -23,7 +23,7 @@
 #include "NamespaceCacheDelta.h"
 #include "NamespaceCacheStorage.h"
 #include "NamespaceCacheView.h"
-#include "catapult/cache/BasicCache.h"
+#include "src/catapult/cache/BasicCache.h"
 
 namespace catapult { namespace cache {
 

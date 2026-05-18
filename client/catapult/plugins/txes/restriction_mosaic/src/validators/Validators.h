@@ -21,8 +21,8 @@
 
 #pragma once
 #include "Results.h"
-#include "src/model/MosaicRestrictionNotifications.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "../model/MosaicRestrictionNotifications.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace validators {
 

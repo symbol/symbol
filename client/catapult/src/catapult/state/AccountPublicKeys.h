@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/PinnedVotingKey.h"
-#include "catapult/utils/BitwiseEnum.h"
-#include "catapult/types.h"
+#include "src/catapult/model/PinnedVotingKey.h"
+#include "src/catapult/utils/BitwiseEnum.h"
+#include "src/catapult/types.h"
 #include <memory>
 
 namespace catapult { namespace state {

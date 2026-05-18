@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/net/ConnectionSettings.h"
-#include "catapult/thread/Future.h"
-#include "catapult/types.h"
+#include "src/catapult/net/ConnectionSettings.h"
+#include "src/catapult/thread/Future.h"
+#include "src/catapult/types.h"
 
 namespace catapult {
 	namespace ionet {

@@ -21,10 +21,10 @@
 
 #include "ParallelValidationPolicy.h"
 #include "AggregateValidationResult.h"
-#include "catapult/thread/FutureUtils.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/thread/ParallelFor.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/thread/FutureUtils.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/thread/ParallelFor.h"
+#include "src/catapult/utils/Logging.h"
 #include <boost/asio/io_context.hpp>
 #include <algorithm>
 

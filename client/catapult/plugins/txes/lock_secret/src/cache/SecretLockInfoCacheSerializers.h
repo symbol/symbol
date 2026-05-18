@@ -21,7 +21,7 @@
 
 #pragma once
 #include "SecretLockInfoCacheTypes.h"
-#include "src/state/SecretLockInfoHistorySerializer.h"
+#include "../state/SecretLockInfoHistorySerializer.h"
 
 namespace catapult { namespace cache {
 

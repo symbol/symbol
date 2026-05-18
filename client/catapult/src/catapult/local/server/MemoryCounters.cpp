@@ -20,8 +20,8 @@
 **/
 
 #include "MemoryCounters.h"
-#include "catapult/utils/DiagnosticCounter.h"
-#include "catapult/utils/FileSize.h"
+#include "src/catapult/utils/DiagnosticCounter.h"
+#include "src/catapult/utils/FileSize.h"
 #include <fstream>
 
 #ifdef _WIN32

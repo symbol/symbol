@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/Vrf.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/SharedKey.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/crypto/Vrf.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/SharedKey.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/crypto/CurveUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

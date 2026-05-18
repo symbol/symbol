@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/model/EntityRange.h"
-#include "catapult/model/VerifiableEntity.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/model/EntityRange.h"
+#include "src/catapult/model/VerifiableEntity.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 #include <memory>
 #include <vector>

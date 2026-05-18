@@ -20,7 +20,7 @@
 **/
 
 #include "ResolutionStatement.h"
-#include "catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/Hashes.h"
 
 namespace catapult { namespace model {
 

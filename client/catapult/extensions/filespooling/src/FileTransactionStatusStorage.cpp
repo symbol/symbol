@@ -20,9 +20,9 @@
 **/
 
 #include "FileTransactionStatusStorage.h"
-#include "catapult/io/EntityIoUtils.h"
-#include "catapult/model/Transaction.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/io/EntityIoUtils.h"
+#include "src/catapult/model/Transaction.h"
+#include "src/catapult/utils/SpinLock.h"
 
 namespace catapult { namespace filespooling {
 

@@ -21,8 +21,8 @@
 
 #pragma once
 #include "BaseSetTestsInclude.h"
-#include "catapult/deltaset/BaseSetDeltaIterationView.h"
-#include "catapult/deltaset/BaseSetIterationView.h"
+#include "src/catapult/deltaset/BaseSetDeltaIterationView.h"
+#include "src/catapult/deltaset/BaseSetIterationView.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

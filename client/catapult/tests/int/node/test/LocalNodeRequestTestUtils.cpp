@@ -22,7 +22,7 @@
 #include "LocalNodeRequestTestUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/Nemesis.h"

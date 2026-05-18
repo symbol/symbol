@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/model/TransactionPlugin.h"
-#include "catapult/net/ConnectionSettings.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/model/TransactionPlugin.h"
+#include "src/catapult/net/ConnectionSettings.h"
 #include "tests/test/nodeps/Filesystem.h"
 
 namespace catapult {

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace extensions {
 

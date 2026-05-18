@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/NamespaceCacheStorage.h"
+#include "../cache/NamespaceCacheStorage.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/RootNamespaceHistoryLoadTests.h"
 #include "tests/TestHarness.h"

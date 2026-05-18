@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/traits/Traits.h"
+#include "src/catapult/utils/traits/Traits.h"
 #include <algorithm>
 #include <iosfwd>
 #include <vector>

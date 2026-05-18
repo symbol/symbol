@@ -22,10 +22,10 @@
 #include "ToolNetworkUtils.h"
 #include "ToolKeys.h"
 #include "ToolThreadUtils.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/ServerConnector.h"
-#include "catapult/thread/IoThreadPool.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/net/ServerConnector.h"
+#include "src/catapult/thread/IoThreadPool.h"
 
 namespace catapult { namespace tools {
 

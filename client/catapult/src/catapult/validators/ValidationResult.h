@@ -21,8 +21,8 @@
 
 #pragma once
 #include "FacilityCode.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/Logging.h"
 #include <iosfwd>
 
 namespace catapult { namespace validators {

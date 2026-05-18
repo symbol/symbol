@@ -20,8 +20,8 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

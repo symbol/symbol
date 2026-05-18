@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_tx/PtChangeSubscriber.h"
-#include "catapult/model/Cosignature.h"
+#include "src/catapult/cache_tx/PtChangeSubscriber.h"
+#include "src/catapult/model/Cosignature.h"
 #include "tests/test/cache/AggregateTransactionsCacheTestUtils.h"
 
 namespace catapult { namespace mocks {

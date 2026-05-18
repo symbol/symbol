@@ -20,8 +20,8 @@
 **/
 
 #include "VerifiableStateService.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/handlers/MerkleHandlers.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/handlers/MerkleHandlers.h"
 
 namespace catapult { namespace syncsource {
 

@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/AggregateEntityType.h"
+#include "../model/AggregateEntityType.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

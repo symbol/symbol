@@ -20,7 +20,7 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/model/Address.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

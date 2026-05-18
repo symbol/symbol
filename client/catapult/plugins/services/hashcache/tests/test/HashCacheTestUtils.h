@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/cache/HashCacheStorage.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "../cache/HashCacheStorage.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {

@@ -21,8 +21,8 @@
 
 #include "UtSynchronizer.h"
 #include "EntitiesSynchronizer.h"
-#include "catapult/api/RemoteTransactionApi.h"
-#include "catapult/model/NodeIdentity.h"
+#include "src/catapult/api/RemoteTransactionApi.h"
+#include "src/catapult/model/NodeIdentity.h"
 
 namespace catapult { namespace chain {
 

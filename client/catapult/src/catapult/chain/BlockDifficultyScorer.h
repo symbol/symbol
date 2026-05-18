@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/types.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace chain {
 

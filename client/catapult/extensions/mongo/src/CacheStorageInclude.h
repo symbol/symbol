@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ExternalCacheStorage.h"
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 #include <memory>
 
 namespace catapult { namespace mongo { class MongoStorageContext; } }

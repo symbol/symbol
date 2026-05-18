@@ -20,10 +20,10 @@
 **/
 
 #include "StateChangeRepairingSubscriber.h"
-#include "catapult/cache/CacheChangesStorage.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/cache/CacheChangesStorage.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
 
 namespace catapult { namespace local {
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/ChainScore.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/model/ChainScore.h"
+#include "src/catapult/observers/ObserverTypes.h"
 #include <functional>
 
 namespace catapult {

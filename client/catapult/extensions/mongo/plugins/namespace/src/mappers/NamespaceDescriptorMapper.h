@@ -21,7 +21,7 @@
 
 #pragma once
 #include "NamespaceDescriptor.h"
-#include "mongo/src/mappers/MapperInclude.h"
+#include "extensions/mongo/src/mappers/MapperInclude.h"
 
 namespace catapult { namespace mongo { namespace plugins {
 

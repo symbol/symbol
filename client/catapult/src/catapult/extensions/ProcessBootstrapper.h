@@ -21,12 +21,12 @@
 
 #pragma once
 #include "ExtensionManager.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/plugins/PluginModule.h"
-#include "catapult/subscribers/SubscriptionManager.h"
-#include "catapult/thread/MultiServicePool.h"
-#include "catapult/plugins.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/plugins/PluginModule.h"
+#include "src/catapult/subscribers/SubscriptionManager.h"
+#include "src/catapult/thread/MultiServicePool.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace extensions {
 

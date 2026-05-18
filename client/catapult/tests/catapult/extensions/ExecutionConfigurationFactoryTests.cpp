@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ExecutionConfigurationFactory.h"
+#include "src/catapult/extensions/ExecutionConfigurationFactory.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/TestHarness.h"
 

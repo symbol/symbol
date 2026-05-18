@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/MultisigCacheStorage.h"
-#include "src/cache/MultisigCache.h"
+#include "../cache/MultisigCacheStorage.h"
+#include "../cache/MultisigCache.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"

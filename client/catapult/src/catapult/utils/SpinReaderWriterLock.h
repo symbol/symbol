@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/exceptions.h"
-#include "catapult/functions.h"
+#include "src/catapult/exceptions.h"
+#include "src/catapult/functions.h"
 #include <atomic>
 #include <thread>
 

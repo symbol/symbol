@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/EntityInfo.h"
-#include "catapult/model/EntityRange.h"
-#include "catapult/utils/ShortHash.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/model/EntityRange.h"
+#include "src/catapult/utils/ShortHash.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include <vector>
 

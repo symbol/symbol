@@ -20,9 +20,9 @@
 **/
 
 #include "MetadataEntryMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/metadata/src/state/MetadataEntry.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/utils/Casting.h"
 
 using namespace catapult::mongo::mappers;
 

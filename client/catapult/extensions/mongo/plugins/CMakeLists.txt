@@ -1,15 +1,7 @@
-set(PLUGIN_CATAPULT_LIBS catapult.mongo)
-
-function(catapult_mongo_plugin_src_no_deps PLUGIN_BASE_NAME)
-	catapult_shared_library_target(${PLUGIN_BASE_NAME} "${ARGN}")
-	target_link_libraries(${PLUGIN_BASE_NAME} ${MongoDB_IMPORTED_TARGETS} ${PLUGIN_CATAPULT_LIBS})
-	add_dependencies(mongo ${PLUGIN_BASE_NAME})
-endfunction()
-
 function(catapult_mongo_plugin_src_with_deps PLUGIN_BASE_NAME)
 	# create a deps lib
 	catapult_library_target(${PLUGIN_BASE_NAME}.deps "${ARGN}")
-	target_link_libraries(${PLUGIN_BASE_NAME}.deps ${MongoDB_IMPORTED_TARGETS} ${PLUGIN_CATAPULT_LIBS})
+	target_link_libraries(${PLUGIN_BASE_NAME}.deps ${MongoDB_IMPORTED_TARGETS} catapult.mongo)
 
 	# create a plugin dll
 	catapult_shared_library_target(${PLUGIN_BASE_NAME})
@@ -21,11 +13,10 @@ endfunction()
 function(catapult_mongo_plugin_tests_no_deps TARGET_NAME)
 	add_target(
 		${TARGET_NAME} TEST
+		NO_DERIVED_LIB
 		LINK_LIBS tests.catapult.test.mongo ${MongoDB_IMPORTED_TARGETS}
 		SOURCES ./
 	)
-	#catapult_test_executable_target(${TARGET_NAME} mongo)
-	#target_link_libraries(${TARGET_NAME} ${MongoDB_IMPORTED_TARGETS})
 endfunction()
 
 function(catapult_mongo_plugin_tests_with_header_only_deps TARGET_NAME)

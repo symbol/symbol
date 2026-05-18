@@ -21,7 +21,7 @@
 
 #pragma once
 #include "Hashers.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <set>
 #include <unordered_map>
 #include <unordered_set>

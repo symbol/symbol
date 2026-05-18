@@ -21,7 +21,7 @@
 
 #include "harvesting/src/ScheduledHarvesterTask.h"
 #include "harvesting/src/Harvester.h"
-#include "catapult/cache_core/BlockStatisticCache.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

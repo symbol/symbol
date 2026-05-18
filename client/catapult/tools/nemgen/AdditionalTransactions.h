@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/model/BlockUtils.h"
 
 namespace catapult {
 	namespace model { class NotificationPublisher; }

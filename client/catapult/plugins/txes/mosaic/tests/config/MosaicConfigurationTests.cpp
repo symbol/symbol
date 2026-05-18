@@ -20,9 +20,9 @@
 **/
 
 #include "src/config/MosaicConfiguration.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/ChainScore.h"
+#include "src/catapult/model/ChainScore.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/TestHarness.h"
 

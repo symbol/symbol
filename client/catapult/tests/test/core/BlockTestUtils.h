@@ -21,8 +21,8 @@
 
 #pragma once
 #include "TransactionTestUtils.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/RangeTypes.h"
 #include <list>
 #include <memory>
 #include <vector>

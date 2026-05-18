@@ -20,7 +20,7 @@
 **/
 
 #include "src/plugins/MetadataPlugin.h"
-#include "src/model/MetadataEntityType.h"
+#include "../model/MetadataEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

@@ -20,7 +20,7 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/MosaicCache.h"
+#include "../cache/MosaicCache.h"
 
 namespace catapult { namespace observers {
 

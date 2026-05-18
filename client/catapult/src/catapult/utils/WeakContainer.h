@@ -21,7 +21,7 @@
 
 #pragma once
 #include "SpinLock.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <list>
 #include <memory>
 

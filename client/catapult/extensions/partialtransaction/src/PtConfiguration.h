@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/FileSize.h"
+#include "src/catapult/utils/FileSize.h"
 #include <filesystem>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }

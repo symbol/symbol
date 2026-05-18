@@ -21,10 +21,10 @@
 
 #include "Validators.h"
 #include "AccountRestrictionView.h"
-#include "src/cache/AccountRestrictionCache.h"
-#include "src/model/AccountOperationRestrictionTransaction.h"
-#include "catapult/model/Address.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "../cache/AccountRestrictionCache.h"
+#include "../model/AccountOperationRestrictionTransaction.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

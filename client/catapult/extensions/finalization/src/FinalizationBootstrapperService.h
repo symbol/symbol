@@ -22,9 +22,9 @@
 #pragma once
 #include "finalization/src/io/ProofStorage.h"
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/extensions/BasicServerHooks.h"
-#include "catapult/extensions/ServiceRegistrar.h"
-#include "catapult/handlers/HandlerTypes.h"
+#include "src/catapult/extensions/BasicServerHooks.h"
+#include "src/catapult/extensions/ServiceRegistrar.h"
+#include "src/catapult/handlers/HandlerTypes.h"
 
 namespace catapult {
 	namespace chain { class MultiRoundMessageAggregator; }

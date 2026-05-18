@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/BasicCache.h"
-#include "catapult/deltaset/BaseSet.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/deltaset/OrderedSet.h"
+#include "src/catapult/cache/BasicCache.h"
+#include "src/catapult/deltaset/BaseSet.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/deltaset/OrderedSet.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
 

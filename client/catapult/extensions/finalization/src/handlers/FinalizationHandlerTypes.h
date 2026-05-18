@@ -21,7 +21,7 @@
 
 #pragma once
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/handlers/HandlerTypes.h"
+#include "src/catapult/handlers/HandlerTypes.h"
 
 namespace catapult { namespace handlers {
 

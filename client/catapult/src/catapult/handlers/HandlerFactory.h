@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/ionet/PacketPayloadBuilder.h"
-#include "catapult/model/EntityRange.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/ionet/PacketPayloadBuilder.h"
+#include "src/catapult/model/EntityRange.h"
 
 namespace catapult { namespace handlers {
 

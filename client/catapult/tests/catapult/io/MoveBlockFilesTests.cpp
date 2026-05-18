@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/MoveBlockFiles.h"
+#include "src/catapult/io/MoveBlockFiles.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/BlockStorageTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"

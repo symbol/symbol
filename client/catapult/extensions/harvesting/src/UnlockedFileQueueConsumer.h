@@ -22,7 +22,7 @@
 #pragma once
 #include "BlockGeneratorAccountDescriptor.h"
 #include "HarvestRequest.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <string>
 
 namespace catapult { namespace config { class CatapultDirectory; } }

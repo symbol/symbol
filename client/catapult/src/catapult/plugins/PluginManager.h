@@ -20,20 +20,20 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheConfiguration.h"
-#include "catapult/cache/CatapultCacheBuilder.h"
-#include "catapult/config/InflationConfiguration.h"
-#include "catapult/config/UserConfiguration.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/model/TransactionPlugin.h"
-#include "catapult/observers/DemuxObserverBuilder.h"
-#include "catapult/observers/ObserverTypes.h"
-#include "catapult/utils/DiagnosticCounter.h"
-#include "catapult/validators/DemuxValidatorBuilder.h"
-#include "catapult/validators/ValidatorTypes.h"
-#include "catapult/plugins.h"
+#include "src/catapult/cache/CacheConfiguration.h"
+#include "src/catapult/cache/CatapultCacheBuilder.h"
+#include "src/catapult/config/InflationConfiguration.h"
+#include "src/catapult/config/UserConfiguration.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/TransactionPlugin.h"
+#include "src/catapult/observers/DemuxObserverBuilder.h"
+#include "src/catapult/observers/ObserverTypes.h"
+#include "src/catapult/utils/DiagnosticCounter.h"
+#include "src/catapult/validators/DemuxValidatorBuilder.h"
+#include "src/catapult/validators/ValidatorTypes.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace plugins {
 

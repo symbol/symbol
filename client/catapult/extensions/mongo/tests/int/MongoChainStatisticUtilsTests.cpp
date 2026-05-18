@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoChainStatisticUtils.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/MongoChainStatisticUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "tests/TestHarness.h"

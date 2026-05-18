@@ -24,9 +24,9 @@
 #include "AccountStateCacheSerializers.h"
 #include "HighValueAccounts.h"
 #include "ReadOnlyAccountStateCache.h"
-#include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
-#include "catapult/model/ContainerTypes.h"
+#include "src/catapult/cache/CacheMixinAliases.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/model/ContainerTypes.h"
 
 namespace catapult { namespace cache {
 

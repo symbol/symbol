@@ -21,7 +21,7 @@
 
 #include "PeersProcessor.h"
 #include "NodePingUtils.h"
-#include "catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/NodeContainer.h"
 
 namespace catapult { namespace nodediscovery {
 

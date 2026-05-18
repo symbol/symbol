@@ -20,13 +20,13 @@
 **/
 
 #include "NodeInteractionResultCode.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult { namespace ionet {
 
 #define DEFINE_ENUM NodeInteractionResultCode
 #define ENUM_LIST NODE_INTERACTION_RESULT_CODE_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 }}

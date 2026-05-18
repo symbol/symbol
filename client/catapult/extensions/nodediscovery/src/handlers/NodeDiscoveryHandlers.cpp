@@ -21,11 +21,11 @@
 
 #include "NodeDiscoveryHandlers.h"
 #include "nodediscovery/src/NodePingUtils.h"
-#include "catapult/handlers/BasicProducer.h"
-#include "catapult/handlers/HandlerFactory.h"
-#include "catapult/ionet/NetworkNode.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/handlers/BasicProducer.h"
+#include "src/catapult/handlers/HandlerFactory.h"
+#include "src/catapult/ionet/NetworkNode.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace handlers {
 

@@ -22,7 +22,7 @@
 #pragma once
 #include "MosaicAddressRestriction.h"
 #include "MosaicGlobalRestriction.h"
-#include "catapult/plugins.h"
+#include "src/catapult/plugins.h"
 #include <memory>
 
 namespace catapult { namespace state {

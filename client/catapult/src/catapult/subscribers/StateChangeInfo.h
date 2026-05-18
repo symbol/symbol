@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheChanges.h"
-#include "catapult/model/ChainScore.h"
-#include "catapult/types.h"
+#include "src/catapult/cache/CacheChanges.h"
+#include "src/catapult/model/ChainScore.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace subscribers {
 

@@ -20,8 +20,8 @@
 **/
 
 #include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
-#include "catapult/ionet/NetworkNode.h"
-#include "catapult/utils/Functional.h"
+#include "src/catapult/ionet/NetworkNode.h"
+#include "src/catapult/utils/Functional.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"

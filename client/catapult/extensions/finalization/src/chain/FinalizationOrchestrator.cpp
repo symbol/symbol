@@ -23,7 +23,7 @@
 #include "MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/model/FinalizationProofUtils.h"
-#include "catapult/subscribers/FinalizationSubscriber.h"
+#include "src/catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult { namespace chain {
 

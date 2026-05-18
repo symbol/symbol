@@ -22,7 +22,7 @@
 #pragma once
 #include "ConnectionSettings.h"
 #include "PeerConnectCode.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <memory>
 
 namespace catapult {

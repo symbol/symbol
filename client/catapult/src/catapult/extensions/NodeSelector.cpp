@@ -20,7 +20,7 @@
 **/
 
 #include "NodeSelector.h"
-#include "catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/NodeContainer.h"
 
 namespace catapult { namespace extensions {
 

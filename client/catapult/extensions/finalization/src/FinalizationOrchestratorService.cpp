@@ -27,13 +27,13 @@
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/FilePrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/io/FileStream.h"
-#include "catapult/model/VotingSet.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/io/FileStream.h"
+#include "src/catapult/model/VotingSet.h"
 
 namespace catapult { namespace finalization {
 

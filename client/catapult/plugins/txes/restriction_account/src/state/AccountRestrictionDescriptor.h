@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/model/AccountRestrictionFlags.h"
-#include "catapult/utils/Casting.h"
+#include "../model/AccountRestrictionFlags.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace state {
 

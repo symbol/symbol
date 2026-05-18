@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/HeightHashPair.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/subscribers/FinalizationSubscriber.h"
+#include "src/catapult/model/HeightHashPair.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult {
 	namespace io {

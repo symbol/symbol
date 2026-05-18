@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/model/Address.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

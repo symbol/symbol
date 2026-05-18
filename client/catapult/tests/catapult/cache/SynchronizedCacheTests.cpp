@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/SynchronizedCache.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/cache/SynchronizedCache.h"
+#include "src/catapult/thread/Future.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"

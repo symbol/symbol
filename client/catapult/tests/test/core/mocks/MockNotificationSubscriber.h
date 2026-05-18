@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include <vector>

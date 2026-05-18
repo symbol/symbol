@@ -22,7 +22,7 @@
 #pragma once
 #include "CatapultCache.h"
 #include "SubCachePluginAdapter.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace cache {
 

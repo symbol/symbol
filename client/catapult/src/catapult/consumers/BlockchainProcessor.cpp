@@ -21,15 +21,15 @@
 
 #include "BlockchainProcessor.h"
 #include "InputUtils.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/AccountStateCacheUtils.h"
-#include "catapult/chain/ChainResults.h"
-#include "catapult/chain/ChainUtils.h"
-#include "catapult/io/BlockStatementSerializer.h"
-#include "catapult/io/Stream.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCacheUtils.h"
+#include "src/catapult/chain/ChainResults.h"
+#include "src/catapult/chain/ChainUtils.h"
+#include "src/catapult/io/BlockStatementSerializer.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/model/BlockUtils.h"
 
 using namespace catapult::validators;
 

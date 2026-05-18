@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MultisigEntry.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/io/Stream.h"
 
 namespace catapult { namespace state {
 

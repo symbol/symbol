@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BlockStorage.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
 
 namespace catapult { namespace io { struct CachedData; } }
 

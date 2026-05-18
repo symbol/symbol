@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/NemesisFundingObserver.h"
+#include "src/catapult/extensions/NemesisFundingObserver.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

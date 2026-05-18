@@ -22,7 +22,7 @@
 #pragma once
 #include "Namespace.h"
 #include "NamespaceAlias.h"
-#include "catapult/utils/Hashers.h"
+#include "src/catapult/utils/Hashers.h"
 #include <memory>
 #include <set>
 #include <unordered_map>

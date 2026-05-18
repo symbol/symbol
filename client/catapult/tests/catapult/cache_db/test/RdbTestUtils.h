@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_db/RocksDatabase.h"
-#include "catapult/functions.h"
+#include "src/catapult/cache_db/RocksDatabase.h"
+#include "src/catapult/functions.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include <string>
 #include <vector>

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include <filesystem>
 #include <unordered_map>
 

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/ReceiptSource.h"
+#include "src/catapult/model/ReceiptSource.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/TestHarness.h"

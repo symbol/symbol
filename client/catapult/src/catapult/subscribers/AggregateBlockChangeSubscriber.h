@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BasicAggregateSubscriber.h"
-#include "catapult/io/BlockChangeSubscriber.h"
+#include "src/catapult/io/BlockChangeSubscriber.h"
 
 namespace catapult { namespace subscribers {
 

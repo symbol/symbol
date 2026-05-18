@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_db/UpdateSet.h"
-#include "catapult/deltaset/BaseSetCommitPolicy.h"
-#include "catapult/deltaset/PruningBoundary.h"
+#include "src/catapult/cache_db/UpdateSet.h"
+#include "src/catapult/deltaset/BaseSetCommitPolicy.h"
+#include "src/catapult/deltaset/PruningBoundary.h"
 #include "tests/catapult/cache_db/test/BasicMapDescriptor.h"
 #include "tests/catapult/cache_db/test/RdbTestUtils.h"
 #include "tests/catapult/cache_db/test/StringKey.h"

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/AccountRestrictions.h"
-#include "catapult/model/EntityType.h"
+#include "../state/AccountRestrictions.h"
+#include "src/catapult/model/EntityType.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/TestHarness.h"
 

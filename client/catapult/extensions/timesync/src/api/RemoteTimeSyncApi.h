@@ -21,7 +21,7 @@
 
 #pragma once
 #include "timesync/src/CommunicationTimestamps.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace ionet { class PacketIo; } }
 

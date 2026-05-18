@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/AccountStateMapper.h"
-#include "catapult/model/Mosaic.h"
-#include "catapult/state/AccountState.h"
+#include "extensions/mongo/src/mappers/AccountStateMapper.h"
+#include "src/catapult/model/Mosaic.h"
+#include "src/catapult/state/AccountState.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"

@@ -20,11 +20,11 @@
 **/
 
 #include "timesync/src/ImportanceAwareNodeSelector.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/ionet/NodeInfo.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/NodeInfo.h"
+#include "src/catapult/utils/ArraySet.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/ImportanceViewTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"

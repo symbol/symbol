@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/HighValueAccounts.h"
+#include "src/catapult/cache_core/HighValueAccounts.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"

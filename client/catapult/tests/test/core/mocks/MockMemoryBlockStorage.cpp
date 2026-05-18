@@ -20,7 +20,7 @@
 **/
 
 #include "MockMemoryBlockStorage.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
 

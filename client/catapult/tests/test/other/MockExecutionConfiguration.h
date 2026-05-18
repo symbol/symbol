@@ -20,14 +20,14 @@
 **/
 
 #pragma once
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/chain/ExecutionConfiguration.h"
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
+#include "src/catapult/chain/ExecutionConfiguration.h"
+#include "src/catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/validators/ValidatorContext.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"

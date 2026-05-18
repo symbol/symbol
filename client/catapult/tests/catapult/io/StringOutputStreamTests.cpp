@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/StringOutputStream.h"
+#include "src/catapult/io/StringOutputStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace io {

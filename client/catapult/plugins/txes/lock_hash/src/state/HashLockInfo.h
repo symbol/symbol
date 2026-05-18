@@ -21,7 +21,7 @@
 
 #pragma once
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
-#include "catapult/plugins.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace state {
 

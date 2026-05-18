@@ -23,8 +23,8 @@
 #include "MongoBulkWriter.h"
 #include "mappers/MapperUtils.h"
 #include "mappers/TransactionStatusMapper.h"
-#include "catapult/model/TransactionStatus.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/model/TransactionStatus.h"
+#include "src/catapult/utils/SpinLock.h"
 #include <mongocxx/client.hpp>
 
 using namespace bsoncxx::builder::stream;

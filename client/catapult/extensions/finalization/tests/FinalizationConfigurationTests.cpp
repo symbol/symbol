@@ -20,8 +20,8 @@
 **/
 
 #include "finalization/src/FinalizationConfiguration.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -21,11 +21,11 @@
 
 #pragma once
 #include "HandlerTypes.h"
-#include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
-#include "catapult/model/TransactionPlugin.h"
-#include "catapult/utils/Logging.h"
-#include "catapult/utils/ShortHash.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/model/TransactionPlugin.h"
+#include "src/catapult/utils/Logging.h"
+#include "src/catapult/utils/ShortHash.h"
 #include <functional>
 
 namespace catapult { namespace handlers {

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/exceptions.h"
-#include "catapult/types.h"
+#include "src/catapult/exceptions.h"
+#include "src/catapult/types.h"
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 #include <type_traits>

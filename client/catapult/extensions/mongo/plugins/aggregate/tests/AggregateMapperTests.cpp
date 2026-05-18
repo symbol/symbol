@@ -20,10 +20,10 @@
 **/
 
 #include "src/AggregateMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "catapult/utils/IntegerMath.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/IntegerMath.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"

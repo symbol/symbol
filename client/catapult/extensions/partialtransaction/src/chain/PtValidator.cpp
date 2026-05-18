@@ -23,10 +23,10 @@
 #include "AggregateCosignatoriesNotificationPublisher.h"
 #include "JointValidator.h"
 #include "plugins/txes/aggregate/src/validators/Results.h"
-#include "catapult/model/WeakCosignedTransactionInfo.h"
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/validators/NotificationValidatorAdapter.h"
-#include "catapult/validators/ValidatingNotificationSubscriber.h"
+#include "src/catapult/model/WeakCosignedTransactionInfo.h"
+#include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/validators/NotificationValidatorAdapter.h"
+#include "src/catapult/validators/ValidatingNotificationSubscriber.h"
 
 using namespace catapult::validators;
 

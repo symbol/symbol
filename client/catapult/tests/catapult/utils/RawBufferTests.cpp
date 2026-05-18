@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/RawBuffer.h"
+#include "src/catapult/utils/RawBuffer.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

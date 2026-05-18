@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/chain/UtUpdater.h"
-#include "catapult/utils/FileSize.h"
+#include "src/catapult/chain/UtUpdater.h"
+#include "src/catapult/utils/FileSize.h"
 
 namespace catapult { namespace sync {
 

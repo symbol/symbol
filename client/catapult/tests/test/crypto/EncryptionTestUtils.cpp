@@ -20,8 +20,8 @@
 **/
 
 #include "EncryptionTestUtils.h"
-#include "catapult/crypto/OpensslContexts.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/crypto/OpensslContexts.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include <cstring>

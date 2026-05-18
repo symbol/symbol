@@ -20,14 +20,14 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/model/NodeIdentity.h"
-#include "catapult/model/TransactionPlugin.h"
-#include "catapult/net/PacketIoPicker.h"
-#include "catapult/thread/Future.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/utils/ThrottleLogger.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/model/NodeIdentity.h"
+#include "src/catapult/model/TransactionPlugin.h"
+#include "src/catapult/net/PacketIoPicker.h"
+#include "src/catapult/thread/Future.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/ThrottleLogger.h"
+#include "src/catapult/utils/TimeSpan.h"
 
 namespace catapult { namespace chain {
 

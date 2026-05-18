@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/local/recovery/MultiBlockLoader.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/extensions/NemesisBlockLoader.h"
-#include "catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/local/recovery/MultiBlockLoader.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/extensions/NemesisBlockLoader.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"

@@ -23,12 +23,12 @@
 #include "BasicProducer.h"
 #include "HandlerFactory.h"
 #include "HeightRequestProcessor.h"
-#include "catapult/api/ChainPackets.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/ionet/PackedNodeInfo.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
-#include "catapult/model/DiagnosticCounterValue.h"
-#include "catapult/utils/DiagnosticCounter.h"
+#include "src/catapult/api/ChainPackets.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/PackedNodeInfo.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/model/DiagnosticCounterValue.h"
+#include "src/catapult/utils/DiagnosticCounter.h"
 
 namespace catapult { namespace handlers {
 

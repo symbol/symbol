@@ -20,8 +20,8 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/InflationCalculator.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/InflationCalculator.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"

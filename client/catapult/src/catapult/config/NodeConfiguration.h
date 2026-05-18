@@ -20,11 +20,11 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeRoles.h"
-#include "catapult/ionet/NodeVersion.h"
-#include "catapult/model/TransactionSelectionStrategy.h"
-#include "catapult/utils/FileSize.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/ionet/NodeRoles.h"
+#include "src/catapult/ionet/NodeVersion.h"
+#include "src/catapult/model/TransactionSelectionStrategy.h"
+#include "src/catapult/utils/FileSize.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include <unordered_set>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }

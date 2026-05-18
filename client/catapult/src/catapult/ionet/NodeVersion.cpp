@@ -20,8 +20,8 @@
 **/
 
 #include "NodeVersion.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
-#include "catapult/version/version.h"
+#include "src/catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/version/version.h"
 
 namespace catapult { namespace ionet {
 

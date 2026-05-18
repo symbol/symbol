@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/consumers/ConsumerResults.h"
-#include "catapult/disruptor/DisruptorConsumer.h"
-#include "catapult/disruptor/DisruptorElement.h"
+#include "src/catapult/consumers/ConsumerResults.h"
+#include "src/catapult/disruptor/DisruptorConsumer.h"
+#include "src/catapult/disruptor/DisruptorElement.h"
 #include "tests/test/other/DisruptorTestUtils.h"
 
 namespace catapult { namespace test {

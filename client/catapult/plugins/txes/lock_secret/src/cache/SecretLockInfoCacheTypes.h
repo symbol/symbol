@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "src/state/SecretLockInfoHistory.h"
+#include "plugins/txes/lock_secret/src/state/SecretLockInfoHistory.h"
 #include "plugins/txes/lock_shared/src/cache/LockInfoCacheTypes.h"
-#include "catapult/cache/ReadOnlyArtifactCache.h"
+#include "src/catapult/cache/ReadOnlyArtifactCache.h"
 
 namespace catapult {
 	namespace cache {

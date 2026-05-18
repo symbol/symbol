@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/handlers/HandlerTypes.h"
-#include "catapult/state/TimestampedHash.h"
+#include "src/catapult/handlers/HandlerTypes.h"
+#include "src/catapult/state/TimestampedHash.h"
 #include <vector>
 
 namespace catapult { namespace cache { class HashCache; } }

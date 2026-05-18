@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/plugins/PluginModule.h"
+#include "src/catapult/plugins/PluginModule.h"
 #include <vector>
 
 namespace catapult { namespace mongo { class MongoPluginManager; } }

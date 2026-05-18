@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/AppendContext.h"
+#include "src/catapult/ionet/AppendContext.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace ionet {

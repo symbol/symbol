@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/NodeIdentity.h"
-#include "catapult/functions.h"
+#include "src/catapult/model/NodeIdentity.h"
+#include "src/catapult/functions.h"
 
 namespace catapult {
 	namespace ionet { class PacketSocketInfo; }

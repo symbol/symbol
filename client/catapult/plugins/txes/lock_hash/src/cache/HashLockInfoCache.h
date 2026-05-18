@@ -23,7 +23,7 @@
 #include "HashLockInfoCacheDelta.h"
 #include "HashLockInfoCacheStorage.h"
 #include "HashLockInfoCacheView.h"
-#include "catapult/cache/BasicCache.h"
+#include "src/catapult/cache/BasicCache.h"
 
 namespace catapult { namespace cache {
 

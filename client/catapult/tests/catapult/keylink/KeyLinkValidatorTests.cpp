@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/keylink/KeyLinkValidator.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/keylink/KeyLinkValidator.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/catapult/keylink/test/KeyLinkTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

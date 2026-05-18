@@ -21,9 +21,9 @@
 
 #include "RemotePtApi.h"
 #include "CosignedTransactionInfoParser.h"
-#include "catapult/api/RemoteApiUtils.h"
-#include "catapult/api/RemoteRequestDispatcher.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/api/RemoteApiUtils.h"
+#include "src/catapult/api/RemoteRequestDispatcher.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
 
 namespace catapult { namespace api {
 

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/cache_tx/PtChangeSubscriber.h"
+#include "src/catapult/cache_tx/PtChangeSubscriber.h"
 #include <memory>
 
 namespace catapult { namespace zeromq { class ZeroMqEntityPublisher; } }

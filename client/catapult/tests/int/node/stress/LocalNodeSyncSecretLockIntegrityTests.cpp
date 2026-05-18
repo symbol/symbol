@@ -21,7 +21,7 @@
 
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/model/Address.h"
 #include "tests/int/node/stress/test/ExpiryTestUtils.h"
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
 #include "tests/int/node/stress/test/SecretLockTransactionsBuilder.h"

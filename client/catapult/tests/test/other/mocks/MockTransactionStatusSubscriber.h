@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/Transaction.h"
-#include "catapult/model/TransactionStatus.h"
-#include "catapult/subscribers/TransactionStatusSubscriber.h"
+#include "src/catapult/model/Transaction.h"
+#include "src/catapult/model/TransactionStatus.h"
+#include "src/catapult/subscribers/TransactionStatusSubscriber.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include <atomic>

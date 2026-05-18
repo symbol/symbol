@@ -21,8 +21,8 @@
 
 #include "BlockStorageCache.h"
 #include "MoveBlockFiles.h"
-#include "catapult/model/Elements.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace io {
 

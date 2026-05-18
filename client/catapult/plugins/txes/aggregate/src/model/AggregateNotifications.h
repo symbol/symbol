@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/Cosignature.h"
-#include "catapult/model/EmbeddedTransaction.h"
-#include "catapult/model/Notifications.h"
+#include "src/catapult/model/Cosignature.h"
+#include "src/catapult/model/EmbeddedTransaction.h"
+#include "src/catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
 

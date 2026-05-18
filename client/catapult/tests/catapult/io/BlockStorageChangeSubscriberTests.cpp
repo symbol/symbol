@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/BlockStorageChangeSubscriber.h"
-#include "catapult/io/BlockStorage.h"
+#include "src/catapult/io/BlockStorageChangeSubscriber.h"
+#include "src/catapult/io/BlockStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockBlockStorage.h"
 #include "tests/TestHarness.h"

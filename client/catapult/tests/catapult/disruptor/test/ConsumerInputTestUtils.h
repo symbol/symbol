@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/disruptor/ConsumerInput.h"
+#include "src/catapult/disruptor/ConsumerInput.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace keylink {
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/disruptor/ConsumerDispatcher.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/disruptor/ConsumerDispatcher.h"
+#include "src/catapult/model/RangeTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Atomics.h"
 #include "tests/test/nodeps/Functional.h"

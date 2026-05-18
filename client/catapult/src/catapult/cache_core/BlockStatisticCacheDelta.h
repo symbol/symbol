@@ -21,11 +21,11 @@
 
 #pragma once
 #include "BlockStatisticCacheMixins.h"
-#include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlySimpleCache.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/deltaset/BaseSetDeltaIterationView.h"
+#include "src/catapult/cache/CacheMixinAliases.h"
+#include "src/catapult/cache/ReadOnlySimpleCache.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/deltaset/BaseSetDeltaIterationView.h"
 
 namespace catapult { namespace cache {
 

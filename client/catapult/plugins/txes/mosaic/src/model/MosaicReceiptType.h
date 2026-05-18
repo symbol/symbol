@@ -21,7 +21,7 @@
 
 #pragma once
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
-#include "catapult/model/ReceiptType.h"
+#include "src/catapult/model/ReceiptType.h"
 
 namespace catapult { namespace model {
 

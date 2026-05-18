@@ -20,11 +20,11 @@
 **/
 
 #include "PluginUtils.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/observers/NotificationObserverAdapter.h"
-#include "catapult/observers/ReverseNotificationObserverAdapter.h"
-#include "catapult/validators/NotificationValidatorAdapter.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/observers/NotificationObserverAdapter.h"
+#include "src/catapult/observers/ReverseNotificationObserverAdapter.h"
+#include "src/catapult/validators/NotificationValidatorAdapter.h"
+#include "src/catapult/preprocessor.h"
 
 namespace catapult { namespace extensions {
 

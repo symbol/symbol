@@ -20,8 +20,8 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/LockHashUtils.h"
-#include "catapult/crypto/Hashes.h"
+#include "../model/LockHashUtils.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

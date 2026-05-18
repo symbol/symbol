@@ -21,7 +21,7 @@
 
 #include "src/MultisigAccountModificationMapper.h"
 #include "sdk/src/builders/MultisigAccountModificationBuilder.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/core/AddressTestUtils.h"

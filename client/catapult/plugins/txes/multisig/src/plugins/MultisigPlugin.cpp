@@ -20,14 +20,14 @@
 **/
 
 #include "MultisigPlugin.h"
-#include "src/cache/MultisigCache.h"
-#include "src/cache/MultisigCacheStorage.h"
-#include "src/config/MultisigConfiguration.h"
-#include "src/observers/Observers.h"
-#include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
-#include "src/validators/Validators.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
+#include "../cache/MultisigCache.h"
+#include "../cache/MultisigCacheStorage.h"
+#include "../config/MultisigConfiguration.h"
+#include "../observers/Observers.h"
+#include "../plugins/MultisigAccountModificationTransactionPlugin.h"
+#include "../validators/Validators.h"
+#include "src/catapult/plugins/CacheHandlers.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
 

@@ -20,7 +20,7 @@
 **/
 
 #include "HashCacheDiagnosticHandlers.h"
-#include "catapult/handlers/HandlerFactory.h"
+#include "src/catapult/handlers/HandlerFactory.h"
 
 namespace catapult { namespace handlers {
 

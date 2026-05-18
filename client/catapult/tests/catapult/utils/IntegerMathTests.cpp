@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/IntegerMath.h"
+#include "src/catapult/utils/IntegerMath.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/TestHarness.h"
 #include <cmath>

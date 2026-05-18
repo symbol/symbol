@@ -22,10 +22,10 @@
 #pragma once
 #include "CommunicationTimestamps.h"
 #include "TimeSynchronizationSample.h"
-#include "catapult/extensions/ExtensionManager.h"
-#include "catapult/ionet/NodeSet.h"
-#include "catapult/net/NodeRequestResult.h"
-#include "catapult/thread/Task.h"
+#include "src/catapult/extensions/ExtensionManager.h"
+#include "src/catapult/ionet/NodeSet.h"
+#include "src/catapult/net/NodeRequestResult.h"
+#include "src/catapult/thread/Task.h"
 
 namespace catapult {
 	namespace extensions { class ServiceState; }

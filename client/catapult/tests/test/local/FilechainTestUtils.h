@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/crypto/KeyPair.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/crypto/KeyPair.h"
 #include <random>
 
 namespace catapult { namespace model { struct Block; } }

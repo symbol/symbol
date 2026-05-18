@@ -20,11 +20,11 @@
 **/
 
 #include "src/AccountRestrictionMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/restriction_account/src/model/AccountAddressRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"

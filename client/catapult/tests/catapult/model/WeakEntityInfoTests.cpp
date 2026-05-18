@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/WeakEntityInfo.h"
-#include "catapult/model/Block.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/model/WeakEntityInfo.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 

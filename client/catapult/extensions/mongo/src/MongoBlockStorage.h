@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MongoStorageContext.h"
-#include "catapult/io/BlockStorage.h"
+#include "src/catapult/io/BlockStorage.h"
 
 namespace catapult {
 	namespace mongo {

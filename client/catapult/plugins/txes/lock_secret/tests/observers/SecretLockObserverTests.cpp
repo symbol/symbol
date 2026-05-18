@@ -20,7 +20,7 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "src/model/SecretLockReceiptType.h"
+#include "../model/SecretLockReceiptType.h"
 #include "plugins/txes/lock_shared/tests/observers/LockObserverTests.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"

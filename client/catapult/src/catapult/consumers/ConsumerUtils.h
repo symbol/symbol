@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
 
 namespace catapult {
 	namespace disruptor {

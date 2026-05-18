@@ -22,13 +22,13 @@
 #include "BlockConsumers.h"
 #include "ConsumerResultFactory.h"
 #include "InputUtils.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/chain/BlockScorer.h"
-#include "catapult/chain/ChainUtils.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/chain/BlockScorer.h"
+#include "src/catapult/chain/ChainUtils.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/StackLogger.h"
 
 namespace catapult { namespace consumers {
 

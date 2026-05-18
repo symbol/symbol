@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/ReceiptType.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/model/ReceiptType.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

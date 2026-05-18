@@ -22,8 +22,8 @@
 #pragma once
 #include "NodeTestUtils.h"
 #include "RemoteAcceptServer.h"
-#include "catapult/net/ConnectionSettings.h"
-#include "catapult/net/NodeRequestResult.h"
+#include "src/catapult/net/ConnectionSettings.h"
+#include "src/catapult/net/NodeRequestResult.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 
 namespace catapult { namespace test {

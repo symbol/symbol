@@ -21,7 +21,7 @@
 
 #include "MosaicRestrictionEvaluator.h"
 #include "MosaicAddressRestriction.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Logging.h"
 
 namespace catapult { namespace state {
 

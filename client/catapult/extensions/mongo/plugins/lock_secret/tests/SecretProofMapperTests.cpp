@@ -20,7 +20,7 @@
 **/
 
 #include "src/SecretProofMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/lock_secret/tests/test/SecretLockTransactionUtils.h"

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
 

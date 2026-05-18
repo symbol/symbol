@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/AccountRestrictionsSerializer.h"
-#include "src/state/AccountRestrictionUtils.h"
-#include "catapult/model/EntityType.h"
+#include "../state/AccountRestrictionsSerializer.h"
+#include "../state/AccountRestrictionUtils.h"
+#include "src/catapult/model/EntityType.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/core/SerializerOrderingTests.h"
 #include "tests/test/core/SerializerTestUtils.h"

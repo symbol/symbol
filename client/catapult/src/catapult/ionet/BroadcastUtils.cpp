@@ -21,8 +21,8 @@
 
 #include "BroadcastUtils.h"
 #include "PacketPayloadFactory.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/BlockUtils.h"
 
 namespace catapult { namespace ionet {
 

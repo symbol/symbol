@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/traits/Traits.h"
-#include "catapult/types.h"
+#include "src/catapult/utils/traits/Traits.h"
+#include "src/catapult/types.h"
 #include "tests/TestHarness.h"
 #include <array>
 

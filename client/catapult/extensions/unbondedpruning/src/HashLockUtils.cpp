@@ -21,8 +21,8 @@
 
 #include "HashLockUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/NotificationSubscriber.h"
 
 namespace catapult { namespace unbondedpruning {
 

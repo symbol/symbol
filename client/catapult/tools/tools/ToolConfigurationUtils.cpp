@@ -20,7 +20,7 @@
 **/
 
 #include "ToolConfigurationUtils.h"
-#include "catapult/config/ConfigurationFileLoader.h"
+#include "src/catapult/config/ConfigurationFileLoader.h"
 
 namespace catapult { namespace tools {
 

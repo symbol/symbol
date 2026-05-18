@@ -21,7 +21,7 @@
 
 #pragma once
 #include "SecretLockInfoCacheTestUtils.h"
-#include "src/model/SecretLockNotifications.h"
+#include "../model/SecretLockNotifications.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 

@@ -20,10 +20,10 @@
 **/
 
 #include "VrfKeyLinkTransactionPlugin.h"
-#include "src/model/KeyLinkNotifications.h"
-#include "src/model/VrfKeyLinkTransaction.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
+#include "../model/KeyLinkNotifications.h"
+#include "../model/VrfKeyLinkTransaction.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

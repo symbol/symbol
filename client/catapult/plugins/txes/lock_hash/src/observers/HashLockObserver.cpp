@@ -20,9 +20,9 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/HashLockInfoCache.h"
-#include "src/model/HashLockReceiptType.h"
-#include "src/state/HashLockInfo.h"
+#include "../cache/HashLockInfoCache.h"
+#include "../model/HashLockReceiptType.h"
+#include "../state/HashLockInfo.h"
 
 namespace catapult { namespace observers {
 

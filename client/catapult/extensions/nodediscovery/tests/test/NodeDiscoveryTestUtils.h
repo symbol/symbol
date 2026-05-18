@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NetworkNode.h"
+#include "src/catapult/ionet/NetworkNode.h"
 #include <vector>
 
 namespace catapult { namespace ionet { struct Packet; } }

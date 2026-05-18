@@ -20,7 +20,7 @@
 **/
 
 #include "src/plugins/SecretLockPlugin.h"
-#include "src/model/SecretLockEntityType.h"
+#include "../model/SecretLockEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

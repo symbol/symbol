@@ -21,19 +21,19 @@
 
 #include "NodeRequestResult.h"
 #include "PeerConnectCode.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult { namespace net {
 
 #define DEFINE_ENUM NodeRequestResult
 #define ENUM_LIST NODE_REQUEST_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
 #define DEFINE_ENUM PeerConnectCode
 #define ENUM_LIST PEER_CONNECT_CODE_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 

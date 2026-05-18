@@ -21,8 +21,8 @@
 
 #pragma once
 #include "MultisigCacheTypes.h"
-#include "src/state/MultisigEntrySerializer.h"
-#include "catapult/cache/CacheStorageInclude.h"
+#include "../state/MultisigEntrySerializer.h"
+#include "src/catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 

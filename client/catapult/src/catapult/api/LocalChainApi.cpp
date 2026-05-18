@@ -20,7 +20,7 @@
 **/
 
 #include "LocalChainApi.h"
-#include "catapult/io/BlockStorageCache.h"
+#include "src/catapult/io/BlockStorageCache.h"
 
 namespace catapult { namespace api {
 

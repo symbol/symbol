@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/InflationCalculator.h"
+#include "src/catapult/model/InflationCalculator.h"
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
 

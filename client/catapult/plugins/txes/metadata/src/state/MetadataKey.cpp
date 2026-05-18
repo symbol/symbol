@@ -20,10 +20,10 @@
 **/
 
 #include "MetadataKey.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/model/ResolverContext.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/model/ResolverContext.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace state {
 

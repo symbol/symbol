@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/HeightHashPair.h"
+#include "src/catapult/model/HeightHashPair.h"
 #include <unordered_set>
 
 namespace catapult { namespace chain {

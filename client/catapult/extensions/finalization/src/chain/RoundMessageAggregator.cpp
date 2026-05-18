@@ -23,16 +23,16 @@
 #include "RoundContext.h"
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/model/HeightGrouping.h"
-#include "catapult/model/VotingSet.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/model/HeightGrouping.h"
+#include "src/catapult/model/VotingSet.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 #include <unordered_map>
 
 namespace catapult { namespace chain {
 
 #define DEFINE_ENUM RoundMessageAggregatorAddResult
 #define ENUM_LIST ROUND_MESSAGE_AGGREGATOR_ADD_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 

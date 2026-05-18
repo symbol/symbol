@@ -22,8 +22,8 @@
 #pragma once
 #include "AccountRestrictionCacheDelta.h"
 #include "AccountRestrictionCacheView.h"
-#include "catapult/cache/BasicCache.h"
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/cache/BasicCache.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace cache {
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/Hashers.h"
-#include "catapult/types.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/types.h"
 #include <unordered_set>
 
 namespace catapult {

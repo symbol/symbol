@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/ProcessContextsBuilder.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/observers/ObserverContext.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/chain/ProcessContextsBuilder.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/observers/ObserverContext.h"
+#include "src/catapult/validators/ValidatorContext.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"

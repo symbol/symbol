@@ -20,8 +20,8 @@
 **/
 
 #include "MosaicCacheDelta.h"
-#include "catapult/cache/IdentifierGroupCacheUtils.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/cache/IdentifierGroupCacheUtils.h"
+#include "src/catapult/utils/Casting.h"
 #include <unordered_set>
 
 namespace catapult { namespace cache {

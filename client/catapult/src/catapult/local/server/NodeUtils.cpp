@@ -20,8 +20,8 @@
 **/
 
 #include "NodeUtils.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/ionet/NodeContainer.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/ionet/NodeContainer.h"
 
 namespace catapult { namespace local {
 

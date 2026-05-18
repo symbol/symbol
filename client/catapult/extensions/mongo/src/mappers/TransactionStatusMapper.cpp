@@ -21,7 +21,7 @@
 
 #include "TransactionStatusMapper.h"
 #include "MapperUtils.h"
-#include "catapult/model/TransactionStatus.h"
+#include "src/catapult/model/TransactionStatus.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

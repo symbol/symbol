@@ -20,7 +20,7 @@
 **/
 
 #include "StateHashCalculator.h"
-#include "catapult/model/Block.h"
+#include "src/catapult/model/Block.h"
 #include "tests/int/node/test/LocalNodeNemesisHashTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 

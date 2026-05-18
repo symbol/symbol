@@ -22,7 +22,7 @@
 #pragma once
 #include "FinalizationConfiguration.h"
 #include "finalization/src/model/FinalizationContext.h"
-#include "catapult/model/FinalizationRound.h"
+#include "src/catapult/model/FinalizationRound.h"
 
 namespace catapult {
 	namespace cache { class AccountStateCache; }

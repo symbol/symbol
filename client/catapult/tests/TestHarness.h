@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include "tests/test/nodeps/Conversions.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/test/nodeps/Stress.h" /* note that gtest.h is included by Stress.h */

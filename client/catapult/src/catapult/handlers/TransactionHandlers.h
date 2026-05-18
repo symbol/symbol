@@ -21,10 +21,10 @@
 
 #pragma once
 #include "HandlerTypes.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/model/Transaction.h"
-#include "catapult/utils/ShortHash.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/model/Transaction.h"
+#include "src/catapult/utils/ShortHash.h"
 #include <unordered_set>
 
 namespace catapult { namespace handlers {

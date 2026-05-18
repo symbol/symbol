@@ -20,7 +20,7 @@
 **/
 
 #include "AccountRestrictions.h"
-#include "catapult/model/EntityType.h"
+#include "src/catapult/model/EntityType.h"
 
 namespace catapult { namespace state {
 

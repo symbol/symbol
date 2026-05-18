@@ -22,7 +22,7 @@
 #pragma once
 #include "Hashers.h"
 #include "Logging.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <array>
 #include <unordered_set>
 

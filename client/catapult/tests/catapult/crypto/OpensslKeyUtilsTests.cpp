@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/OpensslKeyUtils.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/crypto/OpensslKeyUtils.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

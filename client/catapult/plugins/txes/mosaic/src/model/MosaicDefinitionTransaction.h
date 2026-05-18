@@ -23,7 +23,7 @@
 #include "MosaicConstants.h"
 #include "MosaicEntityType.h"
 #include "MosaicProperties.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 

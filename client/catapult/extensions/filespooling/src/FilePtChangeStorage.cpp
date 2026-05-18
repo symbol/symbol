@@ -20,10 +20,10 @@
 **/
 
 #include "FilePtChangeStorage.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/TransactionInfoSerializer.h"
-#include "catapult/model/Cosignature.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/TransactionInfoSerializer.h"
+#include "src/catapult/model/Cosignature.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
 
 namespace catapult { namespace filespooling {
 

@@ -21,7 +21,7 @@
 
 #include "ImportanceView.h"
 #include "AccountStateCache.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/model/Address.h"
 
 namespace catapult { namespace cache {
 

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Logging.h"
 #include "tests/TestHarness.h"
 #include <functional>
 #include <memory>

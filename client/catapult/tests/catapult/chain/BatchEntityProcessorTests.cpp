@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/BatchEntityProcessor.h"
+#include "src/catapult/chain/BatchEntityProcessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"

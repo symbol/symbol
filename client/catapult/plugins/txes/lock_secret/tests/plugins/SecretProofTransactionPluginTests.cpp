@@ -20,8 +20,8 @@
 **/
 
 #include "src/plugins/SecretProofTransactionPlugin.h"
-#include "src/model/SecretLockNotifications.h"
-#include "src/model/SecretProofTransaction.h"
+#include "../model/SecretLockNotifications.h"
+#include "../model/SecretProofTransaction.h"
 #include "tests/test/SecretLockTransactionUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

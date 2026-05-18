@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/NonCopyable.h"
+#include "src/catapult/utils/NonCopyable.h"
 #include <string>
 #include <stdint.h>
 

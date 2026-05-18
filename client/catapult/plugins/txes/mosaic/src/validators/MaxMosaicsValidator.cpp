@@ -20,9 +20,9 @@
 **/
 
 #include "Validators.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/state/AccountBalances.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/state/AccountBalances.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

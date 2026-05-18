@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/version/version.h"
+#include "src/catapult/version/version.h"
 #include <benchmark/benchmark.h>
 #include <ctime>
 #include <iostream>

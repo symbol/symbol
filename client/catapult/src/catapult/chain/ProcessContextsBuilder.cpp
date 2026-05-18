@@ -20,11 +20,11 @@
 **/
 
 #include "ProcessContextsBuilder.h"
-#include "catapult/cache/CatapultCacheDelta.h"
-#include "catapult/cache/CatapultCacheView.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/observers/ObserverContext.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/cache/CatapultCacheDelta.h"
+#include "src/catapult/cache/CatapultCacheView.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/observers/ObserverContext.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace chain {
 

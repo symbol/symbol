@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/handlers/DiagnosticHandlers.h"
-#include "catapult/api/ChainPackets.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/ionet/PackedNodeInfo.h"
-#include "catapult/model/DiagnosticCounterValue.h"
-#include "catapult/utils/DiagnosticCounter.h"
+#include "src/catapult/handlers/DiagnosticHandlers.h"
+#include "src/catapult/api/ChainPackets.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/ionet/PackedNodeInfo.h"
+#include "src/catapult/model/DiagnosticCounterValue.h"
+#include "src/catapult/utils/DiagnosticCounter.h"
 #include "tests/catapult/handlers/test/HeightRequestHandlerTests.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"

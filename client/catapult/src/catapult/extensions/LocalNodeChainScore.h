@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/ChainScore.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/model/ChainScore.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
 
 namespace catapult { namespace extensions {
 

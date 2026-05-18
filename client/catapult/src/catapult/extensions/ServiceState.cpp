@@ -21,7 +21,7 @@
 
 #include "ServiceState.h"
 #include "PeersConnectionTasks.h"
-#include "catapult/io/BlockStorageCache.h"
+#include "src/catapult/io/BlockStorageCache.h"
 
 namespace catapult { namespace extensions {
 

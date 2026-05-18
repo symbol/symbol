@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ValidatorTypes.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace thread { class IoThreadPool; } }
 

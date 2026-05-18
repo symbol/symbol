@@ -21,9 +21,9 @@
 
 #include "RemoteFinalizationApi.h"
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/api/RemoteRequestDispatcher.h"
-#include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/ionet/PacketPayloadBuilder.h"
+#include "src/catapult/api/RemoteRequestDispatcher.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/ionet/PacketPayloadBuilder.h"
 
 namespace catapult { namespace api {
 

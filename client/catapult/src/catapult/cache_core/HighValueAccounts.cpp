@@ -20,7 +20,7 @@
 **/
 
 #include "HighValueAccounts.h"
-#include "catapult/utils/ContainerHelpers.h"
+#include "src/catapult/utils/ContainerHelpers.h"
 
 namespace catapult { namespace cache {
 

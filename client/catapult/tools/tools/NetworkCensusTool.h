@@ -24,9 +24,9 @@
 #include "ToolConfigurationUtils.h"
 #include "ToolKeys.h"
 #include "ToolNetworkUtils.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/thread/FutureUtils.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/thread/FutureUtils.h"
 
 namespace catapult { namespace tools {
 

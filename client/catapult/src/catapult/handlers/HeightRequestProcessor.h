@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/ionet/PacketHandlers.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/ionet/PacketHandlers.h"
 
 namespace catapult { namespace handlers {
 

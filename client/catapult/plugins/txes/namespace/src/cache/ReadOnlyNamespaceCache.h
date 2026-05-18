@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/state/NamespaceEntry.h"
-#include "catapult/cache/ReadOnlyArtifactCache.h"
+#include "../state/NamespaceEntry.h"
+#include "src/catapult/cache/ReadOnlyArtifactCache.h"
 
 namespace catapult {
 	namespace cache {

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/StateChangeReader.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/subscribers/StateChangeReader.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"

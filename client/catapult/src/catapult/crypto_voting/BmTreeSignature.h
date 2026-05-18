@@ -21,7 +21,7 @@
 
 #pragma once
 #include "VotingKeyPair.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace crypto {
 

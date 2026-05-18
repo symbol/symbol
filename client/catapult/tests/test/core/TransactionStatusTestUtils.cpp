@@ -21,8 +21,8 @@
 
 #include "TransactionStatusTestUtils.h"
 #include "TransactionTestUtils.h"
-#include "catapult/io/EntityIoUtils.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/io/EntityIoUtils.h"
+#include "src/catapult/io/Stream.h"
 
 namespace catapult { namespace test {
 

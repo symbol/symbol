@@ -20,8 +20,8 @@
 **/
 
 #include "TransactionStatement.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace model {
 

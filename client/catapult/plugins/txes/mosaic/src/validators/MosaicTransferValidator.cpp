@@ -21,10 +21,10 @@
 
 #include "Validators.h"
 #include "ActiveMosaicView.h"
-#include "src/cache/MosaicCache.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "../cache/MosaicCache.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/BlockStatement.h"
+#include "src/catapult/model/BlockStatement.h"
 
 namespace catapult {
 	namespace io {

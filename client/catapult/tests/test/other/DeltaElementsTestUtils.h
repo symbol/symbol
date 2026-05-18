@@ -21,7 +21,7 @@
 
 #pragma once
 #include "TestElement.h"
-#include "catapult/deltaset/DeltaElements.h"
+#include "src/catapult/deltaset/DeltaElements.h"
 #include <map>
 #include <unordered_map>
 

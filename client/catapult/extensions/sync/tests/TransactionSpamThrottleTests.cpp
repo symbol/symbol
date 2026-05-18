@@ -20,12 +20,12 @@
 **/
 
 #include "sync/src/TransactionSpamThrottle.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/HeightGrouping.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/HeightGrouping.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

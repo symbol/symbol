@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/tree/TreeNode.h"
+#include "src/catapult/tree/TreeNode.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

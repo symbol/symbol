@@ -21,8 +21,8 @@
 
 #include "ConsumerInputFactory.h"
 #include "ConsumerTestUtils.h"
-#include "catapult/consumers/BlockConsumers.h"
-#include "catapult/consumers/TransactionConsumers.h"
+#include "src/catapult/consumers/BlockConsumers.h"
+#include "src/catapult/consumers/TransactionConsumers.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 

@@ -22,8 +22,8 @@
 #pragma once
 #include "ChainScoreProvider.h"
 #include "ExternalCacheStorage.h"
-#include "catapult/subscribers/StateChangeInfo.h"
-#include "catapult/subscribers/StateChangeSubscriber.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/subscribers/StateChangeSubscriber.h"
 
 namespace catapult { namespace mongo {
 

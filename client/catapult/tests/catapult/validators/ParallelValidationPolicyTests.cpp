@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/validators/ParallelValidationPolicy.h"
+#include "src/catapult/validators/ParallelValidationPolicy.h"
 #include "tests/catapult/validators/test/ValidationPolicyTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/nodeps/BasicMultiThreadedState.h"

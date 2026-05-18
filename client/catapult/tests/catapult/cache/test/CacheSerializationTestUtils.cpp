@@ -20,8 +20,8 @@
 **/
 
 #include "CacheSerializationTestUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include <cstring>
 

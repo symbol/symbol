@@ -20,10 +20,10 @@
 **/
 
 #include "PeersConfiguration.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/utils/HexParser.h"
-#include "catapult/exceptions.h"
-#include "catapult/types.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/utils/HexParser.h"
+#include "src/catapult/exceptions.h"
+#include "src/catapult/types.h"
 
 #ifdef _MSC_VER
 #include <boost/config/compiler/visualc.hpp>

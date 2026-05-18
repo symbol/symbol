@@ -22,7 +22,7 @@
 #pragma once
 #include "FinalizationMessageFactory.h"
 #include "FinalizationStageAdvancer.h"
-#include "catapult/model/FinalizationRound.h"
+#include "src/catapult/model/FinalizationRound.h"
 
 namespace catapult {
 	namespace chain { class MultiRoundMessageAggregator; }

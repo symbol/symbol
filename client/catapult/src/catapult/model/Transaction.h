@@ -22,7 +22,7 @@
 #pragma once
 #include "EmbeddedTransaction.h"
 #include "VerifiableEntity.h"
-#include "catapult/plugins.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace model { class TransactionRegistry; } }
 

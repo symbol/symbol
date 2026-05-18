@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/observers/ObserverUtils.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/observers/ObserverUtils.h"
 
 namespace catapult { namespace keylink {
 

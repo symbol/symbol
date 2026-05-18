@@ -21,8 +21,8 @@
 
 #pragma once
 #include "PtTypes.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/model/WeakCosignedTransactionInfo.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/model/WeakCosignedTransactionInfo.h"
 
 namespace catapult { namespace partialtransaction {
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MongoCacheStorageTestUtils.h"
-#include "catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/CatapultCache.h"
 
 namespace catapult { namespace test {
 

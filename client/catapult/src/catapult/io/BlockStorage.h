@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/model/Elements.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/utils/NonCopyable.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/utils/NonCopyable.h"
 #include <memory>
 
 namespace catapult { namespace io {

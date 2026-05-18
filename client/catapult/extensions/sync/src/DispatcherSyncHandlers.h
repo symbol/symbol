@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/consumers/BlockchainSyncHandlers.h"
+#include "src/catapult/consumers/BlockchainSyncHandlers.h"
 
 namespace catapult {
 	namespace config { class CatapultDataDirectory; }

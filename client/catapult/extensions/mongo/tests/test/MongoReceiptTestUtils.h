@@ -21,9 +21,9 @@
 
 #pragma once
 #include "MapperTestUtils.h"
-#include "mongo/src/mappers/MapperInclude.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/model/Elements.h"
+#include "extensions/mongo/src/mappers/MapperInclude.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/model/Elements.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mocks { struct MockReceipt; } }

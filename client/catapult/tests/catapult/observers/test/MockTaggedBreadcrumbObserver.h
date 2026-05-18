@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/observers/NotificationObserver.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/observers/NotificationObserver.h"
+#include "src/catapult/observers/ObserverTypes.h"
 #include "tests/test/core/TaggedNotification.h"
 #include <vector>
 

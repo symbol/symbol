@@ -20,9 +20,9 @@
 **/
 
 #include "AggregateTransactionTestUtils.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"

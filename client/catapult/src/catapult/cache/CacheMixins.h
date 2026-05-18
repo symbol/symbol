@@ -21,14 +21,14 @@
 
 #pragma once
 #include "IdentifierGroupCacheUtils.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/deltaset/BaseSetDeltaIterationView.h"
-#include "catapult/deltaset/BaseSetIterationView.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/HexFormatter.h"
-#include "catapult/utils/IdentifierGroup.h"
-#include "catapult/functions.h"
-#include "catapult/types.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/deltaset/BaseSetDeltaIterationView.h"
+#include "src/catapult/deltaset/BaseSetIterationView.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/IdentifierGroup.h"
+#include "src/catapult/functions.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace cache {
 

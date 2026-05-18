@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/exceptions.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/exceptions.h"
+#include "src/catapult/preprocessor.h"
 
 struct MAY_ALIAS evp_cipher_ctx_st;
 struct MAY_ALIAS evp_md_ctx_st;

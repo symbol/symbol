@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ConsumerInput.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/utils/SpinLock.h"
 
 namespace catapult { namespace disruptor {
 

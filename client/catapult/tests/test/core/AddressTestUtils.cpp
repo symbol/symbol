@@ -21,7 +21,7 @@
 
 #include "AddressTestUtils.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/model/Address.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/ResolverContext.h"
+#include "src/catapult/model/ResolverContext.h"
 
 namespace catapult { namespace test {
 

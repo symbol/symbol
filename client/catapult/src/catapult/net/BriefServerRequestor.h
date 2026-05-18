@@ -23,12 +23,12 @@
 #include "NodeRequestResult.h"
 #include "PeerConnectCode.h"
 #include "ServerConnector.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/thread/Future.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/thread/TimedCallback.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/thread/Future.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/thread/TimedCallback.h"
+#include "src/catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace net {
 

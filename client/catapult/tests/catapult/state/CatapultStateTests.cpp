@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/state/CatapultState.h"
+#include "src/catapult/state/CatapultState.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

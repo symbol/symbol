@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/thread/Future.h"
 #include <memory>
 
 namespace catapult {

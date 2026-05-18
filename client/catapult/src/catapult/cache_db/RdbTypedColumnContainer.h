@@ -23,8 +23,8 @@
 #include "KeySerializers.h"
 #include "RdbColumnContainer.h"
 #include "RocksDatabase.h"
-#include "catapult/exceptions.h"
-#include "catapult/types.h"
+#include "src/catapult/exceptions.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace cache {
 

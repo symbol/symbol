@@ -23,10 +23,10 @@
 #include "StateChangeInfo.h"
 #include "StateChangeSubscriber.h"
 #include "SubscriberOperationTypes.h"
-#include "catapult/cache/CacheChangesStorage.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/cache/CacheChangesStorage.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace subscribers {
 

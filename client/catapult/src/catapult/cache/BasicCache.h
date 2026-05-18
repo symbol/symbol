@@ -23,7 +23,7 @@
 #include "CacheConfiguration.h"
 #include "CacheConstants.h"
 #include "SynchronizedCache.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace cache {
 

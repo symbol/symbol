@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/OpensslInit.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
-#include "catapult/utils/Logging.h"
-#include "catapult/version/version.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/crypto/OpensslInit.h"
+#include "src/catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/utils/Logging.h"
+#include "src/catapult/version/version.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 #include <thread>
 

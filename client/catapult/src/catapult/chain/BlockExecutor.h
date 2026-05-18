@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Elements.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/observers/ObserverTypes.h"
 #include <memory>
 
 namespace catapult { namespace model { struct Block; } }

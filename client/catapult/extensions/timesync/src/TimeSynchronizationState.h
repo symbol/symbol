@@ -21,7 +21,7 @@
 
 #pragma once
 #include "types.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include <atomic>
 
 namespace catapult { namespace timesync {

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/TransactionUpdateResultUtils.h"
+#include "src/catapult/chain/TransactionUpdateResultUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
 

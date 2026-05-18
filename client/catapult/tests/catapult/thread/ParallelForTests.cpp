@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/ParallelFor.h"
+#include "src/catapult/thread/ParallelFor.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/nodeps/BasicMultiThreadedState.h"
 #include "tests/TestHarness.h"

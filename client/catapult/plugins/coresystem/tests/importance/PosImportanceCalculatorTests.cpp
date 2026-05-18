@@ -20,10 +20,10 @@
 **/
 
 #include "src/importance/ImportanceCalculator.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/state/AccountActivityBuckets.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/state/AccountActivityBuckets.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/TestHarness.h"

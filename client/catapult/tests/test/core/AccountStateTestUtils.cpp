@@ -21,7 +21,7 @@
 
 #include "AccountStateTestUtils.h"
 #include "AddressTestUtils.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/utils/Casting.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

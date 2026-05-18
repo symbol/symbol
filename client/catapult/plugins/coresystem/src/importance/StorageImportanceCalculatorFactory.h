@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ImportanceCalculator.h"
-#include "catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
 
 namespace catatpult { namespace model { struct BlockchainConfiguration; } }
 

@@ -21,9 +21,9 @@
 
 #pragma once
 #include "StateVersion.h"
-#include "catapult/io/BufferInputStreamAdapter.h"
-#include "catapult/io/SizeCalculatingOutputStream.h"
-#include "catapult/io/StringOutputStream.h"
+#include "src/catapult/io/BufferInputStreamAdapter.h"
+#include "src/catapult/io/SizeCalculatingOutputStream.h"
+#include "src/catapult/io/StringOutputStream.h"
 
 namespace catapult { namespace cache {
 

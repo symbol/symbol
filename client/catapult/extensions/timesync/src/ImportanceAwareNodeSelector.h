@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/extensions/NodeSelector.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/ionet/NodeInfo.h"
+#include "src/catapult/extensions/NodeSelector.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/ionet/NodeInfo.h"
 
 namespace catapult {
 	namespace cache { class ImportanceView; }

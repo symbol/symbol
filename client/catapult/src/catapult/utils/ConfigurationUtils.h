@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ConfigurationBag.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <unordered_set>
 #include <vector>
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/AggregateStateChangeSubscriber.h"
-#include "catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/subscribers/AggregateStateChangeSubscriber.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
 #include "tests/catapult/subscribers/test/AggregateSubscriberTestContext.h"
 #include "tests/catapult/subscribers/test/UnsupportedSubscribers.h"
 #include "tests/test/cache/CacheTestUtils.h"

@@ -20,11 +20,11 @@
 **/
 
 #pragma once
-#include "src/model/MultisigAccountModificationTransaction.h"
-#include "src/model/MultisigNotifications.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/Cosignature.h"
-#include "catapult/utils/HexFormatter.h"
+#include "../model/MultisigAccountModificationTransaction.h"
+#include "../model/MultisigNotifications.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/Cosignature.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"
 

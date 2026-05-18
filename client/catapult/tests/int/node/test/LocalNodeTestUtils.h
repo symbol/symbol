@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/ConnectResult.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/local/server/LocalNode.h"
+#include "src/catapult/ionet/ConnectResult.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/local/server/LocalNode.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"

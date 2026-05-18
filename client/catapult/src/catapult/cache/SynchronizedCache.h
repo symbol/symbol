@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/NonCopyable.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/utils/NonCopyable.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
 #include <boost/optional.hpp>
 
 namespace catapult { namespace cache {

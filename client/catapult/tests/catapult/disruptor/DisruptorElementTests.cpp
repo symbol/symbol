@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/disruptor/DisruptorElement.h"
+#include "src/catapult/disruptor/DisruptorElement.h"
 #include "tests/catapult/disruptor/test/ConsumerInputTestUtils.h"
 #include "tests/test/other/DisruptorTestUtils.h"
 #include "tests/TestHarness.h"

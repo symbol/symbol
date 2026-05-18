@@ -20,7 +20,7 @@
 **/
 
 #include "finalization/src/model/FinalizationMessageGroup.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"

@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/utils/Functional.h"
+#include "src/catapult/utils/Functional.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

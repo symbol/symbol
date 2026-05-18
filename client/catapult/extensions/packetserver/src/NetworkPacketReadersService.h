@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/extensions/ServiceRegistrar.h"
-#include "catapult/net/PacketReaders.h"
+#include "src/catapult/extensions/ServiceRegistrar.h"
+#include "src/catapult/net/PacketReaders.h"
 
 namespace catapult { namespace packetserver {
 

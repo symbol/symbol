@@ -20,8 +20,8 @@
 **/
 
 #include "TransactionElementParser.h"
-#include "catapult/ionet/Packet.h"
-#include "catapult/ionet/PacketPayloadParser.h"
+#include "src/catapult/ionet/Packet.h"
+#include "src/catapult/ionet/PacketPayloadParser.h"
 
 namespace catapult { namespace parsers {
 

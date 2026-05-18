@@ -21,8 +21,8 @@
 
 #include "src/MosaicDefinitionMapper.h"
 #include "sdk/src/builders/MosaicDefinitionBuilder.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/constants.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/constants.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"

@@ -20,9 +20,9 @@
 **/
 
 #include "nodediscovery/src/NodeDiscoveryService.h"
-#include "catapult/ionet/NetworkNode.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/ServerConnector.h"
+#include "src/catapult/ionet/NetworkNode.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/net/ServerConnector.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

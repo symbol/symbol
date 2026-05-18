@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/ionet/SocketOperationCode.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/ionet/SocketOperationCode.h"
 #include <functional>
 #include <memory>
 

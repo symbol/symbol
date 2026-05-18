@@ -21,8 +21,8 @@
 
 #pragma once
 #include "LocalNodeTestUtils.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/IndexFile.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"

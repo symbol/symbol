@@ -21,10 +21,10 @@
 
 #include "NetworkUtils.h"
 #include "Results.h"
-#include "catapult/ionet/ReadRateMonitorSocketDecorator.h"
-#include "catapult/net/ConnectionContainer.h"
-#include "catapult/net/PeerConnectResult.h"
-#include "catapult/subscribers/NodeSubscriber.h"
+#include "src/catapult/ionet/ReadRateMonitorSocketDecorator.h"
+#include "src/catapult/net/ConnectionContainer.h"
+#include "src/catapult/net/PeerConnectResult.h"
+#include "src/catapult/subscribers/NodeSubscriber.h"
 
 namespace catapult { namespace extensions {
 

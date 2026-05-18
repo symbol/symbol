@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 
 namespace catapult {
 	namespace cache { class CatapultCache; }

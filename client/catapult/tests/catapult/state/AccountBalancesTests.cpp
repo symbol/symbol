@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/state/AccountBalances.h"
+#include "src/catapult/state/AccountBalances.h"
 #include "tests/test/core/TransactionTestUtils.h"
 
 namespace catapult { namespace state {

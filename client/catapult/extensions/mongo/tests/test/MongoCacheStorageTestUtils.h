@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MongoTestUtils.h"
-#include "mongo/src/MongoStorageContext.h"
+#include "extensions/mongo/src/MongoStorageContext.h"
 
 namespace catapult { namespace test {
 

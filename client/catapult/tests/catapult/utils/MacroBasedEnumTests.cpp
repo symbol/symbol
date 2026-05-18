@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
@@ -53,7 +53,7 @@ namespace catapult { namespace utils {
 
 #define ENUM_LIST GREEK_LETTERS_LIST
 #define DEFINE_ENUM GreekLetters
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 #undef ENUM_LIST
 
@@ -99,7 +99,7 @@ namespace catapult { namespace utils {
 
 #define ENUM_LIST GREEK_LETTERS_LIST
 #define DEFINE_ENUM GreekLettersByte
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 #undef ENUM_LIST
 	}
@@ -148,7 +148,7 @@ namespace catapult { namespace utils {
 
 #define ENUM_LIST VERSION_PARTS_LIST
 #define DEFINE_ENUM VersionParts
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 #undef ENUM_LIST
 	}
@@ -189,7 +189,7 @@ namespace catapult { namespace utils {
 #define ENUM_LIST GREEK_LETTERS_LIST_EXPLICIT
 #define EXPLICIT_VALUE_ENUM
 #define DEFINE_ENUM GreekLettersExplicit
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 #undef EXPLICIT_VALUE_ENUM
 #undef ENUM_LIST
@@ -240,15 +240,15 @@ namespace catapult { namespace utils {
 
 // define and use the operator<< to avoid compiler warnings
 #define DEFINE_ENUM SingleValueEnumUInt8
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 
 #define DEFINE_ENUM SingleValueEnumImplicit
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 
 #define DEFINE_ENUM SingleValueEnumUInt64
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
 
 #undef ENUM_LIST

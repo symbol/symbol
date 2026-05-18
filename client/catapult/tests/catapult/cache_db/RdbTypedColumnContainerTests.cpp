@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_db/RdbTypedColumnContainer.h"
+#include "src/catapult/cache_db/RdbTypedColumnContainer.h"
 #include "tests/catapult/cache_db/test/BasicMapDescriptor.h"
 #include "tests/catapult/cache_db/test/StringKey.h"
 #include "tests/test/nodeps/ParamsCapture.h"

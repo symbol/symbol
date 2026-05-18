@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/ImportanceView.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/ImportanceView.h"
 
 namespace catapult { namespace test {
 

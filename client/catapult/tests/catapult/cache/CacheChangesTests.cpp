@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CacheChanges.h"
-#include "catapult/cache/CatapultCacheBuilder.h"
+#include "src/catapult/cache/CacheChanges.h"
+#include "src/catapult/cache/CatapultCacheBuilder.h"
 #include "tests/catapult/cache/test/ByteVectorCacheChanges.h"
 #include "tests/catapult/cache/test/DeltasAwareCache.h"
 #include "tests/TestHarness.h"

@@ -21,8 +21,8 @@
 
 #pragma once
 #include "finalization/src/FinalizationConfiguration.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/types.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/types.h"
 #include <unordered_map>
 
 namespace catapult { namespace cache { class AccountStateCacheView; } }

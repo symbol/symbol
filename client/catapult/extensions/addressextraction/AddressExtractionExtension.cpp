@@ -23,8 +23,8 @@
 #include "src/AddressExtractionPtChangeSubscriber.h"
 #include "src/AddressExtractionUtChangeSubscriber.h"
 #include "src/AddressExtractor.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/extensions/RootedService.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/RootedService.h"
 
 namespace catapult { namespace addressextraction {
 

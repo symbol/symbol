@@ -20,19 +20,19 @@
 **/
 
 #include "MultiBlockLoader.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/chain/BlockExecutor.h"
-#include "catapult/chain/BlockScorer.h"
-#include "catapult/extensions/LocalNodeStateRef.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/Elements.h"
-#include "catapult/observers/NotificationObserverAdapter.h"
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/subscribers/StateChangeInfo.h"
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/chain/BlockExecutor.h"
+#include "src/catapult/chain/BlockScorer.h"
+#include "src/catapult/extensions/LocalNodeStateRef.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/observers/NotificationObserverAdapter.h"
+#include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/utils/StackLogger.h"
 
 namespace catapult { namespace local {
 

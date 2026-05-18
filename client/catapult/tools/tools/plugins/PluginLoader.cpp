@@ -20,10 +20,10 @@
 **/
 
 #include "PluginLoader.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/plugins/PluginLoader.h"
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/plugins/PluginModule.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/plugins/PluginLoader.h"
+#include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/plugins/PluginModule.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace plugins {

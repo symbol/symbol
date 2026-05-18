@@ -22,7 +22,7 @@
 #pragma once
 #include "NetworkIdentifier.h"
 #include "NodeIdentity.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/utils/TimeSpan.h"
 
 namespace catapult { namespace model {
 

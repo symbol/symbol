@@ -22,9 +22,9 @@
 #pragma once
 #include "NodeInteractionUtils.h"
 #include "ServiceState.h"
-#include "catapult/chain/RemoteApiForwarder.h"
-#include "catapult/chain/RemoteNodeSynchronizer.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/chain/RemoteApiForwarder.h"
+#include "src/catapult/chain/RemoteNodeSynchronizer.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace extensions {
 

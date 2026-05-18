@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <bsoncxx/json.hpp>
 
 namespace catapult { namespace state { class MosaicEntry; } }

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BatchUpdateResult.h"
-#include "catapult/model/EntityInfo.h"
+#include "src/catapult/model/EntityInfo.h"
 
 namespace catapult { namespace chain {
 

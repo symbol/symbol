@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/deltaset/BaseSetUtils.h"
+#include "src/catapult/deltaset/BaseSetUtils.h"
 #include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
 #include "tests/TestHarness.h"
 #include <vector>

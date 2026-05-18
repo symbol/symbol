@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/extensions/ExtensionManager.h"
-#include "catapult/ionet/PacketHandlers.h"
+#include "src/catapult/extensions/ExtensionManager.h"
+#include "src/catapult/ionet/PacketHandlers.h"
 
 namespace catapult { namespace handlers {
 

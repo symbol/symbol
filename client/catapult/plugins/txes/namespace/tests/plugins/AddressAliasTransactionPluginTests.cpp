@@ -20,9 +20,9 @@
 **/
 
 #include "src/plugins/AddressAliasTransactionPlugin.h"
-#include "src/model/AddressAliasTransaction.h"
-#include "src/model/AliasNotifications.h"
-#include "src/model/NamespaceNotifications.h"
+#include "../model/AddressAliasTransaction.h"
+#include "../model/AliasNotifications.h"
+#include "../model/NamespaceNotifications.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
 

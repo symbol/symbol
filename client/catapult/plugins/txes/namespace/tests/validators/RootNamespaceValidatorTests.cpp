@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/constants.h"
+#include "src/catapult/constants.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

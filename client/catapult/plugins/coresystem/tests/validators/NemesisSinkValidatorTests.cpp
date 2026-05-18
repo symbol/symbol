@@ -20,8 +20,8 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/validators/ValidatorContext.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

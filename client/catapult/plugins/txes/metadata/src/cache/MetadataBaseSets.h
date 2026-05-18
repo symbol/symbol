@@ -22,10 +22,10 @@
 #pragma once
 #include "MetadataCacheSerializers.h"
 #include "MetadataCacheTypes.h"
-#include "catapult/cache/CachePatriciaTree.h"
-#include "catapult/cache/PatriciaTreeEncoderAdapters.h"
-#include "catapult/cache/SingleSetCacheTypesAdapter.h"
-#include "catapult/tree/BasePatriciaTree.h"
+#include "src/catapult/cache/CachePatriciaTree.h"
+#include "src/catapult/cache/PatriciaTreeEncoderAdapters.h"
+#include "src/catapult/cache/SingleSetCacheTypesAdapter.h"
+#include "src/catapult/tree/BasePatriciaTree.h"
 
 namespace catapult { namespace cache {
 

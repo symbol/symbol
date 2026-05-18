@@ -20,8 +20,8 @@
 **/
 
 #include "MongoReceiptTestUtils.h"
-#include "catapult/crypto/MerkleHashBuilder.h"
-#include "catapult/model/BlockStatement.h"
+#include "src/catapult/crypto/MerkleHashBuilder.h"
+#include "src/catapult/model/BlockStatement.h"
 #include "tests/test/core/mocks/MockReceipt.h"
 #include "tests/test/nodeps/Random.h"
 

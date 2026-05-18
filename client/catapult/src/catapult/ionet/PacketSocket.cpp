@@ -23,9 +23,9 @@
 #include "BufferedPacketIo.h"
 #include "Node.h"
 #include "WorkingBuffer.h"
-#include "catapult/thread/StrandOwnerLifetimeExtender.h"
-#include "catapult/thread/TimedCallback.h"
-#include "catapult/utils/StackTimer.h"
+#include "src/catapult/thread/StrandOwnerLifetimeExtender.h"
+#include "src/catapult/thread/TimedCallback.h"
+#include "src/catapult/utils/StackTimer.h"
 #include <boost/asio/ssl.hpp>
 
 namespace catapult { namespace ionet {

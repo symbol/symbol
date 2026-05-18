@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/ConsumerUtils.h"
-#include "catapult/consumers/ConsumerResults.h"
-#include "catapult/disruptor/ConsumerInput.h"
-#include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/validators/ValidationResult.h"
+#include "src/catapult/consumers/ConsumerUtils.h"
+#include "src/catapult/consumers/ConsumerResults.h"
+#include "src/catapult/disruptor/ConsumerInput.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/validators/ValidationResult.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace consumers {

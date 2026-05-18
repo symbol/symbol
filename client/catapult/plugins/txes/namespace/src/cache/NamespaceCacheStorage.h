@@ -21,8 +21,8 @@
 
 #pragma once
 #include "NamespaceCacheTypes.h"
-#include "src/state/RootNamespaceHistorySerializer.h"
-#include "catapult/cache/CacheStorageInclude.h"
+#include "../state/RootNamespaceHistorySerializer.h"
+#include "src/catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 

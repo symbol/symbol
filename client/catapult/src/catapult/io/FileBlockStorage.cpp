@@ -25,9 +25,9 @@
 #include "BufferedFileStream.h"
 #include "FilesystemUtils.h"
 #include "PodIoUtils.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/preprocessor.h"
 
 namespace catapult { namespace io {
 

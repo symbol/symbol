@@ -21,8 +21,8 @@
 
 #include "Validators.h"
 #include "AccountRestrictionView.h"
-#include "src/cache/AccountRestrictionCache.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "../cache/AccountRestrictionCache.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

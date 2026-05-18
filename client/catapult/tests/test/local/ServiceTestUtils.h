@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/extensions/ServiceRegistrar.h"
-#include "catapult/ionet/PacketType.h"
+#include "src/catapult/extensions/ServiceRegistrar.h"
+#include "src/catapult/ionet/PacketType.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

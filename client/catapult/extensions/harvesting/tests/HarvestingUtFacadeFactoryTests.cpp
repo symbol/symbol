@@ -20,9 +20,9 @@
 **/
 
 #include "harvesting/src/HarvestingUtFacadeFactory.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/BlockUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"

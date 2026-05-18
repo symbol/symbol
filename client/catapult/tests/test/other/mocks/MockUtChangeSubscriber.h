@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/cache_tx/UtChangeSubscriber.h"
+#include "src/catapult/cache_tx/UtChangeSubscriber.h"
 #include "tests/test/cache/AggregateTransactionsCacheTestUtils.h"
 
 namespace catapult { namespace mocks {

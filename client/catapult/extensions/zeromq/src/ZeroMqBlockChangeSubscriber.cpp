@@ -21,8 +21,8 @@
 
 #include "ZeroMqBlockChangeSubscriber.h"
 #include "ZeroMqEntityPublisher.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/TransactionPlugin.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/TransactionPlugin.h"
 
 namespace catapult { namespace zeromq {
 

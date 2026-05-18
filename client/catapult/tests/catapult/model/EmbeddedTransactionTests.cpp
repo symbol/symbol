@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/EmbeddedTransaction.h"
-#include "catapult/model/Address.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/model/EmbeddedTransaction.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/preprocessor.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Alignment.h"

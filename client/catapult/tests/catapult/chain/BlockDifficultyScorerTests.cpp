@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/BlockDifficultyScorer.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/chain/BlockDifficultyScorer.h"
+#include "src/catapult/utils/Logging.h"
 #include "tests/TestHarness.h"
 #include <cmath>
 

@@ -20,11 +20,11 @@
 **/
 
 #include "TransactionSpamThrottle.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/model/Transaction.h"
 #include <cmath>
 
 namespace catapult { namespace sync {

@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/IdentifierGroupCacheUtils.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
-#include "catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/cache/CacheMixinAliases.h"
+#include "src/catapult/cache/IdentifierGroupCacheUtils.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
 
 namespace catapult { namespace cache {
 

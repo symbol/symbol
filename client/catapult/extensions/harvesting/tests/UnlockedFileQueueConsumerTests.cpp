@@ -20,8 +20,8 @@
 **/
 
 #include "harvesting/src/UnlockedFileQueueConsumer.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/FileQueue.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/FileQueue.h"
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"

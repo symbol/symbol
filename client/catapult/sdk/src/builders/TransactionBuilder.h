@@ -20,11 +20,11 @@
 **/
 
 #pragma once
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/model/Transaction.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/functions.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/model/Transaction.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/functions.h"
 
 namespace catapult { namespace builders {
 

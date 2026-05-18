@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "mongo/src/MongoPluginManager.h"
-#include "mongo/src/MongoStorageContext.h"
+#include "extensions/mongo/src/MongoPluginManager.h"
+#include "extensions/mongo/src/MongoStorageContext.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>

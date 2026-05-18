@@ -21,11 +21,11 @@
 
 #include "PtChangeReader.h"
 #include "SubscriberOperationTypes.h"
-#include "catapult/cache_tx/PtChangeSubscriber.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/io/TransactionInfoSerializer.h"
-#include "catapult/model/Cosignature.h"
+#include "src/catapult/cache_tx/PtChangeSubscriber.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/io/TransactionInfoSerializer.h"
+#include "src/catapult/model/Cosignature.h"
 
 namespace catapult { namespace subscribers {
 

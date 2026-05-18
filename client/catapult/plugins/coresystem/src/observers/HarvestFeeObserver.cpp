@@ -20,10 +20,10 @@
 **/
 
 #include "Observers.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/AccountStateCacheUtils.h"
-#include "catapult/model/InflationCalculator.h"
-#include "catapult/model/Mosaic.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCacheUtils.h"
+#include "src/catapult/model/InflationCalculator.h"
+#include "src/catapult/model/Mosaic.h"
 
 namespace catapult { namespace observers {
 

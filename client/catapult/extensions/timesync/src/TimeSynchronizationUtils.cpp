@@ -25,13 +25,13 @@
 #include "TimeSynchronizationState.h"
 #include "TimeSynchronizer.h"
 #include "constants.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/ionet/NodeContainer.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/ionet/NodeContainer.h"
 
 namespace catapult { namespace timesync {
 

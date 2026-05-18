@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/SynchronizerTaskCallbacks.h"
+#include "src/catapult/extensions/SynchronizerTaskCallbacks.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"

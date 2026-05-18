@@ -20,8 +20,8 @@
 **/
 
 #include "FinalizationTestUtils.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {

@@ -23,7 +23,7 @@
 #include "NamespaceEntityType.h"
 #include "NamespaceTypes.h"
 #include "plugins/txes/namespace/src/types.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 

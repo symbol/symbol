@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MongoTransactionPlugin.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace mongo {
 

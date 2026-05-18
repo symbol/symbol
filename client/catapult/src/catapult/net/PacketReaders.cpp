@@ -22,10 +22,10 @@
 #include "PacketReaders.h"
 #include "ChainedSocketReader.h"
 #include "ClientConnector.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/ionet/SocketReader.h"
-#include "catapult/utils/HexFormatter.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/ionet/SocketReader.h"
+#include "src/catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/SpinLock.h"
 #include <unordered_map>
 
 namespace catapult { namespace net {

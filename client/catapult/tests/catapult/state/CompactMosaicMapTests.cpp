@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/state/CompactMosaicMap.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/state/CompactMosaicMap.h"
+#include "src/catapult/utils/Casting.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>

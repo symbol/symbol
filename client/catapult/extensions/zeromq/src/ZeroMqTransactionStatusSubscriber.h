@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/subscribers/TransactionStatusSubscriber.h"
+#include "src/catapult/subscribers/TransactionStatusSubscriber.h"
 #include <memory>
 
 namespace catapult { namespace zeromq { class ZeroMqEntityPublisher; } }

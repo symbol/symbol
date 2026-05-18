@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache/PatriciaTreeEncoderAdapters.h"
-#include "catapult/tree/BasePatriciaTree.h"
-#include "catapult/tree/MemoryDataSource.h"
+#include "src/catapult/cache/PatriciaTreeEncoderAdapters.h"
+#include "src/catapult/tree/BasePatriciaTree.h"
+#include "src/catapult/tree/MemoryDataSource.h"
 #include <vector>
 
 namespace catapult { namespace test {

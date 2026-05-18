@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/local/ProcessHost.h"
-#include "catapult/utils/DiagnosticCounter.h"
+#include "src/catapult/local/ProcessHost.h"
+#include "src/catapult/utils/DiagnosticCounter.h"
 #include <memory>
 #include <vector>
 

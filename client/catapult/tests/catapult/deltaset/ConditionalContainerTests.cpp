@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/deltaset/ConditionalContainer.h"
-#include "catapult/deltaset/OrderedSet.h"
-#include "catapult/utils/ContainerHelpers.h"
+#include "src/catapult/deltaset/ConditionalContainer.h"
+#include "src/catapult/deltaset/OrderedSet.h"
+#include "src/catapult/utils/ContainerHelpers.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
 #include "tests/TestHarness.h"
 #include <unordered_set>

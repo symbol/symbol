@@ -21,8 +21,8 @@
 
 #pragma once
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "mongo/src/mappers/MapperInclude.h"
-#include "catapult/utils/Casting.h"
+#include "extensions/mongo/src/mappers/MapperInclude.h"
+#include "src/catapult/utils/Casting.h"
 #include "tests/test/nodeps/Conversions.h"
 #include <cstring>
 #include <vector>

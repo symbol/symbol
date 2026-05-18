@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/PluginRegistry.h"
-#include "catapult/model/ReceiptType.h"
-#include "catapult/plugins.h"
+#include "src/catapult/model/PluginRegistry.h"
+#include "src/catapult/model/ReceiptType.h"
+#include "src/catapult/plugins.h"
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 

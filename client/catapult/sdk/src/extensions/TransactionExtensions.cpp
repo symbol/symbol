@@ -21,8 +21,8 @@
 
 #include "TransactionExtensions.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/model/EntityHasher.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/model/EntityHasher.h"
 
 namespace catapult { namespace extensions {
 

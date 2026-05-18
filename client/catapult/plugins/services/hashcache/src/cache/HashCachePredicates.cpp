@@ -21,7 +21,7 @@
 
 #include "HashCachePredicates.h"
 #include "HashCache.h"
-#include "catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/CatapultCache.h"
 
 namespace catapult { namespace cache {
 

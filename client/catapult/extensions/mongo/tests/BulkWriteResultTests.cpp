@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/BulkWriteResult.h"
+#include "extensions/mongo/src/BulkWriteResult.h"
 #include "tests/TestHarness.h"
 #include <bsoncxx/builder/stream/document.hpp>
 

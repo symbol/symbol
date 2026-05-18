@@ -21,8 +21,8 @@
 
 #include "ValidateConfiguration.h"
 #include "CatapultConfiguration.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/HexParser.h"
 
 namespace catapult { namespace config {
 

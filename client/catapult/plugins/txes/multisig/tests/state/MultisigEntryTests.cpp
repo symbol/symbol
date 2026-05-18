@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/MultisigEntry.h"
+#include "../state/MultisigEntry.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/TestHarness.h"
 

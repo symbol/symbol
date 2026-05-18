@@ -24,9 +24,9 @@
 #include "src/FilePtChangeStorage.h"
 #include "src/FileTransactionStatusStorage.h"
 #include "src/FileUtChangeStorage.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/io/FileQueue.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/io/FileQueue.h"
 
 namespace catapult { namespace filespooling {
 

@@ -20,8 +20,8 @@
 **/
 
 #include "MongoSecretLockInfoTestTraits.h"
-#include "mongo/src/MongoStorageContext.h"
-#include "tests/TestHarness.h"
+#include "extensions/mongo/plugins/lock_secret/src/storages/MongoSecretLockInfoCacheStorage.h"
+#include "extensions/mongo/src/MongoStorageContext.h"
 
 namespace catapult { namespace test {
 

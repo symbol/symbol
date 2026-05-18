@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/MosaicRestrictionEntry.h"
-#include "catapult/crypto/Hashes.h"
+#include "../state/MosaicRestrictionEntry.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "tests/test/MosaicRestrictionTestUtils.h"
 #include "tests/TestHarness.h"
 

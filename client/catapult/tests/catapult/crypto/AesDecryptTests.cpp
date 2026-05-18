@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/AesDecrypt.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/crypto/AesDecrypt.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"

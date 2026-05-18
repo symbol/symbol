@@ -21,7 +21,7 @@
 
 #include "finalization/src/chain/FinalizationProofSynchronizer.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/io/BlockStorageCache.h"
+#include "src/catapult/io/BlockStorageCache.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofApi.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"

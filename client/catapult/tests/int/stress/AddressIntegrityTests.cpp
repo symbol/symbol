@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Address.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"

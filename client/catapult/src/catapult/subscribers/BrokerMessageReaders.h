@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/io/BufferInputStreamAdapter.h"
-#include "catapult/io/FileQueue.h"
-#include "catapult/utils/traits/Traits.h"
+#include "src/catapult/io/BufferInputStreamAdapter.h"
+#include "src/catapult/io/FileQueue.h"
+#include "src/catapult/utils/traits/Traits.h"
 
 namespace catapult { namespace subscribers {
 

@@ -20,10 +20,10 @@
 **/
 
 #include "ChainedSocketReader.h"
-#include "catapult/ionet/BufferedPacketIo.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/ionet/SocketReader.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/ionet/BufferedPacketIo.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/ionet/SocketReader.h"
+#include "src/catapult/utils/Logging.h"
 
 namespace catapult { namespace net {
 

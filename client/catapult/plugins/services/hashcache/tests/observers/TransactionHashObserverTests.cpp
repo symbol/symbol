@@ -20,8 +20,8 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "src/cache/HashCache.h"
-#include "catapult/model/EntityHasher.h"
+#include "../cache/HashCache.h"
+#include "src/catapult/model/EntityHasher.h"
 #include "tests/test/HashCacheTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

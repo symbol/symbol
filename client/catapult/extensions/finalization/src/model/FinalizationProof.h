@@ -21,8 +21,8 @@
 
 #pragma once
 #include "FinalizationMessageGroup.h"
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/SizePrefixedEntityContainer.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/model/SizePrefixedEntityContainer.h"
 
 namespace catapult { namespace model {
 

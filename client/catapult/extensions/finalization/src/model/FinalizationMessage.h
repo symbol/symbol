@@ -21,9 +21,9 @@
 
 #pragma once
 #include "StepIdentifier.h"
-#include "catapult/crypto_voting/BmTreeSignature.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/model/TrailingVariableDataLayout.h"
+#include "src/catapult/crypto_voting/BmTreeSignature.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/model/TrailingVariableDataLayout.h"
 
 namespace catapult {
 	namespace crypto { class AggregateBmPrivateKeyTree; }

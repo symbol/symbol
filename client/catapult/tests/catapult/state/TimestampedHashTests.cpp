@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/state/TimestampedHash.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/state/TimestampedHash.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"

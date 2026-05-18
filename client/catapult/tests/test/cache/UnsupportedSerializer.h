@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace test {
 

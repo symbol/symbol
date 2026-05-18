@@ -20,7 +20,7 @@
 **/
 
 #include "VotingKeyPair.h"
-#include "catapult/crypto/KeyPair.h"
+#include "src/catapult/crypto/KeyPair.h"
 
 namespace catapult { namespace crypto {
 

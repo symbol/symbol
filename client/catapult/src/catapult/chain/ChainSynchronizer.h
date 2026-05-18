@@ -21,9 +21,9 @@
 
 #pragma once
 #include "RemoteNodeSynchronizer.h"
-#include "catapult/disruptor/DisruptorTypes.h"
-#include "catapult/model/AnnotatedEntityRange.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/disruptor/DisruptorTypes.h"
+#include "src/catapult/model/AnnotatedEntityRange.h"
+#include "src/catapult/model/RangeTypes.h"
 
 namespace catapult {
 	namespace api {

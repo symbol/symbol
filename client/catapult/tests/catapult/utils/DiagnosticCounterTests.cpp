@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/DiagnosticCounter.h"
+#include "src/catapult/utils/DiagnosticCounter.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

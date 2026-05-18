@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/disruptor/Disruptor.h"
-#include "catapult/thread/IoThreadPool.h"
+#include "src/catapult/disruptor/Disruptor.h"
+#include "src/catapult/thread/IoThreadPool.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Waits.h"
 #include "tests/test/other/DisruptorTestUtils.h"

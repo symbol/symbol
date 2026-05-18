@@ -20,9 +20,9 @@
 **/
 
 #include "MapperUtils.h"
-#include "catapult/model/EmbeddedTransaction.h"
-#include "catapult/model/Receipt.h"
-#include "catapult/model/VerifiableEntity.h"
+#include "src/catapult/model/EmbeddedTransaction.h"
+#include "src/catapult/model/Receipt.h"
+#include "src/catapult/model/VerifiableEntity.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/RateMonitor.h"
+#include "src/catapult/ionet/RateMonitor.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/TestHarness.h"
 

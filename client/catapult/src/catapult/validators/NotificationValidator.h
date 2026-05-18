@@ -24,7 +24,7 @@
 // ValidatorContext must be included so that stateful validator has proper visibility
 // (all of its template arguments must be visible at point of declaration)
 #include "ValidatorContext.h"
-#include "catapult/model/Notifications.h"
+#include "src/catapult/model/Notifications.h"
 #include <string>
 
 namespace catapult { namespace validators {

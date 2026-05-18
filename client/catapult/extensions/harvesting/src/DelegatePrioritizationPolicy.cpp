@@ -20,12 +20,12 @@
 **/
 
 #include "DelegatePrioritizationPolicy.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace harvesting {
 
@@ -33,7 +33,7 @@ namespace catapult { namespace harvesting {
 
 #define DEFINE_ENUM DelegatePrioritizationPolicy
 #define ENUM_LIST DELEGATE_PRIORITIZATION_POLICY_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 

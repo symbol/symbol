@@ -21,10 +21,10 @@
 
 #include "SchedulerService.h"
 #include "TasksConfiguration.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/thread/MultiServicePool.h"
-#include "catapult/thread/Scheduler.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/thread/MultiServicePool.h"
+#include "src/catapult/thread/Scheduler.h"
 
 namespace catapult { namespace sync {
 

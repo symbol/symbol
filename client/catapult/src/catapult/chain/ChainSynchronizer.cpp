@@ -21,10 +21,10 @@
 
 #include "ChainSynchronizer.h"
 #include "CompareChains.h"
-#include "catapult/api/RemoteChainApi.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/thread/FutureUtils.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/thread/FutureUtils.h"
+#include "src/catapult/utils/SpinLock.h"
 #include <queue>
 
 namespace catapult { namespace chain {

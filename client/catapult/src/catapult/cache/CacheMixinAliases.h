@@ -22,7 +22,7 @@
 #pragma once
 #include "CacheMixins.h"
 #include "PatriciaTreeCacheMixins.h"
-#include "catapult/deltaset/DeltaElementsMixin.h"
+#include "src/catapult/deltaset/DeltaElementsMixin.h"
 
 namespace catapult { namespace cache {
 

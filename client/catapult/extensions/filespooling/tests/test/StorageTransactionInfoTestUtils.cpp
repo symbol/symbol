@@ -20,7 +20,7 @@
 **/
 
 #include "StorageTransactionInfoTestUtils.h"
-#include "catapult/io/TransactionInfoSerializer.h"
+#include "src/catapult/io/TransactionInfoSerializer.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 
 namespace catapult { namespace test {

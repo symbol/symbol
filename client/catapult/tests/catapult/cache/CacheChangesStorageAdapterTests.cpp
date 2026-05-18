@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CacheChangesStorageAdapter.h"
+#include "src/catapult/cache/CacheChangesStorageAdapter.h"
 #include "tests/catapult/cache/test/DeltasAwareCache.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"

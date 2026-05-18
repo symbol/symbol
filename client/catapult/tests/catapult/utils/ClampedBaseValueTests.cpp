@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/ClampedBaseValue.h"
+#include "src/catapult/utils/ClampedBaseValue.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

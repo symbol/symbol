@@ -21,7 +21,7 @@
 
 #include "Validators.h"
 #include "ActiveMosaicView.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

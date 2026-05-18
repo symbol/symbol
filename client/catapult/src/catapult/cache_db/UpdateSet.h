@@ -21,7 +21,7 @@
 
 #pragma once
 #include "RdbTypedColumnContainer.h"
-#include "catapult/deltaset/DeltaElements.h"
+#include "src/catapult/deltaset/DeltaElements.h"
 
 namespace catapult { namespace cache {
 

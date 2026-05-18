@@ -20,9 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <string>
-#include <vector>
 
 namespace catapult { namespace utils {
 

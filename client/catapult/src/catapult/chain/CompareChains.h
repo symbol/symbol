@@ -21,8 +21,8 @@
 
 #pragma once
 #include "ChainComparisonCode.h"
-#include "catapult/api/ChainApi.h"
-#include "catapult/types.h"
+#include "src/catapult/api/ChainApi.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace chain {
 

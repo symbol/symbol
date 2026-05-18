@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/CertificateUtils.h"
+#include "src/catapult/crypto/CertificateUtils.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"

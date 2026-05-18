@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/model/TransferNotifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "../model/TransferNotifications.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace config { class CatapultDirectory; } }
 

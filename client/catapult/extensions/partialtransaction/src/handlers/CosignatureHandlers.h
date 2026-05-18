@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/handlers/HandlerTypes.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/model/Cosignature.h"
+#include "src/catapult/handlers/HandlerTypes.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/model/Cosignature.h"
 
 namespace catapult { namespace handlers {
 

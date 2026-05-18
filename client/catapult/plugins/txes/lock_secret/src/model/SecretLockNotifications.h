@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "src/model/LockHashAlgorithm.h"
+#include "../model/LockHashAlgorithm.h"
 #include "plugins/txes/lock_shared/src/model/LockNotifications.h"
 
 namespace catapult { namespace model {

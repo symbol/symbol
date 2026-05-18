@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <bsoncxx/array/view-fwd.hpp>
 #include <bsoncxx/document/value-fwd.hpp>
 #include <bsoncxx/document/view-fwd.hpp>

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/utils/ShortHash.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/utils/ShortHash.h"
 #include "tests/catapult/cache_tx/test/TransactionCacheTests.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"

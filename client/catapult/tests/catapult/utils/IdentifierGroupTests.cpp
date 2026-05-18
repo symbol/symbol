@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/IdentifierGroup.h"
-#include "catapult/utils/Hashers.h"
+#include "src/catapult/utils/IdentifierGroup.h"
+#include "src/catapult/utils/Hashers.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

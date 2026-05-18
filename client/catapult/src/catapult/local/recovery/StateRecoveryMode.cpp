@@ -20,7 +20,7 @@
 **/
 
 #include "StateRecoveryMode.h"
-#include "catapult/config/NodeConfiguration.h"
+#include "src/catapult/config/NodeConfiguration.h"
 
 namespace catapult { namespace local {
 

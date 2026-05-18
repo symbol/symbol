@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

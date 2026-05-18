@@ -20,7 +20,7 @@
 **/
 
 #include "harvesting/src/HarvestingConfiguration.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/model/Address.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"

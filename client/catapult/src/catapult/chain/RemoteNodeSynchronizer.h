@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeInteractionResultCode.h"
-#include "catapult/thread/FutureUtils.h"
+#include "src/catapult/ionet/NodeInteractionResultCode.h"
+#include "src/catapult/thread/FutureUtils.h"
 #include <functional>
 
 namespace catapult { namespace chain {

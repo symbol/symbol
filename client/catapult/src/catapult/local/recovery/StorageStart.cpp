@@ -20,7 +20,7 @@
 **/
 
 #include "StorageStart.h"
-#include "catapult/io/BlockStorage.h"
+#include "src/catapult/io/BlockStorage.h"
 
 namespace catapult { namespace local {
 

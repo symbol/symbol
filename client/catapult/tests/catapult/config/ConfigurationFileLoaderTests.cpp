@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/utils/ConfigurationUtils.h"
+#include "src/catapult/config/ConfigurationFileLoader.h"
+#include "src/catapult/utils/ConfigurationUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <filesystem>

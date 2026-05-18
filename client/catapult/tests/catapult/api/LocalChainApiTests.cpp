@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/api/LocalChainApi.h"
-#include "catapult/model/EntityHasher.h"
+#include "src/catapult/api/LocalChainApi.h"
+#include "src/catapult/model/EntityHasher.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/TestHarness.h"
 

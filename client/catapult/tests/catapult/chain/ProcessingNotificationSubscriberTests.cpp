@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/ProcessingNotificationSubscriber.h"
+#include "src/catapult/chain/ProcessingNotificationSubscriber.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/other/mocks/MockNotificationObserver.h"

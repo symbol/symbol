@@ -20,11 +20,11 @@
 **/
 
 #include "src/plugins/AccountRestrictionTransactionPlugin.h"
-#include "src/model/AccountAddressRestrictionTransaction.h"
-#include "src/model/AccountMosaicRestrictionTransaction.h"
-#include "src/model/AccountOperationRestrictionTransaction.h"
-#include "src/model/AccountRestrictionNotifications.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "../model/AccountAddressRestrictionTransaction.h"
+#include "../model/AccountMosaicRestrictionTransaction.h"
+#include "../model/AccountOperationRestrictionTransaction.h"
+#include "../model/AccountRestrictionNotifications.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

@@ -20,11 +20,11 @@
 **/
 
 #include "PtBootstrapperService.h"
-#include "catapult/cache_tx/MemoryPtCache.h"
-#include "catapult/extensions/Results.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/subscribers/TransactionStatusSubscriber.h"
+#include "src/catapult/cache_tx/MemoryPtCache.h"
+#include "src/catapult/extensions/Results.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/subscribers/TransactionStatusSubscriber.h"
 
 namespace catapult { namespace partialtransaction {
 

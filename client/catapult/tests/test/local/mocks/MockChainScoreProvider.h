@@ -21,7 +21,7 @@
 
 #pragma once
 #include "extensions/mongo/src/ChainScoreProvider.h"
-#include "catapult/model/ChainScore.h"
+#include "src/catapult/model/ChainScore.h"
 
 namespace catapult { namespace mocks {
 

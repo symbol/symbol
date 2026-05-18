@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/NodePacketIoPair.h"
+#include "src/catapult/ionet/NodePacketIoPair.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/TestHarness.h"
 

@@ -21,7 +21,7 @@
 
 #include "Bip39.h"
 #include "Bip39Wordlist.h"
-#include "catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/Hashes.h"
 #include <numeric>
 
 namespace catapult { namespace extensions {

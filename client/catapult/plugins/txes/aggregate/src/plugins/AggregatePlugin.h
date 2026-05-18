@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/plugins.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace plugins { class PluginManager; } }
 

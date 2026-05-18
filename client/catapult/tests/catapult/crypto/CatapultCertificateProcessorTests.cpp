@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/CatapultCertificateProcessor.h"
+#include "src/catapult/crypto/CatapultCertificateProcessor.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/TestHarness.h"
 

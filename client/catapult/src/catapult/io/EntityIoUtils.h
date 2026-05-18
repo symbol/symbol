@@ -21,8 +21,8 @@
 
 #pragma once
 #include "PodIoUtils.h"
-#include "catapult/model/SizePrefixedEntity.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/model/SizePrefixedEntity.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include <memory>
 
 namespace catapult { namespace io {

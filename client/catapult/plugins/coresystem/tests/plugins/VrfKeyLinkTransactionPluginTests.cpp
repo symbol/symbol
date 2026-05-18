@@ -20,8 +20,8 @@
 **/
 
 #include "src/plugins/VrfKeyLinkTransactionPlugin.h"
-#include "src/model/KeyLinkNotifications.h"
-#include "src/model/VrfKeyLinkTransaction.h"
+#include "../model/KeyLinkNotifications.h"
+#include "../model/VrfKeyLinkTransaction.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

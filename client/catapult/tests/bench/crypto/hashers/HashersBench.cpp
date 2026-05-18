@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "tests/bench/nodeps/Random.h"
 #include <benchmark/benchmark.h>
 

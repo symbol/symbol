@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoTransactionPluginFactory.h"
+#include "extensions/mongo/src/MongoTransactionPluginFactory.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

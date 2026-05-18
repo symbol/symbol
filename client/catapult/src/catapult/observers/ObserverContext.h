@@ -21,9 +21,9 @@
 
 #pragma once
 #include "ObserverStatementBuilder.h"
-#include "catapult/cache/CatapultCacheDelta.h"
-#include "catapult/model/NotificationContext.h"
-#include "catapult/state/CatapultState.h"
+#include "src/catapult/cache/CatapultCacheDelta.h"
+#include "src/catapult/model/NotificationContext.h"
+#include "src/catapult/state/CatapultState.h"
 #include <iosfwd>
 
 namespace catapult { namespace observers {

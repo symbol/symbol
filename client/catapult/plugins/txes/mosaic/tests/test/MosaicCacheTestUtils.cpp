@@ -21,7 +21,7 @@
 
 #include "MosaicCacheTestUtils.h"
 #include "MosaicTestUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

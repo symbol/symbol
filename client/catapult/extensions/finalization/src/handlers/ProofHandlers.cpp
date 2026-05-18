@@ -22,7 +22,7 @@
 #include "ProofHandlers.h"
 #include "finalization/src/api/FinalizationPackets.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
 
 namespace catapult { namespace handlers {
 

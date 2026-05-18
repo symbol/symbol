@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/api/ChainApi.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/api/ChainApi.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult {
 	namespace ionet { class Node; }

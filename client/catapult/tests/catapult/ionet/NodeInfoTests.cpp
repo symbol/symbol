@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/NodeInfo.h"
+#include "src/catapult/ionet/NodeInfo.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/TestHarness.h"
 
