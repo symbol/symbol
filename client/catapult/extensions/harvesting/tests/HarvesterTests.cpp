@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/Harvester.h"
+#include "extensions/harvesting/src/Harvester.h"
 #include "src/catapult/chain/BlockDifficultyScorer.h"
 #include "src/catapult/chain/BlockScorer.h"
 #include "src/catapult/model/Address.h"

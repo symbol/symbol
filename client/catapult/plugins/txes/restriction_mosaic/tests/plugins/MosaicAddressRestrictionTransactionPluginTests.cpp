@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/MosaicAddressRestrictionTransactionPlugin.h"
+#include "plugins/txes/restriction_mosaic/src/plugins/MosaicAddressRestrictionTransactionPlugin.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "../model/MosaicAddressRestrictionTransaction.h"
-#include "../model/MosaicRestrictionNotifications.h"
+#include "plugins/txes/restriction_mosaic/src/model/MosaicAddressRestrictionTransaction.h"
+#include "plugins/txes/restriction_mosaic/src/model/MosaicRestrictionNotifications.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/storages/MongoNamespaceCacheStorageUtils.h"
-#include "../mappers/NamespaceDescriptor.h"
+#include "extensions/mongo/plugins/namespace/src/storages/MongoNamespaceCacheStorageUtils.h"
+#include "extensions/mongo/plugins/namespace/src/mappers/NamespaceDescriptor.h"
 #include "plugins/txes/namespace/src/state/RootNamespaceHistory.h"
 #include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/TestHarness.h"

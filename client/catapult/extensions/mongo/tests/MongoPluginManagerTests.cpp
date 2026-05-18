@@ -21,10 +21,10 @@
 
 #include "extensions/mongo/src/MongoPluginManager.h"
 #include "extensions/mongo/src/MongoTransactionPlugin.h"
-#include "mongo/tests/test/MongoTestUtils.h"
-#include "mongo/tests/test/mocks/MockExternalCacheStorage.h"
-#include "mongo/tests/test/mocks/MockReceiptMapper.h"
-#include "mongo/tests/test/mocks/MockTransactionMapper.h"
+#include "extensions/mongo/tests/test/MongoTestUtils.h"
+#include "extensions/mongo/tests/test/mocks/MockExternalCacheStorage.h"
+#include "extensions/mongo/tests/test/mocks/MockReceiptMapper.h"
+#include "extensions/mongo/tests/test/mocks/MockTransactionMapper.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>
 

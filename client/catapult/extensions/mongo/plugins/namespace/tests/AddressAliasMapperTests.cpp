@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/AddressAliasMapper.h"
+#include "extensions/mongo/plugins/namespace/src/AddressAliasMapper.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/model/AddressAliasTransaction.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/HarvestingObservers.h"
+#include "extensions/harvesting/src/HarvestingObservers.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/Address.h"
 #include "tests/test/plugins/ObserverTestContext.h"

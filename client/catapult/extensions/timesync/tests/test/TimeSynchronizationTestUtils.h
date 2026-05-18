@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "timesync/src/TimeSynchronizationSample.h"
+#include "extensions/timesync/src/TimeSynchronizationSample.h"
 #include "src/catapult/ionet/Node.h"
 #include <vector>
 

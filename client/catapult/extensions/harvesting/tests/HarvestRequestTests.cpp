@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/HarvestRequest.h"
-#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
+#include "extensions/harvesting/src/HarvestRequest.h"
+#include "extensions/harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {

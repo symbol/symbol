@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "../cache/MetadataCache.h"
-#include "../cache/MetadataCacheStorage.h"
+#include "plugins/txes/metadata/src/cache/MetadataCache.h"
+#include "plugins/txes/metadata/src/cache/MetadataCacheStorage.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 

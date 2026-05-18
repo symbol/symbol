@@ -24,7 +24,7 @@
 #include "src/catapult/utils/HexParser.h"
 #include "src/catapult/utils/RandomGenerator.h"
 #include "tests/TestHarness.h"
-#include <donna/catapult.h>
+#include <external/donna/catapult.h>
 
 namespace catapult { namespace crypto {
 

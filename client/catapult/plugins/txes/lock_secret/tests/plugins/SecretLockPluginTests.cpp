@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/SecretLockPlugin.h"
-#include "../model/SecretLockEntityType.h"
+#include "plugins/txes/lock_secret/src/plugins/SecretLockPlugin.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

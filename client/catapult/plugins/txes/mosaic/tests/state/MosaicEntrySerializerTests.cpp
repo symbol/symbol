@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MosaicEntrySerializer.h"
-#include "tests/test/MosaicTestUtils.h"
+#include "plugins/txes/mosaic/src/state/MosaicEntrySerializer.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"

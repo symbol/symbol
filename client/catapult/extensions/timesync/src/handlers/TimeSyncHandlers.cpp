@@ -20,7 +20,7 @@
 **/
 
 #include "TimeSyncHandlers.h"
-#include "timesync/src/api/TimeSyncPackets.h"
+#include "extensions/timesync/src/api/TimeSyncPackets.h"
 #include "src/catapult/ionet/PacketEntityUtils.h"
 
 namespace catapult { namespace handlers {

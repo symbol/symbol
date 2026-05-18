@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "packetserver/src/NetworkPacketReadersService.h"
+#include "extensions/packetserver/src/NetworkPacketReadersService.h"
 #include "src/catapult/handlers/BasicProducer.h"
 #include "src/catapult/handlers/HandlerFactory.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

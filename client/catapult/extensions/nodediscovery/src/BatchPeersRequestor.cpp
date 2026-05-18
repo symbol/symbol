@@ -20,7 +20,7 @@
 **/
 
 #include "BatchPeersRequestor.h"
-#include "nodediscovery/src/api/RemoteNodeApi.h"
+#include "extensions/nodediscovery/src/api/RemoteNodeApi.h"
 #include "src/catapult/thread/FutureUtils.h"
 #include "src/catapult/utils/ThrottleLogger.h"
 #include "src/catapult/utils/TimeSpan.h"

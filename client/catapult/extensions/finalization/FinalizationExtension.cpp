@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/io/FileProofStorage.h"
+#include "extensions/finalization/src/io/FileProofStorage.h"
 #include "src/FinalizationBootstrapperService.h"
 #include "src/FinalizationConfiguration.h"
 #include "src/FinalizationMessageProcessingService.h"

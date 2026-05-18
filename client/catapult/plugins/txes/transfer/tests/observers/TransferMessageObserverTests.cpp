@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
+#include "plugins/txes/transfer/src/observers/Observers.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/io/IndexFile.h"
 #include "tests/test/nodeps/Filesystem.h"

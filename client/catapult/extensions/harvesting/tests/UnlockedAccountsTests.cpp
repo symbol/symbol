@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/UnlockedAccounts.h"
+#include "extensions/harvesting/src/UnlockedAccounts.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"

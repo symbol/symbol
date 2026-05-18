@@ -22,7 +22,7 @@
 #include "AccountRestrictionsMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

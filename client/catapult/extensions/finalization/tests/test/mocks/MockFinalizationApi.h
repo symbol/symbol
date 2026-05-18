@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "finalization/src/api/RemoteFinalizationApi.h"
+#include "extensions/finalization/src/api/RemoteFinalizationApi.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace mocks {

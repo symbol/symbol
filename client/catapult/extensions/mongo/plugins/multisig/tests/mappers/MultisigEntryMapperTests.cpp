@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../mappers/MultisigEntryMapper.h"
+#include "extensions/mongo/plugins/multisig/src/mappers/MultisigEntryMapper.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "tests/test/MultisigMapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/plugins/multisig/tests/test/MultisigMapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

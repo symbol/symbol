@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/io/AggregateProofStorage.h"
+#include "extensions/finalization/src/io/AggregateProofStorage.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/TestHarness.h"
 

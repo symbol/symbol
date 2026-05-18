@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tools/ToolMain.h"
-#include "tools/AccountTool.h"
+#include "tools/tools/ToolMain.h"
+#include "tools/tools/AccountTool.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/ConfigurationValueParsers.h"
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
-#include "tests/test/MosaicRestrictionCacheTestUtils.h"
+#include "plugins/txes/restriction_mosaic/src/validators/Validators.h"
+#include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

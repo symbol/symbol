@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "../cache/MosaicRestrictionCache.h"
-#include "../cache/MosaicRestrictionCacheStorage.h"
+#include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
+#include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCacheStorage.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 

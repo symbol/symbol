@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/HashCacheSerializers.h"
+#include "plugins/services/hashcache/src/cache/HashCacheSerializers.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

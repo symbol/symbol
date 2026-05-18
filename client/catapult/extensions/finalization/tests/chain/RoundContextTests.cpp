@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/RoundContext.h"
+#include "extensions/finalization/src/chain/RoundContext.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace chain {

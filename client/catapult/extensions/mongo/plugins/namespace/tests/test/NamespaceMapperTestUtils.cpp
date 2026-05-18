@@ -20,12 +20,12 @@
 **/
 
 #include "NamespaceMapperTestUtils.h"
-#include "../mappers/NamespaceDescriptor.h"
+#include "extensions/mongo/plugins/namespace/src/mappers/NamespaceDescriptor.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/model/NamespaceTypes.h"
 #include "plugins/txes/namespace/src/state/RootNamespace.h"
 #include "src/catapult/utils/Casting.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

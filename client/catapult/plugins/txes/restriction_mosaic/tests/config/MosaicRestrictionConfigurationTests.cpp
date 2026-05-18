@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/config/MosaicRestrictionConfiguration.h"
+#include "plugins/txes/restriction_mosaic/src/config/MosaicRestrictionConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

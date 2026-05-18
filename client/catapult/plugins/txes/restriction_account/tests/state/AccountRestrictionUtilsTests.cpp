@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/AccountRestrictionUtils.h"
+#include "plugins/txes/restriction_account/src/state/AccountRestrictionUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

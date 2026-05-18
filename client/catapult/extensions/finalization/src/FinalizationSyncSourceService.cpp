@@ -21,9 +21,9 @@
 
 #include "FinalizationSyncSourceService.h"
 #include "FinalizationBootstrapperService.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/src/handlers/FinalizationHandlers.h"
-#include "finalization/src/handlers/ProofHandlers.h"
+#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "extensions/finalization/src/handlers/FinalizationHandlers.h"
+#include "extensions/finalization/src/handlers/ProofHandlers.h"
 #include "src/catapult/extensions/ServiceState.h"
 
 namespace catapult { namespace finalization {

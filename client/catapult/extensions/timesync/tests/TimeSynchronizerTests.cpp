@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/TimeSynchronizer.h"
-#include "timesync/src/constants.h"
+#include "extensions/timesync/src/TimeSynchronizer.h"
+#include "extensions/timesync/src/constants.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/Address.h"
-#include "timesync/tests/test/TimeSynchronizationTestUtils.h"
+#include "extensions/timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 #include <cmath>

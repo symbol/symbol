@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/FinalizationPatchingSubscriber.h"
-#include "finalization/src/io/PrevoteChainStorage.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/src/chain/FinalizationPatchingSubscriber.h"
+#include "extensions/finalization/src/io/PrevoteChainStorage.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/TestHarness.h"

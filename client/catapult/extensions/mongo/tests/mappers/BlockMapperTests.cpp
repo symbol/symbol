@@ -22,8 +22,8 @@
 #include "extensions/mongo/src/mappers/BlockMapper.h"
 #include "src/catapult/model/BlockUtils.h"
 #include "src/catapult/model/FinalizationRound.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoReceiptTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoReceiptTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
 

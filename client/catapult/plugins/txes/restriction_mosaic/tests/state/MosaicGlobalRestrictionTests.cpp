@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MosaicGlobalRestriction.h"
+#include "plugins/txes/restriction_mosaic/src/state/MosaicGlobalRestriction.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

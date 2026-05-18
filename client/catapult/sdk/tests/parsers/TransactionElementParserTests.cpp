@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/parsers/TransactionElementParser.h"
+#include "sdk/src/parsers/TransactionElementParser.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/TestHarness.h"
 

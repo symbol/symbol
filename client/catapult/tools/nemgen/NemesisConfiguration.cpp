@@ -21,11 +21,11 @@
 
 #include "NemesisConfiguration.h"
 #include "src/catapult/crypto/KeyPair.h"
-#include "src/catapult/extensions/IdGenerator.h"
+#include "sdk/src/extensions/IdGenerator.h"
 #include "src/catapult/model/Address.h"
-#include "src/catapult/model/MosaicIdGenerator.h"
-#include "src/catapult/model/NamespaceIdGenerator.h"
-#include "src/catapult/state/Namespace.h"
+#include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
+#include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
+#include "plugins/txes/namespace/src/state/Namespace.h"
 #include "src/catapult/utils/ConfigurationBag.h"
 #include "src/catapult/utils/ConfigurationUtils.h"
 

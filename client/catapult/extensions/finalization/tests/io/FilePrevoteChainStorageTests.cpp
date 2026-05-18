@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/io/FilePrevoteChainStorage.h"
+#include "extensions/finalization/src/io/FilePrevoteChainStorage.h"
 #include "src/catapult/io/FileBlockStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"

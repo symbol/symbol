@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../model/MosaicGlobalRestrictionTransaction.h"
+#include "plugins/txes/restriction_mosaic/src/model/MosaicGlobalRestrictionTransaction.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"

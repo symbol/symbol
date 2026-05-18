@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/MosaicGlobalRestrictionBuilder.h"
-#include "tests/builders/test/BuilderTestUtils.h"
+#include "sdk/src/builders/MosaicGlobalRestrictionBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 

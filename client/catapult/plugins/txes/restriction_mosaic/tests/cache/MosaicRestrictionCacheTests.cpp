@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/MosaicRestrictionCache.h"
-#include "tests/test/MosaicRestrictionTestUtils.h"
+#include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
+#include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"

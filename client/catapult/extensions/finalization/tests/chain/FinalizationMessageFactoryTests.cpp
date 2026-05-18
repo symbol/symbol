@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/chain/FinalizationMessageFactory.h"
-#include "finalization/src/io/PrevoteChainStorage.h"
-#include "finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/chain/FinalizationMessageFactory.h"
+#include "extensions/finalization/src/io/PrevoteChainStorage.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
 #include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "finalization/tests/test/mocks/MockProofStorage.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

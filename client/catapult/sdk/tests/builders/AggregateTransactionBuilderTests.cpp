@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/AggregateTransactionBuilder.h"
+#include "sdk/src/builders/AggregateTransactionBuilder.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/crypto/MerkleHashBuilder.h"
 #include "src/catapult/crypto/Signer.h"

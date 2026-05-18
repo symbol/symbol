@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/HarvestingCacheUtils.h"
+#include "extensions/harvesting/src/HarvestingCacheUtils.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"

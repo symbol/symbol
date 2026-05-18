@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/HashCachePredicates.h"
-#include "../cache/HashCache.h"
-#include "tests/test/HashCacheTestUtils.h"
+#include "plugins/services/hashcache/src/cache/HashCachePredicates.h"
+#include "plugins/services/hashcache/src/cache/HashCache.h"
+#include "plugins/services/hashcache/tests/test/HashCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

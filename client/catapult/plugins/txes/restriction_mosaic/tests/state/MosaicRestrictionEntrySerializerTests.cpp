@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MosaicRestrictionEntrySerializer.h"
-#include "tests/test/MosaicRestrictionTestUtils.h"
+#include "plugins/txes/restriction_mosaic/src/state/MosaicRestrictionEntrySerializer.h"
+#include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 

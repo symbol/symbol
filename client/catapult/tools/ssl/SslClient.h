@@ -21,7 +21,7 @@
 
 #pragma once
 #include "CertificateDirectoryGenerator.h"
-#include "tools/ToolThreadUtils.h"
+#include "tools/tools/ToolThreadUtils.h"
 #include "src/catapult/api/ChainApi.h"
 #include "src/catapult/ionet/Node.h"
 #include <boost/asio/ssl.hpp>

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/NamespaceAlias.h"
+#include "plugins/txes/namespace/src/state/NamespaceAlias.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

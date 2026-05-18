@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "diagnostics/src/DiagnosticsService.h"
+#include "extensions/diagnostics/src/DiagnosticsService.h"
 #include "src/catapult/model/DiagnosticCounterValue.h"
 #include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"

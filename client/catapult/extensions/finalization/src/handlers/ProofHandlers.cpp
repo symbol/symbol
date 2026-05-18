@@ -20,8 +20,8 @@
 **/
 
 #include "ProofHandlers.h"
-#include "finalization/src/api/FinalizationPackets.h"
-#include "finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/api/FinalizationPackets.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
 #include "src/catapult/ionet/PacketPayloadFactory.h"
 
 namespace catapult { namespace handlers {

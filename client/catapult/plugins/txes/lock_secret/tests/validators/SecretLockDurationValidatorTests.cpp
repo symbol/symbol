@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
-#include "../state/SecretLockInfo.h"
+#include "plugins/txes/lock_secret/src/validators/Validators.h"
+#include "plugins/txes/lock_secret/src/state/SecretLockInfo.h"
 #include "plugins/txes/lock_shared/tests/validators/LockDurationValidatorTests.h"
 
 namespace catapult { namespace validators {

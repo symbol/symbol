@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/NamespaceRegistrationBuilder.h"
+#include "sdk/src/builders/NamespaceRegistrationBuilder.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 #include "src/catapult/constants.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"

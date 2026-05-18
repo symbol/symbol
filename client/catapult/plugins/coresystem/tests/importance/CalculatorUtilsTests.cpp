@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/importance/CalculatorUtils.h"
+#include "plugins/coresystem/src/importance/CalculatorUtils.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/state/AccountActivityBuckets.h"
 #include "src/catapult/state/AccountState.h"

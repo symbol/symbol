@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/RollbackInfo.h"
+#include "extensions/sync/src/RollbackInfo.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/TestHarness.h"
 

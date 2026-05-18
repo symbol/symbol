@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "harvesting/src/UnlockedFileQueueConsumer.h"
+#include "extensions/harvesting/src/UnlockedFileQueueConsumer.h"
 #include <set>
 #include <vector>
 

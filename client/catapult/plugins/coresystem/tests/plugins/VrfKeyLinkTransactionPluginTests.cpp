@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/VrfKeyLinkTransactionPlugin.h"
-#include "../model/KeyLinkNotifications.h"
-#include "../model/VrfKeyLinkTransaction.h"
+#include "plugins/coresystem/src/plugins/VrfKeyLinkTransactionPlugin.h"
+#include "plugins/coresystem/src/model/KeyLinkNotifications.h"
+#include "plugins/coresystem/src/model/VrfKeyLinkTransaction.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

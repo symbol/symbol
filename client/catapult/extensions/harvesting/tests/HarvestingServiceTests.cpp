@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/HarvestingService.h"
-#include "harvesting/src/HarvestingConfiguration.h"
-#include "harvesting/src/UnlockedAccounts.h"
-#include "harvesting/src/UnlockedAccountsStorage.h"
+#include "extensions/harvesting/src/HarvestingService.h"
+#include "extensions/harvesting/src/HarvestingConfiguration.h"
+#include "extensions/harvesting/src/UnlockedAccounts.h"
+#include "extensions/harvesting/src/UnlockedAccountsStorage.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
-#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
+#include "extensions/harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"

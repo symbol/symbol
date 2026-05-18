@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "partialtransaction/src/PtTypes.h"
+#include "extensions/partialtransaction/src/PtTypes.h"
 #include "src/catapult/api/RemoteApi.h"
 #include "src/catapult/cache_tx/ShortHashPair.h"
 #include "src/catapult/thread/Future.h"

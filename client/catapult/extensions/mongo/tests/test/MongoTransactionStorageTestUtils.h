@@ -22,7 +22,7 @@
 #pragma once
 #include "MongoTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/mocks/MockTransactionMapper.h"
+#include "extensions/mongo/tests/test/mocks/MockTransactionMapper.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 
 namespace catapult { namespace test {

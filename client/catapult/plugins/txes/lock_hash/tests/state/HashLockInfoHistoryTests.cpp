@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/HashLockInfoHistory.h"
+#include "plugins/txes/lock_hash/src/state/HashLockInfoHistory.h"
 #include "plugins/txes/lock_shared/tests/state/LockInfoHistoryTests.h"
-#include "tests/test/HashLockInfoCacheTestUtils.h"
+#include "plugins/txes/lock_hash/tests/test/HashLockInfoCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

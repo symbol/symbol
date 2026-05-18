@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "partialtransaction/src/PtTypes.h"
+#include "extensions/partialtransaction/src/PtTypes.h"
 #include "src/catapult/chain/ChainFunctions.h"
 #include "src/catapult/chain/RemoteNodeSynchronizer.h"
 #include "src/catapult/model/CosignedTransactionInfo.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/api/CosignedTransactionInfoParser.h"
+#include "extensions/partialtransaction/src/api/CosignedTransactionInfoParser.h"
 #include "src/catapult/ionet/PacketPayloadBuilder.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

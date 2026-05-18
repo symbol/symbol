@@ -20,11 +20,11 @@
 **/
 
 #include "ApiNodeHealthUtils.h"
-#include "tools/NetworkCensusTool.h"
-#include "tools/ToolMain.h"
-#include "tools/ToolThreadUtils.h"
+#include "tools/tools/NetworkCensusTool.h"
+#include "tools/tools/ToolMain.h"
+#include "tools/tools/ToolThreadUtils.h"
 #include "src/catapult/api/RemoteChainApi.h"
-#include "src/catapult/extensions/RemoteDiagnosticApi.h"
+#include "sdk/src/extensions/RemoteDiagnosticApi.h"
 #include "src/catapult/utils/DiagnosticCounterId.h"
 #include "src/catapult/utils/Functional.h"
 

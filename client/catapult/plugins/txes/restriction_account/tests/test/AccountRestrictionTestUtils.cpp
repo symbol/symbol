@@ -20,7 +20,7 @@
 **/
 
 #include "AccountRestrictionTestUtils.h"
-#include "../state/AccountRestrictions.h"
+#include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

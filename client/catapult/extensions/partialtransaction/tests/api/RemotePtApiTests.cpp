@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/api/RemotePtApi.h"
+#include "extensions/partialtransaction/src/api/RemotePtApi.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"

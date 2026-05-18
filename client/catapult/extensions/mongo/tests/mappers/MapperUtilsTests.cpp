@@ -23,7 +23,7 @@
 #include "src/catapult/model/EmbeddedTransaction.h"
 #include "src/catapult/model/Receipt.h"
 #include "src/catapult/model/VerifiableEntity.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 #include <bsoncxx/exception/exception.hpp>
 

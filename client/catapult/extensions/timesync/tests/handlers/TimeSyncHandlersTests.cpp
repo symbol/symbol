@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/handlers/TimeSyncHandlers.h"
-#include "timesync/src/CommunicationTimestamps.h"
+#include "extensions/timesync/src/handlers/TimeSyncHandlers.h"
+#include "extensions/timesync/src/CommunicationTimestamps.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/TestHarness.h"
 

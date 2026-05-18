@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/importance/ActivityObserverUtils.h"
+#include "plugins/coresystem/src/importance/ActivityObserverUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/TestHarness.h"

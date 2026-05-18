@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoPluginTestUtils.h"
+#include "extensions/mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
 #include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
 #include "tests/TestHarness.h"

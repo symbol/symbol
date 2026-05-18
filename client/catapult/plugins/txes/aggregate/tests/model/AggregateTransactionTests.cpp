@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../model/AggregateTransaction.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

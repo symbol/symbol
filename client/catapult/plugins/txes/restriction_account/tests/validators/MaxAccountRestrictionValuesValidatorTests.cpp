@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
+#include "plugins/txes/restriction_account/src/validators/Validators.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "tests/test/AccountRestrictionCacheTestUtils.h"
+#include "plugins/txes/restriction_account/tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

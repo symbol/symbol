@@ -20,7 +20,7 @@
 **/
 
 #include "SslClient.h"
-#include "tools/ToolNetworkUtils.h"
+#include "tools/tools/ToolNetworkUtils.h"
 #include "src/catapult/api/RemoteChainApi.h"
 #include "src/catapult/thread/FutureUtils.h"
 

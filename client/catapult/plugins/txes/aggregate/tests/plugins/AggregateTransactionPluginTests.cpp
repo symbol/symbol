@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/AggregateTransactionPlugin.h"
+#include "plugins/txes/aggregate/src/plugins/AggregateTransactionPlugin.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "../model/AggregateNotifications.h"
-#include "../model/AggregateTransaction.h"
+#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/IntegerMath.h"
 #include "src/catapult/utils/MemoryUtils.h"

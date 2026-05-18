@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/BlockGeneratorAccountDescriptor.h"
+#include "extensions/harvesting/src/BlockGeneratorAccountDescriptor.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"

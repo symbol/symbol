@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/UnlockedAccountsStorage.h"
-#include "harvesting/src/UnlockedFileQueueConsumer.h"
+#include "extensions/harvesting/src/UnlockedAccountsStorage.h"
+#include "extensions/harvesting/src/UnlockedFileQueueConsumer.h"
 #include "src/catapult/io/BufferedFileStream.h"
-#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
+#include "extensions/harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"

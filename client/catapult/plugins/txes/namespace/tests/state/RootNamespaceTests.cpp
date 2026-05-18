@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/RootNamespace.h"
-#include "tests/test/NamespaceTestUtils.h"
+#include "plugins/txes/namespace/src/state/RootNamespace.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 #include <unordered_set>

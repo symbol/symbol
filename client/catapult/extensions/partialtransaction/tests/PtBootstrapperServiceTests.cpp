@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/PtBootstrapperService.h"
+#include "extensions/partialtransaction/src/PtBootstrapperService.h"
 #include "src/catapult/cache_tx/MemoryPtCache.h"
 #include "src/catapult/extensions/Results.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"

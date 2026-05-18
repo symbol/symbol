@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/handlers/HashCacheDiagnosticHandlers.h"
+#include "plugins/services/hashcache/src/handlers/HashCacheDiagnosticHandlers.h"
 #include "tests/test/plugins/BatchHandlerTests.h"
 #include "tests/TestHarness.h"
 

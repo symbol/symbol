@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "nodediscovery/src/NodePingRequestor.h"
-#include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
+#include "extensions/nodediscovery/src/NodePingRequestor.h"
+#include "extensions/nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/net/BriefServerRequestorTestUtils.h"
 #include "tests/TestHarness.h"
 

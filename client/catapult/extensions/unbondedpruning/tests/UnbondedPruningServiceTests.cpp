@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "unbondedpruning/src/UnbondedPruningService.h"
+#include "extensions/unbondedpruning/src/UnbondedPruningService.h"
 #include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
 #include "src/catapult/consumers/BlockchainSyncHandlers.h"
 #include "src/catapult/model/NotificationSubscriber.h"

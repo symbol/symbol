@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "timesync/src/TimeSynchronizationSample.h"
-#include "timesync/src/types.h"
+#include "extensions/timesync/src/TimeSynchronizationSample.h"
+#include "extensions/timesync/src/types.h"
 #include "src/catapult/functions.h"
 
 namespace catapult { namespace timesync { namespace filters {

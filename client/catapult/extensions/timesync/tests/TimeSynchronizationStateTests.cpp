@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/TimeSynchronizationState.h"
+#include "extensions/timesync/src/TimeSynchronizationState.h"
 #include "src/catapult/utils/NetworkTime.h"
 #include "tests/test/nodeps/Waits.h"
 #include "tests/TestHarness.h"

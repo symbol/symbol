@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationMessage.h"
-#include "finalization/src/model/FinalizationProof.h"
-#include "finalization/src/model/FinalizationStatistics.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/src/model/FinalizationProof.h"
+#include "extensions/finalization/src/model/FinalizationStatistics.h"
 #include <memory>
 
 namespace catapult { namespace io {

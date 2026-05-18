@@ -21,8 +21,8 @@
 
 #include "MultiRoundMessageAggregator.h"
 #include "RoundContext.h"
-#include "finalization/src/model/FinalizationMessage.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/src/model/FinalizationRoundRange.h"
 
 namespace catapult { namespace chain {
 

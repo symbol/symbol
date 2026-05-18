@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/NamespaceEntry.h"
-#include "tests/test/NamespaceTestUtils.h"
+#include "plugins/txes/namespace/src/state/NamespaceEntry.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

@@ -22,7 +22,7 @@
 #include "extensions/mongo/src/mappers/AccountStateMapper.h"
 #include "src/catapult/model/Mosaic.h"
 #include "src/catapult/state/AccountState.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"

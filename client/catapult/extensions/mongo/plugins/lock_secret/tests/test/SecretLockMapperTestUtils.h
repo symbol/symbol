@@ -21,8 +21,8 @@
 
 #pragma once
 #include "src/catapult/utils/MemoryUtils.h"
-#include "mongo/plugins/lock_shared/tests/test/LockMapperTestUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/plugins/lock_shared/tests/test/LockMapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
 

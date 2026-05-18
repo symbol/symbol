@@ -28,7 +28,7 @@
 #include "extensions/mongo/src/MongoTransactionPlugin.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "src/catapult/state/AccountState.h"
-#include "mongo/tests/test/mocks/MockTransactionMapper.h"
+#include "extensions/mongo/tests/test/mocks/MockTransactionMapper.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>

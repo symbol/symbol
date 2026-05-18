@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/model/FinalizationProof.h"
-#include "finalization/src/model/FinalizationProofUtils.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "extensions/finalization/src/model/FinalizationProof.h"
+#include "extensions/finalization/src/model/FinalizationProofUtils.h"
+#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"

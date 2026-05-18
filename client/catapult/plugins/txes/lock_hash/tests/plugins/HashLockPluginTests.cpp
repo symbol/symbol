@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/HashLockPlugin.h"
-#include "../model/HashLockEntityType.h"
+#include "plugins/txes/lock_hash/src/plugins/HashLockPlugin.h"
+#include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

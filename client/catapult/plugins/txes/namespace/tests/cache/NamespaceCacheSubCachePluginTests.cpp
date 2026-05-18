@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/NamespaceCacheSubCachePlugin.h"
-#include "tests/test/NamespaceCacheTestUtils.h"
-#include "tests/test/NamespaceTestUtils.h"
+#include "plugins/txes/namespace/src/cache/NamespaceCacheSubCachePlugin.h"
+#include "plugins/txes/namespace/tests/test/NamespaceCacheTestUtils.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"

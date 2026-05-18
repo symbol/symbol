@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/MetadataEntrySerializer.h"
-#include "tests/test/MetadataTestUtils.h"
+#include "plugins/txes/metadata/src/state/MetadataEntrySerializer.h"
+#include "plugins/txes/metadata/tests/test/MetadataTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 

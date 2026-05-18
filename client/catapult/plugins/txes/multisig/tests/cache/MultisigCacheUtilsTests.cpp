@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../cache/MultisigCacheUtils.h"
+#include "plugins/txes/multisig/src/cache/MultisigCacheUtils.h"
 #include "src/catapult/cache/ReadOnlyCatapultCache.h"
-#include "tests/test/MultisigCacheTestUtils.h"
-#include "tests/test/MultisigTestUtils.h"
+#include "plugins/txes/multisig/tests/test/MultisigCacheTestUtils.h"
+#include "plugins/txes/multisig/tests/test/MultisigTestUtils.h"
 
 namespace catapult { namespace cache {
 

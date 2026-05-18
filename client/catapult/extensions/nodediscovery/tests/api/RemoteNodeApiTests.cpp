@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "nodediscovery/src/api/RemoteNodeApi.h"
-#include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
+#include "extensions/nodediscovery/src/api/RemoteNodeApi.h"
+#include "extensions/nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"

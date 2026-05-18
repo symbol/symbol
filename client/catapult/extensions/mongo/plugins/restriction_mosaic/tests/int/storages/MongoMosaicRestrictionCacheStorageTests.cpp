@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/storages/MongoMosaicRestrictionCacheStorage.h"
+#include "extensions/mongo/plugins/restriction_mosaic/src/storages/MongoMosaicRestrictionCacheStorage.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
-#include "mongo/tests/test/MongoFlatCacheStorageTests.h"
-#include "mongo/tests/test/MongoTestUtils.h"
+#include "extensions/mongo/tests/test/MongoFlatCacheStorageTests.h"
+#include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionCacheTestUtils.h"
-#include "tests/test/MosaicRestrictionEntryMapperTestUtils.h"
+#include "extensions/mongo/plugins/restriction_mosaic/tests/test/MosaicRestrictionEntryMapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;

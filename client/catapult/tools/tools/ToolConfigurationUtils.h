@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "tools/Options.h"
+#include "tools/tools/Options.h"
 #include "src/catapult/config/CatapultConfiguration.h"
 
 namespace catapult { namespace tools {

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
-#include "tests/test/MosaicRestrictionCacheTestUtils.h"
-#include "tests/test/MosaicRestrictionTestTraits.h"
+#include "plugins/txes/restriction_mosaic/src/observers/Observers.h"
+#include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionCacheTestUtils.h"
+#include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionTestTraits.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 

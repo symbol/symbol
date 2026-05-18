@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/io/FileProofStorage.h"
-#include "finalization/tests/test/ProofStorageTests.h"
+#include "extensions/finalization/src/io/FileProofStorage.h"
+#include "extensions/finalization/tests/test/ProofStorageTests.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 

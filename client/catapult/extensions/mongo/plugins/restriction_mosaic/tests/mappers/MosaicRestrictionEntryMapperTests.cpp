@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../mappers/MosaicRestrictionEntryMapper.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "tests/test/MosaicRestrictionEntryMapperTestUtils.h"
+#include "extensions/mongo/plugins/restriction_mosaic/src/mappers/MosaicRestrictionEntryMapper.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/plugins/restriction_mosaic/tests/test/MosaicRestrictionEntryMapperTestUtils.h"
 #include "tests/TestHarness.h"
 #include <set>
 

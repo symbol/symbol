@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/TransferBuilder.h"
-#include "src/extensions/ConversionExtensions.h"
-#include "src/extensions/IdGenerator.h"
+#include "sdk/src/builders/TransferBuilder.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
+#include "sdk/src/extensions/IdGenerator.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include <map>

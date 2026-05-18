@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/PtSyncSourceService.h"
-#include "partialtransaction/src/PtBootstrapperService.h"
+#include "extensions/partialtransaction/src/PtSyncSourceService.h"
+#include "extensions/partialtransaction/src/PtBootstrapperService.h"
 #include "src/catapult/cache_tx/MemoryPtCache.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"

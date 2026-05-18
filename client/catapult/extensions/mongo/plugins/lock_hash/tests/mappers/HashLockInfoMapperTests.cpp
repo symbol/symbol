@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../mappers/HashLockInfoMapper.h"
-#include "mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
-#include "tests/test/HashLockMapperTestUtils.h"
-#include "tests/test/MongoHashLockInfoTestTraits.h"
+#include "extensions/mongo/plugins/lock_hash/src/mappers/HashLockInfoMapper.h"
+#include "extensions/mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
+#include "extensions/mongo/plugins/lock_hash/tests/test/HashLockMapperTestUtils.h"
+#include "extensions/mongo/plugins/lock_hash/tests/test/MongoHashLockInfoTestTraits.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

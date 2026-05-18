@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/RemoteDiagnosticApi.h"
+#include "sdk/src/extensions/RemoteDiagnosticApi.h"
 #include "src/catapult/handlers/DiagnosticHandlers.h"
 #include "src/catapult/ionet/Packet.h"
 #include "tests/test/other/RemoteApiTestUtils.h"

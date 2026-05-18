@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
-#include "tests/test/MetadataCacheTestUtils.h"
-#include "tests/test/MetadataTestUtils.h"
+#include "plugins/txes/metadata/src/observers/Observers.h"
+#include "plugins/txes/metadata/tests/test/MetadataCacheTestUtils.h"
+#include "plugins/txes/metadata/tests/test/MetadataTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 

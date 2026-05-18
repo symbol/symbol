@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/filters/SynchronizationFilters.h"
-#include "timesync/src/filters/filter_constants.h"
-#include "timesync/tests/test/TimeSynchronizationTestUtils.h"
+#include "extensions/timesync/src/filters/SynchronizationFilters.h"
+#include "extensions/timesync/src/filters/filter_constants.h"
+#include "extensions/timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace timesync { namespace filters {

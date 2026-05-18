@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "../state/MosaicRestrictionEntry.h"
+#include "plugins/txes/restriction_mosaic/src/state/MosaicRestrictionEntry.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"
 

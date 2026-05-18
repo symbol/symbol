@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/importance/ImportanceCalculator.h"
+#include "plugins/coresystem/src/importance/ImportanceCalculator.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"

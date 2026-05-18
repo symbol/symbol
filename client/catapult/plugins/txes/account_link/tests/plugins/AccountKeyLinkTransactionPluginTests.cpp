@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/AccountKeyLinkTransactionPlugin.h"
-#include "../model/AccountKeyLinkTransaction.h"
-#include "../model/AccountLinkNotifications.h"
+#include "plugins/txes/account_link/src/plugins/AccountKeyLinkTransactionPlugin.h"
+#include "plugins/txes/account_link/src/model/AccountKeyLinkTransaction.h"
+#include "plugins/txes/account_link/src/model/AccountLinkNotifications.h"
 #include "src/catapult/model/Address.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

@@ -22,7 +22,7 @@
 #include "MosaicRestrictionEntryMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/restriction_mosaic/src/state/MosaicRestrictionEntry.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

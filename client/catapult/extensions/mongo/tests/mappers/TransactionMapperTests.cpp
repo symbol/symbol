@@ -23,7 +23,7 @@
 #include "extensions/mongo/src/MongoTransactionPlugin.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "src/catapult/model/Transaction.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 

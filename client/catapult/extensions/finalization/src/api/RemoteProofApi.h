@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationProof.h"
-#include "finalization/src/model/FinalizationStatistics.h"
+#include "extensions/finalization/src/model/FinalizationProof.h"
+#include "extensions/finalization/src/model/FinalizationStatistics.h"
 #include "src/catapult/api/RemoteApi.h"
 #include "src/catapult/thread/Future.h"
 

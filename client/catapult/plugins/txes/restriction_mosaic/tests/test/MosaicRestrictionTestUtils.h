@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "../state/MosaicRestrictionEntry.h"
+#include "plugins/txes/restriction_mosaic/src/state/MosaicRestrictionEntry.h"
 
 namespace catapult { namespace test {
 

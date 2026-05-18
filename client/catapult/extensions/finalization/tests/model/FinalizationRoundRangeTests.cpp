@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/model/FinalizationRoundRange.h"
+#include "extensions/finalization/src/model/FinalizationRoundRange.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"

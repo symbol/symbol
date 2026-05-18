@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "timesync/src/CommunicationTimestamps.h"
+#include "extensions/timesync/src/CommunicationTimestamps.h"
 #include "src/catapult/ionet/Packet.h"
 
 namespace catapult { namespace api {

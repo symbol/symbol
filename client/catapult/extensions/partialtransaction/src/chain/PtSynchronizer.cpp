@@ -20,7 +20,7 @@
 **/
 
 #include "PtSynchronizer.h"
-#include "partialtransaction/src/api/RemotePtApi.h"
+#include "extensions/partialtransaction/src/api/RemotePtApi.h"
 #include "src/catapult/chain/EntitiesSynchronizer.h"
 
 namespace catapult { namespace chain {

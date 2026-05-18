@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "unbondedpruning/src/HashLockUtils.h"
+#include "extensions/unbondedpruning/src/HashLockUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
 #include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/NotificationSubscriber.h"

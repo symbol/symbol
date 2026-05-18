@@ -20,7 +20,7 @@
 **/
 
 #include "FinalizationPatchingSubscriber.h"
-#include "finalization/src/io/PrevoteChainStorage.h"
+#include "extensions/finalization/src/io/PrevoteChainStorage.h"
 #include "src/catapult/io/BlockStorageCache.h"
 
 namespace catapult { namespace chain {

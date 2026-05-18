@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/MosaicPlugin.h"
-#include "../cache/MosaicCache.h"
-#include "../model/MosaicEntityType.h"
+#include "plugins/txes/mosaic/src/plugins/MosaicPlugin.h"
+#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
+#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

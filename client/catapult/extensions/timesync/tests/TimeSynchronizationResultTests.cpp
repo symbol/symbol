@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/TimeSynchronizationResult.h"
+#include "extensions/timesync/src/TimeSynchronizationResult.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace timesync {

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationMessage.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/src/model/FinalizationRoundRange.h"
 #include "src/catapult/api/RemoteApi.h"
 #include "src/catapult/model/FinalizationRound.h"
 #include "src/catapult/model/RangeTypes.h"

@@ -20,8 +20,8 @@
 **/
 
 #include "extensions/mongo/src/MongoFinalizationStorage.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>
 #include <unordered_map>

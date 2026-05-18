@@ -20,7 +20,7 @@
 **/
 
 #include "RemoteFinalizationApi.h"
-#include "finalization/src/model/FinalizationMessage.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
 #include "src/catapult/api/RemoteRequestDispatcher.h"
 #include "src/catapult/ionet/PacketEntityUtils.h"
 #include "src/catapult/ionet/PacketPayloadBuilder.h"

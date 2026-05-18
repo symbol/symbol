@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "../cache/MultisigCache.h"
-#include "../cache/MultisigCacheStorage.h"
+#include "plugins/txes/multisig/src/cache/MultisigCache.h"
+#include "plugins/txes/multisig/src/cache/MultisigCacheStorage.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 

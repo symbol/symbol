@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tools/ToolMain.h"
-#include "tools/KeyValueOutputBuilder.h"
-#include "tools/NetworkCensusTool.h"
-#include "tools/ToolThreadUtils.h"
-#include "src/catapult/api/RemoteNodeApi.h"
-#include "src/catapult/extensions/RemoteDiagnosticApi.h"
+#include "tools/tools/ToolMain.h"
+#include "tools/tools/KeyValueOutputBuilder.h"
+#include "tools/tools/NetworkCensusTool.h"
+#include "tools/tools/ToolThreadUtils.h"
+#include "extensions/nodediscovery/src/api/RemoteNodeApi.h"
+#include "sdk/src/extensions/RemoteDiagnosticApi.h"
 #include "src/catapult/utils/Functional.h"
 #include <algorithm>
 #include <cctype>

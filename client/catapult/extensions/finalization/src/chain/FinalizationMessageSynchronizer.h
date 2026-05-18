@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "finalization/src/handlers/FinalizationHandlerTypes.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
+#include "extensions/finalization/src/handlers/FinalizationHandlerTypes.h"
+#include "extensions/finalization/src/model/FinalizationRoundRange.h"
 #include "src/catapult/chain/RemoteNodeSynchronizer.h"
 #include "src/catapult/model/FinalizationRound.h"
 #include "src/catapult/model/RangeTypes.h"

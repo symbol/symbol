@@ -21,7 +21,7 @@
 
 #include "extensions/mongo/src/mappers/TransactionStatusMapper.h"
 #include "src/catapult/model/TransactionStatus.h"
-#include "mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
 

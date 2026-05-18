@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
+#include "plugins/coresystem/src/observers/Observers.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"

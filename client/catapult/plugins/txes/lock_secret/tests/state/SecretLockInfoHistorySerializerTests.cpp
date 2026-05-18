@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../state/SecretLockInfoHistorySerializer.h"
+#include "plugins/txes/lock_secret/src/state/SecretLockInfoHistorySerializer.h"
 #include "plugins/txes/lock_shared/tests/state/LockInfoHistorySerializerTests.h"
-#include "tests/test/SecretLockInfoCacheTestUtils.h"
+#include "plugins/txes/lock_secret/tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

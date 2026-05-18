@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/CommunicationTimestamps.h"
+#include "extensions/timesync/src/CommunicationTimestamps.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 

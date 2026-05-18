@@ -24,7 +24,7 @@
 #include "Hashes.h"
 #include "SecureZero.h"
 #include "src/catapult/exceptions.h"
-#include <donna/catapult.h>
+#include <external/donna/catapult.h>
 
 #ifdef _MSC_VER
 #define RESTRICT __restrict

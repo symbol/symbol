@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/PtService.h"
-#include "partialtransaction/src/PtBootstrapperService.h"
+#include "extensions/partialtransaction/src/PtService.h"
+#include "extensions/partialtransaction/src/PtBootstrapperService.h"
 #include "src/catapult/cache_tx/MemoryPtCache.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"

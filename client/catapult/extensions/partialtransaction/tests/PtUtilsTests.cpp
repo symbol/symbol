@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/PtUtils.h"
-#include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
+#include "extensions/partialtransaction/src/PtUtils.h"
+#include "extensions/partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 

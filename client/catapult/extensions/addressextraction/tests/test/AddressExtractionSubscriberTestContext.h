@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "addressextraction/src/AddressExtractor.h"
+#include "extensions/addressextraction/src/AddressExtractor.h"
 #include "src/catapult/model/Elements.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
