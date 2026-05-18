@@ -35,7 +35,7 @@ New units are added to the mosaic creator's account balance.
 
 ## Decreasing Supply (Burning)
 
-To burn existing units, use the same `mosaic_supply_change_transaction_v1` type with these parameters:
+To burn existing units, use the same <ser:MosaicSupplyChangeTransactionV1> type with these parameters:
 
 1. Set `action` to `decrease`.
 2. Set `delta` to the number of atomic units to remove.

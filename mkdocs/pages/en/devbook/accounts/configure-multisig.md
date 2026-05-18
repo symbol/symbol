@@ -129,10 +129,10 @@ are performed using a <ser:MultisigAccountModificationTransactionV1>, which **mu
 
 The embedded <ser:MultisigAccountModificationTransactionV1> includes the following fields:
 
-* `signer_public_key`: <public key:> of the account whose multisig configuration will be modified.
+* {{ tutorial.var('signer_public_key') }}: <public key:> of the account whose multisig configuration will be modified.
 
-* `min_approval_delta`: difference between the _desired value_ and the _current value_ of the number of
-    signatures that will be required to approve a transaction from the multisig account.
+* {{ tutorial.var('min_approval_delta') }}: difference between the _desired value_ and the _current value_ of the
+    number of signatures that will be required to approve a transaction from the multisig account.
 
     In this case the account is initially a regular account, so the current required number of signatures is `0`.
     To convert it into a multisig account that requires one signature from one of its cosignatories,
@@ -140,13 +140,14 @@ The embedded <ser:MultisigAccountModificationTransactionV1> includes the followi
 
     The delta value can be negative to _reduce_ the current value, as shown in the next section.
 
-* `min_removal_delta`: Difference in the number of signatures required to remove cosignatories from the account
-    configuration.
+* {{ tutorial.var('min_removal_delta') }}: Difference in the number of signatures required to remove cosignatories from
+    the account configuration.
     This allows, for example, requiring more signatures to remove a cosignatory than to approve a regular transaction,
     which is often a more sensitive governance operation.
 
-* `address_additions`: list of addresses of the cosignatories that will be added to the account.
-    The `cosignatory_addresses` variable was prepared during the [setup phase](#setting-up-the-accounts).
+* {{ tutorial.var('address_additions') }}: list of addresses of the cosignatories that will be added to the account.
+    The {{ tutorial.var('cosignatory_addresses') }} variable was prepared during the
+    [setup phase](#setting-up-the-accounts).
 
 !!! note "Safety measures"
 
@@ -195,13 +196,13 @@ For this reason, two <ser:MultisigAccountModificationTransactionV1>s are created
 
 {{ tutorial.code_snippet_tagged('step-8') }}
 
-In both transactions, `signer_public_key` is set to the multisig account's public key.
+In both transactions, {{ tutorial.var('signer_public_key') }} is set to the multisig account's public key.
 
-The first transaction removes `cosignatory_addresses[1]` without modifying the approval or removal deltas,
-because one cosignatory still remains and signatures are still required.
+The first transaction removes {{ tutorial.var('cosignatory_addresses[1]') }} without modifying the approval or
+removal deltas, because one cosignatory still remains and signatures are still required.
 
-The second transaction removes the last remaining cosignatory and sets both `min_approval_delta` and
-`min_removal_delta` to `-1`.
+The second transaction removes the last remaining cosignatory and sets both {{ tutorial.var('min_approval_delta') }}
+and {{ tutorial.var('min_Removal_delta') }} to `-1`.
 At this point, the current value of both fields is `1`, as configured during the [enable](#enabling-the-multisig) step,
 and the desired value is `0`, so the delta is `-1`.
 
@@ -209,9 +210,10 @@ Both embedded transactions are then wrapped in an aggregate transaction and sign
 
 {{ tutorial.code_snippet_tagged('step-9') }}
 
-The aggregate transaction is signed by `cosignatory_addresses[0]`.
+The aggregate transaction is signed by {{ tutorial.var('cosignatory_addressess[0]') }}.
 This is the only valid option: once an account has cosignatories, it can no longer sign transactions on its own,
-and `cosignatory_addresses[1]` is removed from the multisig after the first embedded transaction is executed.
+and {{ tutorial.var('cosignatory_addresess[1]') }} is removed from the multisig after the first embedded transaction is
+executed.
 
 As a result, no cosignatures are required.
 Only the main signature is needed.

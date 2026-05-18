@@ -269,9 +269,9 @@ Bob (or anyone) can read it from the transaction data.
 
 Bob discovers Alice's proof on-chain without needing the transaction hash from her.
 
-The `wait_for_secret_proof` helper polls the <get:/transactions/confirmed> endpoint filtered by Alice's address and
-`type=16978` (<ser:SecretProofTransactionV1>), then matches `transaction.secret` to Bob's own hashlock to pick the right
-entry and read `transaction.proof` from it.
+The {{ tutorial.var('wait_for_secret_proof') }} helper polls the <get:/transactions/confirmed> endpoint filtered by
+Alice's address and `type=16978` (<ser:SecretProofTransactionV1>), then matches `transaction.secret` to Bob's own
+hashlock to pick the right entry and read `transaction.proof` from it.
 
 Because hashlocks are 32 random bytes unique to each swap, only the proof transaction for this swap will match,
 even if Alice has posted other secret proofs in the past.

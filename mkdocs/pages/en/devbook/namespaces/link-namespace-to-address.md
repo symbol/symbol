@@ -84,7 +84,7 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 The address alias transaction specifies:
 
-* **Type:** Address alias transactions use the type `address_alias_transaction_v1`.
+* **Type:** Address alias transactions use the type <ser:AddressAliasTransactionV1>.
 
 * **Signer public key:** The account that owns the namespace and will pay the transaction fee.
 
@@ -95,8 +95,8 @@ The address alias transaction specifies:
 * **Alias action:** The value `link` creates the alias. To remove the alias later, use `unlink` instead.
 
 !!! info "Unlinking an alias"
-    To unlink a namespace from an address, announce another `address_alias_transaction_v1` transaction with the same
-    namespace ID and address, but set the `alias_action` field to `unlink`.
+    To unlink a namespace from an address, announce another <ser:AddressAliasTransactionV1> transaction with the same
+    namespace ID and address, but set the {{ tutorial.var('alias_action') }} field to `unlink`.
 
     The unlinking process does not remove the namespace itself, only the association between the namespace and the
     address.
