@@ -92,14 +92,16 @@ following the process described in the [Transfer Transaction](./transfer.md) tut
 {{ tutorial.code_snippet_tagged('step-3') }}
 
 Each transfer is created as an <embedded transaction:> that will be wrapped inside the aggregate.
-All embedded transactions use the same `signer_public_key` because they all originate from the same account.
+All embedded transactions use the same {{ tutorial.var('signer_public_key') }} because they all originate from the
+same account.
 
 The example creates two <transfer transactions:>:
 
 * The first transfer sends 5 XYM to Recipient 1.
 * The second transfer sends 3 XYM to Recipient 2.
 
-The `signer_public_key` is still required on each embedded transaction, even when all share the same signer.
+The {{ tutorial.var('signer_public_key') }} is still required on each embedded transaction, even when all share the
+same signer.
 
 Embedded transactions do **not** include fee or deadline fields.
 These are inherited from the enclosing aggregate transaction.

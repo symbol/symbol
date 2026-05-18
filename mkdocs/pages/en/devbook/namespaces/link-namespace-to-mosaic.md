@@ -84,7 +84,7 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 The mosaic alias transaction specifies:
 
-* **Type:** Mosaic alias transactions use the type `mosaic_alias_transaction_v1`.
+* **Type:** Mosaic alias transactions use the type <ser:MosaicAliasTransactionV1>.
 
 * **Signer public key:** The account that owns the namespace and mosaic, and will pay the transaction fee.
 
@@ -95,8 +95,8 @@ The mosaic alias transaction specifies:
 * **Alias action:** The value `link` creates the alias. To remove the alias later, use `unlink` instead.
 
 !!! info "Unlinking an alias"
-    To unlink a namespace from a mosaic, announce another `mosaic_alias_transaction_v1` transaction with the same
-    namespace ID and mosaic ID, but set the `alias_action` field to `unlink`.
+    To unlink a namespace from a mosaic, announce another <ser:MosaicAliasTransactionV1> transaction with the same
+    namespace ID and mosaic ID, but set the {{ tutorial.var('alias_actions') }} field to `unlink`.
 
     The unlinking process does not remove the namespace or the mosaic, only the association between them.
     After unlinking, the namespace can be linked to a different mosaic or address.
