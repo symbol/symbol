@@ -91,11 +91,11 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 The embedded <transfer transaction:> includes the following fields:
 
-* `signer_public_key`: <public key:> of the account whose funds are being transferred, that is,
+* {{ tutorial.var('signer_public_key') }}: <public key:> of the account whose funds are being transferred, that is,
     the multisignature account.
 
-* `recipient_address`: in this particular example, the funds are sent back to the sender, so the recipient is also
-    the multisig account.
+* {{ tutorial.var('recipient_address') }}: in this particular example, the funds are sent back to the sender,
+    so the recipient is also the multisig account.
 
 * `mosaics`: 1'000'000 atomic units of the `symbol.xym` mosaic, corresponding to 1 <XYM:>,
     as explained in the [Transfer Transaction](../transactions/transfer.md) tutorial.
@@ -106,8 +106,8 @@ The embedded transaction is then wrapped in an aggregate transaction, even thoug
 
 Its most relevant fields are:
 
-* `signer_public_key`: this time this is the <public key:> of the cosignatory that will be authorizing the transaction
-    and paying its fees.
+* {{ tutorial.var('signer_public_key') }}: this time this is the <public key:> of the cosignatory that will be
+    authorizing the transaction and paying its fees.
 
 * `transactions`: the list of embedded transactions.
     This example has only one, but there could be any number of them.
@@ -139,11 +139,11 @@ The final step is to announce the transaction and wait for its confirmation, as 
 Transactions are rejected if they violate protocol constraints.
 The following table summarizes the most common error sources:
 
-| Error message                            | Probable cause                                                                              |
-|------------------------------------------|---------------------------------------------------------------------------------------------|
-| Multisig Operation Prohibited By Account | The multisig account tried to sign the aggregate transaction itself.                        |
-| Aggregate Ineligible Cosignatories       | The signer is not in the cosignatories list.                                                |
-| Consumer Batch Signature Not Verifiable  | The signature attached to the aggregate transaction does not match its `signer_public_key`. |
+| Error message                            | Probable cause                                                                                                 |
+|------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| Multisig Operation Prohibited By Account | The multisig account tried to sign the aggregate transaction itself.                                           |
+| Aggregate Ineligible Cosignatories       | The signer is not in the cosignatories list.                                                                   |
+| Consumer Batch Signature Not Verifiable  | The signature attached to the aggregate transaction does not match its {{ tutorial.var('signer_public_key') }} |
 
 ## Output
 

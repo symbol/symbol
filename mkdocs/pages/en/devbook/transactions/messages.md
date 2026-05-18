@@ -87,7 +87,7 @@ The transaction is then signed and announced following the same process as in
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
-After announcing the transaction, the `retrieve_confirmed_transaction` helper function polls the
+After announcing the transaction, the {{ tutorial.var('retrieve_confirmed_transaction') }} helper function polls the
 <get:/transactions/confirmed/{transactionId}>  endpoint until the transaction is confirmed.
 
 The confirmed transaction contains the message as a hex string.
@@ -123,8 +123,8 @@ The transaction is then signed and announced following the same process as in
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-After announcing the encrypted message transaction, the `retrieve_confirmed_transaction` helper function polls for
-confirmation.
+After announcing the encrypted message transaction, the {{ tutorial.var('retrieve_confirmed_transaction') }} helper
+function polls for confirmation.
 
 To decrypt the message from the confirmed transaction, a <dy:MessageEncoder> is created with the recipient's key pair,
 then <dy:MessageEncoder.tryDecode> is called with the sender's public key (obtained from the transaction's

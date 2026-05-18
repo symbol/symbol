@@ -51,7 +51,7 @@ tutorial_level: intermediate
 
 ネームスペース登録トランザクションでは以下を指定します。
 
-* **Type:** ネームスペース登録トランザクションにはタイプ `namespace_registration_transaction_v1` を使用します。
+* **Type:** ネームスペース登録トランザクションにはタイプ <ser:NamespaceRegistrationTransactionV1> を使用します。
 
 * **登録タイプ:** `root` という値は、ルートネームスペースが作成されることを示します。
     代わりに [サブネームスペースを登録](./register-subnamespace.md) するには `child` を使用してください。

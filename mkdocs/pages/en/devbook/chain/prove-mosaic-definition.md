@@ -97,23 +97,24 @@ The leaf node at the end stores the remaining path nibbles and the hashed value.
 
 <dy:Merkle.provePatriciaMerkle> takes five arguments, each computed in an earlier step:
 
-| Parameter     | Source                                                     | Role                                                 |
-| --------------| -----------------------------------------------------------| ---------------------------------------------------- |
-| `encoded_key` | SHA3-256 of the mosaic ID                                  | Identifies which leaf to look up in the tree         |
-| `hashed_value`| SHA3-256 of the serialized definition                      | The expected value stored in the leaf                |
-| `merkle_path` | <get:/mosaics/{mosaicId}/merkle>                           | The chain of branch and leaf nodes from root to leaf |
-| `state_hash`  | `stateHash` from <get:/blocks/{height}>                    | The block header's hash of all chain state           |
-| `roots`       | `stateHashSubCacheMerkleRoots` from <get:/blocks/{height}> | The individual root hash of each sub-cache           |
+| Parameter                          | Source                                                     | Role                                                 |
+| -----------------------------------| -----------------------------------------------------------| ---------------------------------------------------- |
+| {{ tutorial.var('encoded_key') }}  | SHA3-256 of the mosaic ID                                  | Identifies which leaf to look up in the tree         |
+| {{ tutorial.var('hashed_value') }} | SHA3-256 of the serialized definition                      | The expected value stored in the leaf                |
+| {{ tutorial.var('merkle_path') }}  | <get:/mosaics/{mosaicId}/merkle>                           | The chain of branch and leaf nodes from root to leaf |
+| {{ tutorial.var('state_hash') }}   | `stateHash` from <get:/blocks/{height}>                    | The block header's hash of all chain state           |
+| {{ tutorial.var('roots') }}        | `stateHashSubCacheMerkleRoots` from <get:/blocks/{height}> | The individual root hash of each sub-cache           |
 
 The function then verifies the proof in three stages:
 
-1. **Link to the block:** Checks that `SHA3-256(roots)` matches `state_hash`, confirming the sub-cache roots are
-    genuine.
-    Then checks that the hash of the first node in `merkle_path` matches one of those roots (the mosaic sub-cache).
-2. **Walk the tree**: Follows `merkle_path` from root to leaf, checking that each node's hash appears among its
-    parent's 16 links (one per nibble value `0`–`F`).
-3. **Match the leaf:** Checks that the leaf's value matches `hashed_value` and that the path through the tree
-    reconstructs `encoded_key`.
+1. **Link to the block:** Checks that `SHA3-256(roots)` matches {{ tutorial.var('state_hash') }}, confirming the
+    sub-cache roots are genuine.
+    Then checks that the hash of the first node in {{ tutorial.var('merkle_path') }} matches one of those roots
+    (the mosaic sub-cache).
+2. **Walk the tree**: Follows {{ tutorial.var('merkle_path') }} from root to leaf, checking that each node's hash
+    appears among its parent's 16 links (one per nibble value `0`–`F`).
+3. **Match the leaf:** Checks that the leaf's value matches {{ tutorial.var('hashed_value') }} and that the path
+    through the tree reconstructs {{ tutorial.var('encoded_key') }}.
 
 If all checks pass, the result is `0x0001` (`VALID_POSITIVE`), confirming that the mosaic definition returned by the API
 is exactly what is recorded in the chain at the given height.

@@ -127,7 +127,7 @@ The <embedded transactions:> define the operations to execute atomically.
 Each embedded transaction specifies:
 
 * **Type:** All transaction types can be embedded within aggregates (except other aggregates).
-  For embedded transfers, use `transfer_transaction_v1`, the same as for basic transfer transactions.
+  For embedded transfers, use <ser:TransferTransactionV1>, the same as for basic transfer transactions.
 
 * **Signer public key:** The account that would sign this transaction if it were announced independently.
 
@@ -190,7 +190,7 @@ The hash lock serves as a deposit to prevent spam and ensure network resources a
 
 The hash lock transaction specifies:
 
-* **Type:** Use `hash_lock_transaction_v1`.
+* **Type:** Use <ser:HashLockTransactionV1>.
 
 * **Mosaic:** The deposit amount (10 XYM).
   This deposit is locked temporarily while waiting for cosignatures.
@@ -202,22 +202,22 @@ The hash lock transaction specifies:
 
 * **Hash:** The hash of the bonded aggregate transaction being locked.
 
-The hash lock is signed using <dy:SymbolFacade.signTransaction> and announced using the `announce_transaction` helper
-function.
+The hash lock is signed using <dy:SymbolFacade.signTransaction> and announced using the
+{{ tutorial.var('announce_transaction') }} helper function.
 It must be confirmed before the bonded aggregate can be announced.
 
-Then, the `wait_for_status` helper function polls the transaction status until confirmation.
+Then, the {{ tutorial.var('wait_for_status') }} helper function polls the transaction status until confirmation.
 
 ### Announcing the Bonded Transaction
 
 {{ tutorial.code_snippet_tagged('step-7') }}
 
 Once the hash lock is confirmed, the bonded aggregate is announced to <put:/transactions/partial> using the
-`announce_transaction` helper.
+{{ tutorial.var('announce_transaction') }} helper.
 
 The <node:> validates the transaction, checks that a valid hash lock exists, and places it in a partial state.
-The `wait_for_status` helper monitors the transaction until it reaches this state, at which point it can collect
-cosignatures.
+The {{ tutorial.var('wait_for_status') }} helper monitors the transaction until it reaches this state, at which
+point it can collect cosignatures.
 
 ## Account B: Cosigner Workflow
 
@@ -269,7 +269,7 @@ The resulting detached cosignature payload includes:
 * **Signature:** The cryptographic signature computed from the transaction hash and Account B's private key.
 * **Parent hash:** The hash of the bonded transaction being cosigned.
 
-The cosignature payload is submitted using the `announce_transaction` helper function to
+The cosignature payload is submitted using the {{ tutorial.var('announce_transaction') }} helper function to
 <put:/transactions/cosignature>.
 The network validates the cosignature and attaches it to the partial transaction.
 
@@ -280,7 +280,8 @@ the network automatically processes the bonded aggregate and includes it in a bl
 
 {{ tutorial.code_snippet_tagged('step-11') }}
 
-The `wait_for_status` helper function polls <get:/transactionStatus/{hash}> until the transaction is confirmed or fails.
+The {{ tutorial.var('wait_for_status') }} helper function polls <get:/transactionStatus/{hash}> until the transaction
+is confirmed or fails.
 
 If all required cosignatures are collected before the deadline, the transaction confirms, both transfers execute,
 and the hash lock deposit is returned to Account A.

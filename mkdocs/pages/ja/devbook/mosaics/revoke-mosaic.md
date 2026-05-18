@@ -66,7 +66,7 @@ tutorial_level: beginner
 
 回収トランザクションは、ソースアカウントからモザイクユニットを回収し、作成者の残高に戻します 。
 
-* **Type:** モザイク供給回収トランザクションにはタイプ `mosaic_supply_revocation_transaction_v1` を使用します 。
+* **Type:** モザイク供給回収トランザクションにはタイプ <ser:MosaicSupplyRevocationTransactionV1> を使用します 。
 
 * **ソースアドレス:** 回収するモザイクユニットを保持しているアカウントのアドレス 。
     これは、指定されたモザイクのユニットを現在保持している任意のアカウントを指定できます 。

@@ -32,7 +32,7 @@ tutorial_level: beginner
 
 ## 供給量の減少（バーン） {: #decreasing-supply-(burning) }
 
-既存のユニットをバーン（焼却）するには、同じ `mosaic_supply_change_transaction_v1` タイプを以下のパラメータで使用します。
+既存のユニットをバーン（焼却）するには、同じ <ser:MosaicSupplyChangeTransactionV1> タイプを以下のパラメータで使用します。
 
 1. `action` を `decrease`（減少）に設定します。
 2. `delta` に削除する絶対単位の数を設定します。
