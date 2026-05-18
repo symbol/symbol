@@ -44,6 +44,14 @@ The response contains:
     * **finalizationPoint:** The finalization point within the epoch.
     * **hash:** The hash of the finalized block.
 
+        !!! note "Prove That the Block Is Part of the Blockchain"
+            Finalization only proves that the network has agreed on a specific block hash.
+            To fully verify finality, it should also be checked that this hash actually belongs to the current
+            blockchain.
+
+            This can be done by retrieving blocks around the reported finalized height and confirming that one of them
+            contains the finalized hash in its [header](../../textbook/blocks.md#block-structure).
+
 The chain height increases each time a new block is produced (approximately every 30 seconds).
 
 The finalized height lags behind the chain tip because a block is typically finalized 10 to 20 minutes after it is
