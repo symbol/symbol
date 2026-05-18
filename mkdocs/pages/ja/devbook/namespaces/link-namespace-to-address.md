@@ -99,13 +99,9 @@ tutorial_level: intermediate
 
 トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
 
-{{ tutorial.code_snippet_tagged('step-6') }}
-
-コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
-
 ### エイリアスの検証 {: #verifying-the-alias }
 
-{{ tutorial.code_snippet_tagged('step-7') }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 エイリアスが作成されたことを確認するために、コードは <get:/namespaces/{namespaceId}> エンドポイントを使用してネットワークからネームスペース情報を取得します。
 
@@ -113,7 +109,7 @@ tutorial_level: intermediate
 
 ### エイリアスの使用 {: #using-the-alias }
 
-{{ tutorial.code_snippet_tagged('step-8') }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 ネームスペースがアドレスにリンクされると、トランザクションにおいてアドレスの代わりにネームスペースを使用できるようになります。
 コードは、完全な16進数アドレスの代わりにエイリアスを受信者アドレスとして使用する [転送トランザクション](default: 転送トランザクション) の作成を示しています。
