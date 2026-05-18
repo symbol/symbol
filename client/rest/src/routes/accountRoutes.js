@@ -25,6 +25,8 @@ import routeUtils from './routeUtils.js';
 import catapult from '../catapult-sdk/index.js';
 import AccountType from '../plugins/AccountType.js';
 import errors from '../server/errors.js';
+import { NetworkLocator, PublicKey } from 'symbol-sdk';
+import { Network } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
 
@@ -72,7 +74,9 @@ export default {
 		// this endpoint is here because it is expected to support requests by block other than <current block>
 		server.get('/accounts/:accountId/merkle', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-			const encodedAddress = 'publicKey' === type ? catapult.model.address.publicKeyToAddress(accountId, db.networkId) : accountId;
+			const encodedAddress = 'publicKey' === type
+				? NetworkLocator.findByIdentifier(Network.NETWORKS, db.networkId).publicKeyToAddress(new PublicKey(accountId)).bytes
+				: accountId;
 			const state = PacketType.accountStatePath;
 			return merkleUtils.requestTree(services, state, encodedAddress).then(response => {
 				res.send(response);

@@ -29,7 +29,7 @@ import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
-import { Address } from 'symbol-sdk/symbol';
+import { Address, Network } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
 
@@ -425,24 +425,27 @@ describe('account routes', () => {
 			const merkleTree = new MerkleTree();
 			const tree = merkleTree.parseMerkleTreeFromRaw(stateTreeBytes);
 
-			// Act:
-			it(`for ${packetType} state`, () =>
-				test.route.prepareExecuteRoute(
-					accountRoutes.register,
-					'/accounts/:accountId/merkle',
-					'get',
-					{ accountId: testAddress },
-					{}, services, routeContext => routeContext.routeInvoker().then(() => {
-						// Assert:
-						expect(routeContext.numNextCalls).to.equal(1);
-						expect(routeContext.responses.length).to.equal(1);
-						expect(routeContext.redirects.length).to.equal(0);
-						expect(routeContext.responses[0]).to.deep.equal({
-							raw: stateTree,
-							tree
-						});
-					})
-				));
+			const assertCanAccessStateTree = accountId => test.route.prepareExecuteRoute(
+				accountRoutes.register,
+				'/accounts/:accountId/merkle',
+				'get',
+				{ accountId },
+				{ networkId: Network.TESTNET.identifier },
+				services,
+				routeContext => routeContext.routeInvoker().then(() => {
+					// Assert:
+					expect(routeContext.numNextCalls).to.equal(1);
+					expect(routeContext.responses.length).to.equal(1);
+					expect(routeContext.redirects.length).to.equal(0);
+					expect(routeContext.responses[0]).to.deep.equal({
+						raw: stateTree,
+						tree
+					});
+				})
+			);
+
+			it(`for ${packetType} state (address)`, () => assertCanAccessStateTree(testAddress));
+			it(`for ${packetType} state (publicKey)`, () => assertCanAccessStateTree(testPublicKey));
 		});
 
 		it('returns error for invalid address', () =>
