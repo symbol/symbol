@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/PacketPayloadParser.h"
-#include "catapult/ionet/IoTypes.h"
+#include "src/catapult/ionet/PacketPayloadParser.h"
+#include "src/catapult/ionet/IoTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/TestHarness.h"

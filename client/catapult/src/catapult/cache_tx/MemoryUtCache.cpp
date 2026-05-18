@@ -22,8 +22,8 @@
 #include "MemoryUtCache.h"
 #include "AccountWeights.h"
 #include "CacheSizeLogger.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/model/FeeUtils.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/model/FeeUtils.h"
 
 namespace catapult { namespace cache {
 

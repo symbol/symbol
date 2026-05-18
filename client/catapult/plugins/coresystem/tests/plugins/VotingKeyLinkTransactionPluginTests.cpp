@@ -20,8 +20,8 @@
 **/
 
 #include "src/plugins/VotingKeyLinkTransactionPlugin.h"
-#include "src/model/KeyLinkNotifications.h"
-#include "src/model/VotingKeyLinkTransaction.h"
+#include "../model/KeyLinkNotifications.h"
+#include "../model/VotingKeyLinkTransaction.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

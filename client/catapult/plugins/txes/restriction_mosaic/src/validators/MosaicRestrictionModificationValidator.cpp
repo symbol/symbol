@@ -20,10 +20,10 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/MosaicRestrictionCache.h"
-#include "src/state/MosaicAddressRestrictionNotificationFacade.h"
-#include "src/state/MosaicGlobalRestrictionNotificationFacade.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "../cache/MosaicRestrictionCache.h"
+#include "../state/MosaicAddressRestrictionNotificationFacade.h"
+#include "../state/MosaicGlobalRestrictionNotificationFacade.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

@@ -20,8 +20,8 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/MosaicCache.h"
-#include "catapult/model/InflationCalculator.h"
+#include "../cache/MosaicCache.h"
+#include "src/catapult/model/InflationCalculator.h"
 
 namespace catapult { namespace observers {
 

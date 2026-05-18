@@ -23,9 +23,9 @@
 #include "tools/KeyValueOutputBuilder.h"
 #include "tools/NetworkCensusTool.h"
 #include "tools/ToolThreadUtils.h"
-#include "catapult/api/RemoteNodeApi.h"
-#include "catapult/extensions/RemoteDiagnosticApi.h"
-#include "catapult/utils/Functional.h"
+#include "src/catapult/api/RemoteNodeApi.h"
+#include "src/catapult/extensions/RemoteDiagnosticApi.h"
+#include "src/catapult/utils/Functional.h"
 #include <algorithm>
 #include <cctype>
 

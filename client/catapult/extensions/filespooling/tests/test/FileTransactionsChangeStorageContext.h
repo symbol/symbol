@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/io/BufferInputStreamAdapter.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/TransactionInfoSerializer.h"
+#include "src/catapult/io/BufferInputStreamAdapter.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/TransactionInfoSerializer.h"
 #include "tests/test/core/NonOwningOutputStream.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"

@@ -20,10 +20,10 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/AccountKeyLinkTransaction.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "../model/AccountKeyLinkTransaction.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

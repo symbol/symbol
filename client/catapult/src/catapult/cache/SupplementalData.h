@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/ChainScore.h"
-#include "catapult/state/CatapultState.h"
+#include "src/catapult/model/ChainScore.h"
+#include "src/catapult/state/CatapultState.h"
 
 namespace catapult { namespace cache {
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/TransactionStatement.h"
-#include "catapult/crypto/Hashes.h"
+#include "src/catapult/model/TransactionStatement.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

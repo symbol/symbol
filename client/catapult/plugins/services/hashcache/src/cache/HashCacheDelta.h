@@ -21,9 +21,9 @@
 
 #pragma once
 #include "HashCacheTypes.h"
-#include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlySimpleCache.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/cache/CacheMixinAliases.h"
+#include "src/catapult/cache/ReadOnlySimpleCache.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
 
 namespace catapult { namespace cache {
 

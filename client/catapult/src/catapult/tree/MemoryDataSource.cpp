@@ -20,8 +20,8 @@
 **/
 
 #include "MemoryDataSource.h"
-#include "catapult/utils/HexFormatter.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/Logging.h"
 
 namespace catapult { namespace tree {
 

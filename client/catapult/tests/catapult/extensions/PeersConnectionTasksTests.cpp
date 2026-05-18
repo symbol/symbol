@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/PeersConnectionTasks.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/extensions/PeersConnectionTasks.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"

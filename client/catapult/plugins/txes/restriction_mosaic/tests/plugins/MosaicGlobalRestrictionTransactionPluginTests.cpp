@@ -21,8 +21,8 @@
 
 #include "src/plugins/MosaicGlobalRestrictionTransactionPlugin.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "src/model/MosaicGlobalRestrictionTransaction.h"
-#include "src/model/MosaicRestrictionNotifications.h"
+#include "../model/MosaicGlobalRestrictionTransaction.h"
+#include "../model/MosaicRestrictionNotifications.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

@@ -20,9 +20,9 @@
 **/
 
 #include "RepairSpooling.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/FilesystemUtils.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/FilesystemUtils.h"
+#include "src/catapult/io/IndexFile.h"
 
 namespace catapult { namespace local {
 

@@ -22,9 +22,9 @@
 #include "NetworkHeightService.h"
 #include "NetworkChainHeight.h"
 #include "NetworkHeightConfiguration.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/io/BlockStorageCache.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/io/BlockStorageCache.h"
 
 namespace catapult { namespace networkheight {
 

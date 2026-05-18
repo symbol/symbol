@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/ContainerTypes.h"
-#include "catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/ContainerTypes.h"
+#include "src/catapult/model/NotificationPublisher.h"
 
 namespace catapult {
 	namespace model {

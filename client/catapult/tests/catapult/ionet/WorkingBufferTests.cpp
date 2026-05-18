@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/WorkingBuffer.h"
+#include "src/catapult/ionet/WorkingBuffer.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace ionet {

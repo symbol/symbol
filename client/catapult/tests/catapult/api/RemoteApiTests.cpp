@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/api/RemoteApi.h"
+#include "src/catapult/api/RemoteApi.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace api {

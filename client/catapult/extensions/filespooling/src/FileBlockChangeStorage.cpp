@@ -20,10 +20,10 @@
 **/
 
 #include "FileBlockChangeStorage.h"
-#include "catapult/io/BlockElementSerializer.h"
-#include "catapult/io/BlockStatementSerializer.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/io/BlockElementSerializer.h"
+#include "src/catapult/io/BlockStatementSerializer.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
 
 namespace catapult { namespace filespooling {
 

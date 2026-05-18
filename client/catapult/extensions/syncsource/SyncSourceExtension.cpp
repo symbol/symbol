@@ -21,7 +21,7 @@
 
 #include "src/SyncSourceService.h"
 #include "src/VerifiableStateService.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace syncsource {
 

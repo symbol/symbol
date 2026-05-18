@@ -22,9 +22,9 @@
 #include "ChainUtils.h"
 #include "BlockDifficultyScorer.h"
 #include "BlockScorer.h"
-#include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 
 namespace catapult { namespace chain {
 

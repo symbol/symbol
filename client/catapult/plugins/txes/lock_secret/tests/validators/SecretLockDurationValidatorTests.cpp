@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/state/SecretLockInfo.h"
+#include "../state/SecretLockInfo.h"
 #include "plugins/txes/lock_shared/tests/validators/LockDurationValidatorTests.h"
 
 namespace catapult { namespace validators {

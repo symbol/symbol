@@ -1,4 +1,9 @@
-set(PLUGIN_BASE_NAME catapult.mongo.plugins.aggregate)
-
-catapult_mongo_plugin_src_no_deps(${PLUGIN_BASE_NAME})
-target_link_libraries(${PLUGIN_BASE_NAME} catapult.plugins.aggregate)
+add_target(
+    catapult.mongo.plugins.aggregate LIBRARY
+    TYPE SHARED
+    LINK_LIBS 
+        ${MongoDB_IMPORTED_TARGETS}
+        catapult.mongo
+    DEPENDENTS mongo
+    SOURCES ./
+)

@@ -20,11 +20,11 @@
 **/
 
 #include "UnlockedFileQueueConsumer.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto/AesDecrypt.h"
-#include "catapult/io/FileQueue.h"
-#include "catapult/io/RawFile.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/crypto/AesDecrypt.h"
+#include "src/catapult/io/FileQueue.h"
+#include "src/catapult/io/RawFile.h"
+#include "src/catapult/utils/Logging.h"
 
 namespace catapult { namespace harvesting {
 

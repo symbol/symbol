@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/utils/IdentifierGroup.h"
-#include "catapult/types.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/utils/IdentifierGroup.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace cache {
 

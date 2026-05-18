@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/BasicKeyPair.h"
-#include "catapult/crypto/SecureByteArray.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/crypto/BasicKeyPair.h"
+#include "src/catapult/crypto/SecureByteArray.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace crypto {

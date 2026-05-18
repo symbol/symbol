@@ -20,8 +20,8 @@
 **/
 
 #include "SignatureSystem.h"
-#include "src/validators/Validators.h"
-#include "catapult/plugins/PluginManager.h"
+#include "../validators/Validators.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
 

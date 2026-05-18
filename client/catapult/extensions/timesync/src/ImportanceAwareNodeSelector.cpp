@@ -20,9 +20,9 @@
 **/
 
 #include "ImportanceAwareNodeSelector.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/extensions/NodeSelector.h"
-#include "catapult/ionet/NodeContainer.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/extensions/NodeSelector.h"
+#include "src/catapult/ionet/NodeContainer.h"
 #include <random>
 
 namespace catapult { namespace timesync {

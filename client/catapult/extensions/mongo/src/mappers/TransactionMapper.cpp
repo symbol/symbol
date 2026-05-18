@@ -21,8 +21,8 @@
 
 #include "TransactionMapper.h"
 #include "MapperUtils.h"
-#include "mongo/src/MongoTransactionPlugin.h"
-#include "catapult/model/Transaction.h"
+#include "extensions/mongo/src/MongoTransactionPlugin.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

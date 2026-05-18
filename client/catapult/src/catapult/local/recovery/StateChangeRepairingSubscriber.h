@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/subscribers/StateChangeSubscriber.h"
+#include "src/catapult/subscribers/StateChangeSubscriber.h"
 #include <memory>
 
 namespace catapult {

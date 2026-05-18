@@ -21,9 +21,9 @@
 
 #pragma once
 #include "Results.h"
-#include "src/model/MosaicNotifications.h"
-#include "catapult/model/Notifications.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "../model/MosaicNotifications.h"
+#include "src/catapult/model/Notifications.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 #include <unordered_set>
 
 namespace catapult { namespace validators {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/TransactionChangeTracker.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/model/TransactionChangeTracker.h"
+#include "src/catapult/utils/ArraySet.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
 

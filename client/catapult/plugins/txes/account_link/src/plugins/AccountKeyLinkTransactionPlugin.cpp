@@ -20,11 +20,11 @@
 **/
 
 #include "AccountKeyLinkTransactionPlugin.h"
-#include "src/model/AccountKeyLinkTransaction.h"
-#include "src/model/AccountLinkNotifications.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
+#include "../model/AccountKeyLinkTransaction.h"
+#include "../model/AccountLinkNotifications.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

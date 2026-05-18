@@ -20,8 +20,8 @@
 **/
 
 #include "src/plugins/MosaicPlugin.h"
-#include "src/cache/MosaicCache.h"
-#include "src/model/MosaicEntityType.h"
+#include "../cache/MosaicCache.h"
+#include "../model/MosaicEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

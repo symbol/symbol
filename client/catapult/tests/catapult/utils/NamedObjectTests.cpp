@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/NamedObject.h"
+#include "src/catapult/utils/NamedObject.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

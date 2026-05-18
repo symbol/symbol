@@ -20,9 +20,9 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/MosaicRestrictionCache.h"
-#include "src/cache/MosaicRestrictionCacheUtils.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "../cache/MosaicRestrictionCache.h"
+#include "../cache/MosaicRestrictionCacheUtils.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

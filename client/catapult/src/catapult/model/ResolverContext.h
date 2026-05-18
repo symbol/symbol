@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <functional>
 
 namespace catapult { namespace model {

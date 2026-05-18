@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/RootNamespaceHistorySerializer.h"
+#include "../state/RootNamespaceHistorySerializer.h"
 #include "tests/test/RootNamespaceHistoryLoadTests.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"

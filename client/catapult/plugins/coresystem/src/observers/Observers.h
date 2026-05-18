@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/HeightDependentAddress.h"
-#include "catapult/model/Notifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/model/HeightDependentAddress.h"
+#include "src/catapult/model/Notifications.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult {
 	namespace importance { class ImportanceCalculator; }

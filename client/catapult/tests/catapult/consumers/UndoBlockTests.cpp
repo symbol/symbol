@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/UndoBlock.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/chain/BlockExecutor.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/consumers/UndoBlock.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/chain/BlockExecutor.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"

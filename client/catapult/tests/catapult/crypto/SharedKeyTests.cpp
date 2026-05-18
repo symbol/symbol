@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/SharedKey.h"
-#include "catapult/crypto/CryptoUtils.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/utils/HexParser.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/crypto/SharedKey.h"
+#include "src/catapult/crypto/CryptoUtils.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/utils/HexParser.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 

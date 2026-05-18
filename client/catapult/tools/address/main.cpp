@@ -21,8 +21,8 @@
 
 #include "tools/ToolMain.h"
 #include "tools/AccountTool.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/ConfigurationValueParsers.h"
 
 namespace catapult { namespace tools { namespace address {
 

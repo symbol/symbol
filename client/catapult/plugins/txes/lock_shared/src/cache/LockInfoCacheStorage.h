@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheStorageInclude.h"
+#include "src/catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 

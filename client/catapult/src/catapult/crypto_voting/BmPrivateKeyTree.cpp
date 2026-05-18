@@ -21,9 +21,9 @@
 
 #include "BmPrivateKeyTree.h"
 #include "VotingSigner.h"
-#include "catapult/crypto/SecureRandomGenerator.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/crypto/SecureRandomGenerator.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/exceptions.h"
 #include <type_traits>
 
 namespace catapult { namespace crypto {

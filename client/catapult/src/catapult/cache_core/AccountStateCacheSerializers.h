@@ -21,8 +21,8 @@
 
 #pragma once
 #include "AccountStateCacheTypes.h"
-#include "catapult/cache/CacheSerializerAdapter.h"
-#include "catapult/state/AccountStateSerializer.h"
+#include "src/catapult/cache/CacheSerializerAdapter.h"
+#include "src/catapult/state/AccountStateSerializer.h"
 
 namespace catapult { namespace cache {
 

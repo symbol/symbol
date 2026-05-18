@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include <sstream>
 #include <vector>
 

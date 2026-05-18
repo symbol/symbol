@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/constants.h"
+#include "src/catapult/constants.h"
 #include <filesystem>
 #include <iomanip>
 #include <sstream>

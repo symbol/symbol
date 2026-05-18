@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/types.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/types.h"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <functional>
 

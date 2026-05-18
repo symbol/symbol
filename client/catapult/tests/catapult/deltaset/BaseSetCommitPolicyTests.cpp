@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/deltaset/BaseSetCommitPolicy.h"
+#include "src/catapult/deltaset/BaseSetCommitPolicy.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
 #include "tests/test/other/UpdateSetTests.h"
 #include "tests/TestHarness.h"

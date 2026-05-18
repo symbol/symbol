@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/FeeUtils.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/model/FeeUtils.h"
+#include "src/catapult/model/Transaction.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

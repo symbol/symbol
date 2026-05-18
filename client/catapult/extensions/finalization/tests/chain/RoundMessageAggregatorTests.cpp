@@ -21,7 +21,7 @@
 
 #include "finalization/src/chain/RoundMessageAggregator.h"
 #include "finalization/src/chain/RoundContext.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -20,9 +20,9 @@
 **/
 
 #include "LockHashUtils.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace model {
 

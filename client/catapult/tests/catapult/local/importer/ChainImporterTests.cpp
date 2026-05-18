@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/local/importer/ChainImporter.h"
-#include "catapult/cache/SupplementalDataStorage.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/io/FileStream.h"
-#include "catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/local/importer/ChainImporter.h"
+#include "src/catapult/cache/SupplementalDataStorage.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/io/FileStream.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"

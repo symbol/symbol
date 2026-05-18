@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/chain/ExecutionConfiguration.h"
+#include "src/catapult/chain/ExecutionConfiguration.h"
 
 namespace catapult { namespace plugins { class PluginManager; } }
 

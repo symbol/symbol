@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/SubscriptionManager.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/model/ChainScore.h"
+#include "src/catapult/subscribers/SubscriptionManager.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/model/ChainScore.h"
 #include "tests/catapult/subscribers/test/UnsupportedSubscribers.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

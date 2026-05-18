@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ChainApi.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 
 namespace catapult { namespace io { class BlockStorageCache; } }
 

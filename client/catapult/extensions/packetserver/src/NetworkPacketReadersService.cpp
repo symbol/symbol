@@ -20,13 +20,13 @@
 **/
 
 #include "NetworkPacketReadersService.h"
-#include "catapult/config/CatapultKeys.h"
-#include "catapult/extensions/NetworkUtils.h"
-#include "catapult/extensions/PeersConnectionTasks.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/extensions/ServiceUtils.h"
-#include "catapult/thread/MultiServicePool.h"
+#include "src/catapult/config/CatapultKeys.h"
+#include "src/catapult/extensions/NetworkUtils.h"
+#include "src/catapult/extensions/PeersConnectionTasks.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/extensions/ServiceUtils.h"
+#include "src/catapult/thread/MultiServicePool.h"
 
 namespace catapult { namespace packetserver {
 

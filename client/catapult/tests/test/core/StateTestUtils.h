@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/state/CatapultState.h"
+#include "src/catapult/state/CatapultState.h"
 
 namespace catapult { namespace test {
 

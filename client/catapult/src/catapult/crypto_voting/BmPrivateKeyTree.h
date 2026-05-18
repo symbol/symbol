@@ -22,8 +22,8 @@
 #pragma once
 #include "BmOptions.h"
 #include "BmTreeSignature.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/io/SeekableStream.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/io/SeekableStream.h"
 #include <memory>
 
 namespace catapult { namespace crypto {

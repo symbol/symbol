@@ -20,9 +20,9 @@
 **/
 
 #include "src/plugins/MosaicSupplyRevocationTransactionPlugin.h"
-#include "src/model/MosaicFlags.h"
-#include "src/model/MosaicSupplyRevocationTransaction.h"
-#include "catapult/utils/HexParser.h"
+#include "../model/MosaicFlags.h"
+#include "../model/MosaicSupplyRevocationTransaction.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

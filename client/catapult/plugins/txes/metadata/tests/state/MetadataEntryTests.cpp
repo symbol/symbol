@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/MetadataEntry.h"
+#include "../state/MetadataEntry.h"
 #include "tests/test/MetadataTestUtils.h"
 #include "tests/TestHarness.h"
 

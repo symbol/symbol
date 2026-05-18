@@ -22,7 +22,7 @@
 #pragma once
 #include "Packet.h"
 #include "PacketPayloadParser.h"
-#include "catapult/model/EntityRange.h"
+#include "src/catapult/model/EntityRange.h"
 
 namespace catapult { namespace ionet {
 

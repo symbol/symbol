@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BlockStatisticCache.h"
-#include "catapult/cache/CacheStorageInclude.h"
+#include "src/catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 

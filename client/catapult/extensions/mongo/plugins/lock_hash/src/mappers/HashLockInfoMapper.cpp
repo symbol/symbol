@@ -20,7 +20,7 @@
 **/
 
 #include "HashLockInfoMapper.h"
-#include "mongo/plugins/lock_shared/src/mappers/LockInfoMapper.h"
+#include "extensions/mongo/plugins/lock_shared/src/mappers/LockInfoMapper.h"
 
 using namespace catapult::mongo::mappers;
 

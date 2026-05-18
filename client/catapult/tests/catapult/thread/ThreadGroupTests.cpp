@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/ThreadGroup.h"
+#include "src/catapult/thread/ThreadGroup.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace thread {

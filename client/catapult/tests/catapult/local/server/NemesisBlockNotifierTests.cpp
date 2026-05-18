@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/local/server/NemesisBlockNotifier.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/local/server/NemesisBlockNotifier.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/plugins/PluginManager.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"

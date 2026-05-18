@@ -20,7 +20,7 @@
 **/
 
 #include "sync/src/SyncService.h"
-#include "catapult/extensions/ServerHooks.h"
+#include "src/catapult/extensions/ServerHooks.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"

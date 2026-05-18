@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodePacketIoPair.h"
+#include "src/catapult/ionet/NodePacketIoPair.h"
 #include <memory>
 
 namespace catapult { namespace utils { class TimeSpan; } }

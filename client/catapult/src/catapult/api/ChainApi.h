@@ -21,10 +21,10 @@
 
 #pragma once
 #include "ApiTypes.h"
-#include "catapult/model/ChainScore.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/thread/Future.h"
-#include "catapult/utils/NonCopyable.h"
+#include "src/catapult/model/ChainScore.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/thread/Future.h"
+#include "src/catapult/utils/NonCopyable.h"
 
 namespace catapult { namespace api {
 

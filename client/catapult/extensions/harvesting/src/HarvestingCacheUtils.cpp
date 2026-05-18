@@ -20,7 +20,7 @@
 **/
 
 #include "HarvestingCacheUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace harvesting {
 

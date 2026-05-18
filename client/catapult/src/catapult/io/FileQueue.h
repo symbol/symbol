@@ -22,7 +22,7 @@
 #pragma once
 #include "BufferedFileStream.h"
 #include "IndexFile.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <filesystem>
 
 namespace catapult { namespace io {

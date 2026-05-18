@@ -20,7 +20,7 @@
 **/
 
 #include "LocalNodeTestUtils.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 #include "tests/test/local/NetworkTestUtils.h"
 
 namespace catapult { namespace test {

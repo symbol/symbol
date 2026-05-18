@@ -23,7 +23,7 @@
 #include "CryptoUtils.h"
 #include "Hashes.h"
 #include "SecureZero.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 #include <donna/catapult.h>
 
 #ifdef _MSC_VER

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "mongo/plugins/lock_shared/tests/test/LockMapperTestUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"

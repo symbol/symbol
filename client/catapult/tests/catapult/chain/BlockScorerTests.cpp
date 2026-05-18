@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/BlockScorer.h"
-#include "catapult/model/Block.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/chain/BlockScorer.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/utils/Logging.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 

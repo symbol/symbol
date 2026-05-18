@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/StrandOwnerLifetimeExtender.h"
-#include "catapult/thread/IoThreadPool.h"
+#include "src/catapult/thread/StrandOwnerLifetimeExtender.h"
+#include "src/catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
 

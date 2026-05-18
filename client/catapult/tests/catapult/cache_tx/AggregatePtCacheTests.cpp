@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_tx/AggregatePtCache.h"
-#include "catapult/model/Cosignature.h"
+#include "src/catapult/cache_tx/AggregatePtCache.h"
+#include "src/catapult/model/Cosignature.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/other/mocks/MockPtChangeSubscriber.h"
 #include "tests/TestHarness.h"

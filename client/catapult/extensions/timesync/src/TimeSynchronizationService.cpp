@@ -26,11 +26,11 @@
 #include "TimeSynchronizationUtils.h"
 #include "TimeSynchronizer.h"
 #include "timesync/src/handlers/TimeSyncHandlers.h"
-#include "catapult/config/CatapultKeys.h"
-#include "catapult/extensions/NetworkUtils.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/utils/NetworkTime.h"
+#include "src/catapult/config/CatapultKeys.h"
+#include "src/catapult/extensions/NetworkUtils.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/utils/NetworkTime.h"
 
 namespace catapult { namespace timesync {
 

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/NodeInteractionUtils.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/extensions/NodeInteractionUtils.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/TestHarness.h"
 

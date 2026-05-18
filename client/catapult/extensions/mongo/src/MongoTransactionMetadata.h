@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/model/ContainerTypes.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/types.h"
+#include "src/catapult/model/ContainerTypes.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/types.h"
 #include <bsoncxx/oid.hpp>
 
 namespace catapult { namespace mongo {

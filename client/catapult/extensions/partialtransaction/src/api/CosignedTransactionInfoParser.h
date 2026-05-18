@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/CosignedTransactionInfo.h"
-#include "catapult/functions.h"
+#include "src/catapult/model/CosignedTransactionInfo.h"
+#include "src/catapult/functions.h"
 #include <vector>
 
 namespace catapult { namespace ionet { struct Packet; } }

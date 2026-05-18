@@ -21,8 +21,8 @@
 
 #include "unbondedpruning/src/HashLockUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
 

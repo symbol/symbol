@@ -20,8 +20,8 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/IndexFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"

@@ -23,7 +23,7 @@
 #include "MultisigCacheDelta.h"
 #include "MultisigCacheStorage.h"
 #include "MultisigCacheView.h"
-#include "catapult/cache/BasicCache.h"
+#include "src/catapult/cache/BasicCache.h"
 
 namespace catapult { namespace cache {
 

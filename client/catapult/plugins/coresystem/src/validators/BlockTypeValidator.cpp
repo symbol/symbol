@@ -20,7 +20,7 @@
 **/
 
 #include "Validators.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/model/BlockUtils.h"
 
 namespace catapult { namespace validators {
 

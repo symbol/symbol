@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/api/RemoteChainApi.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"

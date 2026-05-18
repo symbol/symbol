@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "mongo/src/MongoBulkWriter.h"
-#include "mongo/src/MongoStorageContext.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/thread/FutureUtils.h"
+#include "extensions/mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/MongoStorageContext.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/thread/FutureUtils.h"
 #include <set>
 #include <unordered_set>
 

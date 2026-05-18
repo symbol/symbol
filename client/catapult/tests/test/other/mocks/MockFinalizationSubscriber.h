@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/subscribers/FinalizationSubscriber.h"
+#include "src/catapult/subscribers/FinalizationSubscriber.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 
 namespace catapult { namespace mocks {

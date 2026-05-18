@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/io/BlockChangeSubscriber.h"
+#include "src/catapult/io/BlockChangeSubscriber.h"
 #include <memory>
 
 namespace catapult { namespace zeromq { class ZeroMqEntityPublisher; } }

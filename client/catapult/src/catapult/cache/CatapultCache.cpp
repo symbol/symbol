@@ -24,11 +24,11 @@
 #include "CatapultCacheDetachedDelta.h"
 #include "ReadOnlyCatapultCache.h"
 #include "SubCachePluginAdapter.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/state/CatapultState.h"
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/state/CatapultState.h"
+#include "src/catapult/utils/StackLogger.h"
 
 namespace catapult { namespace cache {
 

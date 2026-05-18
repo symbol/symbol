@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache_tx/MemoryUtCacheUtils.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/TransactionSelectionStrategy.h"
+#include "src/catapult/cache_tx/MemoryUtCacheUtils.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/TransactionSelectionStrategy.h"
 
 namespace catapult { namespace harvesting { class HarvestingUtFacade; } }
 

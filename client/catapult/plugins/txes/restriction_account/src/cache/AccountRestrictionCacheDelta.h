@@ -21,11 +21,11 @@
 
 #pragma once
 #include "AccountRestrictionBaseSets.h"
-#include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlyArtifactCache.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/cache/CacheMixinAliases.h"
+#include "src/catapult/cache/ReadOnlyArtifactCache.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace cache {
 

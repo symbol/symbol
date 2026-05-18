@@ -20,7 +20,7 @@
 **/
 
 #include "Validators.h"
-#include "src/state/AccountRestrictions.h"
+#include "../state/AccountRestrictions.h"
 
 namespace catapult { namespace validators {
 

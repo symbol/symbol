@@ -23,9 +23,9 @@
 #include "MemoryCacheOptions.h"
 #include "MemoryCacheProxy.h"
 #include "UtCache.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
 #include <set>
 #include <unordered_map>
 

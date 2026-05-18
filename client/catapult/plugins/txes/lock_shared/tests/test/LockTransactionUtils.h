@@ -21,7 +21,7 @@
 
 #pragma once
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

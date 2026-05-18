@@ -20,7 +20,7 @@
 **/
 
 #include "Observers.h"
-#include "src/importance/ActivityObserverUtils.h"
+#include "../importance/ActivityObserverUtils.h"
 
 namespace catapult { namespace observers {
 

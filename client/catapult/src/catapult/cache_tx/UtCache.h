@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BasicTransactionsCache.h"
-#include "catapult/model/EntityInfo.h"
+#include "src/catapult/model/EntityInfo.h"
 #include <vector>
 
 namespace catapult { namespace cache {

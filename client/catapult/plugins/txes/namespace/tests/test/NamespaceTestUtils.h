@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "src/state/Namespace.h"
-#include "src/state/NamespaceLifetime.h"
-#include "src/state/RootNamespace.h"
-#include "catapult/state/AccountState.h"
+#include "../state/Namespace.h"
+#include "../state/NamespaceLifetime.h"
+#include "../state/RootNamespace.h"
+#include "src/catapult/state/AccountState.h"
 #include "tests/test/nodeps/Random.h"
 #include <vector>
 

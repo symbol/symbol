@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/AuditConsumer.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/RawFile.h"
+#include "src/catapult/consumers/AuditConsumer.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/RawFile.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"

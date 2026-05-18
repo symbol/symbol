@@ -20,8 +20,8 @@
 **/
 
 #include "NetworkIdentifier.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult { namespace model {
 
@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 #define DEFINE_ENUM NetworkIdentifier
 #define EXPLICIT_VALUE_ENUM
 #define ENUM_LIST NETWORK_IDENTIFIER_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef EXPLICIT_VALUE_ENUM
 #undef DEFINE_ENUM

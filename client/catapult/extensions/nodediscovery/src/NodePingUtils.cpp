@@ -20,10 +20,10 @@
 **/
 
 #include "NodePingUtils.h"
-#include "catapult/ionet/NetworkNode.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/model/SizeChecker.h"
+#include "src/catapult/ionet/NetworkNode.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/model/SizeChecker.h"
 
 namespace catapult { namespace nodediscovery {
 

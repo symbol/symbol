@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/RootedService.h"
+#include "src/catapult/extensions/RootedService.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/TestHarness.h"
 

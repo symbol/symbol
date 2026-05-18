@@ -21,9 +21,9 @@
 
 #pragma once
 #include "CacheConfiguration.h"
-#include "catapult/cache_db/CacheDatabase.h"
-#include "catapult/cache_db/UpdateSet.h"
-#include "catapult/deltaset/ConditionalContainer.h"
+#include "src/catapult/cache_db/CacheDatabase.h"
+#include "src/catapult/cache_db/UpdateSet.h"
+#include "src/catapult/deltaset/ConditionalContainer.h"
 
 namespace catapult { namespace cache {
 

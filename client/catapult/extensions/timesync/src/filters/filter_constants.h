@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include <stdint.h>
 
 namespace catapult { namespace timesync { namespace filters {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/KeyLinkTransactionMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/KeyLinkTransactionMapper.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/coresystem/src/model/VotingKeyLinkTransaction.h"
 #include "plugins/coresystem/src/model/VrfKeyLinkTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"

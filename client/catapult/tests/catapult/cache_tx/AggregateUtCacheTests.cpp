@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_tx/AggregateUtCache.h"
+#include "src/catapult/cache_tx/AggregateUtCache.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/other/mocks/MockUtChangeSubscriber.h"
 #include "tests/TestHarness.h"

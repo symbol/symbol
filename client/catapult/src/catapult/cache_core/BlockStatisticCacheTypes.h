@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheDescriptorAdapters.h"
-#include "catapult/cache/SingleSetCacheTypesAdapter.h"
-#include "catapult/state/BlockStatistic.h"
+#include "src/catapult/cache/CacheDescriptorAdapters.h"
+#include "src/catapult/cache/SingleSetCacheTypesAdapter.h"
+#include "src/catapult/state/BlockStatistic.h"
 
 namespace catapult {
 	namespace cache {

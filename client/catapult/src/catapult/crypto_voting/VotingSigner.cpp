@@ -20,7 +20,7 @@
 **/
 
 #include "VotingSigner.h"
-#include "catapult/crypto/Signer.h"
+#include "src/catapult/crypto/Signer.h"
 
 namespace catapult { namespace crypto {
 

@@ -23,7 +23,7 @@
 #include "MosaicConstants.h"
 #include "MosaicProperties.h"
 #include "MosaicTypes.h"
-#include "catapult/model/Notifications.h"
+#include "src/catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
 

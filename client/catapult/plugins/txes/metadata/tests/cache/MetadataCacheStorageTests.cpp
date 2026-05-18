@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/MetadataCacheStorage.h"
-#include "src/cache/MetadataCache.h"
+#include "../cache/MetadataCacheStorage.h"
+#include "../cache/MetadataCache.h"
 #include "tests/test/MetadataTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/thread/ThreadGroup.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/thread/ThreadGroup.h"
+#include "src/catapult/utils/Logging.h"
 #include "tests/TestHarness.h"
 #include <thread>
 

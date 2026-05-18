@@ -23,8 +23,8 @@
 #include "MosaicAliasMapper.h"
 #include "NamespaceRegistrationMapper.h"
 #include "storages/MongoNamespaceCacheStorage.h"
-#include "mongo/src/MongoPluginManager.h"
-#include "mongo/src/MongoReceiptPluginFactory.h"
+#include "extensions/mongo/src/MongoPluginManager.h"
+#include "extensions/mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/namespace/src/constants.h"
 #include "plugins/txes/namespace/src/model/NamespaceReceiptType.h"
 

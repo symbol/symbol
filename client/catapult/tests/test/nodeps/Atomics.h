@@ -21,7 +21,7 @@
 
 #pragma once
 #include "Waits.h"
-#include "catapult/utils/AtomicIncrementDecrementGuard.h"
+#include "src/catapult/utils/AtomicIncrementDecrementGuard.h"
 
 namespace catapult { namespace test {
 

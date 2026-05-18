@@ -20,7 +20,7 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "src/model/HashLockReceiptType.h"
+#include "../model/HashLockReceiptType.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 #include "plugins/txes/lock_shared/tests/observers/LockStatusAndBalanceObserverTests.h"
 #include "tests/test/HashLockInfoCacheTestUtils.h"

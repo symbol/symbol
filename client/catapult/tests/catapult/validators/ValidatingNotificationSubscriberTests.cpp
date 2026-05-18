@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/validators/ValidatingNotificationSubscriber.h"
+#include "src/catapult/validators/ValidatingNotificationSubscriber.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/other/mocks/MockNotificationValidator.h"
 #include "tests/TestHarness.h"

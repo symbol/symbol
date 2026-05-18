@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MockNotificationValidator.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/validators/ValidatorContext.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 

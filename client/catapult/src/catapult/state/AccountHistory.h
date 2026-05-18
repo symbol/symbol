@@ -21,7 +21,7 @@
 
 #pragma once
 #include "HeightIndexedHistoryMap.h"
-#include "catapult/model/PinnedVotingKey.h"
+#include "src/catapult/model/PinnedVotingKey.h"
 #include <vector>
 
 namespace catapult { namespace state {

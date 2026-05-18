@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NotificationContext.h"
+#include "src/catapult/model/NotificationContext.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

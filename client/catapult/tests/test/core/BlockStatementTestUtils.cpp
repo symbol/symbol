@@ -22,7 +22,7 @@
 #include "BlockStatementTestUtils.h"
 #include "mocks/MockMemoryStream.h"
 #include "mocks/MockReceipt.h"
-#include "catapult/io/BlockStatementSerializer.h"
+#include "src/catapult/io/BlockStatementSerializer.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

@@ -21,7 +21,7 @@
 
 #include "src/NetworkHeightConfiguration.h"
 #include "src/NetworkHeightService.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace networkheight {
 

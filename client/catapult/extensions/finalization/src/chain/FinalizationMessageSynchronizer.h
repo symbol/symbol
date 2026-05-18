@@ -22,9 +22,9 @@
 #pragma once
 #include "finalization/src/handlers/FinalizationHandlerTypes.h"
 #include "finalization/src/model/FinalizationRoundRange.h"
-#include "catapult/chain/RemoteNodeSynchronizer.h"
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/chain/RemoteNodeSynchronizer.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/model/RangeTypes.h"
 
 namespace catapult { namespace api { class RemoteFinalizationApi; } }
 

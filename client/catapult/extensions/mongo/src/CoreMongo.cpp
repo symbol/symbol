@@ -23,8 +23,7 @@
 #include "MongoPluginManager.h"
 #include "mappers/KeyLinkTransactionMapper.h"
 #include "storages/MongoAccountStateCacheStorage.h"
-#include "mongo/src/MongoReceiptPluginFactory.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "extensions/mongo/src/MongoReceiptPluginFactory.h"
 
 namespace catapult { namespace mongo {
 

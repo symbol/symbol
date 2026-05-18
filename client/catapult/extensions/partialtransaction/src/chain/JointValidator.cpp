@@ -20,10 +20,10 @@
 **/
 
 #include "JointValidator.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/chain/ProcessContextsBuilder.h"
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/chain/ProcessContextsBuilder.h"
+#include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 using namespace catapult::validators;
 

@@ -20,10 +20,10 @@
 **/
 
 #include "MosaicGlobalRestrictionTransactionPlugin.h"
-#include "src/model/MosaicGlobalRestrictionTransaction.h"
-#include "src/model/MosaicRestrictionNotifications.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
+#include "../model/MosaicGlobalRestrictionTransaction.h"
+#include "../model/MosaicRestrictionNotifications.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

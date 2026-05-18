@@ -20,9 +20,9 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/HashCache.h"
-#include "catapult/state/TimestampedHash.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "../cache/HashCache.h"
+#include "src/catapult/state/TimestampedHash.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

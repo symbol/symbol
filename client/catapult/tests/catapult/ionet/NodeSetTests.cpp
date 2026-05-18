@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/NodeSet.h"
+#include "src/catapult/ionet/NodeSet.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 

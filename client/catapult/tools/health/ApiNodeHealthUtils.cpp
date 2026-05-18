@@ -20,10 +20,10 @@
 **/
 
 #include "ApiNodeHealthUtils.h"
-#include "catapult/ionet/ConnectResult.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/ionet/ConnectResult.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/utils/ConfigurationValueParsers.h"
 #include <boost/asio.hpp>
 #include <regex>
 #include <unordered_map>

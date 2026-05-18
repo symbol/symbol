@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/deltaset/BaseSetDefaultTraits.h"
+#include "src/catapult/deltaset/BaseSetDefaultTraits.h"
 #include <string>
 
 namespace catapult { namespace test {

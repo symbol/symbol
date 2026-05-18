@@ -20,11 +20,11 @@
 **/
 
 #pragma once
-#include "catapult/ionet/IpProtocol.h"
-#include "catapult/ionet/NodeInfo.h"
-#include "catapult/ionet/NodeSet.h"
-#include "catapult/utils/ArraySet.h"
-#include "catapult/utils/RandomGenerator.h"
+#include "src/catapult/ionet/IpProtocol.h"
+#include "src/catapult/ionet/NodeInfo.h"
+#include "src/catapult/ionet/NodeSet.h"
+#include "src/catapult/utils/ArraySet.h"
+#include "src/catapult/utils/RandomGenerator.h"
 
 namespace catapult { namespace ionet { class NodeContainer; } }
 

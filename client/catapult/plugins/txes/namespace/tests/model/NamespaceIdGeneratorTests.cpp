@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/NamespaceIdGenerator.h"
-#include "catapult/crypto/Hashes.h"
+#include "../model/NamespaceIdGenerator.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 

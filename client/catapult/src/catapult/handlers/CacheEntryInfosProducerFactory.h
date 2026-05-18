@@ -22,9 +22,9 @@
 #pragma once
 #include "BasicProducer.h"
 #include "HandlerTypes.h"
-#include "catapult/cache/SynchronizedCache.h"
-#include "catapult/model/CacheEntryInfo.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/cache/SynchronizedCache.h"
+#include "src/catapult/model/CacheEntryInfo.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace handlers {
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
-#include "catapult/utils/RandomGenerator.h"
+#include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "src/catapult/utils/RandomGenerator.h"
 #include "tests/catapult/crypto_voting/test/BmTreeTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

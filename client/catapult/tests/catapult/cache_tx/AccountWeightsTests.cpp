@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_tx/AccountWeights.h"
-#include "catapult/utils/Functional.h"
+#include "src/catapult/cache_tx/AccountWeights.h"
+#include "src/catapult/utils/Functional.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

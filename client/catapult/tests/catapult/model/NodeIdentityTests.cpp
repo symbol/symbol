@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NodeIdentity.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/model/NodeIdentity.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"

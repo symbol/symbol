@@ -20,9 +20,9 @@
 **/
 
 #include "src/plugins/AccountKeyLinkTransactionPlugin.h"
-#include "src/model/AccountKeyLinkTransaction.h"
-#include "src/model/AccountLinkNotifications.h"
-#include "catapult/model/Address.h"
+#include "../model/AccountKeyLinkTransaction.h"
+#include "../model/AccountLinkNotifications.h"
+#include "src/catapult/model/Address.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

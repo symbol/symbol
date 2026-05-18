@@ -20,7 +20,7 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/MetadataCache.h"
+#include "../cache/MetadataCache.h"
 
 namespace catapult { namespace observers {
 

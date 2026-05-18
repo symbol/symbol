@@ -21,9 +21,9 @@
 
 #include "MongoPluginLoader.h"
 #include "MongoPluginManager.h"
-#include "catapult/plugins/PluginExceptions.h"
-#include "catapult/utils/Logging.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/plugins/PluginExceptions.h"
+#include "src/catapult/utils/Logging.h"
+#include "src/catapult/preprocessor.h"
 #include <boost/exception_ptr.hpp>
 
 namespace catapult { namespace mongo {

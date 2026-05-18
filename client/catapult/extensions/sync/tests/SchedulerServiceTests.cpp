@@ -21,7 +21,7 @@
 
 #include "sync/src/SchedulerService.h"
 #include "sync/src/TasksConfiguration.h"
-#include "catapult/thread/Scheduler.h"
+#include "src/catapult/thread/Scheduler.h"
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"

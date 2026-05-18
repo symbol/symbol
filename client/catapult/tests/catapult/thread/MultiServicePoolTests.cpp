@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/MultiServicePool.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/thread/MultiServicePool.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/SpinLock.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mutex>

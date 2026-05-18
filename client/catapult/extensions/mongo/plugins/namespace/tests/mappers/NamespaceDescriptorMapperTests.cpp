@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/NamespaceDescriptorMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "../mappers/NamespaceDescriptorMapper.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/state/RootNamespace.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"

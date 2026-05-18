@@ -22,12 +22,12 @@
 #pragma once
 #include "HashCheckOptions.h"
 #include "InputUtils.h"
-#include "catapult/chain/BatchUpdateResult.h"
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/disruptor/DisruptorConsumer.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/validators/ParallelValidationPolicy.h"
+#include "src/catapult/chain/BatchUpdateResult.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/disruptor/DisruptorConsumer.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/validators/ParallelValidationPolicy.h"
 
 namespace catapult { namespace model { class NotificationPublisher; } }
 

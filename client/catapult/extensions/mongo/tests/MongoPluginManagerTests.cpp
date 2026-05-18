@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoPluginManager.h"
-#include "mongo/src/MongoTransactionPlugin.h"
+#include "extensions/mongo/src/MongoPluginManager.h"
+#include "extensions/mongo/src/MongoTransactionPlugin.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "mongo/tests/test/mocks/MockExternalCacheStorage.h"
 #include "mongo/tests/test/mocks/MockReceiptMapper.h"

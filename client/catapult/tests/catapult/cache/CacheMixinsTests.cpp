@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CacheMixins.h"
+#include "src/catapult/cache/CacheMixins.h"
 #include "tests/test/cache/TestCacheTypes.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>

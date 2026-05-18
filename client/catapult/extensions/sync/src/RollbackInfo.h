@@ -21,10 +21,10 @@
 
 #pragma once
 #include "RollbackStats.h"
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
-#include "catapult/utils/TimeSpan.h"
-#include "catapult/types.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/utils/TimeSpan.h"
+#include "src/catapult/types.h"
 #include <vector>
 
 namespace catapult { namespace sync { struct RollbackInfoState; } }

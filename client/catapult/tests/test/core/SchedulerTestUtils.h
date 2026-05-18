@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/thread/Task.h"
+#include "src/catapult/thread/Task.h"
 
 namespace catapult { namespace test {
 

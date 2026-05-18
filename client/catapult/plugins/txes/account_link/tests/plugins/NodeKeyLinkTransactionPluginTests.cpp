@@ -20,8 +20,8 @@
 **/
 
 #include "src/plugins/NodeKeyLinkTransactionPlugin.h"
-#include "src/model/AccountLinkNotifications.h"
-#include "src/model/NodeKeyLinkTransaction.h"
+#include "../model/AccountLinkNotifications.h"
+#include "../model/NodeKeyLinkTransaction.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

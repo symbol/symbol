@@ -20,7 +20,7 @@
 **/
 
 #include "AggregateMapper.h"
-#include "mongo/src/MongoPluginManager.h"
+#include "extensions/mongo/src/MongoPluginManager.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 
 extern "C" PLUGIN_API

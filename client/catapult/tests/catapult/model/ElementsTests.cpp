@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Elements.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "Future.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include <functional>
 #include <string>
 

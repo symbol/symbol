@@ -22,7 +22,7 @@
 #pragma once
 #include "Transaction.h"
 #include "TransactionPlugin.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 
 namespace catapult { namespace model {
 

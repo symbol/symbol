@@ -21,8 +21,8 @@
 
 #include "ValidateHarvestingConfiguration.h"
 #include "HarvestingConfiguration.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/utils/ConfigurationBag.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/utils/ConfigurationBag.h"
 
 namespace catapult { namespace harvesting {
 

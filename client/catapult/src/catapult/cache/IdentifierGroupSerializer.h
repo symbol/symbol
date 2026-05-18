@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/io/BufferInputStreamAdapter.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/StringOutputStream.h"
+#include "src/catapult/io/BufferInputStreamAdapter.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/StringOutputStream.h"
 
 namespace catapult { namespace cache {
 

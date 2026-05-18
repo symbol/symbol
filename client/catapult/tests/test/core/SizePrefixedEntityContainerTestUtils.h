@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/ContiguousEntityContainer.h"
+#include "src/catapult/model/ContiguousEntityContainer.h"
 #include <type_traits>
 
 namespace catapult { namespace test {

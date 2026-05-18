@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/IoTypes.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/types.h"
+#include "src/catapult/ionet/IoTypes.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/types.h"
 #include <memory>
 
 namespace boost { namespace asio { class io_context; } }

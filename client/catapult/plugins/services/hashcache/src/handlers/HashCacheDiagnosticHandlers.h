@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ConfirmedTimestampedHashesProducerFactory.h"
-#include "catapult/ionet/PacketHandlers.h"
+#include "src/catapult/ionet/PacketHandlers.h"
 
 namespace catapult { namespace handlers {
 

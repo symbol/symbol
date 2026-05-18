@@ -21,8 +21,8 @@
 
 #include "RemoteProofApi.h"
 #include "FinalizationPackets.h"
-#include "catapult/api/RemoteRequestDispatcher.h"
-#include "catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/api/RemoteRequestDispatcher.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
 
 namespace catapult { namespace api {
 

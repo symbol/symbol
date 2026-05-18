@@ -21,7 +21,7 @@
 
 #include "harvesting/src/TransactionsInfoSupplier.h"
 #include "harvesting/src/HarvestingUtFacadeFactory.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"

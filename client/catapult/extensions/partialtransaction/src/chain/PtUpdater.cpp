@@ -23,14 +23,14 @@
 #include "PtValidator.h"
 #include "partialtransaction/src/PtUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "catapult/cache_tx/MemoryPtCache.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/thread/FutureUtils.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/utils/ArraySet.h"
-#include "catapult/utils/HexFormatter.h"
-#include "catapult/utils/MemoryUtils.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/cache_tx/MemoryPtCache.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/thread/FutureUtils.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/utils/ArraySet.h"
+#include "src/catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "src/catapult/preprocessor.h"
 #include <boost/asio.hpp>
 
 namespace catapult { namespace chain {

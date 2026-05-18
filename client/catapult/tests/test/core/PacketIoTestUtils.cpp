@@ -22,7 +22,7 @@
 #include "PacketIoTestUtils.h"
 #include "EntityTestUtils.h"
 #include "PacketTestUtils.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

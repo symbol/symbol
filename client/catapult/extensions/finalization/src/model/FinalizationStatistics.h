@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/types.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace model {
 

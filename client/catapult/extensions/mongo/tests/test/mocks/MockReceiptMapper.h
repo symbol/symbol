@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "mongo/src/MongoReceiptPlugin.h"
+#include "extensions/mongo/src/MongoReceiptPlugin.h"
 #include "tests/test/core/mocks/MockReceipt.h"
 
 namespace catapult { namespace mocks {

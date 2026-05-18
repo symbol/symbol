@@ -23,9 +23,9 @@
 #include "PtBootstrapperService.h"
 #include "partialtransaction/src/handlers/CosignatureHandlers.h"
 #include "partialtransaction/src/handlers/PtHandlers.h"
-#include "catapult/cache_tx/MemoryPtCache.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/cache_tx/MemoryPtCache.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace partialtransaction {
 

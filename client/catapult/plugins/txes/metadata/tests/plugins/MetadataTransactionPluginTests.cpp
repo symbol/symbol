@@ -20,12 +20,12 @@
 **/
 
 #include "src/plugins/MetadataTransactionPlugin.h"
-#include "src/model/AccountMetadataTransaction.h"
-#include "src/model/MetadataNotifications.h"
-#include "src/model/MosaicMetadataTransaction.h"
-#include "src/model/NamespaceMetadataTransaction.h"
+#include "../model/AccountMetadataTransaction.h"
+#include "../model/MetadataNotifications.h"
+#include "../model/MosaicMetadataTransaction.h"
+#include "../model/NamespaceMetadataTransaction.h"
 #include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
 

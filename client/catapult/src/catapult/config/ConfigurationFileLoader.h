@@ -21,7 +21,7 @@
 
 #pragma once
 #include "PeersConfiguration.h"
-#include "catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationBag.h"
 #include <filesystem>
 #include <iostream>
 

@@ -20,13 +20,13 @@
 **/
 
 #include "ToolMain.h"
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/config/LoggingConfiguration.h"
-#include "catapult/crypto/OpensslInit.h"
-#include "catapult/thread/ThreadInfo.h"
-#include "catapult/utils/ExceptionLogging.h"
-#include "catapult/version/version.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/config/ConfigurationFileLoader.h"
+#include "src/catapult/config/LoggingConfiguration.h"
+#include "src/catapult/crypto/OpensslInit.h"
+#include "src/catapult/thread/ThreadInfo.h"
+#include "src/catapult/utils/ExceptionLogging.h"
+#include "src/catapult/version/version.h"
+#include "src/catapult/preprocessor.h"
 #include <filesystem>
 #include <iostream>
 

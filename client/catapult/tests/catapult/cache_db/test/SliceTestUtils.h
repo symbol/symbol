@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/cache_db/RocksInclude.h"
+#include "src/catapult/cache_db/RocksInclude.h"
 
 namespace catapult { namespace test {
 

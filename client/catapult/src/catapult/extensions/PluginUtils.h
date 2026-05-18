@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 #include <memory>
 
 namespace catapult {

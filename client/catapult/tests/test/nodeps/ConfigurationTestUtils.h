@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationBag.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model { struct BlockchainConfiguration; } }

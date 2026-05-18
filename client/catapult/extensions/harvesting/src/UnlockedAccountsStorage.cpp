@@ -21,8 +21,8 @@
 
 #include "UnlockedAccountsStorage.h"
 #include "UnlockedFileQueueConsumer.h"
-#include "catapult/io/RawFile.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/io/RawFile.h"
+#include "src/catapult/exceptions.h"
 #include <filesystem>
 
 namespace catapult { namespace harvesting {

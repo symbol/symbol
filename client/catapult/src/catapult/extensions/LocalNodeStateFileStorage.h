@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/types.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/types.h"
 
 namespace catapult {
 	namespace cache {

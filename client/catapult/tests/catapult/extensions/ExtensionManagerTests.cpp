@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ExtensionManager.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/thread/MultiServicePool.h"
-#include "catapult/utils/NetworkTime.h"
+#include "src/catapult/extensions/ExtensionManager.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/thread/MultiServicePool.h"
+#include "src/catapult/utils/NetworkTime.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

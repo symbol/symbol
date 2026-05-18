@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_db/CacheDatabase.h"
-#include "catapult/cache_db/PatriciaTreeRdbDataSource.h"
+#include "src/catapult/cache_db/CacheDatabase.h"
+#include "src/catapult/cache_db/PatriciaTreeRdbDataSource.h"
 #include <memory>
 
 namespace catapult { namespace cache {

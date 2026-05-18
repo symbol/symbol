@@ -21,8 +21,8 @@
 
 #include "MongoNamespaceCacheStorage.h"
 #include "MongoNamespaceCacheStorageUtils.h"
-#include "src/mappers/NamespaceDescriptorMapper.h"
-#include "mongo/src/storages/MongoCacheStorage.h"
+#include "../mappers/NamespaceDescriptorMapper.h"
+#include "extensions/mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 
 using namespace bsoncxx::builder::stream;

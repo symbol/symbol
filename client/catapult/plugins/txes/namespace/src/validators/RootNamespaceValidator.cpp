@@ -20,7 +20,7 @@
 **/
 
 #include "Validators.h"
-#include "catapult/constants.h"
+#include "src/catapult/constants.h"
 
 namespace catapult { namespace validators {
 

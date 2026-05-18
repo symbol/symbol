@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MetadataTypes.h"
-#include "catapult/model/Notifications.h"
+#include "src/catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
 

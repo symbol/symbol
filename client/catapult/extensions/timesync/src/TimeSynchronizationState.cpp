@@ -21,8 +21,8 @@
 
 #include "TimeSynchronizationState.h"
 #include "constants.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/NetworkTime.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/NetworkTime.h"
 
 namespace catapult { namespace timesync {
 

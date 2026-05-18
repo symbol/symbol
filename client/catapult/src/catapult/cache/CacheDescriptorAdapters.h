@@ -21,11 +21,11 @@
 
 #pragma once
 #include "CacheConfiguration.h"
-#include "catapult/cache_db/CacheDatabase.h"
-#include "catapult/cache_db/UpdateSet.h"
-#include "catapult/deltaset/BaseSet.h"
-#include "catapult/deltaset/ConditionalContainer.h"
-#include "catapult/deltaset/OrderedSet.h"
+#include "src/catapult/cache_db/CacheDatabase.h"
+#include "src/catapult/cache_db/UpdateSet.h"
+#include "src/catapult/deltaset/BaseSet.h"
+#include "src/catapult/deltaset/ConditionalContainer.h"
+#include "src/catapult/deltaset/OrderedSet.h"
 #include <unordered_map>
 
 namespace catapult { namespace cache {

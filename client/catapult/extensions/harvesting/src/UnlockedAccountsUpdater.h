@@ -21,7 +21,7 @@
 
 #pragma once
 #include "UnlockedAccountsStorage.h"
-#include "catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
 
 namespace catapult {
 	namespace cache { class CatapultCache; }

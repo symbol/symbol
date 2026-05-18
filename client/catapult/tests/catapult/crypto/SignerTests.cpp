@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/Signer.h"
-#include "catapult/utils/HexParser.h"
-#include "catapult/utils/RandomGenerator.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/utils/HexParser.h"
+#include "src/catapult/utils/RandomGenerator.h"
 #include "tests/test/crypto/CurveUtils.h"
 #include "tests/test/crypto/SignVerifyTests.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

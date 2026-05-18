@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/NodeIdentity.h"
-#include "catapult/utils/TimeSpan.h"
-#include "catapult/functions.h"
+#include "src/catapult/model/NodeIdentity.h"
+#include "src/catapult/utils/TimeSpan.h"
+#include "src/catapult/functions.h"
 #include <unordered_map>
 
 namespace catapult { namespace ionet {

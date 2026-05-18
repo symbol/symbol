@@ -20,8 +20,8 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/NamespaceCache.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "../cache/NamespaceCache.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

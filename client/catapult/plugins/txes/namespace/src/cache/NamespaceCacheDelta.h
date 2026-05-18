@@ -24,8 +24,8 @@
 #include "NamespaceCacheMixins.h"
 #include "NamespaceCacheSerializers.h"
 #include "ReadOnlyNamespaceCache.h"
-#include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlyViewSupplier.h"
+#include "src/catapult/cache/CacheMixinAliases.h"
+#include "src/catapult/cache/ReadOnlyViewSupplier.h"
 
 namespace catapult { namespace cache {
 

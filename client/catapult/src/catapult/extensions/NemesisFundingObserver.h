@@ -21,8 +21,8 @@
 
 #pragma once
 #include "NemesisFundingState.h"
-#include "catapult/model/Notifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/model/Notifications.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace extensions {
 

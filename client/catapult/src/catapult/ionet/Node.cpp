@@ -20,8 +20,8 @@
 **/
 
 #include "Node.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 #include <cctype>
 
 namespace catapult { namespace ionet {

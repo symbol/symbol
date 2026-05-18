@@ -21,7 +21,7 @@
 
 #pragma once
 #include "AccountLinkEntityType.h"
-#include "catapult/model/KeyLinkSharedTransaction.h"
+#include "src/catapult/model/KeyLinkSharedTransaction.h"
 
 namespace catapult { namespace model {
 

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/Scheduler.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/utils/AtomicIncrementDecrementGuard.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/thread/Scheduler.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/utils/AtomicIncrementDecrementGuard.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/WaitFunctions.h"

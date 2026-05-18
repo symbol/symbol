@@ -20,19 +20,19 @@
 **/
 
 #include "Broker.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/io/FileQueue.h"
-#include "catapult/local/HostUtils.h"
-#include "catapult/subscribers/BlockChangeReader.h"
-#include "catapult/subscribers/BrokerMessageReaders.h"
-#include "catapult/subscribers/FinalizationReader.h"
-#include "catapult/subscribers/PtChangeReader.h"
-#include "catapult/subscribers/StateChangeReader.h"
-#include "catapult/subscribers/TransactionStatusReader.h"
-#include "catapult/subscribers/UtChangeReader.h"
-#include "catapult/thread/Scheduler.h"
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/io/FileQueue.h"
+#include "src/catapult/local/HostUtils.h"
+#include "src/catapult/subscribers/BlockChangeReader.h"
+#include "src/catapult/subscribers/BrokerMessageReaders.h"
+#include "src/catapult/subscribers/FinalizationReader.h"
+#include "src/catapult/subscribers/PtChangeReader.h"
+#include "src/catapult/subscribers/StateChangeReader.h"
+#include "src/catapult/subscribers/TransactionStatusReader.h"
+#include "src/catapult/subscribers/UtChangeReader.h"
+#include "src/catapult/thread/Scheduler.h"
+#include "src/catapult/utils/StackLogger.h"
 
 namespace catapult { namespace local {
 

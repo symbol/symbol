@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/types.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/TestHarness.h"

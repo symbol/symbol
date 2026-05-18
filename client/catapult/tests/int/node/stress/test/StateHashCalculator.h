@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/config/CatapultConfiguration.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/config/CatapultConfiguration.h"
 
 namespace catapult {
 	namespace model { struct Block; }

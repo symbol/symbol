@@ -20,10 +20,10 @@
 **/
 
 #include "VotingKeyLinkTransactionPlugin.h"
-#include "src/model/KeyLinkNotifications.h"
-#include "src/model/VotingKeyLinkTransaction.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
+#include "../model/KeyLinkNotifications.h"
+#include "../model/VotingKeyLinkTransaction.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

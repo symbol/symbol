@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/plugins/PluginManager.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/TestHarness.h"

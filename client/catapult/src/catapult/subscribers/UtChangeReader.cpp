@@ -21,10 +21,10 @@
 
 #include "UtChangeReader.h"
 #include "SubscriberOperationTypes.h"
-#include "catapult/cache_tx/UtChangeSubscriber.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/io/TransactionInfoSerializer.h"
+#include "src/catapult/cache_tx/UtChangeSubscriber.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/io/TransactionInfoSerializer.h"
 
 namespace catapult { namespace subscribers {
 

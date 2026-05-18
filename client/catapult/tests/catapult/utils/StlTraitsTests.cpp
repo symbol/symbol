@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/traits/StlTraits.h"
+#include "src/catapult/utils/traits/StlTraits.h"
 #include "tests/TestHarness.h"
 #include <set>
 #include <unordered_set>

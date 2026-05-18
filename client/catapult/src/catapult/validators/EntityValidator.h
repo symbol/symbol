@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ValidationResult.h"
-#include "catapult/model/WeakEntityInfo.h"
+#include "src/catapult/model/WeakEntityInfo.h"
 #include <string>
 
 namespace catapult { namespace validators {

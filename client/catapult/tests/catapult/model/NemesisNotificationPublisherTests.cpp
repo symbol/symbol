@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NemesisNotificationPublisher.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/NemesisNotificationPublisher.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/TestHarness.h"

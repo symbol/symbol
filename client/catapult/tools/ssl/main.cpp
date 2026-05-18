@@ -22,11 +22,11 @@
 #include "tools/ToolMain.h"
 #include "SslClient.h"
 #include "tools/ToolConfigurationUtils.h"
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/ionet/Node.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/ConfigurationUtils.h"
+#include "src/catapult/config/ConfigurationFileLoader.h"
+#include "src/catapult/ionet/Node.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationUtils.h"
 
 namespace catapult { namespace tools { namespace ssl {
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/extensions/ServerHooks.h"
-#include "catapult/subscribers/NodeSubscriber.h"
+#include "src/catapult/extensions/ServerHooks.h"
+#include "src/catapult/subscribers/NodeSubscriber.h"
 #include <memory>
 
 namespace catapult { namespace ionet { class NodeContainer; } }

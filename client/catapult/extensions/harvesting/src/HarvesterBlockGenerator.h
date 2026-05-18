@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Block.h"
-#include "catapult/model/TransactionSelectionStrategy.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/TransactionSelectionStrategy.h"
 
 namespace catapult {
 	namespace cache { class ReadWriteUtCache; }

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/TransactionPlugin.h"
+#include "src/catapult/model/TransactionPlugin.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

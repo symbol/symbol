@@ -24,7 +24,7 @@
 #include "NotificationSubscriber.h"
 #include "Transaction.h"
 #include "TransactionPlugin.h"
-#include "catapult/utils/IntegerMath.h"
+#include "src/catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace model {
 

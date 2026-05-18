@@ -20,8 +20,8 @@
 **/
 
 #include "NamespaceMetadataMapper.h"
-#include "mongo/src/MongoTransactionPluginFactory.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/MongoTransactionPluginFactory.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/metadata/src/model/NamespaceMetadataTransaction.h"
 
 using namespace catapult::mongo::mappers;

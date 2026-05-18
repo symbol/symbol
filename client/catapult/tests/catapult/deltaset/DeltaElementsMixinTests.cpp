@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/deltaset/DeltaElementsMixin.h"
+#include "src/catapult/deltaset/DeltaElementsMixin.h"
 #include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"
 #include "tests/TestHarness.h"

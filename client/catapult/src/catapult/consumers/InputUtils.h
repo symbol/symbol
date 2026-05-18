@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/disruptor/DisruptorElement.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/model/WeakEntityInfo.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/disruptor/DisruptorElement.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/model/WeakEntityInfo.h"
+#include "src/catapult/utils/ArraySet.h"
 #include <unordered_set>
 
 namespace catapult { namespace consumers {

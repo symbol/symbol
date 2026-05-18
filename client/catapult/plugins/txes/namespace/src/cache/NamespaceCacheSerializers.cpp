@@ -20,7 +20,7 @@
 **/
 
 #include "NamespaceCacheSerializers.h"
-#include "catapult/io/PodIoUtils.h"
+#include "src/catapult/io/PodIoUtils.h"
 
 namespace catapult { namespace cache {
 

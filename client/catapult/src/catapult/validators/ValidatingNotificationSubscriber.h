@@ -22,7 +22,7 @@
 #pragma once
 #include "AggregateValidationResult.h"
 #include "ValidatorTypes.h"
-#include "catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/NotificationSubscriber.h"
 
 namespace catapult { namespace validators {
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Block.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/observers/ObserverTypes.h"
 #include <vector>
 
 namespace catapult { namespace mocks {

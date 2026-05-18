@@ -21,9 +21,9 @@
 
 #include "BlockchainConfiguration.h"
 #include "Address.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/ConfigurationUtils.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationUtils.h"
+#include "src/catapult/utils/HexParser.h"
 
 DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 

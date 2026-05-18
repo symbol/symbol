@@ -20,9 +20,9 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/state/CatapultState.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/state/CatapultState.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"

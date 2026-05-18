@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Block.h"
-#include "catapult/model/ChainScore.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/ChainScore.h"
 #include <vector>
 
 namespace catapult {

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "mongo/src/mappers/MapperInclude.h"
+#include "extensions/mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/lock_secret/src/state/SecretLockInfoHistory.h"
 
 namespace catapult { namespace mongo { namespace plugins {

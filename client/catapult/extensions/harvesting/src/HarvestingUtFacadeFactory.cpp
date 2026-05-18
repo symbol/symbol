@@ -22,14 +22,14 @@
 #include "HarvestingUtFacadeFactory.h"
 #include "HarvestingCacheUtils.h"
 #include "HarvestingObservers.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/chain/ProcessContextsBuilder.h"
-#include "catapult/chain/ProcessingNotificationSubscriber.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/FeeUtils.h"
-#include "catapult/model/VotingSet.h"
-#include "catapult/observers/DemuxObserverBuilder.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/chain/ProcessContextsBuilder.h"
+#include "src/catapult/chain/ProcessingNotificationSubscriber.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/FeeUtils.h"
+#include "src/catapult/model/VotingSet.h"
+#include "src/catapult/observers/DemuxObserverBuilder.h"
 
 namespace catapult { namespace harvesting {
 

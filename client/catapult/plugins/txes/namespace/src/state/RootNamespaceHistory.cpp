@@ -20,7 +20,7 @@
 **/
 
 #include "RootNamespaceHistory.h"
-#include "catapult/state/AccountState.h"
+#include "src/catapult/state/AccountState.h"
 
 namespace catapult { namespace state {
 

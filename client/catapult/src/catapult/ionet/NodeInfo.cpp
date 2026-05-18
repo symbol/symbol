@@ -20,14 +20,14 @@
 **/
 
 #include "NodeInfo.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 #include <algorithm>
 
 namespace catapult { namespace ionet {
 
 #define DEFINE_ENUM NodeSource
 #define ENUM_LIST NODE_SOURCE_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 

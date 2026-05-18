@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/model/MetadataNotifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "../model/MetadataNotifications.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace observers {
 

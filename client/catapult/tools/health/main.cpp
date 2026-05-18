@@ -23,10 +23,10 @@
 #include "tools/NetworkCensusTool.h"
 #include "tools/ToolMain.h"
 #include "tools/ToolThreadUtils.h"
-#include "catapult/api/RemoteChainApi.h"
-#include "catapult/extensions/RemoteDiagnosticApi.h"
-#include "catapult/utils/DiagnosticCounterId.h"
-#include "catapult/utils/Functional.h"
+#include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/extensions/RemoteDiagnosticApi.h"
+#include "src/catapult/utils/DiagnosticCounterId.h"
+#include "src/catapult/utils/Functional.h"
 
 namespace catapult { namespace tools { namespace health {
 

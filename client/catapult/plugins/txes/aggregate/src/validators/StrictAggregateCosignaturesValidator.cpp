@@ -20,7 +20,7 @@
 **/
 
 #include "Validators.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/utils/ArraySet.h"
 #include <unordered_map>
 
 namespace catapult { namespace validators {

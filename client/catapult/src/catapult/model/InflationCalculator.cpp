@@ -20,7 +20,7 @@
 **/
 
 #include "InflationCalculator.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 #include <limits>
 
 namespace catapult { namespace model {

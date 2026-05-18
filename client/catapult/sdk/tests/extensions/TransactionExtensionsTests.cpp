@@ -21,8 +21,8 @@
 
 #include "src/extensions/TransactionExtensions.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "catapult/model/EntityHasher.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/model/EntityHasher.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

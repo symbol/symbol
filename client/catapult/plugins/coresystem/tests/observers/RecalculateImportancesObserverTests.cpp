@@ -21,7 +21,7 @@
 
 #include "src/observers/Observers.h"
 #include "src/importance/ImportanceCalculator.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"

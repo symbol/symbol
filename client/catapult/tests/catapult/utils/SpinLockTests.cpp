@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/SpinLock.h"
+#include "src/catapult/utils/SpinLock.h"
 #include "tests/test/nodeps/BasicLockTests.h"
 
 namespace catapult { namespace utils {

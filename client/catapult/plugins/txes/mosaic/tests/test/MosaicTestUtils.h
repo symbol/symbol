@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "src/state/MosaicEntry.h"
+#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
 
 namespace catapult { namespace test {
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/validators/NotificationValidator.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/validators/NotificationValidator.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 #include "tests/test/core/TaggedNotification.h"
 #include <vector>
 

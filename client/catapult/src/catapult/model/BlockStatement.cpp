@@ -20,7 +20,7 @@
 **/
 
 #include "BlockStatement.h"
-#include "catapult/crypto/MerkleHashBuilder.h"
+#include "src/catapult/crypto/MerkleHashBuilder.h"
 
 namespace catapult { namespace model {
 

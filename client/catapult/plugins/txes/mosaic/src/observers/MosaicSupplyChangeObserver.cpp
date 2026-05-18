@@ -20,8 +20,8 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/MosaicCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "../cache/MosaicCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace observers {
 

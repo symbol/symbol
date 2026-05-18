@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/exceptions.h"
 #include <cstring>
 
 namespace catapult { namespace test {

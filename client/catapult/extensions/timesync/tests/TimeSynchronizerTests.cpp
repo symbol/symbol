@@ -21,8 +21,8 @@
 
 #include "timesync/src/TimeSynchronizer.h"
 #include "timesync/src/constants.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Address.h"
 #include "timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"

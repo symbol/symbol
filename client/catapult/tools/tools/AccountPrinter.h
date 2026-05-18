@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace tools {
 

@@ -20,7 +20,7 @@
 **/
 
 #include "AccountStateCacheTestUtils.h"
-#include "catapult/cache_core/AccountStateCacheDelta.h"
+#include "src/catapult/cache_core/AccountStateCacheDelta.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

@@ -20,9 +20,9 @@
 **/
 
 #include "sync/src/DispatcherSyncHandlers.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/extensions/LocalNodeChainScore.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <filesystem>

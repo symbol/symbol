@@ -21,8 +21,8 @@
 
 #pragma once
 #include "CacheChanges.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
 #include <vector>
 
 #if defined(_MSC_VER) && defined(_MT) && defined(_DEBUG)

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/FileSize.h"
-#include "catapult/types.h"
+#include "src/catapult/utils/FileSize.h"
+#include "src/catapult/types.h"
 #include <memory>
 
 namespace catapult { namespace cache {

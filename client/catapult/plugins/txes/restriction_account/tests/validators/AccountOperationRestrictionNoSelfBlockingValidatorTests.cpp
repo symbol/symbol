@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/AccountOperationRestrictionTransaction.h"
+#include "../model/AccountOperationRestrictionTransaction.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/FileLock.h"
+#include "src/catapult/io/FileLock.h"
 #include "tests/test/nodeps/BasicLockTests.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include <filesystem>

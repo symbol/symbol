@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheConfiguration.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/SubCachePluginAdapter.h"
+#include "src/catapult/cache/CacheConfiguration.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/SubCachePluginAdapter.h"
 #include <memory>
 #include <vector>
 

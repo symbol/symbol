@@ -22,11 +22,11 @@
 #pragma once
 #include "ServerHooks.h"
 #include "ServiceState.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/ionet/NodeInfo.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/net/PacketIoPickerContainer.h"
-#include "catapult/thread/Task.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/ionet/NodeInfo.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/net/PacketIoPickerContainer.h"
+#include "src/catapult/thread/Task.h"
 
 namespace catapult {
 	namespace cache {

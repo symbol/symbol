@@ -20,7 +20,7 @@
 **/
 
 #include "MockReceiptMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 
 namespace catapult { namespace mocks {
 

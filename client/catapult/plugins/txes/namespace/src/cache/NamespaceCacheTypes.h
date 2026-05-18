@@ -20,14 +20,14 @@
 **/
 
 #pragma once
-#include "src/state/Namespace.h"
-#include "src/state/NamespaceEntry.h"
-#include "src/state/RootNamespaceHistory.h"
-#include "catapult/cache/CacheDatabaseMixin.h"
-#include "catapult/cache/CacheDescriptorAdapters.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/utils/IdentifierGroup.h"
+#include "../state/Namespace.h"
+#include "../state/NamespaceEntry.h"
+#include "../state/RootNamespaceHistory.h"
+#include "src/catapult/cache/CacheDatabaseMixin.h"
+#include "src/catapult/cache/CacheDescriptorAdapters.h"
+#include "src/catapult/deltaset/BaseSetDelta.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/utils/IdentifierGroup.h"
 
 namespace catapult {
 	namespace cache {

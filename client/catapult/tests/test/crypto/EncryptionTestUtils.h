@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/crypto/AesDecrypt.h"
+#include "src/catapult/crypto/AesDecrypt.h"
 
 namespace catapult { namespace test {
 

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/UtSynchronizer.h"
+#include "src/catapult/chain/UtSynchronizer.h"
 #include "tests/catapult/chain/test/MockTransactionApi.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"

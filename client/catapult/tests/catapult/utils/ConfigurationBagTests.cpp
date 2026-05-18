@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

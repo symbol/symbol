@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/ReadRateMonitorPacketIo.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/ionet/ReadRateMonitorPacketIo.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PacketIoTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"

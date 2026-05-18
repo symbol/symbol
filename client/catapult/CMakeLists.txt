@@ -59,7 +59,6 @@ include(CMakeGlobalSettings.cmake)
 
 # used to add openssl dependencies to a target
 function(catapult_add_openssl_dependencies TARGET_NAME)
-    #target_include_directories(${TARGET_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
 	target_link_libraries(${TARGET_NAME} OpenSSL::SSL)
 endfunction()
 

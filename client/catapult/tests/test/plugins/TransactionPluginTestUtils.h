@@ -21,7 +21,7 @@
 
 #pragma once
 #include "TransactionPluginTests.h"
-#include "catapult/model/Block.h"
+#include "src/catapult/model/Block.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 
 namespace catapult { namespace test {

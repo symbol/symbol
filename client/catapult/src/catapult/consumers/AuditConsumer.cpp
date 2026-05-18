@@ -22,8 +22,8 @@
 #include "AuditConsumer.h"
 #include "ConsumerResultFactory.h"
 #include "InputUtils.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/RawFile.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/RawFile.h"
 #include <filesystem>
 
 namespace catapult { namespace consumers {

@@ -24,10 +24,10 @@
 #include "BlockchainSyncHandlers.h"
 #include "HashCheckOptions.h"
 #include "InputUtils.h"
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/disruptor/DisruptorConsumer.h"
-#include "catapult/validators/ParallelValidationPolicy.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/disruptor/DisruptorConsumer.h"
+#include "src/catapult/validators/ParallelValidationPolicy.h"
 
 namespace catapult {
 	namespace chain { struct CatapultState; }

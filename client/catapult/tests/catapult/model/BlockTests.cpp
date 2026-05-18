@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Block.h"
+#include "src/catapult/model/Block.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

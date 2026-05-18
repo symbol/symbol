@@ -21,7 +21,7 @@
 
 #pragma once
 #include "CacheStorageInclude.h"
-#include "catapult/plugins.h"
+#include "src/catapult/plugins.h"
 #include <string>
 
 namespace catapult {

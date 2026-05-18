@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockConsumers.h"
+#include "src/catapult/consumers/BlockConsumers.h"
 #include "sdk/src/extensions/BlockExtensions.h"
-#include "catapult/consumers/TransactionConsumers.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/model/EntityHasher.h"
-#include "catapult/utils/HexParser.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/consumers/TransactionConsumers.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/model/EntityHasher.h"
+#include "src/catapult/utils/HexParser.h"
+#include "src/catapult/exceptions.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"

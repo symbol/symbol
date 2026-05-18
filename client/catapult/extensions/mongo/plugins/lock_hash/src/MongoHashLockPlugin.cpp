@@ -21,8 +21,8 @@
 
 #include "HashLockMapper.h"
 #include "storages/MongoHashLockInfoCacheStorage.h"
-#include "mongo/src/MongoPluginManager.h"
-#include "mongo/src/MongoReceiptPluginFactory.h"
+#include "extensions/mongo/src/MongoPluginManager.h"
+#include "extensions/mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
 
 extern "C" PLUGIN_API

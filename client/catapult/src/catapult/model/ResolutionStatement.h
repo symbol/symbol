@@ -22,7 +22,7 @@
 #pragma once
 #include "ReceiptSource.h"
 #include "ReceiptType.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace model {
 

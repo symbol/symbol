@@ -20,11 +20,11 @@
 **/
 
 #include "ClientConnector.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/thread/TimedCallback.h"
-#include "catapult/utils/Logging.h"
-#include "catapult/utils/WeakContainer.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/thread/TimedCallback.h"
+#include "src/catapult/utils/Logging.h"
+#include "src/catapult/utils/WeakContainer.h"
 
 namespace catapult { namespace net {
 

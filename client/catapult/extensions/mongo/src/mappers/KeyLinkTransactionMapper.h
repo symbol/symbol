@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "mongo/src/MongoTransactionPlugin.h"
+#include "extensions/mongo/src/MongoTransactionPlugin.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

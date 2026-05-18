@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_db/KeySerializers.h"
-#include "catapult/crypto/Hashes.h"
+#include "src/catapult/cache_db/KeySerializers.h"
+#include "src/catapult/crypto/Hashes.h"
 
 namespace catapult { namespace cache {
 

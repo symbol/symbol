@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MockPacketIo.h"
-#include "catapult/ionet/PacketSocket.h"
+#include "src/catapult/ionet/PacketSocket.h"
 
 namespace catapult { namespace mocks {
 

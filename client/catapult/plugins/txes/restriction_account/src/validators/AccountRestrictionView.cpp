@@ -21,7 +21,7 @@
 
 #include "Validators.h"
 #include "AccountRestrictionView.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
 
 namespace catapult { namespace validators {
 

@@ -20,7 +20,7 @@
 **/
 
 #include "HashLockMapperTestUtils.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_hash/src/state/HashLockInfo.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"

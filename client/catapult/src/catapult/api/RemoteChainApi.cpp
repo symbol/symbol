@@ -23,7 +23,7 @@
 #include "ChainPackets.h"
 #include "RemoteApiUtils.h"
 #include "RemoteRequestDispatcher.h"
-#include "catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
 
 namespace catapult { namespace api {
 

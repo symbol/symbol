@@ -23,10 +23,10 @@
 #include "ConsumerResults.h"
 #include "TransactionConsumers.h"
 #include "ValidationConsumerUtils.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/thread/ParallelFor.h"
-#include "catapult/validators/AggregateValidationResult.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/thread/ParallelFor.h"
+#include "src/catapult/validators/AggregateValidationResult.h"
 
 namespace catapult { namespace consumers {
 

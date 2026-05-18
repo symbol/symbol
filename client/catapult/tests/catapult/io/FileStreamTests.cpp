@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/FileStream.h"
+#include "src/catapult/io/FileStream.h"
 #include "tests/catapult/io/test/StreamTests.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"

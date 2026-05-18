@@ -20,12 +20,12 @@
 **/
 
 #include "RepairState.h"
-#include "catapult/cache/CacheChangesStorage.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/subscribers/BrokerMessageReaders.h"
-#include "catapult/subscribers/StateChangeReader.h"
-#include "catapult/subscribers/StateChangeSubscriber.h"
+#include "src/catapult/cache/CacheChangesStorage.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/subscribers/BrokerMessageReaders.h"
+#include "src/catapult/subscribers/StateChangeReader.h"
+#include "src/catapult/subscribers/StateChangeSubscriber.h"
 
 namespace catapult { namespace local {
 

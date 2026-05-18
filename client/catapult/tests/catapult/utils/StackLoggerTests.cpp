@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/utils/StackLogger.h"
 #include "tests/catapult/utils/test/LoggingTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"

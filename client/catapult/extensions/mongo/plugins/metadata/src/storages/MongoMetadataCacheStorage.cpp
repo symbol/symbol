@@ -20,8 +20,8 @@
 **/
 
 #include "MongoMetadataCacheStorage.h"
-#include "src/mappers/MetadataEntryMapper.h"
-#include "mongo/src/storages/MongoCacheStorage.h"
+#include "../mappers/MetadataEntryMapper.h"
+#include "extensions/mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/metadata/src/cache/MetadataCache.h"
 
 using namespace bsoncxx::builder::stream;

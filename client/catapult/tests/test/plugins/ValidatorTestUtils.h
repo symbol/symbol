@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/validators/NotificationValidator.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/validators/NotificationValidator.h"
+#include "src/catapult/validators/ValidatorContext.h"
 #include "tests/test/core/ResolverTestUtils.h"
 
 namespace catapult { namespace test {

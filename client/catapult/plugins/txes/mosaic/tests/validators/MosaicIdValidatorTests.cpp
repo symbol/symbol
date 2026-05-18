@@ -20,8 +20,8 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/MosaicIdGenerator.h"
-#include "catapult/utils/IntegerMath.h"
+#include "../model/MosaicIdGenerator.h"
+#include "src/catapult/utils/IntegerMath.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

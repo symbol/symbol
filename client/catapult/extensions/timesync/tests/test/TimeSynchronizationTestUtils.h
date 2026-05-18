@@ -21,7 +21,7 @@
 
 #pragma once
 #include "timesync/src/TimeSynchronizationSample.h"
-#include "catapult/ionet/Node.h"
+#include "src/catapult/ionet/Node.h"
 #include <vector>
 
 namespace catapult { namespace test {

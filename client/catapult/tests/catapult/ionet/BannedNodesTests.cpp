@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/BannedNodes.h"
-#include "catapult/config/NodeConfiguration.h"
+#include "src/catapult/ionet/BannedNodes.h"
+#include "src/catapult/config/NodeConfiguration.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/TestHarness.h"
 

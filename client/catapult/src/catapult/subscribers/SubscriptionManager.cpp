@@ -27,10 +27,10 @@
 #include "AggregateStateChangeSubscriber.h"
 #include "AggregateTransactionStatusSubscriber.h"
 #include "AggregateUtChangeSubscriber.h"
-#include "catapult/cache_tx/AggregatePtCache.h"
-#include "catapult/cache_tx/AggregateUtCache.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/io/AggregateBlockStorage.h"
+#include "src/catapult/cache_tx/AggregatePtCache.h"
+#include "src/catapult/cache_tx/AggregateUtCache.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/io/AggregateBlockStorage.h"
 
 namespace catapult { namespace subscribers {
 

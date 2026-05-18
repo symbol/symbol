@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/FinalizationRound.h"
+#include "src/catapult/model/FinalizationRound.h"
 
 namespace catapult { namespace io { class OutputStream; } }
 

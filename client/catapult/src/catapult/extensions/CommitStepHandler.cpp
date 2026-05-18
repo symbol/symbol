@@ -20,8 +20,8 @@
 **/
 
 #include "CommitStepHandler.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/IndexFile.h"
 
 namespace catapult { namespace extensions {
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "PeerConnectCode.h"
-#include "catapult/model/NodeIdentity.h"
+#include "src/catapult/model/NodeIdentity.h"
 #include <memory>
 
 namespace catapult { namespace ionet { class PacketSocket; } }

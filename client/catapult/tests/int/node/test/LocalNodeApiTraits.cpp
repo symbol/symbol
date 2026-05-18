@@ -20,7 +20,7 @@
 **/
 
 #include "LocalNodeApiTraits.h"
-#include "catapult/model/EntityHasher.h"
+#include "src/catapult/model/EntityHasher.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/TestHarness.h"
 

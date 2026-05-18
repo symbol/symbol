@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/local/importer/ChainImporter.h"
-#include "catapult/process/ProcessMain.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/local/importer/ChainImporter.h"
+#include "src/catapult/process/ProcessMain.h"
 
 namespace {
 	// reuse recovery configuration, which contains all extensions needed for importer

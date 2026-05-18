@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ObserverTypes.h"
-#include "catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/NotificationPublisher.h"
 
 namespace catapult { namespace model { class TransactionRegistry; } }
 

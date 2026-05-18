@@ -20,9 +20,9 @@
 **/
 
 #include "Observers.h"
-#include "src/importance/ActivityObserverUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/AccountStateCacheUtils.h"
+#include "../importance/ActivityObserverUtils.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCacheUtils.h"
 
 namespace catapult { namespace observers {
 

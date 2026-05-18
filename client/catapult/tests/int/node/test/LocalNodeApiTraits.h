@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/api/RemoteChainApi.h"
+#include "src/catapult/api/RemoteChainApi.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

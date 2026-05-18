@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/AnnotatedEntityRange.h"
-#include "catapult/functions.h"
+#include "src/catapult/model/AnnotatedEntityRange.h"
+#include "src/catapult/functions.h"
 
 namespace catapult { namespace handlers {
 

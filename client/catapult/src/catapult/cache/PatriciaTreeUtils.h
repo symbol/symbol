@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/deltaset/DeltaElements.h"
-#include "catapult/tree/PatriciaTree.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/deltaset/DeltaElements.h"
+#include "src/catapult/tree/PatriciaTree.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace cache {
 

@@ -20,7 +20,7 @@
 **/
 
 #include "ProcessingNotificationSubscriber.h"
-#include "catapult/validators/AggregateValidationResult.h"
+#include "src/catapult/validators/AggregateValidationResult.h"
 
 namespace catapult { namespace chain {
 

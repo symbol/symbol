@@ -26,7 +26,7 @@
 #include "NodeConfiguration.h"
 #include "PeersConfiguration.h"
 #include "UserConfiguration.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include <filesystem>
 
 namespace catapult { namespace config {

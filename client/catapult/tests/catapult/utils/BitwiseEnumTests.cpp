@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/BitwiseEnum.h"
+#include "src/catapult/utils/BitwiseEnum.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"

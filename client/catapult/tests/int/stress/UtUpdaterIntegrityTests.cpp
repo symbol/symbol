@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/chain/UtUpdater.h"
-#include "catapult/extensions/ExecutionConfigurationFactory.h"
-#include "catapult/thread/ThreadGroup.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/chain/UtUpdater.h"
+#include "src/catapult/extensions/ExecutionConfigurationFactory.h"
+#include "src/catapult/thread/ThreadGroup.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"

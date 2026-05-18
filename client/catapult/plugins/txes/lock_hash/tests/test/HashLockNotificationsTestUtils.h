@@ -21,7 +21,7 @@
 
 #pragma once
 #include "HashLockInfoCacheTestUtils.h"
-#include "src/model/HashLockNotifications.h"
+#include "../model/HashLockNotifications.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {

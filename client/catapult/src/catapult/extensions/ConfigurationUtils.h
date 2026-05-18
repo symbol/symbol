@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
 
 namespace catapult { namespace config { struct NodeConfiguration; } }
 

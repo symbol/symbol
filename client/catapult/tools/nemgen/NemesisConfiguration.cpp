@@ -20,14 +20,14 @@
 **/
 
 #include "NemesisConfiguration.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/extensions/IdGenerator.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/MosaicIdGenerator.h"
-#include "catapult/model/NamespaceIdGenerator.h"
-#include "catapult/state/Namespace.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/ConfigurationUtils.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/extensions/IdGenerator.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/MosaicIdGenerator.h"
+#include "src/catapult/model/NamespaceIdGenerator.h"
+#include "src/catapult/state/Namespace.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationUtils.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 

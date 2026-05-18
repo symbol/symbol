@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/MultisigEntryMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "../mappers/MultisigEntryMapper.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/MultisigMapperTestUtils.h"
 #include "tests/TestHarness.h"

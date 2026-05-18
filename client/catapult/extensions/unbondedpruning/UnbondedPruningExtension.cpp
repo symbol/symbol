@@ -20,7 +20,7 @@
 **/
 
 #include "src/UnbondedPruningService.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace unbondedpruning {
 

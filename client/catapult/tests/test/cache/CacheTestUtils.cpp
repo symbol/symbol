@@ -20,12 +20,12 @@
 **/
 
 #include "CacheTestUtils.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/cache/SubCachePluginAdapter.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/AccountStateCacheStorage.h"
-#include "catapult/cache_core/BlockStatisticCacheStorage.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/cache/SubCachePluginAdapter.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCacheStorage.h"
+#include "src/catapult/cache_core/BlockStatisticCacheStorage.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {

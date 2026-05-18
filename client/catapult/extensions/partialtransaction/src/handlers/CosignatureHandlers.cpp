@@ -20,8 +20,8 @@
 **/
 
 #include "CosignatureHandlers.h"
-#include "catapult/handlers/HandlerUtils.h"
-#include "catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/handlers/HandlerUtils.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
 
 namespace catapult { namespace handlers {
 

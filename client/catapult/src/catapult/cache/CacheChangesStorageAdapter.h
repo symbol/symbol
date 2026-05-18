@@ -22,7 +22,7 @@
 #pragma once
 #include "CacheChangesSerializer.h"
 #include "CacheChangesStorage.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/preprocessor.h"
 
 namespace catapult { namespace cache {
 

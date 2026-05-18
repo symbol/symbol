@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoBulkWriter.h"
-#include "mongo/src/MongoTransactionPlugin.h"
-#include "mongo/src/mappers/AccountStateMapper.h"
-#include "mongo/src/mappers/TransactionMapper.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/state/AccountState.h"
-#include "catapult/utils/StackLogger.h"
+#include "extensions/mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/MongoTransactionPlugin.h"
+#include "extensions/mongo/src/mappers/AccountStateMapper.h"
+#include "extensions/mongo/src/mappers/TransactionMapper.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/state/AccountState.h"
+#include "src/catapult/utils/StackLogger.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"

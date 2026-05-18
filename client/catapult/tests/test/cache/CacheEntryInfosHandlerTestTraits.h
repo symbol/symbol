@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/PacketPayload.h"
-#include "catapult/model/CacheEntryInfo.h"
+#include "src/catapult/ionet/PacketPayload.h"
+#include "src/catapult/model/CacheEntryInfo.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

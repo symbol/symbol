@@ -21,7 +21,7 @@
 
 #include "partialtransaction/src/PtSyncSourceService.h"
 #include "partialtransaction/src/PtBootstrapperService.h"
-#include "catapult/cache_tx/MemoryPtCache.h"
+#include "src/catapult/cache_tx/MemoryPtCache.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/TestHarness.h"

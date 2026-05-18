@@ -22,12 +22,12 @@
 #pragma once
 #include "plugins/txes/metadata/src/state/MetadataKey.h"
 #include "plugins/txes/namespace/src/types.h"
-#include "catapult/ionet/PackedNodeInfo.h"
-#include "catapult/model/CacheEntryInfo.h"
-#include "catapult/model/DiagnosticCounterValue.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/state/TimestampedHash.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/ionet/PackedNodeInfo.h"
+#include "src/catapult/model/CacheEntryInfo.h"
+#include "src/catapult/model/DiagnosticCounterValue.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/state/TimestampedHash.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace ionet { class PacketIo; } }
 

@@ -20,9 +20,9 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/MosaicRestrictionCache.h"
-#include "src/state/MosaicAddressRestrictionNotificationFacade.h"
-#include "src/state/MosaicGlobalRestrictionNotificationFacade.h"
+#include "../cache/MosaicRestrictionCache.h"
+#include "../state/MosaicAddressRestrictionNotificationFacade.h"
+#include "../state/MosaicGlobalRestrictionNotificationFacade.h"
 
 namespace catapult { namespace observers {
 

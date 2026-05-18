@@ -20,8 +20,8 @@
 **/
 
 #include "HostUtils.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/plugins/PluginLoader.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/plugins/PluginLoader.h"
 
 namespace catapult { namespace local {
 

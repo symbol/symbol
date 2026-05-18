@@ -21,8 +21,8 @@
 
 #pragma once
 #include "ObserverContext.h"
-#include "catapult/model/Notifications.h"
-#include "catapult/plugins.h"
+#include "src/catapult/model/Notifications.h"
+#include "src/catapult/plugins.h"
 
 namespace catapult { namespace observers {
 

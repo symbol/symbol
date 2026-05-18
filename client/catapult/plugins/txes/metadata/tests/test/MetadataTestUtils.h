@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/model/MetadataNotifications.h"
-#include "src/state/MetadataKey.h"
+#include "plugins/txes/metadata/src/model/MetadataNotifications.h"
+#include "plugins/txes/metadata/src/state/MetadataKey.h"
 
 namespace catapult { namespace state { class MetadataEntry; } }
 

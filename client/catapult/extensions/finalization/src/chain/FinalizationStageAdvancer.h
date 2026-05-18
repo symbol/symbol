@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/HeightHashPair.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/model/HeightHashPair.h"
+#include "src/catapult/utils/TimeSpan.h"
 
 namespace catapult { namespace chain { class MultiRoundMessageAggregator; } }
 

@@ -20,13 +20,13 @@
 **/
 
 #include "FilePrevoteChainStorage.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/BlockElementSerializer.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/io/FileStream.h"
-#include "catapult/io/FilesystemUtils.h"
-#include "catapult/io/IndexFile.h"
-#include "catapult/io/PodIoUtils.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/BlockElementSerializer.h"
+#include "src/catapult/io/BlockStorageCache.h"
+#include "src/catapult/io/FileStream.h"
+#include "src/catapult/io/FilesystemUtils.h"
+#include "src/catapult/io/IndexFile.h"
+#include "src/catapult/io/PodIoUtils.h"
 
 namespace catapult { namespace io {
 

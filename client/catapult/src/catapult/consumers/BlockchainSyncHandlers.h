@@ -21,9 +21,9 @@
 
 #pragma once
 #include "BlockchainProcessor.h"
-#include "catapult/model/HeightHashPair.h"
-#include "catapult/subscribers/StateChangeInfo.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/model/HeightHashPair.h"
+#include "src/catapult/subscribers/StateChangeInfo.h"
+#include "src/catapult/utils/ArraySet.h"
 
 namespace catapult {
 	namespace cache { class CatapultCache; }

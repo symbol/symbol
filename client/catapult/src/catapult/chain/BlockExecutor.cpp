@@ -20,9 +20,9 @@
 **/
 
 #include "BlockExecutor.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Block.h"
-#include "catapult/observers/EntityObserver.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/observers/EntityObserver.h"
 
 namespace catapult { namespace chain {
 

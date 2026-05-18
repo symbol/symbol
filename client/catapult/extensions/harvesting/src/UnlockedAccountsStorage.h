@@ -21,9 +21,9 @@
 
 #pragma once
 #include "HarvestRequest.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/functions.h"
-#include "catapult/types.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/functions.h"
+#include "src/catapult/types.h"
 #include <map>
 
 namespace catapult { namespace harvesting { class BlockGeneratorAccountDescriptor; } }

@@ -20,7 +20,7 @@
 **/
 
 #include "diagnostics/src/DiagnosticsService.h"
-#include "catapult/model/DiagnosticCounterValue.h"
+#include "src/catapult/model/DiagnosticCounterValue.h"
 #include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

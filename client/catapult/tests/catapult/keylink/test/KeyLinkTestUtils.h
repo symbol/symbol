@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache/CatapultCacheDelta.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache/CatapultCacheDelta.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

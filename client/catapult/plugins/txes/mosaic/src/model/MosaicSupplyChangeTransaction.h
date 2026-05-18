@@ -22,7 +22,7 @@
 #pragma once
 #include "MosaicEntityType.h"
 #include "MosaicTypes.h"
-#include "catapult/model/Transaction.h"
+#include "src/catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 

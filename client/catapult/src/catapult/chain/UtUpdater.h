@@ -22,9 +22,9 @@
 #pragma once
 #include "ChainFunctions.h"
 #include "ExecutionConfiguration.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/observers/ObserverTypes.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/observers/ObserverTypes.h"
+#include "src/catapult/utils/ArraySet.h"
 
 namespace catapult {
 	namespace cache {

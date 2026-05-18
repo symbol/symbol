@@ -21,8 +21,8 @@
 
 #include "BalanceTransferTestUtils.h"
 #include "CacheTestUtils.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

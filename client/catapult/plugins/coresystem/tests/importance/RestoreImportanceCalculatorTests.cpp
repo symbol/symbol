@@ -20,7 +20,7 @@
 **/
 
 #include "src/importance/ImportanceCalculator.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/TestHarness.h"

@@ -20,7 +20,7 @@
 **/
 
 #include "finalization/src/io/FilePrevoteChainStorage.h"
-#include "catapult/io/FileBlockStorage.h"
+#include "src/catapult/io/FileBlockStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"

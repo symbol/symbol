@@ -21,8 +21,8 @@
 
 #pragma once
 #include "ObserverContext.h"
-#include "catapult/model/VerifiableEntity.h"
-#include "catapult/model/WeakEntityInfo.h"
+#include "src/catapult/model/VerifiableEntity.h"
+#include "src/catapult/model/WeakEntityInfo.h"
 
 namespace catapult { namespace observers {
 

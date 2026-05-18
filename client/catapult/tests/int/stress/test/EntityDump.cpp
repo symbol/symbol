@@ -22,10 +22,10 @@
 #include "EntityDump.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "plugins/txes/transfer/src/model/TransferTransaction.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/Block.h"
-#include "catapult/utils/HexFormatter.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/Logging.h"
 #include <iomanip>
 
 using namespace catapult::model;

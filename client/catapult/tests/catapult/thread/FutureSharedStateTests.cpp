@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/detail/FutureSharedState.h"
+#include "src/catapult/thread/detail/FutureSharedState.h"
 #include "tests/TestHarness.h"
 #include <thread>
 

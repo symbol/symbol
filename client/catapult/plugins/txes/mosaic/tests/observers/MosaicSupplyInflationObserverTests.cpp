@@ -20,7 +20,7 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "catapult/model/InflationCalculator.h"
+#include "src/catapult/model/InflationCalculator.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

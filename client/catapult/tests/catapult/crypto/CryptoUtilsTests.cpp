@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/CryptoUtils.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/utils/HexParser.h"
-#include "catapult/utils/RandomGenerator.h"
+#include "src/catapult/crypto/CryptoUtils.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/utils/HexParser.h"
+#include "src/catapult/utils/RandomGenerator.h"
 #include "tests/TestHarness.h"
 #include <donna/catapult.h>
 

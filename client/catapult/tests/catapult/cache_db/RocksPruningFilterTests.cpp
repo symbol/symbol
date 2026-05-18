@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_db/RocksPruningFilter.h"
-#include "catapult/cache_db/RocksInclude.h"
+#include "src/catapult/cache_db/RocksPruningFilter.h"
+#include "src/catapult/cache_db/RocksInclude.h"
 #include "tests/catapult/cache_db/test/SliceTestUtils.h"
 #include "tests/TestHarness.h"
 

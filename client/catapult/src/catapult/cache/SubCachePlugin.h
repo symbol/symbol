@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/plugins.h"
-#include "catapult/types.h"
+#include "src/catapult/plugins.h"
+#include "src/catapult/types.h"
 #include <memory>
 #include <string>
 

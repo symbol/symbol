@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto/Hashes.h"
-#include "catapult/types.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/types.h"
 #include <string>
 
 namespace catapult { namespace test {

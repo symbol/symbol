@@ -21,7 +21,7 @@
 
 #include "RemoteTimeSyncApi.h"
 #include "TimeSyncPackets.h"
-#include "catapult/api/RemoteRequestDispatcher.h"
+#include "src/catapult/api/RemoteRequestDispatcher.h"
 
 namespace catapult { namespace api {
 

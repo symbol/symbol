@@ -20,8 +20,8 @@
 **/
 
 #include "MosaicRestrictionEntry.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace state {
 

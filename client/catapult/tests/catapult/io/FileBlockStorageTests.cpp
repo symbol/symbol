@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/FileBlockStorage.h"
+#include "src/catapult/io/FileBlockStorage.h"
 #include "tests/test/core/BlockStorageTests.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"

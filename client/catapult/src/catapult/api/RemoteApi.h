@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/NodeIdentity.h"
-#include "catapult/types.h"
+#include "src/catapult/model/NodeIdentity.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace api {
 

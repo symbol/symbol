@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/local/ProcessHost.h"
+#include "src/catapult/local/ProcessHost.h"
 #include <memory>
 
 namespace catapult { namespace extensions { class ProcessBootstrapper; } }

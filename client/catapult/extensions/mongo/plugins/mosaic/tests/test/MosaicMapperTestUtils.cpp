@@ -20,9 +20,9 @@
 **/
 
 #include "MosaicMapperTestUtils.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/mosaic/src/state/MosaicEntry.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/utils/Casting.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 

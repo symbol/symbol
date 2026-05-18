@@ -20,9 +20,9 @@
 **/
 
 #include "Observers.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/FileQueue.h"
-#include "catapult/io/PodIoUtils.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/FileQueue.h"
+#include "src/catapult/io/PodIoUtils.h"
 
 namespace catapult { namespace observers {
 

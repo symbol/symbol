@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/AggregateBlockStorage.h"
+#include "src/catapult/io/AggregateBlockStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/test/core/mocks/MockBlockStorage.h"

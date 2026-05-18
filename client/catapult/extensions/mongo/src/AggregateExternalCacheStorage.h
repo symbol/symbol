@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ExternalCacheStorage.h"
-#include "catapult/utils/NamedObject.h"
+#include "src/catapult/utils/NamedObject.h"
 #include <vector>
 
 namespace catapult { namespace mongo {

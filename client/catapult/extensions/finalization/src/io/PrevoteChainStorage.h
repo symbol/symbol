@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/HeightHashPair.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/model/HeightHashPair.h"
+#include "src/catapult/model/RangeTypes.h"
 
 namespace catapult { namespace io { class BlockStorageView; } }
 

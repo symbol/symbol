@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/consumers/BlockchainSyncHandlers.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/consumers/BlockchainSyncHandlers.h"
 
 namespace catapult { namespace local {
 

@@ -21,8 +21,8 @@
 
 #pragma once
 #include "AccountStateCacheTypes.h"
-#include "catapult/model/ContainerTypes.h"
-#include "catapult/state/AccountHistory.h"
+#include "src/catapult/model/ContainerTypes.h"
+#include "src/catapult/state/AccountHistory.h"
 
 namespace catapult { namespace cache {
 

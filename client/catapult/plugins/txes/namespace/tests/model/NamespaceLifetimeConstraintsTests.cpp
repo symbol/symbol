@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/NamespaceLifetimeConstraints.h"
+#include "../model/NamespaceLifetimeConstraints.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/state/CatapultState.h"
+#include "src/catapult/cache/ReadOnlyCatapultCache.h"
+#include "src/catapult/state/CatapultState.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/TestHarness.h"
 

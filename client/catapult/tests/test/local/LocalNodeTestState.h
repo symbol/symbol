@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/extensions/LocalNodeStateRef.h"
+#include "src/catapult/extensions/LocalNodeStateRef.h"
 #include <memory>
 #include <string>
 

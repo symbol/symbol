@@ -20,7 +20,7 @@
 **/
 
 #include "ValidationResult.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include <iostream>
 
 namespace catapult { namespace validators {

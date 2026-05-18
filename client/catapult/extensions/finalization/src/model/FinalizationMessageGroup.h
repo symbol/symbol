@@ -21,8 +21,8 @@
 
 #pragma once
 #include "StepIdentifier.h"
-#include "catapult/crypto_voting/BmTreeSignature.h"
-#include "catapult/model/SizePrefixedEntity.h"
+#include "src/catapult/crypto_voting/BmTreeSignature.h"
+#include "src/catapult/model/SizePrefixedEntity.h"
 
 namespace catapult { namespace model {
 

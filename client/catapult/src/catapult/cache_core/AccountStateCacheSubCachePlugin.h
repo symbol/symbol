@@ -22,7 +22,7 @@
 #pragma once
 #include "AccountStateCache.h"
 #include "AccountStateCacheStorage.h"
-#include "catapult/cache/SubCachePluginAdapter.h"
+#include "src/catapult/cache/SubCachePluginAdapter.h"
 
 namespace catapult { namespace cache {
 

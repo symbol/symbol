@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/NodeContainer.h"
 #include "tests/TestHarness.h"
 #include <unordered_set>
 

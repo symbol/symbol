@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/plugins/PluginManager.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

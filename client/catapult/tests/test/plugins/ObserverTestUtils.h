@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ObserverTestContext.h"
-#include "catapult/observers/NotificationObserver.h"
+#include "src/catapult/observers/NotificationObserver.h"
 #include "tests/test/core/ResolverTestUtils.h"
 
 namespace catapult { namespace test {

@@ -20,12 +20,12 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheDatabaseMixin.h"
-#include "catapult/cache/CacheDescriptorAdapters.h"
-#include "catapult/cache/CacheSerializerAdapter.h"
-#include "catapult/cache/IdentifierGroupSerializer.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/utils/IdentifierGroup.h"
+#include "src/catapult/cache/CacheDatabaseMixin.h"
+#include "src/catapult/cache/CacheDescriptorAdapters.h"
+#include "src/catapult/cache/CacheSerializerAdapter.h"
+#include "src/catapult/cache/IdentifierGroupSerializer.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/utils/IdentifierGroup.h"
 
 namespace catapult { namespace cache {
 

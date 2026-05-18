@@ -20,7 +20,7 @@
 **/
 
 #include "UnlockedAccounts.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult { namespace harvesting {
 
@@ -28,7 +28,7 @@ namespace catapult { namespace harvesting {
 
 #define DEFINE_ENUM UnlockedAccountsAddResult
 #define ENUM_LIST UNLOCKED_ACCOUNTS_ADD_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 

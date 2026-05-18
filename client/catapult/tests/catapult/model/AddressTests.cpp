@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Address.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

@@ -20,8 +20,8 @@
 **/
 
 #include "PluginHandlersService.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace pluginhandlers {
 

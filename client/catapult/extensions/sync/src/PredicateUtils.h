@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/chain/UtUpdater.h"
-#include "catapult/consumers/TransactionConsumers.h"
-#include "catapult/model/Elements.h"
+#include "src/catapult/chain/UtUpdater.h"
+#include "src/catapult/consumers/TransactionConsumers.h"
+#include "src/catapult/model/Elements.h"
 
 namespace catapult { namespace config { class CatapultConfiguration; } }
 

@@ -21,7 +21,7 @@
 
 #include "harvesting/src/ValidateHarvestingConfiguration.h"
 #include "harvesting/src/HarvestingConfiguration.h"
-#include "catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationBag.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {

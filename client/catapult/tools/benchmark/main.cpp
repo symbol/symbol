@@ -22,10 +22,10 @@
 #include "tools/ToolMain.h"
 #include "tools/ToolKeys.h"
 #include "tools/ToolThreadUtils.h"
-#include "catapult/crypto/Signer.h"
-#include "catapult/thread/IoThreadPool.h"
-#include "catapult/thread/ParallelFor.h"
-#include "catapult/utils/StackLogger.h"
+#include "src/catapult/crypto/Signer.h"
+#include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/thread/ParallelFor.h"
+#include "src/catapult/utils/StackLogger.h"
 
 namespace catapult { namespace tools { namespace benchmark {
 

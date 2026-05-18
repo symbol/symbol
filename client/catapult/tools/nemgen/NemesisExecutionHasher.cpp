@@ -20,8 +20,8 @@
 **/
 
 #include "NemesisExecutionHasher.h"
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/model/Elements.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/model/Elements.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 

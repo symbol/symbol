@@ -20,8 +20,8 @@
 **/
 
 #include "MultisigEntryMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/utils/Casting.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/utils/Casting.h"
 
 using namespace catapult::mongo::mappers;
 

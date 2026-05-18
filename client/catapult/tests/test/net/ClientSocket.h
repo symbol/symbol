@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/IoTypes.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/ionet/IoTypes.h"
+#include "src/catapult/thread/Future.h"
 #include <functional>
 
 namespace catapult { namespace test {

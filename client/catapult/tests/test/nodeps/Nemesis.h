@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/Block.h"
+#include "src/catapult/model/Block.h"
 
 namespace catapult { namespace test {
 

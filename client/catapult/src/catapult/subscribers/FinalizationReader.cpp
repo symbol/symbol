@@ -21,8 +21,8 @@
 
 #include "FinalizationReader.h"
 #include "FinalizationSubscriber.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/Stream.h"
 
 namespace catapult { namespace subscribers {
 

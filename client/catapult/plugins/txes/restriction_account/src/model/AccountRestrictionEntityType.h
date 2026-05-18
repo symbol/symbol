@@ -21,7 +21,7 @@
 
 #pragma once
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
-#include "catapult/model/EntityType.h"
+#include "src/catapult/model/EntityType.h"
 
 namespace catapult { namespace model {
 

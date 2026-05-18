@@ -20,8 +20,8 @@
 **/
 
 #include "ExecutionConfigurationFactory.h"
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/plugins/PluginManager.h"
+#include "src/catapult/model/NotificationPublisher.h"
+#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace extensions {
 

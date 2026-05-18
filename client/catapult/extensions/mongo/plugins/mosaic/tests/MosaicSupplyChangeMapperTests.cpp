@@ -20,7 +20,7 @@
 **/
 
 #include "src/MosaicSupplyChangeMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/mosaic/src/model/MosaicSupplyChangeTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"

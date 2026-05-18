@@ -20,7 +20,7 @@
 **/
 
 #include "harvesting/src/HarvestingCacheUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #ifndef CUSTOM_RESULT_DEFINITION
-#include "catapult/validators/ValidationResult.h"
+#include "src/catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace consumers {
 

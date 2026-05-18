@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/BatchPacketReader.h"
-#include "catapult/ionet/PacketIo.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/ionet/BatchPacketReader.h"
+#include "src/catapult/ionet/PacketIo.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include "tests/test/nodeps/Waits.h"
 #include <queue>
 #include <thread>

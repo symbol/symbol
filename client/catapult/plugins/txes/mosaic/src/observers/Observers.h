@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "src/model/MosaicNotifications.h"
-#include "catapult/model/Notifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "../model/MosaicNotifications.h"
+#include "src/catapult/model/Notifications.h"
+#include "src/catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace model { class InflationCalculator; } }
 

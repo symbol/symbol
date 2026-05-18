@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/observers/ObserverTypes.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/model/NotificationPublisher.h"
+#include "src/catapult/observers/ObserverTypes.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace chain {
 

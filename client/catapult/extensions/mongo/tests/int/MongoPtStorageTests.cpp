@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoPtStorage.h"
-#include "catapult/model/Cosignature.h"
+#include "extensions/mongo/src/MongoPtStorage.h"
+#include "src/catapult/model/Cosignature.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionStorageTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

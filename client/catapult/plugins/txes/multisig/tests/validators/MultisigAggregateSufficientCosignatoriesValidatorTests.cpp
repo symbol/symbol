@@ -21,8 +21,8 @@
 
 #include "src/validators/Validators.h"
 #include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/TransactionPlugin.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/TransactionPlugin.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/deltaset/PruningBoundary.h"
+#include "src/catapult/deltaset/PruningBoundary.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace deltaset {

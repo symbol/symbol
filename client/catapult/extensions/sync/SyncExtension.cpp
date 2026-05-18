@@ -24,7 +24,7 @@
 #include "src/SchedulerService.h"
 #include "src/SyncService.h"
 #include "src/TasksConfiguration.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace sync {
 

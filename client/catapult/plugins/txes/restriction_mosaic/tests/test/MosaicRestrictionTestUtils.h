@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "src/state/MosaicRestrictionEntry.h"
+#include "../state/MosaicRestrictionEntry.h"
 
 namespace catapult { namespace test {
 

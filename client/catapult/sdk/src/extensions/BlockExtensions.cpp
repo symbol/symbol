@@ -21,12 +21,12 @@
 
 #include "BlockExtensions.h"
 #include "TransactionExtensions.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/MerkleHashBuilder.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/EntityHasher.h"
-#include "catapult/model/TransactionPlugin.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/MerkleHashBuilder.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/EntityHasher.h"
+#include "src/catapult/model/TransactionPlugin.h"
 
 namespace catapult { namespace extensions {
 

@@ -20,8 +20,8 @@
 **/
 
 #include "NodeDiscoveryTestUtils.h"
-#include "catapult/ionet/NetworkNode.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/ionet/NetworkNode.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/api/RemoteTransactionApi.h"
+#include "src/catapult/api/RemoteTransactionApi.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace mocks {

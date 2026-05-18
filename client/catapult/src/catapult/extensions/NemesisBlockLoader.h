@@ -21,9 +21,9 @@
 
 #pragma once
 #include "NemesisFundingState.h"
-#include "catapult/model/NemesisNotificationPublisher.h"
-#include "catapult/observers/ObserverTypes.h"
-#include "catapult/functions.h"
+#include "src/catapult/model/NemesisNotificationPublisher.h"
+#include "src/catapult/observers/ObserverTypes.h"
+#include "src/catapult/functions.h"
 
 namespace catapult {
 	namespace cache { class CatapultCacheDelta; }

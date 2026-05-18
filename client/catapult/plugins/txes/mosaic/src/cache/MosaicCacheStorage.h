@@ -21,8 +21,8 @@
 
 #pragma once
 #include "MosaicCacheTypes.h"
-#include "src/state/MosaicEntrySerializer.h"
-#include "catapult/cache/CacheStorageInclude.h"
+#include "../state/MosaicEntrySerializer.h"
+#include "src/catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 

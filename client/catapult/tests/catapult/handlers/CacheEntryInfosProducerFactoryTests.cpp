@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
+#include "src/catapult/handlers/CacheEntryInfosProducerFactory.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/TestHarness.h"
 #include <numeric>

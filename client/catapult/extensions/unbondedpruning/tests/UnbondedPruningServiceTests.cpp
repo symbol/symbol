@@ -21,8 +21,8 @@
 
 #include "unbondedpruning/src/UnbondedPruningService.h"
 #include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
-#include "catapult/consumers/BlockchainSyncHandlers.h"
-#include "catapult/model/NotificationSubscriber.h"
+#include "src/catapult/consumers/BlockchainSyncHandlers.h"
+#include "src/catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockTransactionPluginUnsupported.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

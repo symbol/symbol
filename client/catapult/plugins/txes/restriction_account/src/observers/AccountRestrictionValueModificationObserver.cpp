@@ -20,9 +20,9 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/AccountRestrictionCache.h"
-#include "src/state/AccountRestrictionUtils.h"
-#include "catapult/model/Address.h"
+#include "../cache/AccountRestrictionCache.h"
+#include "../state/AccountRestrictionUtils.h"
+#include "src/catapult/model/Address.h"
 
 namespace catapult { namespace observers {
 

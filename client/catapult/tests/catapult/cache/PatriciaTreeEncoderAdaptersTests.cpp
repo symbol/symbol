@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/PatriciaTreeEncoderAdapters.h"
+#include "src/catapult/cache/PatriciaTreeEncoderAdapters.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/ExternalCacheStorageBuilder.h"
+#include "extensions/mongo/src/ExternalCacheStorageBuilder.h"
 #include "mongo/tests/test/mocks/MockExternalCacheStorage.h"
 #include "tests/TestHarness.h"
 

@@ -20,7 +20,7 @@
 **/
 
 #include "src/storages/MongoAccountRestrictionCacheStorage.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"

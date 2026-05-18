@@ -21,7 +21,7 @@
 
 #include "HashCacheService.h"
 #include "plugins/services/hashcache/src/cache/HashCachePredicates.h"
-#include "catapult/extensions/ServiceState.h"
+#include "src/catapult/extensions/ServiceState.h"
 
 namespace catapult { namespace hashcache {
 

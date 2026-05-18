@@ -21,9 +21,9 @@
 
 #pragma once
 #include "NodeSelector.h"
-#include "catapult/config/NodeConfiguration.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/thread/Task.h"
+#include "src/catapult/config/NodeConfiguration.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/thread/Task.h"
 #include <vector>
 
 namespace catapult {

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/BlockStatementBuilder.h"
-#include "catapult/model/ResolverContext.h"
+#include "src/catapult/model/BlockStatementBuilder.h"
+#include "src/catapult/model/ResolverContext.h"
 
 namespace catapult { namespace observers {
 

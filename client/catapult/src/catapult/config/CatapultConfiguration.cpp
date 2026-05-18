@@ -22,9 +22,9 @@
 #include "CatapultConfiguration.h"
 #include "CatapultKeys.h"
 #include "ConfigurationFileLoader.h"
-#include "catapult/crypto/OpensslKeyUtils.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/ConfigurationUtils.h"
+#include "src/catapult/crypto/OpensslKeyUtils.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationUtils.h"
 
 namespace catapult { namespace config {
 

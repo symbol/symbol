@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/RemoteApiForwarder.h"
-#include "catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/chain/RemoteApiForwarder.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
 #include "tests/TestHarness.h"

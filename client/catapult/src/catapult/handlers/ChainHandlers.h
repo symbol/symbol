@@ -21,9 +21,9 @@
 
 #pragma once
 #include "HandlerTypes.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/model/ChainScore.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/model/ChainScore.h"
+#include "src/catapult/model/RangeTypes.h"
 
 namespace catapult { namespace io { class BlockStorageCache; } }
 

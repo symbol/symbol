@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/EntityRange.h"
-#include "catapult/utils/ShortHash.h"
+#include "src/catapult/model/EntityRange.h"
+#include "src/catapult/utils/ShortHash.h"
 #include <unordered_map>
 
 namespace catapult { namespace cache {

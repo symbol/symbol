@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto_voting/VotingSigner.h"
+#include "src/catapult/crypto_voting/VotingSigner.h"
 #include "tests/test/crypto/CurveUtils.h"
 #include "tests/test/crypto/SignVerifyTests.h"
 #include "tests/TestHarness.h"

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/BlockMapper.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/FinalizationRound.h"
+#include "extensions/mongo/src/mappers/BlockMapper.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/model/FinalizationRound.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"

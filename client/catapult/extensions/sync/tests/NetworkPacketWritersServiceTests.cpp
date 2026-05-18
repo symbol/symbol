@@ -20,8 +20,8 @@
 **/
 
 #include "sync/src/NetworkPacketWritersService.h"
-#include "catapult/api/ChainPackets.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/api/ChainPackets.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/TestHarness.h"

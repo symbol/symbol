@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache/CacheChanges.h"
-#include "catapult/functions.h"
+#include "src/catapult/cache/CacheChanges.h"
+#include "src/catapult/functions.h"
 
 namespace catapult { namespace mongo {
 

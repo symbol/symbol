@@ -27,7 +27,7 @@
 #include "NemesisExecutionHasher.h"
 #include "tools/plugins/PluginLoader.h"
 #include "tools/ToolConfigurationUtils.h"
-#include "catapult/io/RawFile.h"
+#include "src/catapult/io/RawFile.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 

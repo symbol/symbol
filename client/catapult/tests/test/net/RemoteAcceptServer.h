@@ -21,8 +21,8 @@
 
 #pragma once
 #include "SocketTestUtils.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/thread/IoThreadPool.h"
+#include "src/catapult/crypto/KeyPair.h"
+#include "src/catapult/thread/IoThreadPool.h"
 #include "tests/test/nodeps/Filesystem.h"
 
 namespace catapult { namespace test {

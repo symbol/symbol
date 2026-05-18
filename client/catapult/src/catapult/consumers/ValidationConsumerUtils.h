@@ -21,8 +21,8 @@
 
 #pragma once
 #include "BlockConsumers.h"
-#include "catapult/disruptor/DisruptorConsumer.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/disruptor/DisruptorConsumer.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace consumers {
 

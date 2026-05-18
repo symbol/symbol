@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/handlers/BasicProducer.h"
+#include "src/catapult/handlers/BasicProducer.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace handlers {

@@ -21,7 +21,7 @@
 
 #include "src/validators/Validators.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/model/Address.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

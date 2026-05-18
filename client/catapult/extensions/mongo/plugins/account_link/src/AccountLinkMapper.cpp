@@ -20,8 +20,8 @@
 **/
 
 #include "AccountLinkMapper.h"
-#include "mongo/src/MongoTransactionPluginFactory.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/MongoTransactionPluginFactory.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/account_link/src/model/AccountKeyLinkTransaction.h"
 #include "plugins/txes/account_link/src/model/NodeKeyLinkTransaction.h"
 

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/NotificationPublisher.h"
 
 namespace catapult { namespace mocks {
 

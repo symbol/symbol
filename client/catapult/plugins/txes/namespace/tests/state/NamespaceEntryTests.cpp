@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/NamespaceEntry.h"
+#include "../state/NamespaceEntry.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/TestHarness.h"
 

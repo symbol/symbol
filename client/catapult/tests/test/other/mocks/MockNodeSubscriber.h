@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/subscribers/NodeSubscriber.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/subscribers/NodeSubscriber.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 
 namespace catapult { namespace mocks {

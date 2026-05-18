@@ -24,10 +24,10 @@
 #include "MemoryCacheProxy.h"
 #include "PtCache.h"
 #include "ShortHashPair.h"
-#include "catapult/model/CosignedTransactionInfo.h"
-#include "catapult/model/WeakCosignedTransactionInfo.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
+#include "src/catapult/model/CosignedTransactionInfo.h"
+#include "src/catapult/model/WeakCosignedTransactionInfo.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/utils/SpinReaderWriterLock.h"
 #include <unordered_map>
 
 namespace catapult { namespace cache { class PtData; } }

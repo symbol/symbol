@@ -24,13 +24,13 @@
 #include "NodeSubscriber.h"
 #include "StateChangeSubscriber.h"
 #include "TransactionStatusSubscriber.h"
-#include "catapult/cache_tx/MemoryPtCache.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/cache_tx/PtChangeSubscriber.h"
-#include "catapult/cache_tx/UtChangeSubscriber.h"
-#include "catapult/io/BlockChangeSubscriber.h"
-#include "catapult/io/FileBlockStorage.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/cache_tx/MemoryPtCache.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/cache_tx/PtChangeSubscriber.h"
+#include "src/catapult/cache_tx/UtChangeSubscriber.h"
+#include "src/catapult/io/BlockChangeSubscriber.h"
+#include "src/catapult/io/FileBlockStorage.h"
+#include "src/catapult/utils/Casting.h"
 
 namespace catapult { namespace config { class CatapultConfiguration; } }
 

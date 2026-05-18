@@ -20,7 +20,7 @@
 **/
 
 #include "Random.h"
-#include "catapult/utils/RandomGenerator.h"
+#include "src/catapult/utils/RandomGenerator.h"
 #include <algorithm>
 
 namespace catapult { namespace tools {

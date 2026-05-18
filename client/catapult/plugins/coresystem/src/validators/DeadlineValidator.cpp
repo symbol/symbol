@@ -20,8 +20,8 @@
 **/
 
 #include "Validators.h"
-#include "catapult/validators/ValidatorContext.h"
-#include "catapult/types.h"
+#include "src/catapult/validators/ValidatorContext.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace validators {
 

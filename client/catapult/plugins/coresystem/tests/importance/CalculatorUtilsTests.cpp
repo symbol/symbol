@@ -20,9 +20,9 @@
 **/
 
 #include "src/importance/CalculatorUtils.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/state/AccountActivityBuckets.h"
-#include "catapult/state/AccountState.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/state/AccountActivityBuckets.h"
+#include "src/catapult/state/AccountState.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace importance {

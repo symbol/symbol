@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/cache/SubCachePlugin.h"
+#include "src/catapult/cache/SubCachePlugin.h"
 
 namespace catapult { namespace test {
 

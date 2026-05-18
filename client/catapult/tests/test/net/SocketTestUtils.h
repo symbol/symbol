@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/IoTypes.h"
-#include "catapult/ionet/PacketSocketOptions.h"
-#include "catapult/ionet/SocketOperationCode.h"
+#include "src/catapult/ionet/IoTypes.h"
+#include "src/catapult/ionet/PacketSocketOptions.h"
+#include "src/catapult/ionet/SocketOperationCode.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/TestHarness.h"
 #include <functional>

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "FinalizationHashTree.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <map>
 #include <unordered_map>
 

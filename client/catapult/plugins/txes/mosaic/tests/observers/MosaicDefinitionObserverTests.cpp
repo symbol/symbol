@@ -20,8 +20,8 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "src/cache/MosaicCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "../cache/MosaicCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

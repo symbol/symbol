@@ -20,8 +20,8 @@
 **/
 
 #include "MongoHashLockInfoCacheStorage.h"
-#include "src/mappers/HashLockInfoMapper.h"
-#include "mongo/plugins/lock_shared/src/storages/MongoLockInfoCacheStorageTraits.h"
+#include "../mappers/HashLockInfoMapper.h"
+#include "extensions/mongo/plugins/lock_shared/src/storages/MongoLockInfoCacheStorageTraits.h"
 #include "plugins/txes/lock_hash/src/cache/HashLockInfoCache.h"
 
 namespace catapult { namespace mongo { namespace plugins {

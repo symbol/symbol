@@ -22,7 +22,7 @@
 #pragma once
 #include "NamespaceCache.h"
 #include "NamespaceCacheStorage.h"
-#include "catapult/cache/SummaryAwareSubCachePluginAdapter.h"
+#include "src/catapult/cache/SummaryAwareSubCachePluginAdapter.h"
 
 namespace catapult { namespace cache {
 

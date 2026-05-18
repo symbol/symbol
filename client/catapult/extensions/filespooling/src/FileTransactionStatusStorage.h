@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/io/Stream.h"
-#include "catapult/subscribers/TransactionStatusSubscriber.h"
+#include "src/catapult/io/Stream.h"
+#include "src/catapult/subscribers/TransactionStatusSubscriber.h"
 #include <memory>
 
 namespace catapult { namespace filespooling {

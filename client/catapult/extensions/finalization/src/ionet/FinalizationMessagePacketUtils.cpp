@@ -20,7 +20,7 @@
 **/
 
 #include "FinalizationMessagePacketUtils.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
 
 namespace catapult { namespace ionet {
 

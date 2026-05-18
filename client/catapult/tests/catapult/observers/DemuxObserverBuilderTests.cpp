@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/observers/DemuxObserverBuilder.h"
+#include "src/catapult/observers/DemuxObserverBuilder.h"
 #include "tests/catapult/observers/test/AggregateObserverTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"

@@ -21,8 +21,8 @@
 
 #pragma once
 #include "AddressTestUtils.h"
-#include "catapult/model/Cosignature.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/model/Cosignature.h"
+#include "src/catapult/model/RangeTypes.h"
 #include "tests/TestHarness.h"
 #include <memory>
 #include <vector>

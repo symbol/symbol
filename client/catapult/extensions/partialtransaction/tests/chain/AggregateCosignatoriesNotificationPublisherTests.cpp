@@ -21,7 +21,7 @@
 
 #include "partialtransaction/src/chain/AggregateCosignatoriesNotificationPublisher.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
-#include "catapult/model/WeakCosignedTransactionInfo.h"
+#include "src/catapult/model/WeakCosignedTransactionInfo.h"
 #include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/TestHarness.h"

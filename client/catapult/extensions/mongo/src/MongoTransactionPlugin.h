@@ -21,8 +21,8 @@
 
 #pragma once
 #include "MongoTransactionMetadata.h"
-#include "catapult/model/TransactionRegistry.h"
-#include "catapult/plugins.h"
+#include "src/catapult/model/TransactionRegistry.h"
+#include "src/catapult/plugins.h"
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 

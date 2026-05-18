@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/MosaicDefinition.h"
-#include "src/model/MosaicProperties.h"
-#include "catapult/constants.h"
+#include "../state/MosaicDefinition.h"
+#include "../model/MosaicProperties.h"
+#include "src/catapult/constants.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 

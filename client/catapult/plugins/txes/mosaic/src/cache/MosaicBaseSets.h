@@ -22,9 +22,9 @@
 #pragma once
 #include "MosaicCacheSerializers.h"
 #include "MosaicCacheTypes.h"
-#include "catapult/cache/CachePatriciaTree.h"
-#include "catapult/cache/PatriciaTreeEncoderAdapters.h"
-#include "catapult/tree/BasePatriciaTree.h"
+#include "src/catapult/cache/CachePatriciaTree.h"
+#include "src/catapult/cache/PatriciaTreeEncoderAdapters.h"
+#include "src/catapult/tree/BasePatriciaTree.h"
 
 namespace catapult { namespace cache {
 

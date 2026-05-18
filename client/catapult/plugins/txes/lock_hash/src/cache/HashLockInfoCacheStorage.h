@@ -21,7 +21,7 @@
 
 #pragma once
 #include "HashLockInfoCacheTypes.h"
-#include "src/state/HashLockInfoHistorySerializer.h"
+#include "../state/HashLockInfoHistorySerializer.h"
 #include "plugins/txes/lock_shared/src/cache/LockInfoCacheStorage.h"
 
 namespace catapult { namespace cache {

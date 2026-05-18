@@ -21,9 +21,9 @@
 
 #pragma once
 #include "ByteVectorCacheChanges.h"
-#include "catapult/cache/SynchronizedCache.h"
-#include "catapult/deltaset/DeltaElementsMixin.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/cache/SynchronizedCache.h"
+#include "src/catapult/deltaset/DeltaElementsMixin.h"
+#include "src/catapult/exceptions.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
 
 namespace catapult { namespace test {

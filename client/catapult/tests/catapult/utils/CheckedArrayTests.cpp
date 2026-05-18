@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/CheckedArray.h"
+#include "src/catapult/utils/CheckedArray.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
 #include "tests/TestHarness.h"

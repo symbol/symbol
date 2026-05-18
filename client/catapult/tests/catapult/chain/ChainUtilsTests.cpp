@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/ChainUtils.h"
-#include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/chain/BlockDifficultyScorer.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/model/EntityHasher.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/chain/ChainUtils.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
+#include "src/catapult/chain/BlockDifficultyScorer.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/EntityHasher.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
 

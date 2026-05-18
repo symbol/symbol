@@ -20,13 +20,13 @@
 **/
 
 #include "StaticNodeRefreshService.h"
-#include "catapult/config/CatapultKeys.h"
-#include "catapult/extensions/NetworkUtils.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/ServerConnector.h"
+#include "src/catapult/config/CatapultKeys.h"
+#include "src/catapult/extensions/NetworkUtils.h"
+#include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/extensions/ServiceState.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/net/ServerConnector.h"
 
 namespace catapult { namespace local {
 

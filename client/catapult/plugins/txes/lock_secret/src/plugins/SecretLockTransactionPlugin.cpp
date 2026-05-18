@@ -20,10 +20,10 @@
 **/
 
 #include "SecretLockTransactionPlugin.h"
-#include "src/model/SecretLockNotifications.h"
-#include "src/model/SecretLockTransaction.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
+#include "../model/SecretLockNotifications.h"
+#include "../model/SecretLockTransaction.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

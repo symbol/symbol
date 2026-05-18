@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCacheUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
+#include "src/catapult/cache_core/AccountStateCacheUtils.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Address.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 

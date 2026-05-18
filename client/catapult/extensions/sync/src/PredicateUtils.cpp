@@ -21,8 +21,8 @@
 
 #include "PredicateUtils.h"
 #include "TransactionSpamThrottle.h"
-#include "catapult/cache_tx/UtCache.h"
-#include "catapult/config/CatapultConfiguration.h"
+#include "src/catapult/cache_tx/UtCache.h"
+#include "src/catapult/config/CatapultConfiguration.h"
 
 namespace catapult { namespace sync {
 

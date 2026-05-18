@@ -20,7 +20,7 @@
 **/
 
 #include "finalization/src/FinalizationContextFactory.h"
-#include "catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"

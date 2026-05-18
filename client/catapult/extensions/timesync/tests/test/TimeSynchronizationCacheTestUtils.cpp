@@ -20,8 +20,8 @@
 **/
 
 #include "TimeSynchronizationCacheTestUtils.h"
-#include "catapult/cache_core/AccountStateCacheDelta.h"
-#include "catapult/ionet/NodeContainer.h"
+#include "src/catapult/cache_core/AccountStateCacheDelta.h"
+#include "src/catapult/ionet/NodeContainer.h"
 #include "tests/test/net/NodeTestUtils.h"
 
 namespace catapult { namespace test {

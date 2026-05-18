@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/cache_tx/PtChangeSubscriber.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/cache_tx/PtChangeSubscriber.h"
+#include "src/catapult/io/Stream.h"
 #include <memory>
 
 namespace catapult { namespace filespooling {

@@ -21,9 +21,9 @@
 
 #pragma once
 #include "PluginManager.h"
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
-#include "catapult/handlers/HandlerFactory.h"
-#include "catapult/handlers/StatePathHandlerFactory.h"
+#include "src/catapult/handlers/CacheEntryInfosProducerFactory.h"
+#include "src/catapult/handlers/HandlerFactory.h"
+#include "src/catapult/handlers/StatePathHandlerFactory.h"
 
 namespace catapult { namespace plugins {
 

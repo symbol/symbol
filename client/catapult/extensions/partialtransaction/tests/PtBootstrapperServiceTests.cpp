@@ -20,8 +20,8 @@
 **/
 
 #include "partialtransaction/src/PtBootstrapperService.h"
-#include "catapult/cache_tx/MemoryPtCache.h"
-#include "catapult/extensions/Results.h"
+#include "src/catapult/cache_tx/MemoryPtCache.h"
+#include "src/catapult/extensions/Results.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"

@@ -21,10 +21,10 @@
 
 #include "PtHandlers.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
-#include "catapult/handlers/HandlerUtils.h"
-#include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/ionet/PacketPayloadBuilder.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/handlers/HandlerUtils.h"
+#include "src/catapult/ionet/PacketEntityUtils.h"
+#include "src/catapult/ionet/PacketPayloadBuilder.h"
+#include "src/catapult/model/RangeTypes.h"
 
 using namespace catapult::partialtransaction;
 

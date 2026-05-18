@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/PacketHeader.h"
+#include "src/catapult/ionet/PacketHeader.h"
 #include "tests/TestHarness.h"
 #include <limits>
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/SizePrefixedEntity.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/model/SizePrefixedEntity.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/TransactionInfoSerializer.h"
-#include "catapult/io/BufferInputStreamAdapter.h"
-#include "catapult/io/PodIoUtils.h"
+#include "src/catapult/io/TransactionInfoSerializer.h"
+#include "src/catapult/io/BufferInputStreamAdapter.h"
+#include "src/catapult/io/PodIoUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"

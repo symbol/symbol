@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/IndexFile.h"
-#include "catapult/thread/ThreadGroup.h"
+#include "src/catapult/io/IndexFile.h"
+#include "src/catapult/thread/ThreadGroup.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 

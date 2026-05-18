@@ -20,8 +20,8 @@
 **/
 
 #include "src/plugins/HashLockTransactionPlugin.h"
-#include "src/model/HashLockNotifications.h"
-#include "src/model/HashLockTransaction.h"
+#include "../model/HashLockNotifications.h"
+#include "../model/HashLockTransaction.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

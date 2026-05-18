@@ -21,8 +21,8 @@
 
 #include "src/TransferMapper.h"
 #include "sdk/src/builders/TransferBuilder.h"
-#include "mongo/src/MongoTransactionPlugin.h"
-#include "mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/MongoTransactionPlugin.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/core/AddressTestUtils.h"

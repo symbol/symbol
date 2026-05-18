@@ -21,7 +21,7 @@
 
 #include "ValidationConsumerUtils.h"
 #include "ConsumerResultFactory.h"
-#include "catapult/validators/AggregateValidationResult.h"
+#include "src/catapult/validators/AggregateValidationResult.h"
 
 namespace catapult { namespace consumers {
 

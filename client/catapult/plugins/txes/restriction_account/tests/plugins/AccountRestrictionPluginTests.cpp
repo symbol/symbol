@@ -20,7 +20,7 @@
 **/
 
 #include "src/plugins/AccountRestrictionPlugin.h"
-#include "src/model/AccountRestrictionEntityType.h"
+#include "../model/AccountRestrictionEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

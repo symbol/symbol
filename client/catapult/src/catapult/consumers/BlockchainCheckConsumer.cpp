@@ -22,9 +22,9 @@
 #include "BlockConsumers.h"
 #include "ConsumerResultFactory.h"
 #include "InputUtils.h"
-#include "catapult/chain/ChainUtils.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/chain/ChainUtils.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/utils/TimeSpan.h"
 #include <unordered_set>
 
 namespace catapult { namespace consumers {

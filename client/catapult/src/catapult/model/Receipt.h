@@ -23,7 +23,7 @@
 #include "Mosaic.h"
 #include "ReceiptType.h"
 #include "SizePrefixedEntity.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace model {
 

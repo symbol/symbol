@@ -25,7 +25,7 @@
 #include "ContainerTypes.h"
 #include "EntityInfo.h"
 #include "WeakEntityInfo.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <unordered_set>
 
 namespace catapult { namespace model {

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "Packet.h"
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Logging.h"
 
 namespace catapult { namespace ionet {
 

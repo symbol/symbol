@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
+#include "src/catapult/crypto/KeyPair.h"
 #include <string>
 
 namespace catapult { namespace tools { namespace ssl {

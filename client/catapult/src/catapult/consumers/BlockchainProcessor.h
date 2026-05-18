@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/chain/BatchEntityProcessor.h"
-#include "catapult/disruptor/DisruptorElement.h"
-#include "catapult/model/WeakEntityInfo.h"
+#include "src/catapult/chain/BatchEntityProcessor.h"
+#include "src/catapult/disruptor/DisruptorElement.h"
+#include "src/catapult/model/WeakEntityInfo.h"
 #include <functional>
 
 namespace catapult {

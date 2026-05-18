@@ -20,7 +20,7 @@
 **/
 
 #include "HarvestRequestEncryptedPayload.h"
-#include "catapult/io/BufferedFileStream.h"
+#include "src/catapult/io/BufferedFileStream.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Random.h"

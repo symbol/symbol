@@ -22,7 +22,7 @@
 #include "BlockElementSerializer.h"
 #include "PodIoUtils.h"
 #include "Stream.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace io {
 

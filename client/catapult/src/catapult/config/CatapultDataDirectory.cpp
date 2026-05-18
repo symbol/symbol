@@ -20,7 +20,7 @@
 **/
 
 #include "CatapultDataDirectory.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 #ifndef _WIN32
 #include <sys/stat.h>

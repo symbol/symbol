@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/PacketReader.h"
-#include "catapult/model/VerifiableEntity.h"
+#include "src/catapult/ionet/PacketReader.h"
+#include "src/catapult/model/VerifiableEntity.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "AccountState.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/io/Stream.h"
 #include <vector>
 
 namespace catapult { namespace state {

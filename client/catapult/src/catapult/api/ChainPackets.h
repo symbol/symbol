@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Packet.h"
-#include "catapult/types.h"
+#include "src/catapult/ionet/Packet.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace api {
 

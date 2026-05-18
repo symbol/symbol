@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/cache/ReadOnlyArtifactCache.h"
-#include "catapult/model/NetworkIdentifier.h"
-#include "catapult/state/AccountState.h"
+#include "src/catapult/cache/ReadOnlyArtifactCache.h"
+#include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/state/AccountState.h"
 
 namespace catapult {
 	namespace cache {

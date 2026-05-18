@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BasicAggregateSubscriber.h"
-#include "catapult/cache_tx/PtChangeSubscriber.h"
+#include "src/catapult/cache_tx/PtChangeSubscriber.h"
 
 namespace catapult { namespace subscribers {
 

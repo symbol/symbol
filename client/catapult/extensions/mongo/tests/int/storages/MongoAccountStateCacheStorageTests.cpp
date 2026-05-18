@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/storages/MongoAccountStateCacheStorage.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "extensions/mongo/src/storages/MongoAccountStateCacheStorage.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "tests/test/cache/CacheTestUtils.h"

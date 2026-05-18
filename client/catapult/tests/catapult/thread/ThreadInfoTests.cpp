@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/ThreadInfo.h"
+#include "src/catapult/thread/ThreadInfo.h"
 #include "tests/TestHarness.h"
 #include <thread>
 

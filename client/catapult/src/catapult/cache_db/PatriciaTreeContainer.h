@@ -21,8 +21,8 @@
 
 #pragma once
 #include "RdbTypedColumnContainer.h"
-#include "catapult/tree/PatriciaTreeSerializer.h"
-#include "catapult/tree/TreeNode.h"
+#include "src/catapult/tree/PatriciaTreeSerializer.h"
+#include "src/catapult/tree/TreeNode.h"
 
 namespace catapult { namespace cache {
 

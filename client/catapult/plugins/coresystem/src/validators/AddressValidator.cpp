@@ -20,8 +20,8 @@
 **/
 
 #include "Validators.h"
-#include "catapult/model/Address.h"
-#include "catapult/validators/ValidatorContext.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 

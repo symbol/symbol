@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/local/broker/Broker.h"
-#include "catapult/process/ProcessMain.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/local/broker/Broker.h"
+#include "src/catapult/process/ProcessMain.h"
 
 namespace {
 	constexpr auto Process_Name = "broker";

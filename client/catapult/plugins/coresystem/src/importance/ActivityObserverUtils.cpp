@@ -20,8 +20,8 @@
 **/
 
 #include "ActivityObserverUtils.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/observers/ObserverContext.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/observers/ObserverContext.h"
 
 namespace catapult { namespace importance {
 

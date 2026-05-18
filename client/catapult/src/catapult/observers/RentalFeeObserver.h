@@ -21,7 +21,7 @@
 
 #pragma once
 #include "ObserverTypes.h"
-#include "catapult/model/Receipt.h"
+#include "src/catapult/model/Receipt.h"
 
 namespace catapult { namespace observers {
 

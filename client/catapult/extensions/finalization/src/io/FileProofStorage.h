@@ -21,9 +21,9 @@
 
 #pragma once
 #include "ProofStorage.h"
-#include "catapult/io/FileDatabase.h"
-#include "catapult/io/FixedSizeValueStorage.h"
-#include "catapult/io/IndexFile.h"
+#include "src/catapult/io/FileDatabase.h"
+#include "src/catapult/io/FixedSizeValueStorage.h"
+#include "src/catapult/io/IndexFile.h"
 #include <string>
 
 namespace catapult { namespace io {

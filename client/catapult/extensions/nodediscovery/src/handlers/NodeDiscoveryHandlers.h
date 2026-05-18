@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeSet.h"
-#include "catapult/ionet/PacketHandlers.h"
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/ionet/NodeSet.h"
+#include "src/catapult/ionet/PacketHandlers.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace ionet { struct NetworkNode; } }
 

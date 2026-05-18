@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/model/AccountRestrictionFlags.h"
-#include "src/state/AccountRestrictionDescriptor.h"
+#include "../model/AccountRestrictionFlags.h"
+#include "../state/AccountRestrictionDescriptor.h"
 
 namespace catapult { namespace state { class AccountRestrictions; } }
 

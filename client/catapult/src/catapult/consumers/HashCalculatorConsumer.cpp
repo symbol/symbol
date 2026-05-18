@@ -22,9 +22,9 @@
 #include "BlockConsumers.h"
 #include "ConsumerResultFactory.h"
 #include "TransactionConsumers.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/MerkleHashBuilder.h"
-#include "catapult/model/EntityHasher.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/crypto/MerkleHashBuilder.h"
+#include "src/catapult/model/EntityHasher.h"
 
 namespace catapult { namespace consumers {
 

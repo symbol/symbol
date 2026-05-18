@@ -20,11 +20,11 @@
 **/
 
 #include "DispatcherSyncHandlers.h"
-#include "catapult/cache/CacheStorage.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/extensions/LocalNodeStateFileStorage.h"
+#include "src/catapult/cache/CacheStorage.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/extensions/LocalNodeStateFileStorage.h"
 
 namespace catapult { namespace sync {
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "CatapultCacheDelta.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace cache { class CatapultCache; } }
 

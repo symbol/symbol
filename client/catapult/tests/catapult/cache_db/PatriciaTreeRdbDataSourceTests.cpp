@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_db/PatriciaTreeRdbDataSource.h"
+#include "src/catapult/cache_db/PatriciaTreeRdbDataSource.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/tree/PatriciaTreeDataSourceTests.h"
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "AccountRestrictions.h"
-#include "catapult/io/Stream.h"
+#include "src/catapult/io/Stream.h"
 
 namespace catapult { namespace state {
 

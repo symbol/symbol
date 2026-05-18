@@ -22,7 +22,7 @@
 #include "finalization/src/chain/FinalizationMessageFactory.h"
 #include "finalization/src/io/PrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"

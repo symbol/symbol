@@ -20,9 +20,9 @@
 **/
 
 #include "NemesisConfigurationLoader.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {

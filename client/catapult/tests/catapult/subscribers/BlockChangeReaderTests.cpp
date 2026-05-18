@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/BlockChangeReader.h"
-#include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "src/catapult/subscribers/BlockChangeReader.h"
+#include "src/catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"

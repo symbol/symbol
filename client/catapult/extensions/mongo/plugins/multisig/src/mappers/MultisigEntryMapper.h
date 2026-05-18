@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "mongo/src/mappers/MapperInclude.h"
+#include "extensions/mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/multisig/src/state/MultisigEntry.h"
 
 namespace catapult { namespace mongo { namespace plugins {

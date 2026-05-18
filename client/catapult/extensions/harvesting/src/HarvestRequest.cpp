@@ -20,7 +20,7 @@
 **/
 
 #include "HarvestRequest.h"
-#include "catapult/crypto/AesDecrypt.h"
+#include "src/catapult/crypto/AesDecrypt.h"
 #include <cstring>
 
 namespace catapult { namespace harvesting {

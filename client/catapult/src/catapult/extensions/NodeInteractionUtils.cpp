@@ -20,8 +20,8 @@
 **/
 
 #include "NodeInteractionUtils.h"
-#include "catapult/ionet/NodeContainer.h"
-#include "catapult/ionet/NodeInteractionResult.h"
+#include "src/catapult/ionet/NodeContainer.h"
+#include "src/catapult/ionet/NodeInteractionResult.h"
 
 namespace catapult { namespace extensions {
 

@@ -21,9 +21,9 @@
 
 #pragma once
 #include "partialtransaction/src/PtTypes.h"
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/chain/RemoteNodeSynchronizer.h"
-#include "catapult/model/CosignedTransactionInfo.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/chain/RemoteNodeSynchronizer.h"
+#include "src/catapult/model/CosignedTransactionInfo.h"
 
 namespace catapult { namespace api { class RemotePtApi; } }
 

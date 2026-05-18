@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoErrorPolicy.h"
-#include "mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/MongoErrorPolicy.h"
+#include "extensions/mongo/src/MongoBulkWriter.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo {

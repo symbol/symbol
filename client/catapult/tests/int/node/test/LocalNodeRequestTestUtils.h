@@ -21,10 +21,10 @@
 
 #pragma once
 #include "ExternalSourceConnection.h"
-#include "catapult/api/RemoteChainApi.h"
-#include "catapult/ionet/PacketPayloadFactory.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/model/BlockUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/test/nodeps/Waits.h"

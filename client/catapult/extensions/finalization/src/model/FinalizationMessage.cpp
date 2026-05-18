@@ -21,16 +21,16 @@
 
 #include "FinalizationMessage.h"
 #include "FinalizationContext.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "src/catapult/utils/MacroBasedEnumIncludes.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace model {
 
 #define DEFINE_ENUM ProcessMessageResult
 #define ENUM_LIST PROCESS_MESSAGE_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
+#include "src/catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 

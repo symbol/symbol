@@ -21,7 +21,7 @@
 
 #pragma once
 #include "HarvestingConfiguration.h"
-#include "catapult/extensions/ServiceRegistrar.h"
+#include "src/catapult/extensions/ServiceRegistrar.h"
 
 namespace catapult { namespace harvesting {
 

@@ -22,7 +22,7 @@
 #pragma once
 #include "NamespaceConstants.h"
 #include "NamespaceTypes.h"
-#include "catapult/model/Notifications.h"
+#include "src/catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
 

@@ -20,9 +20,9 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/cache/NamespaceCache.h"
-#include "src/model/NamespaceConstants.h"
-#include "src/model/NamespaceLifetimeConstraints.h"
+#include "../cache/NamespaceCache.h"
+#include "../model/NamespaceConstants.h"
+#include "../model/NamespaceLifetimeConstraints.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

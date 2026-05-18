@@ -22,10 +22,10 @@
 #pragma once
 #include "finalization/src/model/FinalizationMessage.h"
 #include "finalization/src/model/FinalizationRoundRange.h"
-#include "catapult/api/RemoteApi.h"
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/RangeTypes.h"
-#include "catapult/thread/Future.h"
+#include "src/catapult/api/RemoteApi.h"
+#include "src/catapult/model/FinalizationRound.h"
+#include "src/catapult/model/RangeTypes.h"
+#include "src/catapult/thread/Future.h"
 
 namespace catapult { namespace ionet { class PacketIo; } }
 

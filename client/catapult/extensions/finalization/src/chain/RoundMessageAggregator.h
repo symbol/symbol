@@ -21,7 +21,7 @@
 
 #pragma once
 #include "RoundMessageAggregatorAddResult.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/model/RangeTypes.h"
 #include <memory>
 #include <vector>
 

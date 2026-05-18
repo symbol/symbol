@@ -20,9 +20,9 @@
 **/
 
 #include "AccountStateSerializer.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/utils/Casting.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace state {
 

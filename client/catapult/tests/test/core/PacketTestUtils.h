@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/IoTypes.h"
-#include "catapult/ionet/Packet.h"
-#include "catapult/ionet/PacketHandlers.h"
+#include "src/catapult/ionet/IoTypes.h"
+#include "src/catapult/ionet/Packet.h"
+#include "src/catapult/ionet/PacketHandlers.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include <memory>
 #include <vector>

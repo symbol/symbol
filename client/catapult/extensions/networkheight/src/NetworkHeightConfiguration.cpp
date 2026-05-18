@@ -20,9 +20,9 @@
 **/
 
 #include "NetworkHeightConfiguration.h"
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/utils/ConfigurationBag.h"
-#include "catapult/utils/ConfigurationUtils.h"
+#include "src/catapult/config/ConfigurationFileLoader.h"
+#include "src/catapult/utils/ConfigurationBag.h"
+#include "src/catapult/utils/ConfigurationUtils.h"
 
 namespace catapult { namespace networkheight {
 

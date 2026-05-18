@@ -23,7 +23,7 @@
 #include "Packet.h"
 #include "PacketPayload.h"
 #include "SocketOperationCode.h"
-#include "catapult/functions.h"
+#include "src/catapult/functions.h"
 #include <memory>
 
 namespace catapult { namespace ionet {

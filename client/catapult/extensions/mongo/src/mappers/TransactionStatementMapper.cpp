@@ -21,7 +21,7 @@
 
 #include "TransactionStatementMapper.h"
 #include "ReceiptMapper.h"
-#include "catapult/model/TransactionStatement.h"
+#include "src/catapult/model/TransactionStatement.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

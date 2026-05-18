@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/EntityInfo.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/utils/ArraySet.h"
 
 namespace catapult { namespace model { class NotificationPublisher; } }
 

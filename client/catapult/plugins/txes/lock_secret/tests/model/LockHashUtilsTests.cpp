@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/LockHashUtils.h"
-#include "catapult/crypto/Hashes.h"
-#include "catapult/utils/Casting.h"
+#include "../model/LockHashUtils.h"
+#include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/utils/Casting.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

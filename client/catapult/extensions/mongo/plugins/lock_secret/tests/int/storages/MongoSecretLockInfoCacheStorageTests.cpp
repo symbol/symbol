@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/storages/MongoSecretLockInfoCacheStorage.h"
-#include "mongo/plugins/lock_shared/tests/int/storages/MongoLockInfoCacheStorageTestTraits.h"
-#include "mongo/tests/test/MongoFlatCacheStorageTests.h"
+#include "extensions/mongo/plugins/lock_secret/src/storages/MongoSecretLockInfoCacheStorage.h"
+#include "extensions/mongo/plugins/lock_shared/tests/int/storages/MongoLockInfoCacheStorageTestTraits.h"
+#include "extensions/mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "plugins/txes/lock_secret/tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/test/SecretLockMapperTestUtils.h"
 #include "tests/TestHarness.h"

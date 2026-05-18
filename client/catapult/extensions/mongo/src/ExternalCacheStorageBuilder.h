@@ -21,7 +21,7 @@
 
 #pragma once
 #include "AggregateExternalCacheStorage.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace mongo {
 

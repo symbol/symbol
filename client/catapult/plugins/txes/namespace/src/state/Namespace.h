@@ -21,7 +21,7 @@
 
 #pragma once
 #include "NamespaceLifetime.h"
-#include "src/model/NamespaceConstants.h"
+#include "../model/NamespaceConstants.h"
 
 namespace catapult { namespace state {
 

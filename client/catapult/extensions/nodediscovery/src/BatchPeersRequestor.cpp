@@ -21,9 +21,9 @@
 
 #include "BatchPeersRequestor.h"
 #include "nodediscovery/src/api/RemoteNodeApi.h"
-#include "catapult/thread/FutureUtils.h"
-#include "catapult/utils/ThrottleLogger.h"
-#include "catapult/utils/TimeSpan.h"
+#include "src/catapult/thread/FutureUtils.h"
+#include "src/catapult/utils/ThrottleLogger.h"
+#include "src/catapult/utils/TimeSpan.h"
 
 namespace catapult { namespace nodediscovery {
 

@@ -21,7 +21,7 @@
 
 #pragma once
 #include "NetworkIdentifier.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <string>
 
 namespace catapult { namespace model {

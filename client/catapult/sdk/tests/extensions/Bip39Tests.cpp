@@ -20,7 +20,7 @@
 **/
 
 #include "src/extensions/Bip39.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {

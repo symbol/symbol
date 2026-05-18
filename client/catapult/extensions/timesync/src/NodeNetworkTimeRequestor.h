@@ -22,7 +22,7 @@
 #pragma once
 #include "CommunicationTimestamps.h"
 #include "timesync/src/api/RemoteTimeSyncApi.h"
-#include "catapult/net/BriefServerRequestor.h"
+#include "src/catapult/net/BriefServerRequestor.h"
 
 namespace catapult { namespace timesync {
 

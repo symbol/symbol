@@ -20,8 +20,8 @@
 **/
 
 #include "NodeIdentity.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
-#include "catapult/utils/Hashers.h"
+#include "src/catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/utils/Hashers.h"
 
 namespace catapult { namespace model {
 

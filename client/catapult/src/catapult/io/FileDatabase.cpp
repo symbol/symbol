@@ -22,8 +22,8 @@
 #include "FileDatabase.h"
 #include "FileStream.h"
 #include "PodIoUtils.h"
-#include "catapult/exceptions.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/exceptions.h"
+#include "src/catapult/preprocessor.h"
 
 namespace catapult { namespace io {
 

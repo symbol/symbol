@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/observers/ObserverContext.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/observers/ObserverContext.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {

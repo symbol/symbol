@@ -22,7 +22,7 @@
 #pragma once
 #include "Block.h"
 #include "EntityRange.h"
-#include "catapult/utils/ShortHash.h"
+#include "src/catapult/utils/ShortHash.h"
 
 namespace catapult { namespace model {
 

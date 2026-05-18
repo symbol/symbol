@@ -22,7 +22,7 @@
 #pragma once
 #include "MapperInclude.h"
 #include "MapperUtils.h"
-#include "catapult/model/ResolutionStatement.h"
+#include "src/catapult/model/ResolutionStatement.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

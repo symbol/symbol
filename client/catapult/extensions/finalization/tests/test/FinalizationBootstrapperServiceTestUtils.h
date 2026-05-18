@@ -22,7 +22,7 @@
 #pragma once
 #include "FinalizationMessageTestUtils.h"
 #include "finalization/src/FinalizationBootstrapperService.h"
-#include "catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/CatapultCache.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 
 namespace catapult { namespace test {

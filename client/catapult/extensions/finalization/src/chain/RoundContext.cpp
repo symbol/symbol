@@ -20,7 +20,7 @@
 **/
 
 #include "RoundContext.h"
-#include "catapult/utils/Hashers.h"
+#include "src/catapult/utils/Hashers.h"
 
 namespace catapult { namespace chain {
 

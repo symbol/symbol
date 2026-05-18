@@ -20,11 +20,11 @@
 **/
 
 #pragma once
-#include "catapult/io/BlockChangeSubscriber.h"
-#include "catapult/subscribers/FinalizationSubscriber.h"
-#include "catapult/subscribers/NodeSubscriber.h"
-#include "catapult/subscribers/StateChangeSubscriber.h"
-#include "catapult/subscribers/TransactionStatusSubscriber.h"
+#include "src/catapult/io/BlockChangeSubscriber.h"
+#include "src/catapult/subscribers/FinalizationSubscriber.h"
+#include "src/catapult/subscribers/NodeSubscriber.h"
+#include "src/catapult/subscribers/StateChangeSubscriber.h"
+#include "src/catapult/subscribers/TransactionStatusSubscriber.h"
 #include "tests/test/cache/UnsupportedTransactionsChangeSubscribers.h"
 
 namespace catapult { namespace test {

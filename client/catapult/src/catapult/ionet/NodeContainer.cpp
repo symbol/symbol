@@ -22,7 +22,7 @@
 #include "NodeContainer.h"
 #include "NodeDataContainer.h"
 #include "NodeInteractionResult.h"
-#include "catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace ionet { struct NodeData; } }
 

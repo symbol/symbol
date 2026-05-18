@@ -1,5 +1,5 @@
 #pragma once
-#include "catapult/version/version.h"
+#include "src/catapult/version/version.h"
 #include <winresrc.h>
 
 #if defined(CATAPULT_VERSION_DESCRIPTION)

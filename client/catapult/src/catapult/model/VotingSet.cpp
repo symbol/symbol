@@ -20,7 +20,7 @@
 **/
 
 #include "VotingSet.h"
-#include "catapult/exceptions.h"
+#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace model {
 

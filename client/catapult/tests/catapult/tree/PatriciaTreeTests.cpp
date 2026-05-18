@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/tree/PatriciaTree.h"
-#include "catapult/tree/MemoryDataSource.h"
+#include "src/catapult/tree/PatriciaTree.h"
+#include "src/catapult/tree/MemoryDataSource.h"
 #include "tests/test/tree/PatriciaTreeTests.h"
 
 namespace catapult { namespace tree {

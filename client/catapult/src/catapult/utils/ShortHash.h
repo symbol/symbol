@@ -21,7 +21,7 @@
 
 #pragma once
 #include "BaseValue.h"
-#include "catapult/types.h"
+#include "src/catapult/types.h"
 #include <unordered_set>
 
 namespace catapult { namespace utils {

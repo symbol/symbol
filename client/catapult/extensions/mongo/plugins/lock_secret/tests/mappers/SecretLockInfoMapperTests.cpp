@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/SecretLockInfoMapper.h"
+#include "../mappers/SecretLockInfoMapper.h"
 #include "mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
 #include "tests/test/MongoSecretLockInfoTestTraits.h"
 #include "tests/test/SecretLockMapperTestUtils.h"

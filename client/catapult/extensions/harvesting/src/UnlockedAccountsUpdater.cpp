@@ -22,11 +22,11 @@
 #include "UnlockedAccountsUpdater.h"
 #include "UnlockedAccounts.h"
 #include "UnlockedFileQueueConsumer.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/io/RawFile.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/ThrottleLogger.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/io/RawFile.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/ThrottleLogger.h"
 
 namespace catapult { namespace harvesting {
 

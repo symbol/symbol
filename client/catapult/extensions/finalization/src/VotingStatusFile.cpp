@@ -20,7 +20,7 @@
 **/
 
 #include "VotingStatusFile.h"
-#include "catapult/io/PodIoUtils.h"
+#include "src/catapult/io/PodIoUtils.h"
 #include <filesystem>
 
 namespace catapult { namespace finalization {

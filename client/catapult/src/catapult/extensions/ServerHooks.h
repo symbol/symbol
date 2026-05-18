@@ -22,14 +22,14 @@
 #pragma once
 #include "BasicServerHooks.h"
 #include "TransactionEvent.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/chain/ChainSynchronizer.h"
-#include "catapult/consumers/BlockConsumers.h"
-#include "catapult/consumers/InputUtils.h"
-#include "catapult/disruptor/DisruptorElement.h"
-#include "catapult/handlers/HandlerTypes.h"
-#include "catapult/ionet/PacketPayload.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/chain/ChainSynchronizer.h"
+#include "src/catapult/consumers/BlockConsumers.h"
+#include "src/catapult/consumers/InputUtils.h"
+#include "src/catapult/disruptor/DisruptorElement.h"
+#include "src/catapult/handlers/HandlerTypes.h"
+#include "src/catapult/ionet/PacketPayload.h"
 
 namespace catapult { namespace extensions {
 

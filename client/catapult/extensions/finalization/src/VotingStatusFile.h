@@ -21,7 +21,7 @@
 
 #pragma once
 #include "finalization/src/chain/FinalizationOrchestrator.h"
-#include "catapult/io/RawFile.h"
+#include "src/catapult/io/RawFile.h"
 
 namespace catapult { namespace finalization {
 

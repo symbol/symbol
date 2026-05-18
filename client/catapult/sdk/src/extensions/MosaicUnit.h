@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/utils/ImmutableValue.h"
-#include "catapult/utils/StreamFormatGuard.h"
-#include "catapult/types.h"
+#include "src/catapult/utils/ImmutableValue.h"
+#include "src/catapult/utils/StreamFormatGuard.h"
+#include "src/catapult/types.h"
 
 namespace catapult { namespace extensions {
 

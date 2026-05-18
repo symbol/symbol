@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NodeIdentity.h"
+#include "src/catapult/model/NodeIdentity.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

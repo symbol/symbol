@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/CompareChains.h"
-#include "catapult/model/BlockUtils.h"
+#include "src/catapult/chain/CompareChains.h"
+#include "src/catapult/model/BlockUtils.h"
 #include "tests/catapult/chain/test/MockChainApi.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/TestHarness.h"

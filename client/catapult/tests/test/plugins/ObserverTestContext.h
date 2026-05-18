@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
-#include "catapult/observers/ObserverContext.h"
-#include "catapult/state/AccountState.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/observers/ObserverContext.h"
+#include "src/catapult/state/AccountState.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 

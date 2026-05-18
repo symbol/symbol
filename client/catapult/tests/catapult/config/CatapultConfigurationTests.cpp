@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/CatapultConfiguration.h"
-#include "catapult/config/CatapultKeys.h"
-#include "catapult/crypto/OpensslKeyUtils.h"
-#include "catapult/model/Address.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/config/CatapultConfiguration.h"
+#include "src/catapult/config/CatapultKeys.h"
+#include "src/catapult/crypto/OpensslKeyUtils.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestConstants.h"

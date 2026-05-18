@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/IpProtocol.h"
+#include "src/catapult/ionet/IpProtocol.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace ionet {

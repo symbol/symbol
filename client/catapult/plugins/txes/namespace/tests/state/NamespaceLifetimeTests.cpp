@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/NamespaceLifetime.h"
+#include "../state/NamespaceLifetime.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 #include <limits>

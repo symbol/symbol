@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/tree/ReadThroughMemoryDataSource.h"
-#include "catapult/utils/ArraySet.h"
+#include "src/catapult/tree/ReadThroughMemoryDataSource.h"
+#include "src/catapult/utils/ArraySet.h"
 #include "tests/test/tree/PatriciaTreeDataSourceTests.h"
 #include "tests/TestHarness.h"
 

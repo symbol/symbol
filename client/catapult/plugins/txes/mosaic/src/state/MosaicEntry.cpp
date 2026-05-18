@@ -20,7 +20,7 @@
 **/
 
 #include "MosaicEntry.h"
-#include "catapult/utils/IntegerMath.h"
+#include "src/catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace state {
 

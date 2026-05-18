@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 #include <array>
 #include <vector>

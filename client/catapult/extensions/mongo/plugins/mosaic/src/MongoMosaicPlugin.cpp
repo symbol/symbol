@@ -23,8 +23,8 @@
 #include "MosaicSupplyChangeMapper.h"
 #include "MosaicSupplyRevocationMapper.h"
 #include "storages/MongoMosaicCacheStorage.h"
-#include "mongo/src/MongoPluginManager.h"
-#include "mongo/src/MongoReceiptPluginFactory.h"
+#include "extensions/mongo/src/MongoPluginManager.h"
+#include "extensions/mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/mosaic/src/model/MosaicReceiptType.h"
 
 extern "C" PLUGIN_API

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/Sortition.h"
-#include "catapult/utils/Functional.h"
+#include "src/catapult/crypto/Sortition.h"
+#include "src/catapult/utils/Functional.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 

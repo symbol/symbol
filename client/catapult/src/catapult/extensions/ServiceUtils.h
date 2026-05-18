@@ -22,8 +22,8 @@
 #pragma once
 #include "ServerHooks.h"
 #include "ServiceLocator.h"
-#include "catapult/ionet/BroadcastUtils.h"
-#include "catapult/net/PacketWriters.h"
+#include "src/catapult/ionet/BroadcastUtils.h"
+#include "src/catapult/net/PacketWriters.h"
 #include <string>
 
 namespace catapult { namespace extensions {

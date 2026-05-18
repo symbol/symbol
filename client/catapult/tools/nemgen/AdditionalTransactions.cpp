@@ -21,14 +21,14 @@
 
 #include "AdditionalTransactions.h"
 #include "NemesisConfiguration.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/RawFile.h"
-#include "catapult/model/AggregateEntityType.h"
-#include "catapult/model/AggregateNotifications.h"
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransferEntityType.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/io/RawFile.h"
+#include "src/catapult/model/AggregateEntityType.h"
+#include "src/catapult/model/AggregateNotifications.h"
+#include "src/catapult/model/NotificationPublisher.h"
+#include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransferEntityType.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {

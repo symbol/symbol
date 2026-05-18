@@ -21,7 +21,7 @@
 
 #pragma once
 #include "MapperInclude.h"
-#include "catapult/model/RangeTypes.h"
+#include "src/catapult/model/RangeTypes.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 

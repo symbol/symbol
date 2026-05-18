@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/chain/ChainFunctions.h"
-#include "catapult/model/WeakEntityInfo.h"
-#include "catapult/validators/ValidationResult.h"
+#include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/model/WeakEntityInfo.h"
+#include "src/catapult/validators/ValidationResult.h"
 
 namespace catapult {
 	namespace cache { class CatapultCache; }

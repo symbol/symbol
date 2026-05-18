@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/RemoteNodeSynchronizer.h"
+#include "src/catapult/chain/RemoteNodeSynchronizer.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace chain {

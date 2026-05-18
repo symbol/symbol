@@ -20,8 +20,8 @@
 **/
 
 #include "CosignedTransactionInfoParser.h"
-#include "catapult/ionet/PacketReader.h"
-#include "catapult/utils/IntegerMath.h"
+#include "src/catapult/ionet/PacketReader.h"
+#include "src/catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace api {
 

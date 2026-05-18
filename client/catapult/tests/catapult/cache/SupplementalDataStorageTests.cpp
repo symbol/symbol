@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/SupplementalDataStorage.h"
-#include "catapult/cache/SupplementalData.h"
+#include "src/catapult/cache/SupplementalDataStorage.h"
+#include "src/catapult/cache/SupplementalData.h"
 #include "tests/test/core/StateTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"

@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/ImmutableValue.h"
+#include "src/catapult/utils/ImmutableValue.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

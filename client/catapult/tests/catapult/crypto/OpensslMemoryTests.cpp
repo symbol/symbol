@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/OpensslMemory.h"
-#include "catapult/thread/ThreadGroup.h"
+#include "src/catapult/crypto/OpensslMemory.h"
+#include "src/catapult/thread/ThreadGroup.h"
 #include "tests/TestHarness.h"
 #include <openssl/crypto.h>
 

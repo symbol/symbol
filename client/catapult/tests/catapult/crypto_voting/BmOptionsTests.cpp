@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto_voting/BmOptions.h"
+#include "src/catapult/crypto_voting/BmOptions.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 

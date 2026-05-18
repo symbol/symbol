@@ -22,7 +22,7 @@
 #include "HarvesterBlockGenerator.h"
 #include "HarvestingUtFacadeFactory.h"
 #include "TransactionsInfoSupplier.h"
-#include "catapult/model/TransactionPlugin.h"
+#include "src/catapult/model/TransactionPlugin.h"
 
 namespace catapult { namespace harvesting {
 

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/disruptor/DisruptorTypes.h"
+#include "src/catapult/disruptor/DisruptorTypes.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

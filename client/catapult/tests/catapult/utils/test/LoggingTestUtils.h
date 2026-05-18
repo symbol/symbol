@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/utils/Logging.h"
+#include "src/catapult/utils/Logging.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include <boost/date_time.hpp>
 #include <map>

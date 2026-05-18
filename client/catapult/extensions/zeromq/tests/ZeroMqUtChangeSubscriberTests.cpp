@@ -21,7 +21,7 @@
 
 #include "zeromq/src/ZeroMqUtChangeSubscriber.h"
 #include "zeromq/src/PublisherUtils.h"
-#include "catapult/model/Cosignature.h"
+#include "src/catapult/model/Cosignature.h"
 #include "zeromq/tests/test/ZeroMqTestUtils.h"
 #include "zeromq/tests/test/ZeroMqTransactionsChangeTestUtils.h"
 #include "tests/TestHarness.h"

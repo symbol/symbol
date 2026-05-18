@@ -22,8 +22,8 @@
 #pragma once
 #include "MosaicRestrictionCacheDelta.h"
 #include "MosaicRestrictionCacheView.h"
-#include "catapult/cache/BasicCache.h"
-#include "catapult/model/NetworkIdentifier.h"
+#include "src/catapult/cache/BasicCache.h"
+#include "src/catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace cache {
 

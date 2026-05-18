@@ -23,8 +23,8 @@
 #include "Accounts.h"
 #include "StateHashCalculator.h"
 #include "TransactionsGenerator.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/state/BlockStatistic.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/state/BlockStatistic.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include <set>
 

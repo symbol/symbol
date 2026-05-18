@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/SpinLock.h"
-#include "catapult/validators/ValidatorTypes.h"
+#include "src/catapult/utils/SpinLock.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 #include <vector>
 
 namespace catapult { namespace mocks {

@@ -20,9 +20,9 @@
 **/
 
 #include "CompareChains.h"
-#include "catapult/model/BlockUtils.h"
-#include "catapult/thread/FutureUtils.h"
-#include "catapult/utils/Casting.h"
+#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/thread/FutureUtils.h"
+#include "src/catapult/utils/Casting.h"
 #include <iostream>
 
 namespace catapult { namespace chain {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/AggregateTransaction.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "../model/AggregateTransaction.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

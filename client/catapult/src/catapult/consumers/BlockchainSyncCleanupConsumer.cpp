@@ -21,8 +21,8 @@
 
 #include "BlockConsumers.h"
 #include "ConsumerResultFactory.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/FileQueue.h"
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/io/FileQueue.h"
 
 namespace catapult { namespace consumers {
 

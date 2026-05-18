@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/NetworkUtils.h"
-#include "catapult/extensions/Results.h"
-#include "catapult/net/ConnectionContainer.h"
-#include "catapult/net/PeerConnectResult.h"
+#include "src/catapult/extensions/NetworkUtils.h"
+#include "src/catapult/extensions/Results.h"
+#include "src/catapult/net/ConnectionContainer.h"
+#include "src/catapult/net/PeerConnectResult.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/crypto/CertificateTestUtils.h"

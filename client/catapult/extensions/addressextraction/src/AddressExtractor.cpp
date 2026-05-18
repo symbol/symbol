@@ -20,8 +20,8 @@
 **/
 
 #include "AddressExtractor.h"
-#include "catapult/model/Elements.h"
-#include "catapult/model/TransactionUtils.h"
+#include "src/catapult/model/Elements.h"
+#include "src/catapult/model/TransactionUtils.h"
 
 namespace catapult { namespace addressextraction {
 

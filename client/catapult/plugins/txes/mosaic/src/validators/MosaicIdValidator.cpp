@@ -20,7 +20,7 @@
 **/
 
 #include "Validators.h"
-#include "src/model/MosaicIdGenerator.h"
+#include "../model/MosaicIdGenerator.h"
 
 namespace catapult { namespace validators {
 

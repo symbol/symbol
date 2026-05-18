@@ -21,8 +21,8 @@
 
 #pragma once
 #include "BasicTransactionsCache.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/functions.h"
+#include "src/catapult/model/EntityInfo.h"
+#include "src/catapult/functions.h"
 #include <vector>
 
 namespace catapult { namespace model { struct Cosignature; } }

@@ -23,10 +23,10 @@
 #include "FutureUtils.h"
 #include "IoThreadPool.h"
 #include "StrandOwnerLifetimeExtender.h"
-#include "catapult/utils/Logging.h"
-#include "catapult/utils/WeakContainer.h"
-#include "catapult/exceptions.h"
-#include "catapult/preprocessor.h"
+#include "src/catapult/utils/Logging.h"
+#include "src/catapult/utils/WeakContainer.h"
+#include "src/catapult/exceptions.h"
+#include "src/catapult/preprocessor.h"
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio.hpp>
 

@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/FacilityCode.h"
+#include "src/catapult/model/FacilityCode.h"
 #include <iosfwd>
 #include <stdint.h>
 

@@ -21,13 +21,13 @@
 
 #include "BlockSaver.h"
 #include "NemesisConfiguration.h"
-#include "catapult/extensions/BlockExtensions.h"
-#include "catapult/io/FileBlockStorage.h"
-#include "catapult/io/FileProofStorage.h"
-#include "catapult/io/IndexFile.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/utils/HexFormatter.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/extensions/BlockExtensions.h"
+#include "src/catapult/io/FileBlockStorage.h"
+#include "src/catapult/io/FileProofStorage.h"
+#include "src/catapult/io/IndexFile.h"
+#include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/HexParser.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {

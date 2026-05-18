@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/net/ConnectionSettings.h"
+#include "src/catapult/net/ConnectionSettings.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace net {

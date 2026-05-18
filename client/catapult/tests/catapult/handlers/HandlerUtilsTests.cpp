@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/handlers/HandlerUtils.h"
-#include "catapult/model/Block.h"
-#include "catapult/model/TransactionPlugin.h"
+#include "src/catapult/handlers/HandlerUtils.h"
+#include "src/catapult/model/Block.h"
+#include "src/catapult/model/TransactionPlugin.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/TestHarness.h"

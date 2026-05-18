@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/plugins/CacheHandlers.h"
+#include "src/catapult/plugins/CacheHandlers.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/TestHarness.h"

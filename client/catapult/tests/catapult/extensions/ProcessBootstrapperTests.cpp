@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/plugins/PluginExceptions.h"
-#include "catapult/utils/HexParser.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/plugins/PluginExceptions.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestConstants.h"

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/PacketIo.h"
-#include "catapult/model/TransactionPlugin.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/catapult/ionet/PacketIo.h"
+#include "src/catapult/model/TransactionPlugin.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace test {
 

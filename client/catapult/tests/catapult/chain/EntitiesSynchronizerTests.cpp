@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/chain/EntitiesSynchronizer.h"
-#include "catapult/chain/RemoteNodeSynchronizer.h"
-#include "catapult/handlers/HandlerTypes.h"
+#include "src/catapult/chain/EntitiesSynchronizer.h"
+#include "src/catapult/chain/RemoteNodeSynchronizer.h"
+#include "src/catapult/handlers/HandlerTypes.h"
 #include "tests/catapult/chain/test/MockChainApi.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"
