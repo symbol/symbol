@@ -86,13 +86,13 @@ If the computed root matches the block's `transactionsHash`, the transaction is 
 
 The following output shows a typical run of the program:
 
-```text linenums="1" hl_lines="5-6 15 39 40"
+```text linenums="1" hl_lines="5 7 15 39 40"
 --8<-- 'devbook/chain/prove_transaction.log'
 ```
 
 Some highlights from the output:
 
-* **Transaction metadata** (lines 5-6): The JSON response from <get:/transactions/confirmed/{transactionId}> includes
+* **Transaction metadata** (lines 5 and 7): The JSON response from <get:/transactions/confirmed/{transactionId}> includes
     the block `height` and `merkleComponentHash` needed for the proof.
 
 * **Block transactions hash** (lines 15): The JSON response from <get:/blocks/{height}> includes the `transactionsHash`,
