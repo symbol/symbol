@@ -130,7 +130,8 @@ See <js:PatriciaMerkleProofResult> for the full set of possible result codes.
 !!! warning "Height consistency"
 
     The mosaic definition, block header, and tree path must all reflect the same chain state.
-    If a new block is confirmed between requests, the state hash will have changed and the proof will fail.
+    If a new block is confirmed between requests, and it changes the state,
+    the state hash will have changed and the proof will fail.
     When this happens, re-fetch all three pieces of data and try again.
     If the proof still fails after retrying, the node may be serving incorrect data.
 
