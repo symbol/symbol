@@ -32,6 +32,7 @@ Once the block is assembled, the node <hashes:> it and generates a random number
 If the _hit_ is lower than the _target_, the block is valid and is announced to the rest of the network.
 Other nodes then verify the block, ensuring:
 
+* The block signature comes from the claimed harvester.
 * The transactions are valid.
 * The target and hit values were correctly calculated.
 * The hit is indeed lower than the target.
