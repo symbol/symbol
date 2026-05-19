@@ -256,10 +256,10 @@ try {
 	});
 	console.log('[Account A] Announced bonded ' +
 		`${bondedHash.substring(0, 16)}...`);
+	// [<step-4]
 
 	// Wait for confirmation via WebSocket
 	await confirmed;
-	// [<step-4]
 	// Unsubscribe before closing [>step-6]
 	for (const channel of channels)
 		websocket.send(JSON.stringify({ uid, unsubscribe: channel }));
