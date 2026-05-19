@@ -67,6 +67,11 @@ This tutorial combines both roles in a single script for simplicity.
 
 ## Code Explanation
 
+The code uses the `NODE_URL` environment variable to set the Symbol API <node:>.
+If no value is provided, a default one is used.
+The WebSocket URL is derived from `NODE_URL` by replacing the HTTP protocol with the WebSocket protocol and appending
+`/ws`.
+
 ### Account A: Setting Up Accounts
 
 {{ tutorial.code_snippet_tagged('step-1') }}
@@ -96,11 +101,6 @@ uses WebSockets, following the same approach described in the
 ### Account B: Connecting and Subscribing to Channels
 
 {{ tutorial.code_snippet_tagged('step-3') }}
-
-The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
-If no value is provided, a default one is used.
-The WebSocket URL is derived from `NODE_URL` by replacing the HTTP protocol with the WebSocket protocol and appending
-`/ws`.
 
 Account B opens a WebSocket connection and subscribes to channels scoped to its own address to monitor the bonded
 transaction lifecycle.
