@@ -1,4 +1,3 @@
-
 add_subdirectory(blockhashes)
 
 catapult_define_tool(nemgen)

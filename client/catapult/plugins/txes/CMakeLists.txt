@@ -1,4 +1,3 @@
-
 function(catapult_tx_plugin_src PLUGIN_BASE_NAME)
 	# create an sdk lib
 	if(DEFINED PLUGIN_SDK_FOLDERS)

@@ -1,4 +1,3 @@
-
 set(TARGET_NAME tests.catapult.mongo)
 
 add_subdirectory(int)

@@ -1,3 +1,2 @@
-
 catapult_library_target(catapult.local.broker)
 target_link_libraries(catapult.local.broker catapult.local)

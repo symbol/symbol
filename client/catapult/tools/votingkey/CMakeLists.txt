@@ -1,3 +1,2 @@
-
 catapult_define_tool(votingkey)
 target_link_libraries(catapult.tools.votingkey catapult.finalization)

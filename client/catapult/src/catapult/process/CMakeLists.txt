@@ -1,4 +1,3 @@
-
 catapult_library_target(catapult.process)
 target_link_libraries(catapult.process catapult.version)
 

@@ -1,4 +1,3 @@
-
 set(TARGET_NAME catapult.zeromq)
 
 catapult_library_target(${TARGET_NAME})

@@ -1,2 +1,1 @@
-
 catapult_plugin_test_library(tests.catapult.test.plugins.restrictionaccount)
