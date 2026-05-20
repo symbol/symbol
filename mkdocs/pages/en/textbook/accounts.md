@@ -7,7 +7,7 @@ Account
 In the case of blockchain, accounts are secured by a <key pair:>: assets can only be **transferred out** of an account
 by using its private key, but the public key can be shared freely in order to **receive** assets.
 
-Public keys are commonly shared as an <address:> for convenience, so the terms "account" and "address" are used as synonyms.
+Public keys are commonly shared as <addresses:> for convenience, so the terms "account" and "address" are used as synonyms.
 
 Besides managing digital assets, accounts also represent the ownership of a private key, and act as a form of digital identity.
 On a blockchain, accounts can authorize transactions, configure permissions, and participate in <consensus:> mechanisms.
@@ -123,7 +123,7 @@ Example use cases:
 
 * **Shared control over funds or functionality**.
 
-    No action can be performed on the account without approval from all configured cosignatories.
+    No action can be performed on the account without approval from the configured cosignatories.
 
     This also mitigates the risk of one of the accounts being compromised.
 

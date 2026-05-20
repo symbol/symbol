@@ -36,7 +36,6 @@ If not set, it defaults to the <XYM:> <mosaic ID:> on testnet (`72C0212E67A08BCE
 The <get:/mosaics/{mosaicId}> endpoint retrieves the current properties of a mosaic, including:
 
 * **Supply:** The total number of [atomic](../../textbook/mosaics.md#divisibility) units currently in circulation.
-    Do not confuse with the [initial supply](../../textbook/mosaics.md#initial-supply).
 * **Divisibility:** The number of <divisibility:|decimal places> the mosaic supports.
     For example, XYM has a divisibility of `6`, meaning 1 XYM equals 1,000,000 atomic units.
 * **Flags:** A bitmask encoding the mosaic's behavior restrictions.
