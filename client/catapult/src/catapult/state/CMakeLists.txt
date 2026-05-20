@@ -1,4 +1,2 @@
-add_target(
-    catapult.state LIBRARY
-    SOURCES ./
-)
+
+catapult_library_target(catapult.state)

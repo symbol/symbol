@@ -1,3 +1,4 @@
+
 set(PLUGIN_BASE_NAME catapult.plugins.signature)
 
 # create a deps lib

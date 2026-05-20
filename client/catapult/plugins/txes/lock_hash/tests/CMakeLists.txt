@@ -1,4 +1,5 @@
-add_subdirs(test)
+
+add_subdirectory(test)
 
 set(TARGET_NAME tests.catapult.plugins.lockhash)
 

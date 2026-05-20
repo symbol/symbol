@@ -1,3 +1,4 @@
+
 set(PLUGIN_BASE_NAME catapult.plugins.metadata)
 
 catapult_tx_plugin_src(${PLUGIN_BASE_NAME})

@@ -1,5 +1,1 @@
-add_target(
-    catapult.keylink LIBRARY
-    TYPE INTERFACE
-    SOURCES ./
-)
+catapult_header_only_target(catapult.keylink)

@@ -1,2 +1,3 @@
-catapult_test_executable_target(tests.catapult.ionet net NOLIB)
+
+catapult_test_executable_target_no_lib(tests.catapult.ionet net)
 catapult_add_openssl_dependencies(tests.catapult.ionet)

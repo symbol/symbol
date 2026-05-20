@@ -1,3 +1,4 @@
+
 set(TARGET_NAME tests.catapult.cache_db)
 
 catapult_test_executable_target(${TARGET_NAME} nodeps test)

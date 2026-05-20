@@ -1,4 +1,1 @@
-add_target(
-    catapult.utils LIBRARY
-    SOURCES ./
-)
+catapult_library_target(catapult.utils traits)

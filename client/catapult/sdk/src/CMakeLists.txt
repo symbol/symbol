@@ -1,3 +1,4 @@
+
 set(TARGET_NAME catapult.sdk)
 
 catapult_library_target(${TARGET_NAME} builders extensions parsers)

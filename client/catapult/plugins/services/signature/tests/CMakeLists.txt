@@ -1,1 +1,2 @@
+
 catapult_test_executable_target(tests.catapult.plugins.signature cache plugins validators)

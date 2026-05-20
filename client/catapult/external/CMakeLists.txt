@@ -1,11 +1,14 @@
 project(external)
 
-file(GLOB _sources LIST_DIRECTORIES false CONFIGURE_DEPENDS "donna/*.c" "donna/*.h")
+file(GLOB external_donna_SRC
+	"donna/*.c"
+	"donna/*.h"
+)
 
-SOURCE_GROUP("donna" FILES ${_sources})
+SOURCE_GROUP("donna" FILES ${external_donna_SRC})
 
-add_library(external 
-	${_sources}
+add_library(external
+	${external_donna_SRC}
 	README.txt
 )
 

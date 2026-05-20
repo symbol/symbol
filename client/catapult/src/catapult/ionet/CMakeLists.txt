@@ -1,5 +1,4 @@
-add_target(
-    catapult.ionet LIBRARY
-    LINK_LIBS catapult.model catapult.thread OpenSSL::SSL
-    SOURCES ./
-)
+
+catapult_library_target(catapult.ionet)
+target_link_libraries(catapult.ionet catapult.model catapult.thread)
+catapult_add_openssl_dependencies(catapult.ionet)

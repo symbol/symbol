@@ -23,6 +23,7 @@ target_compile_definitions(build.defaults INTERFACE
 target_compile_options(build.defaults INTERFACE
 	$<$<COMPILE_LANGUAGE:CXX>:/permissive->										# enable standard conformance mode
 	$<$<COMPILE_LANGUAGE:CXX>:/Zc:__cplusplus>									# enable correct __cplusplus macro
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:/bigobj>					# Increases the number of addressable sections in an .obj file.
 	$<$<COMPILE_LANGUAGE:CXX>:/W4>												# set warning level to 4
 	$<$<COMPILE_LANGUAGE:CXX>:/WX>												# treat warnings as errors
 	$<$<COMPILE_LANGUAGE:CXX>:/w44287>											# 'operator' : unsigned/negative constant mismatch

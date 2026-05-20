@@ -1,1 +1,2 @@
+
 catapult_define_extension_test(diagnostics)
