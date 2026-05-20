@@ -1,1 +1,2 @@
+
 catapult_define_tool(linker)

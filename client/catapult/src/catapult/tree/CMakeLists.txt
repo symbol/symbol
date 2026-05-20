@@ -1,5 +1,3 @@
-add_target(
-    catapult.tree LIBRARY
-    LINK_LIBS catapult.crypto
-    SOURCES ./
-)
+
+catapult_library_target(catapult.tree)
+target_link_libraries(catapult.tree catapult.crypto)

@@ -1,5 +1,2 @@
-add_target(
-    tests.catapult.mongo.plugins.lockshared LIBRARY
-    TYPE INTERFACE
-    SOURCES ./ ./int/storages ./mappers ./test
-)
+
+catapult_header_only_target(tests.catapult.mongo.plugins.lockshared int/storages mappers test)

@@ -34,7 +34,8 @@
 			"displayName": "x64 Debug",
 			"inherits": "base-vcpkg",
 			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Debug"
+				"CMAKE_BUILD_TYPE": "Debug",
+				"CMAKE_MESSAGE_LOG_LEVEL": "TRACE"
 			},
 			"warnings": {
 				"dev": true,

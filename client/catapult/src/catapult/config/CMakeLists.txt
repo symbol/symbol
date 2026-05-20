@@ -1,5 +1,3 @@
-add_target(
-    catapult.config LIBRARY
-    LINK_LIBS catapult.ionet
-    SOURCES ./
-)
+
+catapult_library_target(catapult.config)
+target_link_libraries(catapult.config catapult.ionet)

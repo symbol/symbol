@@ -1,1 +1,1 @@
-add_target(catapult.deltaset LIBRARY TYPE INTERFACE SOURCES ./)
+catapult_header_only_target(catapult.deltaset)

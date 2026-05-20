@@ -1,5 +1,3 @@
-add_target(
-    catapult.cache_core LIBRARY
-    LINK_LIBS catapult.cache catapult.state
-    SOURCES ./
-)
+
+catapult_library_target(catapult.cache_core)
+target_link_libraries(catapult.cache_core catapult.cache catapult.state)

@@ -1,10 +1,10 @@
+
 set(TARGET_NAME tests.catapult.mongo)
 
-add_subdirs()
+add_subdirectory(int)
+add_subdirectory(test)
 
-catapult_test_executable_target(${TARGET_NAME} mongo mappers NOLIB)
-target_link_libraries(${TARGET_NAME} 
-    ${MongoDB_IMPORTED_TARGETS}
-    tests.catapult.test.cache
-    catapult.mongo.plugins.transfer # allow transfer to be loaded implicitly
-)
+catapult_test_executable_target_no_lib(${TARGET_NAME} mongo mappers)
+catapult_add_mongo_dependencies(${TARGET_NAME})
+target_link_libraries(${TARGET_NAME} tests.catapult.test.cache)
+target_link_libraries(${TARGET_NAME} catapult.mongo.plugins.transfer) # allow transfer to be loaded implicitly

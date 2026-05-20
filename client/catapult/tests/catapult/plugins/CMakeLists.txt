@@ -1,2 +1,3 @@
-catapult_test_executable_target(tests.catapult.plugins core NOLIB)
+
+catapult_test_executable_target_no_lib(tests.catapult.plugins core)
 target_link_libraries(tests.catapult.plugins catapult.plugins.transfer) # allow transfer to be loaded implicitly

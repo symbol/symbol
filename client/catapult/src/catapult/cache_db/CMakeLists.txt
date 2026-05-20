@@ -1,5 +1,5 @@
-add_target(
-    catapult.cache_db LIBRARY
-    LINK_LIBS catapult.config catapult.tree ${RocksDB_IMPORTED_TARGETS}
-    SOURCES ./
-)
+
+set(TARGET_NAME catapult.cache_db)
+
+catapult_library_target(${TARGET_NAME})
+target_link_libraries(${TARGET_NAME} catapult.config catapult.tree ${RocksDB_IMPORTED_TARGETS})

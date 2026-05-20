@@ -1,12 +1,5 @@
-add_subdirs(plugins)
+
+add_subdirectory(plugins)
 
 catapult_library_target(catapult.tools)
-target_link_libraries(
-    catapult.tools 
-    ${CORE_CATAPULT_LIBS} 
-    catapult.api 
-    catapult.config 
-    catapult.net 
-    catapult.sdk 
-    catapult.version
-)
+target_link_libraries(catapult.tools ${CORE_CATAPULT_LIBS} catapult.api catapult.config catapult.net catapult.sdk catapult.version)

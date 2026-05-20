@@ -1,1 +1,2 @@
-catapult_test_executable_target(tests.catapult.config net NOLIB)
+
+catapult_test_executable_target_no_lib(tests.catapult.config net)

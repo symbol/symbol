@@ -1,1 +1,2 @@
+
 catapult_test_executable_target(tests.catapult.plugins.coresystem cache importance model observers plugins validators)

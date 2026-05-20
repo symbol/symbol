@@ -1,5 +1,3 @@
-add_target(
-    catapult.cache LIBRARY
-    LINK_LIBS catapult.cache_db catapult.io catapult.model catapult.tree
-    SOURCES ./
-)
+
+catapult_library_target(catapult.cache)
+target_link_libraries(catapult.cache catapult.cache_db catapult.io catapult.model catapult.tree)

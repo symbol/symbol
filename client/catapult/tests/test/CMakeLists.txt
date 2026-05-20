@@ -1,1 +1,11 @@
-add_subdirs()
+
+add_subdirectory(cache)
+add_subdirectory(core)
+add_subdirectory(crypto)
+add_subdirectory(local)
+add_subdirectory(nemesis)
+add_subdirectory(net)
+add_subdirectory(nodeps)
+add_subdirectory(other)
+add_subdirectory(plugins)
+add_subdirectory(tree)

@@ -1,8 +1,9 @@
 # This file contains custom CMake functions that are used across the project.
 
 # Description:
-#   This wrap the file globbing functionality to retrieve a list of source files from a provided
-#   list of directories. Sources globbing expressions are defined as *.h, *.c, *.hpp, *.cpp.
+#   This wraps file globbing to retrieve source files from provided directories and/or individual
+#   source files. Directory arguments are traversed to collect files matching *.h, *.c, *.hpp and
+#   *.cpp, while individual source-file arguments are appended directly to the output list.
 #   Note : CONFIGURE_DEPENDS is used to ensure that CMake re-evaluates the glob and updates the list of sources
 #
 # Syntax:
@@ -55,10 +56,23 @@ function(glob_sources OUT_VAR)
 			OUTPUT_VARIABLE _display_path
 		)
 
-		if(NOT IS_DIRECTORY "${_abs_path}")
-			message(TRACE "[i] glob_sources: skipping '${_display_path}' since it is not a valid directory")
+		if(EXISTS "${_abs_path}")
+			if(NOT IS_DIRECTORY "${_abs_path}")
+				# This is likely a source file provideddirectly.
+				# Just check it matches the sources pattern and add to the list if it does, otherwise skip with a warning.
+				string(REGEX MATCH ".*\\.(h|c|hpp|cpp)$" _is_source_file "${_abs_path}")
+				if(NOT _is_source_file)
+					message(TRACE "[i] glob_sources: skipping '${_display_path}' since it is not a valid source file")
+					continue()
+				endif()
+				list(APPEND _all_sources "${_abs_path}")
+				continue()
+			endif()
+		else()
+			message(TRACE "[i] glob_sources: skipping '${_display_path}' since it does not exist")
 			continue()
 		endif()
+
 
 		set(_sources)
 		set(_call_args)
@@ -324,6 +338,18 @@ macro(_handle_dependencies_dependents)
 endmacro()
 
 # Ancillary macro to add_target
+# handle IDE folder placement based on target naming conventions.
+macro(_handle_folder)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_folder: must only be used from add_target().")
+	endif()
+	string(REGEX MATCH "\.(plugins|tools)\." _folder "${TNAME}")
+	if(_folder)
+		set_property(TARGET ${TNAME} PROPERTY FOLDER ${CMAKE_MATCH_1})
+	endif()
+endmacro()
+
+# Ancillary macro to add_target
 # handle the sources for the target based on the provided arguments.
 macro(_handle_sources)
 	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
@@ -332,12 +358,49 @@ macro(_handle_sources)
 	if(DEFINED _arg_SOURCES)
 		set(_sources_list)
 		glob_sources(_sources_list ${_arg_SOURCES})
+
 		if(_arg_TYPE STREQUAL "INTERFACE")
 			list(FILTER _sources_list EXCLUDE REGEX "\\.c(pp)?$")
-			target_sources(${TNAME} INTERFACE ${_sources_list})
+			set(_scope INTERFACE)
 		else()
-			target_sources(${TNAME} PRIVATE ${_sources_list})
+			set(_scope PRIVATE)
 		endif()
+
+		# Insert grouping for IDEs
+		list(SORT _sources_list)
+
+		set(_current_group)
+		set(_group_files)
+		foreach(_source_file IN LISTS _sources_list)
+			cmake_path(
+				GET _source_file
+				PARENT_PATH _source_parent
+			)
+			cmake_path(
+				RELATIVE_PATH _source_parent
+				BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+				OUTPUT_VARIABLE _group_name
+			)
+			if(_group_name STREQUAL "." OR _group_name STREQUAL "")
+				set(_group_name "src")
+			endif()
+
+			if(NOT "${_group_name}" STREQUAL "${_current_group}")
+				if(_group_files)
+					source_group("${_current_group}" FILES ${_group_files})
+				endif()
+				set(_current_group "${_group_name}")
+				set(_group_files)
+			endif()
+			list(APPEND _group_files "${_source_file}")
+		endforeach()
+
+		if(_group_files)
+			source_group("${_current_group}" FILES ${_group_files})
+		endif()
+
+		target_sources(${TNAME} ${_scope} ${_sources_list})
+
 	endif()
 endmacro()
 
@@ -347,7 +410,7 @@ macro(_handle_includes)
 	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
 		message(FATAL_ERROR "_handle_includes: must only be used from add_target().")
 	endif()
-	if(_arg_INCLUDE_DIRS OR "INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
+	if(_arg_INCLUDE_DIRS)
 		if(_arg_TYPE STREQUAL "INTERFACE")
 			target_include_directories(${TNAME} INTERFACE ${_arg_INCLUDE_DIRS})
 		else()
@@ -363,15 +426,16 @@ macro(_handle_link_libs)
 		message(FATAL_ERROR "_handle_link_libs: must only be used from add_target().")
 	endif()
 
-	set(_link_libs
-		build.defaults		# Default compiler and linker flags for all targets
-		${Boost_LIBRARIES}	# Ubiquitous Boost libraries for all targets (if any)
-		${_arg_LINK_LIBS}	# Any user-provided link libraries for this target
-	)
 	if(_arg_TYPE STREQUAL "INTERFACE")
 		set(_link_mode INTERFACE)
+	else()
+		list(PREPEND _arg_LINK_LIBS 
+			build.defaults		# Default compiler and linker flags for all targets
+			${Boost_LIBRARIES}	# Ubiquitous Boost libraries for all targets (if any)
+		)
 	endif()
-	target_link_libraries(${TNAME} ${_link_mode} ${_link_libs})
+
+	target_link_libraries(${TNAME} ${_link_mode} ${_arg_LINK_LIBS})
 
 endmacro()
 
@@ -381,17 +445,19 @@ endmacro()
 #	custom target types (e.g. header-only) without having to duplicate the logic for 
 #	adding sources, setting properties, etc.
 #
-#   Unlike wrapped original methods where sources are expected to be a list of files, 
-#   here the sources are expected to be provided as a list of directories, which are then 
-#   traversed to find .h and .cpp files to add to the target. 
-#   This allows for more flexible organization of source files without having to update 
-#   CMakeLists.txt every time a new file is added.
+#   Unlike wrapped original methods where sources are expected to be a list of files only, 
+#   here the SOURCES argument can be populated with a list of directories and/or individual files.
+#   For each directory provided, glob_sources is called to retrieve all .h and .cpp files from 
+#   that directory, and those files are added to the target.
+#   Directories can be relative (to current cmake source directory) or absolute paths. 
+#   If a provided path is not a valid directory, it is ignored with a warning message.
 #   List each source directory explicitly. Use './' to add sources from current cmake directory
 #   and list any additional subdirs relative to the current cmake directory (e.g. SOURCES ./ utils)
+#   Source files MUST have extension .h, .c, .hpp or .cpp to be included in the target.
 #
 # Syntax:
 #	add_target(<target-name> LIBRARY 
-#		[TYPE STATIC|SHARED|MODULE|OBJECT|INTERFACE] 
+#		[TYPE STATIC|SHARED|MODULE|OBJECT|INTERFACE]
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
@@ -400,8 +466,6 @@ endmacro()
 #		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
 #
-#   for this project we create tests along with executables and eventually add_test for them 
-#   assuming COMMAND is the executable itself.
 #	add_target(<target-name> EXECUTABLE
 #		[WIN32] [MACOSX_BUNDLE] 
 #		[EXCLUDE_FROM_ALL]
@@ -411,13 +475,24 @@ endmacro()
 #		[DEPENDENCIES target1 [target2 ...]]
 #		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
-#	add_target(<target-name> TEST|TOOL
+#
+#	add_target(<target-name> TEST
+#		[WNO_DERIVED_LIB] 
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
 #		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
 #		[LABELS label1 [label2 ...]])
+#
+#	add_target(<target-name> TOOL
+#		[INCLUDE_DIRS dir1 [dir2 ...]]
+#		[LINK_LIBS lib1 [lib2 ...]] 
+#		[DEPENDENCIES target1 [target2 ...]]
+#		[DEPENDENTS target1 [target2 ...]]
+#		[SOURCES <sources>...]))
+#		TOOL targets are installed by default.
+#
 #	add_target(<target-name> CUSTOM
 #		[SOURCES <sources>...])
 #
@@ -462,6 +537,7 @@ function(add_target TNAME TTYPE)
 		message(TRACE "[+] adding ${_arg_TYPE} LIBRARY '${TNAME}'")
 		add_library(${TNAME} ${_arg_TYPE})
 
+		_handle_folder()
 		_handle_link_libs()
 		_handle_includes()
 		_handle_sources()
@@ -495,9 +571,11 @@ function(add_target TNAME TTYPE)
 		
 		message(TRACE "[+] adding EXECUTABLE '${TNAME}'")
 		add_executable(${TNAME} ${VERSION_RESOURCES})
-
-		set(_link_libs build.defaults ${Boost_LIBRARIES} ${_arg_LINK_LIBS})
-		target_link_libraries(${TNAME} ${_link_libs})
+		
+		list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
+		
+		_handle_folder()
+		_handle_link_libs()
 
 		if(_arg_EXCLUDE_FROM_ALL)
 			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
@@ -529,20 +607,19 @@ function(add_target TNAME TTYPE)
 		endif()
 
 	elseif(TTYPE STREQUAL "TEST")
-
 		
 		list(APPEND _fn_multi LABELS)
 
 		# Test targets should be in the form test.xyz so it's possible to derive xyz as the library under test
 		# and automatically link it to the test executable. 
 		# There are cases though where this is not possible or desireable
-		# To allow to skip this automatic linking, pass NO_DERIVE_LIB as an argument.
-		list(APPEND _fn_options NO_DERIVED_LIB)
+		# To allow to skip this automatic linking, pass WNO_DERIVED_LIB as an argument.
+		list(APPEND _fn_options WNO_DERIVED_LIB)
 
 		_parse_arguments()
 
 		set(_derived_lib)
-		if(NOT _arg_NO_DERIVED_LIB)
+		if(NOT _arg_WNO_DERIVED_LIB)
 			string(REPLACE "." ";" _parts "${TNAME}")
 			list(LENGTH _parts _num_parts)
 			if(_num_parts LESS 2)
@@ -555,7 +632,6 @@ function(add_target TNAME TTYPE)
 		list(PREPEND _arg_LINK_LIBS build.tests ${_derived_lib})
 
 		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS})
-
 		if(DEFINED _arg_DEPENDENCIES)
 			list(APPEND _call_args DEPENDENCIES ${_arg_DEPENDENCIES})
 		endif()
@@ -568,6 +644,7 @@ function(add_target TNAME TTYPE)
 		if(DEFINED _arg_SOURCES)
 			list(APPEND _call_args SOURCES ${_arg_SOURCES})
 		endif()
+
 		add_target(${TNAME} ${_call_args})
 		add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
 
@@ -579,12 +656,21 @@ function(add_target TNAME TTYPE)
 		
 		_parse_arguments()
 
-		set(TNAME catapult.tools.${TNAME})
+		# Tools' names must start with "catapult.tools." 
+		if(NOT TNAME MATCHES "^catapult\\.tools\\.")
+			set(TNAME catapult.tools.${TNAME})
+		endif()
+
 		list(PREPEND _arg_LINK_LIBS catapult.tools)
 		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
 		list(PREPEND _arg_DEPENDENTS tools)
-		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS} DEPENDENCIES ${_arg_DEPENDENCIES} DEPENDENTS ${_arg_DEPENDENTS})
-
+		set(_call_args 
+			${TNAME} EXECUTABLE 
+			LINK_LIBS ${_arg_LINK_LIBS} 
+			DEPENDENCIES ${_arg_DEPENDENCIES} 
+			DEPENDENTS ${_arg_DEPENDENTS}
+			WITH_INSTALL
+		)
 		if(DEFINED _arg_INCLUDE_DIRS)
 			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
 		endif()
@@ -596,12 +682,11 @@ function(add_target TNAME TTYPE)
 
 	elseif(TTYPE STREQUAL "CUSTOM")
 		
+		list(REMOVE_ITEM _fn_multi INCLUDE_DIRS LINK_LIBS)
 		_parse_arguments()
 
 		add_custom_target(${TNAME})
 
-		_handle_link_libs()
-		_handle_includes()
 		_handle_sources()
 		_handle_dependencies_dependents()
 
