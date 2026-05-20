@@ -1,1 +1,1 @@
-catapult_define_tool(addressgen)
+add_target(addressgen TOOL SOURCES ./)

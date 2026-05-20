@@ -1,1 +1,1 @@
-catapult_define_tool(linker)
+add_target(linker TOOL SOURCES ./)

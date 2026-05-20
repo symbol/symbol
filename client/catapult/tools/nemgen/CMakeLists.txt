@@ -1,11 +1,13 @@
 add_subdirectory(blockhashes)
 
-catapult_define_tool(nemgen)
-target_link_libraries(catapult.tools.nemgen
+add_target(nemgen TOOL
+	LINK_LIBS
 	catapult.tools.nemgen.blockhashes
 	catapult.tools.plugins
 	catapult.finalization
 	catapult.plugins.coresystem
 	catapult.plugins.mosaic
 	catapult.plugins.namespace
-	catapult.plugins.transfer)
+	catapult.plugins.transfer
+	SOURCES ./
+)

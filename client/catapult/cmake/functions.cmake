@@ -665,7 +665,7 @@ function(add_target TNAME TTYPE)
 		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
 		list(PREPEND _arg_DEPENDENTS tools)
 		set(_call_args 
-			${TNAME} EXECUTABLE 
+			EXECUTABLE 
 			LINK_LIBS ${_arg_LINK_LIBS} 
 			DEPENDENCIES ${_arg_DEPENDENCIES} 
 			DEPENDENTS ${_arg_DEPENDENTS}

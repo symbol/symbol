@@ -1,1 +1,1 @@
-catapult_define_tool(testvectors)
+add_target(testvectors TOOL SOURCES ./)

@@ -1,1 +1,1 @@
-catapult_define_tool(address)
+add_target(address TOOL SOURCES ./)
