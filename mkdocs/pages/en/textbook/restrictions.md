@@ -244,3 +244,12 @@ To configure a mosaic address restriction, the following attributes must be prov
     the value `1` in the mosaic address restriction.
 
     Since the values are equal, the account `TABC123...` is allowed to transact with this mosaic.
+
+## Summary
+
+The following table summarizes the main numerical limits related to restrictions.
+
+| Limit                                      | Value |
+| ------------------------------------------ | ----: |
+| Maximum number of restrictions per account |   100 |
+| Maximum number of restrictions per mosaic  |    20 |

@@ -131,3 +131,11 @@ Metadata cannot be attached to a namespace without the explicit approval of the 
 
 Namespaces are human-readable identifiers for accounts and mosaics.
 Adding metadata to them can further clarify their purpose, ownership, or contact information, for example.
+
+## Summary
+
+The following table summarizes the main numerical limits related to metadata.
+
+| Limit                                         | Value |
+| --------------------------------------------- | ----- |
+| Maximum length in bytes of the metadata value | 1'024 |

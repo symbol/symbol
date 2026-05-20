@@ -141,3 +141,14 @@ users can refer to the mosaic by name, such as `symbol.xym`.
 
 Namespaces are optional and can be reassigned or expire independently of the mosaic itself.
 See the documentation about <namespaces:> for more information.
+
+## Summary
+
+The following table summarizes the main numerical limits related to mosaics.
+
+| Limit                                             |                 Value |
+| ------------------------------------------------- | --------------------- |
+| Maximum number of mosaics that an account can own |                 1'000 |
+| Maximum mosaic duration (if not eternal)          |             3650 days |
+| Maximum mosaic divisibility                       |                     6 |
+| Maximum atomic units per mosaic                   | 8'999'999'999'000'000 |

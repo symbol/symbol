@@ -165,10 +165,13 @@ Example use cases:
     In the above configuration, operations on the `Multisig Account` always require the signature of `Cosignatory 0` and
     at least one of the other three cosignatories `1` to `3`.
 
-Bear in mind the following constraints when designing multisignature solutions:
+## Summary
 
-| Constraint                                        | Value |
+The following table summarizes the main numerical limits related to accounts.
+
+| Limit                                             | Value |
 | ------------------------------------------------- | ----: |
+| Maximum number of mosaics that an account can own | 1'000 |
 | Maximum number of cosignatories for an account    |    25 |
 | Maximum number of accounts one account can cosign |    25 |
-| Maximum layers                                    |     3 |
+| Maximum multisig layers                           |     3 |
