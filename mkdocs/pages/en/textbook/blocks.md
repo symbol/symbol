@@ -1,7 +1,8 @@
 # Blocks
 
 Block
-:   A block records a set of <transactions:> and other _state changes_ that occurred at a specific point in time.
+:   A block records a set of <transactions:> that occurred at a specific point in time,
+    together with any resulting _state changes_, including those derived from transactions recorded in earlier blocks.
 
 A state change is any update to the blockchain's data, for example, moving funds from one account to another or
 creating a new <mosaic:>.
@@ -13,7 +14,7 @@ This ensures the integrity of the entire chain and is what makes it a _blockchai
 
 Blocks may also include _receipts_: records that capture the side effects of transactions beyond their main intent.
 
-The Symbol network produces one new block every 30 seconds.
+The Symbol network aims at producing one new block every 30 seconds.
 
 ## The Nemesis Block
 
@@ -49,8 +50,8 @@ In Symbol, the name _nemesis_ is a playful reference to its predecessor, NEM.
 
 All blocks that follow are created through a process called <harvesting:>, Symbol's equivalent of mining in other
 blockchains.
-Harvesters validate transactions, group them into blocks, and add the blocks to the chain, receiving transaction fees as
-a reward.
+Harvesters validate transactions, group them into blocks, and add these to the chain,
+receiving transaction fees as a reward.
 
 ## Network Time
 
@@ -96,8 +97,8 @@ Chain Score
 ## Receipts
 
 Receipt
-:   Receipts capture state changes that occurred in a block but were not directly caused by the transactions included in
-that block.
+:   Receipts capture state changes that occurred in a block but might not have been directly caused by the transactions
+    included in that block.
 
 They make it easier to understand these indirect changes without having to track down the original transactions, which
 may have occurred long ago.
@@ -122,7 +123,7 @@ transaction itself.
 
 Transaction statements in Symbol have the following basic types:
 
-* **Balance change**: Adjusts the balance of an account.
+* **Balance credit** and **balance debit**: Adjusts the balance of an account.
 * **Balance transfer**: Moves mosaics between accounts.
 * **Mosaic expiration**: Marks the end of a mosaic's lifetime.
 * **Namespace expiration**: Marks the end of a namespace's rental period.
@@ -157,15 +158,15 @@ verifiability.
 | `Harvest Fee`              | The recipient, account, and amount of fees received for harvesting a block. Recorded when a block is harvested.         |
 | `Inflation`                | The amount of native currency <mosaics:> created. Recorded when inflation is configured and triggered by a new block.   |
 | `Transaction Group`        | A collection of state changes for a given source. Recorded when a state change receipt is issued.                       |
-| `Address Alias Resolution` | The unresolved and resolved <namespace:>. Recorded when a transaction uses an <address:> alias.                         |
-| `Mosaic Alias Resolution`  | The unresolved and resolved <namespace:>. Recorded when a transaction uses a <mosaic:> alias.                           |
+| `Address Alias Resolution` | The unresolved and resolved <address:>. Recorded when a transaction uses a <namespace:> alias.                          |
+| `Mosaic Alias Resolution`  | The unresolved and resolved <mosaic ID:>. Recorded when a transaction uses a <namespace:> alias.                        |
 | **Mosaic**                 |                                                                                                                         |
 | `Mosaic Expired`           | The identifier of the <mosaic:> expiring in this block. Recorded when a mosaic's lifetime elapses.                      |
 | `Mosaic Lease Fee`         | The sender, recipient, and amount representing the cost of registering a <mosaic:>. Recorded at mosaic registration.    |
 | **Namespace**              |                                                                                                                         |
 | `Namespace Expired`        | The identifier of the <namespace:> expiring in this block. Recorded when the namespace's lifetime elapses.              |
 | `Namespace Deleted`        | The identifier of the <namespace:> deleted in this block. Recorded when the grace period of an expired namespace ends.  |
-| `Namespace Lease Fee`      | The sender, recipient, and cost of extending a <namespace:>. Recorded at registration or renewal.                       |
+| `Namespace Lease Fee`      | The sender, recipient, and cost of registering or extending a <namespace:>. Recorded at registration or renewal.        |
 | **HashLock**               |                                                                                                                         |
 | `LockHash Created`         | The sender, mosaic ID, and amount locked. Recorded when a valid `HashLockTransaction` is announced.                     |
 | `LockHash Completed`       | The sender, mosaic ID, and amount returned. Recorded when an `AggregateBondedTransaction` linked to the hash completes. |
