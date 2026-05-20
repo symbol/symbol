@@ -40,25 +40,17 @@ Symbol allows each mosaic to define its own divisibility, depending on the needs
 
 The maximum allowed divisibility in Symbol is `6`.
 
-### Initial Supply
-
-This property defines the total number of mosaic units created at issuance.
-
-A mosaic's total supply cannot exceed **9 × 10^15^** atomic units, regardless of divisibility.
-To be precise, 8'999'999'999'000'000.
-
-The supply is fixed unless [supply mutability](#supply-mutability) is enabled.
-
 ### Supply Mutability
 
-This property indicates whether the mosaic's total supply can be increased or decreased after creation.
-It allows for dynamic issuance or removal of mosaic units, depending on the desired asset lifecycle.
+This property indicates whether the mosaic's total supply can be increased or decreased after units of the mosaic
+have been distributed to other accounts.
+As long as the creator still holds the entire supply, they can always issue or remove mosaic units.
 
 Only the account that originally created the mosaic can modify its total supply.
 These changes affect only the creator's balance:
 
-* When _minting_ (increasing the supply), new units are created and added to the creator’s account.
-* When _burning_ (decreasing the supply), existing units are removed from the creator’s account.
+* When _minting_ (increasing the supply), new units are created and added to the creator's account.
+* When _burning_ (decreasing the supply), existing units are removed from the creator's account.
     If the account does not have enough balance, the operation fails.
 
 ### Duration

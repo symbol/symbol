@@ -48,7 +48,7 @@ Aggregate Transaction
 They are initiated by a single account, but might require signatures from other involved accounts.
 
 Cosignature
-:   When a transaction requires signatures from multiple accounts, they are called _cosignatures_.
+:   When a transaction requires signatures from multiple accounts, these signatures are called _cosignatures_.
 
 Aggregate transactions provide a great deal of flexibility to Symbol, because they enable coordinated behavior
 between multiple accounts, without requiring trust between them.
@@ -194,7 +194,7 @@ valid?", shape=diamond, style="", URL="#3-validation"];
 
 <Bonded aggregate transactions:|Bonded aggregate transactions> differ slightly from the normal flow.
 Aggregate transactions missing cosignatures are temporarily stored in a _partial transactions cache_ on each node,
-and halt processing after step 2.
+and halt processing after step 3.
 When enough cosignatures have been collected these transactions become complete and resume processing from step 3.
 
 ### 1. Creation and signature
@@ -202,7 +202,7 @@ When enough cosignatures have been collected these transactions become complete 
 A software client, typically an app, creates the transaction and fills in all its parameters.
 For example, a transfer transaction requires the source <account:>, destination account, and amount.
 
-This step also involves collecting all required signatures.
+This step also involves collecting all required signatures (except for bonded aggregate transactions).
 For a transfer transaction, only the source account's signature is required.
 More complex transactions, such as <aggregate transactions:>, may require multiple signatures.
 
@@ -245,6 +245,9 @@ is distributed across the network.
     A transaction in the unconfirmed pool is not yet guaranteed to be included in a block.
     Applications should never act on an unconfirmed transaction as if it had already been confirmed.
 
+    For example, another transaction spending the same funds but paying a higher fee could be confirmed first.
+    In that case, the transaction in the unconfirmed pool would become invalid and be rejected by the network.
+
 ### 5. Harvesting
 
 Once in the unconfirmed pool, the transaction will eventually be picked up by the <harvesting:> process and
@@ -266,7 +269,7 @@ This may happen, for example, if the transaction fee offered is too low to be in
 
 To reduce the risk of relying on transactions that might be reverted, applications typically wait for several
 additional blocks after a transaction is confirmed.
-Each new block adds another layer of confirmation, increasing confidence that the transaction will remain permanent.
+Each new block adds another layer of confirmation, increasing confidence that the transaction will remain confirmed.
 
 On Symbol, however, an additional mechanism provides final guarantees that confirmed transactions cannot be reverted.
 
@@ -303,7 +306,7 @@ Before a transaction is included in a block, each node independently validates i
 | **Uniqueness check** | Rejects transactions whose hash already appears in the recent chain history, preventing replay.          |
 | **Semantic checks**  | Validates that the transaction is logically correct based on its type. Example: a transfer transaction fails if the sender lacks sufficient funds. |
 
-Transactions that fail any of these checks are rejected and not propagated further.
+Transactions that fail any of these checks will be rejected and not propagated further.
 
 ## Supported Transaction Types
 
@@ -322,14 +325,14 @@ and validation steps, but differ in purpose and required fields.
 | `Aggregate Bonded`                                          | Propose an arrangement of transactions between different accounts.                                |
 | `Hash Lock`                                                 | Lock a deposit needed to announce a <bonded aggregate transaction:>.                              |
 | [**Finalization**](#7-finalization)                         |                                                                                                   |
-| `Voting Key Link`                                           | Link an account with a <BLS:> public key required for finalization voting.                        |
+| `Voting Key Link`                                           | Link an account with a <voting key:> required for finalization voting.                            |
 | **[Harvesting](default:harvesting)**                        |                                                                                                   |
-| `Account Key Link`                                          | This transaction is required for all accounts wanting to activate remote or delegated harvesting. |
-| `Node Key Link`                                             | This transaction is required for all accounts willing to activate delegated harvesting.           |
+| `Account Key Link`                                          | Required for all accounts wanting to activate remote or delegated harvesting.                     |
+| `Node Key Link`                                             | Required for all accounts willing to activate delegated harvesting.                               |
 | `VRF Key Link`                                              | Link an account with a VRF public key required for harvesting.                                    |
 | **Locks**                                                   |                                                                                                   |
-| `Secret Lock`                                               | Start a token swap between different chains.                                                      |
-| `Secret Proof`                                              | Conclude a token swap between different chains.                                                   |
+| `Secret Lock`                                               | Start a <HTLC:> interaction.                                                                      |
+| `Secret Proof`                                              | Conclude a <HTLC:> interaction.                                                                   |
 | **[Metadata](default:metadata)**                            |                                                                                                   |
 | `Account Metadata`                                          | Associate a key-value state (metadata) to an account.                                             |
 | `Mosaic Metadata`                                           | Associate a key-value state (metadata) to a mosaic.                                               |
@@ -337,7 +340,7 @@ and validation steps, but differ in purpose and required fields.
 | **[Mosaics](default:mosaic)**                               |                                                                                                   |
 | `Mosaic Definition`                                         | Create a new  mosaic.                                                                             |
 | `Mosaic Supply Change`                                      | Change the total supply of a mosaic.                                                              |
-| `Mosaic Supply Revocation`                                  | Revoke mosaic.                                                                                    |
+| `Mosaic Supply Revocation`                                  | Revoke mosaic units.                                                                              |
 | **[Multisig](default:multisignature account)**              |                                                                                                   |
 | `Multisig Account Modification`                             | Create or modify a multi-signature account.                                                       |
 | **[Namespaces](default:namespace)**                         |                                                                                                   |

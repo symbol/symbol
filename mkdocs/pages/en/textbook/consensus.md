@@ -3,8 +3,8 @@
 Consensus
 :   The process by which all <nodes:> in the network agree on the current state of the blockchain.
 
-With consensus, the network preserves a single, consistent timeline of <blocks:> and their <transactions:>,
-and therefore the balance and data associated with every <account:>.
+With consensus, the network preserves a single, consistent _state database_, reflecting the balance and data associated
+with every <account:>, along with the timeline of <transactions:> that led to that state.
 
 Consensus provides two forms of agreement:
 
@@ -53,6 +53,7 @@ Rollback
 
 Any transactions in the discarded blocks that are not already present in the main chain
 return to the <unconfirmed pool:> and must be re-verified before they can be included in a block again.
+Note that during this process transactions can [expire](./transactions.md#common-transaction-structure) and be rejected.
 
 Rollbacks on Symbol are usually shallow and rare, affecting only the most recent blocks.
 However, to completely remove this risk, Symbol uses _finalization_.
@@ -82,7 +83,7 @@ Any block that receives at least two-thirds of the weighted votes is considered 
 The result is a _finalization point_: a checkpoint in the blockchain that all nodes agree to build upon.
 
 Finalization gives applications a reliable foundation to work from.
-For example, a wallet can consider a transaction to be fully confirmed once it is included in a finalized block.
+For example, a wallet can consider a transaction to be irreversible only when it is included in a finalized block.
 
 Votes are weighted by account balance to prevent <Sybil attacks:>,
 and only accounts holding at least 3'000'000 <XYM:> are eligible to participate.

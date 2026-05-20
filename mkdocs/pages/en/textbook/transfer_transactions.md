@@ -77,7 +77,7 @@ By convention, most wallets and applications assume UTF-8 encoding.
 
     * If the first byte is `0x00`, the following bytes contain an unencrypted message.
     * If the first byte is `0x01`, the following bytes contain a message encrypted using
-        Bouncy Castle's AES block cipher in [CBC mode](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC)
+        AES block cipher in [CBC mode](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC)
         and the recipient's public key, so that only the recipient can decrypt it.
 
     Note that this prefix byte reduces the maximum message length to 1023 bytes.
