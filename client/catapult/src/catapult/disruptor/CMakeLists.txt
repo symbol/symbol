@@ -1,3 +1,2 @@
-
 catapult_library_target(catapult.disruptor)
 target_link_libraries(catapult.disruptor catapult.model)

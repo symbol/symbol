@@ -1,4 +1,3 @@
-
 set(TARGET_NAME catapult.mongo)
 
 catapult_library_target(${TARGET_NAME} mappers storages)

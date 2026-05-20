@@ -1,2 +1,1 @@
-
 catapult_header_only_target(catapult.mongo.plugins.lockshared mappers storages)

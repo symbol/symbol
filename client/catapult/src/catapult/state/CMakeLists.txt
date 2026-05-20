@@ -1,2 +1,1 @@
-
 catapult_library_target(catapult.state)

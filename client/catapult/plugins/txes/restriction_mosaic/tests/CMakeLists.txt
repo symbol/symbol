@@ -1,4 +1,3 @@
-
 add_subdirectory(test)
 
 set(TARGET_NAME tests.catapult.plugins.restrictionmosaic)
