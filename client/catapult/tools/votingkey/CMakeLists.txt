@@ -1,2 +1,4 @@
-catapult_define_tool(votingkey)
-target_link_libraries(catapult.tools.votingkey catapult.finalization)
+add_target(votingkey TOOL
+	LINK_LIBS catapult.finalization
+	SOURCES ./
+)

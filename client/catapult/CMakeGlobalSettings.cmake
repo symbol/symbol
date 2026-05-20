@@ -186,16 +186,3 @@ function(catapult_test_executable_target_no_lib TARGET_NAME TEST_DEPENDENCY_NAME
 	catapult_target(${TARGET_NAME})
 endfunction()
 
-# used to define a catapult tool executable
-function(catapult_define_tool TOOL_NAME)
-	set(TARGET_NAME catapult.tools.${TOOL_NAME})
-
-	catapult_executable(${TARGET_NAME})
-	target_link_libraries(${TARGET_NAME} build.defaults catapult.tools)
-	catapult_target(${TARGET_NAME})
-
-	add_dependencies(${TARGET_NAME} catapult_sdk_publish)
-	add_dependencies(tools ${TARGET_NAME})
-
-	install(TARGETS ${TARGET_NAME})
-endfunction()

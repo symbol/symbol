@@ -1,1 +1,1 @@
-catapult_define_tool(benchmark)
+add_target(benchmark TOOL SOURCES ./)

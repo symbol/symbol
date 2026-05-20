@@ -1,1 +1,1 @@
-catapult_define_tool(health)
+add_target(health TOOL SOURCES ./)

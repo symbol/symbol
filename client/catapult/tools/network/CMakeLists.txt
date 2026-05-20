@@ -1,2 +1,4 @@
-catapult_define_tool(network)
-target_link_libraries(catapult.tools.network catapult.nodediscovery)
+add_target(network TOOL
+	LINK_LIBS catapult.nodediscovery
+	SOURCES ./
+)

@@ -1,2 +1,6 @@
-catapult_define_tool(verify)
-target_link_libraries(catapult.tools.verify catapult.tools.plugins catapult.finalization)
+add_target(verify TOOL
+	LINK_LIBS 
+		catapult.tools.plugins 
+		catapult.finalization
+	SOURCES ./
+)

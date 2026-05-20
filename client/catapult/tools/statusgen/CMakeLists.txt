@@ -1,1 +1,1 @@
-catapult_define_tool(statusgen)
+add_target(statusgen TOOL SOURCES ./)
