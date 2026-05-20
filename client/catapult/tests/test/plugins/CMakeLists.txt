@@ -1,1 +1,4 @@
-catapult_header_only_target(tests.catapult.test.plugins)
+add_target(tests.catapult.test.plugins LIBRARY
+	TYPE INTERFACE
+	SOURCES ./
+)

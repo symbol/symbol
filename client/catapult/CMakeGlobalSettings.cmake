@@ -131,23 +131,6 @@ function(catapult_executable TARGET_NAME)
 	endif()
 endfunction()
 
-# used to define a catapult header only target, creating an appropriate source group in order to allow VS to create an appropriate folder
-function(catapult_header_only_target TARGET_NAME)
-	if(MSVC)
-		catapult_find_all_target_files("hdr" ${TARGET_NAME} ${ARGN})
-
-		if(CMAKE_VERBOSE_MAKEFILE)
-			foreach(arg ${ARGN})
-				message("adding subdirectory '${arg}'")
-			endforeach()
-		endif()
-
-		# https://stackoverflow.com/questions/39887352/how-to-create-a-cmake-header-only-library-that-depends-on-external-header-files
-		# target_sources doesn't work with interface libraries, but we can use custom_target (with empty action)
-		add_custom_target(${TARGET_NAME} SOURCES ${${TARGET_NAME}_FILES})
-	endif()
-endfunction()
-
 # used to define a catapult test executable
 function(catapult_test_executable TARGET_NAME)
 	catapult_executable(${TARGET_NAME} ${ARGN})
