@@ -45,19 +45,28 @@ Key Pair
 Symbol uses key pairs in different places, for different purposes:
 
 Main Key
-:   <Key pair:|Key pair> associated with every <account:>, identifying its owner.
+:   <Key pair:|Key pair> associated with every <account:>.
+    Its private key identifies the account owner and grants full control over the account,
+    including the ability to transfer funds and announce transactions.
 
 Remote Key
 :   <Key pair:|Key pair> associated with every <remote harvesting:> account.
+    It allows a node to harvest on behalf of another account without exposing the account's <main key:>.
 
 VRF Key
-:   <Key pair:|Key pair> used by <harvesting:> nodes to make their output unpredictable.
+:   <Key pair:|Key pair> used by <harvesting:> nodes to generate verifiable random values during block creation,
+    making the selection process unpredictable, and therefore harder to exploit.
 
 Voting Key
-:   <Key pair:|Key pair> required for nodes participating in the <finalization:> process.
+:   <Key pair:|Key pair> used by nodes participating in the <finalization:> process.
+    Voting keys are registered for specific validity periods, and multiple voting
+    keys can coexist to support key rotation and uninterrupted finalization.
+    Internally, each voting key manages multiple ephemeral signing [subkeys](./consensus.md#voting-subkeys).
 
 Transport Key
-:   <Key pair:|Key pair> used by nodes for secure transport over [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security).
+:   <Key pair:|Key pair> used by nodes for secure transport over
+    [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security).
+    It authenticates nodes and encrypts peer-to-peer communications.
 
 ??? warning "Key Security"
 
@@ -70,8 +79,8 @@ Transport Key
     | **Main**      | 🔴 HIGH  | Assets can be transferred out of the account. |
     | **Remote**    | 🟠 MED   | Harmless to the account or the node. Easily reverted by linking another remote account. An attacker grabbing a large number of remote keys could gain a lot of harvesting power, influencing which blocks are added to the blockchain. |
     | **VRF**       | 🟡 LOW   | Harmless without the key used for harvesting. |
-    | **Voting**    | 🟠 MED   | Harmless to the account or the node. Easily reverted by linking another voting account. An attacker grabbing more than 50% of the network's voting keys could influence block finalization. |
-    | **Transport** | 🟡 LOW   | An attacker could steal harvesting delegations away from the node, but harmless otherwise. |
+    | **Voting**    | 🟠 MED   | Harmless to the account or the node in the short term. However, voting keys participate in finalization, and an attacker obtaining at least 67% of the network's voting power could potentially compromise finalization security. |
+    | **Transport** | 🟡 LOW   | An attacker could steal harvesting delegations away from the node. If enough harvesting power is gathered this way, the attacker could influence which blocks are added to the blockchain. |
 
 On Symbol, both the private and the public key are 256-bit (32-byte) integers.
 The public key is obtained via [Elliptic Curve Cryptography](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography)
@@ -82,16 +91,16 @@ using the [twisted Edwards curve](https://en.wikipedia.org/wiki/Twisted_Edwards_
 Signature
 :   A digital attachment to a document that certifies that the document is approved by a given <account:>.
 
-The signature is obtained by processing the document with the <private key:> of the account,
-so that anybody can use the associated public key to verify that the signature matches the document,
+The signature is obtained by processing the document with the <private key:> of the account.
+Anybody can use the associated public key to verify that the signature matches the document,
 but only the owner of the private key can produce an identical signature.
 
 All transactions on Symbol are signed, but the signatures required depend on the transaction type and its participants.
 For example, transferring assets from a single-owner account to another only requires the signature of the
 source account's private key.
 
-However, transferring assets from a <multisignature account:|multiple-owner account> requires the approval of all
-preconfigured signers, and must therefore gather multiple signatures before it is considered valid.
+However, transferring assets from a <multisignature account:|multiple-owner account> requires the approval of the
+preconfigured number of signers, and must therefore gather multiple signatures before it is considered valid.
 
 Signatures on Symbol are 512-bit (64-byte) long and are generated using the [Ed25519](https://ed25519.cr.yp.to) and
 [SHA‑512](https://en.wikipedia.org/wiki/SHA-2) algorithms.
@@ -112,21 +121,23 @@ On Symbol, addresses are obtained from public keys by:
 
 1. Generating a 24-byte **raw address** by joining:
 
-    * A network ID byte: `N` for Symbol's main network, or `T` for Symbol's test network.
-    * A 160-bit (20-byte) [RIPEMD‑160](https://en.wikipedia.org/wiki/RIPEMD) <hash:> of the public key.
-    * A 3-byte checksum to detect mistyped addresses.
+    * A network ID byte: `0x68` for Symbol's <mainnet:>, or `0x98` for Symbol's <testnet:>.
+    * A 160-bit (20-byte) [RIPEMD‑160](https://en.wikipedia.org/wiki/RIPEMD) <hash:> of the
+        256-bit (32-byte) [SHA3](https://en.wikipedia.org/wiki/SHA-3) hash of the public key.
+    * A 3-byte checksum to detect mistyped addresses, which is the first 3 bytes of the 256-bit SHA3 hash of the
+        network ID byte and public key hash.
 
-    Example: `0x78,0xD0,0x44,0xED,0xC3,0xDC,0x8B,0x86...`
+    Example: `0x98,0x8E,0x11,0x91,0xA2,0x5A,0x88,0x14...`
 
 2. Generating a 39-character **encoded address** by [Base32-encoding](https://en.wikipedia.org/wiki/Base32) the raw address.
 
     The encoded address is the most common way of sharing addresses because it only uses uppercase letters and numbers.
 
-    Example: `PDIEJ3OD3SFYNZCQUSEWKY4NRRZUI5LMJPSVLPQ`
+    Example: `TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I`
 
 3. Optionally, for easier reading, hyphens can be added every 6 characters to create a 45-character **pretty address**.
 
-    Example: `PDIEJ3-OD3SFY-NZCQUS-EWKY4N-RRZUI5-LMJPSV-LPQ`
+    Example: `TCHBDE-NCLKEB-ILBPWP-3JPB2X-NY64OE-7PYHHE-32I`
 
 !!! note "Address generation is an offline process"
 

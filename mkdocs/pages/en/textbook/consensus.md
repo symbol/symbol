@@ -70,6 +70,15 @@ Finalization is carried out by eligible <voting nodes:>, which periodically cast
 These votes determine the highest block that can be finalized, and by implication all preceding blocks as well.
 Any block that receives at least two-thirds of the weighted votes is considered finalized.
 
+!!! info "Voting Keys"
+
+    Nodes participating in finalization register <voting keys:> valid for a specific time range.
+    {: #voting-subkeys }
+
+    Internally, each voting key manages many short-lived subordinate keys used to sign finalization votes.
+    Using ephemeral subkeys limits the exposure of long-term signing material while allowing votes to be efficiently
+    authenticated.
+
 The result is a _finalization point_: a checkpoint in the blockchain that all nodes agree to build upon.
 
 Finalization gives applications a reliable foundation to work from.
