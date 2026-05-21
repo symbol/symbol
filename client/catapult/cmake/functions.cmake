@@ -571,12 +571,6 @@ function(add_target TNAME TTYPE)
 		
 		message(TRACE "[+] adding EXECUTABLE '${TNAME}'")
 		add_executable(${TNAME} ${VERSION_RESOURCES})
-		
-		list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
-		
-		_handle_folder()
-		_handle_link_libs()
-
 		if(_arg_EXCLUDE_FROM_ALL)
 			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 		endif()
@@ -586,7 +580,11 @@ function(add_target TNAME TTYPE)
 		if(_arg_MACOSX_BUNDLE)
 			set_target_properties(${TNAME} PROPERTIES MACOSX_BUNDLE TRUE)
 		endif()
-
+		
+		list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
+		
+		_handle_folder()
+		_handle_link_libs()
 		_handle_includes()
 		_handle_sources()
 		_handle_dependencies_dependents()
@@ -617,6 +615,8 @@ function(add_target TNAME TTYPE)
 		list(APPEND _fn_options WNO_DERIVED_LIB)
 
 		_parse_arguments()
+		
+		message(TRACE "[+] adding TEST '${TNAME}'")
 
 		set(_derived_lib)
 		if(NOT _arg_WNO_DERIVED_LIB)
@@ -627,6 +627,7 @@ function(add_target TNAME TTYPE)
 			endif()
 			list(REMOVE_AT _parts 0)
 			string(JOIN "." _derived_lib ${_parts})
+			message(TRACE "[i] \tderived library '${_derived_lib}'")
 		endif()
 		
 		list(PREPEND _arg_LINK_LIBS build.tests ${_derived_lib})
@@ -649,6 +650,7 @@ function(add_target TNAME TTYPE)
 		add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
 
 		if(_arg_LABELS)
+			message(TRACE "[i] \tassigned labels '${_arg_LABELS}'")
 			set_property(TEST ${TNAME} PROPERTY LABELS ${_arg_LABELS})
 		endif()
 		
