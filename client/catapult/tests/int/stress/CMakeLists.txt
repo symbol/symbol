@@ -1,11 +1,14 @@
-set(TARGET_NAME tests.catapult.int.stress)
-
-catapult_int_test_executable_target(${TARGET_NAME} test)
-target_link_libraries(${TARGET_NAME}
-	catapult.harvesting
-	catapult.plugins.hashcache
-	tests.catapult.test.nemesis)
-
-set_property(TEST ${TARGET_NAME} PROPERTY LABELS Stress)
+add_target(
+	tests.catapult.int.stress TEST
+	WNO_DERIVED_LIB
+	LINK_LIBS
+		catapult.harvesting
+		catapult.plugins.hashcache
+		tests.catapult.test.nemesis
+	LABELS Integration Stress
+	SOURCES 
+		./ 
+		./test
+)
 
 # add dependency on hash cache plugin

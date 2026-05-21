@@ -1,6 +1,11 @@
-set(TARGET_NAME tests.catapult.int.node.stress)
-
-catapult_int_test_executable_target(${TARGET_NAME} test)
-target_link_libraries(${TARGET_NAME} tests.catapult.int.node.test tests.catapult.test.nemesis)
-
-set_property(TEST ${TARGET_NAME} PROPERTY LABELS Stress)
+add_target(
+	tests.catapult.int.node.stress TEST
+	WNO_DERIVED_LIB
+	LINK_LIBS
+		tests.catapult.int.node.test
+		tests.catapult.test.nemesis
+	LABELS Integration Stress
+	SOURCES 
+		./ 
+		./test
+)
