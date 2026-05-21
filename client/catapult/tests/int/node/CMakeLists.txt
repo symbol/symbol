@@ -1,3 +1,1 @@
-add_subdirectory(basic)
-add_subdirectory(stress)
-add_subdirectory(test)
+add_subdirs(./basic ./stress ./test)
