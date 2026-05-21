@@ -1,13 +1,13 @@
 # Nodes
 
 Node
-:   A computer running the Symbol software which shares information with other nodes,
-    validates incoming <transactions:>, and participates in <consensus:> and block creation.
+:   A computer running the Symbol protocol which shares information with other nodes,
+    validates incoming <transactions:>, and can participate in <consensus:> and block creation.
 
-Nodes form the backbone of the blockchain, ensuring the network remains functional as long as enough nodes are active.
+Nodes form the backbone of the blockchain, ensuring the network remains functional as long as at least one node is
+active.
 
-To participate in block creation, each node must be associated with a harvester <account:>,
-which signs any blocks the node produces.
+To participate in block creation, each node must be associated with a harvester <account:>.
 To help offset operational costs, the <XYM:> rewards from <harvesting:> can be directed
 to an account chosen by the node operator.
 
@@ -22,39 +22,46 @@ The most common configurations are known as _roles_ and are described further be
 digraph SymbolNode {
     layout=neato;
     splines=ortho;
-    node [shape=box style=filled width=1.5 height=0.75];
+    node [shape=box width=1.5 height=0.75];
     edge [penwidth=1.5]
 
     // External labels
-    OtherNodes [label="Other nodes" shape=plain fillcolor=transparent pos="0,4.5!"];
-    Clients    [label="Clients" shape=plain fillcolor=transparent pos="6,4.5!"];
+    OtherNodes [label="Other nodes" shape=plain fillcolor=transparent pos="0,6!"];
+    Clients    [label="Clients" shape=plain fillcolor=transparent pos="6,6!"];
 
     // Core components
     Catapult   [label="Catapult" pos="0,3!" URL="#catapult"];
-    REST       [label="REST\nGateway" pos="6,3!" URL="#rest-gateway"];
-    RocksDB    [label="State DB\n(RocksDB)" pos="1.5,1!" shape=cylinder URL="#state-database"];
-    Disk       [label="Blocks DB\n(Plain files)" pos="1.5,0!" shape=cylinder URL="#blocks-database"];
-    MongoDB    [label="Full DB\n(MongoDB)" pos="6,0!" shape=cylinder URL="#full-database"];
-    Broker     [label="Broker" pos="4,1.5!" URL="#broker"];
+    REST       [label="REST\nGateway" pos="6,4.5!" URL="#rest-gateway"];
+    RocksDB    [label="State DB" pos="2,1!" shape=cylinder URL="#state-database"];
+    Disk       [label="Blocks DB" pos="2,0!" shape=cylinder URL="#blocks-database"];
+    MongoDB    [label="Full DB" pos="6,0!" shape=cylinder URL="#full-database"];
+    Broker     [label="Broker" pos="4,2.5!" URL="#broker"];
 
     // Waypoints
+    OtherNodesWP [shape=point width=0 pos="0,4.5!"]
     RocksDBWP  [shape=point width=0 pos="0.125,1!"];
+    RocksDBWP2 [shape=point width=0 pos="3.825,1!"];
     DiskWP     [shape=point width=0 pos="-0.125,0!"];
+    DiskWP2    [shape=point width=0 pos="4.125,0!"];
     MongoDBWP  [shape=point width=0 pos="5.825,1.375!"];
-    RESTWP     [shape=point width=0 pos="5.825,1.625!"];
+    RESTWP     [shape=point width=0 pos="5.825,2.625!"];
     RESTWP2    [shape=point width=0 pos="6.125,1.5!"];
 
     // External
-    OtherNodes -> Catapult [dir=both];
-    Clients -> REST [dir=both];
+    OtherNodesWP -> Catapult [headlabel="Peer-to-peer API" labelangle=-60 labeldistance=8];
+    OtherNodesWP->OtherNodes;
+    REST -> Clients [dir=both headlabel="REST API" labelangle=-50 labeldistance=6];
 
     // Internal
-    Catapult -> REST [headlabel="Queries and replies" dir=both labelangle=5 labeldistance=15];
+    OtherNodesWP -> REST;
     Catapult -> RocksDBWP:s [dir=back];
-    RocksDBWP -> RocksDB [headlabel="Store\lblockchain\lstate\l" labelangle=-90 labeldistance=6];
+    RocksDBWP -> RocksDB [headlabel="Store\lblockchain\lstate\l" labelangle=-45 labeldistance=5];
     Catapult -> DiskWP:s [dir=back];
-    DiskWP:w -> Disk [headlabel="Store\rnew\rblocks\r" labelangle=-20 labeldistance=10];
-    Disk -> Broker [headlabel="Spooler queue" labelangle=-45 labeldistance=9];
+    DiskWP:w -> Disk [headlabel="Store\rnew\rblocks\r" labelangle=-20 labeldistance=14];
+    RocksDB -> RocksDBWP2 [dir=none];
+    RocksDBWP2:e -> Broker:s;
+    Disk -> DiskWP2 [dir=none];
+    DiskWP2 -> Broker [headlabel="Spooler\rqueues\r" labelangle=-25 labeldistance=13];
     Broker -> MongoDBWP [dir=none];
     MongoDBWP:n -> MongoDB [headlabel="Store\rindexed\rblocks\r" labelangle=45 labeldistance=6];
     Broker -> RESTWP [dir=none style=dashed];
@@ -76,14 +83,14 @@ network configuration, and time.
 
 ### :octicons-database-24: State Database
 
-Catapult uses [RocksDB](http://rocksdb.org), a key-value database that holds the current state of the blockchain.
+Catapult uses [RocksDB](http://rocksdb.org), a key-value database, to hold the current state of the blockchain.
 This includes account balances, active mosaics, and namespaces, for example.
 
 ### :octicons-database-24: Blocks Database
 
-All <blocks:> are stored as plain files on disk, along with <receipts:>,
-the <unconfirmed pool:|unconfirmed transactions pool> and all
-<bonded aggregate transaction:|partial transactions> waiting for completion.
+<blocks:|Blocks> and <receipts:> are stored in a file-based database.
+The <unconfirmed pool:|unconfirmed transactions pool> and all
+<bonded aggregate transaction:|partial transactions> waiting for completion are persisted in memory.
 
 ### :octicons-terminal-24: REST Gateway
 
@@ -93,8 +100,9 @@ Most queries are answered directly from its own [full database](#full-database),
 pending transactions.
 Queries about the node itself or the network are forwarded to the <Catapult:> engine.
 
-The REST Gateway also supports WebSocket connections, allowing subscribed applications to be notified of events
-as they happen, instead of having to repeatedly ask for updates.
+The REST Gateway also supports [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
+connections, allowing subscribed applications to be notified of events as they happen,
+instead of having to repeatedly ask for updates.
 
 [ZeroMQ](#zero-mq) delivers these events to the gateway, which then forwards them to subscribers.
 
@@ -124,7 +132,7 @@ or changes in account state.
 
 <Catapult:>'s [blocks](#blocks-database) and [state](#state-database) databases are optimized for high throughput.
 
-In parallel, nodes also maintain a replica of this data in [MongoDB](https://www.mongodb.com),
+In parallel, nodes may also maintain a replica of this data in [MongoDB](https://www.mongodb.com),
 which is optimized for handling the potentially complex queries received by the [REST Gateway](#rest-gateway).
 
 Only the [Broker](#broker) writes to this database, keeping it synchronized with the underlying blockchain data.
@@ -138,8 +146,9 @@ Each role places different demands on hardware, based on the enabled components.
 ### Peer Nodes
 
 Peer Node
-:   A peer node creates new blocks and participates in the network's consensus process by
-    validating incoming transactions and blocks, and relaying them to neighboring nodes.
+:   A peer node participates in the network's consensus process by validating incoming transactions and blocks,
+    and relaying them to neighboring nodes.
+    It can also create new blocks if it additionally enables the <harvester node:|harvester> role.
 
 Peer nodes maintain the network's integrity by independently verifying the data they receive before propagating it.
 
@@ -157,8 +166,29 @@ API Node
 This role requires enabling all the components described in the [Node Structure](#node-structure) section.
 All API nodes are also peer nodes.
 
-It also stores <bonded aggregate transactions:> and collect cosignatures until the transactions are complete and
+It also stores <bonded aggregate transactions:> and collects cosignatures until the transactions are complete and
 ready for processing.
+
+!!! info "Light API"
+
+    Non-API nodes can optionally expose <Catapult:>'s limited built-in HTTP API.
+
+    Unlike a full API node, this interface can only answer basic queries about the node and the network,
+    and requires significantly fewer resources.
+
+    Exposing this interface simplifies <delegated harvesting:>,
+    since clients can retrieve the node's public key through a standard REST API instead of the more cumbersome
+    peer-to-peer API.
+
+    Nodes exposing this interface are sometimes referred to as _light API nodes_.
+
+    The following endpoints are available:
+
+    * <get:/chain/info>
+    * <get:/node/info>
+    * <get:/node/peers>
+    * <get:/node/server>
+    * <get:/node/unlockedaccount>
 
 ### Voting Nodes
 
@@ -167,29 +197,16 @@ Voting Node
 
 A voting node can be either a peer or an API node, that is, it may or may not expose an API.
 
-### Dual Nodes
+### Harvester Nodes
 
-Dual Node
-:   An API node with <harvesting:> enabled is sometimes referred to as a _dual node_.
+Harvester Node
+:   Harvester nodes contribute to block production and are eligible for <harvesting:> rewards.
 
-### Light API Nodes
+!!! note "Dual Nodes"
 
-Light API Node
-:   A node is called a _light API node_ when <Catapult:>'s limited HTTP API is made publicly accessible.
+    A node with both the <API node:> and <harvester node:> roles enabled is sometimes referred to as a _dual node_.
 
-This API can only answer basic queries about the node and the network, and requires significantly fewer resources than
-a full <API node:>.
-
-Exposing this interface enables <delegated harvesting:> on the node,
-since it allows clients to retrieve the node's public key, which would otherwise be inaccessible.
-
-The only available API endpoints on light API nodes are:
-
-* <get:/chain/info>
-* <get:/node/info>
-* <get:/node/peers>
-* <get:/node/server>
-* <get:/node/unlockedaccount>
+    This term is informal and describes a node combining both API and harvesting functionality.
 
 ## Peer To Peer Communication
 
@@ -228,8 +245,7 @@ graph P2PNetwork {
 
 To facilitate bootstrapping, an initial list of peers is bundled with <Catapult:>.
 This allows a new node to make its first connections and begin discovering others.
-However, nodes on this list receive no special treatment:
-once connected, all peers are treated equally by the protocol.
+However, nodes on this list receive no special treatment besides a slightly higher chance to be selected as peers.
 
 ### Node Reputation
 

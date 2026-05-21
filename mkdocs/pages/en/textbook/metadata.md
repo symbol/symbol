@@ -129,7 +129,7 @@ Each stored value's unique identifier is composed of:
 
 Metadata cannot be attached to a namespace without the explicit approval of the namespace's owner.
 
-Namespaces are human-readable identifiers for accounts and mosaics.
+Namespaces are human-readable identifiers for accounts, mosaics, or groups of them.
 Adding metadata to them can further clarify their purpose, ownership, or contact information, for example.
 
 ## Summary
