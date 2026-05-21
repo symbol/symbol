@@ -33,7 +33,28 @@ function(catapult_tx_plugin_tests TARGET_NAME)
 		set(PLUGIN_TEST_FOLDERS test ${PLUGIN_TEST_FOLDERS})
 	endif()
 
-	catapult_test_executable_target(${TARGET_NAME} cache ${PLUGIN_SDK_FOLDERS} ${PLUGIN_DEPS_FOLDERS} ${PLUGIN_TEST_FOLDERS} plugins)
+	set(_source_dirs ./)
+	if(DEFINED PLUGIN_SDK_FOLDERS)
+		foreach(_relative_source IN LISTS PLUGIN_SDK_FOLDERS)
+			list(APPEND _source_dirs "./${_relative_source}")
+		endforeach()
+	endif()
+	if(DEFINED PLUGIN_DEPS_FOLDERS)
+		foreach(_relative_source IN LISTS PLUGIN_DEPS_FOLDERS)
+			list(APPEND _source_dirs "./${_relative_source}")
+		endforeach()
+	endif()
+	if(DEFINED PLUGIN_TEST_FOLDERS)
+		foreach(_relative_source IN LISTS PLUGIN_TEST_FOLDERS)
+			list(APPEND _source_dirs "./${_relative_source}")
+		endforeach()
+	endif()
+	list(APPEND _source_dirs ./plugins)
+
+	add_target(${TARGET_NAME} TEST
+		LINK_LIBS tests.catapult.test.cache
+		SOURCES ${_source_dirs}
+	)
 
 	if(TARGET "tests.catapult.test.plugins.${PLUGIN_NAME}")
 		target_link_libraries(${TARGET_NAME} tests.catapult.test.plugins.${PLUGIN_NAME})

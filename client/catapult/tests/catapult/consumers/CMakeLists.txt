@@ -1,1 +1,6 @@
-catapult_test_executable_target(tests.catapult.consumers cache test)
+add_target(tests.catapult.consumers TEST
+	LINK_LIBS tests.catapult.test.cache
+	SOURCES
+		./
+		./test
+)

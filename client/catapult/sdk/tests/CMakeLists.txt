@@ -1,3 +1,8 @@
-set(TARGET_NAME tests.catapult.sdk)
-
-catapult_test_executable_target(${TARGET_NAME} core builders extensions parsers)
+add_target(tests.catapult.sdk TEST
+	LINK_LIBS tests.catapult.test.core
+	SOURCES
+		./
+		./builders
+		./extensions
+		./parsers
+)

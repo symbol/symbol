@@ -1,1 +1,4 @@
-catapult_test_executable_target(tests.catapult.tree nodeps)
+add_target(tests.catapult.tree TEST
+	LINK_LIBS tests.catapult.test.nodeps
+	SOURCES ./
+)

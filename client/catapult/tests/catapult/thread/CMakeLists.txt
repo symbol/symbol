@@ -1,1 +1,5 @@
-catapult_test_executable_target_no_lib(tests.catapult.thread core)
+add_target(tests.catapult.thread TEST
+	WNO_DERIVED_LIB
+	LINK_LIBS tests.catapult.test.core
+	SOURCES ./
+)

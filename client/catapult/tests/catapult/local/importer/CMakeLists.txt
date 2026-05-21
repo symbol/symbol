@@ -1,1 +1,4 @@
-catapult_test_executable_target(tests.catapult.local.importer nemesis)
+add_target(tests.catapult.local.importer TEST
+	LINK_LIBS tests.catapult.test.nemesis
+	SOURCES ./
+)

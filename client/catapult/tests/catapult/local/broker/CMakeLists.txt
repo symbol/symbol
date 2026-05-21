@@ -1,2 +1,8 @@
-catapult_test_executable_target(tests.catapult.local.broker local test)
-target_link_libraries(tests.catapult.local.broker catapult.plugins.signature) # allow signature to be loaded implicitly
+add_target(tests.catapult.local.broker TEST
+	LINK_LIBS
+		tests.catapult.test.local
+		catapult.plugins.signature
+	SOURCES
+		./
+		./test
+)

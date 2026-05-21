@@ -1,1 +1,5 @@
-catapult_test_executable_target_no_lib(tests.catapult.local.server nemesis)
+add_target(tests.catapult.local.server TEST
+	WNO_DERIVED_LIB
+	LINK_LIBS tests.catapult.test.nemesis
+	SOURCES ./
+)

@@ -1,1 +1,7 @@
-catapult_test_executable_target(tests.catapult.plugins.signature cache plugins validators)
+add_target(tests.catapult.plugins.signature TEST
+	LINK_LIBS tests.catapult.test.cache
+	SOURCES
+		./
+		./plugins
+		./validators
+)
