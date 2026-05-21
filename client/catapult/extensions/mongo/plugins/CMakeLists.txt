@@ -22,7 +22,10 @@ function(catapult_mongo_plugin_src_with_deps PLUGIN_BASE_NAME)
 endfunction()
 
 function(catapult_mongo_plugin_tests_no_deps TARGET_NAME)
-	catapult_test_executable_target(${TARGET_NAME} mongo)
+	add_target(${TARGET_NAME} TEST
+		LINK_LIBS tests.catapult.test.mongo
+		SOURCES ./
+	)
 	catapult_add_mongo_dependencies(${TARGET_NAME})
 endfunction()
 
@@ -30,7 +33,12 @@ function(catapult_mongo_plugin_tests_with_header_only_deps TARGET_NAME)
 	string(REGEX MATCH "\.[a-z_]+$" PLUGIN_NAME ${TARGET_NAME})
 	string(SUBSTRING ${PLUGIN_NAME} 1 -1 PLUGIN_NAME)
 
-	catapult_test_executable_target(${TARGET_NAME} mongo "${ARGN}")
+	add_target(${TARGET_NAME} TEST
+		LINK_LIBS tests.catapult.test.mongo
+		SOURCES
+			./
+			${ARGN}
+	)
 	catapult_add_mongo_dependencies(${TARGET_NAME})
 	target_link_libraries(${TARGET_NAME} catapult.mongo.plugins.${PLUGIN_NAME}.deps)
 

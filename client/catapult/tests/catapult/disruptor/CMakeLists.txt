@@ -1,1 +1,6 @@
-catapult_test_executable_target(tests.catapult.disruptor core test)
+add_target(tests.catapult.disruptor TEST
+	LINK_LIBS tests.catapult.test.core
+	SOURCES
+		./
+		./test
+)

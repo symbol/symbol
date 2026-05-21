@@ -1,1 +1,6 @@
-catapult_test_executable_target(tests.catapult.io core test)
+add_target(tests.catapult.io TEST
+	LINK_LIBS tests.catapult.test.core
+	SOURCES
+		./
+		./test
+)

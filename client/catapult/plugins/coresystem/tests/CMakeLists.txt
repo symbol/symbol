@@ -1,1 +1,10 @@
-catapult_test_executable_target(tests.catapult.plugins.coresystem cache importance model observers plugins validators)
+add_target(tests.catapult.plugins.coresystem TEST
+	LINK_LIBS tests.catapult.test.cache
+	SOURCES
+		./
+		./importance
+		./model
+		./observers
+		./plugins
+		./validators
+)
