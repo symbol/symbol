@@ -1,1 +1,0 @@
-catapult_define_extension_src(nodediscovery api handlers)
