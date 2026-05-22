@@ -31,7 +31,7 @@ CEX
 :   Centralized Exchange, as opposed to Decentralized Exchanges (<DEX:>).
 
 CLI
-:   Command-Line Interface. A Program which is entirely used from a terminal console, using only the keyboard. Symbol has a CLI tool to interact with the blockchain.
+:   Command-Line Interface. A Program which is entirely used from a terminal console, using only the keyboard.
 
 CMC
 :   Coin Market Cap. A web page with cryptocurrency information.
@@ -187,7 +187,7 @@ TLC
 :   Tender Loving Care.
 
 TLS
-:   Security protocol used to encrypting communication between peers on a network.
+:   Security protocol used to encrypt communication between peers on a network.
 
 Token
 :   A representation of a digital asset. On Symbol they are called <mosaics:>.

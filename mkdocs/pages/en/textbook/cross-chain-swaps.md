@@ -89,7 +89,7 @@ the ones Symbol supports:
 For example:
 
 * Bitcoin natively supports HTLC via `OP_HASH160` and `OP_HASH256`.
-* Ethereum HTLC smart contracts can be implemented using the built-in SHA-256 and RIPEMD-160 functions.
+* Ethereum HTLC smart contracts can be implemented using the built-in SHA3-256 and RIPEMD-160 functions.
 
 ## Example
 
