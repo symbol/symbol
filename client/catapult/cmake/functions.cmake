@@ -58,10 +58,10 @@ function(glob_sources OUT_VAR)
 
 		if(EXISTS "${_abs_path}")
 			if(NOT IS_DIRECTORY "${_abs_path}")
-				# This is likely a source file provideddirectly.
+				# This is likely a source file provided directly.
 				# Just check it matches the sources pattern and add to the list if it does, otherwise skip with a warning.
-				string(REGEX MATCH ".*\\.(h|c|hpp|cpp)$" _is_source_file "${_abs_path}")
-				if(NOT _is_source_file)
+				string(REGEX MATCH ".*\\.(h|c|hpp|cpp|json|properties)$" _is_match "${_abs_path}")
+				if(NOT _is_match)
 					message(TRACE "[i] glob_sources: skipping '${_display_path}' since it is not a valid source file")
 					continue()
 				endif()
@@ -358,42 +358,8 @@ macro(_handle_sources)
 		else()
 			set(_scope PRIVATE)
 		endif()
-
-		# Insert grouping for IDEs
 		list(SORT _sources_list)
-
-		set(_current_group)
-		set(_group_files)
-		foreach(_source_file IN LISTS _sources_list)
-			cmake_path(
-				GET _source_file
-				PARENT_PATH _source_parent
-			)
-			cmake_path(
-				RELATIVE_PATH _source_parent
-				BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-				OUTPUT_VARIABLE _group_name
-			)
-			if(_group_name STREQUAL "." OR _group_name STREQUAL "")
-				set(_group_name "src")
-			endif()
-
-			if(NOT "${_group_name}" STREQUAL "${_current_group}")
-				if(_group_files)
-					source_group("${_current_group}" FILES ${_group_files})
-				endif()
-				set(_current_group "${_group_name}")
-				set(_group_files)
-			endif()
-			list(APPEND _group_files "${_source_file}")
-		endforeach()
-
-		if(_group_files)
-			source_group("${_current_group}" FILES ${_group_files})
-		endif()
-
 		target_sources(${TNAME} ${_scope} ${_sources_list})
-
 	endif()
 endmacro()
 
@@ -409,6 +375,38 @@ macro(_handle_includes)
 		else()
 			target_include_directories(${TNAME} PRIVATE ${_arg_INCLUDE_DIRS})
 		endif()
+	endif()
+endmacro()
+
+# Ancillary macro to add_target
+# handle the compile definitions for the target based on the provided arguments and target type.
+macro(_handle_definitions)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_definitions: must only be used from add_target().")
+	endif()
+	if(_arg_DEFINITIONS)
+
+		unset(_def_scope)
+		if(TTYPE STREQUAL "LIBRARY")
+			if(_arg_TYPE STREQUAL "SHARED")
+				# For shared libraries, definitions should be public to be visible to consumers
+				set(_def_scope PUBLIC)
+			elseif(_arg_TYPE STREQUAL "INTERFACE")
+				# For interface libraries, definitions must be interface
+				set(_def_scope INTERFACE)
+			else()
+				# For static libraries, definitions can be private since they are not propagated to consumers
+				set(_def_scope PRIVATE)
+			endif()
+		elseif(TTYPE STREQUAL "EXECUTABLE")
+			# For executables, definitions can be private since they are not propagated to consumers
+			set(_def_scope PRIVATE)
+		endif()
+
+		if(DEFINED _def_scope)
+			target_compile_definitions(${TNAME} ${_def_scope} ${_arg_DEFINITIONS})
+		endif()
+
 	endif()
 endmacro()
 
@@ -453,6 +451,7 @@ endmacro()
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
 #       [FOLDER <folder-name>]
+#       [DEFINITIONS <definitions>...]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -464,6 +463,7 @@ endmacro()
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
 #       [FOLDER <folder-name>]
+#       [DEFINITIONS <definitions>...]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS [lib1 lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -473,6 +473,7 @@ endmacro()
 #	add_target(<target-name> TEST
 #		[WNO_DERIVED_LIB] 
 #       [FOLDER <folder-name>]
+#       [DEFINITIONS <definitions>...]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -482,6 +483,7 @@ endmacro()
 #
 #	add_target(<target-name> TOOL
 #       [FOLDER <folder-name>]
+#       [DEFINITIONS <definitions>...]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -492,6 +494,7 @@ endmacro()
 #	add_target(<target-name> EXTENSION
 #       [SHARED]
 #       [FOLDER <folder-name>]
+#       [DEFINITIONS <definitions>...]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -516,7 +519,7 @@ function(add_target TNAME TTYPE)
 	# Prepare for argument parsing
 	set(_fn_options)
 	set(_fn_single FOLDER)
-	set(_fn_multi INCLUDE_DIRS LINK_LIBS DEPENDENCIES DEPENDENTS SOURCES)
+	set(_fn_multi DEFINITIONS INCLUDE_DIRS LINK_LIBS DEPENDENCIES DEPENDENTS SOURCES)
 
 	# Call appropriate add_* function based on the target type
 	if(TTYPE STREQUAL "LIBRARY")
@@ -544,6 +547,7 @@ function(add_target TNAME TTYPE)
 
 		_handle_folder()
 		_handle_link_libs()
+		_handle_definitions()
 		_handle_includes()
 		_handle_sources()
 		_handle_dependencies_dependents()
@@ -592,6 +596,7 @@ function(add_target TNAME TTYPE)
 		
 		_handle_folder()
 		_handle_link_libs()
+		_handle_definitions()
 		_handle_includes()
 		_handle_sources()
 		_handle_dependencies_dependents()
@@ -646,6 +651,9 @@ function(add_target TNAME TTYPE)
 		if(DEFINED _arg_DEPENDENTS)
 			list(APPEND _call_args DEPENDENTS ${_arg_DEPENDENTS})
 		endif()
+		if(DEFINED _arg_DEFINITIONS)
+			list(APPEND _call_args DEFINITIONS ${_arg_DEFINITIONS})
+		endif()
 		if(DEFINED _arg_INCLUDE_DIRS)
 			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
 		endif()
@@ -685,6 +693,9 @@ function(add_target TNAME TTYPE)
 		if(DEFINED _arg_FOLDER)
 			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
 		endif()
+		if(DEFINED _arg_DEFINITIONS)
+			list(APPEND _call_args DEFINITIONS ${_arg_DEFINITIONS})
+		endif()
 		if(DEFINED _arg_INCLUDE_DIRS)
 			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
 		endif()
@@ -714,6 +725,9 @@ function(add_target TNAME TTYPE)
 
 		if(DEFINED _arg_FOLDER)
 			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
+		endif()
+		if(DEFINED _arg_DEFINITIONS)
+			list(APPEND _call_args DEFINITIONS ${_arg_DEFINITIONS})
 		endif()
 		if(DEFINED _arg_INCLUDE_DIRS)
 			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
