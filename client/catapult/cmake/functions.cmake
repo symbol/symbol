@@ -300,6 +300,68 @@ macro(_parse_arguments)
 		#endif()
 endmacro()
 
+# Ancillary macro to add_target :
+# handle the target name validation
+macro(_handle_target_name)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_target_name: must only be used from add_target().")
+	endif()
+	if(TNAME MATCHES "\\ |^$")
+		message(FATAL_ERROR "add_target '${TNAME}' (${TTYPE})\ntarget name cannot contain whitespace or be empty.")
+	endif()
+
+	# EXTENSION is just a semantic alias for a shared library 
+	# with a specific naming convention
+	if(TTYPE STREQUAL "EXTENSION")
+		if(NOT TNAME MATCHES "^extension\\.")
+			string(PREPEND TNAME "extension.")
+		endif()
+		set(_arg_TYPE "SHARED") 
+	endif()
+
+	# TEST is just a semantic alias for an executable
+	# with a specific naming convention and extra dependencies
+	if(TTYPE STREQUAL "TEST")
+		if(NOT TNAME MATCHES "^tests\\.catapult\\.")
+			string(PREPEND TNAME "tests.catapult.")
+		endif()
+
+		# Test targets should be in the form test.xyz so it's possible to derive xyz as the library under test
+		# and automatically link it to the test executable. 
+		# There are cases though where this is not possible or desireable
+		# To allow to skip this automatic linking, pass WNO_DERIVED_LIB as an argument.
+		set(_derived_lib)
+		if(NOT _arg_WNO_DERIVED_LIB)
+			string(REPLACE "." ";" _parts "${TNAME}")
+			list(LENGTH _parts _num_parts)
+			if(_num_parts LESS 2)
+				message(FATAL_ERROR "add_target '${TNAME}' (${TTYPE})\n"
+                                    "expected format is 'test.xyz' where xyz is the library under test.\n"
+									"use WNO_DERIVED_LIB to skip automatic linking.")
+			endif()
+			list(REMOVE_AT _parts 0)
+			string(JOIN "." _derived_lib ${_parts})
+		endif()
+
+		list(PREPEND _arg_LINK_LIBS build.tests ${_derived_lib})
+	endif()
+
+
+
+	# TOOL is just a semantic alias for an executable 
+	# with a specific naming convention and extra dependencies
+	if(TTYPE STREQUAL "TOOL")
+		if(NOT TNAME MATCHES "^catapult\\.tools\\.")
+				string(PREPEND TNAME "catapult.tools.")
+		endif()
+		set(_arg_WITH_INSTALL ON)
+		list(PREPEND _arg_LINK_LIBS catapult.tools)
+		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
+		list(PREPEND _arg_DEPENDENTS tools)
+	endif()
+
+endmacro()
+
 # Ancillary macro to add_target : 
 # handle the case where a target with the same name already exists and raise an error since this is not allowed.
 macro(_handle_existing_target)
@@ -307,9 +369,8 @@ macro(_handle_existing_target)
 		message(FATAL_ERROR "_handle_existing_target: must only be used from add_target().")
 	endif()
 	if(TARGET ${TNAME})
-		#get target type for better error message
 		get_target_property(_existing_type ${TNAME} TYPE)
-		message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): target '${TNAME}' already exists (type: ${_existing_type}).")
+		message(FATAL_ERROR "add_target '${TNAME}' (${TTYPE})\nexists already '${TNAME}' (${_existing_type}).")
 	endif()
 endmacro()
 
@@ -446,7 +507,9 @@ endmacro()
 #   Source files MUST have extension .h, .c, .hpp or .cpp to be included in the target.
 #
 # Syntax:
-#	add_target(<target-name> LIBRARY 
+#
+#	Note : for EXTENSION libraries SHARED is implied
+#	add_target(<target-name> LIBRARY|EXTENSION 
 #		[TYPE STATIC|SHARED|MODULE|OBJECT|INTERFACE]
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
@@ -458,7 +521,8 @@ endmacro()
 #		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...])
 #
-#	add_target(<target-name> EXECUTABLE
+#	Note ! for TOOL targets WITH_INSTALL is implied
+#	add_target(<target-name> EXECUTABLE|TEST|TOOL
 #		[WIN32] [MACOSX_BUNDLE] 
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
@@ -489,17 +553,6 @@ endmacro()
 #		[DEPENDENCIES target1 [target2 ...]]
 #		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...]))
-#		Note ! TOOL targets are installed by default.
-#
-#	add_target(<target-name> EXTENSION
-#       [SHARED]
-#       [FOLDER <folder-name>]
-#       [DEFINITIONS <definitions>...]
-#		[INCLUDE_DIRS dir1 [dir2 ...]]
-#		[LINK_LIBS lib1 [lib2 ...]] 
-#		[DEPENDENCIES target1 [target2 ...]]
-#		[DEPENDENTS target1 [target2 ...]]
-#		[SOURCES <sources>...]))
 #
 #	add_target(<target-name> CUSTOM
 #		[SOURCES <sources>...])
@@ -508,26 +561,24 @@ endmacro()
 #	the target must not already exist when calling this function, otherwise an error is raised.
 function(add_target TNAME TTYPE)
 
-	set(_supported_target_types "LIBRARY;EXECUTABLE;TEST;TOOL;EXTENSION;CUSTOM")
-
-	if(${TNAME} STREQUAL "")
-		message(FATAL_ERROR "add_target: target name cannot be empty.")
-	elseif(NOT "${TTYPE}" IN_LIST _supported_target_types)
+	set(_supported_target_types "LIBRARY;EXECUTABLE;EXTENSION;TEST;TOOL;CUSTOM")
+	if(NOT "${TTYPE}" IN_LIST _supported_target_types)
 		message(FATAL_ERROR "add_target: unsupported target type '${TTYPE}'. Supported types are: ${_supported_target_types}.")
 	endif()
 	
-	# Prepare for argument parsing
+	# Supported options for all target types
 	set(_fn_options)
 	set(_fn_single FOLDER)
 	set(_fn_multi DEFINITIONS INCLUDE_DIRS LINK_LIBS DEPENDENCIES DEPENDENTS SOURCES)
 
 	# Call appropriate add_* function based on the target type
-	if(TTYPE STREQUAL "LIBRARY")
+	if(TTYPE MATCHES "^LIBRARY|EXTENSION$")
 		
 		list(APPEND _fn_options EXCLUDE_FROM_ALL WITH_INSTALL)
 		list(APPEND _fn_single TYPE)
 
 		_parse_arguments()
+		_handle_target_name()
 		_handle_existing_target()
 
 		if(NOT DEFINED _arg_TYPE)
@@ -542,7 +593,7 @@ function(add_target TNAME TTYPE)
 			message(FATAL_ERROR "add_target LIBRARY: missing or unsupported TYPE ${_arg_TYPE} for '${TNAME}'. Supported types are: ${_supported_types}.")
 		endif()
 
-		message(TRACE "[+] adding ${_arg_TYPE} LIBRARY '${TNAME}'")
+		message(TRACE "[+] adding target '${TNAME}' (${_arg_TYPE}_${TTYPE})")
 		add_library(${TNAME} ${_arg_TYPE})
 
 		_handle_folder()
@@ -573,15 +624,30 @@ function(add_target TNAME TTYPE)
 			install(TARGETS ${TNAME})
 		endif()
 
-	elseif(TTYPE STREQUAL "EXECUTABLE")
+	elseif(TTYPE MATCHES "^EXECUTABLE|TEST|TOOL$")
 
-		list(APPEND _fn_options WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL WITH_INSTALL)
+		list(APPEND _fn_options 
+			WIN32 
+			MACOSX_BUNDLE 
+			EXCLUDE_FROM_ALL 
+			WITH_INSTALL
+		)
+
+		if(TTYPE STREQUAL "TEST")
+			list(PREPEND _arg_DEPENDENCIES catapult.tests)
+			list(APPEND _fn_options WNO_DERIVED_LIB)
+			list(APPEND _fn_multi LABELS)
+		endif()
 		
+
 		_parse_arguments()
+		_handle_target_name()
 		_handle_existing_target()
 
-		message(TRACE "[+] adding EXECUTABLE '${TNAME}'")
+		message(TRACE "[+] adding target '${TNAME}' (${TTYPE})")
+
 		add_executable(${TNAME} ${VERSION_RESOURCES})
+
 		if(_arg_EXCLUDE_FROM_ALL)
 			set_target_properties(${TNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 		endif()
@@ -612,140 +678,16 @@ function(add_target TNAME TTYPE)
 			target_link_libraries(${TNAME} wsock32 ws2_32)
 		endif()
 
+		if(TTYPE STREQUAL "TEST")
+			add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
+			if(_arg_LABELS)
+				set_property(TEST ${TNAME} PROPERTY LABELS ${_arg_LABELS})
+			endif()
+		endif()
+
 		if(_arg_WITH_INSTALL)
 			install(TARGETS ${TNAME})
 		endif()
-
-	elseif(TTYPE STREQUAL "TEST")
-		
-		list(APPEND _fn_multi LABELS)
-
-		# Test targets should be in the form test.xyz so it's possible to derive xyz as the library under test
-		# and automatically link it to the test executable. 
-		# There are cases though where this is not possible or desireable
-		# To allow to skip this automatic linking, pass WNO_DERIVED_LIB as an argument.
-		list(APPEND _fn_options WNO_DERIVED_LIB)
-
-		_parse_arguments()
-		
-		set(_derived_lib)
-		if(NOT _arg_WNO_DERIVED_LIB)
-			string(REPLACE "." ";" _parts "${TNAME}")
-			list(LENGTH _parts _num_parts)
-			if(_num_parts LESS 2)
-				message(FATAL_ERROR "add_target TEST: unexpected test target name '${TNAME}'. Expected format is 'test.xyz' where xyz is the library under test.")
-			endif()
-			list(REMOVE_AT _parts 0)
-			string(JOIN "." _derived_lib ${_parts})
-		endif()
-		
-		list(PREPEND _arg_LINK_LIBS build.tests ${_derived_lib})
-
-		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS})
-		if(DEFINED _arg_FOLDER)
-			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
-		endif()
-		if(DEFINED _arg_DEPENDENCIES)
-			list(APPEND _call_args DEPENDENCIES ${_arg_DEPENDENCIES})
-		endif()
-		if(DEFINED _arg_DEPENDENTS)
-			list(APPEND _call_args DEPENDENTS ${_arg_DEPENDENTS})
-		endif()
-		if(DEFINED _arg_DEFINITIONS)
-			list(APPEND _call_args DEFINITIONS ${_arg_DEFINITIONS})
-		endif()
-		if(DEFINED _arg_INCLUDE_DIRS)
-			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
-		endif()
-		if(DEFINED _arg_SOURCES)
-			list(APPEND _call_args SOURCES ${_arg_SOURCES})
-		endif()
-
-		add_target(${TNAME} ${_call_args})
-
-		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")
-		add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
-
-		if(_arg_LABELS)
-			set_property(TEST ${TNAME} PROPERTY LABELS ${_arg_LABELS})
-		endif()
-		
-	elseif(TTYPE STREQUAL "TOOL")
-		
-		_parse_arguments()
-
-		# Tools' names must start with "catapult.tools." 
-		if(NOT TNAME MATCHES "^catapult\\.tools\\.")
-			set(TNAME catapult.tools.${TNAME})
-		endif()
-
-		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")
-		list(PREPEND _arg_LINK_LIBS catapult.tools)
-		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
-		list(PREPEND _arg_DEPENDENTS tools)
-		set(_call_args 
-			EXECUTABLE 
-			LINK_LIBS ${_arg_LINK_LIBS} 
-			DEPENDENCIES ${_arg_DEPENDENCIES} 
-			DEPENDENTS ${_arg_DEPENDENTS}
-			WITH_INSTALL
-		)
-		if(DEFINED _arg_FOLDER)
-			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
-		endif()
-		if(DEFINED _arg_DEFINITIONS)
-			list(APPEND _call_args DEFINITIONS ${_arg_DEFINITIONS})
-		endif()
-		if(DEFINED _arg_INCLUDE_DIRS)
-			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
-		endif()
-		if(DEFINED _arg_SOURCES)
-			list(APPEND _call_args SOURCES ${_arg_SOURCES})
-		endif()
-
-		add_target(${TNAME} ${_call_args})
-
-	elseif(TTYPE STREQUAL "EXTENSION")
-		
-		list(APPEND _fn_options SHARED)		# To be forwarded to library creation
-		
-		_parse_arguments()
-
-		# Extensions' names must start with "extension." 
-		if(NOT TNAME MATCHES "^extension\\.")
-			set(TNAME extension.${TNAME})
-		endif()
-
-		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")
-		
-		set(_call_args LIBRARY)
-		if(_arg_SHARED)
-			list(APPEND _call_args TYPE SHARED)
-		endif()
-
-		if(DEFINED _arg_FOLDER)
-			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
-		endif()
-		if(DEFINED _arg_DEFINITIONS)
-			list(APPEND _call_args DEFINITIONS ${_arg_DEFINITIONS})
-		endif()
-		if(DEFINED _arg_INCLUDE_DIRS)
-			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
-		endif()
-		if(DEFINED _arg_LINK_LIBS)
-			list(APPEND _call_args LINK_LIBS ${_arg_LINK_LIBS})
-		endif()
-		if(DEFINED _arg_DEPENDENCIES)
-			list(APPEND _call_args DEPENDENCIES ${_arg_DEPENDENCIES})
-		endif()
-		if(DEFINED _arg_DEPENDENTS)
-			list(APPEND _call_args DEPENDENTS ${_arg_DEPENDENTS})
-		endif()
-		if(DEFINED _arg_SOURCES)
-			list(APPEND _call_args SOURCES ${_arg_SOURCES})
-		endif()
-		
-		add_target(${TNAME} ${_call_args})
 
 	elseif(TTYPE STREQUAL "CUSTOM")
 		
@@ -760,6 +702,8 @@ function(add_target TNAME TTYPE)
 		_handle_sources()
 		_handle_dependencies_dependents()
 
+	else()
+		message(FATAL_ERROR "add_target: unhandled target type '${TTYPE}'.\nThis should not happen.")
 	endif()
 
 endfunction()
