@@ -19,7 +19,8 @@ Deploying a node with Shoestring involves the following steps.
     python3 -m shoestring.wizard
     ```
 
-    The wizard asks a series of questions and generates the same configuration files created in this tutorial.
+    The wizard asks a series of questions and generates the same configuration files created in this tutorial,
+    but offers less customization options.
 
     The resulting node behaves exactly like one created with the command-line steps below.
 
@@ -28,7 +29,7 @@ Deploying a node with Shoestring involves the following steps.
 
 ### 1. Create a Working Directory
 
-Shoestring creates the node files inside the current directory.
+Shoestring creates the node files inside the current directory by default.
 
 Create a directory for the node and move into it:
 
@@ -80,10 +81,10 @@ Only a few values usually need to be customized for your node, and they are all 
     * `PEER`: The node participates in consensus.
     * `API`: The node exposes an API for client applications.
     * `HARVESTER`: The node participates in block creation and is eligible for <harvesting:> rewards.
-        A minimum of 10'000 <XYM:> are required.
+        A minimum of 10'000 <XYM:> is required.
         See [Configure Harvesting](#configure-harvesting-optional) below.
     * `VOTER`: The node participates in <finalization:>.
-        A minimum of 3'000'000 <XYM:> are required.
+        A minimum of 3'000'000 <XYM:> is required.
         See [Configure Voting](#configure-voting-optional) below.
 
 * The `caCommonName` and `nodeCommonName` properties are used as Common Names (CN) in the
@@ -131,14 +132,14 @@ friendlyName = My Symbol Node
 
 !!! info "Further Customization"
 
-    The `overrides.ini` file can be used to modify any Catapult
+    The `overrides.ini` file can be used to modify any Catapult setting, for example,
     [network](../../devbook/reference/config/network-properties.md) or
-    [node](../../devbook/reference/config/node-properties.md) property.
+    [node](../../devbook/reference/config/node-properties.md) properties.
 
     To do so, add a section using the syntax `[config-file-name.config-section]`,
     then define the desired properties below it.
 
-    Note that setting any network property to a value different to those of the rest of the network will make your node
+    Note that setting any network property to a value different from those of the rest of the network will make the node
     <fork:>, effectively disconnecting it from the rest of the network.
 
 `config.ini` configures Shoestring itself, while `overrides.ini` customizes the generated node software.
@@ -187,7 +188,8 @@ and there are two ways to obtain it:
 
 Both options create a PEM file named `ca.key.pem` that contains the private key.
 
-This file **must be kept secure**.
+!!! warning "This file must be kept secure"
+
 Leave it in this directory for now.
 It will be moved offline at a later stage.
 
