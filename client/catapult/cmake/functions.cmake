@@ -144,6 +144,15 @@ function(glob_subdirs OUT_VAR)
 	endif()
 
 	if(_arg_RELATIVE AND NOT IS_DIRECTORY "${_arg_RELATIVE}")
+		# Just make sure this value is transformed to absolute
+		if(IS_RELATIVE "${_arg_RELATIVE}")
+			cmake_path(
+				ABSOLUTE_PATH _arg_RELATIVE
+				BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+				NORMALIZE
+				OUTPUT_VARIABLE _arg_RELATIVE
+			)
+		endif()
 		message(TRACE "[i] glob_subdirs: invalid RELATIVE base '${_arg_RELATIVE}' - not a directory")
 		return(PROPAGATE ${OUT_VAR})
 	endif()
@@ -160,11 +169,6 @@ function(glob_subdirs OUT_VAR)
 	else()
 		list(APPEND _call_args GLOB _items)
 	endif()
-	if(_arg_RELATIVE)
-		list(APPEND _call_args RELATIVE "${_arg_RELATIVE}")
-	endif()
-
-	message(TRACE "[i] glob_subdirs: base '${_path}'")
 
 	list(APPEND _call_args CONFIGURE_DEPENDS)
 	file(${_call_args} "${_path}/*")
@@ -178,6 +182,13 @@ function(glob_subdirs OUT_VAR)
 			if(NOT _arg_WITH_TESTS AND "${_item}" MATCHES "tests$")
 				message(TRACE "[i] glob_subdirs: skipping '${_item}' - WITH_TESTS is false")
 				continue()
+			endif()
+			if(_arg_RELATIVE)
+				cmake_path(
+					RELATIVE_PATH _item
+					BASE_DIRECTORY "${_arg_RELATIVE}"
+					OUTPUT_VARIABLE _item
+				)
 			endif()
 			list(APPEND ${OUT_VAR} "${_item}")
 		endif()
