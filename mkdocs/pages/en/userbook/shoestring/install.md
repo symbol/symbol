@@ -33,7 +33,7 @@ Before installing Shoestring, ensure the following software is available on the 
         The **OpenSSL command-line tools** are required to generate the cryptographic keys used by the node.
         On many systems they are already installed or available through the operating system's package manager.
         If they are not present, they can be downloaded from <https://openssl-library.org/source/>.
-        
+
         To check whether OpenSSL is available on the system, run `openssl version`.
         If the command prints the installed version, the tools are correctly installed and available in the system path.
 
@@ -49,21 +49,21 @@ When they are shared (as is the case on some Virtual Server providers) performan
 
 === "Minimum Requirements"
 
-    | Requirement    | Peer node     | API node      | Dual / Voting node |
-    |----------------|---------------|---------------|--------------------|
-    | **CPU**        | 2 cores       | 4 cores       | 4 cores            |
-    | **RAM**        | 8 GB          | 16 GB         | 16 GB              |
-    | **Disk size**  | 500 GB        | 750 GB        | 750 GB             |
-    | **Disk speed** | 1500 IOPS SSD | 1500 IOPS SSD | 1500 IOPS SSD      |
+    | Requirement    | Peer node     | API node      |
+    |----------------|---------------|---------------|
+    | **CPU**        | 2 cores       | 4 cores       |
+    | **RAM**        | 8 GB          | 16 GB         |
+    | **Disk size**  | 500 GB        | 750 GB        |
+    | **Disk speed** | 1500 IOPS SSD | 1500 IOPS SSD |
 
 === "Recommended Requirements"
 
-    | Requirement    | Peer node     | API node      | Dual / Voting node |
-    |----------------|---------------|---------------|--------------------|
-    | **CPU**        | 4 cores       | 8 cores       | 8 cores            |
-    | **RAM**        | 16 GB         | 32 GB         | 32 GB              |
-    | **Disk size**  | 500 GB        | 750 GB        | 750 GB             |
-    | **Disk speed** | 1500 IOPS SSD | 1500 IOPS SSD | 1500 IOPS SSD      |
+    | Requirement    | Peer node     | API node      |
+    |----------------|---------------|---------------|
+    | **CPU**        | 4 cores       | 8 cores       |
+    | **RAM**        | 16 GB         | 32 GB         |
+    | **Disk size**  | 500 GB        | 750 GB        |
+    | **Disk speed** | 1500 IOPS SSD | 1500 IOPS SSD |
 
 ## Installing with pip
 

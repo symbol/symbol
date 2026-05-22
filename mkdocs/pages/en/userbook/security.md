@@ -92,7 +92,7 @@ Both must be reviewed and understood before signing.
 Spoofing attacks disguise a malicious actor as a trusted individual or organization.
 
 The goal is usually to obtain a user's <private key:> or <mnemonic phrase:>,
-which allows the attacker to restore the user's wallet and gain full control of the account.
+which allows the attacker to access the user's wallet and gain full control of the account.
 
 Symbol wallets are non-custodial, meaning that users are solely responsible for protecting their keys.
 
@@ -139,9 +139,45 @@ Always verify the destination address before confirming a transaction.
 Using up-to-date anti-malware software can also help detect clipboard-hijacking malware before it affects crypto
 activity.
 
+## Address Spoofing
+
+### Description
+
+Some attackers generate Symbol <addresses:> that intentionally begin and end with the same characters as a known or
+trusted address.
+
+Because blockchain addresses are long, users often verify only the first and last few characters before confirming a
+transaction.
+An attacker can exploit this habit by creating a visually similar address and convincing the victim to send funds to it
+instead.
+
+### Example Attack Scenario
+
+* A user frequently transfers funds to a known address.
+* The attacker generates a similar-looking address with matching prefixes and suffixes.
+* The malicious address is displayed in a wallet, browser history, or copied transaction details.
+* The user checks only the beginning and end of the address and assumes it is correct.
+* Funds are sent to the attacker's address instead of the intended recipient.
+
+### Protection Measures
+
+Always verify the full destination address before confirming a transaction, especially for large transfers.
+
+When possible:
+
+* Use saved contacts or address books instead of manually copying addresses.
+* Verify addresses through a second communication channel.
+* Send a small test transaction before transferring large amounts.
+* Be suspicious of addresses that appear visually similar to known addresses.
+
 ## Compromised Backups
 
 Any copy of a <private key:> or <mnemonic phrase:> can provide access to the associated accounts.
 
 Backups must therefore be protected from theft, loss, or compromise, including exposure through
 cloud storage services or insecure devices.
+
+Encrypted backups are strongly recommended, especially when stored digitally or on removable media.
+
+For additional security, <private keys:> should ideally be backed up separately from other wallet data
+and protected with stronger safeguards, such as offline storage or dedicated hardware devices.
