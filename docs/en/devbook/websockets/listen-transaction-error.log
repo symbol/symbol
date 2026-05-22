@@ -1,7 +1,0 @@
-Using node https://reference.symboltest.net:3001
-Monitoring address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
-Connected to wss://reference.symboltest.net:3001/ws with uid jI0YhF0bJflDsIO915kmWUlZZew=
-Subscribed to status channel
-Announced transaction E14B012D3D254EF2...
-Transaction E14B012D3D254EF2... rejected with code: Failure_Core_Insufficient_Balance
-Unsubscribed from status channel
