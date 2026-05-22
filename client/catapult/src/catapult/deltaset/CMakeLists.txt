@@ -1,4 +1,4 @@
-add_target(catapult.deltaset LIBRARY
-	TYPE INTERFACE
+add_target(
+	catapult.deltaset LIBRARY TYPE INTERFACE
 	SOURCES ./
 )

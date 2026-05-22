@@ -1,8 +1,6 @@
-
 add_subdirs()
-
 add_target(
-	mongo EXTENSION SHARED
+	extension.mongo LIBRARY TYPE SHARED
 	LINK_LIBS 
 		${MongoDB_IMPORTED_TARGETS}
 		catapult.mongo

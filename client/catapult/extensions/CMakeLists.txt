@@ -8,9 +8,7 @@
 glob_subdirs(_all_extensions RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
 foreach(_extension_name IN LISTS _all_extensions)
 
-	message(TRACE "Defining extension ${_extension_name}")	
 	cmake_path(APPEND _extension_path "${CMAKE_CURRENT_SOURCE_DIR}" "${_extension_name}")
-
 	if(_extension_name STREQUAL "mongo")
 		add_subdirs("${_extension_path}")
 		continue()
@@ -52,7 +50,7 @@ foreach(_extension_name IN LISTS _all_extensions)
 
 	# Step 3: define the pluggable extension target itself
 	add_target(
-		extension.${_extension_name} EXTENSION SHARED
+		extension.${_extension_name} EXTENSION
 		LINK_LIBS 
 			catapult.${_extension_name}
 			$<$<STREQUAL:${_extension_name},zeromq>:cppzmq catapult.extensions>
