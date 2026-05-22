@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/version/version.h"
+#include "../version.h"
 
 namespace {
 	// export version information so that it is findable by `what`
