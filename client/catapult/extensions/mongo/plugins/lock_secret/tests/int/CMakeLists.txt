@@ -2,6 +2,7 @@ add_target(
 	tests.catapult.int.mongo.plugins.locksecret TEST
 	WNO_DERIVED_LIB
 	LINK_LIBS
+		${MongoDB_IMPORTED_TARGETS}
 		tests.catapult.test.mongo.plugins.locksecret	
 		tests.catapult.test.plugins.locksecret
 		tests.catapult.test.cache
@@ -12,6 +13,3 @@ add_target(
 	SOURCES
 		./storages
 )
-
-set(TARGET_NAME tests.catapult.int.mongo.plugins.locksecret)
-catapult_add_mongo_dependencies(${TARGET_NAME})

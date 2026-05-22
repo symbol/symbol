@@ -1,15 +1,3 @@
-function(catapult_define_extension_no_group EXTENSION_NAME)
-	add_subdirs(./src ./tests)
-	catapult_shared_library_target(extension.${EXTENSION_NAME})
-	target_link_libraries(extension.${EXTENSION_NAME} catapult.${EXTENSION_NAME})
-	set_property(TARGET extension.${EXTENSION_NAME} PROPERTY FOLDER "extensions")
-endfunction()
-
-function(catapult_define_extension EXTENSION_NAME)
-	catapult_define_extension_no_group(${EXTENSION_NAME})
-	add_dependencies(extensions extension.${EXTENSION_NAME})
-endfunction()
-
 function(catapult_define_extension_src EXTENSION_NAME)
 	catapult_library_target(catapult.${EXTENSION_NAME} ${ARGN})
 	target_link_libraries(catapult.${EXTENSION_NAME} catapult.extensions catapult.handlers catapult.net)

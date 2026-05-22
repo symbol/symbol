@@ -2,6 +2,7 @@ add_target(
 	tests.catapult.int.mongo TEST
 	WNO_DERIVED_LIB
 	LINK_LIBS
+		${MongoDB_IMPORTED_TARGETS}
 		tests.catapult.test.cache
 		tests.catapult.test.mongo
 		catapult.mongo
@@ -10,6 +11,3 @@ add_target(
 		./
 		./storages
 )
-
-set(TARGET_NAME tests.catapult.int.mongo)
-catapult_add_mongo_dependencies(${TARGET_NAME})
