@@ -138,30 +138,16 @@ function(glob_subdirs OUT_VAR)
 		list(GET _arg_UNPARSED_ARGUMENTS 0 _path)
 	endif()
 
-	cmake_path(
-		ABSOLUTE_PATH _path
-		BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-		NORMALIZE
-		OUTPUT_VARIABLE _abs_path
-	)
-	if(_arg_RELATIVE)
-		cmake_path(
-			ABSOLUTE_PATH _arg_RELATIVE
-			BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-			NORMALIZE
-			OUTPUT_VARIABLE _abs_relative
-		)
-	endif()
-	cmake_path(
-		RELATIVE_PATH _abs_path
-		BASE_DIRECTORY "${CMAKE_SOURCE_DIR}"
-		OUTPUT_VARIABLE _display_path
-	)
-
-	if(NOT IS_DIRECTORY "${_abs_path}")
-		message(TRACE "[i] glob_subdirs: skipping '${_display_path}' - not a directory")
+	if(NOT IS_DIRECTORY "${_path}")
+		message(TRACE "[i] glob_subdirs: invalid base '${_path}' - not a directory")
 		return(PROPAGATE ${OUT_VAR})
 	endif()
+
+	if(_arg_RELATIVE AND NOT IS_DIRECTORY "${_arg_RELATIVE}")
+		message(TRACE "[i] glob_subdirs: invalid RELATIVE base '${_arg_RELATIVE}' - not a directory")
+		return(PROPAGATE ${OUT_VAR})
+	endif()
+
 
 	set(_items)
 	set(_call_args)
@@ -175,35 +161,17 @@ function(glob_subdirs OUT_VAR)
 		list(APPEND _call_args GLOB _items)
 	endif()
 	if(_arg_RELATIVE)
-		list(APPEND _call_args RELATIVE "${_abs_relative}")
+		list(APPEND _call_args RELATIVE "${_arg_RELATIVE}")
 	endif()
 
-	message(TRACE "[i] glob_subdirs: base '${_display_path}'")
+	message(TRACE "[i] glob_subdirs: base '${_path}'")
 
 	list(APPEND _call_args CONFIGURE_DEPENDS)
-	file(${_call_args} "${_abs_path}/*")
+	file(${_call_args} "${_path}/*")
 
 	foreach(_item IN LISTS _items)
-		if(IS_ABSOLUTE "${_item}")
-			set(_abs_item "${_item}")
-		elseif(_arg_RELATIVE)
-			cmake_path(
-				ABSOLUTE_PATH _item
-				BASE_DIRECTORY "${_abs_relative}"
-				NORMALIZE
-				OUTPUT_VARIABLE _abs_item
-			)
-		else()
-			cmake_path(
-				ABSOLUTE_PATH _item
-				BASE_DIRECTORY "${_abs_path}"
-				NORMALIZE
-				OUTPUT_VARIABLE _abs_item
-			)
-		endif()
-
-		if(IS_DIRECTORY "${_abs_item}")
-			if(_arg_WITH_CMAKELISTS AND NOT EXISTS "${_abs_item}/CMakeLists.txt")
+		if(IS_DIRECTORY "${_item}")
+			if(_arg_WITH_CMAKELISTS AND NOT EXISTS "${_item}/CMakeLists.txt")
 				message(TRACE "[i] glob_subdirs: skipping '${_item}' - missing CMakeLists.txt file")
 				continue()
 			endif()
@@ -215,7 +183,6 @@ function(glob_subdirs OUT_VAR)
 		endif()
 	endforeach()
 	return(PROPAGATE ${OUT_VAR})
-
 endfunction()
 
 # Description:
@@ -295,7 +262,6 @@ function(add_subdirs)
 		endif()
 		add_subdirectory(${_add_subdirectory_args})
 	endforeach()
-
 endfunction()
 
 # Ancillary macro to add_target : 
@@ -323,6 +289,19 @@ macro(_parse_arguments)
 		#endif()
 endmacro()
 
+# Ancillary macro to add_target : 
+# handle the case where a target with the same name already exists and raise an error since this is not allowed.
+macro(_handle_existing_target)
+	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
+		message(FATAL_ERROR "_handle_existing_target: must only be used from add_target().")
+	endif()
+	if(TARGET ${TNAME})
+		#get target type for better error message
+		get_target_property(_existing_type ${TNAME} TYPE)
+		message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): target '${TNAME}' already exists (type: ${_existing_type}).")
+	endif()
+endmacro()
+
 # Ancillary macro to add_target
 # handle the dependencies and dependents for the target based on the provided arguments.
 macro(_handle_dependencies_dependents)
@@ -343,9 +322,13 @@ macro(_handle_folder)
 	if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
 		message(FATAL_ERROR "_handle_folder: must only be used from add_target().")
 	endif()
-	string(REGEX MATCH "\.(plugins|tools)\." _folder "${TNAME}")
-	if(_folder)
-		set_property(TARGET ${TNAME} PROPERTY FOLDER ${CMAKE_MATCH_1})
+	if(NOT DEFINED _arg_FOLDER)
+		string(REGEX MATCH "\.(plugins|tools)\." _folder "${TNAME}")
+		if(_folder)
+			set_property(TARGET ${TNAME} PROPERTY FOLDER "${CMAKE_MATCH_1}")
+		endif()
+	else()
+		set_property(TARGET ${TNAME} PROPERTY FOLDER "${_arg_FOLDER}")
 	endif()
 endmacro()
 
@@ -358,7 +341,6 @@ macro(_handle_sources)
 	if(DEFINED _arg_SOURCES)
 		set(_sources_list)
 		glob_sources(_sources_list ${_arg_SOURCES})
-
 		if(_arg_TYPE STREQUAL "INTERFACE")
 			list(FILTER _sources_list EXCLUDE REGEX "\\.c(pp)?$")
 			set(_scope INTERFACE)
@@ -436,7 +418,6 @@ macro(_handle_link_libs)
 	endif()
 
 	target_link_libraries(${TNAME} ${_link_mode} ${_arg_LINK_LIBS})
-
 endmacro()
 
 # Description:
@@ -460,6 +441,7 @@ endmacro()
 #		[TYPE STATIC|SHARED|MODULE|OBJECT|INTERFACE]
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
+#       [FOLDER <folder-name>]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -470,6 +452,7 @@ endmacro()
 #		[WIN32] [MACOSX_BUNDLE] 
 #		[EXCLUDE_FROM_ALL]
 #		[WITH_INSTALL]
+#       [FOLDER <folder-name>]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS [lib1 lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -478,6 +461,7 @@ endmacro()
 #
 #	add_target(<target-name> TEST
 #		[WNO_DERIVED_LIB] 
+#       [FOLDER <folder-name>]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
@@ -486,12 +470,22 @@ endmacro()
 #		[LABELS label1 [label2 ...]])
 #
 #	add_target(<target-name> TOOL
+#       [FOLDER <folder-name>]
 #		[INCLUDE_DIRS dir1 [dir2 ...]]
 #		[LINK_LIBS lib1 [lib2 ...]] 
 #		[DEPENDENCIES target1 [target2 ...]]
 #		[DEPENDENTS target1 [target2 ...]]
 #		[SOURCES <sources>...]))
-#		TOOL targets are installed by default.
+#		Note ! TOOL targets are installed by default.
+#
+#	add_target(<target-name> EXTENSION
+#       [SHARED]
+#       [FOLDER <folder-name>]
+#		[INCLUDE_DIRS dir1 [dir2 ...]]
+#		[LINK_LIBS lib1 [lib2 ...]] 
+#		[DEPENDENCIES target1 [target2 ...]]
+#		[DEPENDENTS target1 [target2 ...]]
+#		[SOURCES <sources>...]))
 #
 #	add_target(<target-name> CUSTOM
 #		[SOURCES <sources>...])
@@ -500,19 +494,17 @@ endmacro()
 #	the target must not already exist when calling this function, otherwise an error is raised.
 function(add_target TNAME TTYPE)
 
-	set(_supported_target_types "LIBRARY;EXECUTABLE;TEST;TOOL;CUSTOM")
+	set(_supported_target_types "LIBRARY;EXECUTABLE;TEST;TOOL;EXTENSION;CUSTOM")
 
 	if(${TNAME} STREQUAL "")
 		message(FATAL_ERROR "add_target: target name cannot be empty.")
-	elseif(TARGET ${TNAME})
-		message(FATAL_ERROR "add_target: target '${TNAME}' already exists.")
 	elseif(NOT "${TTYPE}" IN_LIST _supported_target_types)
 		message(FATAL_ERROR "add_target: unsupported target type '${TTYPE}'. Supported types are: ${_supported_target_types}.")
 	endif()
 	
 	# Prepare for argument parsing
 	set(_fn_options)
-	set(_fn_single)
+	set(_fn_single FOLDER)
 	set(_fn_multi INCLUDE_DIRS LINK_LIBS DEPENDENCIES DEPENDENTS SOURCES)
 
 	# Call appropriate add_* function based on the target type
@@ -520,7 +512,9 @@ function(add_target TNAME TTYPE)
 		
 		list(APPEND _fn_options EXCLUDE_FROM_ALL WITH_INSTALL)
 		list(APPEND _fn_single TYPE)
+
 		_parse_arguments()
+		_handle_existing_target()
 
 		if(NOT DEFINED _arg_TYPE)
 			if(BUILD_SHARED_LIBS)
@@ -567,8 +561,10 @@ function(add_target TNAME TTYPE)
 	elseif(TTYPE STREQUAL "EXECUTABLE")
 
 		list(APPEND _fn_options WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL WITH_INSTALL)
-		_parse_arguments()
 		
+		_parse_arguments()
+		_handle_existing_target()
+
 		message(TRACE "[+] adding EXECUTABLE '${TNAME}'")
 		add_executable(${TNAME} ${VERSION_RESOURCES})
 		if(_arg_EXCLUDE_FROM_ALL)
@@ -616,8 +612,6 @@ function(add_target TNAME TTYPE)
 
 		_parse_arguments()
 		
-		message(TRACE "[+] adding TEST '${TNAME}'")
-
 		set(_derived_lib)
 		if(NOT _arg_WNO_DERIVED_LIB)
 			string(REPLACE "." ";" _parts "${TNAME}")
@@ -627,12 +621,14 @@ function(add_target TNAME TTYPE)
 			endif()
 			list(REMOVE_AT _parts 0)
 			string(JOIN "." _derived_lib ${_parts})
-			message(TRACE "[i] \tderived library '${_derived_lib}'")
 		endif()
 		
 		list(PREPEND _arg_LINK_LIBS build.tests ${_derived_lib})
 
 		set(_call_args EXECUTABLE LINK_LIBS ${_arg_LINK_LIBS})
+		if(DEFINED _arg_FOLDER)
+			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
+		endif()
 		if(DEFINED _arg_DEPENDENCIES)
 			list(APPEND _call_args DEPENDENCIES ${_arg_DEPENDENCIES})
 		endif()
@@ -647,10 +643,11 @@ function(add_target TNAME TTYPE)
 		endif()
 
 		add_target(${TNAME} ${_call_args})
+
+		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")
 		add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
 
 		if(_arg_LABELS)
-			message(TRACE "[i] \tassigned labels '${_arg_LABELS}'")
 			set_property(TEST ${TNAME} PROPERTY LABELS ${_arg_LABELS})
 		endif()
 		
@@ -663,6 +660,7 @@ function(add_target TNAME TTYPE)
 			set(TNAME catapult.tools.${TNAME})
 		endif()
 
+		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")
 		list(PREPEND _arg_LINK_LIBS catapult.tools)
 		list(PREPEND _arg_DEPENDENCIES catapult_sdk_publish)
 		list(PREPEND _arg_DEPENDENTS tools)
@@ -673,6 +671,9 @@ function(add_target TNAME TTYPE)
 			DEPENDENTS ${_arg_DEPENDENTS}
 			WITH_INSTALL
 		)
+		if(DEFINED _arg_FOLDER)
+			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
+		endif()
 		if(DEFINED _arg_INCLUDE_DIRS)
 			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
 		endif()
@@ -682,11 +683,53 @@ function(add_target TNAME TTYPE)
 
 		add_target(${TNAME} ${_call_args})
 
+	elseif(TTYPE STREQUAL "EXTENSION")
+		
+		list(APPEND _fn_options SHARED)		# To be forwarded to library creation
+		
+		_parse_arguments()
+
+		# Extensions' names must start with "extension." 
+		if(NOT TNAME MATCHES "^extension\\.")
+			set(TNAME extension.${TNAME})
+		endif()
+
+		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")
+		
+		set(_call_args LIBRARY)
+		if(_arg_SHARED)
+			list(APPEND _call_args TYPE SHARED)
+		endif()
+
+		if(DEFINED _arg_FOLDER)
+			list(APPEND _call_args FOLDER "${_arg_FOLDER}")
+		endif()
+		if(DEFINED _arg_INCLUDE_DIRS)
+			list(APPEND _call_args INCLUDE_DIRS ${_arg_INCLUDE_DIRS})
+		endif()
+		if(DEFINED _arg_LINK_LIBS)
+			list(APPEND _call_args LINK_LIBS ${_arg_LINK_LIBS})
+		endif()
+		if(DEFINED _arg_DEPENDENCIES)
+			list(APPEND _call_args DEPENDENCIES ${_arg_DEPENDENCIES})
+		endif()
+		if(DEFINED _arg_DEPENDENTS)
+			list(APPEND _call_args DEPENDENTS ${_arg_DEPENDENTS})
+		endif()
+		if(DEFINED _arg_SOURCES)
+			list(APPEND _call_args SOURCES ${_arg_SOURCES})
+		endif()
+		
+		add_target(${TNAME} ${_call_args})
+
 	elseif(TTYPE STREQUAL "CUSTOM")
 		
 		list(REMOVE_ITEM _fn_multi INCLUDE_DIRS LINK_LIBS)
+		
 		_parse_arguments()
+		_handle_existing_target()
 
+		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")		
 		add_custom_target(${TNAME})
 
 		_handle_sources()

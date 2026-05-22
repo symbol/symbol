@@ -37,7 +37,7 @@ endfunction()
 # finds all files comprising a target
 function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
 	if(CMAKE_VERBOSE_MAKEFILE)
-		message("processing ${TARGET_TYPE} '${TARGET_NAME}'")
+		message(TRACE "processing ${TARGET_TYPE} '${TARGET_NAME}'")
 	endif()
 
 	file(GLOB ${TARGET_NAME}_INCLUDE_SRC "*.h")
@@ -51,7 +51,7 @@ function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
 	foreach(arg ${ARGN})
 		set(SUBDIR ${arg})
 		if(CMAKE_VERBOSE_MAKEFILE)
-			message("+ processing subdirectory '${arg}'")
+			message(TRACE "+ processing subdirectory '${arg}'")
 		endif()
 
 		file(GLOB ${TARGET_NAME}_${SUBDIR}_INCLUDE_SRC "${SUBDIR}/*.h")

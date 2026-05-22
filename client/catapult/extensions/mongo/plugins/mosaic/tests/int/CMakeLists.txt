@@ -2,6 +2,7 @@ add_target(
 	tests.catapult.int.mongo.plugins.mosaic TEST
 	WNO_DERIVED_LIB
 	LINK_LIBS
+		${MongoDB_IMPORTED_TARGETS}
 		tests.catapult.test.mongo.plugins.mosaic
 		tests.catapult.test.plugins.mosaic
 		tests.catapult.test.cache
@@ -11,6 +12,3 @@ add_target(
 	SOURCES
 		./storages
 )
-
-set(TARGET_NAME tests.catapult.int.mongo.plugins.mosaic)
-catapult_add_mongo_dependencies(${TARGET_NAME})
