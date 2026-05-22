@@ -35,7 +35,7 @@ Terminal commands assume they are run from the node's directory.
     ```
 
     This command performs a basic status check of the local node and reports whether its services appear to be
-    operating normally, and all the required keys are correctly registered and not
+    operating normally, and all the required certificates are correctly registered and not
     [nearing expiration](#key-and-certificate-renewals).
 
     A healthy node report looks like this:
@@ -84,7 +84,8 @@ Terminal commands assume they are run from the node's directory.
     docker compose logs -f
     ```
 
-    You can optionally specify the service you want to examine, such as `client`, `db`, or `broker`.
+    You can optionally specify the service you want to examine:
+    `client`, `db`, `broker`, `initiate`, `rest-api`, or `rest-api-https-proxy`.
 
     Look for repeated errors, database problems, connection failures, or warnings about missing files.
 
@@ -214,7 +215,7 @@ Keeping the operating system and node software updated improves stability, compa
 
 Several keys and certificates are required for normal node operation.
 
-For security reasons, none of them are intended to remain valid indefinitely, so they must be renewed periodically.
+For security reasons, not all of them are intended to remain valid indefinitely, so they must be renewed periodically.
 
 Shoestring provides renewal commands to simplify this process, as shown in the following sections.
 
@@ -249,9 +250,10 @@ You can also check the current certificate's expiration date remotely on the
 
 !!! warning "Retaining the Node Key"
 
-    By default, the command above generates a new node key pair.
+    By default, the command above generates a new transport key pair.
 
-    This changes the public key that <delegated harvesting:|delegated harvesters> use when registering to the node.
+    This changes the public key that <delegated harvesting:|delegated harvesters> use when registering to harvest on
+    the node.
 
     Existing delegators normally continue to work without interruption, **unless the node must perform a full
     resynchronization** of the blockchain.
@@ -266,9 +268,9 @@ You can also check the current certificate's expiration date remotely on the
 For security reasons, each voting key is valid for a maximum of 180 days (roughly six months), so keys must be renewed
 periodically to keep the node eligible for voting on finalization, both on <mainnet:> and <testnet:>.
 
-Only one key is required for the voting process at any given time, but up to three keys can be registered
+Only one root voting key is required for the voting process at any given time, but up to three keys can be registered
 simultaneously.
-This allows overlapping validity periods, so a backup key remains available when another key expires.
+This allows consecutive validity periods, so a backup key remains available when another key expires.
 
 When Shoestring [creates a voting node](./quickstart.md#configure-voting-optional), it already registers a voting key.
 It also provides a command to renew it:
@@ -277,7 +279,7 @@ It also provides a command to renew it:
 python3 -m shoestring renew-voting-keys --config config.ini --directory .
 ```
 
-This command creates new keys that become active once the current one expires,
+This command creates new keys that become active once the current set expires,
 and prepares the necessary transactions to:
 
 * Unlink expired voting keys.
@@ -305,11 +307,11 @@ If local chain data is lost or corrupted, the node can normally be resynchronize
 For this reason, backups should focus on local files that cannot be recovered automatically:
 
 * Shoestring configuration file `config.ini`
-* Node identity key file `ca.key.pem`
 * Node customization `overrides.ini`
+* Node identity key file `ca.key.pem` (which should normally not be present in the node at all)
 
 If harvesting is enabled, a full resynchronization normally regenerates the `harvesters.dat` file that tracks the
-currently registered delegators.
+currently registered delegators (as long as the transport key has not changed).
 
 For that reason, backing up this file is usually unnecessary unless the blockchain is restored
 [from a snapshot](https://github.com/symbol/product/tree/dev/tools/shoestring#need-to-resync-your-node).
