@@ -1,8 +1,8 @@
-set(TARGET_NAME resources)
-file(GLOB ${TARGET_NAME}_FILES "*.properties" "*.json")
-foreach(_it ${${TARGET_NAME}_FILES})
-	set_source_files_properties(${_it} PROPERTIES HEADER_FILE_ONLY TRUE)
+file(GLOB _sources "*.properties" "*.json")
+foreach(_item ${_sources})
+	set_source_files_properties(${_item} PROPERTIES HEADER_FILE_ONLY TRUE)
 endforeach()
-
-source_group("data" FILES ${${TARGET_NAME}_FILES})
-add_custom_target(${TARGET_NAME} SOURCES ${${TARGET_NAME}_FILES})
+add_target(
+	resources CUSTOM
+	SOURCES ${_sources}
+)
