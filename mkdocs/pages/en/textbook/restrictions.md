@@ -101,14 +101,10 @@ Account operation restriction
 This restriction supports either **blocking** (blocklisting) or **allowing** (allowlisting) the transaction types
 that an account is allowed to perform (but not both modes simultaneously).
 
-!!! warning
+!!! note
 
-    If the `ACCOUNT_OPERATION_RESTRICTION` transaction type is omitted from the allowlist,
-    the account will no longer be able to modify or remove this restriction,
-    effectively locking itself into the allowed set of operations permanently.
-
-    To avoid this risk, the [Symbol Desktop Wallet](../userbook/wallet/install.md) does not allow blocking the
-    operation restriction transaction.
+    Attempts to disallow the `ACCOUNT_OPERATION_RESTRICTION` transaction type are rejected by the protocol.
+    This prevents accounts from accidentally locking themselves into an overly restrictive set of allowed operations.
 
 The restriction can be used to prevent accidental use of the wrong account,
 but it does not prevent the account owner from lifting the restriction
@@ -144,15 +140,13 @@ Other accounts cannot set or modify restrictions on mosaics they do not own.
 
 !!! note
 
-    Restrictions can only be applied to mosaics that have been created with the [Restrictable](./mosaics.md#restrictability)
-    flag.
+    Restrictions can only be applied to mosaics that have been created with the
+    [Restrictable](./mosaics.md#restrictability) flag.
 
 To apply a restriction to a mosaic, two components must be defined:
 
 1. A <mosaic global restriction:>, which specifies the condition that accounts must meet in order to interact with the mosaic.
 2. A <mosaic address restriction:>, which assigns a value to each account that will be compared against the condition.
-
-**Both parts are required for the restriction to take effect.**
 
 This dependency is unique to mosaic restrictions.
 <Account restrictions:|Account restrictions>, by contrast, do not require multiple parts to work.
@@ -202,7 +196,9 @@ Once a global rule is set, the mosaic owner must explicitly assign values to acc
 
 Additionally, a mosaic global restriction can depend on the restriction values of another mosaic,
 known as the _reference mosaic_.
-The two mosaics do not need to be owned by the same account, allowing restriction logic to be delegated to third parties.
+The two mosaics do not need to belong to the same account.
+This allows, for example, one account to define certification logic in the reference mosaic,
+while another account references those rules and performs the actual certification of individual accounts.
 
 ### Mosaic Address Restrictions
 
@@ -253,3 +249,15 @@ The following table summarizes the main numerical limits related to restrictions
 | ------------------------------------------ | ----: |
 | Maximum number of restrictions per account |   100 |
 | Maximum number of restrictions per mosaic  |    20 |
+
+The following table summarizes all the available restriction operators:
+
+| Operator | Meaning                        |
+| -------- | ---------------                |
+| `NONE`   | No restriction                 |
+| `EQ`     | Allow if equal                 |
+| `NE`     | Allow if not equal             |
+| `LT`     | Allow if less than             |
+| `LE`     | Allow if less than or equal    |
+| `GT`     | Allow if greater than          |
+| `GE`     | Allow if greater than or equal |

@@ -64,8 +64,8 @@ This process is repeated at the next block height.
     * The **hit** is a random number derived from the new block's content and the account's <VRF key:>,
         making it unpredictable.
 
-        Without the VRF key, an attacker could predict which node is next in line and attempt to censor it,
-        for example, by launching a <DoS:> attack.
+        Without the VRF key, an attacker could predict which account is next in line and attempt to censor its
+        associated node, for example, by launching a <DoS:> attack.
 
     For the block to be valid, the node's target must be **greater than** its hit.
     A higher importance or a longer delay increases the target, making the condition easier to satisfy.
@@ -97,7 +97,7 @@ Remote Harvesting
 :   A type of <harvesting:> that delegates block signing to a separate _proxy_ account,
     while the node's <importance:> score and rewards remain tied to the operator's <main key:>.
 
-The proxy account holds no funds and exists only to sign blocks on behalf of the main account.
+The proxy account holds no funds and exists only to sign blocks on behalf of the harvester's main account.
 Because its <private key:> is stored in the node's configuration files, hosted on a permanently-online machine,
 it is designed to be expendable.
 
@@ -116,8 +116,7 @@ Delegated Harvesting
     The account's <importance:> score is used, and any harvested fees are shared between the account and the node's
     configured beneficiary.
 
-Such an account is called a _delegator_, or _delegated harvester_, even though the actual block signing
-is done by the node's proxy account.
+Such an account is called a _delegator_, or _delegated harvester_.
 
 Delegator
 :   An account that <delegated harvesting:|delegates> harvesting to a third-party node while retaining its <importance:>
@@ -129,7 +128,7 @@ This arrangement benefits both parties: the account earns rewards without runnin
 and the node increases its block production (and collected fees) without relying solely on its own importance.
 
 Delegated harvesting uses the same proxy-based setup as remote harvesting.
-The delegator signs a <transfer transaction:> with an encrypted message that requests the node to
+In addition, the delegator signs a <transfer transaction:> with an encrypted message that requests the node to
 harvest on its behalf.
 
 Whether the node grants the request depends on its policy and any competing requests it may have received.
@@ -205,42 +204,3 @@ digraph RewardDistribution {
     | **Total**                |                         | **100 XYM** |
 
     </div>
-
-## Importance
-
-Importance
-:   A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
-    and its participation in <harvesting:> new blocks.
-    This score determines harvesting eligibility and vote weight in consensus.
-
-Importance serves a role similar to hashrate in <PoW:> systems or stake in <PoS:> systems:
-the higher the value, the greater the chance to harvest a block and earn rewards.
-
-??? info "Importance Calculation"
-
-    All accounts that have a balance of at least 10'000 XYM are called _high value accounts_ and participate in the
-    importance calculation.
-
-    The importance score $I_A$ for a high value account $A$ is based on its _stake score_, its _transaction score_,
-    and its _node score_.
-
-    * The stake score $S_A$ is the percentage of currency it owns relative to the total currency owned by
-        all high value accounts.
-
-    * The transaction score $T_A$ is the percentage of fees paid by the account relative to the total amount
-        of fees paid by all high value accounts.
-
-    * The node score $N_A$ is the percentage of times it has been specified as a harvesting beneficiary relative to
-        the total number of high value account beneficiaries in the same period.
-
-    The details about how these scores are combined to produce the importance score can be found in
-    [the Symbol whitepaper](site:/assets/pdfs/SymbolWhitepaper.pdf), section 14.1.
-
-!!! note
-
-    Importance scores on <mainnet:> are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
-    two scores is used when calculating harvesting probabilities.
-    Therefore, when you first fund an account, it will require 12 hours to have a probability greater than zero to
-    start harvesting.
-
-    On <testnet:> scores are recalculated every 180 blocks (roughly 1.5 hours), so testing is easier.

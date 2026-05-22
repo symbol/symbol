@@ -165,6 +165,45 @@ Example use cases:
     In the above configuration, operations on the `Multisig Account` always require the signature of `Cosignatory 0` and
     at least one of the other three cosignatories `1` to `3`.
 
+## Importance
+
+Importance
+:   A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
+    and its participation in <harvesting:> new blocks.
+    This score determines the chance to harvest new blocks and vote weight in consensus.
+
+Importance serves a role similar to hashrate in <PoW:> systems or stake in <PoS:> systems:
+the higher the value, the greater the chance to harvest a block and earn rewards.
+
+??? info "Importance Calculation"
+
+    All accounts that have a balance of at least 10'000 XYM are called _high value accounts_ and participate in the
+    importance calculation.
+
+    The importance score $I_A$ for a high value account $A$ is based on its _stake score_, its _transaction score_,
+    and its _node score_.
+
+    * The stake score $S_A$ is the percentage of currency it owns relative to the total currency owned by
+        all high value accounts.
+
+    * The transaction score $T_A$ is the percentage of fees paid by the account relative to the total amount
+        of fees paid by all high value accounts.
+
+    * The node score $N_A$ is the percentage of times it has been specified as a harvesting beneficiary relative to
+        the total number of high value account beneficiaries in the same period.
+
+    The details about how these scores are combined to produce the importance score can be found in
+    [the Symbol whitepaper](site:/assets/pdfs/SymbolWhitepaper.pdf), section 14.1.
+
+!!! note
+
+    Importance scores on <mainnet:> are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
+    two scores is used when calculating harvesting probabilities.
+    Therefore, when you first fund an account, it will require 12 hours to have a probability greater than zero to
+    start harvesting.
+
+    On <testnet:> scores are recalculated every 180 blocks (roughly 1.5 hours), so testing is easier.
+
 ## Summary
 
 The following table summarizes the main numerical limits related to accounts.
