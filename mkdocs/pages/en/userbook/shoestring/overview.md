@@ -28,9 +28,8 @@ orchestration.
 
 Shoestring simplifies node deployment by:
 
-* using Python instead of Node.js
+* using Python instead of Node.js because it's typically included in most operating systems
 * separating configuration generation from runtime execution
-* delegating runtime orchestration to Docker
 
 This design reduces dependencies and makes node operations easier to maintain over time.
 
@@ -47,7 +46,7 @@ The typical workflow is:
 4. Start the Docker containers that run the node.
 
 The running node consists of several components inside Docker containers, including the
-[Catapult server](../../textbook/nodes.md#catapult) and the
+[Catapult client](../../textbook/nodes.md#catapult) and the optional
 [REST Gateway](../../textbook/nodes.md#rest-gateway).
 
 Shoestring also provides commands that help maintain a running node, such as upgrading the client,
