@@ -1,4 +1,3 @@
-
 # All extensions follow roughly the same build pattern, so we can just loop through all subdirs and 
 # define them in a consistent way and in a single place. Little differences like extra link libs
 # can be handled inline with generator expressions.
