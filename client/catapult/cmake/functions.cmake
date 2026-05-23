@@ -5,13 +5,16 @@
 #   source files. Directory arguments are traversed to collect files matching *.h, *.c, *.hpp and
 #   *.cpp, while individual source-file arguments are appended directly to the output list.
 #   Note : CONFIGURE_DEPENDS is used to ensure that CMake re-evaluates the glob and updates the list of sources
+#   Note : EXPRESSION must be a list of files' extensions to include in the form of semicolon-separated list (e.g. "cpp;h"), 
+#   and only files matching those extensions will be included in the output list. 
+#   If not provided the default extensions are "h;c;hpp;cpp".
 #
 # Syntax:
-#   glob_sources(<out-variable> [RECURSE] [FOLLOW_SYMLINKS] dir1 [dir2 ...])
+#   glob_sources(<out-variable> [RECURSE] [FOLLOW_SYMLINKS] [EXPRESSION <filter-expression>] dir1 [dir2 ...])
 function(glob_sources OUT_VAR)
 	
 	set(_fn_options RECURSE FOLLOW_SYMLINKS)
-	set(_fn_single RELATIVE)
+	set(_fn_single RELATIVE EXPRESSION)
 	set(_fn_multi)
 
 	cmake_parse_arguments(
@@ -25,6 +28,16 @@ function(glob_sources OUT_VAR)
 	if(_arg_KEYWORDS_MISSING_VALUES)
 		message(FATAL_ERROR "glob_sources: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
 	endif()
+
+	if(NOT _arg_EXPRESSION)
+		set(_arg_EXPRESSION "h;c;hpp;cpp")
+	endif()
+	list(LENGTH _arg_EXPRESSION _expressions_count)
+	if(_expressions_count LESS 1)
+		message(FATAL_ERROR "glob_sources: EXPRESSION must contain at least one file extension.")
+	endif()
+	string(JOIN "|" _regex_expression ${_arg_EXPRESSION})
+
 	if(_arg_RELATIVE)
 		cmake_path(
 			ABSOLUTE_PATH _arg_RELATIVE
@@ -60,7 +73,7 @@ function(glob_sources OUT_VAR)
 			if(NOT IS_DIRECTORY "${_abs_path}")
 				# This is likely a source file provided directly.
 				# Just check it matches the sources pattern and add to the list if it does, otherwise skip with a warning.
-				string(REGEX MATCH ".*\\.(h|c|hpp|cpp|json|properties)$" _is_match "${_abs_path}")
+				string(REGEX MATCH ".*\\.(${_regex_expression})$" _is_match "${_abs_path}")
 				if(NOT _is_match)
 					message(TRACE "[i] glob_sources: skipping '${_display_path}' since it is not a valid source file")
 					continue()
@@ -89,8 +102,10 @@ function(glob_sources OUT_VAR)
 			list(APPEND _call_args RELATIVE "${_abs_relative}")
 		endif()
 		list(APPEND _call_args CONFIGURE_DEPENDS)
-		
-		file(${_call_args} "${_abs_path}/*.h" "${_abs_path}/*.c" "${_abs_path}/*.hpp" "${_abs_path}/*.cpp")
+		foreach(_ext IN LISTS _arg_EXPRESSION)
+			list(APPEND _call_args "${_abs_path}/*.${_ext}")
+		endforeach()
+		file(${_call_args})
 		list(LENGTH _sources _num_sources)
 		message(TRACE "[i] glob_sources: '${_display_path}' - found ${_num_sources} source files")
 		list(APPEND _all_sources ${_sources})
