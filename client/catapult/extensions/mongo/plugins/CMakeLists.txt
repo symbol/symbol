@@ -1,22 +1,39 @@
-set(PLUGIN_CATAPULT_LIBS catapult.mongo)
-
 function(catapult_mongo_plugin_src_no_deps PLUGIN_BASE_NAME)
-	catapult_shared_library_target(${PLUGIN_BASE_NAME} "${ARGN}")
-	target_link_libraries(${PLUGIN_BASE_NAME} ${MongoDB_IMPORTED_TARGETS} ${PLUGIN_CATAPULT_LIBS})
-
-	add_dependencies(mongo ${PLUGIN_BASE_NAME})
+	add_target(
+		${PLUGIN_BASE_NAME} LIBRARY TYPE SHARED
+		LINK_LIBS 
+			${MongoDB_IMPORTED_TARGETS} 
+			catapult.mongo
+		DEPENDENTS mongo
+		SOURCES 
+			./
+			${ARGN}
+	)
 endfunction()
 
 function(catapult_mongo_plugin_src_with_deps PLUGIN_BASE_NAME)
 	# create a deps lib
-	catapult_library_target(${PLUGIN_BASE_NAME}.deps "${ARGN}")
-	target_link_libraries(${PLUGIN_BASE_NAME}.deps ${MongoDB_IMPORTED_TARGETS} ${PLUGIN_CATAPULT_LIBS})
+	add_target(
+		${PLUGIN_BASE_NAME}.deps LIBRARY
+		LINK_LIBS 
+			${MongoDB_IMPORTED_TARGETS} 
+			catapult.mongo
+		SOURCES 
+			./
+			${ARGN}
+	)
 
 	# create a plugin dll
-	catapult_shared_library_target(${PLUGIN_BASE_NAME})
-	target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_BASE_NAME}.deps)
+	add_target(
+		${PLUGIN_BASE_NAME} LIBRARY TYPE SHARED
+		DEPENDENTS mongo
+		LINK_LIBS 
+			${MongoDB_IMPORTED_TARGETS} 
+			catapult.mongo
+			${PLUGIN_BASE_NAME}.deps
+		SOURCES ./
+	)
 
-	add_dependencies(mongo ${PLUGIN_BASE_NAME})
 endfunction()
 
 function(catapult_mongo_plugin_tests_no_deps TARGET_NAME)
@@ -37,8 +54,8 @@ function(catapult_mongo_plugin_tests_with_header_only_deps TARGET_NAME)
 			${MongoDB_IMPORTED_TARGETS}
 			tests.catapult.test.mongo
 			catapult.plugins.${PLUGIN_NAME}.deps
-		SOURCES
-			./
+		SOURCES 
+			./ 
 			${ARGN}
 	)
 	if(TARGET "tests.catapult.test.plugins.${PLUGIN_NAME}")
@@ -56,7 +73,13 @@ function(catapult_mongo_plugin_tests_with_deps TARGET_NAME)
 endfunction()
 
 function(catapult_mongo_plugin_test_library TARGET_NAME)
-	catapult_library_target(${TARGET_NAME})
+	add_target(
+		${TARGET_NAME} LIBRARY
+		LINK_LIBS 
+			${MongoDB_IMPORTED_TARGETS} 
+			${GTest_IMPORTED_TARGETS}
+		SOURCES ./
+	)
 	target_link_libraries(${TARGET_NAME} ${MongoDB_IMPORTED_TARGETS} ${GTest_IMPORTED_TARGETS})
 endfunction()
 
