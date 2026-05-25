@@ -23,7 +23,7 @@
     "chai": "^6.0.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-plugin-jsdoc": "^62.0.0",
+    "eslint-plugin-jsdoc": "^63.0.0",
     "minimist": "^1.2.8",
     "mocha": "^11.0.1",
     "sinon": "^22.0.0",
