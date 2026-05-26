@@ -27,10 +27,10 @@ digraph SymbolNode {
 
     // External labels
     OtherNodes [label="Other nodes" shape=plain fillcolor=transparent pos="0,6!"];
-    Clients    [label="Clients" shape=plain fillcolor=transparent pos="6,6!"];
+    Clients    [label="Apps" shape=plain fillcolor=transparent pos="6,6!"];
 
     // Core components
-    Catapult   [label="Catapult" pos="0,3!" URL="#catapult"];
+    Catapult   [label="Catapult" pos="0,2.5!" URL="#catapult"];
     REST       [label="REST\nGateway" pos="6,4.5!" URL="#rest-gateway"];
     RocksDB    [label="State DB" pos="2,1!" shape=cylinder URL="#state-database"];
     Disk       [label="Blocks DB" pos="2,0!" shape=cylinder URL="#blocks-database"];
@@ -38,30 +38,27 @@ digraph SymbolNode {
     Broker     [label="Broker" pos="4,2.5!" URL="#broker"];
 
     // Waypoints
-    OtherNodesWP [shape=point width=0 pos="0,4.5!"]
+    OtherNodesWP [shape=point width=0 pos="-0.125,4.5!"]
+    OtherNodesWP2 [shape=point width=0 pos="0.125,4.5!"]
     RocksDBWP  [shape=point width=0 pos="0.125,1!"];
-    RocksDBWP2 [shape=point width=0 pos="3.825,1!"];
     DiskWP     [shape=point width=0 pos="-0.125,0!"];
-    DiskWP2    [shape=point width=0 pos="4.125,0!"];
     MongoDBWP  [shape=point width=0 pos="5.825,1.375!"];
     RESTWP     [shape=point width=0 pos="5.825,2.625!"];
     RESTWP2    [shape=point width=0 pos="6.125,1.5!"];
 
     // External
-    OtherNodesWP -> Catapult [headlabel="Peer-to-peer API" labelangle=-60 labeldistance=8];
-    OtherNodesWP->OtherNodes;
+    OtherNodesWP -> Catapult [headlabel="Peer-to-peer API" labelangle=-25 labeldistance=15];
+    OtherNodesWP -> OtherNodes;
     REST -> Clients [dir=both headlabel="REST API" labelangle=-50 labeldistance=6];
 
     // Internal
-    OtherNodesWP -> REST;
+    OtherNodesWP2 -> REST;
+    OtherNodesWP2 -> Catapult;
     Catapult -> RocksDBWP:s [dir=back];
+    Catapult -> Broker [headlabel="Spooler queues" labelangle=-10 labeldistance=10];
     RocksDBWP -> RocksDB [headlabel="Store\lblockchain\lstate\l" labelangle=-45 labeldistance=5];
     Catapult -> DiskWP:s [dir=back];
     DiskWP:w -> Disk [headlabel="Store\rnew\rblocks\r" labelangle=-20 labeldistance=14];
-    RocksDB -> RocksDBWP2 [dir=none];
-    RocksDBWP2:e -> Broker:s;
-    Disk -> DiskWP2 [dir=none];
-    DiskWP2 -> Broker [headlabel="Spooler\rqueues\r" labelangle=-25 labeldistance=13];
     Broker -> MongoDBWP [dir=none];
     MongoDBWP:n -> MongoDB [headlabel="Store\rindexed\rblocks\r" labelangle=45 labeldistance=6];
     Broker -> RESTWP [dir=none style=dashed];
