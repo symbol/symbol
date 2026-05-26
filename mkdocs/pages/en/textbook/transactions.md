@@ -168,7 +168,7 @@ valid?", shape=diamond, style="", URL="#3-validation"];
     Propagation  [label="4. Propagate to other nodes", URL="#4-propagation"];
     Harvesting   [label="5. Inclusion in a block", URL="#5-harvesting"];
     Confirmation [label="6. Confirmed?", shape=diamond, style="", URL="#6-confirmation"];
-    Finalization [label="7. The block becomes immutable", URL="#7-finalization"];
+    Finalization [label="7. Finalization", URL="#7-finalization"];
 
     // Rejection branches
     Rejection1   [label="Rejected" style="rounded,dashed"];
@@ -294,9 +294,10 @@ All transaction types in Symbol share a set of common attributes:
 
 ## Validation Details
 
-Before a transaction is included in a block, each node independently validates it using the following checks:
+Before a transaction is included in a block, each node independently checks its validity.
+Here are some of the validators used:
 
-| **Check**            | **Description**                                                                                          |
+| **Validator**        | **Description**                                                                                          |
 |----------------------|----------------------------------------------------------------------------------------------------------|
 | **Signature check**  | Verifies the signature is valid and matches the signer's public key and the transaction's contents.      |
 | **Fee check**        | Confirms the max fee meets the node's minimum threshold and that the signer has sufficient balance.      |
