@@ -28,8 +28,8 @@ calculating a _target_ value for each one based primarily on its <importance:>.
 Accounts with higher importance produce higher target values.
 
 If the _hit_ is lower than the _target_ for any of these accounts,
-the node assembles a candidate block by collecting transactions from the <unconfirmed pool:>
-and assigning the harvesting rewards to the configured beneficiaries.
+the node uses the first matching account to assemble a candidate block by collecting transactions from the
+<unconfirmed pool:> and assigning the harvesting rewards to the configured beneficiaries.
 
 The completed block is then announced to the rest of the network and other nodes then verify it, ensuring:
 

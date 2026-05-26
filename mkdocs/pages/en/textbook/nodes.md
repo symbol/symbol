@@ -26,15 +26,15 @@ digraph SymbolNode {
     edge [penwidth=1.5]
 
     // External labels
-    OtherNodes [label="Other nodes" shape=plain fillcolor=transparent pos="0,6!"];
-    Clients    [label="Apps" shape=plain fillcolor=transparent pos="6,6!"];
+    OtherNodes [label="Other nodes" style=dashed fillcolor=transparent pos="0,6.5!"];
+    Clients    [label="Apps" style=dashed fillcolor=transparent pos="6,6.5!"];
 
     // Core components
     Catapult   [label="Catapult" pos="0,2.5!" URL="#catapult"];
     REST       [label="REST\nGateway" pos="6,4.5!" URL="#rest-gateway"];
-    RocksDB    [label="State DB" pos="2,1!" shape=cylinder URL="#state-database"];
-    Disk       [label="Blocks DB" pos="2,0!" shape=cylinder URL="#blocks-database"];
-    MongoDB    [label="Full DB" pos="6,0!" shape=cylinder URL="#full-database"];
+    RocksDB    [label="State DB" pos="1.5,0.5!" shape=cylinder URL="#state-database"];
+    Disk       [label="Blocks DB" pos="1.5,-0.5!" shape=cylinder URL="#blocks-database"];
+    MongoDB    [label="Full DB" pos="6,-0.5!" shape=cylinder URL="#full-database"];
     Broker     [label="Broker" pos="4,2.5!" URL="#broker"];
 
     // Waypoints
@@ -42,29 +42,36 @@ digraph SymbolNode {
     OtherNodesWP2 [shape=point width=0 pos="0.125,4.5!"]
     RocksDBWP  [shape=point width=0 pos="0.125,1!"];
     DiskWP     [shape=point width=0 pos="-0.125,0!"];
-    MongoDBWP  [shape=point width=0 pos="5.825,1.375!"];
+    MongoDBWP  [shape=point width=0 pos="5.825,2.375!"];
     RESTWP     [shape=point width=0 pos="5.825,2.625!"];
     RESTWP2    [shape=point width=0 pos="6.125,1.5!"];
 
     // External
     OtherNodesWP -> Catapult [headlabel="Peer-to-peer API" labelangle=-25 labeldistance=15];
     OtherNodesWP -> OtherNodes;
-    REST -> Clients [dir=both headlabel="REST API" labelangle=-50 labeldistance=6];
+    REST -> Clients [dir=both headlabel="REST\rAPI" labelangle=-50 labeldistance=6];
+    REST -> Clients [dir=both headlabel="WebSockets\rAPI" labelangle=50 labeldistance=6];
 
     // Internal
     OtherNodesWP2 -> REST;
     OtherNodesWP2 -> Catapult;
     Catapult -> RocksDBWP:s [dir=back];
     Catapult -> Broker [headlabel="Spooler queues" labelangle=-10 labeldistance=10];
-    RocksDBWP -> RocksDB [headlabel="Store\lblockchain\lstate\l" labelangle=-45 labeldistance=5];
+    RocksDBWP -> RocksDB [headlabel="Store\lblockchain\lstate\l" labelangle=-85 labeldistance=5];
     Catapult -> DiskWP:s [dir=back];
-    DiskWP:w -> Disk [headlabel="Store\rnew\rblocks\r" labelangle=-20 labeldistance=14];
+    DiskWP:w -> Disk [headlabel="Store\rblocks\r" labelangle=-20 labeldistance=10];
     Broker -> MongoDBWP [dir=none];
-    MongoDBWP:n -> MongoDB [headlabel="Store\rindexed\rblocks\r" labelangle=45 labeldistance=6];
+    MongoDBWP:n -> MongoDB [headlabel="Store\rindexed\rblocks\rand state\r" labelangle=45 labeldistance=6];
     Broker -> RESTWP [dir=none style=dashed];
     RESTWP -> REST [headlabel="Notifies of\rupdates\rvia ZMQ\r" style=dashed labelangle=-50 labeldistance=7 URL="#zero-mq"];
     MongoDB -> RESTWP2 [dir=none];
     RESTWP2 -> REST [headlabel="Fetch\lrequested\linformation\l" labelangle=30 labeldistance=10];
+
+    MidWP1     [shape=point width=0 pos="3,5!"];
+    MidWP2     [shape=point width=0 pos="3,-2!"];
+    MidWP1 -> MidWP2 [dir=none style=dotted];
+    PeerLabel  [label="Peer components" shape=plain pos="1,-2!"]
+    RESTLabel  [label="API components" shape=plain pos="5,-2!"]
 }
 ```
 
@@ -113,7 +120,7 @@ This decoupling ensures that indexing and storing into the blocks database do no
 Catapult's time-sensitive operation.
 
 As soon as changes are detected, the Broker also notifies the REST Gateway through [Zero MQ](#zero-mq) so subscribed
-applications can receive timely updates.
+applications can receive timely updates through WebSockets.
 
 ### :octicons-terminal-24: Zero MQ
 
