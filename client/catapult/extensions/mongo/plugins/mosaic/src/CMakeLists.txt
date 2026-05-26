@@ -1,6 +1,4 @@
-set(PLUGIN_BASE_NAME catapult.mongo.plugins.mosaic)
-
-catapult_mongo_plugin_src_with_deps(${PLUGIN_BASE_NAME} mappers storages)
-
-# mosaic.deps is needed because the mongo mosaic cache storage needs the mosaic cache
-target_link_libraries(${PLUGIN_BASE_NAME}.deps catapult.plugins.mosaic.deps)
+add_mongo_plugin(
+    mosaic WITH_DEPS
+    SOURCES ./ ./mappers ./storages
+)

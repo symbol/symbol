@@ -54,7 +54,7 @@ function(glob_sources OUT_VAR)
 		set(_paths ${_arg_UNPARSED_ARGUMENTS})
 	endif()
 
-	set(_all_sources)
+	set(${OUT_VAR})
 	foreach(_path IN LISTS _paths)
 
 		cmake_path(
@@ -78,14 +78,13 @@ function(glob_sources OUT_VAR)
 					message(TRACE "[i] glob_sources: skipping '${_display_path}' since it is not a valid source file")
 					continue()
 				endif()
-				list(APPEND _all_sources "${_abs_path}")
+				list(APPEND ${OUT_VAR} "${_abs_path}")
 				continue()
 			endif()
 		else()
 			message(TRACE "[i] glob_sources: skipping '${_display_path}' since it does not exist")
 			continue()
 		endif()
-
 
 		set(_sources)
 		set(_call_args)
@@ -108,10 +107,10 @@ function(glob_sources OUT_VAR)
 		file(${_call_args})
 		list(LENGTH _sources _num_sources)
 		message(TRACE "[i] glob_sources: '${_display_path}' - found ${_num_sources} source files")
-		list(APPEND _all_sources ${_sources})
+		list(APPEND ${OUT_VAR} ${_sources})
 
 	endforeach()
-	set(${OUT_VAR} ${_all_sources} PARENT_SCOPE)
+	return(PROPAGATE ${OUT_VAR})
 
 endfunction()
 
@@ -120,10 +119,10 @@ endfunction()
 #   If not path is provided, current cmake source directory is used as the base path for globbing.
 #
 # Syntax:
-#   glob_subdirs(<out-variable> [RECURSE] [FOLLOW_SYMLINKS] [RELATIVE <base-dir>] [WITH_CMAKELISTS] [WITH_TESTS true | false] <path>)
+#   glob_subdirs(<out-variable> [RECURSE] [FOLLOW_SYMLINKS] [RELATIVE <base-path>] [WITH_CMAKELISTS] [WITH_TESTS true | false] <path>)
 function(glob_subdirs OUT_VAR)
 	set(_fn_options RECURSE FOLLOW_SYMLINKS WITH_CMAKELISTS)
-	set(_fn_single RELATIVE WITH_TESTS)
+	set(_fn_single BASE RELATIVE WITH_TESTS)
 	set(_fn_multi)
 
 	cmake_parse_arguments(
@@ -134,7 +133,7 @@ function(glob_subdirs OUT_VAR)
 		"${_fn_multi}"
 	)
 
-
+	set(${OUT_VAR})
 	if(_arg_KEYWORDS_MISSING_VALUES)
 		message(FATAL_ERROR "glob_subdirs: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
 	endif()
@@ -158,9 +157,11 @@ function(glob_subdirs OUT_VAR)
 		return(PROPAGATE ${OUT_VAR})
 	endif()
 
-	if(_arg_RELATIVE AND NOT IS_DIRECTORY "${_arg_RELATIVE}")
+	if(_arg_RELATIVE)
 		# Just make sure this value is transformed to absolute
-		if(IS_RELATIVE "${_arg_RELATIVE}")
+		# and, if not a directory, assign the parent path
+		cmake_path(IS_RELATIVE _arg_RELATIVE _is_relative)
+		if(_is_relative)
 			cmake_path(
 				ABSOLUTE_PATH _arg_RELATIVE
 				BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -168,10 +169,17 @@ function(glob_subdirs OUT_VAR)
 				OUTPUT_VARIABLE _arg_RELATIVE
 			)
 		endif()
-		message(TRACE "[i] glob_subdirs: invalid RELATIVE base '${_arg_RELATIVE}' - not a directory")
-		return(PROPAGATE ${OUT_VAR})
+		if(NOT EXISTS "${_arg_RELATIVE}")
+			message(FATAL_ERROR "glob_subdirs: invalid RELATIVE '${_arg_RELATIVE}' - path does not exist")
+			return(PROPAGATE ${OUT_VAR})
+		endif()
+		if(NOT IS_DIRECTORY "${_arg_RELATIVE}")
+			cmake_path(
+				PARENT_DIRECTORY _arg_RELATIVE
+				OUTPUT_VARIABLE _arg_RELATIVE
+			)
+		endif()
 	endif()
-
 
 	set(_items)
 	set(_call_args)
@@ -309,10 +317,6 @@ macro(_parse_arguments)
 		if(_arg_KEYWORDS_MISSING_VALUES)
 			message(FATAL_ERROR "glob_sources: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
 		endif()
-
-		#if("INCLUDE_DIRS" IN_LIST _arg_KEYWORDS_MISSING_VALUES)
-		#	message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): missing value for INCLUDE_DIRS.")
-		#endif()
 endmacro()
 
 # Ancillary macro to add_target :
@@ -426,16 +430,16 @@ macro(_handle_sources)
 		message(FATAL_ERROR "_handle_sources: must only be used from add_target().")
 	endif()
 	if(DEFINED _arg_SOURCES)
-		set(_sources_list)
-		glob_sources(_sources_list ${_arg_SOURCES})
+		set(_sources)
+		glob_sources(_sources ${_arg_SOURCES})
 		if(_arg_TYPE STREQUAL "INTERFACE")
-			list(FILTER _sources_list EXCLUDE REGEX "\\.c(pp)?$")
+			list(FILTER _sources EXCLUDE REGEX "\\.c(pp)?$")
 			set(_scope INTERFACE)
 		else()
 			set(_scope PRIVATE)
 		endif()
-		list(SORT _sources_list)
-		target_sources(${TNAME} ${_scope} ${_sources_list})
+		list(SORT _sources)
+		target_sources(${TNAME} ${_scope} ${_sources})
 	endif()
 endmacro()
 
