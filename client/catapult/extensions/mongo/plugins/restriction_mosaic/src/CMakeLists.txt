@@ -1,6 +1,4 @@
-set(PLUGIN_BASE_NAME catapult.mongo.plugins.restrictionmosaic)
-
-catapult_mongo_plugin_src_with_deps(${PLUGIN_BASE_NAME} mappers storages)
-
-# restrictionmosaic.deps is needed because the mongo mosaic restriction cache storage needs the mosaic restriction cache
-target_link_libraries(${PLUGIN_BASE_NAME}.deps catapult.plugins.restrictionmosaic.deps)
+add_mongo_plugin(
+    restrictionmosaic WITH_DEPS
+    SOURCES ./ ./mappers ./storages
+)

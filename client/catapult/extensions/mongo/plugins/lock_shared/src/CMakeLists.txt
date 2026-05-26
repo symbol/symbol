@@ -1,7 +1,4 @@
-add_target(catapult.mongo.plugins.lockshared LIBRARY
-	TYPE INTERFACE
-	SOURCES
-		./
-		./mappers
-		./storages
+add_mongo_plugin(
+    lockshared WITH_HEADER_ONLY
+    SOURCES ./ ./mappers ./storages
 )
