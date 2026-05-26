@@ -1,10 +1,27 @@
+# A quantity of mosaics in absolute units.
+# It can only be positive or zero.
 using Amount = uint64
+
+# Index of a block in the blockchain.
+# The first block (the Nemesis block) has height 1 and each subsequent block increases height by 1.
 using Height = uint64
+
+# Number of seconds elapsed since the creation of the Nemesis block.
 using Timestamp = uint32
 
+# An address identifies an account and is derived from its PublicKey. The 40 bytes correspond to its Base32-encoded form.
 using Address = binary_fixed(40)
+
+# A 32-byte (256 bit) hash.
+# The exact algorithm is unspecified as it can change depending on where it is used.
 using Hash256 = binary_fixed(32)
+
+# A 32-byte (256 bit) integer derived from a private key.
+# It serves as the public identifier of the key pair and can be disseminated widely. It is used to prove that an entity was signed with the paired private key.
 using PublicKey = binary_fixed(32)
+
+# A 64-byte (512 bit) array certifying that the signed data has not been modified.
+# NEM uses Ed25519 signatures with the Keccak-512 hash function.
 using Signature = binary_fixed(64)
 
 # binary layout for a size prefixed address
