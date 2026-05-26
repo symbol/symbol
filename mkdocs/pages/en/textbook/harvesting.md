@@ -19,18 +19,19 @@ This balance contributes to the account's <importance:> score, which determines 
 ## Harvesting Process
 
 Symbol does not use an explicit selection process to determine which node will harvest the next block.
-Instead, every node independently attempts to produce a new block using its main account and
-each of the linked <delegator:> accounts.
+Instead, every node independently attempts to produce a new block.
 
-To do this, a _target_ value is calculated based primarily on each account's <importance:>.
-The higher the importance, the higher its target will be.
+First, a random number called the _hit_ is computed from the hash of the previous block.
 
-The node then assembles a candidate block by collecting transactions from the <unconfirmed pool:>
+The node then iterates over its main account and all linked <delegator:> accounts,
+calculating a _target_ value for each one based primarily on its <importance:>.
+Accounts with higher importance produce higher target values.
+
+If the _hit_ is lower than the _target_ for any of these accounts,
+the node assembles a candidate block by collecting transactions from the <unconfirmed pool:>
 and assigning the harvesting rewards to the configured beneficiaries.
-Once the block is assembled, the node <hashes:> it and generates a random number called the _hit_.
 
-If the _hit_ is lower than the _target_, the block is valid and is announced to the rest of the network.
-Other nodes then verify the block, ensuring:
+The completed block is then announced to the rest of the network and other nodes then verify it, ensuring:
 
 * The block signature comes from the claimed harvester.
 * The transactions are valid.
