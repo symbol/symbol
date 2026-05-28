@@ -14,8 +14,8 @@ if (privateKeyString) {
 	privateKey = new PrivateKey(privateKeyString);
 } else {
 	console.log('Generating random account...');
-	privateKey = PrivateKey.random(); // [<step-2]
-}
+	privateKey = PrivateKey.random();
+} // [<step-2]
 // [>step-3]
 // Create a key pair from the private key
 const keyPair = new SymbolFacade.KeyPair(privateKey);
