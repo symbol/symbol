@@ -143,10 +143,11 @@ Other accounts cannot set or modify restrictions on mosaics they do not own.
     Restrictions can only be applied to mosaics that have been created with the
     [Restrictable](./mosaics.md#restrictability) flag.
 
-To apply a restriction to a mosaic, two components must be defined:
+To apply a restriction to a mosaic, two components must be defined, one on the mosaic, and one on each account
+wishing to use the mosaic:
 
-1. A <mosaic global restriction:>, which specifies the condition that accounts must meet in order to interact with the mosaic.
-2. A <mosaic address restriction:>, which assigns a value to each account that will be compared against the condition.
+1. A <mosaic global restriction:>, which specifies a condition that accounts must meet in order to interact with the mosaic.
+2. A <mosaic address restriction:>, which assigns a value to an account that will be compared against the condition.
 
 This dependency is unique to mosaic restrictions.
 <Account restrictions:|Account restrictions>, by contrast, do not require multiple parts to work.
@@ -165,10 +166,10 @@ Each condition includes:
 
 * A **restriction key**: an arbitrary number defined by the creator that identifies this particular restriction.
 
-    This is necessary because a mosaic may require multiple restrictions,
-    but keys are independent for each mosaic.
+    This is necessary because a mosaic may define multiple restrictions.
+    Keys are independent for each mosaic.
 
-    The key can be derived from a more memorable string (e.g. `KYC`) using a hash function.
+    The key is a number, but it can be derived from a more memorable string (e.g. `KYC`) using a hash function.
 
 * A **restriction value**: the threshold against which each account's value will be compared.
 
@@ -196,9 +197,7 @@ Once a global rule is set, the mosaic owner must explicitly assign values to acc
 
 Additionally, a mosaic global restriction can depend on the restriction values of another mosaic,
 known as the _reference mosaic_.
-The two mosaics do not need to belong to the same account.
-This allows, for example, one account to define certification logic in the reference mosaic,
-while another account references those rules and performs the actual certification of individual accounts.
+See the [Reference Mosaics](#reference-mosaics) section below for details.
 
 ### Mosaic Address Restrictions
 
@@ -240,6 +239,65 @@ To configure a mosaic address restriction, the following attributes must be prov
     the value `1` in the mosaic address restriction.
 
     Since the values are equal, the account `TABC123...` is allowed to transact with this mosaic.
+
+### Reference Mosaics
+
+A <mosaic global restriction:> can specify a _reference mosaic_, which provides the <mosaic address restrictions:>
+used by the _derived mosaic_.
+The two mosaics do not need to belong to the same account and can, in fact, be managed by independent organizations.
+
+This allows, for example, one company to create a certification mosaic and perform a certification process on
+individual accounts by assigning address restriction values to them.
+
+Another company can then create its own derived mosaic, reference the certification mosaic,
+and define any mosaic global restrictions it wishes.
+The certification values assigned to accounts by the reference mosaic are then evaluated against the
+global restrictions defined by the derived mosaic.
+
+Note that only the mosaic address restrictions of the reference mosaic are reused by the derived mosaic.
+The mosaic global restriction rules defined on the reference mosaic apply only when transacting with the
+reference mosaic itself.
+
+When transacting with the derived mosaic, only the global restrictions defined by the derived mosaic are evaluated
+against the address restriction values provided by the reference mosaic.
+
+!!! example
+
+    Suppose a company creates a certification mosaic with a `certification_level` restriction ranging from `1` to `5`.
+
+    The company then certifies several accounts by assigning them address restriction values:
+
+    <div class="centered" markdown>
+
+    |   Account | Certification level |
+    | --------: | :------------------ |
+    | Account A | `5`                 |
+    | Account B | `2`                 |
+    | Account C | No certification    |
+
+    Another organization can then create derived mosaics that reference this certification mosaic.
+
+    For example:
+
+    |  Derived Mosaic | Global Restriction         |
+    | --------------: | :------------------------- |
+    | `PREMIUM_ASSET` | `certification_level >= 4` |
+    |   `BASIC_ASSET` | `certification_level >= 2` |
+
+    The resulting access permissions are:
+
+    |   Account | `PREMIUM_ASSET` | `BASIC_ASSET` |
+    | --------: | --------------- | ------------- |
+    | Account A | ✅ Allowed      | ✅ Allowed    |
+    | Account B | ❌ Rejected     | ✅ Allowed    |
+    | Account C | ❌ Rejected     | ❌ Rejected   |
+
+    </div>
+
+    In this example, the same certification mosaic is reused by multiple independent mosaics,
+    each defining its own access requirements.
+    Accounts with higher certification levels can interact with a wider range of mosaics,
+    while uncertified accounts are rejected automatically by the restriction rules.
 
 ## Summary
 
