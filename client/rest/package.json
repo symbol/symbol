@@ -27,7 +27,7 @@
     "minimist": "^1.2.8",
     "mocha": "^11.0.1",
     "sinon": "^22.0.0",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.6"
   },
   "dependencies": {
     "@noble/hashes": "^2.0.0",
