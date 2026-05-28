@@ -42,15 +42,19 @@ digraph SymbolNode {
     OtherNodesWP2 [shape=point width=0 pos="0.125,4.5!"]
     RocksDBWP  [shape=point width=0 pos="0.125,1!"];
     DiskWP     [shape=point width=0 pos="-0.125,0!"];
-    MongoDBWP  [shape=point width=0 pos="5.825,2.375!"];
-    RESTWP     [shape=point width=0 pos="5.825,2.625!"];
+    MongoDBWP  [shape=point width=0 pos="5.875,2.375!"];
+    RESTWP     [shape=point width=0 pos="5.875,2.625!"];
     RESTWP2    [shape=point width=0 pos="6.125,1.5!"];
+    ClientsWP1 [shape=point width=0 pos="5.875,5.5!"]
+    ClientsWP2 [shape=point width=0 pos="6.125,5.5!"]
 
     // External
-    OtherNodesWP -> Catapult [headlabel="Peer-to-peer API" labelangle=-25 labeldistance=15];
+    OtherNodesWP -> Catapult [headlabel="🡄 Peer-to-peer API\n🡇" labelangle=-25 labeldistance=15];
     OtherNodesWP -> OtherNodes;
-    REST -> Clients [dir=both headlabel="REST\rAPI" labelangle=-50 labeldistance=6];
-    REST -> Clients [dir=both headlabel="WebSockets\rAPI" labelangle=50 labeldistance=6];
+    ClientsWP1 -> Clients [headlabel="REST\rAPI" labelangle=-50 labeldistance=6];
+    ClientsWP1 -> REST;
+    ClientsWP2 -> Clients [headlabel="WebSockets\rAPI" labelangle=50 labeldistance=6];
+    ClientsWP2 -> REST;
 
     // Internal
     OtherNodesWP2 -> REST;
@@ -62,10 +66,10 @@ digraph SymbolNode {
     DiskWP:w -> Disk [headlabel="Store\rblocks\r" labelangle=-20 labeldistance=10];
     Broker -> MongoDBWP [dir=none];
     MongoDBWP:n -> MongoDB [headlabel="Store\rindexed\rblocks\rand state\r" labelangle=45 labeldistance=6];
-    Broker -> RESTWP [dir=none style=dashed];
-    RESTWP -> REST [headlabel="Notifies of\rupdates\rvia ZMQ\r" style=dashed labelangle=-50 labeldistance=7 URL="#zero-mq"];
+    Broker -> RESTWP [dir=none];
+    RESTWP -> REST [headlabel="Notifies of\rupdates\rvia ZMQ\r" labelangle=-40 labeldistance=7 URL="#zero-mq"];
     MongoDB -> RESTWP2 [dir=none];
-    RESTWP2 -> REST [headlabel="Fetch\lrequested\linformation\l" labelangle=30 labeldistance=10];
+    RESTWP2 -> REST [headlabel="Fetch\lrequested\linformation\l" labelangle=40 labeldistance=7];
 
     MidWP1     [shape=point width=0 pos="3,5!"];
     MidWP2     [shape=point width=0 pos="3,-2!"];
