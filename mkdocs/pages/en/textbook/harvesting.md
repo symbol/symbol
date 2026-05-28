@@ -180,7 +180,7 @@ digraph RewardDistribution {
 * **The node-designated beneficiary**:
     {id="beneficiary"}
 
-    An optional account, chosen by the node owner,  that receives a fixed 25% of the reward
+    An optional account, chosen by the node owner, that receives a fixed 25% of the reward
     (after subtracting the network sink amount).
 
     Node owners may retain this portion for themselves or redistribute it through their own reward programs,
