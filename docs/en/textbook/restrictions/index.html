@@ -11770,6 +11770,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#reference-mosaics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Mosaics
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -12110,6 +12121,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#reference-mosaics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Mosaics
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -12428,21 +12450,22 @@ Other accounts cannot set or modify restrictions on mosaics they do not own.</p>
 <p>Restrictions can only be applied to mosaics that have been created with the
 <a href="../mosaics/#restrictability">Restrictable</a> flag.</p>
 </div>
-<p>To apply a restriction to a mosaic, two components must be defined:</p>
+<p>To apply a restriction to a mosaic, two components must be defined, one on the mosaic, and one on each account
+wishing to use the mosaic:</p>
 <ol>
 <li>A <a class="mkdocs-ezglossary-link"
 	id="76eb8a28be10722d05993e76af6e8c6a"
 	title="One of the two components required to apply a mosaic restriction.
 It defines a rule that all accounts must satisfy in order to interact with a mosaic."
 	name="_:Mosaic Global Restriction"
-	href="../../textbook/restrictions/#7587f9e9bc6684b3f0fc6a968bb02f68">mosaic global restriction</a>, which specifies the condition that accounts must meet in order to interact with the mosaic.</li>
+	href="../../textbook/restrictions/#7587f9e9bc6684b3f0fc6a968bb02f68">mosaic global restriction</a>, which specifies a condition that accounts must meet in order to interact with the mosaic.</li>
 <li>A <a class="mkdocs-ezglossary-link"
 	id="8b8a6aec0d8507bdad9cd4b6b75fe938"
 	title="One of the two components required to apply a mosaic restriction.
 It assigns restriction attributes to a specific account, which are then evaluated against the condition
 defined in the corresponding mosaic global restriction."
 	name="_:Mosaic Address Restriction"
-	href="../../textbook/restrictions/#8b18474be3c30029e62f76f4960d44b8">mosaic address restriction</a>, which assigns a value to each account that will be compared against the condition.</li>
+	href="../../textbook/restrictions/#8b18474be3c30029e62f76f4960d44b8">mosaic address restriction</a>, which assigns a value to an account that will be compared against the condition.</li>
 </ol>
 <p>This dependency is unique to mosaic restrictions.
 <a class="mkdocs-ezglossary-link"
@@ -12478,9 +12501,9 @@ The mosaic ID is derived deterministically from the creator's address and a nonc
 </li>
 <li>
 <p>A <strong>restriction key</strong>: an arbitrary number defined by the creator that identifies this particular restriction.</p>
-<p>This is necessary because a mosaic may require multiple restrictions,
-but keys are independent for each mosaic.</p>
-<p>The key can be derived from a more memorable string (e.g. <code>KYC</code>) using a hash function.</p>
+<p>This is necessary because a mosaic may define multiple restrictions.
+Keys are independent for each mosaic.</p>
+<p>The key is a number, but it can be derived from a more memorable string (e.g. <code>KYC</code>) using a hash function.</p>
 </li>
 <li>
 <p>A <strong>restriction value</strong>: the threshold against which each account's value will be compared.</p>
@@ -12538,9 +12561,7 @@ defined in the corresponding mosaic global restriction."
 	href="../../textbook/restrictions/#8b18474be3c30029e62f76f4960d44b8">Mosaic address restrictions</a> (see next section), which are then evaluated against the global condition.</p>
 <p>Additionally, a mosaic global restriction can depend on the restriction values of another mosaic,
 known as the <em>reference mosaic</em>.
-The two mosaics do not need to belong to the same account.
-This allows, for example, one account to define certification logic in the reference mosaic,
-while another account references those rules and performs the actual certification of individual accounts.</p>
+See the <a href="#reference-mosaics">Reference Mosaics</a> section below for details.</p>
 <h3 id="mosaic-address-restrictions">Mosaic Address Restrictions<a class="headerlink" href="#mosaic-address-restrictions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <dl>
 <dt>
@@ -12617,6 +12638,112 @@ The mosaic ID is derived deterministically from the creator's address and a nonc
 <p>The mosaic global restriction with the key <code>KYC</code> will be selected, and its value <code>1</code> compared for equality with
 the value <code>1</code> in the mosaic address restriction.</p>
 <p>Since the values are equal, the account <code>TABC123...</code> is allowed to transact with this mosaic.</p>
+</div>
+<h3 id="reference-mosaics">Reference Mosaics<a class="headerlink" href="#reference-mosaics" title="Anchor link to this section for reference">⚓︎</a></h3>
+<p>A <a class="mkdocs-ezglossary-link"
+	id="ac7427f2030f1a163e63c4ce65a0ccbb"
+	title="One of the two components required to apply a mosaic restriction.
+It defines a rule that all accounts must satisfy in order to interact with a mosaic."
+	name="_:Mosaic Global Restriction"
+	href="../../textbook/restrictions/#7587f9e9bc6684b3f0fc6a968bb02f68">mosaic global restriction</a> can specify a <em>reference mosaic</em>, which provides the <a class="mkdocs-ezglossary-link"
+	id="018810374c39c75d52fd4b444b7e4378"
+	title="One of the two components required to apply a mosaic restriction.
+It assigns restriction attributes to a specific account, which are then evaluated against the condition
+defined in the corresponding mosaic global restriction."
+	name="_:Mosaic Address Restriction"
+	href="../../textbook/restrictions/#8b18474be3c30029e62f76f4960d44b8">mosaic address restrictions</a>
+used by the <em>derived mosaic</em>.
+The two mosaics do not need to belong to the same account and can, in fact, be managed by independent organizations.</p>
+<p>This allows, for example, one company to create a certification mosaic and perform a certification process on
+individual accounts by assigning address restriction values to them.</p>
+<p>Another company can then create its own derived mosaic, reference the certification mosaic,
+and define any mosaic global restrictions it wishes.
+The certification values assigned to accounts by the reference mosaic are then evaluated against the
+global restrictions defined by the derived mosaic.</p>
+<p>Note that only the mosaic address restrictions of the reference mosaic are reused by the derived mosaic.
+The mosaic global restriction rules defined on the reference mosaic apply only when transacting with the
+reference mosaic itself.</p>
+<p>When transacting with the derived mosaic, only the global restrictions defined by the derived mosaic are evaluated
+against the address restriction values provided by the reference mosaic.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>Suppose a company creates a certification mosaic with a <code>certification_level</code> restriction ranging from <code>1</code> to <code>5</code>.</p>
+<p>The company then certifies several accounts by assigning them address restriction values:</p>
+<div class="centered" markdown>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Account</th>
+<th style="text-align: left;">Certification level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">Account A</td>
+<td style="text-align: left;"><code>5</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Account B</td>
+<td style="text-align: left;"><code>2</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Account C</td>
+<td style="text-align: left;">No certification</td>
+</tr>
+</tbody>
+</table>
+<p>Another organization can then create derived mosaics that reference this certification mosaic.</p>
+<p>For example:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Derived Mosaic</th>
+<th style="text-align: left;">Global Restriction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>PREMIUM_ASSET</code></td>
+<td style="text-align: left;"><code>certification_level &gt;= 4</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>BASIC_ASSET</code></td>
+<td style="text-align: left;"><code>certification_level &gt;= 2</code></td>
+</tr>
+</tbody>
+</table>
+<p>The resulting access permissions are:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Account</th>
+<th><code>PREMIUM_ASSET</code></th>
+<th><code>BASIC_ASSET</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">Account A</td>
+<td>✅ Allowed</td>
+<td>✅ Allowed</td>
+</tr>
+<tr>
+<td style="text-align: right;">Account B</td>
+<td>❌ Rejected</td>
+<td>✅ Allowed</td>
+</tr>
+<tr>
+<td style="text-align: right;">Account C</td>
+<td>❌ Rejected</td>
+<td>❌ Rejected</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In this example, the same certification mosaic is reused by multiple independent mosaics,
+each defining its own access requirements.
+Accounts with higher certification levels can interact with a wider range of mosaics,
+while uncertified accounts are rejected automatically by the restriction rules.</p>
 </div>
 <h2 id="summary">Summary<a class="headerlink" href="#summary" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>The following table summarizes the main numerical limits related to restrictions.</p>
@@ -12699,7 +12826,7 @@ the value <code>1</code> in the mosaic address restriction.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 22, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 28, 2026</span>
   </span>
 
     

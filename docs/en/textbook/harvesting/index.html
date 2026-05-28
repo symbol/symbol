@@ -12179,36 +12179,31 @@ This score determines the chance to harvest new blocks and vote weight in consen
 	href="../../textbook/accounts/#76ca9920588d90f42b544215c87ec7d4">importance</a> score, which determines how often it can harvest a block.</p>
 <h2 id="harvesting-process">Harvesting Process<a class="headerlink" href="#harvesting-process" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Symbol does not use an explicit selection process to determine which node will harvest the next block.
-Instead, every node independently attempts to produce a new block using its main account and
-each of the linked <a class="mkdocs-ezglossary-link"
+Instead, every node independently attempts to produce a new block.</p>
+<p>First, a random number called the <em>hit</em> is computed from the hash of the previous block.</p>
+<p>The node then iterates over its main account and all linked <a class="mkdocs-ezglossary-link"
 	id="a0084f4110739f840f52d940a5e3edfb"
 	title="An account that delegates harvesting to a third-party node while retaining its importance
 and receiving a share of the harvested rewards.
 Also called a delegated harvester."
 	name="_:Delegator"
-	href="../../textbook/harvesting/#ac03dc805ce5fe4e0b6294aa6998149c">delegator</a> accounts.</p>
-<p>To do this, a <em>target</em> value is calculated based primarily on each account's <a class="mkdocs-ezglossary-link"
+	href="../../textbook/harvesting/#ac03dc805ce5fe4e0b6294aa6998149c">delegator</a> accounts,
+calculating a <em>target</em> value for each one based primarily on its <a class="mkdocs-ezglossary-link"
 	id="85c390e454931b1cf49494f52f4a1652"
 	title="A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
 and its participation in harvesting new blocks.
 This score determines the chance to harvest new blocks and vote weight in consensus."
 	name="_:Importance"
 	href="../../textbook/accounts/#76ca9920588d90f42b544215c87ec7d4">importance</a>.
-The higher the importance, the higher its target will be.</p>
-<p>The node then assembles a candidate block by collecting transactions from the <a class="mkdocs-ezglossary-link"
+Accounts with higher importance produce higher target values.</p>
+<p>If the <em>hit</em> is lower than the <em>target</em> for any of these accounts,
+the node uses the first matching account to assemble a candidate block by collecting transactions from the
+<a class="mkdocs-ezglossary-link"
 	id="d7cf21d215d6f78cb0d587159a3d7341"
 	title="A list of validated transactions awaiting inclusion in a block, maintained by each node in the network."
 	name="_:Unconfirmed pool"
-	href="../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a>
-and assigning the harvesting rewards to the configured beneficiaries.
-Once the block is assembled, the node <a class="mkdocs-ezglossary-link"
-	id="7ed8c27f893769d598db26da9a3b5d64"
-	title="A cryptographic hash is a fixed-size string of characters produced by a mathematical function
-(called a hash function) that maps input data of any size to a unique output."
-	name="_:Hash"
-	href="../../textbook/cryptography/#3890164a26bb4fc4d63840afc9a2d7b7">hashes</a> it and generates a random number called the <em>hit</em>.</p>
-<p>If the <em>hit</em> is lower than the <em>target</em>, the block is valid and is announced to the rest of the network.
-Other nodes then verify the block, ensuring:</p>
+	href="../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a> and assigning the harvesting rewards to the configured beneficiaries.</p>
+<p>The completed block is then announced to the rest of the network and other nodes then verify it, ensuring:</p>
 <ul>
 <li>The block signature comes from the claimed harvester.</li>
 <li>The transactions are valid.</li>
@@ -12542,7 +12537,7 @@ Also called a delegated harvester."
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 22, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 26, 2026</span>
   </span>
 
     
