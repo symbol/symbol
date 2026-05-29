@@ -156,7 +156,7 @@ The embedded <ser:MultisigAccountModificationTransactionV1> includes the followi
     For example, when:
 
     * The number of cosignatories is lower than the minimum number of required signatures
-    * An address that is not a consignatory is removed
+    * An address that is not a cosignatory is removed
     * Required signatures are missing
     * Unnecessary signatures are included
 
@@ -202,7 +202,7 @@ The first transaction removes {{ tutorial.var('cosignatory_addresses[1]') }} wit
 removal deltas, because one cosignatory still remains and signatures are still required.
 
 The second transaction removes the last remaining cosignatory and sets both {{ tutorial.var('min_approval_delta') }}
-and {{ tutorial.var('min_Removal_delta') }} to `-1`.
+and {{ tutorial.var('min_removal_delta') }} to `-1`.
 At this point, the current value of both fields is `1`, as configured during the [enable](#enabling-the-multisig) step,
 and the desired value is `0`, so the delta is `-1`.
 
@@ -210,9 +210,9 @@ Both embedded transactions are then wrapped in an aggregate transaction and sign
 
 {{ tutorial.code_snippet_tagged('step-9') }}
 
-The aggregate transaction is signed by {{ tutorial.var('cosignatory_addressess[0]') }}.
+The aggregate transaction is signed by {{ tutorial.var('cosignatory_addresses[0]') }}.
 This is the only valid option: once an account has cosignatories, it can no longer sign transactions on its own,
-and {{ tutorial.var('cosignatory_addresess[1]') }} is removed from the multisig after the first embedded transaction is
+and {{ tutorial.var('cosignatory_addresses[1]') }} is removed from the multisig after the first embedded transaction is
 executed.
 
 As a result, no cosignatures are required.
