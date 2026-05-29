@@ -72,12 +72,7 @@ function(glob_sources OUT_VAR)
 		if(EXISTS "${_abs_path}")
 			if(NOT IS_DIRECTORY "${_abs_path}")
 				# This is likely a source file provided directly.
-				# Just check it matches the sources pattern and add to the list if it does, otherwise skip with a warning.
-				string(REGEX MATCH ".*\\.(${_regex_expression})$" _is_match "${_abs_path}")
-				if(NOT _is_match)
-					message(TRACE "[i] glob_sources: skipping '${_display_path}' since it is not a valid source file")
-					continue()
-				endif()
+				# We add it as is trusting user's input
 				list(APPEND ${OUT_VAR} "${_abs_path}")
 				continue()
 			endif()
