@@ -11,6 +11,50 @@ That said, if understanding a document requires previous knowledge, you must alw
 
 **Always put yourself in the shoes of the reader.**
 
+## Documentation Philosophy
+
+The Symbol documentation exists to help readers understand and use Symbol correctly.
+It should teach both the actions readers need to perform and the concepts that make those actions meaningful.
+
+The documentation is organized around a learning progression:
+
+* The **User Manual** teaches readers how to complete practical tasks using applications, without requiring code.
+* The **Developer Manual** teaches developers how to complete practical tasks using code, SDKs, and APIs.
+* The **Textbook** explains the concepts behind Symbol so readers can understand how the system works.
+
+Readers should not need to read the Textbook from beginning to end before using the other manuals.
+Instead, User Manual and Developer Manual pages should link to the relevant Textbook pages when background knowledge
+is useful.
+This keeps task-focused pages practical while still giving readers a path to deeper understanding.
+
+Documentation should favor Symbol-specific terminology when describing Symbol-specific concepts.
+For example, use terms such as `<mosaic:>`, `<namespace:>`, `<harvesting:>`, `<aggregate transaction:>`,
+and `<cosignature:>` when those are the concepts being described.
+Generic blockchain terms can be useful for comparison or orientation, but they should not replace the vocabulary used
+by the protocol.
+Using the correct Symbol terms helps readers build a mental model that matches the software, APIs, SDKs, and reference
+material.
+
+The docs should prioritize education over marketing.
+Avoid promotional claims, hype, and broad unsupported statements.
+Explain what a feature does, why it exists, what constraints apply, and how it behaves in practice.
+
+When technical accuracy and brevity conflict, prefer accuracy.
+Concise writing is valuable, but not at the cost of omitting information readers need to avoid mistakes.
+This is especially important for topics involving private keys, mnemonic phrases, fees, irreversible actions,
+transaction confirmation, network configuration, and security-sensitive workflows.
+
+Tutorials should be more than step-by-step instructions.
+They should show the complete working flow, explain the purpose of each major step, and connect the step to the
+relevant concept, endpoint, SDK method, or reference page.
+A reader should finish a tutorial with enough understanding to adapt the example, not only copy it.
+
+The tone should remain approachable, calm, and practical.
+Assume the reader is capable, but may not yet know Symbol's terminology or workflow.
+Avoid being overly casual, condescending, or vague.
+Use direct language, define terms when they first matter, and provide links instead of interrupting task flow with long
+detours.
+
 ## General
 
 * **Keep the scope of the document in mind**.
@@ -53,10 +97,14 @@ That said, if understanding a document requires previous knowledge, you must alw
 ## Markdown Formatting
 
 * Lists should use the `*` character rather than the `-` character, always start capitalized and end with a full stop.
+* Nested Markdown blocks, including nested lists and paragraphs under list items, should be indented with 4 spaces.
 * Paragraphs that include multiple sentences should have the sentences on separate lines, so that updating one sentence results in a clear diff where only one line changes.
 * For long documents, it is good to have a table of contents at the end of the introduction of the level one heading section.
 * Always specify the language for code blocks so that neither the syntax highlighter nor the text editor must guess.
     If no specific type makes sense, just use `text`.
+* Markdown linting rules are configured in `.markdownlint.jsonc`.
+    If a formatting convention and the linter appear to disagree, update the shared config instead of relying on local editor settings.
+    The same settings can be included directly in VS Code's `markdownlint.config` setting when configuring an editor.
 
 ## Additional Formatting and Macros
 
@@ -107,7 +155,6 @@ Additionally:
 
     For example, `<dy:Metadata.metadataGenerateKey>` will turn into `<py:Metadata.metadata_generate_key>` and
     `<js:metadataGenerateKey>`.
-
 
 ### Tutorial Steps
 

@@ -1,0 +1,20 @@
+{
+    "MD004": {
+        "style": "asterisk"
+    },
+    "MD007": {
+        "indent": 4 // Unordered lists indented by 4, as per the standard
+    },
+    "MD013": false,
+    "MD033": false,
+    "MD001": false, // Because of HackMD's ###### tags :(
+    "MD026": {
+        "punctuation": ".,;:"
+    },
+    "MD024": {
+        "siblings_only": true // Allow headers with same name if they are not siblings
+    },
+    "MD025": false, // We allow both H1 and front matter titles, to have shorter TOCs but full page titles.
+    "MD042": false, // We sometimes use empty links to create buttons
+    "MD046": false // Because Admonition indentation looks like an indented code block
+}
