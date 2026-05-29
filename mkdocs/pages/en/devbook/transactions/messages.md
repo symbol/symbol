@@ -88,7 +88,7 @@ The transaction is then signed and announced following the same process as in
 {{ tutorial.code_snippet_tagged('step-3') }}
 
 After announcing the transaction, the {{ tutorial.var('retrieve_confirmed_transaction') }} helper function polls the
-<get:/transactions/confirmed/{transactionId}>  endpoint until the transaction is confirmed.
+<get:/transactions/confirmed/{transactionId}> endpoint until the transaction is confirmed.
 
 The confirmed transaction contains the message as a hex string.
 To retrieve the original message, it converts the hex string to bytes and decodes it as UTF-8.

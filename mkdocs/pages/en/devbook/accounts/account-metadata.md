@@ -111,7 +111,7 @@ The same transaction type handles both adding new metadata entries and updating 
 
 Symbol requires these transactions to be inside an <aggregate transaction:> that includes the target account owner's
 signature.
-This prevents unwanted metadata to be attached to an account without its owner's permission.
+This prevents unwanted metadata from being attached to an account without its owner's permission.
 
 An aggregate is still required even when the transaction is initiated by the account owner,
 to keep the transaction format uniform.

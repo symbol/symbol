@@ -433,7 +433,7 @@ To create a <voting node:>, the following requirements must be met:
 
 ## Start the Node
 
-The node is now configured and ready to be started, but there is one final security step remains:
+The node is now configured and ready to be started, but one final security step remains:
 
 !!! danger "Backup the Private Key"
 

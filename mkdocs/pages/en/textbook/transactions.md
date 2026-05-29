@@ -339,7 +339,7 @@ and validation steps, but differ in purpose and required fields.
 | `Mosaic Metadata`                                           | Associate a key-value state (metadata) to a mosaic.                                               |
 | `Namespace Metadata`                                        | Associate a key-value state (metadata) to a namespace.                                            |
 | **[Mosaics](default:mosaic)**                               |                                                                                                   |
-| `Mosaic Definition`                                         | Create a new  mosaic.                                                                             |
+| `Mosaic Definition`                                         | Create a new mosaic.                                                                              |
 | `Mosaic Supply Change`                                      | Change the total supply of a mosaic.                                                              |
 | `Mosaic Supply Revocation`                                  | Revoke mosaic units.                                                                              |
 | **[Multisig](default:multisignature account)**              |                                                                                                   |
