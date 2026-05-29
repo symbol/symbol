@@ -1,6 +1,6 @@
 ---
 title: トランザクション包含の証明
-tutorial_level: beginner
+tutorial_level: intermediate
 ---
 
 # ブロックへのトランザクション包含の証明 {: #proving-a-Transaction's-inclusion-in-a-block }
