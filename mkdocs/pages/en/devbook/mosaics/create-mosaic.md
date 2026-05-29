@@ -96,8 +96,8 @@ The mosaic definition transaction registers a new mosaic on the network with the
     The available flags are:
 
     * `transferable`: the mosaic can be freely sent between any accounts.
-    * `supply_mutable`:  the total supply can be changed after creation.
-    * `restrictable`:  the owner can apply
+    * `supply_mutable`: the total supply can be changed after creation.
+    * `restrictable`: the owner can apply
         [mosaic restrictions](../../textbook/restrictions.md#mosaic-based-restrictions) to control which accounts
         can hold or transfer the mosaic.
     * `revokable`: the creator can reclaim units from any account.
