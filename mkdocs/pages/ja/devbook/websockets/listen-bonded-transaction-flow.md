@@ -1,6 +1,6 @@
 ---
 title: ボンデッドトランザクションフロー
-tutorial_level: intermediate
+tutorial_level: advanced
 ---
 
 # ボンデッドトランザクションフローのリスニング {: #listening-to-bonded-transaction-flow }
