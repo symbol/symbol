@@ -54,7 +54,7 @@ During this time, its owner can perform operations such as:
 * Renewing the root namespace to extend its duration.
     Subnamespaces do not need to be renewed, as they have the same duration as their root namespace.
 
-If the namespace is not renewed before expiration, it enters a 30-day  _grace period_.
+If the namespace is not renewed before expiration, it enters a 30-day _grace period_.
 During this time, the namespace is effectively disabled, but it is not yet available for others to register.
 Only the original owner can renew a namespace during the grace period.
 Once the grace period ends, the namespace is fully expired and becomes available for others to register.

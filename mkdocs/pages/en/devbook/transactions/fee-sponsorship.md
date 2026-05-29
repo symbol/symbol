@@ -67,7 +67,7 @@ payment, which users can remove individually once they choose to manage fees the
 
 In this approach, an account controlled by the application developer sends a _prefund_ transfer to the user's account.
 
-To ensure that the funds cannot misused, both the prefund transfer and the message transfer are embedded in a single
+To ensure that the funds cannot be misused, both the prefund transfer and the message transfer are embedded in a single
 <aggregate transaction:>.
 The aggregate is signed by both the application account and the user, and announced by the latter.
 
