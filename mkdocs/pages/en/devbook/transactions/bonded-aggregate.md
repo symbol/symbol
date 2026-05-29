@@ -54,7 +54,7 @@ digraph {
     The network returns this deposit when all cosignatures arrive and the transaction reaches confirmation.
     If the transaction times out, the deposit is forfeited.
 
-    If parties can communicate off-chain to exchange signatures, <complete aggregate transactions:> don't require this
+    If parties can communicate off-chain to exchange signatures, <complete aggregate transactions:> do not require this
     deposit.
 
 ## Prerequisites

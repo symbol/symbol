@@ -71,7 +71,7 @@ The transaction is then signed and announced following the same process as in
 **Message constraints:**
 
 * **Maximum size:** 1,024 bytes (the network rejects larger messages).
-* **Encoding:** UTF-8 by convention, though the protocol doesn't enforce a standard.
+* **Encoding:** UTF-8 by convention, though the protocol does not enforce a standard.
 * **Privacy:** All messages are publicly visible on the blockchain unless encrypted.
 
 !!! tip "Handling larger data"
@@ -157,7 +157,7 @@ The output shown below corresponds to a typical run of the program.
 You can view the transactions on the [Symbol Testnet Explorer](https://testnet.symbol.fyi/) by searching for the
 transaction hashes printed in the output.
 
-The explorer cannot decrypt encrypted messages because it doesn't have access to the private keys.
+The explorer cannot decrypt encrypted messages because it does not have access to the private keys.
 
 ## Conclusion
 

@@ -28,8 +28,8 @@ orchestration.
 
 Shoestring simplifies node deployment by:
 
-* using Python instead of Node.js because it's typically included in most operating systems
-* separating configuration generation from runtime execution
+* Using Python instead of Node.js because it is typically included in most operating systems.
+* Separating configuration generation from runtime execution.
 
 This design reduces dependencies and makes node operations easier to maintain over time.
 

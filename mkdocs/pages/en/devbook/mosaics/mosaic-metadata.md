@@ -63,7 +63,7 @@ test key if not set.
 The signer's address is derived from the public key.
 
 The ID of the mosaic to which the metadata will be attached is read from the `MOSAIC_ID` environment variable.
-This is as an unprefixed hexadecimal string, which defaults to a test value if not set.
+This value is an unprefixed hexadecimal string, which defaults to a test value if not set.
 
 !!! note "Mosaic must exist"
 

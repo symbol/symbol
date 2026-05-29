@@ -12,7 +12,7 @@ To learn what a profile is, or to create a new one from scratch, follow the [Cre
 * Make sure you have installed the Symbol Desktop Wallet.  
 If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
 
-* Make sure you understand what is a <profile:>.
+* Make sure you understand what a <profile:> is.
 
 * You will need the <mnemonic phrase:> for the profile you want to restore.  
 Check the documentation for the wallet you used to create it.  
