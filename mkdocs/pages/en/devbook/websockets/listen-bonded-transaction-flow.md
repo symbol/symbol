@@ -1,6 +1,6 @@
 ---
 title: Bonded Transaction Flow
-tutorial_level: intermediate
+tutorial_level: advanced
 ---
 
 # Listening to Bonded Transaction Flow
