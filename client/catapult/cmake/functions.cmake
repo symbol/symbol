@@ -81,16 +81,16 @@ function(glob_sources OUT_VAR)
 			continue()
 		endif()
 
-		set(_sources)
+		set(_glob)
 		set(_call_args)
 		if(_arg_RECURSE)
-			list(APPEND _call_args GLOB_RECURSE _sources)
+			list(APPEND _call_args GLOB_RECURSE _glob)
 			if(_arg_FOLLOW_SYMLINKS)
 				list(APPEND _call_args FOLLOW_SYMLINKS)
 			endif()
 			list(APPEND _call_args LIST_DIRECTORIES false)
 		else()
-			list(APPEND _call_args GLOB _sources)
+			list(APPEND _call_args GLOB _glob)
 		endif()
 		if(_arg_RELATIVE)
 			list(APPEND _call_args RELATIVE "${_abs_relative}")
@@ -100,9 +100,10 @@ function(glob_sources OUT_VAR)
 			list(APPEND _call_args "${_abs_path}/*.${_ext}")
 		endforeach()
 		file(${_call_args})
-		list(LENGTH _sources _num_sources)
-		message(TRACE "[i] glob_sources: '${_display_path}' - found ${_num_sources} source files")
-		list(APPEND ${OUT_VAR} ${_sources})
+
+		list(LENGTH _glob _glob_count)
+		message(TRACE "[i] glob_sources: '${_display_path}' - found ${_glob_count} source files")
+		list(APPEND ${OUT_VAR} ${_glob})
 
 	endforeach()
 	return(PROPAGATE ${OUT_VAR})
@@ -296,22 +297,40 @@ endfunction()
 # Ancillary macro to add_target : 
 # parse the arguments provided to add_target and set appropriate variables for further processing.
 macro(_parse_arguments)
-		if(NOT "${CMAKE_CURRENT_FUNCTION}" STREQUAL "add_target")
-			message(FATAL_ERROR "_parse_arguments: must only be used from add_target().")
+	set(_parse_arguments_args ${ARGN})
+	list(LENGTH _parse_arguments_args _parse_arguments_args_count)
+	if(_parse_arguments_args_count GREATER 1)
+		message(FATAL_ERROR "_parse_arguments: expected at most one optional start index argument.")
+	endif()
+
+	set(_arg_first_index 0)
+	if(_parse_arguments_args_count EQUAL 1)
+		list(GET _parse_arguments_args 0 _arg_first_index)
+		if(NOT "${_arg_first_index}" MATCHES "^[0-9]+$")
+			message(FATAL_ERROR "_parse_arguments: start index must be a non-negative integer.")
 		endif()
-		cmake_parse_arguments(
-			PARSE_ARGV 2
-			_arg
-			"${_fn_options}"
-			"${_fn_single}"
-			"${_fn_multi}"
-		)
-		if(_arg_UNPARSED_ARGUMENTS)
-			message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
-		endif()
-		if(_arg_KEYWORDS_MISSING_VALUES)
-			message(FATAL_ERROR "glob_sources: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
-		endif()
+	endif()
+
+	if(NOT DEFINED _fn_argc)
+		message(FATAL_ERROR "_parse_arguments: missing caller argument count.")
+	endif()
+	if(_arg_first_index GREATER _fn_argc)
+		message(FATAL_ERROR "_parse_arguments: start index ${_arg_first_index} is out of range for ${_fn_argc} caller arguments.")
+	endif()
+
+	cmake_parse_arguments(
+		PARSE_ARGV ${_arg_first_index}
+		_arg
+		"${_fn_options}"
+		"${_fn_single}"
+		"${_fn_multi}"
+	)
+	if(_arg_UNPARSED_ARGUMENTS)
+		message(FATAL_ERROR "${CMAKE_CURRENT_FUNCTION} ${TNAME}: unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
+	endif()
+	if(_arg_KEYWORDS_MISSING_VALUES)
+		message(FATAL_ERROR "${CMAKE_CURRENT_FUNCTION} ${TNAME}: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
+	endif()
 endmacro()
 
 # Ancillary macro to add_target :
@@ -580,6 +599,8 @@ function(add_target TNAME TTYPE)
 		message(FATAL_ERROR "add_target: unsupported target type '${TTYPE}'. Supported types are: ${_supported_target_types}.")
 	endif()
 	
+	# Store the total number of arguments for later use in argument parsing
+	set(_fn_argc ${ARGC})
 	# Supported options for all target types
 	set(_fn_options)
 	set(_fn_single FOLDER)
@@ -591,7 +612,7 @@ function(add_target TNAME TTYPE)
 		list(APPEND _fn_options EXCLUDE_FROM_ALL WITH_INSTALL)
 		list(APPEND _fn_single TYPE)
 
-		_parse_arguments()
+		_parse_arguments(2)
 		_handle_target_name()
 		_handle_existing_target()
 
@@ -654,7 +675,7 @@ function(add_target TNAME TTYPE)
 		endif()
 		
 
-		_parse_arguments()
+		_parse_arguments(2)
 		_handle_target_name()
 		_handle_existing_target()
 
@@ -707,7 +728,7 @@ function(add_target TNAME TTYPE)
 		
 		list(REMOVE_ITEM _fn_multi INCLUDE_DIRS LINK_LIBS)
 		
-		_parse_arguments()
+		_parse_arguments(2)
 		_handle_existing_target()
 
 		message(TRACE "[+] adding ${TTYPE} '${TNAME}'")		
