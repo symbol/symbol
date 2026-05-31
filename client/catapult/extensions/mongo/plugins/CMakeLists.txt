@@ -139,7 +139,6 @@ function(add_mongo_plugin_tests TNAME)
 		)
 		if(TARGET "tests.catapult.test.plugins.${_name}")
 			list(APPEND _link_libs tests.catapult.test.plugins.${_name})
-			message(FATA_ERROR "Stop Debug")
 		endif()
 		add_target(
 			tests.catapult.mongo.plugins.${_name} TEST
