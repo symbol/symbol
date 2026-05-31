@@ -714,7 +714,7 @@ function(add_target TNAME TTYPE)
 		endif()
 
 		if(TTYPE STREQUAL "TEST")
-			add_test(NAME ${TNAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TNAME})
+			add_test(NAME ${TNAME} WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/.." COMMAND ${TNAME})
 			if(_arg_LABELS)
 				set_property(TEST ${TNAME} PROPERTY LABELS ${_arg_LABELS})
 			endif()
