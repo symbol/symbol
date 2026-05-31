@@ -1,1 +1,0 @@
-catapult_mongo_plugin_test_library(tests.catapult.test.mongo.plugins.restrictionaccount)
