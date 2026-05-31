@@ -1,201 +1,231 @@
 function(add_mongo_plugin TNAME)
+	
+	set(_fn_argc ${ARGC})
+	set(_fn_options)
+	set(_fn_single BASE_PATH)
+	set(_fn_multi LINK_LIBS)
 
-	set(_fn_options WITH_DEPS WITH_HEADER_ONLY)
-	set(_fn_single)
-	set(_fn_multi LINK_LIBS SOURCES)
+	_parse_arguments(1)
 
-	cmake_parse_arguments(
-		PARSE_ARGV 1
-		_arg
-		"${_fn_options}"
-		"${_fn_single}"
-		"${_fn_multi}"
-	)
-
-	if(_arg_UNPARSED_ARGUMENTS)
-		message(FATAL_ERROR "add_target ${TNAME} (${TTYPE}): unrecognized arguments: ${_arg_UNPARSED_ARGUMENTS}.")
-	endif()
-	if(_arg_KEYWORDS_MISSING_VALUES)
-		message(FATAL_ERROR "glob_sources: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
+	if(NOT DEFINED _arg_BASE_PATH)
+		message(FATAL_ERROR "${CMAKE_CURRENT_FUNCTION} '${TNAME}': missing required argument: BASE_PATH.")
 	endif()
 
 	# Validate plugin name
-	if(NOT TNAME MATCHES "^catapult\\.mongo\\.plugins\\.[a-zA-Z0-9_]+$")
-		if(TNAME MATCHES "^[a-zA-Z0-9_]+$")
-			set(_plugin_name ${TNAME})
-			set(_plugin_full_name "catapult.mongo.plugins.${_plugin_name}")
-		else()
-			message(FATAL_ERROR "add_mongo_plugin ${TNAME}: invalid plugin name.")
-		endif()
-	else()
-		string(REGEX MATCH "[^.]+$" _plugin_name ${TNAME})
-		set(_plugin_full_name ${TNAME})
+	if(NOT TNAME MATCHES "^[a-zA-Z0-9]+$")
+		message(FATAL_ERROR "${CMAKE_CURRENT_FUNCTION} '${TNAME}': invalid plugin name.")
 	endif()
-
-	# Ensure all the items in the SOURCES list are DIRECTORY items.
-	foreach(_src IN LISTS _arg_SOURCES)
-		cmake_path(IS_RELATIVE _src _is_relative)
-		if(_is_relative)
-			cmake_path(
-				ABSOLUTE_PATH _src
-				BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-				NORMALIZE
-				OUTPUT_VARIABLE _src
-			)
-		endif()
-		if(NOT IS_DIRECTORY "${_src}")
-			message(FATAL_ERROR "add_target ${TNAME}: all items in SOURCES must be directories. '${_src}' is not a directory.")
-		endif()
-	endforeach()
+	set(_name ${TNAME})
+	set(_base_name "catapult.mongo.plugins.${_name}")
 
 	# Default libraries to link with
 	set(_link_libs ${MongoDB_IMPORTED_TARGETS} catapult.mongo)
-	
-	# If the plugin has a corresponding plugin library, link with it.
-	if(TARGET catapult.plugins.${_plugin_name})
-		list(APPEND _link_libs catapult.plugins.${_plugin_name})
+	# Extra link lib from catapult
+	if(TARGET "catapult.plugins.${_name}")
+		list(APPEND _link_libs catapult.plugins.${_name})
 	endif()
-	
 	# Extra user-defined libraries to link with
 	if(_arg_LINK_LIBS)
 		list(APPEND _link_libs ${_arg_LINK_LIBS})
 	endif()	
 
-	list(REMOVE_DUPLICATES _link_libs)
-
-	if(_arg_WITH_HEADER_ONLY)
+	# Grab all sources and check whether is header-only
+	glob_sources(_all_source_files RECURSE ${_arg_BASE_PATH})
+	set(_source_non_header_files ${_all_source_files})
+	list(FILTER _source_non_header_files EXCLUDE REGEX ".*\\.(h|hpp)$")
+	list(LENGTH _source_non_header_files _num_non_header_files)
+	if(_num_non_header_files EQUAL 0)
 		add_target(
-			${_plugin_full_name} LIBRARY TYPE INTERFACE
-			SOURCES ${_arg_SOURCES}
+			${_base_name} 
+			LIBRARY TYPE INTERFACE
+			SOURCES ${_all_source_files}
 		)
 		return()
 	endif()
 
-	if(_arg_WITH_DEPS)
-		if(TARGET catapult.plugins.${_plugin_name}.deps)
-			list(APPEND _link_libs catapult.plugins.${_plugin_name}.deps)
-		endif()
+	# Lookup for plugin with deps
+	list(FIND _mongo_plugins_with_deps ${_name} _index)
+	if(_index EQUAL -1)
+		# No deps here
 		add_target(
-			${_plugin_full_name}.deps LIBRARY
+			${_base_name} 
+			LIBRARY TYPE SHARED
 			LINK_LIBS ${_link_libs}
 			DEPENDENTS mongo
-			SOURCES ${_arg_SOURCES}
+			SOURCES ${_all_source_files}
 		)
-		list(APPEND _link_libs ${_plugin_full_name}.deps)
-		list(SUBLIST _arg_SOURCES 0 1 _arg_sources)
+		return()
 	endif()
 
+	# Create deps lib
 	add_target(
-		${_plugin_full_name} LIBRARY TYPE SHARED
+		${_base_name}.deps LIBRARY
 		LINK_LIBS ${_link_libs}
+		SOURCES ${_all_source_files}
+	)
+
+	# Create main plugin library with only direct sources
+	# i.e. files in src/ but not in subdirs
+	glob_sources(_all_source_files ${_arg_BASE_PATH})
+	add_target(
+		${_base_name} LIBRARY TYPE SHARED
+		LINK_LIBS ${_base_name}.deps
 		DEPENDENTS mongo
-		SOURCES ${_arg_SOURCES}
+		SOURCES ${_all_source_files}
 	)
 
 endfunction()
 
 function(add_mongo_plugin_tests TNAME)
 
-	# Validate plugin name
-	if(NOT TNAME MATCHES "^tests\\.catapult\\.mongo\\.plugins\\.[a-zA-Z0-9_]+$")
-		if(TNAME MATCHES "^[a-zA-Z0-9_]+$")
-			set(_plugin_name ${TNAME})
-			set(_plugin_full_name "tests.catapult.mongo.plugins.${_plugin_name}")
-		else()
-			message(FATAL_ERROR "add_mongo_plugin_tests ${TNAME}: invalid plugin name.")
-		endif()
+	set(_fn_argc ${ARGC})
+	set(_fn_options)
+	set(_fn_single BASE_PATH)
+	set(_fn_multi LINK_LIBS)
+
+	_parse_arguments(1)
+
+	if(NOT DEFINED _arg_BASE_PATH)
+		message(FATAL_ERROR "${CMAKE_CURRENT_FUNCTION} '${TNAME}': missing required argument: BASE_PATH.")
+	endif()
+
+	# Validate test plugin name
+	if(NOT TNAME MATCHES "^[a-zA-Z0-9]+$")
+		message(FATAL_ERROR "${CMAKE_CURRENT_FUNCTION} '${TNAME}': invalid plugin name.")
+	endif()
+	set(_name ${TNAME})
+	set(_base_name "tests.catapult.mongo.plugins.${_name}")
+
+	# Grab all sources and check whether is header-only
+	glob_sources(_all_source_files RECURSE ${_arg_BASE_PATH})
+	set(_source_non_header_files ${_all_source_files})
+	list(FILTER _source_non_header_files EXCLUDE REGEX ".*\\.(h|hpp)$")
+	list(LENGTH _source_non_header_files _num_non_header_files)
+	if(_num_non_header_files EQUAL 0)
+		add_target(
+			${_base_name} 
+			LIBRARY TYPE INTERFACE
+			SOURCES ${_all_source_files}
+		)
+		return()
+	endif()
+
+	# Default libraries to link with
+	set(_link_libs ${MongoDB_IMPORTED_TARGETS} tests.catapult.test.mongo)
+
+	# Tests might have /int/ and /test/ subdirs which need to be processed
+	# separately. As a result we need to keep in _all_source_files only
+	# the files NOT matching those subdirs.
+	list(FILTER _all_source_files EXCLUDE REGEX "[/\\](int|test)[/\\]")
+
+	# Lookup for plugin with deps
+	list(FIND _mongo_plugins_tests_with_deps ${_name} _index)
+	if(_index EQUAL -1)
+		# No deps here
+		# TODO this causes 'mappers' and eventually 'storages' to be excluded 
+		# entirely from compilation which is not wanted.
+		# See issue #1992 for details
+		list(FILTER _all_source_files EXCLUDE REGEX "[/\\](mappers)[/\\]")
+		add_target(
+			tests.catapult.mongo.plugins.${_name} TEST
+			LINK_LIBS ${_link_libs}
+			SOURCES ${_all_source_files}
+		)
 	else()
-		string(REGEX MATCH "[^.]+$" _plugin_name ${TNAME})
-		set(_plugin_full_name ${TNAME})
+		# With deps
+		list(APPEND _link_libs 
+			catapult.mongo.plugins.${_name}.deps
+			tests.catapult.test.mongo.plugins.${_name}
+		)
+		if(TARGET "tests.catapult.test.plugins.${_name}")
+			list(APPEND _link_libs tests.catapult.test.plugins.${_name})
+			message(FATA_ERROR "Stop Debug")
+		endif()
+		add_target(
+			tests.catapult.mongo.plugins.${_name} TEST
+			LINK_LIBS ${_link_libs}
+			SOURCES ${_all_source_files}
+		)
 	endif()
 
+	# Process /int/ subdir if exists
+	cmake_path(SET _int_dir NORMALIZE "${_arg_BASE_PATH}/int")
+	if(EXISTS "${_int_dir}" AND IS_DIRECTORY "${_int_dir}")
+		glob_sources(_int_source_files RECURSE ${_int_dir})
+		set(_int_link_libs
+				tests.catapult.test.mongo.plugins.${_name}
+				tests.catapult.test.cache
+				tests.catapult.test.mongo
+				catapult.mongo.plugins.${_name}
+		)
 
-endfunction()
+		if(NOT _name STREQUAL "multisig")
+			list(APPEND _int_link_libs tests.catapult.test.plugins.${_name})
+		elseif(TARGET catapult.plugins.${_name}.deps)
+			list(APPEND _int_link_libs catapult.plugins.${_name}.deps)
+		endif()
+			
+		add_target(
+			tests.catapult.int.mongo.plugins.${_name} TEST
+			WNO_DERIVED_LIB
+			LINK_LIBS ${_int_link_libs}
+			LABELS Database
+			SOURCES ${_int_source_files}
+		)
+	endif()
 
-function(catapult_mongo_plugin_tests_no_deps TARGET_NAME)
-
-	add_target(${TARGET_NAME} TEST
-		LINK_LIBS 
-			${MongoDB_IMPORTED_TARGETS}
-			tests.catapult.test.mongo
-		SOURCES ./
-	)
-
-endfunction()
-
-function(catapult_mongo_plugin_tests_with_header_only_deps TARGET_NAME)
-	string(REGEX MATCH "\.[a-z_]+$" PLUGIN_NAME ${TARGET_NAME})
-	string(SUBSTRING ${PLUGIN_NAME} 1 -1 PLUGIN_NAME)
-
-	add_target(${TARGET_NAME} TEST
-		LINK_LIBS 
-			${MongoDB_IMPORTED_TARGETS}
-			tests.catapult.test.mongo
-			catapult.plugins.${PLUGIN_NAME}.deps
-		SOURCES 
-			./ 
-			${ARGN}
-	)
-	if(TARGET "tests.catapult.test.plugins.${PLUGIN_NAME}")
-		target_link_libraries(${TARGET_NAME} tests.catapult.test.plugins.${PLUGIN_NAME})
+	# Process /test/ subdir if exists
+	cmake_path(SET _test_dir NORMALIZE "${_arg_BASE_PATH}/test")
+	if(EXISTS "${_test_dir}" AND IS_DIRECTORY "${_test_dir}")
+		glob_sources(_test_source_files RECURSE ${_test_dir})
+		add_target(
+			tests.catapult.test.mongo.plugins.${_name} LIBRARY
+			LINK_LIBS 
+				${MongoDB_IMPORTED_TARGETS}
+				${GTest_IMPORTED_TARGETS}
+			SOURCES ${_test_source_files}
+		)
 	endif()
 
 endfunction()
 
-function(catapult_mongo_plugin_tests_with_deps TARGET_NAME)
-	string(REGEX MATCH "\.[a-z]+$" PLUGIN_NAME ${TARGET_NAME})
-	string(SUBSTRING ${PLUGIN_NAME} 1 -1 PLUGIN_NAME)
+# The logic driving the 'with_deps' thingy is quite obscure and I couldn't find a better way
+# than to just have two separate lists.
+set(_mongo_plugins_with_deps
+	lockhash
+	locksecret
+	metadata
+	mosaic
+	multisig
+	namespace
+	restrictionaccount
+	restrictionmosaic
+)
 
-	catapult_mongo_plugin_tests_with_header_only_deps(${TARGET_NAME} "${ARGN}")
-	target_link_libraries(${TARGET_NAME} tests.catapult.test.mongo.plugins.${PLUGIN_NAME})
-endfunction()
-
-function(catapult_mongo_plugin_test_library TARGET_NAME)
-	add_target(
-		${TARGET_NAME} LIBRARY
-		LINK_LIBS 
-			${MongoDB_IMPORTED_TARGETS} 
-			${GTest_IMPORTED_TARGETS}
-		SOURCES ./
-	)
-endfunction()
-
-#add_subdirs()
+set(_mongo_plugins_tests_with_deps
+	metadata
+	mosaic
+	multisig
+	namespace
+	restrictionaccount
+	restrictionmosaic
+)
 
 glob_subdirs(_all_plugins RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
 foreach(_item IN LISTS _all_plugins)
-	
-	cmake_path(SET _plugin_src_dir NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/${_item}/src")
+
+	string(REPLACE "_" "" _name ${_item})
+	cmake_path(SET _src_dir NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/${_item}/src")
+
+	if(NOT EXISTS "${_src_dir}")
+		message(FATAL_ERROR "Source directory not found for mongo plugin ${_name}: expected at ${_src_dir}")
+	endif()
+
+	add_mongo_plugin(${_name} BASE_PATH "${_src_dir}")
+
 	cmake_path(SET _plugin_tests_dir NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/${_item}/tests")
-	string(REPLACE "_" "" _plugin_name ${_item})
-	if(NOT EXISTS "${_plugin_src_dir}")
-		message(TRACE "[!] Skipping mongo plugin ${_plugin_name}: source directory not found")
-		continue()
-	else()
-		message(TRACE "[i] Processing mongo plugin: ${_plugin_name}")
-	endif()
-
-	set(_call_args ${_plugin_name})
-
-	# Get subdirs of source directory. If there are then build plugin with dependencies
-	glob_subdirs(_plugin_src_subdirs ${_plugin_src_dir})
-	if(_plugin_src_subdirs)
-		message(TRACE "_plugin_src_subdirs: ${_plugin_src_subdirs}")
-		list(APPEND _call_args WITH_DEPS)
-	endif()
-
-	if(${_plugin_name} STREQUAL "lockshared")
-		set(_with_header_only WITH_HEADER_ONLY)
-	else()
-		set(_with_header_only)
-	endif()
-
-	add_mongo_plugin(${_call_args} ${_with_header_only} SOURCES ${_plugin_src_dir} ${_plugin_src_subdirs})
-
 	if(ENABLE_TESTS AND EXISTS "${_plugin_tests_dir}")
-		#TODO
+		add_mongo_plugin_tests(${_name} BASE_PATH ${_plugin_tests_dir})
 	endif()
 
 endforeach()
-
-#message(FATAL_ERROR "Stop")
