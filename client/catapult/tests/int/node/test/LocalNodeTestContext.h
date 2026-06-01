@@ -34,6 +34,7 @@
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include <atomic>
 
 namespace catapult { namespace test {
 
@@ -52,6 +53,15 @@ namespace catapult { namespace test {
 	/// Common test context for local node tests.
 	template<typename TTraits>
 	class LocalNodeTestContext {
+	private:
+		static std::string CreateTempDirPostfix(const std::string& tempDirPostfix) {
+			if (!tempDirPostfix.empty())
+				return tempDirPostfix;
+
+			static std::atomic<uint64_t> counter{ 0 };
+			return "-" + std::to_string(++counter);
+		}
+
 	public:
 		/// Creates a context around \a nodeFlag.
 		explicit LocalNodeTestContext(NodeFlag nodeFlag) : LocalNodeTestContext(nodeFlag, {})
@@ -72,8 +82,9 @@ namespace catapult { namespace test {
 				: m_nodeFlag(nodeFlag)
 				, m_nodes(nodes)
 				, m_configTransform(configTransform)
-				, m_tempDir("lntc" + tempDirPostfix)
-				, m_partnerTempDir("lntc_partner" + tempDirPostfix) {
+				, m_tempDirPostfix(CreateTempDirPostfix(tempDirPostfix))
+				, m_tempDir("lntc" + m_tempDirPostfix)
+				, m_partnerTempDir("lntc_partner" + m_tempDirPostfix) {
 			m_serverKeys = initializeDataDirectory(m_tempDir.name());
 			CATAPULT_LOG(debug) << "creating server with public key " << m_serverKeys.caPublicKey();
 
@@ -305,6 +316,7 @@ namespace catapult { namespace test {
 		consumer<config::CatapultConfiguration&> m_configTransform;
 		config::CatapultKeys m_serverKeys;
 		config::CatapultKeys m_partnerServerKeys;
+		std::string m_tempDirPostfix;
 		TempDirectoryGuard m_tempDir;
 		TempDirectoryGuard m_partnerTempDir;
 
