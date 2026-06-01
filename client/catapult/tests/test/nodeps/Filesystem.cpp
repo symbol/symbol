@@ -23,7 +23,15 @@
 #include "src/catapult/utils/Logging.h"
 #include "src/catapult/exceptions.h"
 #include <boost/dll.hpp>
+#include <chrono>
 #include <filesystem>
+#include <sstream>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #ifdef CATAPULT_DOCKER_TESTS
 extern int global_argc;
@@ -36,6 +44,24 @@ namespace catapult { namespace test {
 
 	namespace {
 		constexpr auto Temp_Directory_Root = "../_temp";
+
+		uint64_t GetCurrentProcessIdValue() {
+#ifdef _WIN32
+			return static_cast<uint64_t>(::GetCurrentProcessId());
+#else
+			return static_cast<uint64_t>(::getpid());
+#endif
+		}
+
+		std::string CreateProcessUniqueName() {
+			auto programLocation = std::filesystem::path(boost::dll::program_location().filename().generic_string());
+			auto processId = GetCurrentProcessIdValue();
+			auto nowNanos = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+
+			std::ostringstream out;
+			out << programLocation.generic_string() << "-" << processId << "-" << std::hex << nowNanos;
+			return out.str();
+		}
 
 		std::filesystem::path PathFromDirectoryName(const std::string& directoryName) {
 			if (std::string::npos != directoryName.find("/"))
@@ -102,8 +128,8 @@ namespace catapult { namespace test {
 	}
 
 	std::string TempDirectoryGuard::DefaultName() {
-		auto programLocation = std::filesystem::path(boost::dll::program_location().filename().generic_string());
-		return (std::filesystem::path(Temp_Directory_Root) / programLocation).generic_string();
+		static const auto defaultName = (std::filesystem::path(Temp_Directory_Root) / CreateProcessUniqueName()).generic_string();
+		return defaultName;
 	}
 
 	// endregion
@@ -126,17 +152,22 @@ namespace catapult { namespace test {
 			if (!std::filesystem::is_directory(directory))
 				return false;
 
+			const auto librarySuffix = boost::dll::shared_library::suffix();
 			using std::filesystem::directory_iterator;
 			for (auto iter = directory_iterator(directory); directory_iterator() != iter; ++iter) {
-				if (std::string::npos != iter->path().generic_string().find("catapult.plugins")) {
-					pluginsDirectory = directory;
-					return true;
+				if (iter->is_regular_file()) {
+					const auto filename = iter->path().filename().generic_string();
+					if (librarySuffix == iter->path().extension() && (
+							0 == filename.find("extension.") || 0 == filename.find("catapult.plugins."))) {
+						pluginsDirectory = iter->path().parent_path().generic_string();
+						return true;
+					}
 				}
 
 				if (!recurse || !iter->is_directory())
 					continue;
 
-				if (TryFindPluginsDirectory(iter->path().generic_string(), false, pluginsDirectory))
+				if (TryFindPluginsDirectory(iter->path().generic_string(), true, pluginsDirectory))
 					return true;
 			}
 
