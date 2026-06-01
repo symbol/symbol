@@ -730,7 +730,7 @@ namespace catapult { namespace net {
 			WAIT_FOR_ONE(numCallbacks);
 
 			// Assert: the connection is closed
-			EXPECT_EQ(ionet::SocketOperationCode::Closed, readCode);
+			test::AssertSocketClosedDuringRead(readCode);
 		});
 	}
 
