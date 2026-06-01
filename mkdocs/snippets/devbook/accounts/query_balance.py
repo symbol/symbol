@@ -109,41 +109,44 @@ ADDRESS = os.getenv(
 	'ADDRESS', 'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ')
 print(f'Fetching account information from {ADDRESS}')
 
-# Get account information
-account = get_account_info(ADDRESS)
+try:
+	# Get account information
+	account = get_account_info(ADDRESS)
 
-# Display balances for all mosaics the account holds
-account_mosaics = account['mosaics']
-if not account_mosaics:
-	print('Account holds no mosaics')
-else:
-	print(f'Account holds {len(account_mosaics)} mosaic(s):')
-
-# Fetch mosaic properties and names for all mosaics
-acc_mosaic_ids = [int(m['id'], 16) for m in account_mosaics]
-acc_mosaic_names = get_mosaic_names(acc_mosaic_ids)
-acc_mosaics_info = get_mosaics_info(acc_mosaic_ids)
-
-for mosaic_entry in account_mosaics:
-	mosaic_id = int(mosaic_entry['id'], 16)
-	balance = int(mosaic_entry['amount'])
-
-	# Get mosaic properties
-	info = acc_mosaics_info[mosaic_id]
-	mosaic_divisibility = info['divisibility']
-
-	# Format and display the balance
-	formatted_balance = format_amount(balance, mosaic_divisibility)
-	mosaic_id_hex = f'0x{mosaic_id:016X}'
-
-	# Display mosaic ID and names (if available)
-	names = acc_mosaic_names.get(mosaic_id, [])
-	if names:
-		names_str = ', '.join(names)
-		print(f'- Mosaic {mosaic_id_hex} ({names_str})')
+	# Display balances for all mosaics the account holds
+	account_mosaics = account['mosaics']
+	if not account_mosaics:
+		print('Account holds no mosaics')
 	else:
-		print(f'- Mosaic {mosaic_id_hex}')
+		print(f'Account holds {len(account_mosaics)} mosaic(s):')
 
-	print(f'  Balance: {formatted_balance}')
-	print(f'  Balance (atomic): {balance}')
-	print(f'  Divisibility: {mosaic_divisibility}')  # [<step-5]
+		# Fetch mosaic properties and names for all mosaics
+		acc_mosaic_ids = [int(m['id'], 16) for m in account_mosaics]
+		acc_mosaic_names = get_mosaic_names(acc_mosaic_ids)
+		acc_mosaics_info = get_mosaics_info(acc_mosaic_ids)
+
+		for mosaic_entry in account_mosaics:
+			mosaic_id = int(mosaic_entry['id'], 16)
+			balance = int(mosaic_entry['amount'])
+
+			# Get mosaic properties
+			info = acc_mosaics_info[mosaic_id]
+			mosaic_divisibility = info['divisibility']
+
+			# Format and display the balance
+			formatted_balance = format_amount(balance, mosaic_divisibility)
+			mosaic_id_hex = f'0x{mosaic_id:016X}'
+
+			# Display mosaic ID and names (if available)
+			names = acc_mosaic_names.get(mosaic_id, [])
+			if names:
+				names_str = ', '.join(names)
+				print(f'- Mosaic {mosaic_id_hex} ({names_str})')
+			else:
+				print(f'- Mosaic {mosaic_id_hex}')
+
+			print(f'  Balance: {formatted_balance}')
+			print(f'  Balance (atomic): {balance}')
+			print(f'  Divisibility: {mosaic_divisibility}')
+except urllib.error.URLError as e:
+	print(e.reason)  # [<step-5]

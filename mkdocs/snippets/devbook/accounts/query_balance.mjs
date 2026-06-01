@@ -100,43 +100,47 @@ const ADDRESS = process.env.ADDRESS ||
 	'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ';
 console.log('Fetching account information from', ADDRESS);
 
-// Get account information
-const account = await getAccountInfo(ADDRESS);
+try {
+	// Get account information
+	const account = await getAccountInfo(ADDRESS);
 
-// Display balances for all mosaics the account holds
-const accountMosaics = account.mosaics;
-if (0 === accountMosaics.length) {
-	console.log('Account holds no mosaics');
-} else {
-	console.log(`Account holds ${accountMosaics.length} mosaic(s):`);
+	// Display balances for all mosaics the account holds
+	const accountMosaics = account.mosaics;
+	if (0 === accountMosaics.length) {
+		console.log('Account holds no mosaics');
+	} else {
+		console.log(`Account holds ${accountMosaics.length} mosaic(s):`);
 
-	// Fetch mosaic properties and names for all mosaics
-	const mosaicIds = accountMosaics.map(m => BigInt(`0x${m.id}`));
-	const mosaicNames = await getMosaicNames(mosaicIds);
-	const mosaicsInfo = await getMosaicsInfo(mosaicIds);
+		// Fetch mosaic properties and names for all mosaics
+		const mosaicIds = accountMosaics.map(m => BigInt(`0x${m.id}`));
+		const mosaicNames = await getMosaicNames(mosaicIds);
+		const mosaicsInfo = await getMosaicsInfo(mosaicIds);
 
-	for (const mosaicEntry of accountMosaics) {
-		const mosaicId = BigInt(`0x${mosaicEntry.id}`);
-		const balance = BigInt(mosaicEntry.amount);
+		for (const mosaicEntry of accountMosaics) {
+			const mosaicId = BigInt(`0x${mosaicEntry.id}`);
+			const balance = BigInt(mosaicEntry.amount);
 
-		// Get mosaic properties
-		const info = mosaicsInfo.get(mosaicId);
-		const divisibility = info.divisibility;
+			// Get mosaic properties
+			const info = mosaicsInfo.get(mosaicId);
+			const divisibility = info.divisibility;
 
-		// Format and display the balance
-		const formattedBalance = formatAmount(balance, divisibility);
-		const mosaicIdHex =
-			`0x${mosaicId.toString(16).toUpperCase().padStart(16, '0')}`;
+			// Format and display the balance
+			const formattedBalance = formatAmount(balance, divisibility);
+			const mosaicIdHex =
+				`0x${mosaicId.toString(16).toUpperCase().padStart(16, '0')}`;
 
-		// Display mosaic ID and names (if available)
-		const names = mosaicNames.get(mosaicId) || [];
-		if (0 < names.length)
-			console.log(`- Mosaic ${mosaicIdHex} (${names.join(', ')})`);
-		else
-			console.log(`- Mosaic ${mosaicIdHex}`);
+			// Display mosaic ID and names (if available)
+			const names = mosaicNames.get(mosaicId) || [];
+			if (0 < names.length)
+				console.log(`- Mosaic ${mosaicIdHex} (${names.join(', ')})`);
+			else
+				console.log(`- Mosaic ${mosaicIdHex}`);
 
-		console.log(`  Balance: ${formattedBalance}`);
-		console.log(`  Balance (atomic): ${balance.toString()}`);
-		console.log(`  Divisibility: ${divisibility}`);
+			console.log(`  Balance: ${formattedBalance}`);
+			console.log(`  Balance (atomic): ${balance.toString()}`);
+			console.log(`  Divisibility: ${divisibility}`);
+		}
 	}
+} catch (e) {
+	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 } // [<step-5]
