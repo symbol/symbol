@@ -226,7 +226,7 @@ namespace catapult { namespace net {
 		auto completionCode = resultPair.second;
 
 		// Assert: the single packet was successfuly read
-		EXPECT_EQ(ionet::SocketOperationCode::Closed, completionCode);
+		test::AssertSocketClosedDuringRead(completionCode);
 		ASSERT_EQ(1u, receivedBuffers.size());
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 82u, receivedBuffers[0]);
 	}
@@ -241,7 +241,7 @@ namespace catapult { namespace net {
 		auto completionCode = resultPair.second;
 
 		// Assert: all packets were successfully read
-		EXPECT_EQ(ionet::SocketOperationCode::Closed, completionCode);
+		test::AssertSocketClosedDuringRead(completionCode);
 		ASSERT_EQ(3u, receivedBuffers.size());
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, receivedBuffers[0]);
 		EXPECT_EQUAL_BUFFERS(sendBuffers[1], 0, 17u, receivedBuffers[1]);
