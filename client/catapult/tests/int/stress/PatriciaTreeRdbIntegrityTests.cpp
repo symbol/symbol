@@ -22,6 +22,7 @@
 #include "src/catapult/cache_db/PatriciaTreeRdbDataSource.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/tree/PatriciaTreeTests.h"
+#include <atomic>
 
 namespace catapult { namespace tree {
 
@@ -32,13 +33,19 @@ namespace catapult { namespace tree {
 			return cache::RocksDatabaseSettings(dbDir, { "default" }, cache::FilterPruningMode::Disabled);
 		}
 
+		std::string CreateUniqueDbDirectoryName() {
+			static std::atomic<uint64_t> counter{ 0 };
+			return "patricia-tree-rdb-" + std::to_string(++counter);
+		}
+
 		class RocksPatriciaTreeTraits {
 		public:
 			using DataSourceType = cache::PatriciaTreeRdbDataSource;
 
 		public:
 			explicit RocksPatriciaTreeTraits(tree::DataSourceVerbosity)
-					: m_db(DefaultSettings(m_dbDirGuard.name()))
+					: m_dbDirGuard(CreateUniqueDbDirectoryName())
+					, m_db(DefaultSettings(m_dbDirGuard.name()))
 					, m_container(m_db, 0)
 					, m_dataSource(m_container)
 			{}
