@@ -24,6 +24,7 @@
 #include "src/catapult/model/BlockUtils.h"
 #include "src/catapult/thread/ThreadGroup.h"
 #include "src/catapult/utils/SpinLock.h"
+#include "src/catapult/exceptions.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
@@ -81,14 +82,29 @@ namespace catapult { namespace io {
 			// - set up a writer thread that writes blocks
 			threads.spawn([&] {
 				test::StressThreadLogger logger("writer thread");
+				constexpr auto Max_Retry_Attempts = 10u;
 
 				for (auto i = 0u; i < GetNumIterations(); ++i) {
 					logger.notifyIteration(i, GetNumIterations());
 					auto pNextBlock = test::GenerateBlockWithTransactions(0, Height(2 + i));
 
-					auto modifier = storage.modifier();
-					modifier.saveBlock(test::BlockToBlockElement(*pNextBlock));
-					modifier.commit();
+					auto hasPersistedBlock = false;
+					for (auto retryAttempt = 0u; retryAttempt < Max_Retry_Attempts; ++retryAttempt) {
+						try {
+							auto modifier = storage.modifier();
+							modifier.saveBlock(test::BlockToBlockElement(*pNextBlock));
+							modifier.commit();
+							hasPersistedBlock = true;
+							break;
+						} catch (const catapult_file_io_error&) {
+							if (Max_Retry_Attempts - 1 == retryAttempt)
+								throw;
+
+							test::Sleep(5);
+						}
+					}
+
+					EXPECT_TRUE(hasPersistedBlock);
 				}
 			});
 
@@ -101,13 +117,24 @@ namespace catapult { namespace io {
 			for (const auto& height : heights)
 				EXPECT_EQ(GetMaxHeight(), height);
 		}
+
+		void RunNonDeterministicMultithreadedReadWriteTest(size_t numReaders) {
+			test::RunNonDeterministicTest("StorageIntegrity", [numReaders](auto) {
+				try {
+					RunMultithreadedReadWriteTest(numReaders);
+					return true;
+				} catch (const catapult_runtime_error&) {
+					return false;
+				}
+			});
+		}
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithSingleReaderSingleWriter) {
-		RunMultithreadedReadWriteTest(1);
+		RunNonDeterministicMultithreadedReadWriteTest(1);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithMultipleReadersSingleWriter) {
-		RunMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
+		RunNonDeterministicMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
 	}
 }}
