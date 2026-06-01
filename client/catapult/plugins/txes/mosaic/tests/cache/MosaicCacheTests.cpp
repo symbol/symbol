@@ -149,7 +149,8 @@ namespace catapult { namespace cache {
 
 			// Sanity:
 			EXPECT_EQ(Default_Cache_Size + 1, delta->size());
-			EXPECT_CONTAINS(delta->touch(Height(123)), MosaicId(15));
+			auto deactivatingIds = delta->touch(Height(123));
+			EXPECT_CONTAINS(deactivatingIds, MosaicId(15));
 
 			cache.commit();
 		}
