@@ -336,10 +336,13 @@ namespace catapult { namespace consumers {
 
 		private:
 			static bool Contains(const io::BlockStorageView& storageView, const model::HeightHashPair& heightHashPair) {
-				if (storageView.chainHeight() < heightHashPair.Height)
+				if (Height(0) == heightHashPair.Height || storageView.chainHeight() < heightHashPair.Height)
 					return false;
 
 				auto storageHashRange = storageView.loadHashesFrom(heightHashPair.Height, 1);
+				if (storageHashRange.empty())
+					return false;
+
 				return heightHashPair.Hash == *storageHashRange.cbegin();
 			}
 
