@@ -21,13 +21,15 @@
 
 #include "RawFile.h"
 #include "src/catapult/exceptions.h"
+#include <chrono>
 #include <memory>
+#include <thread>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #include <io.h>
 #include <windows.h>
 #else
@@ -84,7 +86,7 @@ namespace catapult { namespace io {
 
 		// region platform-dependent file io
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 		constexpr auto Flag_Read_Only = _O_RDONLY;
 		constexpr auto Flag_Read_Write = _O_RDWR;
 		constexpr auto New_File_Create_Truncate_Flags = _O_CREAT | _O_TRUNC;
@@ -243,7 +245,26 @@ namespace catapult { namespace io {
 					? ((flags & Flag_Read_Write) ? File_Locking_Exclusive : File_Locking_Shared_Read)
 					: File_Locking_None;
 
-			return open(fd, name, Open_Flags | flags | createFlag, lockingFlags, New_File_Permissions);
+			auto openFlags = Open_Flags | flags | createFlag;
+
+#ifdef _WIN32
+			// on Windows file share modes are mandatory, so a concurrent reader and writer of the same file (or a
+			// not-yet-released handle held briefly by antivirus / the indexer / a lazy close) yields a transient
+			// ERROR_SHARING_VIOLATION. retry a bounded number of times with a short backoff to ride out the contention.
+			constexpr int Max_Sharing_Violation_Retries = 50;
+			constexpr auto Sharing_Violation_Retry_Delay = std::chrono::milliseconds(20);
+			for (auto i = 0;; ++i) {
+				auto result = open(fd, name, openFlags, lockingFlags, New_File_Permissions);
+				if (result.IsSuccess || ERROR_SHARING_VIOLATION != result.ErrorCode || Max_Sharing_Violation_Retries <= i)
+					return result;
+
+				std::this_thread::sleep_for(Sharing_Violation_Retry_Delay);
+			}
+#else
+			// on *nix the locks above are advisory (flock) rather than mandatory share modes, so a concurrent
+			// reader/writer does not block opening the file and no sharing-violation retry is needed.
+			return open(fd, name, openFlags, lockingFlags, New_File_Permissions);
+#endif
 		}
 
 		// endregion
