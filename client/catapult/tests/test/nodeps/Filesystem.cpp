@@ -24,6 +24,7 @@
 #include "src/catapult/exceptions.h"
 #include <boost/dll.hpp>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <sstream>
 
@@ -44,6 +45,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		constexpr auto Temp_Directory_Root = "../_temp";
+		constexpr auto Temp_Directory_Name_Environment_Variable = "CATAPULT_TEST_TEMP_DIRECTORY_NAME";
 
 		uint64_t GetCurrentProcessIdValue() {
 #ifdef _WIN32
@@ -53,14 +55,48 @@ namespace catapult { namespace test {
 #endif
 		}
 
+		std::string ReadEnvironmentVariable(const char* name) {
+#ifdef _WIN32
+			char* pBuffer = nullptr;
+			size_t size = 0;
+			std::string value;
+			if (0 == ::_dupenv_s(&pBuffer, &size, name) && pBuffer)
+				value.assign(pBuffer);
+
+			::free(pBuffer);
+			return value;
+#else
+			const auto* pValue = std::getenv(name);
+			return pValue ? std::string(pValue) : std::string();
+#endif
+		}
+
+		void WriteEnvironmentVariable(const char* name, const std::string& value) {
+#ifdef _WIN32
+			::_putenv_s(name, value.c_str());
+#else
+			::setenv(name, value.c_str(), 1);
+#endif
+		}
+
 		std::string CreateProcessUniqueName() {
+			// a death-test child re-executes this binary with a different process id; honor a name inherited from the
+			// parent process so the child shares the parent's temp directory instead of creating an isolated one
+			auto inheritedName = ReadEnvironmentVariable(Temp_Directory_Name_Environment_Variable);
+			if (!inheritedName.empty() && std::string::npos == inheritedName.find_first_of("/\\"))
+				return inheritedName;
+
 			auto programLocation = std::filesystem::path(boost::dll::program_location().filename().generic_string());
 			auto processId = GetCurrentProcessIdValue();
 			auto nowNanos = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 
 			std::ostringstream out;
 			out << programLocation.generic_string() << "-" << processId << "-" << std::hex << nowNanos;
-			return out.str();
+			auto uniqueName = out.str();
+
+			// publish the generated name so death-test child processes spawned later inherit and reuse it
+			WriteEnvironmentVariable(Temp_Directory_Name_Environment_Variable, uniqueName);
+			return uniqueName;
 		}
 
 		std::filesystem::path PathFromDirectoryName(const std::string& directoryName) {
