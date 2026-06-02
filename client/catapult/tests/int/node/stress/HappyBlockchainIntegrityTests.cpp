@@ -38,7 +38,7 @@
 
 namespace catapult { namespace local {
 
-#define TEST_CLASS DISABLED_HappyBlockchainIntegrityTests
+#define TEST_CLASS HappyBlockchainIntegrityTests
 
 	namespace {
 		constexpr size_t Default_Network_Size = 10;
@@ -93,22 +93,43 @@ namespace catapult { namespace local {
 			ValidateConfiguration(config);
 		}
 
-		void RescheduleTasks(const std::string resourcesDirectory) {
+		void MakeTaskConfigurationQuiet(const std::string& resourcesDirectory) {
 			namespace pt = boost::property_tree;
 
 			auto configFilePath = (std::filesystem::path(resourcesDirectory) / "config-task.properties").generic_string();
-
 			pt::ptree properties;
 			pt::read_ini(configFilePath, properties);
 
-			// 1. reconnect more rapidly so nodes have a better chance to find each other
+			properties.put("static node refresh task.startDelay", "300000ms");
+			properties.put("static node refresh task.minDelay", "300000ms");
+			properties.put("static node refresh task.maxDelay", "300001ms");
+			properties.put("batch transaction task.startDelay", "300000ms");
+			properties.put("batch transaction task.repeatDelay", "300000ms");
+			properties.put("connect peers task for service Sync.startDelay", "300000ms");
+			properties.put("connect peers task for service Sync.repeatDelay", "300000ms");
+			properties.put("synchronizer task.startDelay", "300000ms");
+			properties.put("synchronizer task.repeatDelay", "300000ms");
+			properties.put("pull unconfirmed transactions task.startDelay", "300000ms");
+			properties.put("connect peers task for service Finalization.startDelay", "300000ms");
+			properties.put("pull finalization proof task.startDelay", "300000ms");
+			properties.put("age peers task for service Readers.startDelay", "300000ms");
+
+			pt::write_ini(configFilePath, properties);
+		}
+
+		void MakeTaskConfigurationFast(const std::string& resourcesDirectory) {
+			namespace pt = boost::property_tree;
+
+			auto configFilePath = (std::filesystem::path(resourcesDirectory) / "config-task.properties").generic_string();
+			pt::ptree properties;
+			pt::read_ini(configFilePath, properties);
+
+			// reconnect rapidly and run frequent sync rounds so rebooted nodes converge quickly
 			properties.put("static node refresh task.startDelay", "125ms");
 			properties.put("static node refresh task.minDelay", "300ms");
 			properties.put("static node refresh task.maxDelay", "2000ms");
 			properties.put("connect peers task for service Sync.startDelay", "250ms");
 			properties.put("connect peers task for service Sync.repeatDelay", "300ms");
-
-			// 2. run far more frequent sync rounds
 			properties.put("synchronizer task.startDelay", "500ms");
 			properties.put("synchronizer task.repeatDelay", "300ms");
 
@@ -126,9 +147,9 @@ namespace catapult { namespace local {
 		};
 
 		ChainStatistics PushRandomBlockchainToNode(
+				const NodeTestContext& context,
 				const ionet::Node& node,
 				test::StateHashCalculator& stateHashCalculator,
-				const std::string& resourcesPath,
 				const test::BlockchainBuilder::BlockReceiptsHashCalculator& blockReceiptsHashCalculator,
 				size_t numBlocks,
 				utils::TimeSpan blockTimeInterval) {
@@ -145,10 +166,19 @@ namespace catapult { namespace local {
 			auto blockchainConfig = test::CreatePrototypicalBlockchainConfiguration();
 			UpdateBlockchainConfiguration(blockchainConfig);
 
+			std::string resourcesPath = stateHashCalculator.dataDirectory();
+			test::TempDirectoryGuard resourcesDirectoryGuard("resources_" + node.identity().Host);
+			if (resourcesPath.empty()) {
+				resourcesPath = resourcesDirectoryGuard.name();
+				context.prepareFreshDataDirectory(resourcesPath);
+			}
+
 			test::BlockchainBuilder builder(accounts, stateHashCalculator, blockchainConfig, resourcesPath);
 			builder.setBlockTimeInterval(blockTimeInterval);
 			builder.setBlockReceiptsHashCalculator(blockReceiptsHashCalculator);
 			auto blocks = builder.asBlockchain(transactionsBuilder);
+			if (blocks.empty())
+				CATAPULT_THROW_RUNTIME_ERROR("generated empty blockchain");
 
 			test::ExternalSourceConnection connection(node);
 			test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);
@@ -279,13 +309,6 @@ namespace catapult { namespace local {
 			static constexpr size_t Sparse_Network_Size = Default_Network_Size;
 #endif
 
-			static constexpr auto State_Hash_Directory = "statehash";
-
-		public:
-			// State_Hash_Directory is containing directory of all isolated directories used for state hash calculation
-			StateHashEnabledTraits() : m_stateHashCalculationDir(State_Hash_Directory)
-			{}
-
 		public:
 			test::StateHashCalculator createStateHashCalculator(const NodeTestContext& context, size_t id) const {
 				std::filesystem::path stateHashDirectory = m_stateHashCalculationDir.name();
@@ -324,14 +347,14 @@ namespace catapult { namespace local {
 					UpdateConfigurationForNode(config, i);
 					const_cast<config::NodeConfiguration&>(config.Node).OutgoingConnections.MaxConnections = 20;
 				};
-				auto postfix = "_" + std::to_string(i);
-				contexts.push_back(std::make_unique<NodeTestContext>(nodeFlag, peers, configTransform, postfix));
+				// Let LocalNodeTestContext generate a unique postfix for each instance.
+				contexts.push_back(std::make_unique<NodeTestContext>(nodeFlag, peers, configTransform, ""));
 
 				auto& context = *contexts.back();
 				context.regenerateCertificates(crypto::KeyPair::FromString(test::Test_Network_Private_Keys[i]));
 
-				// - (re)schedule a few tasks and boot the node
-				RescheduleTasks(context.resourcesDirectory());
+				MakeTaskConfigurationQuiet(context.resourcesDirectory());
+				// - boot the node
 				context.boot();
 
 				// - push a random number of different (valid) blocks to each node
@@ -342,9 +365,9 @@ namespace catapult { namespace local {
 				CATAPULT_LOG(debug) << "pushing initial chain to node " << i;
 				auto stateHashCalculator = verifyTraits.createStateHashCalculator(context, i);
 				auto chainStats = PushRandomBlockchainToNode(
+						context,
 						networkNodes[i],
 						stateHashCalculator,
-						stateHashCalculator.dataDirectory().empty() ? context.dataDirectory() : stateHashCalculator.dataDirectory(),
 						[&verifyTraits](const auto& block) { return verifyTraits.calculateReceiptsHash(block); },
 						numBlocks,
 						utils::TimeSpan::FromSeconds(60 + i));
@@ -357,8 +380,13 @@ namespace catapult { namespace local {
 				chainStatsPerNode[i] = chainStats;
 				LogStatistics(networkNodes[i], chainStats);
 
+				WAIT_FOR_ZERO_EXPR(context.stats().NumActiveReaders);
+				WAIT_FOR_ZERO_EXPR(context.stats().NumActiveWriters);
+
 				// reset context
 				context.reset();
+				// - speed up sync tasks so rebooted nodes converge quickly during the consensus phase
+				MakeTaskConfigurationFast(context.resourcesDirectory());
 			}
 
 			for (const auto& chainStats : chainStatsPerNode) {
