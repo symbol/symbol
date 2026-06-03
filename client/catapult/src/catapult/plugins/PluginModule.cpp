@@ -59,13 +59,6 @@ namespace catapult { namespace plugins {
 
 		void* CatapultLoad(const std::string& pluginPath, PluginModule::Scope scope) {
 			int flags = RTLD_NOW | (PluginModule::Scope::Global == scope ? RTLD_GLOBAL : RTLD_LOCAL);
-#ifdef RTLD_DEEPBIND
-			// Use RTLD_DEEPBIND for local-scope modules so each DSO resolves static-library globals
-			// (e.g. RocksDB statics) against its own deep scope, preventing ELF symbol preemption
-			// by globally-loaded plugins and the resulting double-free on dlclose.
-			if (PluginModule::Scope::Local == scope)
-				flags |= RTLD_DEEPBIND;
-#endif
 			return ::dlopen(pluginPath.c_str(), flags);
 		}
 
