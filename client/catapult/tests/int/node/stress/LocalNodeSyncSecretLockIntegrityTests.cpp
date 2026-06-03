@@ -527,9 +527,18 @@ namespace catapult { namespace local {
 				auto betterBlocks = createBlocks(transactionsBuilder2, builder2, allBlocks, utils::TimeSpan::FromSeconds(58));
 				allBlocks.push_back(betterBlocks[0]);
 
-				test::PushEntities(m_connection, ionet::PacketType::Push_Block, worseBlocks);
-				test::PushEntities(m_connection, ionet::PacketType::Push_Block, betterBlocks);
-				test::WaitForHeightAndElements(m_context, Height(5), 4, 1);
+				{
+					// Use a separate connection to avoid slot exhaustion on m_connection's identity:
+					// m_connection still holds socket_fund (from fundAccounts), occupying 1 of the 2
+					// allowed slots per identity. Using a fresh connection for the competing pushes
+					// ensures both worseBlocks (slot 0) and betterBlocks (slot 1) can be accepted.
+					test::ExternalSourceConnection rollbackConnection(m_context.publicKey());
+					auto pIo1 = test::PushEntities(rollbackConnection, ionet::PacketType::Push_Block, worseBlocks);
+					auto pIo2 = test::PushEntities(rollbackConnection, ionet::PacketType::Push_Block, betterBlocks);
+					test::WaitForHeightAndElements(m_context, Height(5), 4, 3);
+				}
+
+				WAIT_FOR_VALUE_EXPR(1u, m_context.stats().NumActiveReaders);
 
 				// Sanity: the cache has expected balances
 				test::AssertCurrencyBalances(m_accounts, m_context.localNode().cache(), {
