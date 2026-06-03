@@ -106,7 +106,7 @@ export class RosettaPublicKeyProcessor {
 
 		try {
 			return new this.PublicKeyClass(rosettaPublicKey.hex_bytes);
-		} catch (err) {
+		} catch {
 			throw RosettaErrorFactory.INVALID_PUBLIC_KEY;
 		}
 	}
@@ -148,7 +148,7 @@ export const rosettaPostRouteWithNetwork = (blockchainDescriptor, Request, handl
 	const requestBody = request.body;
 	try {
 		Request.validateJSON(requestBody);
-	} catch (err) {
+	} catch {
 		return send(RosettaErrorFactory.INVALID_REQUEST_DATA);
 	}
 

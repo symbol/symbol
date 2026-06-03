@@ -108,7 +108,7 @@ const readSSLFileSync = (path, fileType, pathProperty) => {
 		return fs.readFileSync(path);
 	} catch (err) {
 		if ('ENOENT' === err.code)
-			throw new Error(`SSL ${fileType} file cannot be found at the path: ${path}`);
+			throw new Error(`SSL ${fileType} file cannot be found at the path: ${path}`, { cause: err });
 
 		throw err;
 	}

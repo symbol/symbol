@@ -54,13 +54,7 @@ export class Bip32Node {
 	 * @returns {Bip32Node} BIP32 node at the end of the path.
 	 */
 	derivePath(path) {
-		/** @type {Bip32Node} */
-		let nextNode = this;
-		path.forEach(identifier => {
-			nextNode = nextNode.deriveOne(identifier);
-		});
-
-		return nextNode;
+		return path.reduce((nextNode, identifier) => nextNode.deriveOne(identifier), this);
 	}
 }
 

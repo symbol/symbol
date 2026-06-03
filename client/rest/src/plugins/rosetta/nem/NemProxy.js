@@ -66,7 +66,7 @@ export default class NemProxy {
 
 			const jsonObject = await response.json();
 			return jsonProjection ? jsonProjection(jsonObject) : jsonObject;
-		} catch (err) {
+		} catch {
 			throw RosettaErrorFactory.CONNECTION_ERROR;
 		}
 	}

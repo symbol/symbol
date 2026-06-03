@@ -40,7 +40,7 @@ export default testDescriptor => {
 				const mutate = (_, otherPublicKey) => { otherPublicKey[0] ^= i; };
 				assertDerivedSharedResult(mutate, (lhs, rhs) => expect(lhs).to.not.deep.equal(rhs));
 				break;
-			} catch (error) {
+			} catch {
 				// comments for eslint purposes, no need to handle this
 			}
 		}

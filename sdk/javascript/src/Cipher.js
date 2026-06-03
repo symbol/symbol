@@ -1,7 +1,5 @@
 import ByteArray from './ByteArray.js';
-/* eslint-disable no-unused-vars */
-import { PublicKey, SharedKey256 } from './CryptoTypes.js';
-/* eslint-enable no-unused-vars */
+import { SharedKey256 } from './CryptoTypes.js';
 import crypto from 'crypto';
 
 // ReactNative Buffer polyfill only allows Buffers to be passed to Buffer.concat

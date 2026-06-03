@@ -103,7 +103,7 @@ class ZmqSocketWrapper extends EventEmitter {
 		this.eventsLoopActive = false;
 		try {
 			this.innerSocket.close();
-		} catch (err) {
+		} catch {
 			// ignore errors during close
 		}
 	}

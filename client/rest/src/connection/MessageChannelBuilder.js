@@ -48,7 +48,7 @@ const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, network
 		const addressByteArray = new Address(topicParam).bytes;
 		return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
 	} catch (err) {
-		throw Error(`${topicParam} does not represent a valid encoded address`);
+		throw Error(`${topicParam} does not represent a valid encoded address`, { cause: err });
 	}
 };
 

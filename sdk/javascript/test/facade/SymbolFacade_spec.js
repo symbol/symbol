@@ -4,9 +4,6 @@ import {
 } from '../../src/CryptoTypes.js';
 import { SymbolFacade } from '../../src/facade/SymbolFacade.js';
 import { Address, Network } from '../../src/symbol/Network.js';
-/* eslint-disable no-unused-vars */
-import TransactionFactory from '../../src/symbol/TransactionFactory.js';
-/* eslint-enable no-unused-vars */
 import * as sc from '../../src/symbol/models.js';
 import * as descriptors from '../../src/symbol/models_ts.js';
 import { sha3_256 } from '@noble/hashes/sha3.js';

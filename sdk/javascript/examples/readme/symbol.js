@@ -37,8 +37,11 @@ const signAndPrint = (facade, transaction) => {
 
 	console.log('*** EXAMPLE CONSTRUCTION FROM UNTYPED MAP - EMBEDDED ***');
 	const {
+		/* eslint-disable @typescript-eslint/no-unused-vars */
 		fee,
 		deadline,
+		/* eslint-enable @typescript-eslint/no-unused-vars */
+
 		...rawEmbeddedDescriptor
 	} = rawDescriptor; // remove fee and deadline from rawDescriptor
 	const embeddedTransaction = facade.transactionFactory.createEmbedded(rawEmbeddedDescriptor);
