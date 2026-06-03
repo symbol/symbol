@@ -27,6 +27,7 @@
 #include "src/catapult/thread/TimedCallback.h"
 #include "src/catapult/utils/StackTimer.h"
 #include <boost/asio/ssl.hpp>
+#include <cstring>
 
 namespace catapult { namespace ionet {
 
@@ -37,7 +38,14 @@ namespace catapult { namespace ionet {
 			if (!ec)
 				return SocketOperationCode::Success;
 
-			auto isEof = boost::asio::error::eof == ec;
+			// Compare by value and category name rather than category pointer identity.
+			// libboost_log.a is compiled header-only and contributes a hidden-weak copy of
+			// boost::asio's misc_category into the executable, while catapult.asio.so holds
+			// the authoritative copy. The two category objects have the same name and values
+			// but different addresses, so the usual operator== (pointer-based) would wrongly
+			// classify eof as a read error when the error_code crosses the DSO boundary.
+			auto isEof = ec.value() == static_cast<int>(boost::asio::error::eof)
+					&& 0 == std::strcmp(ec.category().name(), boost::asio::error::get_misc_category().name());
 			if (isEof)
 				CATAPULT_LOG(info) << "eof reading from socket: " << ec.message();
 			else
