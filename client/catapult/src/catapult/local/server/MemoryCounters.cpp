@@ -23,6 +23,7 @@
 #include "src/catapult/utils/DiagnosticCounter.h"
 #include "src/catapult/utils/FileSize.h"
 #include <fstream>
+#include <sstream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -30,8 +31,7 @@
 #elif defined(__APPLE__)
 #include <mach/mach.h>
 #else
-#include <sys/resource.h>
-#include <sys/time.h>
+#include <string>
 #endif
 
 namespace catapult { namespace local {
@@ -55,31 +55,35 @@ namespace catapult { namespace local {
 
 #define GET_MEMORY_VALUE(NAME) utils::FileSize::FromBytes(GetMemoryInfo().NAME).megabytes()
 #else
-		uint64_t GetMaxResidentSetSize() {
-			rusage usage;
-			return 0 == getrusage(RUSAGE_SELF, &usage)
-					? utils::FileSize::FromKilobytes(static_cast<uint64_t>(usage.ru_maxrss)).megabytes()
-					: 0;
-		}
-
+		// All fields in kilobytes, parsed from /proc/self/status.
+		// VmHWM and VmRSS come from the same kernel accounting so VmHWM >= VmRSS is always guaranteed,
+		// unlike mixing getrusage(ru_maxrss) with /proc/self/statm which can produce inconsistent MB values.
 		struct MemoryInfo {
-			uint64_t size;
-			uint64_t resident;
-			uint64_t shared;
+			uint64_t vmRss;   // VmRSS  – current resident set size
+			uint64_t vmHwm;   // VmHWM  – peak resident set size
+			uint64_t vmSize;  // VmSize – virtual memory size
+			uint64_t rssFile; // RssFile – file-backed resident pages (proxy for shared RSS)
 		};
 
 		MemoryInfo GetMemoryInfo() {
-			MemoryInfo info;
-			std::ifstream fin("/proc/self/statm");
-			fin >> info.size >> info.resident >> info.shared;
-			return fin ? info : MemoryInfo();
+			MemoryInfo info = {};
+			std::ifstream fin("/proc/self/status");
+			std::string line;
+			while (std::getline(fin, line)) {
+				std::istringstream iss(line);
+				std::string key;
+				uint64_t value;
+				if ((iss >> key >> value) && !key.empty()) {
+					if (key == "VmRSS:") info.vmRss = value;
+					else if (key == "VmHWM:") info.vmHwm = value;
+					else if (key == "VmSize:") info.vmSize = value;
+					else if (key == "RssFile:") info.rssFile = value;
+				}
+			}
+			return info;
 		}
 
-		uint64_t PagesToBytes(uint64_t numPages) {
-			return numPages * static_cast<uint64_t>(sysconf(_SC_PAGE_SIZE));
-		}
-
-#define GET_MEMORY_VALUE(NAME) utils::FileSize::FromBytes(PagesToBytes(GetMemoryInfo().NAME)).megabytes()
+#define GET_MEMORY_VALUE(NAME) utils::FileSize::FromKilobytes(GetMemoryInfo().NAME).megabytes()
 #endif
 
 		utils::DiagnosticCounterId MakeId(const char* name) {
@@ -98,10 +102,10 @@ namespace catapult { namespace local {
 		counters.emplace_back(MakeId("MAX RSS"), []() { return GET_MEMORY_VALUE(resident_size_max); });
 		counters.emplace_back(MakeId("CUR VIRT"), []() { return GET_MEMORY_VALUE(virtual_size); });
 #else
-		counters.emplace_back(MakeId("CUR RSS"), []() { return GET_MEMORY_VALUE(resident); });
-		counters.emplace_back(MakeId("MAX RSS"), []() { return GetMaxResidentSetSize(); });
-		counters.emplace_back(MakeId("CUR VIRT"), []() { return GET_MEMORY_VALUE(size); });
-		counters.emplace_back(MakeId("SHR RSS"), []() { return GET_MEMORY_VALUE(shared); });
+		counters.emplace_back(MakeId("CUR RSS"), []() { return GET_MEMORY_VALUE(vmRss); });
+		counters.emplace_back(MakeId("MAX RSS"), []() { return GET_MEMORY_VALUE(vmHwm); });
+		counters.emplace_back(MakeId("CUR VIRT"), []() { return GET_MEMORY_VALUE(vmSize); });
+		counters.emplace_back(MakeId("SHR RSS"), []() { return GET_MEMORY_VALUE(rssFile); });
 #endif
 		}
 }}
