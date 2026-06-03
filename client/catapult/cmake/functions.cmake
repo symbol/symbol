@@ -369,7 +369,7 @@ macro(_handle_target_name)
 			list(LENGTH _parts _num_parts)
 			if(_num_parts LESS 2)
 				message(FATAL_ERROR "add_target '${TNAME}' (${TTYPE})\n"
-                                    "expected format is 'test.xyz' where xyz is the library under test.\n"
+									"expected format is 'test.xyz' where xyz is the library under test.\n"
 									"use WNO_DERIVED_LIB to skip automatic linking.")
 			endif()
 			list(REMOVE_AT _parts 0)
@@ -714,7 +714,8 @@ function(add_target TNAME TTYPE)
 		endif()
 
 		if(TTYPE STREQUAL "TEST")
-			add_test(NAME ${TNAME} WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/.." COMMAND ${TNAME})
+			cmake_path(GET CMAKE_BINARY_DIR PARENT_PATH _tests_working_dir)
+			add_test(NAME ${TNAME} WORKING_DIRECTORY "${_tests_working_dir}" COMMAND ${TNAME})
 			if(_arg_LABELS)
 				set_property(TEST ${TNAME} PROPERTY LABELS ${_arg_LABELS})
 			endif()
