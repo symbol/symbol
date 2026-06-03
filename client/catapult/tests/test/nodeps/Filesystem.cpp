@@ -194,7 +194,10 @@ namespace catapult { namespace test {
 				if (iter->is_regular_file()) {
 					const auto filename = iter->path().filename().generic_string();
 					if (librarySuffix == iter->path().extension() && (
-							0 == filename.find("extension.") || 0 == filename.find("catapult.plugins."))) {
+							0 == filename.find("extension.")
+							|| 0 == filename.find("catapult.plugins.")
+							|| 0 == filename.find("libextension.")
+							|| 0 == filename.find("libcatapult.plugins."))) {
 						pluginsDirectory = iter->path().parent_path().generic_string();
 						return true;
 					}

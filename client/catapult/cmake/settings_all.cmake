@@ -76,9 +76,9 @@ if(NOT CATAPULT_BUILD_DEVELOPMENT)
 	endif()
 endif()
 
-# only set rpath when running conan, which copies dependencies to `@executable_path/../deps`
-# when not using conan, rpath is set to link paths by default
-if(USE_CONAN AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+# on Linux always set explicit rpaths; on macOS only when using conan
+# (conan copies dependencies to `@executable_path/../deps`)
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux" OR (USE_CONAN AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
 	set(ENABLE_RPATHS ON)
 	set(USE_EXPLICIT_RPATHS ON)
 endif()
@@ -86,15 +86,19 @@ endif()
 if(ENABLE_RPATHS)
 	if(USE_EXPLICIT_RPATHS)
 		if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-			# $origin - to load plugins when running the server
+			# build tree: $ORIGIN so all shared libs in bin/ are found without LD_LIBRARY_PATH
+			set(CMAKE_BUILD_RPATH "$ORIGIN")
+			set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+			# install tree: locate plugins and dependencies relative to the executable
 			set(CMAKE_INSTALL_RPATH "$ORIGIN/../deps:$ORIGIN/../lib")
-			set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 			set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 
 			# use rpath for executables
 			# (executable rpath will be used for loading indirect libs, this is needed because boost libs do not set runpath)
 			# use newer runpath for shared libs
-			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--enable-new-dtags")
+			# exclude-libs for RocksDB: prevent RocksDB static-archive symbols from being exported from each DSO,
+			# avoiding ELF symbol preemption / double-free at exit while keeping all other symbols (e.g. boost_log) global
+			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--enable-new-dtags,--exclude-libs,librocksdbd.a:librocksdb.a")
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
 		endif()
 		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -123,6 +127,8 @@ add_library(build.tests INTERFACE)
 target_compile_definitions(build.defaults INTERFACE 
 	DLL_EXPORTS
 	BOOST_ALL_DYN_LINK
+	BOOST_ASIO_SEPARATE_COMPILATION
+	BOOST_ASIO_DYN_LINK
 	BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT
 	BOOST_ASIO_NO_DEPRECATED
 	OPENSSL_API_COMPAT=0x10100000L
