@@ -25,7 +25,7 @@
 #include "src/catapult/functions.h"
 
 #if defined(_MSC_VER) && defined(_MT) && defined(_DEBUG)
-// See /MDd flag in CMakeGlobalSettings.cmake
+// See /MDd flag in cmake/settings_win_msvc.cmake
 // Note ! _DEBUG is MSVC only and behaves differently than standard NDEBUG
 #pragma warning(push)
 #pragma warning(disable : 4702) /* unreachable code */

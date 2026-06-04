@@ -55,13 +55,6 @@ else()
     message(FATAL_ERROR "Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
 
-include(CMakeGlobalSettings.cmake)
-
-# used to add openssl dependencies to a target
-function(catapult_add_openssl_dependencies TARGET_NAME)
-	target_link_libraries(${TARGET_NAME} OpenSSL::SSL)
-endfunction()
-
 # cmake grouping targets
 add_custom_target(extensions)
 add_custom_target(mongo)
