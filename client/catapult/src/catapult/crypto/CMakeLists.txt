@@ -1,4 +1,7 @@
-catapult_library_target(catapult.crypto)
-
-target_link_libraries(catapult.crypto catapult.utils external)
-catapult_add_openssl_dependencies(catapult.crypto)
+add_target(catapult.crypto LIBRARY
+	LINK_LIBS
+		catapult.utils
+		external
+		OpenSSL::SSL
+	SOURCES ./
+)

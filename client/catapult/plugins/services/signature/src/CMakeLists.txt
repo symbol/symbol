@@ -1,11 +1,14 @@
 set(PLUGIN_BASE_NAME catapult.plugins.signature)
 
 # create a deps lib
-catapult_library_target(${PLUGIN_BASE_NAME}.deps validators)
-target_link_libraries(${PLUGIN_BASE_NAME}.deps ${PLUGIN_CATAPULT_LIBS})
+add_target(${PLUGIN_BASE_NAME}.deps LIBRARY
+	LINK_LIBS ${PLUGIN_CATAPULT_LIBS}
+	SOURCES ./ validators
+)
 
 # create a plugin dll
-catapult_shared_library_target(${PLUGIN_BASE_NAME} plugins)
-target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_BASE_NAME}.deps)
-
-add_dependencies(plugins ${PLUGIN_BASE_NAME})
+add_target(${PLUGIN_BASE_NAME} LIBRARY TYPE SHARED
+	LINK_LIBS ${PLUGIN_BASE_NAME}.deps
+	DEPENDENTS plugins
+	SOURCES ./ plugins
+)

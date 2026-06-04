@@ -1,2 +1,4 @@
-catapult_library_target(catapult.observers)
-target_link_libraries(catapult.observers catapult.cache)
+add_target(catapult.observers LIBRARY
+	LINK_LIBS catapult.cache
+	SOURCES ./
+)

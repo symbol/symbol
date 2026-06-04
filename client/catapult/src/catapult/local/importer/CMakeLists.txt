@@ -1,2 +1,6 @@
-catapult_library_target(catapult.local.importer)
-target_link_libraries(catapult.local.importer catapult.local.recovery catapult.local.server)
+add_target(catapult.local.importer LIBRARY
+	LINK_LIBS
+		catapult.local.recovery
+		catapult.local.server
+	SOURCES ./
+)
