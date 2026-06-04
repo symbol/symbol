@@ -127,10 +127,22 @@ add_library(build.tests INTERFACE)
 target_compile_definitions(build.defaults INTERFACE 
 	DLL_EXPORTS
 	BOOST_ALL_DYN_LINK
-	BOOST_ASIO_SEPARATE_COMPILATION
-	BOOST_ASIO_DYN_LINK
 	BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT
 	BOOST_ASIO_NO_DEPRECATED
+
+	# Boost.Asio is compiled once into a dedicated shared library (catapult.asio) so that every module shares a single
+	# instance of Asio's runtime and thread-local state, which fixes TLS destructor-ordering crashes on shutdown.
+	# This relies on the ELF dynamic-linking model: with default symbol visibility the loader interposes all duplicate
+	# copies of Asio's header-only template statics (e.g. detail::call_stack<>::top_) onto a single definition.
+	#
+	# Windows (PE) has no such interposition: cross-module symbol identity requires explicit dllexport/dllimport, which
+	# Asio only applies to its non-template functions, not to its template/static TLS state. The result is a split-brain
+	# where imported Asio functions and per-module template TLS disagree, causing access violations on io-pool shutdown.
+	# This is a property of the PE format and Windows loader (independent of the compiler: MSVC, MinGW or clang-cl all
+	# target PE), so the shared-Asio design is gated to non-Windows targets; on Windows Asio is kept header-only.
+	$<$<NOT:$<BOOL:${WIN32}>>:BOOST_ASIO_SEPARATE_COMPILATION>
+	$<$<NOT:$<BOOL:${WIN32}>>:BOOST_ASIO_DYN_LINK>
+
 	OPENSSL_API_COMPAT=0x10100000L
 	$<$<BOOL:${ENABLE_CATAPULT_DIAGNOSTICS}>:ENABLE_CATAPULT_DIAGNOSTICS>
 	$<$<BOOL:${CATAPULT_DOCKER_TESTS}>:CATAPULT_DOCKER_TESTS>

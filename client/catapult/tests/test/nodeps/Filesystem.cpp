@@ -225,6 +225,22 @@ namespace catapult { namespace test {
 		}
 #endif
 
+		// prefer the directory of the running test executable: plugin modules are built alongside the test
+		// binaries (build/<config>/bin), so this resolves to the current build configuration unambiguously.
+		// this matters when multiple configuration trees (e.g. Debug and RelWithDebInfo) coexist and share a
+		// common working directory, where the recursive search below would otherwise pick whichever sibling
+		// configuration's bin directory it encountered first.
+		try {
+			const auto executableDirectory = boost::dll::program_location().parent_path().generic_string();
+			std::string pluginsDirectory;
+			if (TryFindPluginsDirectory(executableDirectory, false, pluginsDirectory)) {
+				CATAPULT_LOG(debug) << "selecting '" << pluginsDirectory << "' as explicit directory";
+				return pluginsDirectory;
+			}
+		} catch (const std::exception& ex) {
+			CATAPULT_LOG(debug) << "unable to resolve running executable directory: " << ex.what();
+		}
+
 		for (const auto& directory : { "bin", "." }) {
 			std::string pluginsDirectory;
 			if (TryFindPluginsDirectory(directory, true, pluginsDirectory)) {
