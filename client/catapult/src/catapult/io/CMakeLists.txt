@@ -1,2 +1,6 @@
-catapult_library_target(catapult.io)
-target_link_libraries(catapult.io catapult.config catapult.model)
+add_target(catapult.io LIBRARY
+	LINK_LIBS
+		catapult.config
+		catapult.model
+	SOURCES ./
+)

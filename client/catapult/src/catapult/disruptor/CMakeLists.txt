@@ -1,2 +1,4 @@
-catapult_library_target(catapult.disruptor)
-target_link_libraries(catapult.disruptor catapult.model)
+add_target(catapult.disruptor LIBRARY
+	LINK_LIBS catapult.model
+	SOURCES ./
+)

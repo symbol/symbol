@@ -1,6 +1,7 @@
 add_target(tests.catapult.ionet TEST
 	WNO_DERIVED_LIB
-	LINK_LIBS tests.catapult.test.net
+	LINK_LIBS
+		tests.catapult.test.net
+		OpenSSL::SSL
 	SOURCES ./
 )
-catapult_add_openssl_dependencies(tests.catapult.ionet)

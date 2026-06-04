@@ -1,2 +1,4 @@
-catapult_library_target(catapult.local.broker)
-target_link_libraries(catapult.local.broker catapult.local)
+add_target(catapult.local.broker LIBRARY
+	LINK_LIBS catapult.local
+	SOURCES ./
+)

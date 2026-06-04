@@ -1,28 +1,34 @@
 function(catapult_tx_plugin_src PLUGIN_BASE_NAME)
 	# create an sdk lib
 	if(DEFINED PLUGIN_SDK_FOLDERS)
-		catapult_library_target(${PLUGIN_BASE_NAME}.sdk ${PLUGIN_SDK_FOLDERS})
-		target_link_libraries(${PLUGIN_BASE_NAME}.sdk catapult.model)
+		add_target(${PLUGIN_BASE_NAME}.sdk LIBRARY
+			LINK_LIBS catapult.model
+			SOURCES ./ ${PLUGIN_SDK_FOLDERS}
+		)
 	endif()
 
 	# create a deps lib
 	if(DEFINED PLUGIN_DEPS_FOLDERS)
-		catapult_library_target(${PLUGIN_BASE_NAME}.deps ${PLUGIN_DEPS_FOLDERS})
-		target_link_libraries(${PLUGIN_BASE_NAME}.deps ${PLUGIN_CATAPULT_LIBS})
-	endif()
-
-	if(DEFINED PLUGIN_SDK_FOLDERS)
-		target_link_libraries(${PLUGIN_BASE_NAME}.deps ${PLUGIN_BASE_NAME}.sdk)
+		set(_deps_link_libs ${PLUGIN_CATAPULT_LIBS})
+		if(DEFINED PLUGIN_SDK_FOLDERS)
+			list(APPEND _deps_link_libs ${PLUGIN_BASE_NAME}.sdk)
+		endif()
+		add_target(${PLUGIN_BASE_NAME}.deps LIBRARY
+			LINK_LIBS ${_deps_link_libs}
+			SOURCES ./ ${PLUGIN_DEPS_FOLDERS}
+		)
 	endif()
 
 	# create a plugin dll
-	catapult_shared_library_target(${PLUGIN_BASE_NAME} plugins)
-
+	set(_plugin_link_libs)
 	if(DEFINED PLUGIN_DEPS_FOLDERS)
-		target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_BASE_NAME}.deps)
+		list(APPEND _plugin_link_libs ${PLUGIN_BASE_NAME}.deps)
 	endif()
-
-	add_dependencies(plugins ${PLUGIN_BASE_NAME})
+	add_target(${PLUGIN_BASE_NAME} LIBRARY TYPE SHARED
+		LINK_LIBS ${_plugin_link_libs}
+		DEPENDENTS plugins
+		SOURCES ./ plugins
+	)
 endfunction()
 
 function(catapult_tx_plugin_tests TARGET_NAME)
@@ -63,8 +69,10 @@ function(catapult_tx_plugin_tests TARGET_NAME)
 endfunction()
 
 function(catapult_plugin_test_library TARGET_NAME)
-	catapult_library_target(${TARGET_NAME})
-	target_link_libraries(${TARGET_NAME} ${GTest_IMPORTED_TARGETS})
+	add_target(${TARGET_NAME} LIBRARY
+		LINK_LIBS ${GTest_IMPORTED_TARGETS}
+		SOURCES ./
+	)
 endfunction()
 
 add_subdirs()

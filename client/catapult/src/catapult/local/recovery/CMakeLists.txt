@@ -1,2 +1,4 @@
-catapult_library_target(catapult.local.recovery)
-target_link_libraries(catapult.local.recovery catapult.local)
+add_target(catapult.local.recovery LIBRARY
+	LINK_LIBS catapult.local
+	SOURCES ./
+)

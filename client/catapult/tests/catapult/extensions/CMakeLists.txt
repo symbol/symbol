@@ -3,6 +3,6 @@ add_target(tests.catapult.extensions TEST
 	LINK_LIBS
 		tests.catapult.test.nemesis
 		catapult.plugins.coresystem.deps
+		OpenSSL::SSL
 	SOURCES ./
 )
-catapult_add_openssl_dependencies(tests.catapult.extensions)

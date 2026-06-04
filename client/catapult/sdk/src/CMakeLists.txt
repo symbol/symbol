@@ -1,14 +1,14 @@
-set(TARGET_NAME catapult.sdk)
-
-catapult_library_target(${TARGET_NAME} builders extensions parsers)
-target_link_libraries(${TARGET_NAME}
-	catapult.model
-	catapult.state
-	catapult.plugins.aggregate.sdk
-	catapult.plugins.metadata.sdk
-	catapult.plugins.mosaic.sdk
-	catapult.plugins.namespace.sdk
-	catapult.plugins.restrictionaccount.sdk)
+add_target(catapult.sdk LIBRARY
+	LINK_LIBS
+		catapult.model
+		catapult.state
+		catapult.plugins.aggregate.sdk
+		catapult.plugins.metadata.sdk
+		catapult.plugins.mosaic.sdk
+		catapult.plugins.namespace.sdk
+		catapult.plugins.restrictionaccount.sdk
+	SOURCES ./ builders extensions parsers
+)
 
 find_program(PYTHON_EXECUTABLE python3 python REQUIRED)
 

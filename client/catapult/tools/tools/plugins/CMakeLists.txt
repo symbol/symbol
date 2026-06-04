@@ -1,6 +1,8 @@
 set(TARGET_NAME catapult.tools.plugins)
 
-catapult_library_target(${TARGET_NAME})
-target_link_libraries(${TARGET_NAME} catapult.plugins)
+add_target(${TARGET_NAME} LIBRARY
+	LINK_LIBS catapult.plugins
+	SOURCES ./
+)
 
 # tool has plugins dependency so it must be able to access src

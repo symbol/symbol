@@ -1,2 +1,4 @@
-catapult_library_target(catapult.consumers)
-target_link_libraries(catapult.consumers catapult.chain)
+add_target(catapult.consumers LIBRARY
+	LINK_LIBS catapult.chain
+	SOURCES ./
+)

@@ -1,5 +1,7 @@
-catapult_library_target(tests.catapult.test.core mocks)
-target_link_libraries(tests.catapult.test.core
-	tests.catapult.test.nodeps
-	${CORE_CATAPULT_LIBS}
-	catapult.sdk)
+add_target(tests.catapult.test.core LIBRARY
+	LINK_LIBS
+		tests.catapult.test.nodeps
+		${CORE_CATAPULT_LIBS}
+		catapult.sdk
+	SOURCES ./ mocks
+)

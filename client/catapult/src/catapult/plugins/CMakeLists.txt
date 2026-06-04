@@ -1,2 +1,6 @@
-catapult_library_target(catapult.plugins)
-target_link_libraries(catapult.plugins catapult.validators ${CMAKE_DL_LIBS})
+add_target(catapult.plugins LIBRARY
+	LINK_LIBS
+		catapult.validators
+		${CMAKE_DL_LIBS}
+	SOURCES ./
+)
