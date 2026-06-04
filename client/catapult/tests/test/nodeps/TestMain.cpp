@@ -26,18 +26,6 @@
 #include "src/catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 #include <thread>
-#include <exception>
-#include <iostream>
-#include <typeinfo>
-#include <boost/exception/diagnostic_information.hpp>
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#include <stdlib.h>
-#include <windows.h>
-#include <dbghelp.h>
-#include <mutex>
-#pragma comment(lib, "dbghelp.lib")
-#endif
 
 #ifdef CATAPULT_DOCKER_TESTS
 extern int global_argc;
@@ -99,112 +87,11 @@ namespace catapult { namespace test {
 			return 0;
 		}
 	}
-
-#ifdef _MSC_VER
-	// TEMP DIAGNOSTIC: print a symbolized stack trace of the current thread to stderr
-	void PrintDiagnosticStackTrace(const char* tag, const char* message) {
-		static std::mutex s_traceMutex;
-		std::lock_guard<std::mutex> guard(s_traceMutex);
-
-		std::cerr << "=== DIAGNOSTIC STACK TRACE (" << tag << ") ===" << std::endl;
-		if (message)
-			std::cerr << "message: " << message;
-
-		void* frames[64];
-		auto frameCount = ::CaptureStackBackTrace(0, 64, frames, nullptr);
-
-		auto process = ::GetCurrentProcess();
-		alignas(SYMBOL_INFO) char symbolBuffer[sizeof(SYMBOL_INFO) + 256 * sizeof(char)] = {};
-		auto* pSymbol = reinterpret_cast<SYMBOL_INFO*>(symbolBuffer);
-		pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-		pSymbol->MaxNameLen = 255;
-
-		for (USHORT i = 0; i < frameCount; ++i) {
-			auto address = reinterpret_cast<DWORD64>(frames[i]);
-			std::cerr << "  #" << i << " " << frames[i];
-			if (::SymFromAddr(process, address, nullptr, pSymbol))
-				std::cerr << " " << pSymbol->Name;
-
-			IMAGEHLP_LINE64 line = {};
-			line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-			DWORD displacement = 0;
-			if (::SymGetLineFromAddr64(process, address, &displacement, &line))
-				std::cerr << " (" << line.FileName << ":" << line.LineNumber << ")";
-
-			std::cerr << std::endl;
-		}
-
-		std::cerr.flush();
-	}
-#endif
 }}
 
 int main(int argc, char** argv) {
 	catapult::version::WriteVersionInformation(std::cout);
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
-
-#ifdef _MSC_VER
-	// TEMP DIAGNOSTIC: capture an unhandled CRT debug assert (e.g. iterator-debug) with a stack trace.
-	// The report hook fires inline at the assert site (stack intact); print message + stack, then exit
-	// deterministically so we neither hang on a dialog nor lose the location.
-	::SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
-	::SymInitialize(::GetCurrentProcess(), nullptr, TRUE);
-
-	// STL iterator-debug assertions are reported through the WIDE _CrtDbgReportW, which only invokes a
-	// hook installed via _CrtSetReportHookW2; install both wide and ANSI hooks to be safe.
-	_CrtSetReportHookW2(_CRT_RPTHOOK_INSTALL, [](int reportType, wchar_t* message, int* pReturnValue) -> int {
-		if (_CRT_ASSERT == reportType || _CRT_ERROR == reportType) {
-			if (message)
-				std::wcerr << L"assert message: " << message << std::endl;
-
-			catapult::test::PrintDiagnosticStackTrace(_CRT_ASSERT == reportType ? "CRT_ASSERT(W)" : "CRT_ERROR(W)", nullptr);
-			std::cerr.flush();
-			::fflush(stderr);
-			_exit(42);
-		}
-
-		if (pReturnValue)
-			*pReturnValue = 0;
-		return FALSE;
-	});
-
-	_CrtSetReportHook([](int reportType, char* message, int* pReturnValue) -> int {
-		if (_CRT_ASSERT == reportType || _CRT_ERROR == reportType) {
-			catapult::test::PrintDiagnosticStackTrace(_CRT_ASSERT == reportType ? "CRT_ASSERT" : "CRT_ERROR", message);
-			std::cerr.flush();
-			::fflush(stderr);
-			_exit(42);
-		}
-
-		if (pReturnValue)
-			*pReturnValue = 0;
-		return TRUE;
-	});
-#endif
-
-	// TEMP DIAGNOSTIC: print the in-flight exception (with stack) when an uncaught exception escapes a worker thread
-	std::set_terminate([]() {
-		std::cerr << "=== TERMINATE HANDLER INVOKED ===" << std::endl;
-		auto exceptionPtr = std::current_exception();
-		if (exceptionPtr) {
-			try {
-				std::rethrow_exception(exceptionPtr);
-			} catch (const std::exception& ex) {
-				std::cerr << "unhandled std::exception [" << typeid(ex).name() << "]: " << ex.what() << std::endl;
-				std::cerr << "boost diagnostic: " << boost::diagnostic_information(ex) << std::endl;
-			} catch (...) {
-				std::cerr << "unhandled non-std exception" << std::endl;
-			}
-		} else {
-			std::cerr << "terminate called with no active exception" << std::endl;
-		}
-
-#ifdef _MSC_VER
-		catapult::test::PrintDiagnosticStackTrace("TERMINATE", nullptr);
-#endif
-		std::cerr.flush();
-		std::abort();
-	});
 
 	std::cout << "Initializing Logging..." << std::endl;
 	auto pLoggingGuard = catapult::test::SetupLogging();
