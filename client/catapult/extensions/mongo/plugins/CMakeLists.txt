@@ -19,11 +19,11 @@ function(add_mongo_plugin TNAME)
 	set(_base_name "catapult.mongo.plugins.${_name}")
 
 	# Default libraries to link with
-	set(_link_libs ${MongoDB_IMPORTED_TARGETS} catapult.mongo)
-	# Extra link lib from catapult
-	if(TARGET "catapult.plugins.${_name}")
-		list(APPEND _link_libs catapult.plugins.${_name})
-	endif()
+	set(_link_libs 
+		${MongoDB_IMPORTED_TARGETS} 
+		catapult.mongo
+		$<TARGET_NAME_IF_EXISTS:catapult.plugins.${_name}>
+	)
 	# Extra user-defined libraries to link with
 	if(_arg_LINK_LIBS)
 		list(APPEND _link_libs ${_arg_LINK_LIBS})
@@ -43,33 +43,31 @@ function(add_mongo_plugin TNAME)
 		return()
 	endif()
 
-	# Lookup for plugin with deps
-	list(FIND _mongo_plugins_with_deps ${_name} _index)
-	if(_index EQUAL -1)
-		# No deps here
+	# A plugin whose src is partitioned into 'mappers' and 'storages' subdirs is a 'deps' plugin:
+	# the subdir sources go into a separate static '.deps' lib while the plugin dll is built from
+	# the direct src/ files only. The two subdirs always co-occur (a plugin has both or neither).
+	cmake_path(SET _mappers_dir NORMALIZE "${_arg_BASE_PATH}/mappers")
+	cmake_path(SET _storages_dir NORMALIZE "${_arg_BASE_PATH}/storages")
+	if(IS_DIRECTORY "${_mappers_dir}" AND IS_DIRECTORY "${_storages_dir}")
+		
+		# Create deps lib from all (recursive) sources
 		add_target(
-			${_base_name} 
-			LIBRARY TYPE SHARED
+			${_base_name}.deps LIBRARY
 			LINK_LIBS ${_link_libs}
-			DEPENDENTS mongo
 			SOURCES ${_all_source_files}
 		)
-		return()
+
+		# the plugin dll links the deps lib and is built from only direct sources,
+		# i.e. files in src/ but not in subdirs
+		set(_link_libs ${_base_name}.deps)
+		glob_sources(_all_source_files ${_arg_BASE_PATH})
+
 	endif()
 
-	# Create deps lib
-	add_target(
-		${_base_name}.deps LIBRARY
-		LINK_LIBS ${_link_libs}
-		SOURCES ${_all_source_files}
-	)
-
-	# Create main plugin library with only direct sources
-	# i.e. files in src/ but not in subdirs
-	glob_sources(_all_source_files ${_arg_BASE_PATH})
+	# Create main plugin library
 	add_target(
 		${_base_name} LIBRARY TYPE SHARED
-		LINK_LIBS ${_base_name}.deps
+		LINK_LIBS ${_link_libs}
 		DEPENDENTS mongo
 		SOURCES ${_all_source_files}
 	)
@@ -113,33 +111,30 @@ function(add_mongo_plugin_tests TNAME)
 	# Default libraries to link with
 	set(_link_libs ${MongoDB_IMPORTED_TARGETS} tests.catapult.test.mongo)
 
+	# Extra user-defined libraries to link with
+	if(_arg_LINK_LIBS)
+		list(APPEND _link_libs ${_arg_LINK_LIBS})
+	endif()	
+
 	# Tests might have /int/ and /test/ subdirs which need to be processed
 	# separately. As a result we need to keep in _all_source_files only
 	# the files NOT matching those subdirs.
 	list(FILTER _all_source_files EXCLUDE REGEX "[/\\](int|test)[/\\]")
 
-	# Lookup for plugin with deps
-	list(FIND _mongo_plugins_tests_with_deps ${_name} _index)
-	if(_index EQUAL -1)
-		# No deps here
-		# TODO this causes 'mappers' and eventually 'storages' to be excluded 
-		# entirely from compilation which is not wanted.
-		# See issue #1992 for details
-		list(FILTER _all_source_files EXCLUDE REGEX "[/\\](mappers)[/\\]")
+	# A 'deps' plugin (one with a '.deps' lib, see add_mongo_plugin) requires the extra plugin
+	# and test-support libraries to be linked; a plain plugin only needs the mongo test lib.
+	if(NOT TARGET catapult.mongo.plugins.${_name}.deps)
 		add_target(
 			tests.catapult.mongo.plugins.${_name} TEST
 			LINK_LIBS ${_link_libs}
 			SOURCES ${_all_source_files}
 		)
 	else()
-		# With deps
 		list(APPEND _link_libs 
 			catapult.mongo.plugins.${_name}.deps
 			tests.catapult.test.mongo.plugins.${_name}
+			$<TARGET_NAME_IF_EXISTS:tests.catapult.test.plugins.${_name}>
 		)
-		if(TARGET "tests.catapult.test.plugins.${_name}")
-			list(APPEND _link_libs tests.catapult.test.plugins.${_name})
-		endif()
 		add_target(
 			tests.catapult.mongo.plugins.${_name} TEST
 			LINK_LIBS ${_link_libs}
@@ -187,28 +182,6 @@ function(add_mongo_plugin_tests TNAME)
 	endif()
 
 endfunction()
-
-# The logic driving the 'with_deps' thingy is quite obscure and I couldn't find a better way
-# than to just have two separate lists.
-set(_mongo_plugins_with_deps
-	lockhash
-	locksecret
-	metadata
-	mosaic
-	multisig
-	namespace
-	restrictionaccount
-	restrictionmosaic
-)
-
-set(_mongo_plugins_tests_with_deps
-	metadata
-	mosaic
-	multisig
-	namespace
-	restrictionaccount
-	restrictionmosaic
-)
 
 glob_subdirs(_all_plugins RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
 foreach(_item IN LISTS _all_plugins)
