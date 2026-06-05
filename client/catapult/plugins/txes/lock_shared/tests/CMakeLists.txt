@@ -1,10 +1,5 @@
+glob_sources(_sources RECURSE ./)
 add_target(tests.catapult.plugins.lockshared LIBRARY
 	TYPE INTERFACE
-	SOURCES
-		./
-		./cache
-		./observers
-		./state
-		./test
-		./validators
+	SOURCES ${_sources}
 )

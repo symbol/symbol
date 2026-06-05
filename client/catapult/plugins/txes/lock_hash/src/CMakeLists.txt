@@ -1,3 +1,1 @@
-set(PLUGIN_BASE_NAME catapult.plugins.lockhash)
-
-catapult_tx_plugin_src(${PLUGIN_BASE_NAME})
+catapult_tx_plugin_src(${_plugin_full_name})

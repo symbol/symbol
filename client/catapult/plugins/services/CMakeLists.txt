@@ -1,2 +1,1 @@
-add_subdirectory(hashcache)
-add_subdirectory(signature)
+add_subdirs()

@@ -1,3 +1,1 @@
-set(TARGET_NAME tests.catapult.plugins.aggregate)
-
-catapult_tx_plugin_tests(${TARGET_NAME})
+catapult_tx_plugin_tests(tests.${_plugin_full_name})
