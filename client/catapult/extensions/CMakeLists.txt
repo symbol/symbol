@@ -8,13 +8,20 @@ glob_subdirs(_all_extensions RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CUR
 foreach(_extension_name IN LISTS _all_extensions)
 
 	cmake_path(APPEND _extension_path "${CMAKE_CURRENT_SOURCE_DIR}" "${_extension_name}")
-	if(_extension_name STREQUAL "mongo")
+	cmake_path(APPEND _extension_own_cmake_list "${_extension_path}" "CMakeLists.txt")
+	if(EXISTS "${_extension_own_cmake_list}")
+		# A custom CMakeLists.txt exists for this extension, 
+		# so we defer to it and just add the subdir
 		add_subdirs("${_extension_path}")
 		continue()
 	endif()
 
 	# Step 1: define the core library target for the extension (src dir)
 	cmake_path(APPEND _sources_path "${_extension_path}" "src")
+	if(NOT EXISTS "${_sources_path}" OR NOT IS_DIRECTORY "${_sources_path}")
+		message(FATAL_ERROR "Extension ${_extension_name} does not have a src/ directory !")
+		continue()
+	endif()
 	glob_sources(_sources RECURSE "${_sources_path}")
 	add_target(
 		catapult.${_extension_name} LIBRARY
@@ -50,9 +57,7 @@ foreach(_extension_name IN LISTS _all_extensions)
 	# Step 3: define the pluggable extension target itself
 	add_target(
 		extension.${_extension_name} EXTENSION
-		LINK_LIBS 
-			catapult.${_extension_name}
-			$<$<STREQUAL:${_extension_name},zeromq>:cppzmq catapult.extensions>
+		LINK_LIBS catapult.${_extension_name}
 		DEPENDENTS extensions
 		FOLDER "extensions"
 		SOURCES "${_extension_path}"
