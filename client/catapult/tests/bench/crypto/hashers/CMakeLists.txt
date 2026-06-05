@@ -1,2 +1,9 @@
-catapult_bench_executable_target(bench.catapult.crypto.hashers)
-target_link_libraries(bench.catapult.crypto.hashers catapult.crypto bench.catapult.bench.nodeps)
+add_target(bench.catapult.crypto.hashers EXECUTABLE
+	WITH_INSTALL
+	LINK_LIBS 
+		build.tests
+		catapult.crypto 
+		bench.catapult.bench.nodeps
+	DEPENDENTS tools
+	SOURCES ./
+)

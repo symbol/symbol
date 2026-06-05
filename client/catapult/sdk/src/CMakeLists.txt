@@ -7,7 +7,10 @@ add_target(catapult.sdk LIBRARY
 		catapult.plugins.mosaic.sdk
 		catapult.plugins.namespace.sdk
 		catapult.plugins.restrictionaccount.sdk
-	SOURCES ./ builders extensions parsers
+	SOURCES 
+		./builders 
+		./extensions 
+		./parsers
 )
 
 find_program(PYTHON_EXECUTABLE python3 python REQUIRED)
