@@ -9,7 +9,6 @@ if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "11.0")
 endif()
 
 target_compile_definitions(build.defaults INTERFACE 
-	_STDC_WANT_LIB_EXT1_=1
 	__STDC_WANT_LIB_EXT1__=1
 )
 

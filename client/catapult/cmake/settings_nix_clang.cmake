@@ -3,13 +3,6 @@ if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "14.0")
 	message(FATAL_ERROR "Clang version must be at least 14.0! Found version ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 
-# Set parallel build level for all generators (Make, Ninja, etc.)
-set(CMAKE_BUILD_PARALLEL_LEVEL ${PARALLEL_BUILDS})
-
-target_compile_definitions(build.defaults INTERFACE 
-	$<$<BOOL:${ARCHITECTURE_NAME}>:-march=${ARCHITECTURE_NAME}>
-)
-
 target_compile_options(build.defaults INTERFACE 
 	$<$<BOOL:${ARCHITECTURE_NAME}>:-march=${ARCHITECTURE_NAME}>		
 	$<$<COMPILE_LANGUAGE:CXX>:-Weverything>										# enable all warnings
