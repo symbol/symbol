@@ -1,2 +1,9 @@
-catapult_bench_executable_target(bench.catapult.crypto.verify)
-target_link_libraries(bench.catapult.crypto.verify catapult.crypto bench.catapult.bench.nodeps)
+add_target(bench.catapult.crypto.verify EXECUTABLE
+	WITH_INSTALL
+	LINK_LIBS 
+		build.tests
+		catapult.crypto 
+		bench.catapult.bench.nodeps
+	DEPENDENTS tools
+	SOURCES ./
+)
