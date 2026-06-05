@@ -693,8 +693,6 @@ function(add_target TNAME TTYPE)
 			set_target_properties(${TNAME} PROPERTIES MACOSX_BUNDLE TRUE)
 		endif()
 		
-		list(PREPEND _arg_LINK_LIBS build.defaults ${Boost_LIBRARIES})
-		
 		_handle_folder()
 		_handle_link_libs()
 		_handle_definitions()
