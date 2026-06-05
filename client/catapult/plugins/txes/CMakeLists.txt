@@ -1,7 +1,7 @@
-function(catapult_tx_plugin_src PLUGIN_BASE_NAME)
+function(catapult_tx_plugin_src TNAME)
 	# create an sdk lib
 	if(DEFINED PLUGIN_SDK_FOLDERS)
-		add_target(${PLUGIN_BASE_NAME}.sdk LIBRARY
+		add_target(${TNAME}.sdk LIBRARY
 			LINK_LIBS catapult.model
 			SOURCES ./ ${PLUGIN_SDK_FOLDERS}
 		)
@@ -9,70 +9,50 @@ function(catapult_tx_plugin_src PLUGIN_BASE_NAME)
 
 	# create a deps lib
 	if(DEFINED PLUGIN_DEPS_FOLDERS)
-		set(_deps_link_libs ${PLUGIN_CATAPULT_LIBS})
-		if(DEFINED PLUGIN_SDK_FOLDERS)
-			list(APPEND _deps_link_libs ${PLUGIN_BASE_NAME}.sdk)
-		endif()
-		add_target(${PLUGIN_BASE_NAME}.deps LIBRARY
-			LINK_LIBS ${_deps_link_libs}
+		add_target(${TNAME}.deps LIBRARY
+			LINK_LIBS 
+				${PLUGIN_CATAPULT_LIBS}
+				$<TARGET_NAME_IF_EXISTS:${TNAME}.sdk>
 			SOURCES ./ ${PLUGIN_DEPS_FOLDERS}
 		)
 	endif()
 
 	# create a plugin dll
-	set(_plugin_link_libs)
-	if(DEFINED PLUGIN_DEPS_FOLDERS)
-		list(APPEND _plugin_link_libs ${PLUGIN_BASE_NAME}.deps)
-	endif()
-	add_target(${PLUGIN_BASE_NAME} LIBRARY TYPE SHARED
-		LINK_LIBS ${_plugin_link_libs}
+	add_target(${TNAME} LIBRARY TYPE SHARED
+		LINK_LIBS ${TNAME}.deps
 		DEPENDENTS plugins
 		SOURCES ./ plugins
 	)
 endfunction()
 
-function(catapult_tx_plugin_tests TARGET_NAME)
-	string(REGEX MATCH "\.[a-z_]+$" PLUGIN_NAME ${TARGET_NAME})
-	string(SUBSTRING ${PLUGIN_NAME} 1 -1 PLUGIN_NAME)
+function(catapult_tx_plugin_tests TNAME)
+	string(REGEX MATCH "\.[a-z_]+$" _name ${TNAME})
+	string(SUBSTRING ${_name} 1 -1 _name)
 
-	if(NOT TARGET "tests.catapult.test.plugins.${PLUGIN_NAME}")
+	if(NOT TARGET "tests.catapult.test.plugins.${_name}")
 		set(PLUGIN_TEST_FOLDERS test ${PLUGIN_TEST_FOLDERS})
 	endif()
 
-	set(_source_dirs ./)
-	if(DEFINED PLUGIN_SDK_FOLDERS)
-		foreach(_relative_source IN LISTS PLUGIN_SDK_FOLDERS)
-			list(APPEND _source_dirs "./${_relative_source}")
-		endforeach()
-	endif()
-	if(DEFINED PLUGIN_DEPS_FOLDERS)
-		foreach(_relative_source IN LISTS PLUGIN_DEPS_FOLDERS)
-			list(APPEND _source_dirs "./${_relative_source}")
-		endforeach()
-	endif()
-	if(DEFINED PLUGIN_TEST_FOLDERS)
-		foreach(_relative_source IN LISTS PLUGIN_TEST_FOLDERS)
-			list(APPEND _source_dirs "./${_relative_source}")
-		endforeach()
-	endif()
-	list(APPEND _source_dirs ./plugins)
-
-	add_target(${TARGET_NAME} TEST
-		LINK_LIBS tests.catapult.test.cache
-		SOURCES ${_source_dirs}
+	add_target(${TNAME} TEST
+		LINK_LIBS 
+			tests.catapult.test.cache
+			$<TARGET_NAME_IF_EXISTS:tests.catapult.test.plugins.${_name}>
+		SOURCES 
+			./
+			${PLUGIN_SDK_FOLDERS} 
+			${PLUGIN_DEPS_FOLDERS} 
+			${PLUGIN_TEST_FOLDERS}
+			./plugins
 	)
-
-	if(TARGET "tests.catapult.test.plugins.${PLUGIN_NAME}")
-		target_link_libraries(${TARGET_NAME} tests.catapult.test.plugins.${PLUGIN_NAME})
-	endif()
 
 endfunction()
 
-function(catapult_plugin_test_library TARGET_NAME)
-	add_target(${TARGET_NAME} LIBRARY
+function(catapult_plugin_test_library TNAME)
+	add_target(${TNAME} LIBRARY
 		LINK_LIBS ${GTest_IMPORTED_TARGETS}
 		SOURCES ./
 	)
 endfunction()
 
+derive_plugin_full_name(_plugin_full_name)
 add_subdirs()

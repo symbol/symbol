@@ -1,7 +1,5 @@
-set(PLUGIN_BASE_NAME catapult.plugins.hashcache)
-
 # create a cache lib
-add_target(${PLUGIN_BASE_NAME}.cache LIBRARY
+add_target(${_plugin_full_name}.cache LIBRARY
 	LINK_LIBS
 		catapult.cache
 		catapult.state
@@ -9,16 +7,16 @@ add_target(${PLUGIN_BASE_NAME}.cache LIBRARY
 )
 
 # create a deps lib
-add_target(${PLUGIN_BASE_NAME}.deps LIBRARY
+add_target(${_plugin_full_name}.deps LIBRARY
 	LINK_LIBS
 		${PLUGIN_CATAPULT_LIBS}
-		${PLUGIN_BASE_NAME}.cache
+		${_plugin_full_name}.cache
 	SOURCES ./ handlers observers validators
 )
 
 # create a plugin dll
-add_target(${PLUGIN_BASE_NAME} LIBRARY TYPE SHARED
-	LINK_LIBS ${PLUGIN_BASE_NAME}.deps
+add_target(${_plugin_full_name} LIBRARY TYPE SHARED
+	LINK_LIBS ${_plugin_full_name}.deps
 	DEPENDENTS plugins
 	SOURCES ./ plugins
 )
