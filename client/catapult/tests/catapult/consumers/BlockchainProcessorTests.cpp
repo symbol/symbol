@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/consumers/BlockchainProcessor.h"
 #include "src/catapult/cache/ReadOnlyCatapultCache.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"
 #include "src/catapult/chain/ChainResults.h"
+#include "src/catapult/consumers/BlockchainProcessor.h"
 #include "src/catapult/consumers/InputUtils.h"
 #include "src/catapult/model/BlockUtils.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"

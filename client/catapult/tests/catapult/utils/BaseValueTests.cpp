@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/utils/BaseValue.h"
 #include "src/catapult/types.h"
+#include "src/catapult/utils/BaseValue.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Convertibility.h"
 #include "tests/TestHarness.h"

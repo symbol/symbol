@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/coresystem/src/observers/Observers.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"
+#include "plugins/coresystem/src/observers/Observers.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

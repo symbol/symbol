@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/finalization/src/FinalizationOrchestratorService.h"
-#include "extensions/finalization/src/FinalizationBootstrapperService.h"
-#include "extensions/finalization/src/FinalizationConfiguration.h"
-#include "extensions/finalization/src/VotingStatusFile.h"
-#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "extensions/finalization/src/io/ProofStorageCache.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "src/catapult/io/FileStream.h"
+#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "extensions/finalization/src/FinalizationBootstrapperService.h"
+#include "extensions/finalization/src/FinalizationConfiguration.h"
+#include "extensions/finalization/src/FinalizationOrchestratorService.h"
+#include "extensions/finalization/src/io/ProofStorageCache.h"
+#include "extensions/finalization/src/VotingStatusFile.h"
 #include "extensions/finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "extensions/finalization/tests/test/mocks/MockProofStorage.h"
 #include "extensions/finalization/tests/test/mocks/MockRoundMessageAggregator.h"

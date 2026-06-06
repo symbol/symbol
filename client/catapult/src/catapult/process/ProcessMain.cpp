@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ProcessMain.h"
 #include "Platform.h"
+#include "ProcessMain.h"
 #include "Signals.h"
 #include "src/catapult/config/CatapultConfiguration.h"
 #include "src/catapult/config/CatapultKeys.h"
@@ -28,11 +28,11 @@
 #include "src/catapult/crypto/OpensslInit.h"
 #include "src/catapult/crypto/OpensslMemory.h"
 #include "src/catapult/io/FileLock.h"
+#include "src/catapult/preprocessor.h"
 #include "src/catapult/thread/ThreadInfo.h"
 #include "src/catapult/utils/ExceptionLogging.h"
 #include "src/catapult/utils/Logging.h"
 #include "src/catapult/version/version.h"
-#include "src/catapult/preprocessor.h"
 #include <iostream>
 
 namespace catapult { namespace process {

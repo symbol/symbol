@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "FinalizationMessage.h"
 #include "FinalizationContext.h"
+#include "FinalizationMessage.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "src/catapult/utils/MacroBasedEnumIncludes.h"

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/model/Address.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/utils/ConfigurationUtils.h"
 #include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"

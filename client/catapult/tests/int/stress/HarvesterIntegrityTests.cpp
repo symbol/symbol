@@ -19,11 +19,6 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/harvesting/src/Harvester.h"
-#include "extensions/harvesting/src/HarvesterBlockGenerator.h"
-#include "extensions/harvesting/src/HarvestingUtFacadeFactory.h"
-#include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
-#include "plugins/services/hashcache/src/plugins/MemoryHashCacheSystem.h"
 #include "src/catapult/cache/ReadOnlyCatapultCache.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"
 #include "src/catapult/cache_tx/MemoryUtCache.h"
@@ -32,6 +27,11 @@
 #include "src/catapult/model/EntityHasher.h"
 #include "src/catapult/observers/NotificationObserverAdapter.h"
 #include "src/catapult/thread/ThreadGroup.h"
+#include "extensions/harvesting/src/Harvester.h"
+#include "extensions/harvesting/src/HarvesterBlockGenerator.h"
+#include "extensions/harvesting/src/HarvestingUtFacadeFactory.h"
+#include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
+#include "plugins/services/hashcache/src/plugins/MemoryHashCacheSystem.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"

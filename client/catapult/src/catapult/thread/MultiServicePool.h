@@ -21,9 +21,9 @@
 
 #pragma once
 #include "IoThreadPool.h"
-#include "src/catapult/utils/Logging.h"
 #include "src/catapult/functions.h"
 #include "src/catapult/preprocessor.h"
+#include "src/catapult/utils/Logging.h"
 #include <atomic>
 #include <memory>
 #include <thread>

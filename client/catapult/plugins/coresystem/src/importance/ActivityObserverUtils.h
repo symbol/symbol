@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/catapult/state/AccountActivityBuckets.h"
 #include "src/catapult/functions.h"
+#include "src/catapult/state/AccountActivityBuckets.h"
 
 namespace catapult { namespace observers { struct ObserverContext; } }
 

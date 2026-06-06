@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/NetworkPacketReadersService.h"
 #include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/NetworkPacketReadersService.h"
 
 namespace catapult { namespace packetserver {
 

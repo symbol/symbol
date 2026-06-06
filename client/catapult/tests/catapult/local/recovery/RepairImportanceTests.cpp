@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/local/recovery/RepairImportance.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/io/RawFile.h"
+#include "src/catapult/local/recovery/RepairImportance.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 

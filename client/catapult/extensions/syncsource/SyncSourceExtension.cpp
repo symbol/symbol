@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/extensions/ProcessBootstrapper.h"
 #include "src/SyncSourceService.h"
 #include "src/VerifiableStateService.h"
-#include "src/catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace syncsource {
 

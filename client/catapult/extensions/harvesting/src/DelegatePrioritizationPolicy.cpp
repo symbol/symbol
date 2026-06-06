@@ -23,9 +23,9 @@
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/cache_core/ImportanceView.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/utils/ConfigurationValueParsers.h"
 #include "src/catapult/utils/MacroBasedEnumIncludes.h"
-#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace harvesting {
 

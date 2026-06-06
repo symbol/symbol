@@ -20,11 +20,11 @@
 **/
 
 #include "extensions/mongo/plugins/mosaic/src/mappers/MosaicEntryMapper.h"
-#include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
-#include "extensions/mongo/tests/test/MapperTestUtils.h"
-#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "extensions/mongo/plugins/mosaic/tests/test/MosaicMapperTestUtils.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

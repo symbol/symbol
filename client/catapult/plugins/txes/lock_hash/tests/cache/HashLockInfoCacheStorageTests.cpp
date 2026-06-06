@@ -20,8 +20,8 @@
 **/
 
 #include "plugins/txes/lock_hash/src/cache/HashLockInfoCacheStorage.h"
-#include "plugins/txes/lock_shared/tests/cache/LockInfoCacheStorageTests.h"
 #include "plugins/txes/lock_hash/tests/test/HashLockInfoCacheTestUtils.h"
+#include "plugins/txes/lock_shared/tests/cache/LockInfoCacheStorageTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

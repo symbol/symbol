@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/io/FixedSizeValueStorage.h"
-#include "src/catapult/io/BufferedFileStream.h"
 #include "src/catapult/constants.h"
+#include "src/catapult/io/BufferedFileStream.h"
+#include "src/catapult/io/FixedSizeValueStorage.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <filesystem>

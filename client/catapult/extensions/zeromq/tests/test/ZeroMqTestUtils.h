@@ -20,13 +20,13 @@
 **/
 
 #pragma once
-#include "extensions/zeromq/src/ZeroMqEntityPublisher.h"
 #include "src/catapult/model/ContainerTypes.h"
 #include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/TransactionRegistry.h"
+#include "src/catapult/types.h"
 #include "src/catapult/utils/Hashers.h"
 #include "src/catapult/utils/TimeSpan.h"
-#include "src/catapult/types.h"
+#include "extensions/zeromq/src/ZeroMqEntityPublisher.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 #include <unordered_set>

@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/mongo/plugins/aggregate/src/AggregateMapper.h"
-#include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/catapult/utils/IntegerMath.h"
 #include "src/catapult/utils/MemoryUtils.h"
+#include "extensions/mongo/plugins/aggregate/src/AggregateMapper.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
-#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "extensions/mongo/tests/test/mocks/MockTransactionMapper.h"
+#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 

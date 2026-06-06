@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/aggregate/src/validators/Validators.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/crypto/InvalidMerkleHashBuilder.h"
 #include "src/catapult/crypto/MerkleHashBuilder.h"
 #include "src/catapult/utils/IntegerMath.h"
+#include "plugins/txes/aggregate/src/validators/Validators.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/crypto/OpensslContexts.h"
 #include "src/catapult/crypto/AesDecrypt.h"
+#include "src/catapult/crypto/OpensslContexts.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 

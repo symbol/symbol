@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "plugins/txes/lock_shared/src/state/LockInfo.h"
 #include "src/catapult/plugins.h"
+#include "plugins/txes/lock_shared/src/state/LockInfo.h"
 
 namespace catapult { namespace state {
 

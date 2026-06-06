@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/ionet/PacketSocket.h"
 #include "src/catapult/ionet/IoTypes.h"
 #include "src/catapult/ionet/Node.h"
 #include "src/catapult/ionet/Packet.h"
+#include "src/catapult/ionet/PacketSocket.h"
 #include "src/catapult/ionet/WorkingBuffer.h"
 #include "src/catapult/thread/IoThreadPool.h"
-#include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/mocks/MockPacketSocket.h"
+#include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"

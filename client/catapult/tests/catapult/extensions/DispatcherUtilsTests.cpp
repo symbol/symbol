@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/extensions/DispatcherUtils.h"
 #include "src/catapult/config/CatapultKeys.h"
 #include "src/catapult/config/NodeConfiguration.h"
 #include "src/catapult/disruptor/ConsumerDispatcher.h"
+#include "src/catapult/extensions/DispatcherUtils.h"
 #include "src/catapult/extensions/ServiceLocator.h"
 #include "src/catapult/utils/TimeSpan.h"
 #include "tests/test/core/SchedulerTestUtils.h"

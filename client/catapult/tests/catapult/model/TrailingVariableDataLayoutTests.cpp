@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/TrailingVariableDataLayout.h"
 #include "src/catapult/model/Mosaic.h"
+#include "src/catapult/model/TrailingVariableDataLayout.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"

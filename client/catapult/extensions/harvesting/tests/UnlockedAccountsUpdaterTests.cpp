@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/harvesting/src/UnlockedAccountsUpdater.h"
-#include "extensions/harvesting/src/UnlockedAccounts.h"
-#include "extensions/harvesting/src/UnlockedFileQueueConsumer.h"
 #include "src/catapult/io/FileQueue.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
+#include "extensions/harvesting/src/UnlockedAccounts.h"
+#include "extensions/harvesting/src/UnlockedAccountsUpdater.h"
+#include "extensions/harvesting/src/UnlockedFileQueueConsumer.h"
 #include "extensions/harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/SupplementalDataStorage.h"
 #include "src/catapult/cache/SupplementalData.h"
-#include "tests/test/core/StateTestUtils.h"
+#include "src/catapult/cache/SupplementalDataStorage.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/test/core/StateTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

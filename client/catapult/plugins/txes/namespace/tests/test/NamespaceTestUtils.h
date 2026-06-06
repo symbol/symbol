@@ -20,10 +20,10 @@
 **/
 
 #pragma once
+#include "src/catapult/state/AccountState.h"
 #include "plugins/txes/namespace/src/state/Namespace.h"
 #include "plugins/txes/namespace/src/state/NamespaceLifetime.h"
 #include "plugins/txes/namespace/src/state/RootNamespace.h"
-#include "src/catapult/state/AccountState.h"
 #include "tests/test/nodeps/Random.h"
 #include <vector>
 

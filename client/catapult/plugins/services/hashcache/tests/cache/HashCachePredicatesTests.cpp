@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/services/hashcache/src/cache/HashCachePredicates.h"
 #include "plugins/services/hashcache/src/cache/HashCache.h"
+#include "plugins/services/hashcache/src/cache/HashCachePredicates.h"
 #include "plugins/services/hashcache/tests/test/HashCacheTestUtils.h"
 #include "tests/TestHarness.h"
 

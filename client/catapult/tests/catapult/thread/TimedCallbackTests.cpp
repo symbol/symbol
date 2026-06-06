@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/thread/TimedCallback.h"
 #include "src/catapult/thread/IoThreadPool.h"
+#include "src/catapult/thread/TimedCallback.h"
 #include "src/catapult/utils/MacroBasedEnumIncludes.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/TestHarness.h"

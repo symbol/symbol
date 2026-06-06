@@ -20,8 +20,8 @@
 **/
 
 #include "plugins/txes/lock_secret/src/state/SecretLockInfoHistorySerializer.h"
-#include "plugins/txes/lock_shared/tests/state/LockInfoHistorySerializerTests.h"
 #include "plugins/txes/lock_secret/tests/test/SecretLockInfoCacheTestUtils.h"
+#include "plugins/txes/lock_shared/tests/state/LockInfoHistorySerializerTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

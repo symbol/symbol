@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/zeromq/src/ZeroMqFinalizationSubscriber.h"
 #include "extensions/zeromq/src/ZeroMqEntityPublisher.h"
+#include "extensions/zeromq/src/ZeroMqFinalizationSubscriber.h"
 #include "extensions/zeromq/tests/test/ZeroMqTestUtils.h"
 #include "tests/TestHarness.h"
 

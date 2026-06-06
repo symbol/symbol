@@ -22,9 +22,9 @@
 #pragma once
 #include "HashCheckOptions.h"
 #include "src/catapult/chain/ChainFunctions.h"
+#include "src/catapult/types.h"
 #include "src/catapult/utils/Hashers.h"
 #include "src/catapult/utils/SpinLock.h"
-#include "src/catapult/types.h"
 #include <unordered_map>
 
 namespace catapult { namespace consumers {

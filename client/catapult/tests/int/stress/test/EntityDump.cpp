@@ -20,12 +20,12 @@
 **/
 
 #include "EntityDump.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
-#include "plugins/txes/transfer/src/model/TransferTransaction.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/Block.h"
 #include "src/catapult/utils/HexFormatter.h"
 #include "src/catapult/utils/Logging.h"
+#include "plugins/txes/transfer/src/model/TransferTransaction.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include <iomanip>
 
 using namespace catapult::model;

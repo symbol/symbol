@@ -21,8 +21,8 @@
 
 #pragma once
 #include "Stream.h"
-#include "src/catapult/utils/MemoryUtils.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include <sstream>
 
 namespace catapult { namespace io {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/mongo/src/MongoChainScoreProvider.h"
-#include "extensions/mongo/src/MongoBulkWriter.h"
-#include "extensions/mongo/src/MongoChainStatisticUtils.h"
 #include "src/catapult/model/ChainScore.h"
+#include "extensions/mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/MongoChainScoreProvider.h"
+#include "extensions/mongo/src/MongoChainStatisticUtils.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

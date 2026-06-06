@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/io/FileQueue.h"
 #include "src/FileBlockChangeStorage.h"
 #include "src/FileFinalizationStorage.h"
 #include "src/FilePtChangeStorage.h"
 #include "src/FileTransactionStatusStorage.h"
 #include "src/FileUtChangeStorage.h"
-#include "src/catapult/config/CatapultDataDirectory.h"
-#include "src/catapult/extensions/ProcessBootstrapper.h"
-#include "src/catapult/io/FileQueue.h"
 
 namespace catapult { namespace filespooling {
 

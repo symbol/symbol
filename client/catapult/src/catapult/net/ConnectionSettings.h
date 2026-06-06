@@ -20,12 +20,12 @@
 **/
 
 #pragma once
+#include "src/catapult/constants.h"
 #include "src/catapult/ionet/PacketSocketOptions.h"
 #include "src/catapult/model/NetworkIdentifier.h"
 #include "src/catapult/model/NodeIdentity.h"
 #include "src/catapult/utils/FileSize.h"
 #include "src/catapult/utils/TimeSpan.h"
-#include "src/catapult/constants.h"
 
 namespace catapult { namespace net {
 

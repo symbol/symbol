@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/restriction_account/src/model/AccountAddressRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
-#include "src/catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"

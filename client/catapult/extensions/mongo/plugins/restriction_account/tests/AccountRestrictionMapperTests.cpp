@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/utils/MemoryUtils.h"
 #include "extensions/mongo/plugins/restriction_account/src/AccountRestrictionMapper.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/restriction_account/src/model/AccountAddressRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
-#include "src/catapult/utils/MemoryUtils.h"
-#include "extensions/mongo/tests/test/MapperTestUtils.h"
-#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/restriction_account/tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/TestHarness.h"
 

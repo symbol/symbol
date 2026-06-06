@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/model/Transaction.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
 #include "extensions/mongo/src/mappers/TransactionMapper.h"
 #include "extensions/mongo/src/MongoTransactionPlugin.h"
-#include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "src/catapult/model/Transaction.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"

@@ -19,20 +19,20 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tools/tools/ToolMain.h"
-#include "tools/tools/plugins/PluginLoader.h"
-#include "tools/tools/ToolConfigurationUtils.h"
-#include "tools/tools/ToolThreadUtils.h"
 #include "src/catapult/crypto/Hashes.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "src/catapult/io/BlockStatementSerializer.h"
 #include "src/catapult/io/BufferInputStreamAdapter.h"
 #include "src/catapult/io/FileBlockStorage.h"
-#include "extensions/finalization/src/io/FileProofStorage.h"
 #include "src/catapult/model/BlockUtils.h"
 #include "src/catapult/model/EntityHasher.h"
 #include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/thread/ParallelFor.h"
+#include "extensions/finalization/src/io/FileProofStorage.h"
+#include "sdk/src/extensions/BlockExtensions.h"
+#include "tools/tools/plugins/PluginLoader.h"
+#include "tools/tools/ToolConfigurationUtils.h"
+#include "tools/tools/ToolMain.h"
+#include "tools/tools/ToolThreadUtils.h"
 #include <thread>
 
 namespace catapult { namespace tools { namespace verify {

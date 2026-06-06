@@ -23,10 +23,10 @@
 #include "src/catapult/config/ConfigurationFileLoader.h"
 #include "src/catapult/config/LoggingConfiguration.h"
 #include "src/catapult/crypto/OpensslInit.h"
+#include "src/catapult/preprocessor.h"
 #include "src/catapult/thread/ThreadInfo.h"
 #include "src/catapult/utils/ExceptionLogging.h"
 #include "src/catapult/version/version.h"
-#include "src/catapult/preprocessor.h"
 #include <filesystem>
 #include <iostream>
 

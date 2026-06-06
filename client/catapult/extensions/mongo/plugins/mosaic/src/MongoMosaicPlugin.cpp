@@ -22,10 +22,10 @@
 #include "MosaicDefinitionMapper.h"
 #include "MosaicSupplyChangeMapper.h"
 #include "MosaicSupplyRevocationMapper.h"
-#include "storages/MongoMosaicCacheStorage.h"
 #include "extensions/mongo/src/MongoPluginManager.h"
 #include "extensions/mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/mosaic/src/model/MosaicReceiptType.h"
+#include "storages/MongoMosaicCacheStorage.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {

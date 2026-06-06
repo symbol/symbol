@@ -19,6 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/RootedService.h"
+#include "src/catapult/io/BlockStorageChangeSubscriber.h"
 #include "src/ApiStateChangeSubscriber.h"
 #include "src/CoreMongo.h"
 #include "src/DatabaseConfiguration.h"
@@ -31,9 +34,6 @@
 #include "src/MongoPtStorage.h"
 #include "src/MongoTransactionStatusStorage.h"
 #include "src/MongoTransactionStorage.h"
-#include "src/catapult/extensions/ProcessBootstrapper.h"
-#include "src/catapult/extensions/RootedService.h"
-#include "src/catapult/io/BlockStorageChangeSubscriber.h"
 #include <mongocxx/instance.hpp>
 
 namespace catapult { namespace mongo {

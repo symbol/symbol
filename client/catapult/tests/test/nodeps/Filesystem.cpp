@@ -20,8 +20,8 @@
 **/
 
 #include "Filesystem.h"
-#include "src/catapult/utils/Logging.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/utils/Logging.h"
 #include <boost/dll.hpp>
 #include <chrono>
 #include <cstdlib>

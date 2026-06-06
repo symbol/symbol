@@ -20,9 +20,9 @@
 **/
 
 #include "Disruptor.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/utils/Functional.h"
 #include "src/catapult/utils/HexFormatter.h"
-#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace disruptor {
 

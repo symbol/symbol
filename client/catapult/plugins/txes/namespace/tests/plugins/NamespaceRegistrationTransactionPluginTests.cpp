@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/namespace/src/plugins/NamespaceRegistrationTransactionPlugin.h"
+#include "src/catapult/constants.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
 #include "plugins/txes/namespace/src/model/NamespaceRegistrationTransaction.h"
-#include "src/catapult/utils/MemoryUtils.h"
-#include "src/catapult/constants.h"
+#include "plugins/txes/namespace/src/plugins/NamespaceRegistrationTransactionPlugin.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

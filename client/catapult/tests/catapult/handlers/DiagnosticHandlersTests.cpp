@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/handlers/DiagnosticHandlers.h"
 #include "src/catapult/api/ChainPackets.h"
+#include "src/catapult/handlers/DiagnosticHandlers.h"
 #include "src/catapult/ionet/NodeContainer.h"
 #include "src/catapult/ionet/NodeInteractionResult.h"
 #include "src/catapult/ionet/PackedNodeInfo.h"
@@ -28,8 +28,8 @@
 #include "src/catapult/utils/DiagnosticCounter.h"
 #include "tests/catapult/handlers/test/HeightRequestHandlerTests.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
-#include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
+#include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 
 namespace catapult { namespace handlers {

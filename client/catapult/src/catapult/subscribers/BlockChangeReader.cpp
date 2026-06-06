@@ -21,12 +21,12 @@
 
 #include "BlockChangeReader.h"
 #include "SubscriberOperationTypes.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/io/BlockChangeSubscriber.h"
 #include "src/catapult/io/BlockElementSerializer.h"
 #include "src/catapult/io/BlockStatementSerializer.h"
 #include "src/catapult/io/PodIoUtils.h"
 #include "src/catapult/io/Stream.h"
-#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace subscribers {
 

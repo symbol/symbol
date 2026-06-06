@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "FileBlockStorage.h"
 #include "BlockElementSerializer.h"
 #include "BlockStatementSerializer.h"
 #include "BufferedFileStream.h"
+#include "FileBlockStorage.h"
 #include "FilesystemUtils.h"
 #include "PodIoUtils.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
-#include "src/catapult/utils/MemoryUtils.h"
 #include "src/catapult/preprocessor.h"
+#include "src/catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace io {
 

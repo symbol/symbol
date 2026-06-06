@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/coresystem/src/importance/StorageImportanceCalculatorFactory.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/io/IndexFile.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
+#include "plugins/coresystem/src/importance/StorageImportanceCalculatorFactory.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"

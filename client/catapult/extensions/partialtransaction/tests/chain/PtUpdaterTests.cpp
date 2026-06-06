@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/partialtransaction/src/chain/PtUpdater.h"
-#include "extensions/partialtransaction/src/chain/PtValidator.h"
-#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/catapult/cache_tx/MemoryPtCache.h"
 #include "src/catapult/model/TransactionStatus.h"
 #include "src/catapult/thread/FutureUtils.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "src/catapult/utils/SpinLock.h"
+#include "extensions/partialtransaction/src/chain/PtUpdater.h"
+#include "extensions/partialtransaction/src/chain/PtValidator.h"
 #include "extensions/partialtransaction/tests/test/AggregateTransactionTestUtils.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

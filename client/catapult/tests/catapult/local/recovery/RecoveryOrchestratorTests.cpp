@@ -19,7 +19,6 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/local/recovery/RecoveryOrchestrator.h"
 #include "src/catapult/cache/SupplementalDataStorage.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"
@@ -28,6 +27,7 @@
 #include "src/catapult/extensions/LocalNodeStateFileStorage.h"
 #include "src/catapult/extensions/NemesisBlockLoader.h"
 #include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/local/recovery/RecoveryOrchestrator.h"
 #include "src/catapult/local/server/FileStateChangeStorage.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/subscribers/SubscriberOperationTypes.h"

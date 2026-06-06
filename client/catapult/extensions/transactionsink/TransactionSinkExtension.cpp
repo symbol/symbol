@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/TransactionSinkService.h"
 #include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/TransactionSinkService.h"
 
 namespace catapult { namespace transactionsink {
 

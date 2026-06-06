@@ -20,9 +20,9 @@
 **/
 
 #include "MetadataTestUtils.h"
-#include "plugins/txes/metadata/src/state/MetadataEntry.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/utils/Casting.h"
+#include "plugins/txes/metadata/src/state/MetadataEntry.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"
 #include <numeric>

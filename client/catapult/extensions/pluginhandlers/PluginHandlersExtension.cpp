@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/PluginHandlersService.h"
 #include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/PluginHandlersService.h"
 
 namespace catapult { namespace pluginhandlers {
 

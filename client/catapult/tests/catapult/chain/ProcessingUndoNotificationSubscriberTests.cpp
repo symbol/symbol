@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/chain/ProcessingUndoNotificationSubscriber.h"
 #include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/chain/ProcessingUndoNotificationSubscriber.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/other/mocks/MockNotificationObserver.h"

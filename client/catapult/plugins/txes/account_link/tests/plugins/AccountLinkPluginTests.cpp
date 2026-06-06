@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/account_link/src/plugins/AccountLinkPlugin.h"
 #include "plugins/txes/account_link/src/model/AccountLinkEntityType.h"
+#include "plugins/txes/account_link/src/plugins/AccountLinkPlugin.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

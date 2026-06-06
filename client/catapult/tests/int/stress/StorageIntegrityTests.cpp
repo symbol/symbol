@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/exceptions.h"
 #include "src/catapult/io/BlockStorageCache.h"
 #include "src/catapult/io/FileBlockStorage.h"
 #include "src/catapult/model/BlockUtils.h"
 #include "src/catapult/thread/ThreadGroup.h"
 #include "src/catapult/utils/SpinLock.h"
-#include "src/catapult/exceptions.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"

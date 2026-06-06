@@ -21,10 +21,10 @@
 
 #pragma once
 #include "SecureZero.h"
+#include "src/catapult/functions.h"
 #include "src/catapult/utils/ByteArray.h"
 #include "src/catapult/utils/HexParser.h"
 #include "src/catapult/utils/NonCopyable.h"
-#include "src/catapult/functions.h"
 
 namespace catapult { namespace crypto {
 

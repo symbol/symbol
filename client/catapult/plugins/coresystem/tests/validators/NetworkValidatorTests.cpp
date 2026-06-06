@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/coresystem/src/validators/Validators.h"
 #include "src/catapult/model/VerifiableEntity.h"
+#include "plugins/coresystem/src/validators/Validators.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

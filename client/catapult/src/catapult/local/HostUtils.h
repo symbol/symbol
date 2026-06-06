@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/catapult/exceptions.h"
 #include "src/catapult/plugins/PluginModule.h"
 #include "src/catapult/utils/ExceptionLogging.h"
-#include "src/catapult/exceptions.h"
 #include <memory>
 #include <vector>
 

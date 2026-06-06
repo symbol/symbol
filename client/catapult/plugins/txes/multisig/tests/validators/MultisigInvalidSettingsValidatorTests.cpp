@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/multisig/src/validators/Validators.h"
-#include "plugins/txes/multisig/src/cache/MultisigCache.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
+#include "plugins/txes/multisig/src/cache/MultisigCache.h"
+#include "plugins/txes/multisig/src/validators/Validators.h"
 #include "plugins/txes/multisig/tests/test/MultisigCacheTestUtils.h"
 #include "plugins/txes/multisig/tests/test/MultisigTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

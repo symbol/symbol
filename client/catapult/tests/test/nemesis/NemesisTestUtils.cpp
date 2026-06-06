@@ -20,12 +20,12 @@
 **/
 
 #include "NemesisTestUtils.h"
-#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
-#include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/HexParser.h"
+#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
+#include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"

@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/BlockUtils.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/crypto/MerkleHashBuilder.h"
+#include "src/catapult/model/BlockUtils.h"
 #include "src/catapult/utils/HexParser.h"
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

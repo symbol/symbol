@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/net/AsyncTcpServer.h"
 #include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/net/AsyncTcpServer.h"
 #include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/thread/ThreadGroup.h"
 #include "src/catapult/utils/AtomicIncrementDecrementGuard.h"

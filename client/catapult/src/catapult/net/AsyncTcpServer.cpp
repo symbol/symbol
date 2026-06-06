@@ -22,9 +22,9 @@
 #include "AsyncTcpServer.h"
 #include "ConnectionSettings.h"
 #include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/preprocessor.h"
 #include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/utils/Logging.h"
-#include "src/catapult/preprocessor.h"
 #include <atomic>
 
 namespace catapult { namespace net {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/HashCacheService.h"
 #include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/HashCacheService.h"
 
 namespace catapult { namespace hashcache {
 

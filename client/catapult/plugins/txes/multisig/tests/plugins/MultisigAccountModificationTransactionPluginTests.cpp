@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/multisig/src/plugins/MultisigAccountModificationTransactionPlugin.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/multisig/src/model/MultisigAccountModificationTransaction.h"
 #include "plugins/txes/multisig/src/model/MultisigNotifications.h"
-#include "src/catapult/utils/MemoryUtils.h"
+#include "plugins/txes/multisig/src/plugins/MultisigAccountModificationTransactionPlugin.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

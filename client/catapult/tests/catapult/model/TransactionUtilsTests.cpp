@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/TransactionUtils.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
 #include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/NotificationSubscriber.h"
+#include "src/catapult/model/TransactionUtils.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 

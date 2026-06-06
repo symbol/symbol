@@ -21,8 +21,8 @@
 
 #include "MosaicAddressRestrictionMapper.h"
 #include "MosaicGlobalRestrictionMapper.h"
-#include "storages/MongoMosaicRestrictionCacheStorage.h"
 #include "extensions/mongo/src/MongoPluginManager.h"
+#include "storages/MongoMosaicRestrictionCacheStorage.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
