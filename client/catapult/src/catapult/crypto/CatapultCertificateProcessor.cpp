@@ -20,8 +20,8 @@
 **/
 
 #include "CatapultCertificateProcessor.h"
-#include "src/catapult/utils/Logging.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/utils/Logging.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push

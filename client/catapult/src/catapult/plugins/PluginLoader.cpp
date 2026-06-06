@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "PluginLoader.h"
 #include "PluginExceptions.h"
+#include "PluginLoader.h"
 #include "PluginManager.h"
-#include "src/catapult/utils/Logging.h"
 #include "src/catapult/functions.h"
+#include "src/catapult/utils/Logging.h"
 #include <boost/exception_ptr.hpp>
 #include <unordered_map>
 

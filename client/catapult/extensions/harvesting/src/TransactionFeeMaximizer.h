@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/catapult/model/EntityInfo.h"
 #include "src/catapult/functions.h"
+#include "src/catapult/model/EntityInfo.h"
 #include "src/catapult/types.h"
 
 namespace catapult { namespace harvesting {

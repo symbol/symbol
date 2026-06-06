@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/plugins/PluginLoader.h"
 #include "src/catapult/plugins/PluginExceptions.h"
+#include "src/catapult/plugins/PluginLoader.h"
 #include "src/catapult/plugins/PluginManager.h"
 #include "src/catapult/utils/ExceptionLogging.h"
 #include "tests/test/nodeps/Filesystem.h"

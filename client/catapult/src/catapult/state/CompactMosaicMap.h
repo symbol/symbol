@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "src/catapult/utils/Hashers.h"
-#include "src/catapult/utils/NonCopyable.h"
 #include "src/catapult/exceptions.h"
 #include "src/catapult/types.h"
+#include "src/catapult/utils/Hashers.h"
+#include "src/catapult/utils/NonCopyable.h"
 #include <map>
 
 namespace catapult { namespace state {

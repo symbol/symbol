@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/mosaic/src/validators/Validators.h"
-#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
-#include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/constants.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
+#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
+#include "plugins/txes/mosaic/src/validators/Validators.h"
 #include "plugins/txes/mosaic/tests/test/MosaicCacheTestUtils.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

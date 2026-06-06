@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/finalization/src/handlers/ProofHandlers.h"
 #include "extensions/finalization/src/api/FinalizationPackets.h"
+#include "extensions/finalization/src/handlers/ProofHandlers.h"
 #include "extensions/finalization/src/io/ProofStorageCache.h"
 #include "extensions/finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/local/server/NodeUtils.h"
 #include "src/catapult/config/CatapultKeys.h"
 #include "src/catapult/crypto/OpensslKeyUtils.h"
+#include "src/catapult/local/server/NodeUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"

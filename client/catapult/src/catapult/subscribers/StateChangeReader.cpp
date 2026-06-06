@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "StateChangeReader.h"
 #include "StateChangeInfo.h"
+#include "StateChangeReader.h"
 #include "StateChangeSubscriber.h"
 #include "SubscriberOperationTypes.h"
 #include "src/catapult/cache/CacheChangesStorage.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/io/PodIoUtils.h"
 #include "src/catapult/io/Stream.h"
-#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace subscribers {
 

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/catapult/functions.h"
 #include "src/catapult/io/PodIoUtils.h"
 #include "src/catapult/io/Stream.h"
-#include "src/catapult/functions.h"
 
 #if defined(_MSC_VER) && defined(_MT) && defined(_DEBUG)
 // See /MDd flag in cmake/settings_win_msvc.cmake

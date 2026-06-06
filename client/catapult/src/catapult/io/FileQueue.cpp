@@ -21,8 +21,8 @@
 
 #include "FileQueue.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
-#include "src/catapult/utils/HexFormatter.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/utils/HexFormatter.h"
 #include <filesystem>
 #include <sstream>
 

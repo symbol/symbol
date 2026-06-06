@@ -21,10 +21,10 @@
 
 #include "CertificateDirectoryGenerator.h"
 #include "CertificateUtils.h"
-#include "tools/tools/ToolKeys.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
-#include "src/catapult/io/RawFile.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/io/RawFile.h"
+#include "tools/tools/ToolKeys.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace ssl {

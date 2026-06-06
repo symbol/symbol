@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/restriction_mosaic/src/plugins/MosaicRestrictionPlugin.h"
 #include "plugins/txes/restriction_mosaic/src/model/MosaicRestrictionEntityType.h"
+#include "plugins/txes/restriction_mosaic/src/plugins/MosaicRestrictionPlugin.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

@@ -23,9 +23,9 @@
 #include "AggregateNotificationValidator.h"
 #include "EntityValidator.h"
 #include "FunctionalNotificationValidator.h"
+#include "src/catapult/functions.h"
 #include "src/catapult/model/VerifiableEntity.h"
 #include "src/catapult/model/WeakEntityInfo.h"
-#include "src/catapult/functions.h"
 #include <memory>
 #include <vector>
 

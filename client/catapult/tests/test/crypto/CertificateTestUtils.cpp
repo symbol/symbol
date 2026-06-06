@@ -20,8 +20,8 @@
 **/
 
 #include "CertificateTestUtils.h"
-#include "src/catapult/utils/HexParser.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/utils/HexParser.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 
 #ifdef __clang__

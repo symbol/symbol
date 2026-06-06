@@ -20,9 +20,9 @@
 **/
 
 #include "PtUtils.h"
-#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "src/catapult/utils/MemoryUtils.h"
 #include "src/catapult/preprocessor.h"
+#include "src/catapult/utils/MemoryUtils.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 
 namespace catapult { namespace partialtransaction {
 

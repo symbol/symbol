@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/transfer/src/observers/Observers.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/io/IndexFile.h"
+#include "plugins/txes/transfer/src/observers/Observers.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"

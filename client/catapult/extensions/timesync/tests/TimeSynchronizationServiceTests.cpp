@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/timesync/src/TimeSynchronizationService.h"
-#include "extensions/timesync/src/TimeSynchronizationConfiguration.h"
-#include "extensions/timesync/src/TimeSynchronizationState.h"
-#include "extensions/timesync/src/api/TimeSyncPackets.h"
-#include "extensions/timesync/src/types.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/ionet/PacketSocket.h"
+#include "extensions/timesync/src/api/TimeSyncPackets.h"
+#include "extensions/timesync/src/TimeSynchronizationConfiguration.h"
+#include "extensions/timesync/src/TimeSynchronizationService.h"
+#include "extensions/timesync/src/TimeSynchronizationState.h"
+#include "extensions/timesync/src/types.h"
 #include "extensions/timesync/tests/test/TimeSynchronizationCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

@@ -21,9 +21,9 @@
 
 #include "CoreMongo.h"
 #include "MongoPluginManager.h"
+#include "extensions/mongo/src/MongoReceiptPluginFactory.h"
 #include "mappers/KeyLinkTransactionMapper.h"
 #include "storages/MongoAccountStateCacheStorage.h"
-#include "extensions/mongo/src/MongoReceiptPluginFactory.h"
 
 namespace catapult { namespace mongo {
 

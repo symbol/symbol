@@ -21,8 +21,8 @@
 
 #pragma once
 #include "src/catapult/cache_tx/ShortHashPair.h"
-#include "src/catapult/model/CosignedTransactionInfo.h"
 #include "src/catapult/functions.h"
+#include "src/catapult/model/CosignedTransactionInfo.h"
 #include <vector>
 
 namespace catapult { namespace partialtransaction {

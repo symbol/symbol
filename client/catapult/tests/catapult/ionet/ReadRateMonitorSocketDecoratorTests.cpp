@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/ionet/ReadRateMonitorSocketDecorator.h"
 #include "src/catapult/ionet/RateMonitor.h"
+#include "src/catapult/ionet/ReadRateMonitorSocketDecorator.h"
 #include "src/catapult/utils/FileSize.h"
 #include "tests/test/core/PacketSocketDecoratorTests.h"
 #include "tests/test/core/PacketTestUtils.h"

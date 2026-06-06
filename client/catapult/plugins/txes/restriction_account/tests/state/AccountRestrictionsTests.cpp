@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
 #include "src/catapult/model/EntityType.h"
+#include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
 #include "plugins/txes/restriction_account/tests/test/AccountRestrictionTestUtils.h"
 #include "tests/TestHarness.h"
 

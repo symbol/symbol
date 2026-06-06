@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Scheduler.h"
 #include "FutureUtils.h"
 #include "IoThreadPool.h"
+#include "Scheduler.h"
 #include "StrandOwnerLifetimeExtender.h"
-#include "src/catapult/utils/Logging.h"
-#include "src/catapult/utils/WeakContainer.h"
 #include "src/catapult/exceptions.h"
 #include "src/catapult/preprocessor.h"
-#include <boost/asio/steady_timer.hpp>
+#include "src/catapult/utils/Logging.h"
+#include "src/catapult/utils/WeakContainer.h"
 #include <boost/asio.hpp>
+#include <boost/asio/steady_timer.hpp>
 
 namespace catapult { namespace thread {
 

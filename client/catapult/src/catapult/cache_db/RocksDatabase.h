@@ -22,8 +22,8 @@
 #pragma once
 #include "RocksPruningFilter.h"
 #include "src/catapult/config/NodeConfiguration.h"
-#include "src/catapult/utils/FileSize.h"
 #include "src/catapult/types.h"
+#include "src/catapult/utils/FileSize.h"
 #include <memory>
 #include <string>
 #include <vector>

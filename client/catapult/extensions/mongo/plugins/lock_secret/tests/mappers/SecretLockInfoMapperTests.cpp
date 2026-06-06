@@ -20,9 +20,9 @@
 **/
 
 #include "extensions/mongo/plugins/lock_secret/src/mappers/SecretLockInfoMapper.h"
-#include "extensions/mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
 #include "extensions/mongo/plugins/lock_secret/tests/test/MongoSecretLockInfoTestTraits.h"
 #include "extensions/mongo/plugins/lock_secret/tests/test/SecretLockMapperTestUtils.h"
+#include "extensions/mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

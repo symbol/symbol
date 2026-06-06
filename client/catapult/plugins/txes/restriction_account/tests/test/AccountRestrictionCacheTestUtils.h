@@ -21,11 +21,11 @@
 
 #pragma once
 #include "AccountRestrictionTestTraits.h"
+#include "src/catapult/model/Address.h"
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "plugins/txes/restriction_account/src/cache/AccountRestrictionCache.h"
 #include "plugins/txes/restriction_account/src/cache/AccountRestrictionCacheStorage.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestrictionUtils.h"
-#include "src/catapult/model/Address.h"
-#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {

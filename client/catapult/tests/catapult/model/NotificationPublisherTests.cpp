@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/Address.h"
+#include "src/catapult/model/NotificationPublisher.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"

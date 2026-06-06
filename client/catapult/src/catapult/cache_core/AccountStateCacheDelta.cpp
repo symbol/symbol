@@ -20,10 +20,10 @@
 **/
 
 #include "AccountStateCacheDelta.h"
+#include "src/catapult/functions.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/Casting.h"
 #include "src/catapult/utils/HexFormatter.h"
-#include "src/catapult/functions.h"
 
 namespace catapult { namespace cache {
 

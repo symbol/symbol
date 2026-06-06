@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/restriction_account/src/plugins/AccountRestrictionTransactionPlugin.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/restriction_account/src/model/AccountAddressRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountRestrictionNotifications.h"
-#include "src/catapult/utils/MemoryUtils.h"
+#include "plugins/txes/restriction_account/src/plugins/AccountRestrictionTransactionPlugin.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

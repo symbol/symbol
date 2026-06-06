@@ -20,17 +20,17 @@
 **/
 
 #include "src/catapult/consumers/BlockConsumers.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "src/catapult/consumers/TransactionConsumers.h"
 #include "src/catapult/crypto/Hashes.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/model/EntityHasher.h"
 #include "src/catapult/utils/HexParser.h"
-#include "src/catapult/exceptions.h"
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/core/mocks/MockTransactionPluginWithCustomBuffers.h"
+#include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 

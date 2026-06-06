@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/utils/ModificationSafeIterableContainer.h"
 #include "src/catapult/utils/Logging.h"
+#include "src/catapult/utils/ModificationSafeIterableContainer.h"
 #include "tests/TestHarness.h"
 #include <list>
 

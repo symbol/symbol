@@ -20,10 +20,10 @@
 **/
 
 #include "extensions/mongo/plugins/lock_hash/src/storages/MongoHashLockInfoCacheStorage.h"
+#include "extensions/mongo/plugins/lock_hash/tests/test/HashLockMapperTestUtils.h"
 #include "extensions/mongo/plugins/lock_shared/tests/int/storages/MongoLockInfoCacheStorageTestTraits.h"
 #include "extensions/mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "plugins/txes/lock_hash/tests/test/HashLockInfoCacheTestUtils.h"
-#include "extensions/mongo/plugins/lock_hash/tests/test/HashLockMapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

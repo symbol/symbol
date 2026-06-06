@@ -21,15 +21,15 @@
 
 #pragma once
 #include "BulkWriteResult.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/model/Elements.h"
 #include "src/catapult/state/AccountState.h"
 #include "src/catapult/thread/FutureUtils.h"
 #include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/thread/ParallelFor.h"
+#include "src/catapult/types.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "src/catapult/utils/TimeSpan.h"
-#include "src/catapult/exceptions.h"
-#include "src/catapult/types.h"
 #include <boost/asio/io_context.hpp>
 #include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>

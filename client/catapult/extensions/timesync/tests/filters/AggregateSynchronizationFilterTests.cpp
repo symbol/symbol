@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "extensions/timesync/src/filters/SynchronizationFilters.h"
 #include "extensions/timesync/src/filters/AggregateSynchronizationFilter.h"
+#include "extensions/timesync/src/filters/SynchronizationFilters.h"
 #include "extensions/timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/TestHarness.h"
 

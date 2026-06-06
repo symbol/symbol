@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/catapult/utils/ArraySet.h"
 #include "src/catapult/plugins.h"
+#include "src/catapult/utils/ArraySet.h"
 
 namespace catapult { namespace state {
 

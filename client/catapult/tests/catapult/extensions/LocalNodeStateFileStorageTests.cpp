@@ -19,7 +19,6 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/extensions/LocalNodeStateFileStorage.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/cache/SupplementalData.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
@@ -29,6 +28,7 @@
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/consumers/BlockchainSyncHandlers.h"
 #include "src/catapult/extensions/LocalNodeChainScore.h"
+#include "src/catapult/extensions/LocalNodeStateFileStorage.h"
 #include "src/catapult/io/IndexFile.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/BlockchainConfiguration.h"

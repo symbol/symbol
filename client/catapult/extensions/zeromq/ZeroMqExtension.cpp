@@ -19,6 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/catapult/extensions/RootedService.h"
+#include "src/catapult/model/NotificationPublisher.h"
 #include "src/MessagingConfiguration.h"
 #include "src/ZeroMqBlockChangeSubscriber.h"
 #include "src/ZeroMqEntityPublisher.h"
@@ -26,9 +29,6 @@
 #include "src/ZeroMqPtChangeSubscriber.h"
 #include "src/ZeroMqTransactionStatusSubscriber.h"
 #include "src/ZeroMqUtChangeSubscriber.h"
-#include "src/catapult/extensions/ProcessBootstrapper.h"
-#include "src/catapult/extensions/RootedService.h"
-#include "src/catapult/model/NotificationPublisher.h"
 
 namespace catapult { namespace zeromq {
 

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "plugins/txes/metadata/src/cache/MetadataCache.h"
 #include "plugins/txes/metadata/src/cache/MetadataCacheStorage.h"
-#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {

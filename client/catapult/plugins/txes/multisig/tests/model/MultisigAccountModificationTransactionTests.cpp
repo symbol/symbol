@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/multisig/src/model/MultisigAccountModificationTransaction.h"
 #include "src/catapult/utils/MemoryUtils.h"
+#include "plugins/txes/multisig/src/model/MultisigAccountModificationTransaction.h"
 #include "plugins/txes/multisig/tests/test/MultisigTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/catapult/model/BlockchainConfiguration.h"
 #include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "plugins/txes/namespace/src/cache/NamespaceCacheStorage.h"
-#include "src/catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {

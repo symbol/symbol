@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/subscribers/AggregateTransactionStatusSubscriber.h"
 #include "src/catapult/model/TransactionStatus.h"
+#include "src/catapult/subscribers/AggregateTransactionStatusSubscriber.h"
 #include "tests/catapult/subscribers/test/AggregateSubscriberTestContext.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"

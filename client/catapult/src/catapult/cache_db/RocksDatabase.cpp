@@ -23,10 +23,10 @@
 #include "RocksInclude.h"
 #include "RocksPruningFilter.h"
 #include "src/catapult/config/CatapultDataDirectory.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/utils/HexFormatter.h"
 #include "src/catapult/utils/PathUtils.h"
 #include "src/catapult/utils/StackLogger.h"
-#include "src/catapult/exceptions.h"
 
 namespace catapult { namespace cache {
 

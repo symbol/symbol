@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/chain/ChainSynchronizer.h"
 #include "src/catapult/api/RemoteChainApi.h"
-#include "src/catapult/model/BlockUtils.h"
+#include "src/catapult/chain/ChainSynchronizer.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
+#include "src/catapult/model/BlockUtils.h"
 #include "src/catapult/model/ChainScore.h"
 #include "src/catapult/model/EntityRange.h"
 #include "tests/catapult/chain/test/MockChainApi.h"
 #include "tests/test/core/HashTestUtils.h"
-#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 
 using namespace catapult::model;

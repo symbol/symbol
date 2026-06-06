@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/multisig/src/plugins/MultisigPlugin.h"
 #include "plugins/txes/multisig/src/model/MultisigEntityType.h"
+#include "plugins/txes/multisig/src/plugins/MultisigPlugin.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"

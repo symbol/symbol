@@ -21,9 +21,9 @@
 
 #pragma once
 #include "src/catapult/model/NetworkIdentifier.h"
+#include "src/catapult/utils/Hashers.h"
 #include "plugins/txes/mosaic/src/state/MosaicEntry.h"
 #include "plugins/txes/namespace/src/state/RootNamespace.h"
-#include "src/catapult/utils/Hashers.h"
 #include <string>
 #include <unordered_map>
 #include <vector>

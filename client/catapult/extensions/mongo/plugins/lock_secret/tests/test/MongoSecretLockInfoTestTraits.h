@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include <extensions/mongo/src/ExternalCacheStorage.h>
 #include "plugins/txes/lock_secret/tests/test/SecretLockInfoCacheTestUtils.h"
+#include <extensions/mongo/src/ExternalCacheStorage.h>
 
 namespace catapult { namespace mongo { class MongoStorageContext; } }
 

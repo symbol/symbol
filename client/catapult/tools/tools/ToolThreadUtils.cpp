@@ -20,8 +20,8 @@
 **/
 
 #include "ToolThreadUtils.h"
-#include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/preprocessor.h"
+#include "src/catapult/thread/IoThreadPool.h"
 
 namespace catapult { namespace tools {
 

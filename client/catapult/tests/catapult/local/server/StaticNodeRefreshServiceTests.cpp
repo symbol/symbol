@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/local/server/StaticNodeRefreshService.h"
 #include "src/catapult/ionet/PacketSocket.h"
+#include "src/catapult/local/server/StaticNodeRefreshService.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"

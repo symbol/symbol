@@ -20,8 +20,8 @@
 **/
 
 #include "KeyLinkTransactionMapper.h"
-#include "extensions/mongo/src/MongoTransactionPluginFactory.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/src/MongoTransactionPluginFactory.h"
 #include "plugins/coresystem/src/model/VotingKeyLinkTransaction.h"
 #include "plugins/coresystem/src/model/VrfKeyLinkTransaction.h"
 

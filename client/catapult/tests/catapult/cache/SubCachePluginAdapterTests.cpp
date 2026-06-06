@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/SubCachePluginAdapter.h"
 #include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/SubCachePluginAdapter.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"

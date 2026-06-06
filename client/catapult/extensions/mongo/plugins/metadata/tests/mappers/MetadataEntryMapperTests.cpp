@@ -20,8 +20,8 @@
 **/
 
 #include "extensions/mongo/plugins/metadata/src/mappers/MetadataEntryMapper.h"
-#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "extensions/mongo/plugins/metadata/tests/test/MetadataMapperTestUtils.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "plugins/txes/metadata/tests/test/MetadataTestUtils.h"
 #include "tests/TestHarness.h"
 #include <set>

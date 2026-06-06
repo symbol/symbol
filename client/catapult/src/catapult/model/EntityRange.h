@@ -20,10 +20,10 @@
 **/
 
 #pragma once
+#include "src/catapult/exceptions.h"
 #include "src/catapult/utils/IntegerMath.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "src/catapult/utils/NonCopyable.h"
-#include "src/catapult/exceptions.h"
 #include <memory>
 #include <vector>
 

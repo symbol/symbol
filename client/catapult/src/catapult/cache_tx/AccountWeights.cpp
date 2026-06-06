@@ -20,8 +20,8 @@
 **/
 
 #include "AccountWeights.h"
-#include "src/catapult/utils/HexFormatter.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace cache {
 

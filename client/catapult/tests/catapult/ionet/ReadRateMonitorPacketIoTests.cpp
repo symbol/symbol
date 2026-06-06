@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/ionet/ReadRateMonitorPacketIo.h"
 #include "src/catapult/ionet/PacketPayloadFactory.h"
+#include "src/catapult/ionet/ReadRateMonitorPacketIo.h"
 #include "tests/test/core/EntityTestUtils.h"
+#include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/core/PacketIoTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
-#include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace ionet {

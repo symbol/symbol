@@ -20,10 +20,10 @@
 **/
 
 #pragma once
+#include "src/catapult/plugins.h"
 #include "plugins/txes/lock_secret/src/model/LockHashAlgorithm.h"
 #include "plugins/txes/lock_secret/src/model/LockHashUtils.h"
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
-#include "src/catapult/plugins.h"
 
 namespace catapult { namespace state {
 

@@ -21,8 +21,8 @@
 
 #include "TreeNode.h"
 #include "src/catapult/crypto/Hashes.h"
-#include "src/catapult/utils/IntegerMath.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace tree {
 

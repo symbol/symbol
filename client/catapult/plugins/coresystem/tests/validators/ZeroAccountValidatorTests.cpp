@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/model/Address.h"
 #include "plugins/coresystem/src/validators/Validators.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "src/catapult/model/Address.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

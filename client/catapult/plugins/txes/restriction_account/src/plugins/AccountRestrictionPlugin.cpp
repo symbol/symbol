@@ -20,14 +20,14 @@
 **/
 
 #include "AccountRestrictionPlugin.h"
+#include "src/catapult/plugins/CacheHandlers.h"
+#include "src/catapult/plugins/PluginManager.h"
 #include "../cache/AccountRestrictionCache.h"
 #include "../cache/AccountRestrictionCacheStorage.h"
 #include "plugins/txes/restriction_account/src/config/AccountRestrictionConfiguration.h"
 #include "plugins/txes/restriction_account/src/observers/Observers.h"
 #include "plugins/txes/restriction_account/src/plugins/AccountRestrictionTransactionPlugin.h"
 #include "plugins/txes/restriction_account/src/validators/Validators.h"
-#include "src/catapult/plugins/CacheHandlers.h"
-#include "src/catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
 

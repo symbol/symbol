@@ -23,12 +23,12 @@
 #include "NemesisConfiguration.h"
 #include "src/catapult/io/PodIoUtils.h"
 #include "src/catapult/io/RawFile.h"
-#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
-#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/NotificationSubscriber.h"
-#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 #include "src/catapult/utils/MemoryUtils.h"
+#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
+#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
+#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {

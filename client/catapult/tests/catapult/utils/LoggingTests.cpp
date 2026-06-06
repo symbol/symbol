@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/utils/Logging.h"
 #include "src/catapult/thread/ThreadGroup.h"
+#include "src/catapult/utils/Logging.h"
 #include "src/catapult/utils/StackLogger.h"
 #include "tests/catapult/utils/test/LoggingTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"

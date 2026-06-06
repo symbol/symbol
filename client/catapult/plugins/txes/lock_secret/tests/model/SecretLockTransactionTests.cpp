@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 #include "src/catapult/utils/MemoryUtils.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"

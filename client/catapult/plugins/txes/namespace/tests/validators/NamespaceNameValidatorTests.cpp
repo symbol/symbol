@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/namespace/src/validators/Validators.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
+#include "plugins/txes/namespace/src/validators/Validators.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

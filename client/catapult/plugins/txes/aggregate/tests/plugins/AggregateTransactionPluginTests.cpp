@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/aggregate/src/plugins/AggregateTransactionPlugin.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
-#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
-#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/IntegerMath.h"
 #include "src/catapult/utils/MemoryUtils.h"
-#include "tests/test/core/TransactionTestUtils.h"
+#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "plugins/txes/aggregate/src/plugins/AggregateTransactionPlugin.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

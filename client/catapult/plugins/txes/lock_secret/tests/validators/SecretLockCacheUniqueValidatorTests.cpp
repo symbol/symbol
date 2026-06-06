@@ -20,8 +20,8 @@
 **/
 
 #include "plugins/txes/lock_secret/src/validators/Validators.h"
-#include "plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h"
 #include "plugins/txes/lock_secret/tests/test/SecretLockNotificationsTestUtils.h"
+#include "plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h"
 
 namespace catapult { namespace validators {
 

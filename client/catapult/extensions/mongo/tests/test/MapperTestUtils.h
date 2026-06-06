@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "sdk/src/extensions/ConversionExtensions.h"
-#include "extensions/mongo/src/mappers/MapperInclude.h"
 #include "src/catapult/utils/Casting.h"
+#include "extensions/mongo/src/mappers/MapperInclude.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/test/nodeps/Conversions.h"
 #include <cstring>
 #include <vector>

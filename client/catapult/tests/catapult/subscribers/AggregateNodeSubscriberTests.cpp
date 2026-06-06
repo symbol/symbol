@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/subscribers/AggregateNodeSubscriber.h"
 #include "src/catapult/ionet/Node.h"
+#include "src/catapult/subscribers/AggregateNodeSubscriber.h"
 #include "tests/catapult/subscribers/test/AggregateSubscriberTestContext.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/TestHarness.h"

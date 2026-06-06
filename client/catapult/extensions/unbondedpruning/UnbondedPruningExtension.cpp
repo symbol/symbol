@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/UnbondedPruningService.h"
 #include "src/catapult/extensions/ProcessBootstrapper.h"
+#include "src/UnbondedPruningService.h"
 
 namespace catapult { namespace unbondedpruning {
 

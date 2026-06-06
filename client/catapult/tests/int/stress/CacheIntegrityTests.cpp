@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/services/hashcache/src/cache/HashCache.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/NetworkIdentifier.h"
 #include "src/catapult/thread/ThreadGroup.h"
 #include "src/catapult/utils/SpinLock.h"
+#include "plugins/services/hashcache/src/cache/HashCache.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"

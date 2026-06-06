@@ -20,8 +20,8 @@
 **/
 
 #include "HashCacheService.h"
-#include "plugins/services/hashcache/src/cache/HashCachePredicates.h"
 #include "src/catapult/extensions/ServiceState.h"
+#include "plugins/services/hashcache/src/cache/HashCachePredicates.h"
 
 namespace catapult { namespace hashcache {
 

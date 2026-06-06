@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/subscribers/BrokerMessageReaders.h"
 #include "src/catapult/io/PodIoUtils.h"
+#include "src/catapult/subscribers/BrokerMessageReaders.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"

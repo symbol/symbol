@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/catapult/utils/BaseValue.h"
 #include "src/catapult/functions.h"
+#include "src/catapult/utils/BaseValue.h"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <iosfwd>
 

@@ -20,8 +20,8 @@
 **/
 
 #include "CertificateLocator.h"
-#include "src/catapult/io/RawFile.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/io/RawFile.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include <filesystem>

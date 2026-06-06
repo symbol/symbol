@@ -21,8 +21,8 @@
 
 #pragma once
 #include "src/catapult/deltaset/DeltaElements.h"
-#include "src/catapult/tree/PatriciaTree.h"
 #include "src/catapult/exceptions.h"
+#include "src/catapult/tree/PatriciaTree.h"
 
 namespace catapult { namespace cache {
 

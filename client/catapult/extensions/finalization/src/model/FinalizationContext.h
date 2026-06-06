@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "extensions/finalization/src/FinalizationConfiguration.h"
-#include "src/catapult/utils/Hashers.h"
 #include "src/catapult/types.h"
+#include "src/catapult/utils/Hashers.h"
+#include "extensions/finalization/src/FinalizationConfiguration.h"
 #include <unordered_map>
 
 namespace catapult { namespace cache { class AccountStateCacheView; } }

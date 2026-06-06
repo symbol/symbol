@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "plugins/txes/lock_hash/src/cache/HashLockInfoCacheTypes.h"
 #include "extensions/mongo/plugins/lock_hash/src/storages/MongoHashLockInfoCacheStorage.h"
+#include "plugins/txes/lock_hash/src/cache/HashLockInfoCacheTypes.h"
 #include "plugins/txes/lock_hash/tests/test/HashLockInfoCacheTestUtils.h"
 
 namespace catapult { namespace mongo { class MongoStorageContext; } }
