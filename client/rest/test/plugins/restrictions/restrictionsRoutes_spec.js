@@ -164,7 +164,7 @@ describe('restrictions routes', () => {
 						type: routeResultTypes.mosaicRestrictions,
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -178,7 +178,7 @@ describe('restrictions routes', () => {
 					expect(dbMosaicRestrictionsFake.calledOnce).to.equal(true);
 					expect(dbMosaicRestrictionsFake.firstCall.args[0]).to.deep.equal(testMosaicIdParsed);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -192,7 +192,7 @@ describe('restrictions routes', () => {
 					expect(dbMosaicRestrictionsFake.calledOnce).to.equal(true);
 					expect(dbMosaicRestrictionsFake.firstCall.args[1]).to.equal(0);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -206,7 +206,7 @@ describe('restrictions routes', () => {
 					expect(dbMosaicRestrictionsFake.calledOnce).to.equal(true);
 					expect(dbMosaicRestrictionsFake.firstCall.args[2]).to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -225,7 +225,7 @@ describe('restrictions routes', () => {
 						type: routeResultTypes.mosaicRestrictions,
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -234,7 +234,10 @@ describe('restrictions routes', () => {
 				const req = { params: { mosaicId: '12345' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('mosaicId has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('mosaicId has an invalid format');
+				});
 			});
 
 			it('throws error if entryType is invalid', () => {
@@ -242,7 +245,10 @@ describe('restrictions routes', () => {
 				const req = { params: { entryType: '-1' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('entryType has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('entryType has an invalid format');
+				});
 			});
 
 			it('throws error if targetAddress is invalid', () => {
@@ -250,7 +256,10 @@ describe('restrictions routes', () => {
 				const req = { params: { targetAddress: 'AB12345' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('targetAddress has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('targetAddress has an invalid format');
+				});
 			});
 
 			describe('by compositeHash', () => {

@@ -1,0 +1,19 @@
+type: object
+description: Network type and a short human-readable description.
+required:
+  - name
+  - description
+properties:
+  name:
+    type: string
+    description: Network name (mainnet or testnet).
+    enum:
+      - mainnet
+      - testnet
+    examples:
+      - testnet
+  description:
+    type: string
+    description: A short text describing the network.
+    examples:
+      - Symbol Mainnet

@@ -19,7 +19,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import restifyErrors from 'restify-errors';
+/**
+ * Lightweight HTTP error with a `statusCode` and a `body` shaped as `{ code, message }`.
+ * @param {number} statusCode HTTP status code.
+ * @param {string} code Error code.
+ * @param {string} message Error message.
+ * @param {Error} cause Optional cause.
+ */
+class HttpError extends Error {
+	constructor(statusCode, code, message, cause) {
+		super(message);
+		this.statusCode = statusCode;
+		this.body = { code, message };
+		if (cause)
+			this.cause = cause;
+	}
+}
 
 export default {
 	/**
@@ -29,14 +44,21 @@ export default {
 	 */
 	toRestError: err => (err.statusCode
 		? err
-		: new restifyErrors.InternalError(err, err.message || 'unexpected error')),
+		: new HttpError(500, 'Internal', err.message || 'unexpected error', err)),
 
 	/**
-	 * Creates a not found error.
+	 * Creates a resource not found error.
 	 * @param {object} id Id of the resource that couldn't be found.
 	 * @returns {Error} An appropriate REST error.
 	 */
-	createNotFoundError: id => new restifyErrors.ResourceNotFoundError(`no resource exists with id '${id}'`),
+	createResourceNotFoundError: id => new HttpError(404, 'ResourceNotFound', `no resource exists with id '${id}'`),
+
+	/**
+	 * Creates a not found error.
+	 * @param {string} message Error message.
+	 * @returns {Error} An appropriate REST error.
+	 */
+	createNotFoundError: (message = '') => new HttpError(404, 'NotFound', message),
 
 	/**
 	 * Creates an invalid argument error.
@@ -44,21 +66,33 @@ export default {
 	 * @param {Error} err Optional invalid argument cause.
 	 * @returns {Error} An appropriate REST error.
 	 */
-	createInvalidArgumentError: (message, err) => (err
-		? new restifyErrors.InvalidArgumentError(err, message)
-		: new restifyErrors.InvalidArgumentError(message)),
+	createInvalidArgumentError: (message, err) => new HttpError(409, 'InvalidArgument', message, err),
 
 	/**
-	 * Creates a service unavailable error.
+	 * Creates a service-unavailable error.
 	 * @param {string} message Error message.
 	 * @returns {Error} An appropriate REST error.
 	 */
-	createServiceUnavailableError: message => new restifyErrors.ServiceUnavailableError(message),
+	createServiceUnavailableError: message => new HttpError(503, 'ServiceUnavailable', message),
 
 	/**
 	 * Creates an internal error.
 	 * @param {string} message Error message.
 	 * @returns {Error} An appropriate REST error.
 	 */
-	createInternalError: message => new restifyErrors.InternalError(message)
+	createInternalError: message => new HttpError(500, 'Internal', message),
+
+	/**
+	 * Creates an unsupported media type error.
+	 * @param {string} message Error message.
+	 * @returns {Error} An appropriate REST error.
+	 */
+	createUnsupportedMediaTypeError: message => new HttpError(415, 'UnsupportedMediaType', message),
+
+	/**
+	 * Creates an unacceptable error.
+	 * @param {string} message Error message.
+	 * @returns {Error} An appropriate REST error.
+	 */
+	createNotAcceptableError: message => new HttpError(406, 'NotAcceptable', message)
 };

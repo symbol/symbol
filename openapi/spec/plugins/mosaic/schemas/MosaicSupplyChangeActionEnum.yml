@@ -1,0 +1,10 @@
+type: integer
+enum:
+  - 0
+  - 1
+description: |
+  Mosaic supply change action:
+  - `0`: Decrease the mosaic supply.
+  - `1`: Increase the mosaic supply.
+examples:
+  - 0

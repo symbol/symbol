@@ -25,8 +25,8 @@ import routeUtils from './routeUtils.js';
 
 export default {
 	register: (server, db, services) => {
-		server.get('/blocks', (req, res, next) => {
-			const { params } = req;
+		server.get('/blocks', async (request, reply) => {
+			const { params } = request;
 
 			const signerPublicKey = params.signerPublicKey ? routeUtils.parseArgument(params, 'signerPublicKey', 'publicKey') : undefined;
 			const beneficiaryAddress = params.beneficiaryAddress
@@ -42,16 +42,14 @@ export default {
 			};
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, offsetParsers);
 
-			return db.blocks(signerPublicKey, beneficiaryAddress, fromTimestamp, toTimestamp, options)
-				.then(result => routeUtils.createSender(routeResultTypes.block).sendPage(res, next)(result));
+			const result = await db.blocks(signerPublicKey, beneficiaryAddress, fromTimestamp, toTimestamp, options);
+			return reply.send(routeUtils.createSender(routeResultTypes.block).sendPage()(result));
 		});
 
-		server.get('/blocks/:height', (req, res, next) => {
-			const height = routeUtils.parseArgument(req.params, 'height', 'uint64');
-
-			return dbFacade.runHeightDependentOperation(db, height, () => db.blockAtHeight(height))
-				.then(result => result.payload)
-				.then(routeUtils.createSender(routeResultTypes.block).sendOne(height, res, next));
+		server.get('/blocks/:height', async (request, reply) => {
+			const height = routeUtils.parseArgument(request.params, 'height', 'uint64');
+			const result = await dbFacade.runHeightDependentOperation(db, height, () => db.blockAtHeight(height));
+			return reply.send(routeUtils.createSender(routeResultTypes.block).sendOne(height)(result.payload));
 		});
 
 		server.get(

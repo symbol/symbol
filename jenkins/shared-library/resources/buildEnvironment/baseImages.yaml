@@ -1,16 +1,16 @@
 fedora-lts:
-  image: fedora:43
+  image: fedora:44
 ubuntu-lts:
   image: ubuntu:24.04
   python: 3.12
-  nodejs: 20
+  nodejs: 24
 ubuntu-base:
   image: ubuntu:22.04
   python: '3.10'
-  nodejs: 20
+  nodejs: 22
 ubuntu-latest:
-  image: ubuntu:24.04
+  image: ubuntu:26.04
   python: 3.14
-  nodejs: 24
+  nodejs: 26
 windows-lts:
   image: symbolplatform/symbol-server-compiler:windows-msvc-17

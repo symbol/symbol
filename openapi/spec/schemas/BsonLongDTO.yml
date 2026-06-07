@@ -1,0 +1,23 @@
+type: object
+description: |
+  64-bit integer in the BSON Long shape produced by the MongoDB Node.js driver when serialized to JSON.
+required:
+  - low
+  - high
+  - unsigned
+properties:
+  low:
+    type: integer
+    description: Low 32 bits (signed 32-bit integer in the BSON representation).
+    examples:
+      - 73
+  high:
+    type: integer
+    description: High 32 bits (signed 32-bit integer in the BSON representation).
+    examples:
+      - 0
+  unsigned:
+    type: boolean
+    description: Whether the Long is treated as unsigned in the driver.
+    examples:
+      - false

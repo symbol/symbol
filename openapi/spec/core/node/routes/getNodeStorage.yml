@@ -1,0 +1,33 @@
+tags:
+  - Node routes
+summary: Get the storage information of the node
+description: |
+  Returns estimated counts of blocks, transactions, and accounts in the REST
+  server's MongoDB database, along with database size statistics (`db.stats()`).
+operationId: getNodeStorage
+responses:
+  '200':
+    description: Storage information successfully retrieved.
+    content:
+      application/json:
+        schema:
+          $ref: ../schemas/StorageInfoDTO.yml
+        examples:
+          nodeStorage:
+            summary: Example node storage statistics
+            value:
+              numBlocks: 5379090
+              numTransactions: 12529188
+              numAccounts: 690320
+              database:
+                numIndexes:
+                  low: 73
+                  high: 0
+                  unsigned: false
+                numObjects:
+                  low: 25006115
+                  high: 0
+                  unsigned: false
+                dataSize: 23504074239
+                indexSize: 2029621248
+                storageSize: 13225127936

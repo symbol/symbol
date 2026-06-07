@@ -39,10 +39,10 @@ export default {
 	register: (server, db, services) => {
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 
-		server.post('/network/list', (req, res, next) => {
+		server.post('/network/list', async (request, reply) => {
 			const networkIdentifier = new NetworkIdentifier(blockchainDescriptor.blockchain, blockchainDescriptor.network);
 			const networkListResponse = new NetworkListResponse([networkIdentifier]);
-			return sendJson(res, next)(networkListResponse);
+			return sendJson(reply)(networkListResponse);
 		});
 
 		server.post('/network/options', rosettaPostRouteWithNetwork(blockchainDescriptor, NetworkRequest, async () => {

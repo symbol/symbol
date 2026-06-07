@@ -101,7 +101,7 @@ describe('node routes', () => {
 						},
 						type: 'nodeHealth'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -116,7 +116,7 @@ describe('node routes', () => {
 				return mockServer.callRoute(route, {}).then(() => {
 					// Assert
 					expect(mockServer.status.firstCall.args[0]).to.equal(200);
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -131,7 +131,7 @@ describe('node routes', () => {
 				return mockServer.callRoute(route, {}).then(() => {
 					// Assert
 					expect(mockServer.status.firstCall.args[0]).to.equal(503);
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -164,7 +164,7 @@ describe('node routes', () => {
 						},
 						type: 'nodeHealth'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -200,7 +200,7 @@ describe('node routes', () => {
 						},
 						type: 'nodeHealth'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 		});
@@ -479,7 +479,7 @@ describe('node routes', () => {
 					bar: 'lorem ipsum',
 					baz: { abc: 41, xyz: 82 }
 				});
-				expect(mockServer.next.calledOnce).to.equal(true);
+				expect(mockServer.done.calledOnce).to.equal(true);
 			});
 		});
 	});

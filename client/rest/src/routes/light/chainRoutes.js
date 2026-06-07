@@ -45,7 +45,7 @@ export default {
 
 		const createPacketBuffer = packetType => packetHeader.createBuffer(packetType, packetHeader.size);
 
-		server.get('/chain/info', async (req, res, next) => {
+		server.get('/chain/info', async (request, reply) => {
 			const packetBufferChainStatistics = createPacketBuffer(PacketType.chainStatistics);
 			const packetBufferFinalizationStatistics = createPacketBuffer(PacketType.finalizationStatistics);
 
@@ -54,17 +54,14 @@ export default {
 				fetchAndParse(packetBufferFinalizationStatistics, finalizedBlockCodec)
 			]);
 
-			const response = {
+			return reply.send({
 				payload: {
 					...chainInfo,
 					latestFinalizedBlock
 				},
 				type: routeResultTypes.chainInfo,
 				formatter: 'ws'
-			};
-
-			res.send(response);
-			next();
+			});
 		});
 	}
 };

@@ -1,0 +1,10 @@
+type: integer
+description: |
+  Size of a metadata value or metadata value update payload, in bytes.
+  In metadata transactions, when no previous value exists, or when the value grows, this is the new
+  value size after applying the update. When the value shrinks, this is the previous stored value size
+  before truncation.
+minimum: 0
+maximum: 65535
+examples:
+  - 6

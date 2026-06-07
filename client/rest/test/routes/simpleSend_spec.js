@@ -25,24 +25,40 @@ import { expect } from 'chai';
 describe('simple send', () => {
 	const addSendUnformattedTests = (senderFunction, validData, expectedContentType, expectedDescription) => {
 		const createTestSetup = () => {
-			const routeContext = { numNextCalls: 0 };
-			const next = () => { ++routeContext.numNextCalls; };
-
-			routeContext.responses = [];
-			routeContext.headers = [];
-			const res = {
-				statusCode: 200,
-				send: response => { routeContext.responses.push(response); },
-				setHeader: (name, value) => { routeContext.headers.push({ name, value }); }
+			const routeContext = {
+				currentStatusCode: 200,
+				numNextCalls: 0,
+				responses: [],
+				headers: []
 			};
 
-			return { routeContext, next, res };
+			// Fastify-style reply mock: chainable, tracks headers/status/send
+			const reply = {
+				code: code => {
+					routeContext.currentStatusCode = code;
+					return reply;
+				},
+				type: type => {
+					routeContext.headers.push({ name: 'content-type', value: type });
+					return reply;
+				},
+				header: (name, value) => {
+					routeContext.headers.push({ name, value });
+					return reply;
+				},
+				send: data => {
+					routeContext.responses.push(data);
+					++routeContext.numNextCalls; return reply;
+				}
+			};
+
+			return { routeContext, reply, getStatusCode: () => routeContext.currentStatusCode };
 		};
 
 		const runTest = (sendParams, assertResponse) => {
 			// Arrange: set up the route params
-			const { routeContext, next, res } = createTestSetup();
-			const sender = senderFunction(res, next);
+			const { routeContext, reply, getStatusCode } = createTestSetup();
+			const sender = senderFunction(reply);
 
 			// Act: send data
 			sender(...sendParams);
@@ -50,13 +66,13 @@ describe('simple send', () => {
 			// Assert: exactly one response was sent
 			expect(routeContext.numNextCalls).to.equal(1);
 			expect(routeContext.responses.length).to.equal(1);
-			assertResponse(routeContext.responses[0], res.statusCode, routeContext.headers);
+			assertResponse(routeContext.responses[0], getStatusCode(), routeContext.headers);
 		};
 
 		it('fails when there is no data', () => {
 			// Arrange:
-			const { next, res } = createTestSetup();
-			const sender = senderFunction(res, next);
+			const { reply } = createTestSetup();
+			const sender = senderFunction(reply);
 
 			// Act + Assert:
 			expect(() => sender(undefined)).to.throw(`error retrieving ${expectedDescription}`);
@@ -94,33 +110,31 @@ describe('simple send', () => {
 	describe('send data', () => {
 		const sendDataTest = (sender, assertResponse) => {
 			// Arrange
-			const routeContext = { numNextCalls: 0 };
-			const next = () => { ++routeContext.numNextCalls; };
-			const data = [];
 			const headers = [];
+			const data = [];
 
-			const res = {
-				setHeader: (name, value) => {
+			// Fastify-style reply mock for binary data
+			const reply = {
+				header: (name, value) => {
 					headers.push({ name, value });
+					return reply;
 				},
-				write: writeData => {
+				send: writeData => {
 					data.push(writeData);
-				},
-				end: () => {}
+					return reply;
+				}
 			};
-			routeContext.responses = { headers, data };
 
 			// Act: send the entity
-			sender(res, next);
+			sender(reply);
 
-			expect(routeContext.numNextCalls).to.equal(1);
-			assertResponse(routeContext.responses);
+			assertResponse({ headers, data });
 		};
 		const send = ({
 			data, mimeType, fileName, text, download
 		}, assertResponse) => {
-			sendDataTest((res, next) =>
-				sendMetalData(res, next)(data, mimeType, fileName, text, download), assertResponse);
+			sendDataTest(reply =>
+				sendMetalData(reply)(data, mimeType, fileName, text, download), assertResponse);
 		};
 
 		const assertHeader = (response, dataBuffer, disposition, mimeType, text) => {

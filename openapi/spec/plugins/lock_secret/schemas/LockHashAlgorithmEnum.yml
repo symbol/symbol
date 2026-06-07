@@ -1,0 +1,10 @@
+type: integer
+enum:
+  - 0
+  - 1
+  - 2
+description: |
+  Hash algorithm used to derive the secret from the revealed proof in secret lock and secret proof transactions:
+  - `0` (`SHA3_256`): proof hashed once with SHA3-256.
+  - `1` (`HASH_160`): proof hashed with SHA-256 and then with RIPEMD-160, similar to Bitcoin `OP_HASH160`.
+  - `2` (`HASH_256`): proof hashed twice with SHA-256, similar to Bitcoin `OP_HASH256`.

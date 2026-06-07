@@ -30,7 +30,7 @@ class ZmqSocketWrapper extends EventEmitter {
 	/**
 	 * Creates an instance of ZmqSocketWrapper.
 	 * @param {string} key Socket key.
-	 * @param {function} subscriberFactory Subscriber factory.
+	 * @param {Function} subscriberFactory Subscriber factory.
 	 */
 	constructor(key, subscriberFactory) {
 		super();

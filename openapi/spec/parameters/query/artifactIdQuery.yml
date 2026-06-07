@@ -1,0 +1,5 @@
+name: artifactId
+in: query
+description: Filter by artifact (mosaic or namespace) identifier (include).
+schema:
+  type: string

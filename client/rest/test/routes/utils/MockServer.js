@@ -32,21 +32,44 @@ export default class MockServer {
 			};
 		});
 
-		this.next = sinon.fake();
+		this.done = sinon.fake();
 		this.send = sinon.fake();
 		this.redirect = sinon.fake();
 		this.status = sinon.fake();
-		this.setHeader = sinon.fake();
-		this.res = {
-			send: this.send,
-			redirect: this.redirect,
-			status: this.status,
-			setHeader: this.setHeader
+		this.header = sinon.fake();
+
+		// Native Fastify-style reply mock
+		const self = this;
+		this.reply = {
+			// Calling send finalizes the response: track the payload and advance the pipeline
+			send: body => {
+				self.send(body);
+				self.done();
+				return self.reply;
+			},
+			code: code => {
+				self.status(code);
+				self.reply.statusCode = code;
+				return self.reply;
+			},
+			type: () => self.reply,
+			header: (key, value) => {
+				self.header(key, value);
+				return self.reply;
+			},
+			redirect: url => {
+				self.redirect(url);
+				self.done();
+				return self.reply;
+			}
 		};
+
+		// Keep res alias pointing at reply for backward compatibility in tests
+		this.res = this.reply;
 	}
 
 	resetStats() {
-		this.next.resetHistory();
+		this.done.resetHistory();
 		this.send.resetHistory();
 		this.redirect.resetHistory();
 	}
@@ -56,6 +79,17 @@ export default class MockServer {
 	}
 
 	callRoute(route, req) {
-		return route(req, this.res, this.next);
+		try {
+			const result = route(req, this.reply);
+			// For async routes: only forward unhandled rejections to done(err)
+			// (handled errors are routed through reply.send which already calls done)
+			return Promise.resolve(result).catch(err => {
+				this.done(err);
+			});
+		} catch (err) {
+			// Synchronous throw: forward to done(err) and return resolved Promise
+			this.done(err);
+			return Promise.resolve();
+		}
 	}
 }

@@ -113,7 +113,7 @@ describe('supply routes', () => {
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.equal('8998999998000.000');
 				});
 			});
@@ -143,7 +143,7 @@ describe('supply routes', () => {
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.equal('8998999987000.000');
 				});
 			});
@@ -165,7 +165,7 @@ describe('supply routes', () => {
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.equal('8998999998000.000');
 				});
 			});
@@ -188,7 +188,7 @@ describe('supply routes', () => {
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.equal('9000000000000.000');
 				});
 			});

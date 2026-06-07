@@ -160,9 +160,9 @@ namespace catapult { namespace ionet {
 			}
 		};
 
-// disable this warning which happens only on GCC 14
+// disable this warning which happens since GCC 12
 // error: reading 1 or more bytes from a Region of size 0 [-Werror=stringop-overread]
-#if 14 <= __GNUC__ && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 12)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overread"
 #endif
@@ -181,7 +181,7 @@ namespace catapult { namespace ionet {
 			EXPECT_TRUE(TTraits::IsEmpty(extractResult)) << "packet size " << size;
 		}
 
-#if 14 <= __GNUC__ && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 12)
 #pragma GCC diagnostic pop
 #endif
 

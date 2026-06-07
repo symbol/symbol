@@ -1,0 +1,11 @@
+type: integer
+description: |
+  Determines up to what decimal place a mosaic can be divided.
+  Divisibility of 3 means that a mosaic can be divided into smallest parts of 0.001 mosaics.
+  The divisibility must be in the range of 0 and 6.
+minimum: 0
+maximum: 6
+examples:
+  - 0
+  - 3
+  - 6

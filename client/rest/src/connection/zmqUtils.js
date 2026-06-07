@@ -61,7 +61,7 @@ const logAllMonitorEvents = (zsocket, throttle, logger) => {
 export default {
 	/**
 	 * Prepares a zmq socket for a connection.
-	 * @param {ZmqSocketWrapper} zsocket Zmq socket.
+	 * @param {import('./zmqService.js').ZmqSocketWrapper} zsocket Zmq socket.
 	 * @param {object} zmqConfig Zmq configuration.
 	 * @param {logger} logger Level-based logger object.
 	 */
