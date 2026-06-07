@@ -73,6 +73,30 @@ def is_special_include(include_path):
 	return False
 
 
+def to_single_root_include(own_header, path_elements):
+	# includes are full paths from the single repo root. the first-include rules / exclusion maps still
+	# express expected own headers relative to a (now-removed) per-tree include root, so promote them:
+	#   "catapult/..."          -> "src/catapult/..."          (the core lib lived on the src/ include path)
+	#   "src/..." (a test file) -> "<component>/src/..."       (sdk, plugins/txes/<c>, extensions/<e>, ...)
+	# same-directory ("Foo.h"), system (<...>) and already-rooted ("tests/...", "extensions/...") forms are kept.
+	if not own_header.startswith('"'):
+		return own_header
+
+	inner = own_header[1:-1]
+	if '/' not in inner:
+		return own_header
+
+	if inner.startswith('catapult/'):
+		return '"src/{}"'.format(inner)
+
+	if inner.startswith('src/') and 'tests' in path_elements:
+		component_root = '/'.join(path_elements[:path_elements.index('tests')])
+		if component_root:
+			return '"{}/{}"'.format(component_root, inner)
+
+	return own_header
+
+
 class CheckResult(Enum):
 	SUCCESS = 1
 	MULTIPLE = 2
@@ -243,11 +267,10 @@ class Entry:
 		self.namespaces = None
 		self.template_errors = None
 		self.expected_namespace = None
+		# includes are written as full paths from the single repo root (e.g. "src/catapult/io/X.h"),
+		# so the own-directory prefix used to relativize same-dir includes must retain the leading 'src'
 		splitted = re.split(r'[/\\]', self.full_path())
-		if splitted[0] == 'src':
-			self.include_fix_own_path = '/'.join(splitted[1:-1]) + '/'
-		else:
-			self.include_fix_own_path = '/'.join(splitted[:-1]) + '/'
+		self.include_fix_own_path = '/'.join(splitted[:-1]) + '/'
 
 	def full_path(self):
 		return os.path.join(self.path, self.filename)
@@ -328,6 +351,8 @@ class Entry:
 				own_header = self.ruleset.first_test_include_check(sorted_includes, path_elements)
 			else:
 				own_header = self.ruleset.first_include_check(sorted_includes, path_elements)
+
+			own_header = to_single_root_include(own_header, path_elements)
 
 			if own_header != sorted_includes[0].include:
 				for i, elem in enumerate(sorted_includes):
@@ -791,6 +816,31 @@ def check_dependencies(includes, deps_checker, args):
 			include_dir = os.path.dirname(include)
 			if not include_dir:
 				continue
+
+			# a relative include ("../x", "./x") is always intra-component; deps.config addresses a component's own
+			# subtree as "src/<sub>" (the "# local includes" rules). resolve against the file dir, then re-express
+			# from the component's src root so the local-include rules match
+			if include_dir.startswith('.'):
+				file_dir = re.sub(r'\\', '/', os.path.dirname(name))
+				resolved = re.sub(r'\\', '/', os.path.normpath(file_dir + '/' + include_dir))
+				include_dir = 'src/' + resolved.split('/src/', 1)[1] if '/src/' in resolved else resolved
+
+			# the core lib is now addressed as "src/catapult/..."; drop the leading 'src' so deps.config rules
+			# (written against the catapult/... component tree) keep matching. only the lib carries this prefix —
+			# an extension/plugin's own "src/..." include is left alone so the local-include hack still applies
+			if include_dir == 'src/catapult' or include_dir.startswith('src/catapult/'):
+				include_dir = include_dir[len('src/'):]
+			# extension includes now carry a leading 'extensions/'; deps.config addresses them as "<name>/src/..."
+			elif include_dir.startswith('extensions/'):
+				include_dir = include_dir[len('extensions/'):]
+
+			# an absolute include into the file's OWN component src tree is a local include; deps.config addresses
+			# these as "src/<sub>" (the "# local includes" rules), so re-express it from the component src root
+			comp_src_match = re.match(r'(.*?/src)(/|$)', path_a)
+			if comp_src_match:
+				comp_src = comp_src_match.group(1)
+				if include_dir == comp_src or include_dir.startswith(comp_src + '/'):
+					include_dir = 'src' + include_dir[len(comp_src):]
 
 			if deps_checker.match(name, path_a, include_dir, include):
 				continue
