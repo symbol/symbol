@@ -72,7 +72,9 @@ class BuildManager(BasicBuildManager):
 		self.dispatch_subprocess = process_manager.dispatch_subprocess
 		self.list_dir = process_manager.list_dir
 		self.environment_manager = environment_manager
-		self.build_type = build_type
+		# keep the conan build_type / preset / build dir in sync with CMAKE_BUILD_TYPE (build_configuration);
+		# --build-type is an optional override, otherwise it follows the build disposition (Debug for tests)
+		self.build_type = build_type if build_type else self.build_configuration
 
 	def cmake_settings(self, output_path):
 		settings = [
@@ -232,7 +234,10 @@ def main():
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
 	parser.add_argument('--out-dir', help='output path to copy catapult binaries', required=True)
-	parser.add_argument('--build-type', help='build type for the build', default='RelWithDebInfo')
+	parser.add_argument(
+		'--build-type',
+		help='override CMake build type; defaults to the build disposition (Debug for tests, RelWithDebInfo for release)',
+		default=None)
 	args = parser.parse_args()
 
 	process_manager = ProcessManager(args.dry_run)
@@ -250,9 +255,12 @@ def main():
 	cmake_preset = []
 	if builder.use_conan:
 		env.prepare_conan()
-		env.run_conan_install(args.source_path, conan_options, build_path, args.build_type)
-		environment_manager.chdir(f'{build_path}/build' if environment_manager.is_windows_platform() else f'{build_path}/build/{args.build_type}')
-		conan_preset_name = 'conan-default' if environment_manager.is_windows_platform() else f'conan-{args.build_type.lower()}'
+		env.run_conan_install(args.source_path, conan_options, build_path, builder.build_type)
+		conan_build_dir = f'{build_path}/build'
+		if not environment_manager.is_windows_platform():
+			conan_build_dir = f'{conan_build_dir}/{builder.build_type}'
+		environment_manager.chdir(conan_build_dir)
+		conan_preset_name = 'conan-default' if environment_manager.is_windows_platform() else f'conan-{builder.build_type.lower()}'
 		cmake_preset = [f'--preset={conan_preset_name}']
 
 	builder.run_cmake(args.source_path, args.out_dir, cmake_preset)
