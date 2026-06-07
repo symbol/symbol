@@ -323,7 +323,11 @@ class Entry:
 			if cross_includes:
 				error_reporter('cross_includes', IncludesError(self.full_path(), cross_includes))
 
-	def check_includes(self, error_reporter, preprocessor):
+	def compute_sorted_includes(self, preprocessor):
+		# collect, relativize and sort the project includes, then promote the file's own header to the front.
+		# returns (original_includes, sorted_includes, own_header); own_header is None for non-cpp / include-less files.
+		# shared by check_includes (which reports) and the fixIncludeOrder autofix (which rewrites), so the ordering
+		# has a single source of truth.
 		sorted_includes = []
 		original_includes = []
 		for elem in preprocessor:
@@ -337,16 +341,12 @@ class Entry:
 			self.fix_relative(elem)
 			sorted_includes.append(SortableInclude(elem, self.ruleset))
 
-		full_path = self.full_path()
-		path_elements = re.split(r'[/\\]', full_path)
+		path_elements = re.split(r'[/\\]', self.full_path())
 		sorted_includes.sort()
 
 		# move "own" header to first position (i.e. RemoteChainApi.cpp including RemoteChainApi.h)
-		if full_path.endswith('.cpp'):
-			own_header = '<unknown>'
-			# In case of both src and tests, there might not be predefined rule for first include,
-			# but we still want includes to be sorted.
-			# Pass sorted list of includes to checker, so it'll be allowed to return first element as first include
+		own_header = None
+		if self.full_path().endswith('.cpp') and sorted_includes:
 			if 'tests' in path_elements:
 				own_header = self.ruleset.first_test_include_check(sorted_includes, path_elements)
 			else:
@@ -360,6 +360,14 @@ class Entry:
 						sorted_includes.insert(0, sorted_includes.pop(i))
 						break
 
+		return original_includes, sorted_includes, own_header
+
+	def check_includes(self, error_reporter, preprocessor):
+		original_includes, sorted_includes, own_header = self.compute_sorted_includes(preprocessor)
+		full_path = self.full_path()
+		path_elements = re.split(r'[/\\]', full_path)
+
+		if full_path.endswith('.cpp') and sorted_includes:
 			if own_header != original_includes[0].include:
 				error_reporter('firstInclude', FirstIncludeError(full_path, own_header, original_includes[0].include))
 
