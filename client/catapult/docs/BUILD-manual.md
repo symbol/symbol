@@ -2,7 +2,7 @@
 
 This guide should mostly work for Linux and OS X operating systems.
 It does not include instructions for Windows.
-For Windows, [Build with CONAN](BUILD-conan.md) is strongly encouraged.
+For Windows, see [Build on Windows](BUILD-windows.md).
 
 ## Prerequisites
 

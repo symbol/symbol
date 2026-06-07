@@ -24,45 +24,47 @@ Make sure that the node's host is accessible from the internet and that the port
 
 We have tested the build process on Linux, Apple (macOS), and Windows. The instructions for each platform are available in separate documents.
 
-* [Build with Docker](BUILD-docker.md)
+Pick the guide for your platform. Each platform guide covers two dependency-management options: [vcpkg](https://github.com/microsoft/vcpkg) (recommended) and [Conan](https://conan.io) (used by CI).
+
 * [Build on Linux](BUILD-linux.md)
 * [Build on Apple (macOS)](BUILD-apple.md)
 * [Build on Windows](BUILD-windows.md)
-* [Build manually](BUILD-manual.md)
+
+Alternative flows:
+
+* [Build with Docker](BUILD-docker.md)
+* [Build manually](BUILD-manual.md) (from-source dependencies, Linux/macOS)
 
 ### Prerequisites
 
-Required
+Required (all platforms)
 
-* cmake >= 3.25
-* git
-* python 3.x
+* [CMake](https://cmake.org/download/) >= 3.25
+* [Git](https://git-scm.com/) >= 2.25
+* Python 3.x
+* A dependency manager: [vcpkg](https://github.com/microsoft/vcpkg) (recommended) or [Conan](https://conan.io) >= 2.0
 
-Recommended
+Per platform
 
-* ninja-build (Linux)
-* Visual Studio Build Essentials 2019 or 2022 or 2026 (Windows)
-
-Optional
-
-* Visual Studio 2019 or 2022 or 2026 (Windows)
+* Linux / macOS: [Ninja](https://ninja-build.org/) and `pkg-config`
+* Windows: Visual Studio 2022 (>= 17.5) or 2026, or the matching Build Tools, with the "Desktop development with C++" and "C++ CMake tools" components
 
 ### Compilers
 
-Catapult's supported compilers are:
+Catapult requires a C++17 compiler. The supported minimums are:
 
 Linux:
 
-* Clang: 11.0.1
-* Clang: 10.0.0
-* GCC: 10.2.0
-* GCC: 9.2.1
+* GCC >= 8 (GCC >= 11 strongly recommended)
+* Clang >= 14
 
-OS X:
+macOS:
 
-* Apple Clang: 11.0.3
+* Apple Clang >= 14 (Xcode 14 or later)
 
-### Guides
+Windows:
+
+* MSVC (Visual Studio 2022 >= 17.5, or 2026)
 
 
 ### Sanitizers

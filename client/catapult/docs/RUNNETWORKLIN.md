@@ -7,7 +7,7 @@ The possible network values are: ``mainnet``, ``testnet`` or a custom one byte v
 
 ## Prerequisites
 
-* Have built catapult-client following either [Conan](BUILD-conan.md) or [manual](BUILD-manual.md) instructions.
+* Have built catapult-client following either the [Linux](BUILD-linux.md) or [manual](BUILD-manual.md) build instructions.
 
 ## Copy the configuration template
 
