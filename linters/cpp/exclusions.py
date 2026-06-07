@@ -6,6 +6,7 @@ SKIP_FILES = (
 	re.compile(r'src.catapult.utils.MacroBasedEnum.h'),
 
 	# inline includes
+	re.compile(r'src.catapult.asio.AsioImpl.cpp'),  # boost asio/ssl single-translation-unit compile
 	re.compile(r'src.catapult.model.EntityType.cpp'),
 	re.compile(r'src.catapult.model.ReceiptType.cpp'),
 	re.compile(r'src.catapult.validators.ValidationResult.cpp'),
@@ -66,7 +67,7 @@ LONGLINES_FALSEPOSITIVES = (
 
 SPECIAL_INCLUDES = (
 	# src (these include double quotes because they have to match what is after `#include `)
-	re.compile(r'"catapult/utils/MacroBasedEnum\.h"'),
+	re.compile(r'"(?:src/)?catapult/utils/MacroBasedEnum\.h"'),
 	re.compile(r'"ReentrancyCheckReaderNotificationPolicy.h"'),
 
 	re.compile(r'<ref10/crypto_verify_32.h>'),
@@ -102,7 +103,7 @@ CORE_FIRSTINCLUDES = {
 	'src/catapult/process/importer/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
 	'src/catapult/process/recovery/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
 	'src/catapult/process/server/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
-	'src/catapult/version/nix/what_version.cpp': 'catapult/version/version.h',
+	'src/catapult/version/nix/what_version.cpp': '../version.h',
 
 	# tests
 	'tests/test/nodeps/TestMain.cpp': 'catapult/crypto/OpensslInit.h',

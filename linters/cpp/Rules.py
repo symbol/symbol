@@ -23,6 +23,14 @@ def split_path(full_path):
 	return re.split(r'[/\\]', full_path)
 
 
+def strip_src_prefix(include_path_elements):
+	# lib includes are now full paths from the single repo root ("src/catapult/...").
+	# drop the leading 'src' so positional component checks match the historical "catapult/..." form
+	if include_path_elements and include_path_elements[0] == 'src':
+		return include_path_elements[1:]
+	return include_path_elements
+
+
 def split_path_and_strip_underscores(full_path):  # pylint: disable=invalid-name
 	# ignore trailing '_foo' as part of namespace
 	splitted_path = split_path(full_path)
@@ -99,7 +107,7 @@ class DefaultRules:
 		invalid = []
 		component = path_elements[2]
 		for elem in sorted_includes:
-			include_path_elements = elem.include[1:-1].split('/')
+			include_path_elements = strip_src_prefix(elem.include[1:-1].split('/'))
 			if len(include_path_elements) <= 2:
 				continue
 
@@ -192,7 +200,7 @@ class PluginRules:
 
 		invalid = []
 		for elem in sorted_includes:
-			include_path_elements = elem.include[1:-1].split('/')
+			include_path_elements = strip_src_prefix(elem.include[1:-1].split('/'))
 			if len(include_path_elements) <= 2:
 				continue
 
@@ -289,10 +297,10 @@ class ExtensionRules:
 			return '"{}"'.format(EXTENSION_FIRSTINCLUDES[full_path])
 
 		if path_elements[-1].startswith('Mongo') and path_elements[-1].endswith('PluginTests.cpp'):
-			return '"mongo/tests/test/MongoPluginTestUtils.h"'
+			return '"extensions/mongo/tests/test/MongoPluginTestUtils.h"'
 
 		if 'filters' in path_elements and 'timesync' in path_elements:
-			return '"timesync/src/filters/SynchronizationFilters.h"'
+			return '"extensions/timesync/src/filters/SynchronizationFilters.h"'
 
 		tests_id = path_elements.index('tests')
 		if 'int' in path_elements and path_elements.index('int') == tests_id + 1:
@@ -300,11 +308,9 @@ class ExtensionRules:
 
 		include_dir = '/'.join(path_elements[tests_id + 1: -1])
 		include_file_path = '/'.join(filter(None, [include_dir, path_elements[-1][:-9]]))
-		if 'plugins' in path_elements:  # subplugins should be relative to the subplugin root
-			return '"src/{}.h"'.format(include_file_path)
-
-		# non-plugins should be relative to the extension root
-		return '"{}/src/{}.h"'.format(path_elements[1], include_file_path)
+		# both subplugins and plain extensions resolve to "<component>/src/...";
+		# the component prefix is prepended by to_single_root_include
+		return '"src/{}.h"'.format(include_file_path)
 
 	@staticmethod
 	def validate_cross_includes(sorted_includes, path_elements):
@@ -312,7 +318,11 @@ class ExtensionRules:
 
 		invalid = []
 		for elem in sorted_includes:
-			include_path_elements = elem.include[1:-1].split('/')
+			include_path_elements = strip_src_prefix(elem.include[1:-1].split('/'))
+			# includes are now full paths from the single repo root, so an extension's own includes carry a
+			# leading 'extensions' segment; drop it so the component checks below match the historical form
+			if include_path_elements and include_path_elements[0] == 'extensions':
+				include_path_elements = include_path_elements[1:]
 			if include_path_elements[0] in ['tests', 'catapult']:
 				continue
 
@@ -370,7 +380,7 @@ class ToolsRules:
 			return '"{}"'.format(TOOLS_FIRSTINCLUDES[full_path])
 
 		if 'main.cpp' == path_elements[-1]:
-			return '"tools/ToolMain.h"'
+			return '"tools/tools/ToolMain.h"'
 
 		return '"{}.h"'.format(path_elements[-1][:-4])
 
