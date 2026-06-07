@@ -174,7 +174,7 @@ Address Inspector Tool options:
   -m [ --mode ] arg mode, possible values: encoded, decoded, public, secret
 ```
 
-Should you have built in Debug configuration, you have also unit tets built. You can run them with this command:
+Should you have built in Debug configuration, you also have unit tests built. You can run them with this command:
 ```powershell
 cd build
 ctest --test-dir=.\<name>\
