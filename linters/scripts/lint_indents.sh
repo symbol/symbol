@@ -10,4 +10,4 @@ set -ex
 		--type-not=rst \
 		--type-not=yaml \
 		'^  ' "$(git rev-parse --show-toplevel)" \
-	| grep -vE '\.eslintrc|testnet/summary\.txt|.git/hooks/.*\.sample'
+	| grep -vE '\.eslintrc|testnet/summary\.txt|.git/hooks/.*\.sample|vcpkg-ports/'

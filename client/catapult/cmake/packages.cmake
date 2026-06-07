@@ -1,7 +1,7 @@
 # All third-party dependencies are defined here. 
 
 if(USE_VCPKG)
-    set(_CONFIG_FLAG "CONFIG")
+	set(_CONFIG_FLAG "CONFIG")
 endif()
 
 
@@ -17,14 +17,14 @@ find_package(mongoc 2.2.1 ${_CONFIG_FLAG} REQUIRED)
 find_package(cppzmq 4.11.0 ${_CONFIG_FLAG} REQUIRED)
 
 if(ENABLE_TESTS)
-    find_package(GTest 1.16.0 ${_CONFIG_FLAG} REQUIRED)
-    find_package(benchmark 1.9.4 ${_CONFIG_FLAG} REQUIRED)
-    if(USE_VCPKG OR USE_CONAN)
-        set(GTest_IMPORTED_TARGETS GTest::gtest)
-    elseif(USE_METAL)
-        set(GTest_IMPORTED_TARGETS GTEST_LIBRARIES)
-    endif()
+	find_package(GTest 1.16.0 ${_CONFIG_FLAG} REQUIRED)
+	find_package(benchmark 1.9.4 ${_CONFIG_FLAG} REQUIRED)
+	if(USE_VCPKG OR USE_CONAN)
+		set(GTest_IMPORTED_TARGETS GTest::gtest)
+	elseif(USE_METAL)
+		set(GTest_IMPORTED_TARGETS GTEST_LIBRARIES)
+	endif()
 else()
-    set(GTest_VERSION "n.a." CACHE STRING)
-    set(benchmark_VERSION "n.a." CACHE STRING)
+	set(GTest_VERSION "n.a." CACHE STRING)
+	set(benchmark_VERSION "n.a." CACHE STRING)
 endif()

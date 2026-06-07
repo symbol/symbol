@@ -29,7 +29,7 @@ option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 if(ENABLE_FUZZ_BUILD)
 	set(USE_SANITIZER "undefined" CACHE STRING "Sanitizer to use (address, undefined, etc.)")
 else()
-    set(USE_SANITIZER "" CACHE STRING "Sanitizer to use (address, undefined, etc.)")
+	set(USE_SANITIZER "" CACHE STRING "Sanitizer to use (address, undefined, etc.)")
 endif()
 
 include(cmake/packages.cmake)                                               # setup dependencies and related helper functions
@@ -38,21 +38,21 @@ include(cmake/settings_all.cmake)                                           # se
 
 # include platform/compiler specific settings
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-    if(MSVC OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
-        include(cmake/settings_win_msvc.cmake)
-    else()
-        message(FATAL_ERROR "Unsupported compiler on Windows")
-    endif()
+	if(MSVC OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
+		include(cmake/settings_win_msvc.cmake)
+	else()
+		message(FATAL_ERROR "Unsupported compiler on Windows")
+	endif()
 elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        include(cmake/settings_nix_gnu.cmake)
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        include(cmake/settings_nix_clang.cmake)
-    else()
-        message(FATAL_ERROR "Unsupported compiler on Unix")
-    endif()
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		include(cmake/settings_nix_gnu.cmake)
+	elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+		include(cmake/settings_nix_clang.cmake)
+	else()
+		message(FATAL_ERROR "Unsupported compiler on Unix")
+	endif()
 else()
-    message(FATAL_ERROR "Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
+	message(FATAL_ERROR "Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
 
 # cmake grouping targets
@@ -65,15 +65,15 @@ add_custom_target(tools)
 # add source directories
 # order matters here ?
 add_subdirs(
-    external
-    src
-    tests
-    sdk
-    plugins
-    extensions
-    resources
-    internal
-    tools
+	external
+	src
+	tests
+	sdk
+	plugins
+	extensions
+	resources
+	internal
+	tools
 )
 
 if(USE_CONAN)
@@ -83,44 +83,44 @@ endif()
 # Print summary of configuration
 
 if(IS_MULTI_CONFIG)
-    set(BUILD_TYPE_DISPLAY "Multi [${CMAKE_CONFIGURATION_TYPES}]")
+	set(BUILD_TYPE_DISPLAY "Multi [${CMAKE_CONFIGURATION_TYPES}]")
 else()
-    set(BUILD_TYPE_DISPLAY "${CMAKE_BUILD_TYPE}")
+	set(BUILD_TYPE_DISPLAY "${CMAKE_BUILD_TYPE}")
 endif()
 
 message(STATUS 
-        "\n============================================================================\n"
-        "   Summary :\n"
-        "   --------------\n"
-        "   Project        ${CMAKE_PROJECT_NAME}\n"
-        "   Source         ${PROJECT_SOURCE_DIR}\n"
-        "   Cmake          ${CMAKE_VERSION}\n"
-        "   Git            ${GIT_EXECUTABLE} (${GIT_VERSION_STRING})\n"
-        "   Toolchain      ${CMAKE_TOOLCHAIN_FILE}\n"
-        "   Host           ${CMAKE_HOST_SYSTEM_NAME} ${CMAKE_HOST_SYSTEM_PROCESSOR}\n"
-        "   Compiler       ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\n"
-        "   Config Type    ${BUILD_TYPE_DISPLAY}\n"
-        "============================================================================\n"
-        "   Options :\n"
-        "   --------------\n"
-        "   Win Ccache     ${ENABLE_CCACHE_ON_WINDOWS}\n"
-        "   Coverage       ${ENABLE_CODE_COVERAGE}\n"
-        "   Tests          ${ENABLE_TESTS}\n"
-        "   Diagnostics    ${ENABLE_CATAPULT_DIAGNOSTICS}\n"
-        "   Fuzz Build     ${ENABLE_FUZZ_BUILD}\n"
-        "   Hardening      ${ENABLE_HARDENING}\n"
-        "   Sanitizer      ${USE_SANITIZER}\n"
-        "============================================================================\n"
-        "   Dependencies:\n"
-        "   --------------\n"
-        "   Boost          ${Boost_VERSION}\n"
-        "   OpenSSL        ${OPENSSL_VERSION}\n"
-        "   RocksDB        ${RocksDB_VERSION}\n"
-        "   GTest          ${GTest_VERSION}\n"
-        "   Benchmark      ${benchmark_VERSION}\n"
-        "   MongoDB        ${mongocxx_VERSION}\n"
-        "   MongoC         ${mongoc_VERSION}\n"
-        "   cppzmq         ${cppzmq_VERSION}\n"
-        "   zeromq         ${ZeroMQ_VERSION}\n"
-        "============================================================================"
+		"\n============================================================================\n"
+		"   Summary :\n"
+		"   --------------\n"
+		"   Project        ${CMAKE_PROJECT_NAME}\n"
+		"   Source         ${PROJECT_SOURCE_DIR}\n"
+		"   Cmake          ${CMAKE_VERSION}\n"
+		"   Git            ${GIT_EXECUTABLE} (${GIT_VERSION_STRING})\n"
+		"   Toolchain      ${CMAKE_TOOLCHAIN_FILE}\n"
+		"   Host           ${CMAKE_HOST_SYSTEM_NAME} ${CMAKE_HOST_SYSTEM_PROCESSOR}\n"
+		"   Compiler       ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\n"
+		"   Config Type    ${BUILD_TYPE_DISPLAY}\n"
+		"============================================================================\n"
+		"   Options :\n"
+		"   --------------\n"
+		"   Win Ccache     ${ENABLE_CCACHE_ON_WINDOWS}\n"
+		"   Coverage       ${ENABLE_CODE_COVERAGE}\n"
+		"   Tests          ${ENABLE_TESTS}\n"
+		"   Diagnostics    ${ENABLE_CATAPULT_DIAGNOSTICS}\n"
+		"   Fuzz Build     ${ENABLE_FUZZ_BUILD}\n"
+		"   Hardening      ${ENABLE_HARDENING}\n"
+		"   Sanitizer      ${USE_SANITIZER}\n"
+		"============================================================================\n"
+		"   Dependencies:\n"
+		"   --------------\n"
+		"   Boost          ${Boost_VERSION}\n"
+		"   OpenSSL        ${OPENSSL_VERSION}\n"
+		"   RocksDB        ${RocksDB_VERSION}\n"
+		"   GTest          ${GTest_VERSION}\n"
+		"   Benchmark      ${benchmark_VERSION}\n"
+		"   MongoDB        ${mongocxx_VERSION}\n"
+		"   MongoC         ${mongoc_VERSION}\n"
+		"   cppzmq         ${cppzmq_VERSION}\n"
+		"   zeromq         ${ZeroMQ_VERSION}\n"
+		"============================================================================"
 )

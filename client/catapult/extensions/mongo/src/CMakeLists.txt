@@ -1,5 +1,5 @@
 add_target(
-    catapult.mongo LIBRARY
+	catapult.mongo LIBRARY
 	LINK_LIBS
 		${MongoDB_IMPORTED_TARGETS}
 		
