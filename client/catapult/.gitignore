@@ -3,6 +3,7 @@
 .vs/
 .vscode/
 .github/
+.claude/
 build-review/
 conanbuildinfo.txt
 CMakeUserPresets.json
