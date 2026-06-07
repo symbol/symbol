@@ -33,7 +33,9 @@ class BasicBuildManager:
 
 	@property
 	def build_configuration(self):
-		return 'RelWithDebInfo'
+		# tests build in Debug so the aggressive assertions enabled in that configuration catch UB that
+		# RelWithDebInfo would otherwise hide; release artifacts stay RelWithDebInfo
+		return 'RelWithDebInfo' if self.is_release else 'Debug'
 
 	@property
 	def versioned_compiler(self):
