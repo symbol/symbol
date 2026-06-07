@@ -4,14 +4,12 @@ Auto-fix include ordering violations reported by checkProjectStructure.py.
 
 Reuses the linter's OWN sorting logic (SortableInclude + the per-directory
 rulesets), so the rewritten order is guaranteed to match what the checker
-expects, including:
-  - own-header-first placement (first_include_check / first_test_include_check)
-  - relative-path rewriting (Entry.fix_relative)
+expects: own-header-first placement (first_include_check /
+first_test_include_check) and relative-path rewriting (Entry.fix_relative).
 
-Run from the catapult client dir, same as the linter:
-    python ../../linters/cpp/fixIncludeOrder.py \
-        --dir src --dir sdk --dir tests --dir plugins --dir extensions
-Add --dry-run to preview which files would change without writing.
+Run from the catapult client dir, same as the linter. For example:
+python ../../linters/cpp/fixIncludeOrder.py --dir src --dir sdk --dir tests
+Pass --dry-run to preview which files would change without writing.
 """
 
 import argparse
