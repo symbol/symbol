@@ -20,8 +20,8 @@
 **/
 
 #include "NamespaceDescriptorMapper.h"
-#include "src/catapult/utils/Casting.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/utils/Casting.h"
 #include "plugins/txes/namespace/src/model/NamespaceTypes.h"
 #include "plugins/txes/namespace/src/state/RootNamespace.h"
 

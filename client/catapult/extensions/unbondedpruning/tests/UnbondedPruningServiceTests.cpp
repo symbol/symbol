@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "extensions/unbondedpruning/src/UnbondedPruningService.h"
 #include "src/catapult/consumers/BlockchainSyncHandlers.h"
 #include "src/catapult/model/NotificationSubscriber.h"
-#include "extensions/unbondedpruning/src/UnbondedPruningService.h"
 #include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
-#include "tests/test/core/mocks/MockTransactionPluginUnsupported.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
+#include "tests/test/core/mocks/MockTransactionPluginUnsupported.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/TestHarness.h"

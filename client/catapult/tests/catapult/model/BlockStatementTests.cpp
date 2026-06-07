@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/crypto/MerkleHashBuilder.h"
 #include "src/catapult/model/BlockStatement.h"
+#include "src/catapult/crypto/MerkleHashBuilder.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/TestHarness.h"
 

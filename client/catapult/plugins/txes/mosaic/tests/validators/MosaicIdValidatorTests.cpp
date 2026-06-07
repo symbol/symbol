@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/mosaic/src/validators/Validators.h"
 #include "src/catapult/utils/IntegerMath.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
-#include "plugins/txes/mosaic/src/validators/Validators.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

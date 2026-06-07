@@ -21,7 +21,7 @@
 
 #include "CoreMongo.h"
 #include "MongoPluginManager.h"
-#include "extensions/mongo/src/MongoReceiptPluginFactory.h"
+#include "MongoReceiptPluginFactory.h"
 #include "mappers/KeyLinkTransactionMapper.h"
 #include "storages/MongoAccountStateCacheStorage.h"
 

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/plugins/PluginManager.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "src/catapult/cache/CatapultCache.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"

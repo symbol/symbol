@@ -21,8 +21,8 @@
 
 #pragma once
 #include "Results.h"
-#include "src/catapult/validators/ValidatorTypes.h"
 #include "../model/MultisigNotifications.h"
+#include "src/catapult/validators/ValidatorTypes.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 
 namespace catapult { namespace validators {

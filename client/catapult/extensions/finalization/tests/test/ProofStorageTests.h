@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "src/catapult/io/PodIoUtils.h"
+#include "FinalizationMessageTestUtils.h"
 #include "extensions/finalization/src/io/ProofStorage.h"
 #include "extensions/finalization/src/model/FinalizationProofUtils.h"
-#include "extensions/finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "src/catapult/io/PodIoUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <filesystem>

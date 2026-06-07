@@ -20,13 +20,13 @@
 **/
 
 #include "ApiNodeHealthUtils.h"
-#include "src/catapult/api/RemoteChainApi.h"
-#include "src/catapult/utils/DiagnosticCounterId.h"
-#include "src/catapult/utils/Functional.h"
 #include "sdk/src/extensions/RemoteDiagnosticApi.h"
 #include "tools/tools/NetworkCensusTool.h"
 #include "tools/tools/ToolMain.h"
 #include "tools/tools/ToolThreadUtils.h"
+#include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/utils/DiagnosticCounterId.h"
+#include "src/catapult/utils/Functional.h"
 
 namespace catapult { namespace tools { namespace health {
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/crypto/Hashes.h"
 #include "plugins/txes/restriction_mosaic/src/state/MosaicAddressRestrictionNotificationFacade.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"
 

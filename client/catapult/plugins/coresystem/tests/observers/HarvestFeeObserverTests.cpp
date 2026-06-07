@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/coresystem/src/observers/Observers.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/InflationCalculator.h"
-#include "plugins/coresystem/src/observers/Observers.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"

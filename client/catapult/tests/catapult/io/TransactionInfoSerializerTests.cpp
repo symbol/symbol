@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/io/TransactionInfoSerializer.h"
 #include "src/catapult/io/BufferInputStreamAdapter.h"
 #include "src/catapult/io/PodIoUtils.h"
-#include "src/catapult/io/TransactionInfoSerializer.h"
 #include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace io {

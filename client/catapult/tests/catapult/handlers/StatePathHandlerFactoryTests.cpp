@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/SynchronizedCache.h"
 #include "src/catapult/handlers/StatePathHandlerFactory.h"
+#include "src/catapult/cache/SynchronizedCache.h"
 #include "src/catapult/utils/SpinReaderWriterLock.h"
 #include "tests/test/plugins/BasicBatchHandlerTests.h"
 #include "tests/TestHarness.h"

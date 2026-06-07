@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/utils/Functional.h"
 #include "extensions/partialtransaction/src/handlers/PtHandlers.h"
+#include "src/catapult/utils/Functional.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
-#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/PullHandlerTests.h"
 #include "tests/TestHarness.h"
 

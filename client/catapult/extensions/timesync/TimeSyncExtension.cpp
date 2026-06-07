@@ -20,10 +20,10 @@
 **/
 
 #include "src/catapult/extensions/ProcessBootstrapper.h"
-#include "src/constants.h"
 #include "src/TimeSynchronizationConfiguration.h"
 #include "src/TimeSynchronizationService.h"
 #include "src/TimeSynchronizationState.h"
+#include "src/constants.h"
 
 namespace catapult { namespace timesync {
 

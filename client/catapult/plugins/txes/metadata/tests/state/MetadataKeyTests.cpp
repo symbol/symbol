@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/crypto/Hashes.h"
 #include "plugins/txes/metadata/src/state/MetadataKey.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "plugins/txes/metadata/tests/test/MetadataTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"

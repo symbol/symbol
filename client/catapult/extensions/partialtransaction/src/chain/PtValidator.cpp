@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "PtValidator.h"
 #include "AggregateCosignatoriesNotificationPublisher.h"
 #include "JointValidator.h"
-#include "PtValidator.h"
 #include "src/catapult/model/WeakCosignedTransactionInfo.h"
 #include "src/catapult/plugins/PluginManager.h"
 #include "src/catapult/validators/NotificationValidatorAdapter.h"

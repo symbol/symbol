@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/crypto/Hashes.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 

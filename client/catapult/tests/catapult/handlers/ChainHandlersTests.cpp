@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/api/ChainPackets.h"
 #include "src/catapult/handlers/ChainHandlers.h"
+#include "src/catapult/api/ChainPackets.h"
 #include "src/catapult/utils/FileSize.h"
 #include "tests/catapult/handlers/test/HeightRequestHandlerTests.h"
 #include "tests/test/core/PacketTestUtils.h"

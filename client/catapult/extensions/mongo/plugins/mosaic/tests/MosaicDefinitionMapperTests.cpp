@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/constants.h"
 #include "extensions/mongo/plugins/mosaic/src/MosaicDefinitionMapper.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "sdk/src/builders/MosaicDefinitionBuilder.h"
+#include "src/catapult/constants.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
-#include "sdk/src/builders/MosaicDefinitionBuilder.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache_core/AccountStateCache.h"
 #include "plugins/txes/account_link/src/observers/Observers.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"

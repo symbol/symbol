@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/net/BriefServerRequestor.h"
 #include "src/catapult/api/ChainPackets.h"
 #include "src/catapult/api/RemoteChainApi.h"
-#include "src/catapult/net/BriefServerRequestor.h"
 #include "src/catapult/preprocessor.h"
 #include "tests/test/net/BriefServerRequestorTestUtils.h"
 #include "tests/TestHarness.h"

@@ -55,9 +55,7 @@ namespace catapult { namespace io {
 				hashOffset += 2;
 			}
 
-			context.pBlockElement->SubCacheMerkleRoots = std::vector<Hash256>(
-					context.Hashes.begin() + hashOffset,
-					context.Hashes.end());
+			context.pBlockElement->SubCacheMerkleRoots = std::vector<Hash256>(context.Hashes.begin() + hashOffset, context.Hashes.end());
 			return context;
 		}
 
@@ -199,6 +197,7 @@ namespace catapult { namespace io {
 				std::memcpy(&context.Buffer[offset], &numSubCacheMerkleRoots, sizeof(uint32_t));
 				std::memcpy(&context.Buffer[offset + sizeof(uint32_t)], pNextHash, numSubCacheMerkleRoots * Hash256::Size);
 			}
+
 			return context;
 		}
 

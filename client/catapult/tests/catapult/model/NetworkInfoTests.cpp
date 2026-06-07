@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/Address.h"
 #include "src/catapult/model/NetworkInfo.h"
+#include "src/catapult/model/Address.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {

@@ -21,9 +21,9 @@
 
 #include "extensions/mongo/plugins/namespace/src/NamespaceRegistrationMapper.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "sdk/src/builders/NamespaceRegistrationBuilder.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
-#include "sdk/src/builders/NamespaceRegistrationBuilder.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 

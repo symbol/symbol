@@ -27,8 +27,8 @@
 #include "src/catapult/utils/FileSize.h"
 #include "src/catapult/utils/Hashers.h"
 #include "src/catapult/utils/TimeSpan.h"
-#include <stdint.h>
 #include <unordered_map>
+#include <stdint.h>
 
 namespace catapult { namespace model {
 

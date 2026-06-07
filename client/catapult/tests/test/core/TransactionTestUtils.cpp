@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "EntityTestUtils.h"
 #include "TransactionTestUtils.h"
+#include "EntityTestUtils.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
+#include "mocks/MockTransaction.h"
 #include "src/catapult/crypto/Signer.h"
 #include "src/catapult/model/VerifiableEntity.h"
 #include "src/catapult/preprocessor.h"
 #include "src/catapult/utils/HexParser.h"
-#include "mocks/MockTransaction.h"
-#include "sdk/src/extensions/TransactionExtensions.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include <memory>

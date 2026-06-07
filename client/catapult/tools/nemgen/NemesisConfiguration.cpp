@@ -20,6 +20,7 @@
 **/
 
 #include "NemesisConfiguration.h"
+#include "sdk/src/extensions/IdGenerator.h"
 #include "src/catapult/crypto/KeyPair.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/ConfigurationBag.h"
@@ -27,7 +28,6 @@
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 #include "plugins/txes/namespace/src/state/Namespace.h"
-#include "sdk/src/extensions/IdGenerator.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 

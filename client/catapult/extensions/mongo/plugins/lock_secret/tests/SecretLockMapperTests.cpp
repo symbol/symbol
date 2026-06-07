@@ -20,11 +20,11 @@
 **/
 
 #include "extensions/mongo/plugins/lock_secret/src/SecretLockMapper.h"
-#include "extensions/mongo/plugins/lock_secret/tests/test/SecretLockMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
+#include "extensions/mongo/plugins/lock_secret/tests/test/SecretLockMapperTestUtils.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
-#include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
 
 namespace catapult { namespace mongo { namespace plugins {

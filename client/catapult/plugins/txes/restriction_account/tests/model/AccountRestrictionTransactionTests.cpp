@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/restriction_account/src/model/AccountAddressRestrictionTransaction.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
 #include "tests/test/core/TransactionTestUtils.h"

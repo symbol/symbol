@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/ionet/NodeContainer.h"
 #include "src/catapult/local/server/NodeContainerSubscriberAdapter.h"
+#include "src/catapult/ionet/NodeContainer.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/TestHarness.h"
 

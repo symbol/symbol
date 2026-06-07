@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/consumers/BlockConsumers.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/cache_core/BlockStatisticCache.h"
-#include "src/catapult/consumers/BlockConsumers.h"
 #include "src/catapult/io/BlockStorageCache.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/model/ChainScore.h"

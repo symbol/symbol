@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
 #include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCacheUtils.h"
+#include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

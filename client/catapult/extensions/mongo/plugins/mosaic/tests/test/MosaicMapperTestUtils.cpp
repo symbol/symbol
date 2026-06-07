@@ -20,10 +20,10 @@
 **/
 
 #include "MosaicMapperTestUtils.h"
-#include "src/catapult/utils/Casting.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "src/catapult/utils/Casting.h"
 #include "plugins/txes/mosaic/src/state/MosaicEntry.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

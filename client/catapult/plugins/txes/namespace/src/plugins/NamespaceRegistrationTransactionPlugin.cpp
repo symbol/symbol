@@ -20,11 +20,11 @@
 **/
 
 #include "NamespaceRegistrationTransactionPlugin.h"
+#include "../model/NamespaceNotifications.h"
+#include "../model/NamespaceRegistrationTransaction.h"
 #include "src/catapult/constants.h"
 #include "src/catapult/model/NotificationSubscriber.h"
 #include "src/catapult/model/TransactionPluginFactory.h"
-#include "../model/NamespaceNotifications.h"
-#include "../model/NamespaceRegistrationTransaction.h"
 
 using namespace catapult::model;
 

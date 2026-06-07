@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/crypto/InvalidMerkleHashBuilder.h"
+#include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 

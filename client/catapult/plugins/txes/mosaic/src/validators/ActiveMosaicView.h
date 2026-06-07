@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "../cache/MosaicCache.h"
 #include "src/catapult/types.h"
 #include "src/catapult/validators/ValidationResult.h"
-#include "../cache/MosaicCache.h"
 
 namespace catapult {
 	namespace cache { class ReadOnlyCatapultCache; }

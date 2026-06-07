@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/api/ChainPackets.h"
 #include "src/catapult/api/RemoteChainApi.h"
+#include "src/catapult/api/ChainPackets.h"
 #include "src/catapult/model/TransactionPlugin.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"

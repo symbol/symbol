@@ -20,8 +20,8 @@
 **/
 
 #include "extensions/mongo/plugins/multisig/src/mappers/MultisigEntryMapper.h"
-#include "extensions/mongo/plugins/multisig/tests/test/MultisigMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/plugins/multisig/tests/test/MultisigMapperTestUtils.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 

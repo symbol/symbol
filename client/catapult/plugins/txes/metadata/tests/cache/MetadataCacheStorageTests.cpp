@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/metadata/src/cache/MetadataCache.h"
 #include "plugins/txes/metadata/src/cache/MetadataCacheStorage.h"
+#include "plugins/txes/metadata/src/cache/MetadataCache.h"
 #include "plugins/txes/metadata/tests/test/MetadataTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"

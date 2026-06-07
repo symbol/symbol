@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/io/RawFile.h"
-#include "src/catapult/utils/HexParser.h"
+#include "tools/tools/ToolMain.h"
 #include "sdk/src/builders/AccountKeyLinkBuilder.h"
 #include "sdk/src/builders/VotingKeyLinkBuilder.h"
 #include "sdk/src/builders/VrfKeyLinkBuilder.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "tools/tools/ToolConfigurationUtils.h"
-#include "tools/tools/ToolMain.h"
+#include "src/catapult/io/RawFile.h"
+#include "src/catapult/utils/HexParser.h"
 #include <filesystem>
 
 namespace catapult { namespace tools { namespace linker {

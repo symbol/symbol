@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache_core/BlockStatisticCache.h"
-#include "extensions/harvesting/src/Harvester.h"
 #include "extensions/harvesting/src/ScheduledHarvesterTask.h"
+#include "extensions/harvesting/src/Harvester.h"
+#include "src/catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

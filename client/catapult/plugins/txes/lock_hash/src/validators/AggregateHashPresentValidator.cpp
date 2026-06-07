@@ -20,8 +20,8 @@
 **/
 
 #include "Validators.h"
-#include "src/catapult/validators/ValidatorContext.h"
 #include "../cache/HashLockInfoCache.h"
+#include "src/catapult/validators/ValidatorContext.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 
 namespace catapult { namespace validators {

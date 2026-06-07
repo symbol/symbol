@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/coresystem/src/validators/Validators.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/Block.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/validators/ValidatorContext.h"
-#include "plugins/coresystem/src/validators/Validators.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

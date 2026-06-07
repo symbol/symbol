@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "extensions/unbondedpruning/src/HashLockUtils.h"
 #include "src/catapult/model/NotificationPublisher.h"
 #include "src/catapult/model/NotificationSubscriber.h"
-#include "extensions/unbondedpruning/src/HashLockUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
