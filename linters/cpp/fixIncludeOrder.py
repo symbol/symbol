@@ -17,17 +17,12 @@ Add --dry-run to preview which files would change without writing.
 import argparse
 import os
 import re
-import sys
 
-LINTER_DIR = os.path.dirname(os.path.abspath(__file__))
-if LINTER_DIR not in sys.path:
-	sys.path.insert(0, LINTER_DIR)
-
-import HeaderParser  # noqa: E402
-import validation  # noqa: E402
-from checkProjectStructure import Entry, SortableInclude, USER_SOURCE_DIRS, is_special_include, to_single_root_include  # noqa: E402
-from exclusions import SKIP_FILES  # noqa: E402
-from Rules import RULE_ID_TO_CLASS_MAP  # noqa: E402
+import HeaderParser
+import validation
+from checkProjectStructure import USER_SOURCE_DIRS, Entry, SortableInclude, is_special_include, to_single_root_include
+from exclusions import SKIP_FILES
+from Rules import RULE_ID_TO_CLASS_MAP
 
 
 def ruleset_for_path(full_path):
