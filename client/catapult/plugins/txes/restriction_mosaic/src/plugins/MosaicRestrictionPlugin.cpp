@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "MosaicRestrictionPlugin.h"
 #include "MosaicAddressRestrictionTransactionPlugin.h"
 #include "MosaicGlobalRestrictionTransactionPlugin.h"
-#include "MosaicRestrictionPlugin.h"
-#include "src/catapult/plugins/CacheHandlers.h"
-#include "src/catapult/plugins/PluginManager.h"
 #include "../cache/MosaicRestrictionCache.h"
 #include "../cache/MosaicRestrictionCacheStorage.h"
+#include "src/catapult/plugins/CacheHandlers.h"
+#include "src/catapult/plugins/PluginManager.h"
 #include "plugins/txes/restriction_mosaic/src/config/MosaicRestrictionConfiguration.h"
 #include "plugins/txes/restriction_mosaic/src/observers/Observers.h"
 #include "plugins/txes/restriction_mosaic/src/validators/Validators.h"

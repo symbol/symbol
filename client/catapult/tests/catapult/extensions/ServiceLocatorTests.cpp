@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/config/CatapultKeys.h"
 #include "src/catapult/extensions/ServiceLocator.h"
+#include "src/catapult/config/CatapultKeys.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 

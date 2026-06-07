@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/config/CatapultConfiguration.h"
 #include "src/catapult/config/ValidateConfiguration.h"
+#include "src/catapult/config/CatapultConfiguration.h"
 #include "src/catapult/utils/ConfigurationBag.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "plugins/txes/namespace/src/cache/ReadOnlyNamespaceCache.h"
+#include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

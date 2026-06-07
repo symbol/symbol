@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "StateChangeInfo.h"
 #include "StateChangeReader.h"
+#include "StateChangeInfo.h"
 #include "StateChangeSubscriber.h"
 #include "SubscriberOperationTypes.h"
 #include "src/catapult/cache/CacheChangesStorage.h"

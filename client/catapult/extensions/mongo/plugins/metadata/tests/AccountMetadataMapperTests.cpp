@@ -20,9 +20,9 @@
 **/
 
 #include "extensions/mongo/plugins/metadata/src/AccountMetadataMapper.h"
+#include "plugins/txes/metadata/src/model/AccountMetadataTransaction.h"
 #include "extensions/mongo/plugins/metadata/tests/test/MetadataMapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
-#include "plugins/txes/metadata/src/model/AccountMetadataTransaction.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/multisig/src/validators/Validators.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/TransactionPlugin.h"
 #include "plugins/txes/multisig/src/plugins/MultisigAccountModificationTransactionPlugin.h"
-#include "plugins/txes/multisig/src/validators/Validators.h"
 #include "plugins/txes/multisig/tests/test/MultisigCacheTestUtils.h"
 #include "plugins/txes/multisig/tests/test/MultisigTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"

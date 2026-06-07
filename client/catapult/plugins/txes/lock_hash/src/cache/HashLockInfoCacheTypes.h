@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "src/catapult/cache/ReadOnlyArtifactCache.h"
 #include "../state/HashLockInfoHistory.h"
+#include "src/catapult/cache/ReadOnlyArtifactCache.h"
 #include "plugins/txes/lock_shared/src/cache/LockInfoCacheTypes.h"
 
 namespace catapult {

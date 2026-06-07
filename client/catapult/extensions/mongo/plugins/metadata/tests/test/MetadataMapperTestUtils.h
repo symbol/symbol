@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "src/catapult/utils/MemoryUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "extensions/mongo/tests/test/MapperTestUtils.h"
+#include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/namespace/src/types.h"
+#include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/TestHarness.h"
 

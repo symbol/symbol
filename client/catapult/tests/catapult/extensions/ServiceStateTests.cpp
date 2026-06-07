@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/extensions/ServiceState.h"
 #include "src/catapult/cache_tx/MemoryUtCache.h"
 #include "src/catapult/extensions/LocalNodeChainScore.h"
 #include "src/catapult/extensions/PeersConnectionTasks.h"
 #include "src/catapult/extensions/ServiceLocator.h"
-#include "src/catapult/extensions/ServiceState.h"
 #include "src/catapult/ionet/NodeContainer.h"
 #include "src/catapult/thread/MultiServicePool.h"
 #include "tests/test/core/BlockTestUtils.h"

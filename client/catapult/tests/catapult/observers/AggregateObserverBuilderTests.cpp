@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/observers/AggregateObserverBuilder.h"
+#include "src/catapult/cache/CatapultCache.h"
 #include "tests/catapult/observers/test/AggregateObserverTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"

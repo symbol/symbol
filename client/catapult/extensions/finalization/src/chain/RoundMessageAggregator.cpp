@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "RoundContext.h"
 #include "RoundMessageAggregator.h"
+#include "RoundContext.h"
+#include "extensions/finalization/src/model/FinalizationContext.h"
+#include "extensions/finalization/src/model/FinalizationMessage.h"
 #include "src/catapult/model/HeightGrouping.h"
 #include "src/catapult/model/VotingSet.h"
 #include "src/catapult/utils/MacroBasedEnumIncludes.h"
-#include "extensions/finalization/src/model/FinalizationContext.h"
-#include "extensions/finalization/src/model/FinalizationMessage.h"
 #include <unordered_map>
 
 namespace catapult { namespace chain {

@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "extensions/finalization/src/io/FileProofStorage.h"
 #include "src/catapult/config/ConfigurationFileLoader.h"
 #include "src/catapult/extensions/ProcessBootstrapper.h"
-#include "extensions/finalization/src/io/FileProofStorage.h"
 #include "src/FinalizationBootstrapperService.h"
 #include "src/FinalizationConfiguration.h"
 #include "src/FinalizationMessageProcessingService.h"

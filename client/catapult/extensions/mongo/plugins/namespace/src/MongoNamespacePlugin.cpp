@@ -24,9 +24,9 @@
 #include "NamespaceRegistrationMapper.h"
 #include "extensions/mongo/src/MongoPluginManager.h"
 #include "extensions/mongo/src/MongoReceiptPluginFactory.h"
+#include "storages/MongoNamespaceCacheStorage.h"
 #include "plugins/txes/namespace/src/constants.h"
 #include "plugins/txes/namespace/src/model/NamespaceReceiptType.h"
-#include "storages/MongoNamespaceCacheStorage.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {

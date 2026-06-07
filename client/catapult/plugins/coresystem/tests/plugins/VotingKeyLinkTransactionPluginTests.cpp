@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/coresystem/src/plugins/VotingKeyLinkTransactionPlugin.h"
 #include "plugins/coresystem/src/model/KeyLinkNotifications.h"
 #include "plugins/coresystem/src/model/VotingKeyLinkTransaction.h"
-#include "plugins/coresystem/src/plugins/VotingKeyLinkTransactionPlugin.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

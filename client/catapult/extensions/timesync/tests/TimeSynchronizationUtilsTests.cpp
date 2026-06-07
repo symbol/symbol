@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/CatapultCache.h"
-#include "src/catapult/cache_core/AccountStateCache.h"
-#include "src/catapult/ionet/Node.h"
+#include "extensions/timesync/src/TimeSynchronizationUtils.h"
 #include "extensions/timesync/src/CommunicationTimestamps.h"
 #include "extensions/timesync/src/TimeSynchronizationConfiguration.h"
 #include "extensions/timesync/src/TimeSynchronizationState.h"
-#include "extensions/timesync/src/TimeSynchronizationUtils.h"
 #include "extensions/timesync/src/TimeSynchronizer.h"
+#include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
+#include "src/catapult/ionet/Node.h"
 #include "extensions/timesync/tests/test/TimeSynchronizationCacheTestUtils.h"
 #include "extensions/timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"

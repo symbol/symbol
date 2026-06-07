@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/mosaic/src/state/MosaicDefinition.h"
 #include "src/catapult/constants.h"
 #include "plugins/txes/mosaic/src/model/MosaicProperties.h"
-#include "plugins/txes/mosaic/src/state/MosaicDefinition.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 

@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/catapult/chain/UtUpdater.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/cache_tx/AggregateUtCache.h"
 #include "src/catapult/cache_tx/MemoryUtCache.h"
 #include "src/catapult/chain/ChainResults.h"
-#include "src/catapult/chain/UtUpdater.h"
 #include "src/catapult/model/FeeUtils.h"
 #include "src/catapult/model/TransactionStatus.h"
 #include "tests/test/cache/UtTestUtils.h"

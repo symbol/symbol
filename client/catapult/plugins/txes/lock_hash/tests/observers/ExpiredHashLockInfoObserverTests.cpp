@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/lock_hash/src/observers/Observers.h"
 #include "src/catapult/model/Address.h"
 #include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
-#include "plugins/txes/lock_hash/src/observers/Observers.h"
 #include "plugins/txes/lock_hash/tests/test/HashLockInfoCacheTestUtils.h"
 #include "plugins/txes/lock_shared/tests/observers/ExpiredLockInfoObserverTests.h"
 

@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/Mosaic.h"
 #include "src/catapult/state/AccountStateSerializer.h"
+#include "src/catapult/model/Mosaic.h"
 #include "src/catapult/utils/Casting.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

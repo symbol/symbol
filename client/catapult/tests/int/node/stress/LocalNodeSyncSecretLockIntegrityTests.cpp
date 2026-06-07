@@ -538,7 +538,7 @@ namespace catapult { namespace local {
 					test::WaitForHeightAndElements(m_context, Height(5), 4, 3);
 				}
 
-				WAIT_FOR_VALUE_EXPR(1u, m_context.stats().NumActiveReaders);
+				WAIT_FOR_ONE_EXPR(m_context.stats().NumActiveReaders);
 
 				// Sanity: the cache has expected balances
 				test::AssertCurrencyBalances(m_accounts, m_context.localNode().cache(), {

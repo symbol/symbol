@@ -20,8 +20,8 @@
 **/
 
 #include "extensions/mongo/plugins/mosaic/src/storages/MongoMosaicCacheStorage.h"
-#include "extensions/mongo/plugins/mosaic/tests/test/MosaicMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/plugins/mosaic/tests/test/MosaicMapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/mosaic/tests/test/MosaicCacheTestUtils.h"

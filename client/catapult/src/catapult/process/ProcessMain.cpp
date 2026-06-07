@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Platform.h"
 #include "ProcessMain.h"
+#include "Platform.h"
 #include "Signals.h"
 #include "src/catapult/config/CatapultConfiguration.h"
 #include "src/catapult/config/CatapultKeys.h"

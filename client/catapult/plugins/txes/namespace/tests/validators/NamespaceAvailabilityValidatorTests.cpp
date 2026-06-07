@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/namespace/src/validators/Validators.h"
 #include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "plugins/txes/namespace/src/model/NamespaceConstants.h"
 #include "plugins/txes/namespace/src/model/NamespaceLifetimeConstraints.h"
-#include "plugins/txes/namespace/src/validators/Validators.h"
 #include "plugins/txes/namespace/tests/test/NamespaceCacheTestUtils.h"
 #include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"

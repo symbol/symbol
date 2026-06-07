@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/services/hashcache/src/validators/Validators.h"
 #include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/model/EntityHasher.h"
 #include "src/catapult/validators/ValidatorContext.h"
 #include "plugins/services/hashcache/src/cache/HashCache.h"
-#include "plugins/services/hashcache/src/validators/Validators.h"
 #include "plugins/services/hashcache/tests/test/HashCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"

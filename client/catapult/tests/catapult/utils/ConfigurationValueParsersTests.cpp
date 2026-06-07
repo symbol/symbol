@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/utils/BlockSpan.h"
 #include "src/catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/utils/BlockSpan.h"
 #include "src/catapult/utils/FileSize.h"
 #include "src/catapult/utils/TimeSpan.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"

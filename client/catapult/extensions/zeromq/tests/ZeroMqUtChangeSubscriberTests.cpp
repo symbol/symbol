@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/Cosignature.h"
-#include "extensions/zeromq/src/PublisherUtils.h"
 #include "extensions/zeromq/src/ZeroMqUtChangeSubscriber.h"
+#include "extensions/zeromq/src/PublisherUtils.h"
+#include "src/catapult/model/Cosignature.h"
 #include "extensions/zeromq/tests/test/ZeroMqTestUtils.h"
 #include "extensions/zeromq/tests/test/ZeroMqTransactionsChangeTestUtils.h"
 #include "tests/TestHarness.h"

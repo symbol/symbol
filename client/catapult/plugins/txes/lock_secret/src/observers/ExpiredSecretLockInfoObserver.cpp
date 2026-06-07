@@ -20,9 +20,9 @@
 **/
 
 #include "Observers.h"
-#include "src/catapult/observers/ObserverUtils.h"
 #include "../cache/SecretLockInfoCache.h"
 #include "../model/SecretLockReceiptType.h"
+#include "src/catapult/observers/ObserverUtils.h"
 #include "plugins/txes/lock_shared/src/observers/ExpiredLockInfoObserver.h"
 
 namespace catapult { namespace observers {

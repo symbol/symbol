@@ -24,9 +24,9 @@
 #include "src/catapult/utils/Logging.h"
 #include <boost/dll.hpp>
 #include <chrono>
-#include <cstdlib>
 #include <filesystem>
 #include <sstream>
+#include <stdlib.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 			::free(pBuffer);
 			return value;
 #else
-			const auto* pValue = std::getenv(name);
+			const auto* pValue = ::getenv(name);
 			return pValue ? std::string(pValue) : std::string();
 #endif
 		}
@@ -164,7 +164,10 @@ namespace catapult { namespace test {
 	}
 
 	std::string TempDirectoryGuard::DefaultName() {
-		static const auto defaultName = (std::filesystem::path(Temp_Directory_Root) / CreateProcessUniqueName()).generic_string();
+		// computed once per process: CreateProcessUniqueName() embeds a timestamp, so the value is not constexpr
+		static const auto defaultName = []() {
+			return (std::filesystem::path(Temp_Directory_Root) / CreateProcessUniqueName()).generic_string();
+		}();
 		return defaultName;
 	}
 

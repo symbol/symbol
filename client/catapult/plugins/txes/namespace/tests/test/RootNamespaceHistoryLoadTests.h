@@ -20,8 +20,8 @@
 **/
 
 #pragma once
+#include "NamespaceTestUtils.h"
 #include "src/catapult/utils/Casting.h"
-#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 

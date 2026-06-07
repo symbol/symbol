@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/tools/ToolMain.h"
+#include "extensions/finalization/src/model/StepIdentifier.h"
 #include "src/catapult/crypto/SecureRandomGenerator.h"
 #include "src/catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "src/catapult/exceptions.h"
 #include "src/catapult/io/FileStream.h"
-#include "extensions/finalization/src/model/StepIdentifier.h"
-#include "tools/tools/ToolMain.h"
 #include <filesystem>
 #include <iostream>
 #include <string>

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "FileBlockStorage.h"
 #include "BlockElementSerializer.h"
 #include "BlockStatementSerializer.h"
 #include "BufferedFileStream.h"
-#include "FileBlockStorage.h"
 #include "FilesystemUtils.h"
 #include "PodIoUtils.h"
 #include "src/catapult/config/CatapultDataDirectory.h"

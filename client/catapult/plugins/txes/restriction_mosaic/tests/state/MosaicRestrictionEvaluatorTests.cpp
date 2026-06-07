@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/restriction_mosaic/src/state/MosaicAddressRestriction.h"
 #include "plugins/txes/restriction_mosaic/src/state/MosaicRestrictionEvaluator.h"
+#include "plugins/txes/restriction_mosaic/src/state/MosaicAddressRestriction.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {

@@ -22,8 +22,8 @@
 #include "HashLockMapper.h"
 #include "extensions/mongo/src/MongoPluginManager.h"
 #include "extensions/mongo/src/MongoReceiptPluginFactory.h"
-#include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
 #include "storages/MongoHashLockInfoCacheStorage.h"
+#include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/model/TransactionStatus.h"
-#include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "extensions/mongo/src/MongoBulkWriter.h"
 #include "extensions/mongo/src/MongoTransactionStatusStorage.h"
+#include "extensions/mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/model/TransactionStatus.h"
 #include "extensions/mongo/tests/test/MapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"

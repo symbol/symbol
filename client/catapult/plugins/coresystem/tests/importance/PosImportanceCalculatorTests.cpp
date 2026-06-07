@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/coresystem/src/importance/ImportanceCalculator.h"
 #include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/model/NetworkIdentifier.h"
 #include "src/catapult/state/AccountActivityBuckets.h"
-#include "plugins/coresystem/src/importance/ImportanceCalculator.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/TestHarness.h"

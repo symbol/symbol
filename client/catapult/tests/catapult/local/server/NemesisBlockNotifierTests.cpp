@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/local/server/NemesisBlockNotifier.h"
+#include "src/catapult/cache_core/AccountStateCache.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/plugins/PluginManager.h"
 #include "tests/test/core/BlockStatementTestUtils.h"

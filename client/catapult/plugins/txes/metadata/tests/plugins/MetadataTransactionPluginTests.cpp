@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/metadata/src/plugins/MetadataTransactionPlugin.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/metadata/src/model/AccountMetadataTransaction.h"
 #include "plugins/txes/metadata/src/model/MetadataNotifications.h"
 #include "plugins/txes/metadata/src/model/MosaicMetadataTransaction.h"
 #include "plugins/txes/metadata/src/model/NamespaceMetadataTransaction.h"
-#include "plugins/txes/metadata/src/plugins/MetadataTransactionPlugin.h"
 #include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"

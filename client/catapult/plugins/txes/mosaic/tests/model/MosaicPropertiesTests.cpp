@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/utils/Casting.h"
 #include "plugins/txes/mosaic/src/model/MosaicProperties.h"
+#include "src/catapult/utils/Casting.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"

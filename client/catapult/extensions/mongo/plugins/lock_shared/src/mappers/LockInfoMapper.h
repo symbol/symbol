@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "src/catapult/utils/Casting.h"
 #include "extensions/mongo/src/mappers/MapperInclude.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "src/catapult/utils/Casting.h"
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
 
 namespace catapult { namespace mongo { namespace plugins {

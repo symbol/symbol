@@ -23,11 +23,11 @@
 #include "BlockStatementTestUtils.h"
 #include "BlockStorageTestUtils.h"
 #include "BlockTestUtils.h"
+#include "mocks/MockMemoryBlockStorage.h"
+#include "mocks/MockMemoryStream.h"
 #include "src/catapult/constants.h"
 #include "src/catapult/io/BlockStatementSerializer.h"
 #include "src/catapult/model/BlockUtils.h"
-#include "mocks/MockMemoryBlockStorage.h"
-#include "mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/TestHarness.h"
 #include <numeric>

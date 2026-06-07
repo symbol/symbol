@@ -19,6 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/tools/ToolMain.h"
+#include "sdk/src/extensions/Bip32.h"
+#include "sdk/src/extensions/Bip39.h"
 #include "src/catapult/crypto/AesDecrypt.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/crypto/SharedKey.h"
@@ -26,9 +29,6 @@
 #include "src/catapult/model/Address.h"
 #include "src/catapult/utils/HexParser.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
-#include "sdk/src/extensions/Bip32.h"
-#include "sdk/src/extensions/Bip39.h"
-#include "tools/tools/ToolMain.h"
 #ifdef _MSC_VER
 #include <boost/config/compiler/visualc.hpp>
 #endif

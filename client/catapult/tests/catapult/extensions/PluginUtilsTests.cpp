@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/config/CatapultConfiguration.h"
 #include "src/catapult/extensions/PluginUtils.h"
+#include "src/catapult/config/CatapultConfiguration.h"
 #include "src/catapult/model/Transaction.h"
 #include "plugins/coresystem/src/validators/Results.h"
 #include "tests/test/local/LocalTestUtils.h"

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/mosaic/src/config/MosaicConfiguration.h"
 #include "src/catapult/model/Address.h"
 #include "src/catapult/model/BlockchainConfiguration.h"
 #include "src/catapult/utils/HexParser.h"
-#include "plugins/txes/mosaic/src/config/MosaicConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 

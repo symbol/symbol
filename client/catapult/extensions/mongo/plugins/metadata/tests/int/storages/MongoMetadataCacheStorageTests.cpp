@@ -20,8 +20,8 @@
 **/
 
 #include "extensions/mongo/plugins/metadata/src/storages/MongoMetadataCacheStorage.h"
-#include "extensions/mongo/plugins/metadata/tests/test/MetadataMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
+#include "extensions/mongo/plugins/metadata/tests/test/MetadataMapperTestUtils.h"
 #include "extensions/mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "extensions/mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/metadata/tests/test/MetadataCacheTestUtils.h"

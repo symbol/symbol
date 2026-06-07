@@ -59,14 +59,14 @@ namespace catapult { namespace local {
 		// VmHWM and VmRSS come from the same kernel accounting so VmHWM >= VmRSS is always guaranteed,
 		// unlike mixing getrusage(ru_maxrss) with /proc/self/statm which can produce inconsistent MB values.
 		struct MemoryInfo {
-			uint64_t vmRss;   // VmRSS  – current resident set size
-			uint64_t vmHwm;   // VmHWM  – peak resident set size
-			uint64_t vmSize;  // VmSize – virtual memory size
-			uint64_t rssFile; // RssFile – file-backed resident pages (proxy for shared RSS)
+			uint64_t vmRss; // VmRSS - current resident set size
+			uint64_t vmHwm; // VmHWM - peak resident set size
+			uint64_t vmSize; // VmSize - virtual memory size
+			uint64_t rssFile; // RssFile - file-backed resident pages (proxy for shared RSS)
 		};
 
 		MemoryInfo GetMemoryInfo() {
-			MemoryInfo info = {};
+			MemoryInfo info{};
 			std::ifstream fin("/proc/self/status");
 			std::string line;
 			while (std::getline(fin, line)) {
@@ -80,6 +80,7 @@ namespace catapult { namespace local {
 					else if (key == "RssFile:") info.rssFile = value;
 				}
 			}
+
 			return info;
 		}
 

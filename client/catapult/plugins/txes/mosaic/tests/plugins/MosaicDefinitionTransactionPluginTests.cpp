@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
 #include "src/catapult/utils/MemoryUtils.h"
 #include "plugins/txes/mosaic/src/model/MosaicDefinitionTransaction.h"
 #include "plugins/txes/mosaic/src/model/MosaicNotifications.h"
-#include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

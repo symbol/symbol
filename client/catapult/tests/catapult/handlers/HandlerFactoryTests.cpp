@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/handlers/BasicProducer.h"
 #include "src/catapult/handlers/HandlerFactory.h"
+#include "src/catapult/handlers/BasicProducer.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/TestHarness.h"

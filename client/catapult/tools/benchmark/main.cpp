@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/tools/ToolMain.h"
+#include "tools/tools/ToolKeys.h"
+#include "tools/tools/ToolThreadUtils.h"
 #include "src/catapult/crypto/Signer.h"
 #include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/thread/ParallelFor.h"
 #include "src/catapult/utils/StackLogger.h"
-#include "tools/tools/ToolKeys.h"
-#include "tools/tools/ToolMain.h"
-#include "tools/tools/ToolThreadUtils.h"
 
 namespace catapult { namespace tools { namespace benchmark {
 

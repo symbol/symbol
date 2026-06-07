@@ -20,10 +20,10 @@
 **/
 
 #include "extensions/mongo/plugins/lock_hash/src/HashLockMapper.h"
-#include "extensions/mongo/plugins/lock_hash/tests/test/HashLockMapperTestUtils.h"
 #include "extensions/mongo/src/mappers/MapperUtils.h"
-#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/lock_hash/src/model/HashLockTransaction.h"
+#include "extensions/mongo/plugins/lock_hash/tests/test/HashLockMapperTestUtils.h"
+#include "extensions/mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
 
 namespace catapult { namespace mongo { namespace plugins {

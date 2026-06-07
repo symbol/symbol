@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/crypto/Signer.h"
 #include "plugins/services/signature/src/validators/Validators.h"
+#include "src/catapult/crypto/Signer.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

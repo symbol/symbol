@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache_tx/MemoryUtCache.h"
-#include "extensions/harvesting/src/HarvestingUtFacadeFactory.h"
 #include "extensions/harvesting/src/TransactionsInfoSupplier.h"
+#include "extensions/harvesting/src/HarvestingUtFacadeFactory.h"
+#include "src/catapult/cache_tx/MemoryUtCache.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/CatapultCache.h"
 #include "src/catapult/validators/AggregateValidatorBuilder.h"
+#include "src/catapult/cache/CatapultCache.h"
 #include "tests/catapult/validators/test/AggregateValidatorTestUtils.h"
 #include "tests/test/other/ValidationResultTestUtils.h"
 #include "tests/TestHarness.h"

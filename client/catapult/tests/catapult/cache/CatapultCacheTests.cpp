@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/catapult/cache/CacheStorage.h"
 #include "src/catapult/cache/CatapultCache.h"
+#include "src/catapult/cache/CacheStorage.h"
 #include "src/catapult/cache/CatapultCacheBuilder.h"
 #include "src/catapult/cache/ReadOnlyCatapultCache.h"
 #include "src/catapult/crypto/Hashes.h"
 #include "src/catapult/state/CatapultState.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/SimpleCache.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/core/StateTestUtils.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {

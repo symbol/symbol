@@ -19,18 +19,18 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "FinalizationBootstrapperService.h"
 #include "FinalizationMessageProcessingService.h"
+#include "FinalizationBootstrapperService.h"
+#include "FinalizationConfiguration.h"
+#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "extensions/finalization/src/ionet/FinalizationMessagePacketUtils.h"
+#include "extensions/finalization/src/model/FinalizationRoundRange.h"
 #include "src/catapult/consumers/RecentHashCache.h"
 #include "src/catapult/extensions/DispatcherUtils.h"
 #include "src/catapult/extensions/ServiceState.h"
 #include "src/catapult/extensions/ServiceUtils.h"
 #include "src/catapult/thread/MultiServicePool.h"
 #include "src/catapult/utils/ThrottleLogger.h"
-#include "extensions/finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "extensions/finalization/src/FinalizationConfiguration.h"
-#include "extensions/finalization/src/ionet/FinalizationMessagePacketUtils.h"
-#include "extensions/finalization/src/model/FinalizationRoundRange.h"
 
 namespace catapult { namespace finalization {
 

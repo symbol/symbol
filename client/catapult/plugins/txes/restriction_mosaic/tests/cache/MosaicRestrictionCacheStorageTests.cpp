@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
 #include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCacheStorage.h"
+#include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
 #include "plugins/txes/restriction_mosaic/src/model/MosaicRestrictionTypes.h"
 #include "plugins/txes/restriction_mosaic/tests/test/MosaicRestrictionTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
