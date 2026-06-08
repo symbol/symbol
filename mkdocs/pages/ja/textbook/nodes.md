@@ -61,11 +61,11 @@ digraph SymbolNode {
     OtherNodesWP2 -> Catapult;
     Catapult -> RocksDBWP:s [dir=back];
     Catapult -> Broker [headlabel="スプーラーキュー" labelangle=-10 labeldistance=10];
-    RocksDBWP -> RocksDB [headlabel="ブロックチェーン\lステートを\l保存\l" labelangle=-85 labeldistance=5];
+    RocksDBWP -> RocksDB [headlabel="ブロックチェーン\lステートを\l保存\l" labelangle=-110 labeldistance=5];
     Catapult -> DiskWP:s [dir=back];
-    DiskWP:w -> Disk [headlabel="ブロックを\r保存\r" labelangle=-20 labeldistance=10];
+    DiskWP:w -> Disk [headlabel="ブロックを\r保存\r" labelangle=-20 labeldistance=11];
     Broker -> MongoDBWP [dir=none];
-    MongoDBWP:n -> MongoDB [headlabel="インデックス化\rされたブロックと\r状態を保存\r" labelangle=45 labeldistance=6];
+    MongoDBWP:n -> MongoDB [headlabel="インデックス化\rされたブロックと\r状態を保存\r" labelangle=55 labeldistance=8];
     Broker -> RESTWP [dir=none];
     RESTWP -> REST [headlabel="ZMQ 経由で\r更新を通知\r" labelangle=-40 labeldistance=7 URL="#zero-mq"];
     MongoDB -> RESTWP2 [dir=none];
@@ -143,7 +143,7 @@ Catapult の時間に敏感な処理を妨げないようにしています。
 ### :octicons-database-24: フルデータベース {: #full-database }
 
 [Catapult](default:Catapult) の [ブロックデータベース](#blocks-database) と
-[状態データベース](#state-database) は高スループットに最適化されています∂。
+[状態データベース](#state-database) は高スループットに最適化されています。
 
 並行して、ノードはこのデータのレプリカを [MongoDB](https://www.mongodb.com) に保持する場合があります。
 [REST ゲートウェイ](#rest-gateway) が受け取る複雑な問い合わせを効率的に処理できるようにしています。
