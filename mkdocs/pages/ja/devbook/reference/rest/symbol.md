@@ -22,8 +22,8 @@ hide:
       scalarInstance.destroy();
     }
     scalarInstance = Scalar.createApiReference(container, {
-      url: new URL('../openapi-symbol.yml', window.location.href).toString(),
-      slug: 'openapi-symbol',
+      url: new URL('../openapi3.yml', window.location.href).toString(),
+      slug: 'openapi3',
       title: 'Symbol REST API',
       theme: 'purple',
       showDeveloperTools: 'never',
