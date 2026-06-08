@@ -121,6 +121,24 @@
 			]
 		},
 		{
+			"name": "Debug-Tests",
+			"displayName": "Full Debug Workflow with Tests",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "Debug"
+				},
+				{
+					"type": "build",
+					"name": "Debug"
+				},
+				{
+					"type": "test",
+					"name": "Debug"
+				}
+			]
+		},
+		{
 			"name": "Release",
 			"displayName": "Full Release Workflow",
 			"steps": [
@@ -130,6 +148,24 @@
 				},
 				{
 					"type": "build",
+					"name": "Release"
+				}
+			]
+		},
+		{
+			"name": "Release-Tests",
+			"displayName": "Full Release Workflow with Tests",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "Release"
+				},
+				{
+					"type": "build",
+					"name": "Release"
+				},
+				{
+					"type": "test",
 					"name": "Release"
 				}
 			]
@@ -149,6 +185,24 @@
 			]
 		},
 		{
+			"name": "RelWithDebInfo-Tests",
+			"displayName": "Full RelWithDebInfo Workflow with Tests",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "RelWithDebInfo"
+				},
+				{
+					"type": "build",
+					"name": "RelWithDebInfo"
+				},
+				{
+					"type": "test",
+					"name": "RelWithDebInfo"
+				}
+			]
+		},
+		{
 			"name": "MinSizeRel",
 			"displayName": "Full MinSizeRel Workflow",
 			"steps": [
@@ -161,6 +215,50 @@
 					"name": "MinSizeRel"
 				}
 			]
+		},
+		{
+			"name": "MinSizeRel-Tests",
+			"displayName": "Full MinSizeRel Workflow with Tests",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "MinSizeRel"
+				},
+				{
+					"type": "build",
+					"name": "MinSizeRel"
+				},
+				{
+					"type": "test",
+					"name": "MinSizeRel"
+				}
+			]
+		}
+	],
+	"testPresets": [
+		{
+			"name": "Debug",
+			"displayName": "Debug Tests",
+			"configurePreset": "Debug",
+			"configuration": "Debug"
+		},
+		{
+			"name": "Release",
+			"displayName": "Release Tests",
+			"configurePreset": "Release",
+			"configuration": "Release"
+		},
+		{
+			"name": "RelWithDebInfo",
+			"displayName": "RelWithDebInfo Tests",
+			"configurePreset": "RelWithDebInfo",
+			"configuration": "RelWithDebInfo"
+		},
+		{
+			"name": "MinSizeRel",
+			"displayName": "MinSizeRel Tests",
+			"configurePreset": "MinSizeRel",
+			"configuration": "MinSizeRel"
 		}
 	]
 }
