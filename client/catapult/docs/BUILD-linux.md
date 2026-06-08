@@ -119,7 +119,7 @@ You should see the Address Inspector Tool help, listing its options (`--help`, `
 If you built the `Debug` preset, the unit tests are also built and can be run with [ctest]:
 
 ```sh
-ctest --test-dir ./build/Debug
+ctest --preset Debug
 ```
 
 > [!NOTE]
