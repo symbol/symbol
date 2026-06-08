@@ -35,7 +35,6 @@ CEX
 CLI
 :   （Command-Line Interface）コマンドラインインターフェイス。
     端末コンソール上でキーボードのみを使って操作するプログラム。
-    Symbol にはブロックチェーンと対話する CLI ツールがある。
 
 CMC
 :   Coin Market Cap。暗号資産に関する情報を提供するウェブサイト。
