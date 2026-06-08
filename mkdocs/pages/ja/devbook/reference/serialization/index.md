@@ -362,11 +362,6 @@ hide:
 
 --8<-- 'devbook/reference/serialization/SecretLockInfo.html'
 
-## Inner Structures
-
-These are structures only meant to be included inside other structures.
-Their description is already present in the containing structures above and is only repeated here for completeness.
-
 <style>
 .md-typeset h3 {
     background: var(--md-accent-fg-color--light);

@@ -107,8 +107,7 @@ that an account is allowed to perform (but not both modes simultaneously).
     This prevents accounts from accidentally locking themselves into an overly restrictive set of allowed operations.
 
 The restriction can be used to prevent accidental use of the wrong account,
-but it does not prevent the account owner from lifting the restriction
-(except in the case detailed in the warning box above).
+but it does not prevent the account owner from lifting the restriction.
 
 All transaction types can be restricted.
 See the list of supported types in the [Transactions page](./transactions.md#supported-transaction-types).
