@@ -139,6 +139,13 @@ Here is a list of available presets you can obtain by running `cmake --list-pres
   "MinSizeRel"     - x64 MinSizeRel
 ```
 
+If you prefer to run the steps separately:
+
+```powershell
+cmake --preset Release         # configure
+cmake --build --preset Release # build
+```
+
 ### Verify Catapult build
 
 By default, builds are created in the `build` directory of the `catapult` project.
@@ -176,8 +183,7 @@ Address Inspector Tool options:
 
 Should you have built in Debug configuration, you also have unit tests built. You can run them with this command:
 ```powershell
-cd build
-ctest --test-dir=.\<name>\
+ctest --preset Debug
 ```
 
 ## Building with Visual Studio and Conan
