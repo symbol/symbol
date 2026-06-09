@@ -1,3 +1,4 @@
+import { calculateMosaicRentalFee, calculateNamespaceRentalFee, calculateTransactionFee } from './FeeCalculator.js';
 import { KeyPair, Verifier } from './KeyPair.js';
 import MessageEncoder from './MessageEncoder.js';
 import { Address, Network, NetworkTimestamp } from './Network.js';
@@ -74,6 +75,10 @@ export {
 	Verifier,
 
 	// region NEM extensions
+
+	calculateMosaicRentalFee,
+	calculateNamespaceRentalFee,
+	calculateTransactionFee,
 
 	/**
 	 * Raw models generated from catbuffer schemas.
