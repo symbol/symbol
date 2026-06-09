@@ -14,6 +14,8 @@ target_compile_options(build.defaults INTERFACE
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-switch-enum>									# do not require enum switch statements to list every value
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-weak-vtables>								# vtables are emitted in all translation units for virtual classes with no out-of-line virtual method definitions
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-shadow-uncaptured-local>						# allow shadowing of local variables in lambdas https://github.com/llvm/llvm-project/issues/81307
+	$<$<COMPILE_LANGUAGE:CXX>:-Wno-switch-default>                              # allow switch statements without a default case
+	$<$<COMPILE_LANGUAGE:CXX>:-Wno-thread-safety-negative>                      # allow negative thread safety attributes (e.g. - NOT_THREAD_SAFE) https://reviews.llvm.org/D137379          
 
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>      # allow unsafe buffer usage https://reviews.llvm.org/D137379
 
