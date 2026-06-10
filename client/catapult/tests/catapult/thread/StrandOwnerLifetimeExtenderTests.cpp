@@ -71,7 +71,10 @@ namespace catapult { namespace thread {
 		template<typename TFunc, typename... TArgs>
 		void DispatchWrappedFunction(TFunc func, TArgs&&... args) {
 			// simulate deprecated strand::wrap
-			boost::asio::dispatch(boost::asio::get_associated_executor(func), std::bind(func, std::forward<TArgs>(args)...));
+			auto executor = boost::asio::get_associated_executor(func);
+			boost::asio::dispatch(executor, [func = std::move(func), args = std::make_tuple(std::forward<TArgs>(args)...)]() mutable {
+				std::apply(std::move(func), std::move(args));
+			});
 		}
 	}
 
