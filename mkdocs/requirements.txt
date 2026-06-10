@@ -9,6 +9,7 @@ mkdocstrings==1.0.6
 mkdocstrings-python==2.0.5
 mkdocs-gen-files==0.6.1
 mkdocs-literate-nav==0.6.3
+mkdoxy==1.2.7
 mkdocs-glightbox==0.5.2
 mkdocs-macros-plugin==1.5.0
 mkdocs-site-urls==0.3.1

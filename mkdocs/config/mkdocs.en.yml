@@ -8,6 +8,11 @@ edit_uri: blob/dev/mkdocs/pages/en
 plugins:
   search:
     lang: en
+  mkdoxy:  # Generate API reference docs for Java
+    projects:
+      JavaSDK:  # name of project must be alphanumeric + numbers (without spaces)
+        doxy-cfg:  # standard doxygen configuration (key: value)
+          OUTPUT_LANGUAGE: English
 markdown_extensions:
   toc:
     permalink_title: Anchor link to this section for reference
