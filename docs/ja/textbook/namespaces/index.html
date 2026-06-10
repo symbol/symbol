@@ -11692,6 +11692,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reserved-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        予約名
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#linking" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -11717,7 +11728,7 @@
   <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        結論
+        まとめ
       
     </span>
   </a>
@@ -12082,6 +12093,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reserved-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        予約名
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#linking" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12107,7 +12129,7 @@
   <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        結論
+        まとめ
       
     </span>
   </a>
@@ -12159,7 +12181,7 @@
 通常は アカウント の同義語として使われます。"
 	name="_:アドレス"
 	href="../../textbook/cryptography/#f6e8ee8f749e716ec3449833d259b540">アドレス</a>や<a class="mkdocs-ezglossary-link"
-	id="bf32fd3f9c84f0a1d8488941f37da8f2"
+	id="e88b5616fe15496ece13371caca0f515"
 	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
 モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
 	name="_:モザイクID"
@@ -12170,6 +12192,14 @@
 これによりウォレットやブロックエクスプローラーの利便性が向上し、
 <code>symbol.xym</code> や <code>my_company.main_account</code> のような意味のあるエイリアスで
 モザイク ID やアドレスを表現できるため、操作が明確になり、ミスも減少します。</p>
+<p>ネームスペースには、<a class="mkdocs-ezglossary-link"
+	id="11bfea05af50bbc1ac1994e970770df9"
+	title="メタデータトランザクションを介してオンチェーンに保存されるデータです。
+アカウント、モザイク、および ネームスペース に関連付けできます。"
+	name="_:メタデータ"
+	href="../../textbook/metadata/#cd96f805e4810e10ceb9f0b9baa50d9d">メタデータ</a>を使用して任意の追加データを添付できます。</p>
+<p>ネームスペースを登録したアカウントは、その <em>所有者</em> と呼ばれ、
+ネームスペースを変更または延長できる唯一のアカウントです。</p>
 <p>ネームスペースは有限のリソースであり、永続的に所有するのではなく一定期間のリースとして扱われますが、
 リースは更新可能です。</p>
 <h2 id="subnamespaces">サブネームスペース<a class="headerlink" href="#subnamespaces" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -12188,8 +12218,8 @@
 <dt>
 	<a id="58067c0d2ebff3ba257fd5fd3ba48db1">サブネームスペース</a> 
 </dt>
-<dd>親であるルートネームスペースに属するネームスペース。
-サブネームスペースは、親ネームスペースの有効期限が切れると同時に期限切れになります（<a href="#duration">有効期限</a>を参照）。</dd>
+<dd>ルートまたは別のサブネームスペースである親ネームスペースに属するネームスペース。
+サブネームスペースは、ルートネームスペースの有効期限が切れると同時に期限切れになります（<a href="#duration">有効期限</a>を参照）。</dd>
 
 </dl>
 <h2 id="properties">プロパティ<a class="headerlink" href="#properties" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -12202,30 +12232,30 @@
 </ul>
 <p>登録後、名前を変更することはできません。</p>
 <h3 id="duration">有効期間<a class="headerlink" href="#duration" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<p>ルートネームスペースを作成すると、30 日から 5 年の範囲で固定期間リースされます。
-この期間中、作成者は次の操作を実行できます。</p>
+<p>ルートネームスペースを登録すると、30 日から 5 年の範囲で固定期間リースされます。
+この期間中、所有者は次の操作を実行できます。</p>
 <ul>
 <li>ネームスペースを<a class="mkdocs-ezglossary-link"
-	id="57c2f6a7b066357655c8e8c04210ef21"
+	id="b5aa39b9b4a33568b97245b34824159d"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
 	href="../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a>または<a class="mkdocs-ezglossary-link"
-	id="65b45b53e5e80f930f2e77aa118edfb6"
+	id="266569464908aa30205f5f5cc0fa292f"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
 	href="../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a>にリンクし、
   より扱いやすいエイリアスとして使用する。</li>
-<li>ルートネームスペースの下にサブネームスペースを作成する。</li>
+<li>ルートネームスペースの下にサブネームスペースを登録する。</li>
 <li>ルートネームスペースを更新して有効期間を延長する。
   サブネームスペースはルートと同じ期間を持つため、個別の更新は不要です。</li>
 </ul>
 <p>ネームスペースを有効期限前に更新しなかった場合、30 日間の「猶予期間」に入ります。
 この期間中はネームスペースが無効化されますが、まだ他の人が登録することはできません。
-猶予期間中に更新できるのは元の作成者のみです。
+猶予期間中に更新できるのは元の所有者のみです。
 猶予期間が終了するとネームスペースは完全に期限切れとなり、他者が登録できるようになります。</p>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="833pt" height="109pt" viewBox="0.00 0.00 833.00 109.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 105.1)"><title>Namespace registration</title><polygon fill="none" stroke="none" points="-4,4 -4,-105.1 828.67,-105.1 828.67,4 -4,4"/><!-- Available --><g id="node1" class="node"><title>Available</title><ellipse fill="none" stroke="#789abc" cx="91.92" cy="-32.17" rx="91.92" ry="32.17"/><text xml:space="preserve" text-anchor="middle" x="91.92" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">ネームスペースが</text><text xml:space="preserve" text-anchor="middle" x="91.92" y="-18.87" font-family="Times,serif" font-size="14.00" fill="#789abc">利用可能</text></g><!-- Registered --><g id="node2" class="node"><title>Registered</title><ellipse fill="none" stroke="#789abc" cx="340.27" cy="-32.17" rx="91.92" ry="32.17"/><text xml:space="preserve" text-anchor="middle" x="340.27" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">ネームスペースが</text><text xml:space="preserve" text-anchor="middle" x="340.27" y="-18.87" font-family="Times,serif" font-size="14.00" fill="#789abc">登録済み</text></g><!-- Available&#45;&gt;Registered --><g id="edge1" class="edge"><title>Available&#45;&gt;Registered</title><path fill="none" stroke="#789abc" d="M184.3,-32.17C201.38,-32.17 219.33,-32.17 236.71,-32.17"/><polygon fill="#789abc" stroke="#789abc" points="236.53,-35.67 246.52,-32.17 236.52,-28.67 236.53,-35.67"/><text xml:space="preserve" text-anchor="middle" x="216.1" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">登録</text></g><!-- Registered&#45;&gt;Registered --><g id="edge3" class="edge"><title>Registered&#45;&gt;Registered</title><path fill="none" stroke="#789abc" d="M320.54,-74.45C324.24,-79.24 330.81,-82.35 340.27,-82.35 355.79,-82.35 363.55,-73.98 363.55,-63.53"/><polygon fill="#789abc" stroke="#789abc" points="323.88,-73.4 317.46,-64.97 317.22,-75.56 323.88,-73.4"/><text xml:space="preserve" text-anchor="middle" x="340.27" y="-87.8" font-family="Times,serif" font-size="14.00" fill="#789abc">更新</text></g><!-- Grace Period --><g id="node3" class="node"><title>Grace Period</title><ellipse fill="none" stroke="#789abc" cx="605.31" cy="-32.17" rx="51.62" ry="18.92"/><text xml:space="preserve" text-anchor="middle" x="605.31" y="-28.25" font-family="Times,serif" font-size="14.00" fill="#789abc">猶予期間</text></g><!-- Registered&#45;&gt;Grace Period --><g id="edge2" class="edge"><title>Registered&#45;&gt;Grace Period</title><path fill="none" stroke="#789abc" d="M432.53,-32.17C468.77,-32.17 509.52,-32.17 542.23,-32.17"/><polygon fill="#789abc" stroke="#789abc" points="541.93,-35.67 551.93,-32.17 541.93,-28.67 541.93,-35.67"/><text xml:space="preserve" text-anchor="middle" x="492.95" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">有効期限切れ</text></g><!-- Grace Period&#45;&gt;Registered --><g id="edge4" class="edge"><title>Grace Period&#45;&gt;Registered</title><path fill="none" stroke="#789abc" d="M569.59,-18.27C558.9,-14.64 546.97,-11.24 535.7,-9.42 500.43,-3.73 461.34,-6.55 427.52,-11.85"/><polygon fill="#789abc" stroke="#789abc" points="427.04,-8.38 417.76,-13.48 428.2,-15.28 427.04,-8.38"/><text xml:space="preserve" text-anchor="middle" x="492.95" y="-14.87" font-family="Times,serif" font-size="14.00" fill="#789abc">更新</text></g><!-- Available Again --><g id="node4" class="node"><title>Available Again</title><ellipse fill="none" stroke="#789abc" cx="773.05" cy="-32.17" rx="51.62" ry="32.17"/><text xml:space="preserve" text-anchor="middle" x="773.05" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">再び</text><text xml:space="preserve" text-anchor="middle" x="773.05" y="-18.87" font-family="Times,serif" font-size="14.00" fill="#789abc">利用可能</text></g><!-- Grace Period&#45;&gt;Available Again --><g id="edge5" class="edge"><title>Grace Period&#45;&gt;Available Again</title><path fill="none" stroke="#789abc" d="M657.39,-32.17C674.01,-32.17 692.64,-32.17 709.97,-32.17"/><polygon fill="#789abc" stroke="#789abc" points="709.63,-35.67 719.63,-32.17 709.63,-28.67 709.63,-35.67"/><text xml:space="preserve" text-anchor="middle" x="689.18" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">削除</text></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="833pt" height="109pt" viewBox="0.00 0.00 833.00 109.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 105.1)"><title>Namespace registration</title><polygon fill="none" stroke="none" points="-4,4 -4,-105.1 828.67,-105.1 828.67,4 -4,4"/><!-- Available --><g id="node1" class="node"><title>Available</title><ellipse fill="none" stroke="#789abc" cx="91.92" cy="-32.17" rx="91.92" ry="32.17"/><text xml:space="preserve" text-anchor="middle" x="91.92" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">ネームスペースが</text><text xml:space="preserve" text-anchor="middle" x="91.92" y="-18.87" font-family="Times,serif" font-size="14.00" fill="#789abc">利用可能</text></g><!-- Registered --><g id="node2" class="node"><title>Registered</title><ellipse fill="none" stroke="#789abc" cx="340.27" cy="-32.17" rx="91.92" ry="32.17"/><text xml:space="preserve" text-anchor="middle" x="340.27" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">ネームスペースが</text><text xml:space="preserve" text-anchor="middle" x="340.27" y="-18.87" font-family="Times,serif" font-size="14.00" fill="#789abc">登録済み</text></g><!-- Available&#45;&gt;Registered --><g id="edge1" class="edge"><title>Available&#45;&gt;Registered</title><path fill="none" stroke="#789abc" d="M184.3,-32.17C201.38,-32.17 219.33,-32.17 236.71,-32.17"/><polygon fill="#789abc" stroke="#789abc" points="236.53,-35.67 246.52,-32.17 236.52,-28.67 236.53,-35.67"/><text xml:space="preserve" text-anchor="middle" x="216.1" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">登録</text></g><!-- Registered&#45;&gt;Registered --><g id="edge3" class="edge"><title>Registered&#45;&gt;Registered</title><path fill="none" stroke="#789abc" d="M320.54,-74.45C324.24,-79.24 330.81,-82.35 340.27,-82.35 355.79,-82.35 363.55,-73.98 363.55,-63.53"/><polygon fill="#789abc" stroke="#789abc" points="323.88,-73.4 317.46,-64.97 317.22,-75.56 323.88,-73.4"/><text xml:space="preserve" text-anchor="middle" x="340.27" y="-87.8" font-family="Times,serif" font-size="14.00" fill="#789abc">更新</text></g><!-- Grace Period --><g id="node3" class="node"><title>Grace Period</title><ellipse fill="none" stroke="#789abc" cx="605.31" cy="-32.17" rx="51.62" ry="18.92"/><text xml:space="preserve" text-anchor="middle" x="605.31" y="-28.25" font-family="Times,serif" font-size="14.00" fill="#789abc">猶予期間</text></g><!-- Registered&#45;&gt;Grace Period --><g id="edge2" class="edge"><title>Registered&#45;&gt;Grace Period</title><path fill="none" stroke="#789abc" d="M432.53,-32.17C468.77,-32.17 509.52,-32.17 542.23,-32.17"/><polygon fill="#789abc" stroke="#789abc" points="541.93,-35.67 551.93,-32.17 541.93,-28.67 541.93,-35.67"/><text xml:space="preserve" text-anchor="middle" x="492.95" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">有効期限切れ</text></g><!-- Grace Period&#45;&gt;Registered --><g id="edge4" class="edge"><title>Grace Period&#45;&gt;Registered</title><path fill="none" stroke="#789abc" d="M569.59,-18.27C558.9,-14.64 546.97,-11.24 535.7,-9.42 500.43,-3.73 461.34,-6.55 427.52,-11.85"/><polygon fill="#789abc" stroke="#789abc" points="427.04,-8.38 417.76,-13.48 428.2,-15.28 427.04,-8.38"/><text xml:space="preserve" text-anchor="middle" x="492.95" y="-14.87" font-family="Times,serif" font-size="14.00" fill="#789abc">更新</text></g><!-- Available Again --><g id="node4" class="node"><title>Available Again</title><ellipse fill="none" stroke="#789abc" cx="773.05" cy="-32.17" rx="51.62" ry="32.17"/><text xml:space="preserve" text-anchor="middle" x="773.05" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">再び</text><text xml:space="preserve" text-anchor="middle" x="773.05" y="-18.87" font-family="Times,serif" font-size="14.00" fill="#789abc">利用可能</text></g><!-- Grace Period&#45;&gt;Available Again --><g id="edge5" class="edge"><title>Grace Period&#45;&gt;Available Again</title><path fill="none" stroke="#789abc" d="M657.39,-32.17C674.01,-32.17 692.64,-32.17 709.97,-32.17"/><polygon fill="#789abc" stroke="#789abc" points="709.63,-35.67 719.63,-32.17 709.63,-28.67 709.63,-35.67"/><text xml:space="preserve" text-anchor="middle" x="689.18" y="-37.62" font-family="Times,serif" font-size="14.00" fill="#789abc">解放</text></g></g></svg></p>
 <p>ネームスペースの状態に応じて実行可能な操作は次のとおりです。</p>
 <table>
 <thead>
@@ -12272,12 +12302,12 @@
 <div class="admonition note">
 <p class="admonition-title">メモ</p>
 <p><a class="mkdocs-ezglossary-link"
-	id="70df3d96eb786f8d271fb24d67d12ca6"
+	id="52edc150b434aee96382379fc664cfe1"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
 	href="../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a>とは異なり、ネームスペースは有効期限前に更新できます。
-これにより、作成者が継続して更新を行う限り、無期限に有効状態を保つことができます。</p>
+これにより、所有者が継続して更新を行う限り、無期限に有効状態を保つことができます。</p>
 </div>
 <h2 id="lease-fee">リース料金<a class="headerlink" href="#lease-fee" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>ネームスペースを登録するには、ネットワーク通貨（<a class="mkdocs-ezglossary-link"
@@ -12306,14 +12336,20 @@
 	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション手数料</a>も発生します。
 ただし、このトランザクション手数料はリース料金と比べてごく小額です。</p>
 </div>
+<h2 id="reserved-names">予約名<a class="headerlink" href="#reserved-names" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>次のルート名はプロトコルによって予約されており、ユーザーは取得できません。</p>
+<ul>
+<li><code>symbol</code>, <code>symbl</code>, <code>xym</code>, <code>xem</code>, <code>nem</code>, <code>user</code>, <code>account</code>, <code>org</code>, <code>com</code>, <code>biz</code>, <code>net</code>, <code>edu</code>, <code>mil</code>, <code>gov</code>, <code>info</code></li>
+</ul>
+<p>特に <code>symbol</code> ネームスペースは、ネイティブ通貨 <code>symbol.xym</code> をホストしており、永続的に有効です。</p>
 <h2 id="linking">リンク<a class="headerlink" href="#linking" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>ネームスペースは<a class="mkdocs-ezglossary-link"
-	id="5d87d6514d5faf63bcd2f2eafb9ac252"
+	id="57c2f6a7b066357655c8e8c04210ef21"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
 	href="../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a>または<a class="mkdocs-ezglossary-link"
-	id="a460e2bc1b7e6fc07d302650ef62fe59"
+	id="65b45b53e5e80f930f2e77aa118edfb6"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
@@ -12335,7 +12371,7 @@
 同一のオブジェクトを複数のネームスペースでリンクすることは可能です。</p>
 <ul>
 <li>
-<p><strong>モザイクにリンクする場合</strong>：モザイクの作成者のみがリンクを設定できます。
+<p><strong>モザイクにリンクする場合</strong>：モザイクの所有者のみがリンクを設定できます。
   これにより第三者による無断エイリアス設定を防止します。</p>
 </li>
 <li>
@@ -12359,17 +12395,17 @@
 その時点での対応関係を示す「解決ステートメント<a class="mkdocs-ezglossary-link"
 	id="31263e1af45dd05ecf4cb8a060ba3d18"
 	title="ブロック内で発生した状態変更のうち、そのブロックに含まれるトランザクションから
-直接は読み取れないものを記録したもの。"
+直接発生したとは限らないものを記録したもの。"
 	name="_:レシート"
 	href="../../textbook/blocks/#0303715b5e779219310bce1284937305">レシート</a>」が記録されます。</p>
 <p>これにより、ウォレットやブロックエクスプローラーは、
 エイリアスが後に変更または削除された場合でも、当時の正しいアドレスやモザイク ID を表示できます。</p>
-<p>さらに、ユーザーが入力したエイリアスを受け入れる前に、ウォレットは現在のリンク対象とリンク作成日時を照会し、
+<p>さらに、ユーザーが入力したエイリアスを受け入れる前に、ウォレットは現在のリンク対象とリンク登録日時を照会し、
 そのエイリアスが意図した宛先を指していることを確認できます。</p>
 </div>
 <h2 id="ownership">所有権<a class="headerlink" href="#ownership" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
-<p>ネームスペースは、ルートネームスペースを作成した<a class="mkdocs-ezglossary-link"
-	id="aa4483cb0d7e4f455f7f64fd16d68dc2"
+<p>ネームスペースは、ルートネームスペースを登録した<a class="mkdocs-ezglossary-link"
+	id="a460e2bc1b7e6fc07d302650ef62fe59"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
@@ -12377,7 +12413,7 @@
 <p>所有者のみが次の操作を行えます。</p>
 <ul>
 <li>ネームスペースのリンクまたは解除</li>
-<li>サブネームスペースの作成</li>
+<li>サブネームスペースの登録</li>
 <li>ルートネームスペースの更新</li>
 </ul>
 <p>ネームスペースの所有権を直接譲渡することはできません。
@@ -12390,7 +12426,7 @@
 	name="_:マルチシグアカウント"
 	href="../../textbook/accounts/#7f6d73ad3bb85a4d26f326ea344a5201">マルチシグアカウント</a>を用いることで共同管理が可能です。</p>
 <p>サブネームスペースは常にルートと同じ所有者を持ち、個別に管理することはできません。</p>
-<h2 id="summary">結論<a class="headerlink" href="#summary" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<h2 id="summary">まとめ<a class="headerlink" href="#summary" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>以下の表は、ネームスペースに関する主な数値制限をまとめたものです。</p>
 <table>
 <thead>
@@ -12460,7 +12496,7 @@
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月16日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12486,7 +12522,8 @@
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

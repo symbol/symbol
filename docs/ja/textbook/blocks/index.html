@@ -12258,18 +12258,20 @@
 	title="トランザクションとは、Symbol ブロックチェーン上で実行される1つまたは複数のアクションを表します。
 例えば、あるアカウントから別のアカウントへの資金移動や、新しい通貨の登録などが該当します。"
 	name="_:トランザクション"
-	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション</a>およびその他の「状態変更」をまとめて記録したものです。</dd>
+	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション</a>を記録し、
+それらの結果として生じる「状態変更」もまとめたものです。
+これには、過去のブロックに記録されたトランザクションから派生する状態変更も含まれます。</dd>
 
 </dl>
 <p>状態変更とは、ブロックチェーン上のデータが更新されることを指します。
 例えば、ある<a class="mkdocs-ezglossary-link"
-	id="5ce6fcc68bada46f70197a72c159dc4f"
+	id="49e1844951562fe7f79d2bd5bf29b36d"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
 	href="../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a>から別のアカウントへの資金移動や、
 新しい<a class="mkdocs-ezglossary-link"
-	id="8edf1f2531fb0a206bb08119ae14c0ae"
+	id="ab1ac207001f6811ed4ca6bd068ee0c9"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12286,7 +12288,7 @@
 この連結構造によって「ブロックチェーン」が成立します。</p>
 <p>ブロックには、トランザクションの主目的以外に発生した副次的な影響を記録する
 「レシート」が含まれる場合もあります。</p>
-<p>Symbol ネットワークでは、およそ３０秒ごとに新しいブロックが生成されます。</p>
+<p>Symbol ネットワークでは、およそ30秒ごとに新しいブロックを生成することを目標としています。</p>
 <h2 id="the-nemesis-block">ネメシスブロック<a class="headerlink" href="#the-nemesis-block" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <dl>
 <dt>
@@ -12314,13 +12316,13 @@
 Symbol では、その前身である NEM にちなみ「ネメシス（Nemesis）」という名称が使われています。</p>
 <p>ネメシスブロック以降のすべてのブロックは、
 Symbol におけるマイニングに相当する<a class="mkdocs-ezglossary-link"
-	id="97a6770d9b40d1dd1a9c768c81dbb0a9"
+	id="51e7e2c2fd208620294cab2dcfd35b78"
 	title="Symbol が新しい ブロック をチェーンに追加し、参加する
 アカウント に報酬を分配するプロセスです。
 PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
 	name="_:ハーベスティング"
 	href="../../textbook/harvesting/#ff18d4dd87ad820305edbe133d434f4d">ハーベスティング</a>と呼ばれるプロセスによって生成されます。
-ハーベスターはトランザクションを検証し、それらをチェーンに追加し、
+ハーベスターはトランザクションを検証してブロックにまとめ、それらをチェーンへ追加し、
 報酬としてトランザクション手数料を受け取ります。</p>
 <h2 id="network-time">ネットワーク時間<a class="headerlink" href="#network-time" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <dl>
@@ -12333,13 +12335,14 @@ PoW におけるマイニング、または PoS におけるステーキング�
 他のすべてのブロックはネットワークのコンセンサスによって作成されますが、
 ネメシスブロックだけはネットワークの立ち上げ時に手動で生成されます。"
 	name="_:ネメシスブロック"
-	href="../../textbook/blocks/#fd36662c4234b5040901838110128f36">ネメシスブロック</a> が作成されてから経過したミリ秒数として時間を定義しています。</p>
+	href="../../textbook/blocks/#fd36662c4234b5040901838110128f36">ネメシスブロック</a> が作成されてから
+経過したミリ秒数を時間として定義しています。</p>
 <p>すべてのタイムスタンプは、この起点を基準に計算されます。</p>
 </dd>
 
 </dl>
 <p>UTCのタイムスタンプは、ネメシスブロックのUNIXタイムスタンプを加算することで取得できます。<a class="mkdocs-ezglossary-link"
-	id="8b1ee758f49ffc1e9134430ba8a8208f"
+	id="fa5c1f7e6f223542e91d8f0baff7233b"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> の場合、この値は <code>2021-03-16T00:06:25Z</code> です。
@@ -12411,14 +12414,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	<a id="c0cdcaa09871eced98f67cd69399d1ec">ブロックスコア</a> 
 </dt>
 <dd>各ブロックに割り当てられる数値で、
-そのブロックがどれだけ「ハーベスティングしにくかったか」を表します。
-値が高いほど難易度が高いとみなされ、
-<a class="mkdocs-ezglossary-link"
-	id="dfa4e2511adde10db75d8711fe138084"
-	title="共通の履歴を共有しながらも、最新のブロックが異なる複数の競合チェーンが
-同時に存在している状態です。"
-	name="_:フォーク"
-	href="../../textbook/consensus/#7ba24d6084f93e4ac323721360eb075a">フォーク</a>発生時の判断において優先されます。</dd>
+そのブロックがどれだけ「ハーベスティングしにくかったか」を表します。</dd>
 
 </dl>
 <div class="arithmatex">\[
@@ -12428,14 +12424,19 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <dt>
 	<a id="4963d935c7a6f3b655ce14eedc001e9a">チェーンスコア</a> 
 </dt>
-<dd>一定期間に生成された全ブロックの<a class="mkdocs-ezglossary-link"
+<dd>チェーン内の全ブロックの<a class="mkdocs-ezglossary-link"
 	id="89869ad7ee9943967ac971a2c20400b5"
 	title="各ブロックに割り当てられる数値で、
-そのブロックがどれだけ「ハーベスティングしにくかったか」を表します。
-値が高いほど難易度が高いとみなされ、
-フォーク発生時の判断において優先されます。"
+そのブロックがどれだけ「ハーベスティングしにくかったか」を表します。"
 	name="_:ブロックスコア"
-	href="../../textbook/blocks/#c0cdcaa09871eced98f67cd69399d1ec">ブロックスコア</a>の合計。</dd>
+	href="../../textbook/blocks/#c0cdcaa09871eced98f67cd69399d1ec">ブロックスコア</a>の合計であり、
+競合する<a class="mkdocs-ezglossary-link"
+	id="dfa4e2511adde10db75d8711fe138084"
+	title="共通の履歴を共有しながらも、最新のブロックが異なる複数の競合チェーンが
+同時に存在している状態です。"
+	name="_:フォーク"
+	href="../../textbook/consensus/#7ba24d6084f93e4ac323721360eb075a">フォーク</a>の間から選択するために使われます。
+チェーンスコアが高いチェーンが勝ちます。</dd>
 
 </dl>
 <h2 id="receipts">レシート<a class="headerlink" href="#receipts" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -12444,7 +12445,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	<a id="0303715b5e779219310bce1284937305">レシート</a> 
 </dt>
 <dd>ブロック内で発生した状態変更のうち、そのブロックに含まれるトランザクションから
-直接は読み取れないものを記録したもの。</dd>
+直接発生したとは限らないものを記録したもの。</dd>
 
 </dl>
 <p>レシートは、元になったトランザクションを過去までさかのぼって探すことなく、
@@ -12467,9 +12468,9 @@ PoW におけるマイニング、または PoS におけるステーキング�
 その変更内容がトランザクション本体に直接エンコードされていない場合に使用されます。</p>
 <p>Symbol のトランザクションステートメントには、次の基本的な種類があります。</p>
 <ul>
-<li><strong>残高変更</strong>: アカウントの残高を調整します。</li>
+<li><strong>残高加算</strong>および <strong>残高減算</strong>: アカウントの残高を調整します。</li>
 <li><strong>残高転送</strong>: アカウント間で<a class="mkdocs-ezglossary-link"
-	id="294ac6a94c26e097117529862e736df2"
+	id="8edf1f2531fb0a206bb08119ae14c0ae"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12481,12 +12482,12 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <h3 id="resolution-statements">リゾリューションステートメント<a class="headerlink" href="#resolution-statements" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>リゾリューションステートメントは、トランザクションの実行時に
 <a class="mkdocs-ezglossary-link"
-	id="4c81a67a68edb6430c9d5d16f085a87c"
+	id="48f004346b5ab0102412c34b5fbcd129"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>がどのように解決（リゾルブ）されたかを記録します。</p>
 <p>Symbol では、ユーザーは<a class="mkdocs-ezglossary-link"
-	id="ba32c754d52bb7adac066634ec9dfd02"
+	id="294ac6a94c26e097117529862e736df2"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12513,7 +12514,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	name="_:アドレス"
 	href="../../textbook/cryptography/#f6e8ee8f749e716ec3449833d259b540">アドレス</a>に解決されたかを記録します。</li>
 <li><strong>モザイク解決</strong>: ネームスペースがどの<a class="mkdocs-ezglossary-link"
-	id="c3c8ab0411366f0a3e8cbdcf3539528d"
+	id="ba32c754d52bb7adac066634ec9dfd02"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12542,7 +12543,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <tr>
 <td><code>Inflation</code></td>
 <td>インフレーションにより新規発行されたネットワーク通貨<a class="mkdocs-ezglossary-link"
-	id="03ed9897c2ec94a24f51ce6e523953d4"
+	id="c3c8ab0411366f0a3e8cbdcf3539528d"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12554,29 +12555,29 @@ PoW におけるマイニング、または PoS におけるステーキング�
 </tr>
 <tr>
 <td><code>Address Alias Resolution</code></td>
-<td>未解決エイリアスと、それが解決された<a class="mkdocs-ezglossary-link"
-	id="55470e7a04c3c18418cf77b3eb33d131"
-	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
-	name="_:ネームスペース"
-	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>。トランザクションが<a class="mkdocs-ezglossary-link"
+<td>未解決の値と、それが解決された<a class="mkdocs-ezglossary-link"
 	id="1df556244b06be5984795c91903a6900"
 	title="公開鍵 を短縮して扱いやすくした表現で、
 通常は アカウント の同義語として使われます。"
 	name="_:アドレス"
-	href="../../textbook/cryptography/#f6e8ee8f749e716ec3449833d259b540">アドレス</a>のエイリアスを使用した場合に記録されます。</td>
+	href="../../textbook/cryptography/#f6e8ee8f749e716ec3449833d259b540">アドレス</a>。トランザクションが<a class="mkdocs-ezglossary-link"
+	id="4c81a67a68edb6430c9d5d16f085a87c"
+	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
+	name="_:ネームスペース"
+	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>のエイリアスを使用した場合に記録されます。</td>
 </tr>
 <tr>
 <td><code>Mosaic Alias Resolution</code></td>
-<td>未解決エイリアスと、それが解決された<a class="mkdocs-ezglossary-link"
-	id="13e05369a02230595394cc8efa457dc2"
+<td>未解決の値と、それが解決された<a class="mkdocs-ezglossary-link"
+	id="5c73d15a44153f85e75673f59e7317ba"
+	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
+モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
+	name="_:モザイクID"
+	href="../../textbook/mosaics/#7254e852d98d38ad8e29009b415e3486">モザイク ID</a>。トランザクションが<a class="mkdocs-ezglossary-link"
+	id="55470e7a04c3c18418cf77b3eb33d131"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
-	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>。トランザクションが<a class="mkdocs-ezglossary-link"
-	id="0f5eb9c4ba3fdc76357edf9971aaa6d6"
-	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
-例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
-	name="_:モザイク"
-	href="../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a>のエイリアスを使用した場合に記録されます。</td>
+	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>のエイリアスを使用した場合に記録されます。</td>
 </tr>
 <tr>
 <td><strong>モザイク</strong></td>
@@ -12585,7 +12586,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <tr>
 <td><code>Mosaic Expired</code></td>
 <td>このブロックで有効期限切れとなった<a class="mkdocs-ezglossary-link"
-	id="5b20761a835d9426c4ec585cad512902"
+	id="03ed9897c2ec94a24f51ce6e523953d4"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12602,7 +12603,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <tr>
 <td><code>Namespace Expired</code></td>
 <td>このブロックで有効期限切れとなった<a class="mkdocs-ezglossary-link"
-	id="4f2fcefa0995ecdc314050ed26e1ba06"
+	id="13e05369a02230595394cc8efa457dc2"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>の識別子。ネームスペースのリース期間が終了したときに記録されます。</td>
@@ -12610,7 +12611,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <tr>
 <td><code>Namespace Deleted</code></td>
 <td>このブロックで削除された<a class="mkdocs-ezglossary-link"
-	id="888813015862536292f0def26681ede8"
+	id="4f2fcefa0995ecdc314050ed26e1ba06"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>の識別子。期限切れになったネームスペースの猶予期間が終了したときに記録されます。</td>
@@ -12618,7 +12619,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <tr>
 <td><code>Namespace Lease Fee</code></td>
 <td>ネームスペースの登録または更新（レンタル延長）に関連する送信者・受信者・コスト。<a class="mkdocs-ezglossary-link"
-	id="b5b0fe5f9d9b0a2d5800e0682de38b4e"
+	id="888813015862536292f0def26681ede8"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>の登録時または更新時に記録されます。</td>
@@ -12734,7 +12735,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月16日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12760,7 +12761,8 @@ PoW におけるマイニング、または PoS におけるステーキング�
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

@@ -12312,7 +12312,7 @@
 <p>タイムロックは、どちらの当事者も相手をだますことができないように設定する必要があります（以下の<a href="#safety-considerations">安全上の考慮事項</a>を参照してください）。</p>
 <h3 id="in-symbol">Symbolにおける実装<a class="headerlink" href="#in-symbol" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>Symbolでは、<code>Secret Lock</code>と呼ばれるトランザクションタイプを提供しています。これは、単一の操作でトークン（Symbolにおける<a class="mkdocs-ezglossary-link"
-	id="8bbfbae7e2b1e7985894e242ea7e1227"
+	id="d2dc9208f2f0ba37ad7f251e2e24510d"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12347,7 +12347,7 @@
 <p>例：</p>
 <ul>
 <li>ビットコインは、 <code>OP_HASH160</code> と <code>OP_HASH256</code> を通じてHTLCをネイティブにサポートしています。</li>
-<li>イーサリアムのHTLCスマートコントラクトは、組み込みのSHA-256関数とRIPEMD-160関数を使用して実装できます。</li>
+<li>イーサリアムのHTLCスマートコントラクトは、組み込みのSHA3-256関数とRIPEMD-160関数を使用して実装できます。</li>
 </ul>
 <h2 id="example">例<a class="headerlink" href="#example" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>アリスとボブは、このページの上部にある概要図のシナリオに従って、チェーンAとチェーンBという2つの異なるブロックチェーン間でトークンを交換したいと考えています。</p>
@@ -12466,7 +12466,7 @@
 <h3 id="front-running-risk">フロントランニングのリスク<a class="headerlink" href="#front-running-risk" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>アリスがチェーンBで証明を公開すると（ステップ3）、トランザクションが承認される前に証明が <a class="mkdocs-ezglossary-link"
 	id="0eba087d1ee5fcb59a9fde16c173a1eb"
-	title="ネットワーク全体で共有される、検証待ちトランザクションの一覧。"
+	title="ブロックへの取り込みを待つ検証済みトランザクションの一覧であり、各ノードが保持します。"
 	name="_:未承認トランザクションプール"
 	href="../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a> に表示される可能性があります。
 チェーンBの監視者は証明を抽出し、意図された受信者が請求する前にどちらかのチェーンで資金を請求しようとする可能性があります。</p>
@@ -12498,7 +12498,7 @@
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月23日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12518,12 +12518,13 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="投稿者">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
-        <a href="mailto:daoka@symbolsyndicate.us">daoka</a>
+        <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

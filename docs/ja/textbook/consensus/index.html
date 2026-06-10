@@ -12033,29 +12033,25 @@
 </dt>
 <dd>ネットワーク内のすべての <a class="mkdocs-ezglossary-link"
 	id="50bd43af4a1ed7ea32c529eff07c7082"
-	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
-コンセンサス とブロック生成に参加するコンピュータです。"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
 	href="../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> がブロックチェーンの現在の状態について合意するためのプロセスです。</dd>
 
 </dl>
-<p>コンセンサスによって、ネットワークは <a class="mkdocs-ezglossary-link"
-	id="c0885b5f84fdd6002775568de22adb4a"
-	title="ブロックとは、特定の時点で発生したトランザクションおよびその他の「状態変更」をまとめて記録したものです。"
-	name="_:ブロック"
-	href="../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a> とその
-<a class="mkdocs-ezglossary-link"
+<p>コンセンサスによって、ネットワークは単一で一貫した <em>ステートデータベース</em> を保持します。
+これは各 <a class="mkdocs-ezglossary-link"
+	id="5ce6fcc68bada46f70197a72c159dc4f"
+	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
+従来の銀行における貸金庫に似た役割を果たします。"
+	name="_:アカウント"
+	href="../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> に紐づく残高やデータと、
+その状態に至った <a class="mkdocs-ezglossary-link"
 	id="55180efa76bdc9a12fef1d36eca4a8ca"
 	title="トランザクションとは、Symbol ブロックチェーン上で実行される1つまたは複数のアクションを表します。
 例えば、あるアカウントから別のアカウントへの資金移動や、新しい通貨の登録などが該当します。"
 	name="_:トランザクション"
-	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション</a> の単一で一貫した時系列を保持し、
-各 <a class="mkdocs-ezglossary-link"
-	id="c190f99f70296436071ffa43e9fd9ece"
-	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
-従来の銀行における貸金庫に似た役割を果たします。"
-	name="_:アカウント"
-	href="../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> に紐づく残高やデータの整合性を保ちます。</p>
+	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション</a> の時系列を反映します。</p>
 <p>コンセンサスは次の 2 つの形で合意を提供します。</p>
 <ul>
 <li>
@@ -12074,8 +12070,8 @@
 <h2 id="conflicts">コンフリクト（競合）<a class="headerlink" href="#conflicts" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>Symbol のような分散ネットワークでは、<a class="mkdocs-ezglossary-link"
 	id="2505708504374536577c2448657ed367"
-	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
-コンセンサス とブロック生成に参加するコンピュータです。"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
 	href="../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> が一時的に切断されることがあります。
 これは遅延、通信障害、またはネットワーク構成の変化によって発生する可能性があります。</p>
@@ -12102,7 +12098,9 @@
 <p>ノードがフォークを検知すると、Symbol は決定的なルールを用いて解決します。
 累積難易度に基づく <a class="mkdocs-ezglossary-link"
 	id="dda25ee25ceb8f5e6b9d0c1babae8f40"
-	title="一定期間に生成された全ブロックのブロックスコアの合計。"
+	title="チェーン内の全ブロックのブロックスコアの合計であり、
+競合するフォークの間から選択するために使われます。
+チェーンスコアが高いチェーンが勝ちます。"
 	name="_:チェーンスコア"
 	href="../../textbook/blocks/#4963d935c7a6f3b655ce14eedc001e9a">チェーンスコア</a> が最も高いチェーンが
 「正しい」ものと見なされます。</p>
@@ -12120,10 +12118,11 @@
 <p>破棄されたブロックに含まれていたトランザクションのうち、
 メインチェーンに存在しないものは <a class="mkdocs-ezglossary-link"
 	id="fb2094102150247b3a58d95337b2355e"
-	title="ネットワーク全体で共有される、検証待ちトランザクションの一覧。"
+	title="ブロックへの取り込みを待つ検証済みトランザクションの一覧であり、各ノードが保持します。"
 	name="_:未承認トランザクションプール"
 	href="../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a> に戻され、
-再度検証を受けてから再びブロックに含まれます。</p>
+再度検証を受けてから再びブロックに含まれます。
+この過程で、トランザクションは<a href="../transactions/#common-transaction-structure">期限切れ</a>となり拒否される場合があります。</p>
 <p>Symbol におけるロールバックは通常浅く、発生頻度も低く、
 直近の数ブロックに限られます。
 しかし、このリスクを完全に排除するために Symbol では <strong>ファイナライズ</strong> を採用しています。</p>
@@ -12156,11 +12155,17 @@
 各ノードはアカウントのインポータンスに応じた重み付き投票を定期的に行い、
 ファイナライズ可能な最も高いブロックを決定します。
 重み付き投票の 3 分の 2 以上を獲得したブロックがファイナライズ済みと見なされます。</p>
+<div class="admonition info">
+<p class="admonition-title">投票鍵</p>
+<p id="voting-subkeys">ファイナライズに参加するノードは、特定の期間だけ有効な投票鍵を登録します。</p>
+<p>内部的には、各投票鍵はファイナライズ投票に署名するための短期間だけ有効な下位鍵を多数管理します。
+一時的な下位鍵を使うことで、長期的な署名材料の露出を抑えつつ、投票を効率的に認証できます。</p>
+</div>
 <p>その結果、ブロックチェーン上に全ノードが同意する
 <strong>ファイナライズポイント</strong>（チェックポイント）が形成されます。</p>
 <p>ファイナライズにより、アプリケーションは信頼できる確定基盤を得ます。
 たとえば、ウォレットはファイナライズされたブロックに含まれる
-トランザクションを「完全に確定した」とみなすことができます。</p>
+トランザクションを不可逆なものとみなすことができます。</p>
 <p>投票は <a class="mkdocs-ezglossary-link"
 	id="f5af90313eee9869cf3ea20301f7dcb1"
 	title="攻撃者が多数の偽アカウントやアイデンティティを作成し、
@@ -12174,6 +12179,12 @@
 	title="Symbol ブロックチェーンのネイティブ通貨。"
 	name="_:XYM"
 	href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> 以上の保有が必要です。</p>
+<div class="admonition note">
+<p class="admonition-title">メモ</p>
+<p>現時点では、投票ノードに対する報酬制度はありません。
+適切な仕組みについて、まだ合意に至っていないためです。
+この領域でのコミュニティからの貢献や提案が期待されています。</p>
+</div>
 <p>ネットワーク分断がない場合、
 ブロックは通常 10～20 分以内にファイナライズされます。
 所要時間は直近のファイナライズポイントからの経過時間によって変動します。</p>
@@ -12199,7 +12210,7 @@
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月16日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12225,7 +12236,8 @@
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

@@ -12197,7 +12197,7 @@
 	href="../../../textbook/mosaics/#7254e852d98d38ad8e29009b415e3486">モザイク ID</a> の代わりにエイリアスを使用するたびに、ネットワークは承認時にエイリアスが指していた実際の値を記録した <a class="mkdocs-ezglossary-link"
 	id="5190872976f4c6914c62f39cc493cf5c"
 	title="ブロック内で発生した状態変更のうち、そのブロックに含まれるトランザクションから
-直接は読み取れないものを記録したもの。"
+直接発生したとは限らないものを記録したもの。"
 	name="_:レシート"
 	href="../../../textbook/blocks/#0303715b5e779219310bce1284937305">レシート</a> を保存します。ネームスペースの解決を記録するレシートの種類は <a href="../../../textbook/blocks/#resolution-statements">解決ステートメント</a> と呼ばれます。</p>
 <p>このチュートリアルでは、解決ステートメントを照会して、承認済みトランザクションで使用されたネームスペースエイリアスの背後にある実際のアドレスとモザイクIDを見つける方法を説明します。</p>
@@ -12739,7 +12739,9 @@
 <p>承認済みトランザクションは、そのハッシュを使用して <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> エンドポイントから取得されます。</p>
 <p>レスポンスには、トランザクションが承認された <a class="mkdocs-ezglossary-link"
 	id="1d5fcb5f402ac4c4cab121be39386af8"
-	title="ブロックとは、特定の時点で発生したトランザクションおよびその他の「状態変更」をまとめて記録したものです。"
+	title="ブロックとは、特定の時点で発生したトランザクションを記録し、
+それらの結果として生じる「状態変更」もまとめたものです。
+これには、過去のブロックに記録されたトランザクションから派生する状態変更も含まれます。"
 	name="_:ブロック"
 	href="../../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a> の高さ（ <code>height</code> ）を含む <code>meta</code> オブジェクトが含まれます。この高さは、その特定のブロックの解決ステートメントを照会するために必要です。</p>
 <p>トランザクションのメタデータには <code>index</code> フィールドも含まれており、これはブロック内でのトランザクションの0から始まる位置を示します。コードは、後の解決エントリとの照合のために、これを1から始まる <code>primaryId</code> （ <code>index + 1</code> ）に変換します。</p>

@@ -11910,21 +11910,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dual-nodes" class="md-nav__link">
+  <a href="#harvester-nodes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        デュアルノード
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#light-api-nodes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ライト API ノード
+        ハーベスターノード
       
     </span>
   </a>
@@ -12260,21 +12249,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dual-nodes" class="md-nav__link">
+  <a href="#harvester-nodes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        デュアルノード
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#light-api-nodes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ライト API ノード
+        ハーベスターノード
       
     </span>
   </a>
@@ -12353,7 +12331,7 @@
 <dt>
 	<a id="af6cdf577b0065a2726adc5f90cbf612">ノード</a> 
 </dt>
-<dd>Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した <a class="mkdocs-ezglossary-link"
+<dd>Symbol プロトコルを実行し、他のノードと情報を共有し、受信した <a class="mkdocs-ezglossary-link"
 	id="80990adb2ce9e7f12f3f42386422941f"
 	title="トランザクションとは、Symbol ブロックチェーン上で実行される1つまたは複数のアクションを表します。
 例えば、あるアカウントから別のアカウントへの資金移動や、新しい通貨の登録などが該当します。"
@@ -12363,19 +12341,18 @@
 	id="69cf2ea2dfccdbcaad6095d67057078b"
 	title="ネットワーク内のすべての ノード がブロックチェーンの現在の状態について合意するためのプロセスです。"
 	name="_:コンセンサス"
-	href="../../textbook/consensus/#7012061d4ad45db0e4d41928d2794143">コンセンサス</a> とブロック生成に参加するコンピュータです。</dd>
+	href="../../textbook/consensus/#7012061d4ad45db0e4d41928d2794143">コンセンサス</a> とブロック生成に参加できるコンピュータです。</dd>
 
 </dl>
-<p>ノードはブロックチェーンの中核を成し、十分な数のノードが稼働している限りネットワークが機能し続けることを保証します。</p>
+<p>ノードはブロックチェーンの中核を成し、少なくとも 1 つのノードが稼働している限りネットワークが機能し続けることを保証します。</p>
 <p>ブロック生成に参加するためには、各ノードはハーベスタの <a class="mkdocs-ezglossary-link"
-	id="5276d1608e5764b3e9b8d3e3351502e1"
+	id="aa4483cb0d7e4f455f7f64fd16d68dc2"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
 	href="../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> に関連付けられている必要があります。
-このアカウントがノードによって生成されたブロックに署名します。
 運用コストを補うために、<a class="mkdocs-ezglossary-link"
-	id="f708bb8229e37a9dc911ac09e7848ded"
+	id="74fcb9dd3b2f1bdcb8ff2a2bd57b6494"
 	title="Symbol が新しい ブロック をチェーンに追加し、参加する
 アカウント に報酬を分配するプロセスです。
 PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
@@ -12391,7 +12368,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 この柔軟性により、ハードウェア要件の異なる多様な構成を実現することができます。</p>
 <p>最も一般的な構成は「ロール」と呼ばれます。下記がその説明です。</p>
 <h2 id="node-structure">ノード構造<a class="headerlink" href="#node-structure" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="627pt" height="373pt" viewBox="0.00 0.00 627.00 373.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 368.95)"><title>SymbolNode</title><polygon fill="none" stroke="none" points="-4,4 -4,-368.95 622.74,-368.95 622.74,4 -4,4"/><!-- OtherNodes --><g id="node1" class="node"><title>OtherNodes</title><polygon fill="none" stroke="none" points="127.74,-364.95 56.49,-364.95 56.49,-346.2 127.74,-346.2 127.74,-364.95"/><text xml:space="preserve" text-anchor="middle" x="92.11" y="-351.65" font-family="Times,serif" font-size="14.00" fill="#789abc">他のノード</text></g><!-- Catapult --><g id="node3" class="node"><title>Catapult</title><g id="a_node3"><a xlink:href="#catapult" xlink:title="Catapult"><polygon fill="#789abc" stroke="#789abc" points="146.11,-274.58 38.11,-274.58 38.11,-220.58 146.11,-220.58 146.11,-274.58"/><text xml:space="preserve" text-anchor="middle" x="92.11" y="-242.9" font-family="Times,serif" font-size="14.00" fill="#789abc">Catapult</text></a></g></g><!-- OtherNodes&#45;&gt;Catapult --><g id="edge1" class="edge"><title>OtherNodes&#45;&gt;Catapult</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M92.11,-334.1C92.11,-334.1 92.11,-286.92 92.11,-286.92"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="88.61,-334.1 92.11,-344.1 95.61,-334.1 88.61,-334.1"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="95.61,-286.92 92.11,-276.92 88.61,-286.92 95.61,-286.92"/></g><!-- Clients --><g id="node2" class="node"><title>Clients</title><polygon fill="none" stroke="none" points="566.86,-364.95 481.36,-364.95 481.36,-346.2 566.86,-346.2 566.86,-364.95"/><text xml:space="preserve" text-anchor="middle" x="524.11" y="-351.65" font-family="Times,serif" font-size="14.00" fill="#789abc">クライアント</text></g><!-- REST --><g id="node4" class="node"><title>REST</title><g id="a_node4"><a xlink:href="#rest-gateway" xlink:title="REST\nゲートウェイ"><polygon fill="#789abc" stroke="#789abc" points="578.11,-274.58 470.11,-274.58 470.11,-220.58 578.11,-220.58 578.11,-274.58"/><text xml:space="preserve" text-anchor="middle" x="524.11" y="-252.28" font-family="Times,serif" font-size="14.00" fill="#789abc">REST</text><text xml:space="preserve" text-anchor="middle" x="524.11" y="-235.03" font-family="Times,serif" font-size="14.00" fill="#789abc">ゲートウェイ</text></a></g></g><!-- Clients&#45;&gt;REST --><g id="edge2" class="edge"><title>Clients&#45;&gt;REST</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M524.11,-334.1C524.11,-334.1 524.11,-286.92 524.11,-286.92"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="520.61,-334.1 524.11,-344.1 527.61,-334.1 520.61,-334.1"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="527.61,-286.92 524.11,-276.92 520.61,-286.92 527.61,-286.92"/></g><!-- Catapult&#45;&gt;REST --><g id="edge3" class="edge"><title>Catapult&#45;&gt;REST</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M158.66,-248C158.66,-248 457.45,-248 457.45,-248"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="158.66,-244.5 148.66,-248 158.66,-251.5 158.66,-244.5"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="457.45,-251.5 467.45,-248 457.45,-244.5 457.45,-251.5"/><text xml:space="preserve" text-anchor="middle" x="320.29" y="-231" font-family="Times,serif" font-size="14.00" fill="#789abc">クエリと応答</text></g><!-- RocksDBWP --><g id="node9" class="node"><title>RocksDBWP</title><ellipse fill="#789abc" stroke="#789abc" cx="101.11" cy="-103.58" rx="0.36" ry="0.36"/></g><!-- Catapult&#45;&gt;RocksDBWP --><g id="edge4" class="edge"><title>Catapult&#45;&gt;RocksDBWP:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M101.11,-208.09C101.11,-208.09 101.11,-102.86 101.11,-102.86"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="97.61,-208.09 101.11,-218.09 104.61,-208.09 97.61,-208.09"/></g><!-- DiskWP --><g id="node10" class="node"><title>DiskWP</title><ellipse fill="#789abc" stroke="#789abc" cx="83.11" cy="-31.58" rx="0.36" ry="0.36"/></g><!-- Catapult&#45;&gt;DiskWP --><g id="edge6" class="edge"><title>Catapult&#45;&gt;DiskWP:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M83.11,-207.86C83.11,-207.86 83.11,-30.86 83.11,-30.86"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="79.61,-207.86 83.11,-217.86 86.61,-207.86 79.61,-207.86"/></g><!-- RocksDB --><g id="node5" class="node"><title>RocksDB</title><g id="a_node5"><a xlink:href="#state-database" xlink:title="ステート DB\n(RocksDB)"><path fill="#789abc" stroke="#789abc" d="M254.11,-128.45C254.11,-131.5 229.91,-133.97 200.11,-133.97 170.31,-133.97 146.11,-131.5 146.11,-128.45 146.11,-128.45 146.11,-78.71 146.11,-78.71 146.11,-75.66 170.31,-73.18 200.11,-73.18 229.91,-73.18 254.11,-75.66 254.11,-78.71 254.11,-78.71 254.11,-128.45 254.11,-128.45"/><path fill="none" stroke="#789abc" d="M254.11,-128.45C254.11,-125.4 229.91,-122.92 200.11,-122.92 170.31,-122.92 146.11,-125.4 146.11,-128.45"/><text xml:space="preserve" text-anchor="middle" x="200.11" y="-108.38" font-family="Times,serif" font-size="14.00" fill="#789abc">ステート DB</text><text xml:space="preserve" text-anchor="middle" x="200.11" y="-89.42" font-family="Times,serif" font-size="14.00" fill="#789abc">(RocksDB)</text></a></g></g><!-- Disk --><g id="node6" class="node"><title>Disk</title><g id="a_node6"><a xlink:href="#blocks-database" xlink:title="ブロック DB\n(プレーンファイル)"><path fill="#789abc" stroke="#789abc" d="M270.36,-57.41C270.36,-60.58 238.87,-63.15 200.11,-63.15 161.35,-63.15 129.86,-60.58 129.86,-57.41 129.86,-57.41 129.86,-5.74 129.86,-5.74 129.86,-2.57 161.35,0 200.11,0 238.87,0 270.36,-2.57 270.36,-5.74 270.36,-5.74 270.36,-57.41 270.36,-57.41"/><path fill="none" stroke="#789abc" d="M270.36,-57.41C270.36,-54.24 238.87,-51.67 200.11,-51.67 161.35,-51.67 129.86,-54.24 129.86,-57.41"/><text xml:space="preserve" text-anchor="middle" x="200.11" y="-37.24" font-family="Times,serif" font-size="14.00" fill="#789abc">ブロック DB</text><text xml:space="preserve" text-anchor="middle" x="200.11" y="-18.28" font-family="Times,serif" font-size="14.00" fill="#789abc">(プレーンファイル)</text></a></g></g><!-- BrokerWP --><g id="node14" class="node"><title>BrokerWP</title><ellipse fill="#789abc" stroke="#789abc" cx="295.51" cy="-31.58" rx="0.36" ry="0.36"/></g><!-- Disk&#45;&gt;BrokerWP --><g id="edge8" class="edge"><title>Disk&#45;&gt;BrokerWP</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M270.45,-32C282.96,-32 292.76,-32 295.02,-32"/><text xml:space="preserve" text-anchor="middle" x="355.02" y="-28.07" font-family="Times,serif" font-size="14.00" fill="#789abc">スプーラキュー</text></g><!-- MongoDB --><g id="node7" class="node"><title>MongoDB</title><g id="a_node7"><a xlink:href="#blocks-database" xlink:title="フル DB\n(MongoDB)"><path fill="#789abc" stroke="#789abc" d="M578.11,-56.45C578.11,-59.5 553.91,-61.97 524.11,-61.97 494.31,-61.97 470.11,-59.5 470.11,-56.45 470.11,-56.45 470.11,-6.71 470.11,-6.71 470.11,-3.66 494.31,-1.18 524.11,-1.18 553.91,-1.18 578.11,-3.66 578.11,-6.71 578.11,-6.71 578.11,-56.45 578.11,-56.45"/><path fill="none" stroke="#789abc" d="M578.11,-56.45C578.11,-53.4 553.91,-50.92 524.11,-50.92 494.31,-50.92 470.11,-53.4 470.11,-56.45"/><text xml:space="preserve" text-anchor="middle" x="524.11" y="-36.38" font-family="Times,serif" font-size="14.00" fill="#789abc">フル DB</text><text xml:space="preserve" text-anchor="middle" x="524.11" y="-17.42" font-family="Times,serif" font-size="14.00" fill="#789abc">(MongoDB)</text></a></g></g><!-- RESTWP2 --><g id="node13" class="node"><title>RESTWP2</title><ellipse fill="#789abc" stroke="#789abc" cx="533.11" cy="-139.58" rx="0.36" ry="0.36"/></g><!-- MongoDB&#45;&gt;RESTWP2 --><g id="edge14" class="edge"><title>MongoDB&#45;&gt;RESTWP2</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M533.11,-62.24C533.11,-91.67 533.11,-132.56 533.11,-138.77"/></g><!-- Broker --><g id="node8" class="node"><title>Broker</title><g id="a_node8"><a xlink:href="#broker" xlink:title="ブローカー"><polygon fill="#789abc" stroke="#789abc" points="434.11,-166.58 326.11,-166.58 326.11,-112.58 434.11,-112.58 434.11,-166.58"/><text xml:space="preserve" text-anchor="middle" x="380.11" y="-135.65" font-family="Times,serif" font-size="14.00" fill="#789abc">ブローカー</text></a></g></g><!-- MongoDBWP --><g id="node11" class="node"><title>MongoDBWP</title><ellipse fill="#789abc" stroke="#789abc" cx="511.51" cy="-130.58" rx="0.36" ry="0.36"/></g><!-- Broker&#45;&gt;MongoDBWP --><g id="edge9" class="edge"><title>Broker&#45;&gt;MongoDBWP</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M434.32,-131C467.68,-131 505.13,-131 510.78,-131"/></g><!-- RESTWP --><g id="node12" class="node"><title>RESTWP</title><ellipse fill="#789abc" stroke="#789abc" cx="511.51" cy="-148.58" rx="0.36" ry="0.36"/></g><!-- Broker&#45;&gt;RESTWP --><g id="edge12" class="edge"><title>Broker&#45;&gt;RESTWP</title><path fill="none" stroke="#789abc" stroke-width="1.5" stroke-dasharray="5,2" d="M434.32,-149C467.68,-149 505.13,-149 510.78,-149"/></g><!-- RocksDBWP&#45;&gt;RocksDB --><g id="edge5" class="edge"><title>RocksDBWP&#45;&gt;RocksDB</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M101.74,-104C101.74,-104 133.53,-104 133.53,-104"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="133.53,-107.5 143.53,-104 133.53,-100.5 133.53,-107.5"/><text xml:space="preserve" text-anchor="start" x="109.33" y="-175.21" font-family="Times,serif" font-size="14.00" fill="#789abc">ブロックチェーン</text><text xml:space="preserve" text-anchor="start" x="109.33" y="-156.46" font-family="Times,serif" font-size="14.00" fill="#789abc">ステートを</text><text xml:space="preserve" text-anchor="start" x="109.33" y="-137.71" font-family="Times,serif" font-size="14.00" fill="#789abc">保存</text></g><!-- DiskWP&#45;&gt;Disk --><g id="edge7" class="edge"><title>DiskWP:w&#45;&gt;Disk</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M82.39,-32C82.39,-32 117.32,-32 117.32,-32"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="117.32,-35.5 127.32,-32 117.32,-28.5 117.32,-35.5"/><text xml:space="preserve" text-anchor="end" x="71.25" y="-81.03" font-family="Times,serif" font-size="14.00" fill="#789abc">新しい</text><text xml:space="preserve" text-anchor="end" x="71.25" y="-62.28" font-family="Times,serif" font-size="14.00" fill="#789abc">ブロックを</text><text xml:space="preserve" text-anchor="end" x="71.25" y="-43.53" font-family="Times,serif" font-size="14.00" fill="#789abc">保存</text></g><!-- MongoDBWP&#45;&gt;MongoDB --><g id="edge10" class="edge"><title>MongoDBWP:n&#45;&gt;MongoDB</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M511.51,-131.3C511.51,-131.3 511.51,-74.58 511.51,-74.58"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="515.01,-74.58 511.51,-64.58 508.01,-74.58 515.01,-74.58"/><text xml:space="preserve" text-anchor="end" x="495.83" y="-91.05" font-family="Times,serif" font-size="14.00" fill="#789abc">インデックス化</text><text xml:space="preserve" text-anchor="end" x="495.83" y="-72.3" font-family="Times,serif" font-size="14.00" fill="#789abc">されたブロックを保存</text></g><!-- RESTWP&#45;&gt;REST --><g id="edge13" class="edge"><title>RESTWP&#45;&gt;REST</title><g id="a_edge13"><a xlink:href="#zero-mq"><path fill="none" stroke="#789abc" stroke-width="1.5" stroke-dasharray="5,2" d="M511.51,-149.21C511.51,-149.21 511.51,-207.92 511.51,-207.92"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="508.01,-207.92 511.51,-217.92 515.01,-207.92 508.01,-207.92"/></a></g><g id="a_edge13&#45;headlabel"><a xlink:href="#zero-mq" xlink:title="ZMQ 経由での\n更新通知"><text xml:space="preserve" text-anchor="middle" x="459.55" y="-195.64" font-family="Times,serif" font-size="14.00" fill="#789abc">ZMQ 経由での</text><text xml:space="preserve" text-anchor="middle" x="459.55" y="-176.89" font-family="Times,serif" font-size="14.00" fill="#789abc">更新通知</text></a></g></g><!-- RESTWP2&#45;&gt;REST --><g id="edge15" class="edge"><title>RESTWP2&#45;&gt;REST</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M533.11,-140.27C533.11,-140.27 533.11,-207.86 533.11,-207.86"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="529.61,-207.86 533.11,-217.86 536.61,-207.86 529.61,-207.86"/><text xml:space="preserve" text-anchor="middle" x="583.11" y="-138.97" font-family="Times,serif" font-size="14.00" fill="#789abc">要求された</text><text xml:space="preserve" text-anchor="middle" x="583.11" y="-120.22" font-family="Times,serif" font-size="14.00" fill="#789abc">情報を取得</text></g><!-- BrokerWP&#45;&gt;Broker --><g id="edge11" class="edge"><title>BrokerWP&#45;&gt;Broker</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M295.51,-32.16C295.51,-39.95 295.51,-123 295.51,-123 295.51,-123 313.78,-123 313.78,-123"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="313.78,-126.5 323.78,-123 313.78,-119.5 313.78,-126.5"/></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="623pt" height="656pt" viewBox="0.00 0.00 623.00 656.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 652.37)"><title>SymbolNode</title><polygon fill="none" stroke="none" points="-4,4 -4,-652.37 619.47,-652.37 619.47,4 -4,4"/><!-- OtherNodes --><g id="node1" class="node"><title>OtherNodes</title><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="139.38,-648.37 31.38,-648.37 31.38,-594.37 139.38,-594.37 139.38,-648.37"/><text xml:space="preserve" text-anchor="middle" x="85.38" y="-617.45" font-family="Times,serif" font-size="14.00" fill="#789abc">他のノード</text></g><!-- Clients --><g id="node2" class="node"><title>Clients</title><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="571.38,-648.37 463.38,-648.37 463.38,-594.37 571.38,-594.37 571.38,-648.37"/><text xml:space="preserve" text-anchor="middle" x="517.38" y="-617.45" font-family="Times,serif" font-size="14.00" fill="#789abc">アプリ</text></g><!-- Catapult --><g id="node3" class="node"><title>Catapult</title><g id="a_node3"><a xlink:href="#catapult" xlink:title="Catapult"><polygon fill="none" stroke="#789abc" points="139.38,-360.37 31.38,-360.37 31.38,-306.37 139.38,-306.37 139.38,-360.37"/><text xml:space="preserve" text-anchor="middle" x="85.38" y="-328.7" font-family="Times,serif" font-size="14.00" fill="#789abc">Catapult</text></a></g></g><!-- Broker --><g id="node8" class="node"><title>Broker</title><g id="a_node8"><a xlink:href="#broker" xlink:title="ブローカー"><polygon fill="none" stroke="#789abc" points="427.38,-360.37 319.38,-360.37 319.38,-306.37 427.38,-306.37 427.38,-360.37"/><text xml:space="preserve" text-anchor="middle" x="373.38" y="-329.45" font-family="Times,serif" font-size="14.00" fill="#789abc">ブローカー</text></a></g></g><!-- Catapult&#45;&gt;Broker --><g id="edge10" class="edge"><title>Catapult&#45;&gt;Broker</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M139.55,-333C139.55,-333 306.69,-333 306.69,-333"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="306.69,-336.5 316.69,-333 306.69,-329.5 306.69,-336.5"/><text xml:space="preserve" text-anchor="middle" x="220.48" y="-346.44" font-family="Times,serif" font-size="14.00" fill="#789abc">スプーラーキュー</text></g><!-- RocksDBWP --><g id="node11" class="node"><title>RocksDBWP</title><ellipse fill="#789abc" stroke="#789abc" cx="94.38" cy="-225.37" rx="0.36" ry="0.36"/></g><!-- Catapult&#45;&gt;RocksDBWP --><g id="edge9" class="edge"><title>Catapult&#45;&gt;RocksDBWP:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M94.38,-293.67C94.38,-293.67 94.38,-224.65 94.38,-224.65"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="90.88,-293.67 94.38,-303.67 97.88,-293.67 90.88,-293.67"/></g><!-- DiskWP --><g id="node12" class="node"><title>DiskWP</title><ellipse fill="#789abc" stroke="#789abc" cx="76.38" cy="-153.37" rx="0.36" ry="0.36"/></g><!-- Catapult&#45;&gt;DiskWP --><g id="edge12" class="edge"><title>Catapult&#45;&gt;DiskWP:s</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M76.38,-293.66C76.38,-293.66 76.38,-152.65 76.38,-152.65"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="72.88,-293.66 76.38,-303.66 79.88,-293.66 72.88,-293.66"/></g><!-- REST --><g id="node4" class="node"><title>REST</title><g id="a_node4"><a xlink:href="#rest-gateway" xlink:title="REST\nゲートウェイ"><polygon fill="none" stroke="#789abc" points="571.38,-504.37 463.38,-504.37 463.38,-450.37 571.38,-450.37 571.38,-504.37"/><text xml:space="preserve" text-anchor="middle" x="517.38" y="-482.07" font-family="Times,serif" font-size="14.00" fill="#789abc">REST</text><text xml:space="preserve" text-anchor="middle" x="517.38" y="-464.82" font-family="Times,serif" font-size="14.00" fill="#789abc">ゲートウェイ</text></a></g></g><!-- RocksDB --><g id="node5" class="node"><title>RocksDB</title><g id="a_node5"><a xlink:href="#state-database" xlink:title="ステート DB"><path fill="none" stroke="#789abc" d="M247.38,-211.47C247.38,-214.17 223.18,-216.37 193.38,-216.37 163.58,-216.37 139.38,-214.17 139.38,-211.47 139.38,-211.47 139.38,-167.28 139.38,-167.28 139.38,-164.58 163.58,-162.37 193.38,-162.37 223.18,-162.37 247.38,-164.58 247.38,-167.28 247.38,-167.28 247.38,-211.47 247.38,-211.47"/><path fill="none" stroke="#789abc" d="M247.38,-211.47C247.38,-208.76 223.18,-206.56 193.38,-206.56 163.58,-206.56 139.38,-208.76 139.38,-211.47"/><text xml:space="preserve" text-anchor="middle" x="193.38" y="-185.56" font-family="Times,serif" font-size="14.00" fill="#789abc">ステート DB</text></a></g></g><!-- Disk --><g id="node6" class="node"><title>Disk</title><g id="a_node6"><a xlink:href="#blocks-database" xlink:title="ブロック DB"><path fill="none" stroke="#789abc" d="M247.38,-139.47C247.38,-142.17 223.18,-144.37 193.38,-144.37 163.58,-144.37 139.38,-142.17 139.38,-139.47 139.38,-139.47 139.38,-95.28 139.38,-95.28 139.38,-92.58 163.58,-90.37 193.38,-90.37 223.18,-90.37 247.38,-92.58 247.38,-95.28 247.38,-95.28 247.38,-139.47 247.38,-139.47"/><path fill="none" stroke="#789abc" d="M247.38,-139.47C247.38,-136.76 223.18,-134.56 193.38,-134.56 163.58,-134.56 139.38,-136.76 139.38,-139.47"/><text xml:space="preserve" text-anchor="middle" x="193.38" y="-113.56" font-family="Times,serif" font-size="14.00" fill="#789abc">ブロック DB</text></a></g></g><!-- MongoDB --><g id="node7" class="node"><title>MongoDB</title><g id="a_node7"><a xlink:href="#full-database" xlink:title="フル DB"><path fill="none" stroke="#789abc" d="M571.38,-139.47C571.38,-142.17 547.18,-144.37 517.38,-144.37 487.58,-144.37 463.38,-142.17 463.38,-139.47 463.38,-139.47 463.38,-95.28 463.38,-95.28 463.38,-92.58 487.58,-90.37 517.38,-90.37 547.18,-90.37 571.38,-92.58 571.38,-95.28 571.38,-95.28 571.38,-139.47 571.38,-139.47"/><path fill="none" stroke="#789abc" d="M571.38,-139.47C571.38,-136.76 547.18,-134.56 517.38,-134.56 487.58,-134.56 463.38,-136.76 463.38,-139.47"/><text xml:space="preserve" text-anchor="middle" x="517.38" y="-113.56" font-family="Times,serif" font-size="14.00" fill="#789abc">フル DB</text></a></g></g><!-- RESTWP2 --><g id="node15" class="node"><title>RESTWP2</title><ellipse fill="#789abc" stroke="#789abc" cx="526.38" cy="-261.37" rx="0.36" ry="0.36"/></g><!-- MongoDB&#45;&gt;RESTWP2 --><g id="edge18" class="edge"><title>MongoDB&#45;&gt;RESTWP2</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M526.38,-144.8C526.38,-183.97 526.38,-252.15 526.38,-260.52"/></g><!-- MongoDBWP --><g id="node13" class="node"><title>MongoDBWP</title><ellipse fill="#789abc" stroke="#789abc" cx="508.38" cy="-324.37" rx="0.36" ry="0.36"/></g><!-- Broker&#45;&gt;MongoDBWP --><g id="edge14" class="edge"><title>Broker&#45;&gt;MongoDBWP</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M427.51,-324C462.14,-324 501.65,-324 507.61,-324"/></g><!-- RESTWP --><g id="node14" class="node"><title>RESTWP</title><ellipse fill="#789abc" stroke="#789abc" cx="508.38" cy="-342.37" rx="0.36" ry="0.36"/></g><!-- Broker&#45;&gt;RESTWP --><g id="edge16" class="edge"><title>Broker&#45;&gt;RESTWP</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M427.51,-342C462.14,-342 501.65,-342 507.61,-342"/></g><!-- OtherNodesWP --><g id="node9" class="node"><title>OtherNodesWP</title><ellipse fill="#789abc" stroke="#789abc" cx="76.38" cy="-477.37" rx="0.36" ry="0.36"/></g><!-- OtherNodesWP&#45;&gt;OtherNodes --><g id="edge2" class="edge"><title>OtherNodesWP&#45;&gt;OtherNodes</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M76.38,-478.02C76.38,-478.02 76.38,-581.62 76.38,-581.62"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="72.88,-581.62 76.38,-591.62 79.88,-581.62 72.88,-581.62"/></g><!-- OtherNodesWP&#45;&gt;Catapult --><g id="edge1" class="edge"><title>OtherNodesWP&#45;&gt;Catapult</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M76.38,-476.73C76.38,-476.73 76.38,-373.13 76.38,-373.13"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="79.88,-373.13 76.38,-363.13 72.88,-373.13 79.88,-373.13"/><text xml:space="preserve" text-anchor="middle" x="139.77" y="-500.86" font-family="Times,serif" font-size="14.00" fill="#789abc">🡄 ピアツーピア API</text><text xml:space="preserve" text-anchor="middle" x="139.77" y="-481.9" font-family="Times,serif" font-size="14.00" fill="#789abc">🡇</text></g><!-- OtherNodesWP2 --><g id="node10" class="node"><title>OtherNodesWP2</title><ellipse fill="#789abc" stroke="#789abc" cx="94.38" cy="-477.37" rx="0.36" ry="0.36"/></g><!-- OtherNodesWP2&#45;&gt;Catapult --><g id="edge8" class="edge"><title>OtherNodesWP2&#45;&gt;Catapult</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M94.38,-476.73C94.38,-476.73 94.38,-373.13 94.38,-373.13"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="97.88,-373.13 94.38,-363.13 90.88,-373.13 97.88,-373.13"/></g><!-- OtherNodesWP2&#45;&gt;REST --><g id="edge7" class="edge"><title>OtherNodesWP2&#45;&gt;REST</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M95.07,-477C95.07,-477 450.9,-477 450.9,-477"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="450.9,-480.5 460.9,-477 450.9,-473.5 450.9,-480.5"/></g><!-- RocksDBWP&#45;&gt;RocksDB --><g id="edge11" class="edge"><title>RocksDBWP&#45;&gt;RocksDB</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M94.38,-224.97C94.38,-220.97 94.38,-189 94.38,-189 94.38,-189 126.69,-189 126.69,-189"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="126.69,-192.5 136.69,-189 126.69,-185.5 126.69,-192.5"/><text xml:space="preserve" text-anchor="start" x="99.06" y="-250.81" font-family="Times,serif" font-size="14.00" fill="#789abc">ブロックチェーン</text><text xml:space="preserve" text-anchor="start" x="99.06" y="-232.06" font-family="Times,serif" font-size="14.00" fill="#789abc">ステートを</text><text xml:space="preserve" text-anchor="start" x="99.06" y="-213.31" font-family="Times,serif" font-size="14.00" fill="#789abc">保存</text></g><!-- DiskWP&#45;&gt;Disk --><g id="edge13" class="edge"><title>DiskWP:w&#45;&gt;Disk</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M76.38,-153.37C76.38,-153.37 76.38,-117 76.38,-117 76.38,-117 126.72,-117 126.72,-117"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="126.72,-120.5 136.72,-117 126.72,-113.5 126.72,-120.5"/><text xml:space="preserve" text-anchor="end" x="71.25" y="-160.07" font-family="Times,serif" font-size="14.00" fill="#789abc">ブロックを</text><text xml:space="preserve" text-anchor="end" x="71.25" y="-141.32" font-family="Times,serif" font-size="14.00" fill="#789abc">保存</text></g><!-- MongoDBWP&#45;&gt;MongoDB --><g id="edge15" class="edge"><title>MongoDBWP:n&#45;&gt;MongoDB</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M508.38,-325.09C508.38,-325.09 508.38,-156.8 508.38,-156.8"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="511.88,-156.8 508.38,-146.8 504.88,-156.8 511.88,-156.8"/><text xml:space="preserve" text-anchor="end" x="499.85" y="-205.24" font-family="Times,serif" font-size="14.00" fill="#789abc">インデックス化</text><text xml:space="preserve" text-anchor="end" x="499.85" y="-186.49" font-family="Times,serif" font-size="14.00" fill="#789abc">されたブロックと</text><text xml:space="preserve" text-anchor="end" x="499.85" y="-167.74" font-family="Times,serif" font-size="14.00" fill="#789abc">状態を保存</text></g><!-- RESTWP&#45;&gt;REST --><g id="edge17" class="edge"><title>RESTWP&#45;&gt;REST</title><g id="a_edge17"><a xlink:href="#zero-mq"><path fill="none" stroke="#789abc" stroke-width="1.5" d="M508.38,-342.76C508.38,-342.76 508.38,-437.71 508.38,-437.71"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="504.88,-437.71 508.38,-447.71 511.88,-437.71 504.88,-437.71"/></a></g><g id="a_edge17&#45;headlabel"><a xlink:href="#zero-mq" xlink:title="ZMQ 経由で\r更新を通知\r"><text xml:space="preserve" text-anchor="end" x="504.64" y="-401.81" font-family="Times,serif" font-size="14.00" fill="#789abc">ZMQ 経由で</text><text xml:space="preserve" text-anchor="end" x="504.64" y="-383.06" font-family="Times,serif" font-size="14.00" fill="#789abc">更新を通知</text></a></g></g><!-- RESTWP2&#45;&gt;REST --><g id="edge19" class="edge"><title>RESTWP2&#45;&gt;REST</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M526.38,-261.99C526.38,-261.99 526.38,-437.61 526.38,-437.61"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="522.88,-437.61 526.38,-447.61 529.88,-437.61 522.88,-437.61"/><text xml:space="preserve" text-anchor="start" x="535.75" y="-401.71" font-family="Times,serif" font-size="14.00" fill="#789abc">要求された</text><text xml:space="preserve" text-anchor="start" x="535.75" y="-382.96" font-family="Times,serif" font-size="14.00" fill="#789abc">情報を取得</text></g><!-- ClientsWP1 --><g id="node16" class="node"><title>ClientsWP1</title><ellipse fill="#789abc" stroke="#789abc" cx="508.38" cy="-549.37" rx="0.36" ry="0.36"/></g><!-- ClientsWP1&#45;&gt;Clients --><g id="edge3" class="edge"><title>ClientsWP1&#45;&gt;Clients</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M508.38,-550.18C508.38,-550.18 508.38,-581.94 508.38,-581.94"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="504.88,-581.94 508.38,-591.94 511.88,-581.94 504.88,-581.94"/><text xml:space="preserve" text-anchor="end" x="482.29" y="-559.59" font-family="Times,serif" font-size="14.00" fill="#789abc">REST</text><text xml:space="preserve" text-anchor="middle" x="462.42" y="-542.34" font-family="Times,serif" font-size="14.00" fill="#789abc">API</text></g><!-- ClientsWP1&#45;&gt;REST --><g id="edge4" class="edge"><title>ClientsWP1&#45;&gt;REST</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M508.38,-548.57C508.38,-548.57 508.38,-516.81 508.38,-516.81"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="511.88,-516.81 508.38,-506.81 504.88,-516.81 511.88,-516.81"/></g><!-- ClientsWP2 --><g id="node17" class="node"><title>ClientsWP2</title><ellipse fill="#789abc" stroke="#789abc" cx="526.38" cy="-549.37" rx="0.36" ry="0.36"/></g><!-- ClientsWP2&#45;&gt;Clients --><g id="edge5" class="edge"><title>ClientsWP2&#45;&gt;Clients</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M526.38,-550.18C526.38,-550.18 526.38,-581.94 526.38,-581.94"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="522.88,-581.94 526.38,-591.94 529.88,-581.94 522.88,-581.94"/><text xml:space="preserve" text-anchor="end" x="615.47" y="-559.59" font-family="Times,serif" font-size="14.00" fill="#789abc">WebSockets</text><text xml:space="preserve" text-anchor="middle" x="572.34" y="-542.34" font-family="Times,serif" font-size="14.00" fill="#789abc">API</text></g><!-- ClientsWP2&#45;&gt;REST --><g id="edge6" class="edge"><title>ClientsWP2&#45;&gt;REST</title><path fill="none" stroke="#789abc" stroke-width="1.5" d="M526.38,-548.57C526.38,-548.57 526.38,-516.81 526.38,-516.81"/><polygon fill="#789abc" stroke="#789abc" stroke-width="1.5" points="529.88,-516.81 526.38,-506.81 522.88,-516.81 529.88,-516.81"/></g><!-- MidWP1 --><g id="node18" class="node"><title>MidWP1</title><ellipse fill="#789abc" stroke="#789abc" cx="301.38" cy="-513.37" rx="0.36" ry="0.36"/></g><!-- MidWP2 --><g id="node19" class="node"><title>MidWP2</title><ellipse fill="#789abc" stroke="#789abc" cx="301.38" cy="-9.38" rx="0.36" ry="0.36"/></g><!-- MidWP1&#45;&gt;MidWP2 --><g id="edge20" class="edge"><title>MidWP1&#45;&gt;MidWP2</title><path fill="none" stroke="#789abc" stroke-width="1.5" stroke-dasharray="1,5" d="M301.38,-512.56C301.38,-490.55 301.38,-31.65 301.38,-10.16"/></g><!-- PeerLabel --><g id="node20" class="node"><title>PeerLabel</title><text xml:space="preserve" text-anchor="middle" x="157.38" y="-5.45" font-family="Times,serif" font-size="14.00" fill="#789abc">ピアコンポーネント</text></g><!-- RESTLabel --><g id="node21" class="node"><title>RESTLabel</title><text xml:space="preserve" text-anchor="middle" x="445.38" y="-5.45" font-family="Times,serif" font-size="14.00" fill="#789abc">API コンポーネント</text></g></g></svg></p>
 <h3 id="catapult"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.25 12a.75.75 0 0 1-.22.53l-2.75 2.75a.75.75 0 0 1-1.06-1.06L7.44 12 5.22 9.78a.75.75 0 1 1 1.06-1.06l2.75 2.75c.141.14.22.331.22.53m2 2a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z"/><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"/></svg></span> Catapult<a class="headerlink" href="#catapult" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p><a class="mkdocs-ezglossary-link"
 	id="709214481a935c82b4f164f493b18d28"
@@ -12407,37 +12384,40 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p>また、<a href="#rest-gateway">REST ゲートウェイ</a> からの基本的な問い合わせ
 （ノードの公開鍵、ピアリスト、ネットワーク設定、時刻など）にも応答します。</p>
 <h3 id="state-database"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 1.25c2.487 0 4.773.402 6.466 1.079.844.337 1.577.758 2.112 1.264.536.507.922 1.151.922 1.907v12.987l-.026.013h.026c0 .756-.386 1.4-.922 1.907-.535.506-1.268.927-2.112 1.264-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079c-.844-.337-1.577-.758-2.112-1.264C2.886 19.9 2.5 19.256 2.5 18.5h.026l-.026-.013V5.5c0-.756.386-1.4.922-1.907.535-.506 1.268-.927 2.112-1.264C7.226 1.652 9.513 1.25 12 1.25M4 14.371v4.116l-.013.013H4c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971s4.434-.381 5.909-.971c.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817h.013L20 18.487v-4.116a8 8 0 0 1-1.534.8c-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079a8 8 0 0 1-1.534-.8M20 12V7.871a8 8 0 0 1-1.534.8C16.773 9.348 14.487 9.75 12 9.75s-4.774-.402-6.466-1.079A8 8 0 0 1 4 7.871V12c0 .21.104.487.453.817.35.332.899.666 1.638.961 1.475.59 3.564.972 5.909.972s4.434-.382 5.909-.972c.74-.295 1.287-.629 1.638-.96.35-.33.453-.607.453-.818M4 5.5c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971s4.434-.381 5.909-.971c.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817 0-.211-.103-.487-.453-.817-.351-.332-.898-.666-1.638-.962-1.475-.589-3.564-.971-5.909-.971s-4.434.381-5.909.971c-.739.296-1.288.63-1.638.962C4.104 5.013 4 5.29 4 5.5"/></svg></span> 状態データベース<a class="headerlink" href="#state-database" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<p>Catapult は <a href="http://rocksdb.org">RocksDB</a> というキー・バリュー型データベースを使用して、
+<p>Catapult はキー・バリュー型データベースである <a href="http://rocksdb.org">RocksDB</a> を使用して、
 ブロックチェーンの現在の状態を保持しています。
 ここにはアカウント残高、アクティブなモザイク、ネームスペースなどが含まれています。</p>
 <h3 id="blocks-database"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 1.25c2.487 0 4.773.402 6.466 1.079.844.337 1.577.758 2.112 1.264.536.507.922 1.151.922 1.907v12.987l-.026.013h.026c0 .756-.386 1.4-.922 1.907-.535.506-1.268.927-2.112 1.264-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079c-.844-.337-1.577-.758-2.112-1.264C2.886 19.9 2.5 19.256 2.5 18.5h.026l-.026-.013V5.5c0-.756.386-1.4.922-1.907.535-.506 1.268-.927 2.112-1.264C7.226 1.652 9.513 1.25 12 1.25M4 14.371v4.116l-.013.013H4c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971s4.434-.381 5.909-.971c.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817h.013L20 18.487v-4.116a8 8 0 0 1-1.534.8c-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079a8 8 0 0 1-1.534-.8M20 12V7.871a8 8 0 0 1-1.534.8C16.773 9.348 14.487 9.75 12 9.75s-4.774-.402-6.466-1.079A8 8 0 0 1 4 7.871V12c0 .21.104.487.453.817.35.332.899.666 1.638.961 1.475.59 3.564.972 5.909.972s4.434-.382 5.909-.972c.74-.295 1.287-.629 1.638-.96.35-.33.453-.607.453-.818M4 5.5c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971s4.434-.381 5.909-.971c.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817 0-.211-.103-.487-.453-.817-.351-.332-.898-.666-1.638-.962-1.475-.589-3.564-.971-5.909-.971s-4.434.381-5.909.971c-.739.296-1.288.63-1.638.962C4.104 5.013 4 5.29 4 5.5"/></svg></span> ブロックデータベース<a class="headerlink" href="#blocks-database" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<p>すべての <a class="mkdocs-ezglossary-link"
-	id="0cad70d880ce409ada4fd0f3bf065739"
-	title="ブロックとは、特定の時点で発生したトランザクションおよびその他の「状態変更」をまとめて記録したものです。"
+<p><a class="mkdocs-ezglossary-link"
+	id="256924329cc2a64e98bf2bf489f17eda"
+	title="ブロックとは、特定の時点で発生したトランザクションを記録し、
+それらの結果として生じる「状態変更」もまとめたものです。
+これには、過去のブロックに記録されたトランザクションから派生する状態変更も含まれます。"
 	name="_:ブロック"
-	href="../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a> はプレーンファイルとしてディスク上に保存され、
-<a class="mkdocs-ezglossary-link"
+	href="../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a>と<a class="mkdocs-ezglossary-link"
 	id="906a1cdef0994af86bbcd732962092c7"
 	title="ブロック内で発生した状態変更のうち、そのブロックに含まれるトランザクションから
-直接は読み取れないものを記録したもの。"
+直接発生したとは限らないものを記録したもの。"
 	name="_:レシート"
-	href="../../textbook/blocks/#0303715b5e779219310bce1284937305">レシート</a>、<a class="mkdocs-ezglossary-link"
+	href="../../textbook/blocks/#0303715b5e779219310bce1284937305">レシート</a>は、ファイルベースのデータベースに保存されます。
+<a class="mkdocs-ezglossary-link"
 	id="1fc94b8171c5925d2f210f7e915093e2"
-	title="ネットワーク全体で共有される、検証待ちトランザクションの一覧。"
+	title="ブロックへの取り込みを待つ検証済みトランザクションの一覧であり、各ノードが保持します。"
 	name="_:未承認トランザクションプール"
-	href="../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a>、
-そして完了待ちの <a class="mkdocs-ezglossary-link"
+	href="../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a>と、
+完了待ちの<a class="mkdocs-ezglossary-link"
 	id="58196980a66a8ede6ad2913cec8493ee"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
 	name="_:アグリゲートボンデッドトランザクション"
-	href="../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> が保存されています。</p>
+	href="../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a>は
+メモリ上に保持されます。</p>
 <h3 id="rest-gateway"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.25 12a.75.75 0 0 1-.22.53l-2.75 2.75a.75.75 0 0 1-1.06-1.06L7.44 12 5.22 9.78a.75.75 0 1 1 1.06-1.06l2.75 2.75c.141.14.22.331.22.53m2 2a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z"/><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"/></svg></span> REST ゲートウェイ<a class="headerlink" href="#rest-gateway" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>外部クライアント（アプリやウォレットなど）がブロックチェーンとやり取りするための HTTP API を提供する。</p>
 <p>多くの問い合わせは、ブロックや状態、未処理トランザクションを保存している
-自身の <a href="#blocks-database">フルデータベース</a> から直接応答されます。
+自身の <a href="#full-database">フルデータベース</a> から直接応答されます。
 ノード自体やネットワークに関する問い合わせは <a class="mkdocs-ezglossary-link"
 	id="e419de6790ef21608e8b7c125639b36a"
 	title="Symbol の各 ノード の中核を担うソフトウェアクライアントのリファレンス実装です。
@@ -12446,14 +12426,14 @@ PoW におけるマイニング、または PoS におけるステーキング�
 そしてネットワーク全体への変更の伝播を行います。"
 	name="_:Catapult"
 	href="../../textbook/catapult/#c53a6691931d99b2f80316bf4e589065">Catapult</a> エンジンへ転送されます。</p>
-<p>REST ゲートウェイは WebSocket 接続もサポートしており、
+<p>REST ゲートウェイは <a href="https://developer.mozilla.org/ja/docs/Web/API/WebSockets_API">WebSockets</a> 接続もサポートしており、
 アプリケーションが更新をポーリングする代わりに、
 イベント発生時に即座に通知を受け取ることができます。</p>
 <p>これらのイベントは <a href="#zero-mq">ZeroMQ</a> によりゲートウェイに送信され、
 そこから購読者へ転送されます。</p>
 <h3 id="broker"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.25 12a.75.75 0 0 1-.22.53l-2.75 2.75a.75.75 0 0 1-1.06-1.06L7.44 12 5.22 9.78a.75.75 0 1 1 1.06-1.06l2.75 2.75c.141.14.22.331.22.53m2 2a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z"/><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"/></svg></span> ブローカー<a class="headerlink" href="#broker" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>このコンポーネントは、<a href="#blocks-database">ブロックデータベース</a> からの更新を
-<a href="#rest-gateway">REST ゲートウェイ</a> が使用する <a href="#blocks-database">フルデータベース</a> にコピーします。</p>
+<a href="#rest-gateway">REST ゲートウェイ</a> が使用する <a href="#full-database">フルデータベース</a> にコピーします。</p>
 <p>有効化されている場合、<a class="mkdocs-ezglossary-link"
 	id="e3f8f7a5df531f2d16d6ec04b8f24503"
 	title="Symbol の各 ノード の中核を担うソフトウェアクライアントのリファレンス実装です。
@@ -12466,7 +12446,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 この分離により、インデックス作成やデータベース書き込みが
 Catapult の時間に敏感な処理を妨げないようにしています。</p>
 <p>変更が検出されるとすぐに、ブローカーは <a href="#zero-mq">ZeroMQ</a> 経由で REST ゲートウェイにも通知し、
-購読中のアプリケーションがタイムリーに更新を受け取れるようにします。</p>
+購読中のアプリケーションが WebSockets を通じてタイムリーに更新を受け取れるようにします。</p>
 <h3 id="zero-mq"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.25 12a.75.75 0 0 1-.22.53l-2.75 2.75a.75.75 0 0 1-1.06-1.06L7.44 12 5.22 9.78a.75.75 0 1 1 1.06-1.06l2.75 2.75c.141.14.22.331.22.53m2 2a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z"/><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"/></svg></span> Zero MQ<a class="headerlink" href="#zero-mq" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p><a href="https://zeromq.org/">ZeroMQ</a> は、
 <a href="#broker">ブローカー</a> から <a href="#rest-gateway">REST ゲートウェイ</a> へ、
@@ -12483,10 +12463,10 @@ Catapult の時間に敏感な処理を妨げないようにしています。</
 そしてネットワーク全体への変更の伝播を行います。"
 	name="_:Catapult"
 	href="../../textbook/catapult/#c53a6691931d99b2f80316bf4e589065">Catapult</a> の <a href="#blocks-database">ブロックデータベース</a> と
-<a href="#state-database">状態データベース</a> は高スループットに最適化されている。</p>
-<p>並行して、ノードはこのデータのレプリカを <a href="https://www.mongodb.com">MongoDB</a> に保持し、
+<a href="#state-database">状態データベース</a> は高スループットに最適化されています。</p>
+<p>並行して、ノードはこのデータのレプリカを <a href="https://www.mongodb.com">MongoDB</a> に保持する場合があります。
 <a href="#rest-gateway">REST ゲートウェイ</a> が受け取る複雑な問い合わせを効率的に処理できるようにしています。</p>
-<p><a href="#blocks-database">フルデータベース</a> への書き込みを行うのは <a href="#broker">ブローカー</a> のみであり、
+<p><a href="#full-database">フルデータベース</a> への書き込みを行うのは <a href="#broker">ブローカー</a> のみであり、
 ブロックチェーンの基礎データと同期を保っています。</p>
 <h2 id="roles">ロール<a class="headerlink" href="#roles" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>Symbol ノードは高度に設定可能で、有効化されるコンポーネントによってさまざまなロールを担うことができます。</p>
@@ -12496,8 +12476,9 @@ Catapult の時間に敏感な処理を妨げないようにしています。</
 <dt>
 	<a id="c6c0692af41b8eb126a9a319122099fe">ピアノード</a> 
 </dt>
-<dd>ピアノードは新しいブロックを生成し、受信したトランザクションとブロックを検証して、
-それらを隣接ノードへ中継することでネットワークのコンセンサスプロセスに参加します。</dd>
+<dd>ピアノードは受信したトランザクションとブロックを検証し、
+それらを隣接ノードへ中継することでネットワークのコンセンサスプロセスに参加します。
+さらに<a href="#harvester-nodes">ハーベスターノード</a>ロールを有効化している場合は、新しいブロックも生成できます。</dd>
 
 </dl>
 <p>ピアノードは受信データを独立して検証したうえで転送し、ネットワークの整合性を保ちます。</p>
@@ -12531,7 +12512,38 @@ Catapult の時間に敏感な処理を妨げないようにしています。</
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
 	name="_:アグリゲートボンデッドトランザクション"
 	href="../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> を保存し、
-トランザクションが完了して処理可能になるまで連署を収集する。</p>
+トランザクションが完了して処理可能になるまで連署を収集します。</p>
+<div class="admonition info">
+<p class="admonition-title">ライト API</p>
+<p>API ノードではないノードでも、<a class="mkdocs-ezglossary-link"
+	id="327b01b5cef8e6ff6fc2d0437a5cd893"
+	title="Symbol の各 ノード の中核を担うソフトウェアクライアントのリファレンス実装です。
+トランザクション と ブロック の検証、
+コンセンサス アルゴリズムの実行、新しいブロックの生成、
+そしてネットワーク全体への変更の伝播を行います。"
+	name="_:Catapult"
+	href="../../textbook/catapult/#c53a6691931d99b2f80316bf4e589065">Catapult</a> の限定的な組み込み HTTP API を公開できます。</p>
+<p>フル API ノードとは異なり、このインターフェイスはノードとネットワークに関する基本的な問い合わせにのみ応答でき、
+必要なリソースも大幅に少なくなります。</p>
+<p>このインターフェイスを公開すると、クライアントが扱いにくいピアツーピア API ではなく
+標準的な REST API を通じてノードの公開鍵を取得できるため、<a class="mkdocs-ezglossary-link"
+	id="c9cd468dac58c867eb1d580798a7ddf0"
+	title="ノードを運営していないが条件を満たすアカウントが、外部のノードにハーベスティングを委任できる
+ハーベスティングの形態です。
+アカウントの インポータンス スコアが使用され、
+収集された手数料は、そのアカウントとノード側で設定された受取人との間で分配されます。"
+	name="_:委任ハーベスティング"
+	href="../../textbook/harvesting/#dd436aade3b1157601b4153d59447ef8">委任ハーベスティング</a>が簡単になります。</p>
+<p>このインターフェイスを公開するノードは、<em>ライト API ノード</em> と呼ばれることがあります。</p>
+<p>利用できるエンドポイントは次のとおりです。</p>
+<ul>
+<li><a href="/ja/devbook/reference/rest/symbol#tag/Chain_routes/getChainInfo" title="Get chain information"><code>/chain/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
+<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getNodeInfo" title="Get the node information"><code>/node/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
+<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getNodePeers" title="Get peers information"><code>/node/peers</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
+<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getServerInfo" title="Get the version of the running REST component"><code>/node/server</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
+<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getUnlockedAccount" title="Get the unlocked harvesting account public keys"><code>/node/unlockedaccount</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
+</ul>
+</div>
 <h3 id="voting-nodes">投票ノード<a class="headerlink" href="#voting-nodes" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <dl>
 <dt>
@@ -12546,62 +12558,32 @@ Catapult の時間に敏感な処理を妨げないようにしています。</
 
 </dl>
 <p>投票ノードはピアノードまたは API ノードのどちらでもあり得ます。つまり API を公開していても公開していなくても構いません。</p>
-<h3 id="dual-nodes">デュアルノード<a class="headerlink" href="#dual-nodes" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<h3 id="harvester-nodes">ハーベスターノード<a class="headerlink" href="#harvester-nodes" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <dl>
 <dt>
-	<a id="182b32fb7e0153a5bb88df7897a8d660">デュアルノード</a> 
+	<a id="1cff7dfbca95b273fba4fced01d281f8">ハーベスターノード</a> 
 </dt>
-<dd><a class="mkdocs-ezglossary-link"
-	id="74fcb9dd3b2f1bdcb8ff2a2bd57b6494"
+<dd>ハーベスターノードはブロック生成に貢献し、<a class="mkdocs-ezglossary-link"
+	id="24cc86b34fb9780fba0e9390f747151f"
 	title="Symbol が新しい ブロック をチェーンに追加し、参加する
 アカウント に報酬を分配するプロセスです。
 PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
 	name="_:ハーベスティング"
-	href="../../textbook/harvesting/#ff18d4dd87ad820305edbe133d434f4d">ハーベスティング</a> が有効化された API ノードを、
-しばしば「デュアルノード」と呼びます。</dd>
+	href="../../textbook/harvesting/#ff18d4dd87ad820305edbe133d434f4d">ハーベスティング</a>報酬を得る資格があります。</dd>
 
 </dl>
-<h3 id="light-api-nodes">ライト API ノード<a class="headerlink" href="#light-api-nodes" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<dl>
-<dt>
-	<a id="312849a19dc14dc6f8636f9b34ba7678">ライト API ノード</a> 
-</dt>
-<dd><a class="mkdocs-ezglossary-link"
-	id="327b01b5cef8e6ff6fc2d0437a5cd893"
-	title="Symbol の各 ノード の中核を担うソフトウェアクライアントのリファレンス実装です。
-トランザクション と ブロック の検証、
-コンセンサス アルゴリズムの実行、新しいブロックの生成、
-そしてネットワーク全体への変更の伝播を行います。"
-	name="_:Catapult"
-	href="../../textbook/catapult/#c53a6691931d99b2f80316bf4e589065">Catapult</a> の限定的な HTTP API が公開されているノードを「ライト API ノード」と呼ぶ。</dd>
-
-</dl>
-<p>この API はノードおよびネットワークに関する基本的な問い合わせにのみ応答でき、
-フル <a class="mkdocs-ezglossary-link"
+<div class="admonition note">
+<p class="admonition-title">デュアルノード</p>
+<p><a class="mkdocs-ezglossary-link"
 	id="f5941fded9040da8c59f6b250801c103"
 	title="API ノードは、外部クライアント（ウォレット、エクスプローラ、アプリケーションなど）が
 ネットワークとやり取りするための公開 REST
 インターフェイスを提供します。"
 	name="_:API ノード"
-	href="../../textbook/nodes/#f122706c9a281f6f1f2eaae142d365d1">API ノード</a> よりもはるかに少ないリソースで動作します。</p>
-<p>このインターフェイスを公開することで、
-クライアントがノードの公開鍵を取得できるようになり、
-<a class="mkdocs-ezglossary-link"
-	id="c9cd468dac58c867eb1d580798a7ddf0"
-	title="ノードを運営していないが条件を満たすアカウントが、外部のノードにハーベスティングを委任できる
-ハーベスティングの形態です。
-アカウントの インポータンス スコアが使用され、
-収集された手数料は、そのアカウントとノード側で設定された受取人との間で分配されます。"
-	name="_:委任ハーベスティング"
-	href="../../textbook/harvesting/#dd436aade3b1157601b4153d59447ef8">委任ハーベスティング</a> が可能となります。</p>
-<p>ライト API ノードで利用できる API エンドポイントは以下の通りです：</p>
-<ul>
-<li><a href="/ja/devbook/reference/rest/symbol#tag/Chain_routes/getChainInfo" title="Get chain information"><code>/chain/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
-<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getNodeInfo" title="Get the node information"><code>/node/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
-<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getNodePeers" title="Get peers information"><code>/node/peers</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
-<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getServerInfo" title="Get the version of the running REST component"><code>/node/server</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
-<li><a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getUnlockedAccount" title="Get the unlocked harvesting account public keys"><code>/node/unlockedaccount</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a></li>
-</ul>
+	href="../../textbook/nodes/#f122706c9a281f6f1f2eaae142d365d1">API ノード</a>と<a href="#harvester-nodes">ハーベスターノード</a>の両方のロールを有効化したノードは、
+<em>デュアルノード</em> と呼ばれることがあります。</p>
+<p>これは非公式な用語で、API とハーベスティングの両方の機能を組み合わせたノードを表します。</p>
+</div>
 <h2 id="peer-to-peer-communication">ピアツーピア通信<a class="headerlink" href="#peer-to-peer-communication" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>Symbol ノードは分散型のピアツーピア方式で直接通信を行う。
 中央の調整者は存在せず、各ノードは他のノードの一部と接続して分散ネットワークを形成します。</p>
@@ -12617,9 +12599,8 @@ PoW におけるマイニング、または PoS におけるステーキング�
 そしてネットワーク全体への変更の伝播を行います。"
 	name="_:Catapult"
 	href="../../textbook/catapult/#c53a6691931d99b2f80316bf4e589065">Catapult</a> には初期ピアリストが同梱されています。
-これにより新しいノードは最初の接続を確立し、他のノードを探索し始めることができる。
-ただし、このリストに載っているノードが特別扱いされることはありません。
-一度接続されると、すべてのピアはプロトコル上平等に扱われます。</p>
+これにより新しいノードは最初の接続を確立し、他のノードを探索し始めることができます。
+このリストに載っているノードが受ける優遇は、ピアとして選択される可能性がわずかに高いことだけです。</p>
 <h3 id="node-reputation">ノードの評価（レピュテーション）<a class="headerlink" href="#node-reputation" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>Symbol のような分散システムでは、ノードはどのピアを信頼し接続を維持するかを自律的に判断しなければならないです。
 固定されたホワイトリストや手動で管理された接続に依存する代わりに、
@@ -12641,7 +12622,7 @@ Symbol ノードは定期的に最も長く接続されている一部のピア�
 </div>
 <p>最後に、このレピュテーションスコアはノードが他ノードへの接続可否を判断するための内部指標でです。
 <a class="mkdocs-ezglossary-link"
-	id="24cc86b34fb9780fba0e9390f747151f"
+	id="5a2b61eb0e8dc00b8b28edbd43b2a7c8"
 	title="Symbol が新しい ブロック をチェーンに追加し、参加する
 アカウント に報酬を分配するプロセスです。
 PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
@@ -12670,7 +12651,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月16日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12696,7 +12677,8 @@ PoW におけるマイニング、または PoS におけるステーキング�
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

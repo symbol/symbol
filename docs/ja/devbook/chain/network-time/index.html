@@ -12159,7 +12159,9 @@
 <h1 id="network-time">ネットワーク時間<a class="headerlink" href="#network-time" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <p>Symbol ブロックチェーン における時間は「ネットワーク時間」で測定されます。これは、チェーンの最初の <a class="mkdocs-ezglossary-link"
 	id="2b4e388181a58f133124239f831b9239"
-	title="ブロックとは、特定の時点で発生したトランザクションおよびその他の「状態変更」をまとめて記録したものです。"
+	title="ブロックとは、特定の時点で発生したトランザクションを記録し、
+それらの結果として生じる「状態変更」もまとめたものです。
+これには、過去のブロックに記録されたトランザクションから派生する状態変更も含まれます。"
 	name="_:ブロック"
 	href="../../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a> から経過したミリ秒数として定義されます。</p>
 <p>この簡単なチュートリアルでは、API 呼び出しによって返されるネットワーク時間を <a href="https://ja.wikipedia.org/wiki/%E5%8D%94%E5%AE%9A%E4%B8%96%E7%95%8C%E6%99%82">UTC</a> のような標準的なタイムスタンプに変換する方法を説明します。</p>
@@ -12391,15 +12393,16 @@ Symbolの <a class="mkdocs-ezglossary-link"
 </div>
 <p>照会先の <a class="mkdocs-ezglossary-link"
 	id="c4ffd1f611d1b2d5291769a0f3377e46"
-	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
-コンセンサス とブロック生成に参加するコンピュータです。"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
 	href="../../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> が認識している現在のネットワーク時間は、 <a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getNodeTime" title="Get the node time"><code>/node/time</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> エンドポイントを使用して取得されます。
 ネットワーク内のノードは通常同期されているため、ほぼ同じ時間を返します。</p>
 <p>実際に照会されるプロパティは <code>communicationTimestamps.receiveTimestamp</code> であり、これはリクエストがノードによって受信された時間を表します。</p>
 <p>この値は <a class="mkdocs-ezglossary-link"
 	id="13633c31529d7a1119f69e5c58a7b598"
-	title="Symbolは、最初のブロックである ネメシスブロック が作成されてから経過したミリ秒数として時間を定義しています。
+	title="Symbolは、最初のブロックである ネメシスブロック が作成されてから
+経過したミリ秒数を時間として定義しています。
 すべてのタイムスタンプは、この起点を基準に計算されます。"
 	name="_:ネットワーク時間"
 	href="../../../textbook/blocks/#cf9e2772e443b93c75cf942515016e00">ネットワーク時間</a> 、つまりネメシスブロックが作成されてから経過したミリ秒数で表されます。</p>

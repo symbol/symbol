@@ -11552,10 +11552,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#metadata" class="md-nav__link">
+  <a href="#multisignature-accounts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        メタデータ
+        マルチシグアカウント
       
     </span>
   </a>
@@ -11563,10 +11563,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#multisignature-accounts" class="md-nav__link">
+  <a href="#importance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        マルチシグアカウント
+        インポータンス
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        まとめ
       
     </span>
   </a>
@@ -12015,10 +12026,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#metadata" class="md-nav__link">
+  <a href="#multisignature-accounts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        メタデータ
+        マルチシグアカウント
       
     </span>
   </a>
@@ -12026,10 +12037,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#multisignature-accounts" class="md-nav__link">
+  <a href="#importance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        マルチシグアカウント
+        インポータンス
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        まとめ
       
     </span>
   </a>
@@ -12251,36 +12273,6 @@
 <p>現在のウォレットの多くは HD ウォレットです。</p>
 <p>Symbol は <a href="https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki">BIP-32</a> 標準に基づき、
 シードからアカウントを生成します。</p>
-<h2 id="metadata">メタデータ<a class="headerlink" href="#metadata" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
-<dl>
-<dt>
-	<a id="cd96f805e4810e10ceb9f0b9baa50d9d">メタデータ</a> 
-</dt>
-<dd><a class="mkdocs-ezglossary-link"
-	id="ab1c93e0fe42ebbafed4c17d138d441e"
-	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
-従来の銀行における貸金庫に似た役割を果たします。"
-	name="_:アカウント"
-	href="../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> や、<a class="mkdocs-ezglossary-link"
-	id="ab1ac207001f6811ed4ca6bd068ee0c9"
-	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
-例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
-	name="_:モザイク"
-	href="../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a>、<a class="mkdocs-ezglossary-link"
-	id="48f004346b5ab0102412c34b5fbcd129"
-	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
-	name="_:ネームスペース"
-	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a> など
-他のブロックチェーンの要素に付与できる構造化データです。</dd>
-
-</dl>
-<p>Symbol 上のメタデータはキーと値のペアとして構成され、オンチェーンに保存されます。</p>
-<p>アカウントの明示的な承認なしにはメタデータを付与できないため、主な用途は次のとおりです。</p>
-<ul>
-<li>アカウントに識別情報をタグ付けする。</li>
-<li>公開されている連絡先や利用しているデータを追加する。</li>
-<li>所属や目的を証明する。</li>
-</ul>
 <h2 id="multisignature-accounts">マルチシグアカウント<a class="headerlink" href="#multisignature-accounts" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <dl>
 <dt>
@@ -12288,7 +12280,7 @@
 </dt>
 <dd>トランザクションを受け入れるために複数の署名者（連署人）による署名を必要とする
 特別な <a class="mkdocs-ezglossary-link"
-	id="49e1844951562fe7f79d2bd5bf29b36d"
+	id="ab1c93e0fe42ebbafed4c17d138d441e"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
@@ -12308,11 +12300,16 @@
 </ul>
 </li>
 </ul>
+<p>例えば、<strong>2-of-3</strong> のマルチシグには 3 人の連署人がいて、そのうち任意の 2 人が署名すれば
+トランザクションを承認できます。</p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="302pt" height="172pt" viewBox="0.00 0.00 302.00 172.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 167.8)"><title>M&#45;of&#45;N Multisignature</title><polygon fill="none" stroke="none" points="-4,4 -4,-167.8 298.32,-167.8 298.32,4 -4,4"/><!-- マルチシグアカウント --><g id="node1" class="node"><title>マルチシグアカウント</title><ellipse fill="none" stroke="#789abc" cx="147.16" cy="-136.4" rx="96.17" ry="27.4"/><text xml:space="preserve" text-anchor="middle" x="147.16" y="-140.38" font-family="Times,serif" font-size="12.00" fill="#789abc">マルチシグアカウント</text><text xml:space="preserve" text-anchor="middle" x="147.16" y="-123.88" font-family="Times,serif" font-size="12.00" fill="#789abc">2 of 3</text></g><!-- 連署人 1 --><g id="node2" class="node"><title>連署人 1</title><ellipse fill="none" stroke="#789abc" stroke-width="2" cx="43.16" cy="-18" rx="43.16" ry="18"/><text xml:space="preserve" text-anchor="middle" x="43.16" y="-14.85" font-family="Times,serif" font-size="12.00" fill="#789abc">連署人 1</text></g><!-- 連署人 1&#45;&gt;マルチシグアカウント --><g id="edge1" class="edge"><title>連署人 1&#45;&gt;マルチシグアカウント</title><path fill="none" stroke="#789abc" stroke-width="2" d="M58.06,-35.68C73.06,-52.47 96.66,-78.88 115.8,-100.3"/><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="112.95,-102.36 122.22,-107.49 118.17,-97.7 112.95,-102.36"/></g><!-- 連署人 2 --><g id="node3" class="node"><title>連署人 2</title><ellipse fill="none" stroke="#789abc" stroke-width="2" cx="147.16" cy="-18" rx="43.16" ry="18"/><text xml:space="preserve" text-anchor="middle" x="147.16" y="-14.85" font-family="Times,serif" font-size="12.00" fill="#789abc">連署人 2</text></g><!-- 連署人 2&#45;&gt;マルチシグアカウント --><g id="edge2" class="edge"><title>連署人 2&#45;&gt;マルチシグアカウント</title><path fill="none" stroke="#789abc" stroke-width="2" d="M147.16,-36.93C147.16,-52.55 147.16,-75.76 147.16,-95.72"/><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="143.66,-95.55 147.16,-105.55 150.66,-95.55 143.66,-95.55"/></g><!-- 連署人 3 --><g id="node4" class="node"><title>連署人 3</title><ellipse fill="none" stroke="#789abc" cx="251.16" cy="-18" rx="43.16" ry="18"/><text xml:space="preserve" text-anchor="middle" x="251.16" y="-14.85" font-family="Times,serif" font-size="12.00" fill="#789abc">連署人 3</text></g><!-- 連署人 3&#45;&gt;マルチシグアカウント --><g id="edge3" class="edge"><title>連署人 3&#45;&gt;マルチシグアカウント</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M236.7,-35.18C221.53,-52.17 197.22,-79.38 177.75,-101.16"/><polygon fill="#789abc" stroke="#789abc" points="175.35,-98.6 171.3,-108.38 180.57,-103.26 175.35,-98.6"/></g></g></svg></p>
+<p>上の図では、連署人 1 と 2 が署名しており、最小条件 <code>M=2</code> を満たしています。
+そのため、連署人 3 の署名がなくてもトランザクションは有効です。</p>
 <p>使用例：</p>
 <ul>
 <li>
 <p><strong>資金や機能の共同管理</strong>
-    すべての署名者の承認なしにアカウント上での操作は実行できません。
+    設定された連署人の承認なしにアカウント上での操作は実行できません。
     また、1 つのアカウントが侵害されてもリスクを軽減できます。</p>
 </li>
 <li>
@@ -12329,15 +12326,89 @@
 </ul>
 <p>連署人として他のマルチシグアカウントを指定することもでき、
 柔軟で多層的な承認モデルを構築可能です。</p>
-<p>マルチシグ構成を設計する際の制約は次のとおりです。</p>
+<h2 id="importance">インポータンス<a class="headerlink" href="#importance" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<dl>
+<dt>
+	<a id="8d301074509fc6237fa93b125ad7eb12">インポータンス</a> 
+</dt>
+<dd>アカウントの残高、支払ったトランザクション手数料、新しいブロックの<a class="mkdocs-ezglossary-link"
+	id="97a6770d9b40d1dd1a9c768c81dbb0a9"
+	title="Symbol が新しい ブロック をチェーンに追加し、参加する
+アカウント に報酬を分配するプロセスです。
+PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
+	name="_:ハーベスティング"
+	href="../../textbook/harvesting/#ff18d4dd87ad820305edbe133d434f4d">ハーベスティング</a>への
+参加に基づいて、アカウントがネットワークへどれだけ貢献しているかを表す指標です。
+このスコアは、新しいブロックをハーベストする確率とコンセンサスにおける投票の重みを決定します。</dd>
+
+</dl>
+<p>インポータンスは、<a class="mkdocs-ezglossary-link"
+	id="7ea8d6f0597d7a6c561f9d2f9abb2186"
+	title="（Proof of Work）プルーフ・オブ・ワーク。
+例えばビットコインで採用されているコンセンサス方式。"
+	name="_:PoW"
+	href="../../textbook/glossary/#b44cd155e0856aea66e55f8246392df2">PoW</a> システムにおけるハッシュレートや
+<a class="mkdocs-ezglossary-link"
+	id="1f2fe4de64a32a07b781a1a34f31a1c5"
+	title="（Proof of Stake）プルーフ・オブ・ステーク。
+例えばイーサリアムなどで採用されているコンセンサス方式。"
+	name="_:PoS"
+	href="../../textbook/glossary/#e5d4f2fb24e10b69397928b659b7a138">PoS</a> システムにおけるステークと似た役割を果たします。
+値が高いほど、ブロックをハーベストして報酬を得る可能性が高くなります。</p>
+<details class="info">
+<summary>インポータンスの計算</summary>
+<p>10'000 XYM 以上の残高を持つすべてのアカウントは <em>高価値アカウント</em> と呼ばれ、
+インポータンス計算に参加します。</p>
+<p>高価値アカウント <span class="arithmatex">\(A\)</span> のインポータンススコア <span class="arithmatex">\(I_A\)</span> は、<em>ステークスコア</em>、
+<em>トランザクションスコア</em>、<em>ノードスコア</em> に基づきます。</p>
+<ul>
+<li>
+<p>ステークスコア <span class="arithmatex">\(S_A\)</span> は、すべての高価値アカウントが保有する通貨総量に対して、
+    そのアカウントが保有する通貨の割合です。</p>
+</li>
+<li>
+<p>トランザクションスコア <span class="arithmatex">\(T_A\)</span> は、すべての高価値アカウントが支払った手数料総額に対して、
+    そのアカウントが支払った手数料の割合です。</p>
+</li>
+<li>
+<p>ノードスコア <span class="arithmatex">\(N_A\)</span> は、同じ期間内の高価値アカウント受取人全体に対して、
+    そのアカウントがハーベスティング受取アカウントとして指定された回数の割合です。</p>
+</li>
+</ul>
+<p>これらのスコアをどのように組み合わせてインポータンススコアを生成するかの詳細は、
+<a href="/ja/assets/pdfs/SymbolWhitepaper.pdf">Symbol ホワイトペーパー</a> の 14.1 節を参照してください。</p>
+</details>
+<div class="admonition note">
+<p class="admonition-title">メモ</p>
+<p><a class="mkdocs-ezglossary-link"
+	id="8b1ee758f49ffc1e9134430ba8a8208f"
+	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
+	name="_:メインネット"
+	href="../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> のインポータンススコアは 720 ブロックごと
+（およそ 6 時間ごと）に計算され、ハーベスティング確率の計算には直近 2 回のスコアのうち小さい方が使われます。
+そのため、初めてアカウントに資金を入れた後、ハーベスティングを開始する確率が 0 より大きくなるまでには
+12 時間かかります。</p>
+<p><a class="mkdocs-ezglossary-link"
+	id="9f036a6076d1b517e6e68c7941f1e061"
+	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
+	name="_:テストネット"
+	href="../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> では 180 ブロックごと（およそ 1.5 時間ごと）に再計算されるため、
+テストしやすくなっています。</p>
+</div>
+<h2 id="summary">まとめ<a class="headerlink" href="#summary" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>以下の表は、アカウントに関する主な数値制限をまとめたものです。</p>
 <table>
 <thead>
 <tr>
-<th>制約項目</th>
+<th>制限項目</th>
 <th style="text-align: right;">値</th>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>1 アカウントが所有できる最大モザイク数</td>
+<td style="text-align: right;">1'000</td>
+</tr>
 <tr>
 <td>1 アカウントあたりの最大連署者数</td>
 <td style="text-align: right;">25</td>
@@ -12347,7 +12418,7 @@
 <td style="text-align: right;">25</td>
 </tr>
 <tr>
-<td>最大階層数</td>
+<td>最大マルチシグ階層数</td>
 <td style="text-align: right;">3</td>
 </tr>
 </tbody>
@@ -12374,7 +12445,7 @@
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月16日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12400,7 +12471,8 @@
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

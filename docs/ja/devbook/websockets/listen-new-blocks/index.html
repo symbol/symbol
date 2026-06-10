@@ -12192,7 +12192,9 @@
 	name="ws:finalizedBlock"
 	href="../../../devbook/reference/websockets/#adb4f87a84f8e592a487b98b090b6f00">finalizedBlock</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code> WebSocket チャネルは、新しい <a class="mkdocs-ezglossary-link"
 	id="3fbb0b1bcf5dc8a273ac58626cf35440"
-	title="ブロックとは、特定の時点で発生したトランザクションおよびその他の「状態変更」をまとめて記録したものです。"
+	title="ブロックとは、特定の時点で発生したトランザクションを記録し、
+それらの結果として生じる「状態変更」もまとめたものです。
+これには、過去のブロックに記録されたトランザクションから派生する状態変更も含まれます。"
 	name="_:ブロック"
 	href="../../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a> が生成されたとき、または <a href="../../../textbook/consensus/#finalization">ファイナライズ</a> されたときにリアルタイムの通知を送信します。
 <a href="/ja/devbook/reference/rest/symbol#tag/Chain_routes/getChainInfo" title="Get chain information"><code>/chain/info</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> エンドポイントをポーリングする場合と比較して、WebSocket は API 呼び出しを繰り返すオーバーヘッドなしに、更新が発生した瞬間にプッシュします。</p>
@@ -12482,8 +12484,8 @@
 </div>
 <p>このスニペットでは、 <code>NODE_URL</code> 環境変数を使用して Symbol API <a class="mkdocs-ezglossary-link"
 	id="a570b8d6e16d2bfff4f58725037b5ef1"
-	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
-コンセンサス とブロック生成に参加するコンピュータです。"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
 	href="../../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> を設定します。
 値が指定されない場合は、デフォルト値が使用されます。

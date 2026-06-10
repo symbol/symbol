@@ -11626,17 +11626,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#initial-supply" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        初期供給量
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#supply-mutability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -11712,6 +11701,17 @@
     <span class="md-ellipsis">
       
         モザイクIDとネームスペース
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        まとめ
       
     </span>
   </a>
@@ -12066,17 +12066,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#initial-supply" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        初期供給量
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#supply-mutability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12158,6 +12147,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        まとめ
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -12233,12 +12233,9 @@ Symbol のモザイクはプロトコルレベルで直接サポートされて�
 例として、Bitcoin は小数点以下 8 桁、Ethereum は 18 桁を使用します。
 Symbol では、モザイクごとに自由に可分性を設定でき、資産の性質に合わせて柔軟に定義できます。</p>
 <p>Symbol で許可される最大の可分性は <code>6</code> です。</p>
-<h3 id="initial-supply">初期供給量<a class="headerlink" href="#initial-supply" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<p>発行時に作成されるモザイク単位の総量を定義します。
-<a href="#supply-mutability">供給量の可変性</a>が有効でない限り、この数量は固定されます。</p>
 <h3 id="supply-mutability">供給量の可変性<a class="headerlink" href="#supply-mutability" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<p>作成後にモザイクの総供給量を増減できるかを示すプロパティです。
-必要に応じてモザイク単位の発行や回収を動的に行えます。</p>
+<p>モザイク単位が他のアカウントへ配布された後に、モザイクの総供給量を増減できるかを示すプロパティです。
+作成者が総供給量のすべてをまだ保持している限り、モザイク単位は常に発行または削除できます。</p>
 <p>供給量を変更できるのは、モザイクを最初に作成したアカウントのみです。
 この変更は作成者の残高にのみ影響します。</p>
 <ul>
@@ -12256,7 +12253,13 @@ Symbol では、モザイクごとに自由に可分性を設定でき、資産�
 <p><strong>期限付きモザイク</strong> は、ブロック数で表される有効期限を持ちます。
     有効期限を指定する場合、Symbolで許容される最大値は10年（3650日）です。
     この期間が終了するとモザイクは期限切れとなり、転送したりトランザクションで使用したりすることができなくなります。
-    残高はアカウントに残りますが、事実上凍結された状態になります。</p>
+    残高はアカウントに残りますが、事実上凍結された状態になり、同じ<a class="mkdocs-ezglossary-link"
+	id="bf32fd3f9c84f0a1d8488941f37da8f2"
+	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
+モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
+	name="_:モザイクID"
+	href="../../textbook/mosaics/#7254e852d98d38ad8e29009b415e3486">モザイクID</a>で
+    新しいモザイクを作成することもできません。</p>
 </li>
 </ul>
 <div class="admonition warning">
@@ -12265,7 +12268,7 @@ Symbol では、モザイクごとに自由に可分性を設定でき、資産�
 供給量が発行（ミント）され分配された後は、有効期限を延長することはできません。
 無期限モザイクは、有効期限を一切変更できません。</p>
 <p>この動作は、常に更新可能な <a class="mkdocs-ezglossary-link"
-	id="74656eccf837282c9bcaf044961ce52e"
+	id="378209611f5a1be0d55d8aba4d28e828"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a> とは異なります。</p>
@@ -12314,7 +12317,7 @@ Symbol では、モザイクごとに自由に可分性を設定でき、資産�
 	id="896f2420f2ac07409563ca3f5e303c43"
 	title="モザイクを定義する際に作成者が選択する、任意の32ビット符号なし整数（0 ～ 4,294,967,295）。
 一意のノンスごとに、同じアカウントに対して異なる モザイクID が生成されます。
-同じアカウントは、すでにアクティブなモザイクを識別しているノンスを再利用することはできません。"
+同一アカウントでは、既にモザイクで利用しているノンスは再利用することはできません。"
 	name="_:ノンス"
 	href="../../textbook/mosaics/#277a4f8bf756ef4c746c29c8ffc4c88b">ノンス</a> から決定論的に導き出されます。</dd>
 
@@ -12323,22 +12326,22 @@ Symbol では、モザイクごとに自由に可分性を設定でき、資産�
 </dt>
 <dd>モザイクを定義する際に作成者が選択する、任意の32ビット符号なし整数（0 ～ 4,294,967,295）。
 一意のノンスごとに、同じアカウントに対して異なる <a class="mkdocs-ezglossary-link"
-	id="5c73d15a44153f85e75673f59e7317ba"
+	id="b392a810f4edcba3358b1b7b1b97bef6"
 	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
 モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
 	name="_:モザイクID"
 	href="../../textbook/mosaics/#7254e852d98d38ad8e29009b415e3486">モザイクID</a> が生成されます。
-同じアカウントは、すでにアクティブなモザイクを識別しているノンスを再利用することはできません。</dd>
+同一アカウントでは、既にモザイクで利用しているノンスは再利用することはできません。</dd>
 
 </dl>
 <p>例えば、Symbol ネットワークのネイティブ通貨 <strong>XYM</strong> は、<a class="mkdocs-ezglossary-link"
-	id="ae335cfd1501fef9ae659482a370aa0f"
+	id="f7f6c6139350fcadd7f2b135acf3d2f4"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a>上でモザイク ID <code>0x6BED913FA20223F8</code> を持ちます。</p>
 <p>モザイクをより分かりやすく参照できるように、特にユーザーインターフェイス上では、
 人間が読みやすい<a class="mkdocs-ezglossary-link"
-	id="f1411d503e425b0a81acb444456b6665"
+	id="74656eccf837282c9bcaf044961ce52e"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>をモザイクにリンクすることができます。
@@ -12346,10 +12349,38 @@ Symbol では、モザイクごとに自由に可分性を設定でき、資産�
 モザイク ID を直接参照する代わりに、<code>symbol.xym</code> のように名前で参照できます。</p>
 <p>ネームスペースは任意であり、モザイクとは独立して再割り当てまたは有効期限切れとなることがあります。
 詳細は<a class="mkdocs-ezglossary-link"
-	id="576e056ac288eefa652ac4f378f0cb66"
+	id="f1411d503e425b0a81acb444456b6665"
 	title="アドレスやモザイクIDの代わりに使用できる、人間が読みやすいテキスト文字列です。"
 	name="_:ネームスペース"
 	href="../../textbook/namespaces/#29c295a398e7f5cb64a5d483323674a4">ネームスペース</a>のドキュメントを参照してください。</p>
+<h2 id="summary">まとめ<a class="headerlink" href="#summary" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>以下の表は、モザイクに関する主な数値制限をまとめたものです。</p>
+<table>
+<thead>
+<tr>
+<th>制限項目</th>
+<th>値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 アカウントが所有できる最大モザイク数</td>
+<td>1'000</td>
+</tr>
+<tr>
+<td>モザイクの最大有効期間（無期限でない場合）</td>
+<td>3650 日</td>
+</tr>
+<tr>
+<td>モザイクの最大可分性</td>
+<td>6</td>
+</tr>
+<tr>
+<td>モザイクあたりの最大アトミック単位数</td>
+<td>8'999'999'999'000'000</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -12372,7 +12403,7 @@ Symbol では、モザイクごとに自由に可分性を設定でき、資産�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月16日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12398,7 +12429,8 @@ Symbol では、モザイクごとに自由に可分性を設定でき、資産�
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

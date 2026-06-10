@@ -11770,8 +11770,30 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#reference-mosaics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参照モザイク
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        まとめ
+      
+    </span>
+  </a>
   
 </li>
       
@@ -12099,8 +12121,30 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#reference-mosaics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参照モザイク
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        まとめ
+      
+    </span>
+  </a>
   
 </li>
       
@@ -12144,12 +12188,12 @@
 	<a id="b707df8af66793b560942a3912709234">制限</a> 
 </dt>
 <dd>特定の <a class="mkdocs-ezglossary-link"
-	id="cd4342a40f8b82543ae5614d17aa757c"
+	id="5276d1608e5764b3e9b8d3e3351502e1"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
 	href="../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> や <a class="mkdocs-ezglossary-link"
-	id="408c54a2d0b2b042d530d3078fc8044f"
+	id="70df3d96eb786f8d271fb24d67d12ca6"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12165,8 +12209,8 @@
 	href="../../textbook/transactions/#ea7c6d75ebf57d4fc980f12931b80002">トランザクション</a> が有効な制限に違反した場合、検証時に拒否され、承認されることはありません。
 すべての制限はオンチェーン上に保存され、ネットワーク内のすべての <a class="mkdocs-ezglossary-link"
 	id="0eb8f72ab4ae41cccec06bb1166a7a05"
-	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
-コンセンサス とブロック生成に参加するコンピュータです。"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
 	href="../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> により検証されます。</p>
 <p>制限は <a class="mkdocs-ezglossary-link"
@@ -12210,7 +12254,7 @@
 	<a id="de8024434395aa47c2e056235ee6debe">アカウント制限</a> 
 </dt>
 <dd>特定の <a class="mkdocs-ezglossary-link"
-	id="c73f59c554afa1fe4bd97157cb2fcfac"
+	id="cd4342a40f8b82543ae5614d17aa757c"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
@@ -12282,7 +12326,7 @@
 	<a id="a1dbffd1c8d824efea8f9d7c54ad4062">アカウントモザイク制限</a> 
 </dt>
 <dd>アカウントがどの <a class="mkdocs-ezglossary-link"
-	id="27b1189a8c3b669212342533e61fe206"
+	id="5d87d6514d5faf63bcd2f2eafb9ac252"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12348,17 +12392,13 @@
 </dl>
 <p>この制限は、許可または禁止するトランザクションタイプを「<strong>許可</strong>」または「<strong>ブロック</strong>」方式で指定します。
 両方を同時に設定することはできません。</p>
-<div class="admonition warning">
-<p class="admonition-title">注意</p>
-<p><code>ACCOUNT_OPERATION_RESTRICTION</code> トランザクションタイプをホワイトリストに含めない場合、
-アカウントはこの制限を変更または削除できなくなり、
-永続的に現在の制限状態に固定されます。</p>
-<p>このリスクを避けるために、
-<a href="../../userbook/wallet/install/">Symbol デスクトップウォレット</a> では
-明示的にブロックするタイプを列挙するブラックリスト方式のみをサポートしています。</p>
+<div class="admonition note">
+<p class="admonition-title">メモ</p>
+<p><code>ACCOUNT_OPERATION_RESTRICTION</code> トランザクションタイプの不許可はプロトコルによって拒否されます。
+これにより、アカウントが過度に制限された操作範囲に誤って固定化されてしまうことを防ぎます。</p>
 </div>
 <p>この制限は誤ったアカウントを誤用するのを防止するのに役に立ちますが、
-（上記の警告ボックスにあるケースを除き）アカウント所有者が制限を解除することも可能です。</p>
+アカウント所有者が制限を解除することも可能です。</p>
 <p>すべてのトランザクションタイプに対して制限を適用できます。
 対応するタイプの一覧は <a href="../transactions/#supported-transaction-types">トランザクション</a> ページを参照してください。</p>
 <div class="admonition example">
@@ -12390,7 +12430,7 @@
 	<a id="e9899ff219754efafc72c54bd0558e1d">モザイク制限</a> 
 </dt>
 <dd>特定の <a class="mkdocs-ezglossary-link"
-	id="20cdb39cbc6db7ef82f203fdf14764e0"
+	id="408c54a2d0b2b042d530d3078fc8044f"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12417,7 +12457,8 @@
 <p class="admonition-title">メモ</p>
 <p>制限は <a href="../mosaics/#restrictability">制限可能フラグ</a> を付けて作成されたモザイクにのみ適用できます。</p>
 </div>
-<p>モザイクに制限を適用するには、次の 2 つの構成要素を定義する必要があります：</p>
+<p>モザイクに制限を適用するには、モザイク側と、そのモザイクを使用したい各アカウント側に、
+次の 2 つの構成要素を定義する必要があります。</p>
 <ol>
 <li><a class="mkdocs-ezglossary-link"
 	id="f3e555e31830984de69eefa4e34bd903"
@@ -12431,9 +12472,8 @@
 特定のアカウントに 制限属性 を割り当て、
 対応する モザイクグローバル制限 の条件と比較して評価します。"
 	name="_:モザイクアドレス制限"
-	href="../../textbook/restrictions/#e01deffee493058b83731bbc2cd74be7">モザイクアドレス制限</a>：各アカウントに値を割り当て、グローバル条件と比較できるようにします。</li>
+	href="../../textbook/restrictions/#e01deffee493058b83731bbc2cd74be7">モザイクアドレス制限</a>：アカウントに値を割り当て、条件と比較できるようにします。</li>
 </ol>
-<p><strong>制限を有効にするには、この 2 つの構成要素がどちらも必要です。</strong></p>
 <p>この依存関係はモザイク制限に特有のもので、
 <a class="mkdocs-ezglossary-link"
 	id="83ab7ac9e8968361a9872909ee18b9f5"
@@ -12458,14 +12498,15 @@
 各条件には以下が含まれます：</p>
 <ul>
 <li><a class="mkdocs-ezglossary-link"
-	id="b392a810f4edcba3358b1b7b1b97bef6"
+	id="7a47e3afef8312ced9832f360288fef9"
 	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
 モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
 	name="_:モザイクID"
 	href="../../textbook/mosaics/#7254e852d98d38ad8e29009b415e3486">モザイク ID</a>：制限対象となるモザイクを識別する。所有者のみが制限を設定できます。</li>
 <li><strong>制限キー</strong>：この制限を識別するために作成者が定義する任意の数値。
-    モザイクごとに複数の制限を設定できるため、キーはモザイク単位で独立している。
-    「KYC」などの覚えやすい文字列からハッシュ関数で導出することもできる。</li>
+    モザイクには複数の制限を定義できるため、このキーが必要です。
+    キーはモザイク単位で独立しています。
+    キーは数値ですが、「KYC」などの覚えやすい文字列からハッシュ関数で導出することもできます。</li>
 <li><strong>制限値</strong>：各アカウントの値と比較される閾値。</li>
 <li><strong>比較演算子</strong>：各アカウントの値を閾値とどのように比較するかを定義する（等しい、等しくない、大なりなど）。</li>
 </ul>
@@ -12484,7 +12525,7 @@
 <tbody>
 <tr>
 <td style="text-align: right;"><a class="mkdocs-ezglossary-link"
-	id="e88b5616fe15496ece13371caca0f515"
+	id="ba920f61de9218911ac3c1d73c3eac9b"
 	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
 モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
 	name="_:モザイクID"
@@ -12517,8 +12558,7 @@
 	href="../../textbook/restrictions/#e01deffee493058b83731bbc2cd74be7">モザイクアドレス制限</a>（次節参照）を使用して各アカウントに値を割り当て、
 それをグローバル条件と照合する必要があります。</p>
 <p>さらに、モザイクグローバル制限は「参照モザイク」と呼ばれる別のモザイクの制限値に依存させることもできます。
-2 つのモザイクは同一アカウントが所有している必要はなく、
-制限ロジックを第三者へ委任することも可能です。</p>
+詳細は下記の<a href="#reference-mosaics">参照モザイク</a>を参照してください。</p>
 <h3 id="mosaic-address-restrictions">モザイクアドレス制限<a class="headerlink" href="#mosaic-address-restrictions" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <dl>
 <dt>
@@ -12544,7 +12584,7 @@
 <p>モザイクアドレス制限を設定するには、次の属性を指定する必要があります：</p>
 <ul>
 <li><a class="mkdocs-ezglossary-link"
-	id="7a47e3afef8312ced9832f360288fef9"
+	id="1efe64ebe7d9551cc657b859a4db76a0"
 	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
 モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
 	name="_:モザイクID"
@@ -12569,7 +12609,7 @@
 <tbody>
 <tr>
 <td style="text-align: right;"><a class="mkdocs-ezglossary-link"
-	id="ba920f61de9218911ac3c1d73c3eac9b"
+	id="49cc78f831cf0d929efd364723aefdf3"
 	title="ネットワーク上のモザイクを一意に識別する64ビットの数値。
 モザイクIDは、作成者の アドレス と ノンス から決定論的に導き出されます。"
 	name="_:モザイクID"
@@ -12595,6 +12635,173 @@
 その値 <code>1</code> がモザイクアドレス制限の値 <code>1</code> と等しいか比較されます。</p>
 <p>値が等しいため、アカウント <code>TABC123...</code> はこのモザイクとの取引が許可されます。</p>
 </div>
+<h3 id="reference-mosaics">参照モザイク<a class="headerlink" href="#reference-mosaics" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<p><a class="mkdocs-ezglossary-link"
+	id="9874ab14c062a9c4f3ece52a248e0d37"
+	title="モザイク制限 を適用するために必要な2つの構成要素のうちの1つです。
+モザイクとやり取りするためにすべてのアカウントが満たすべきルールを定義します。"
+	name="_:モザイクグローバル制限"
+	href="../../textbook/restrictions/#11187f4f2c3c1413eed849b306af4597">モザイクグローバル制限</a>では、
+<em>派生モザイク</em> が使用する<a class="mkdocs-ezglossary-link"
+	id="a792592ef0825475783fe4ca1291ba08"
+	title="モザイク制限 を適用するために必要な2つの構成要素のうちの 1つです。
+特定のアカウントに 制限属性 を割り当て、
+対応する モザイクグローバル制限 の条件と比較して評価します。"
+	name="_:モザイクアドレス制限"
+	href="../../textbook/restrictions/#e01deffee493058b83731bbc2cd74be7">モザイクアドレス制限</a>を提供する
+<em>参照モザイク</em> を指定できます。
+2 つのモザイクは同じアカウントに属している必要はなく、独立した組織によって管理することもできます。</p>
+<p>例えば、ある企業が認証用モザイクを作成し、個別のアカウントにアドレス制限値を割り当てることで
+認証プロセスを実施できます。</p>
+<p>別の企業は、自社の派生モザイクを作成してその認証用モザイクを参照し、
+任意のモザイクグローバル制限を定義できます。
+参照モザイクによってアカウントに割り当てられた認証値は、
+派生モザイクが定義したグローバル制限に対して評価されます。</p>
+<p>派生モザイクで再利用されるのは、参照モザイクのモザイクアドレス制限だけです。
+参照モザイク上で定義されたモザイクグローバル制限ルールは、
+参照モザイク自体と取引する場合にのみ適用されます。</p>
+<p>派生モザイクと取引する場合は、派生モザイクで定義されたグローバル制限だけが、
+参照モザイクから提供されるアドレス制限値に対して評価されます。</p>
+<div class="admonition example">
+<p class="admonition-title">例</p>
+<p>ある企業が <code>certification_level</code> という制限を持つ認証用モザイクを作成し、
+その値が <code>1</code> から <code>5</code> の範囲を取るとします。</p>
+<p>その企業は、複数のアカウントにアドレス制限値を割り当てて認証します。</p>
+<div class="centered" markdown>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">アカウント</th>
+<th style="text-align: left;">認証レベル</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">アカウント A</td>
+<td style="text-align: left;"><code>5</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">アカウント B</td>
+<td style="text-align: left;"><code>2</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">アカウント C</td>
+<td style="text-align: left;">認証なし</td>
+</tr>
+</tbody>
+</table>
+<p>別の組織は、この認証用モザイクを参照する派生モザイクを作成できます。</p>
+<p>例：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">派生モザイク</th>
+<th style="text-align: left;">グローバル制限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>PREMIUM_ASSET</code></td>
+<td style="text-align: left;"><code>certification_level &gt;= 4</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>BASIC_ASSET</code></td>
+<td style="text-align: left;"><code>certification_level &gt;= 2</code></td>
+</tr>
+</tbody>
+</table>
+<p>結果として得られるアクセス許可は次のとおりです。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">アカウント</th>
+<th><code>PREMIUM_ASSET</code></th>
+<th><code>BASIC_ASSET</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">アカウント A</td>
+<td>✅ 許可</td>
+<td>✅ 許可</td>
+</tr>
+<tr>
+<td style="text-align: right;">アカウント B</td>
+<td>❌ 拒否</td>
+<td>✅ 許可</td>
+</tr>
+<tr>
+<td style="text-align: right;">アカウント C</td>
+<td>❌ 拒否</td>
+<td>❌ 拒否</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>この例では、同じ認証用モザイクが複数の独立したモザイクから再利用され、
+それぞれが独自のアクセス要件を定義しています。
+認証レベルが高いアカウントほど広い範囲のモザイクとやり取りでき、
+認証されていないアカウントは制限ルールによって自動的に拒否されます。</p>
+</div>
+<h2 id="summary">まとめ<a class="headerlink" href="#summary" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
+<p>以下の表は、制限に関する主な数値制限をまとめたものです。</p>
+<table>
+<thead>
+<tr>
+<th>制限項目</th>
+<th style="text-align: right;">値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>アカウントあたりの最大制限数</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>モザイクあたりの最大制限数</td>
+<td style="text-align: right;">20</td>
+</tr>
+</tbody>
+</table>
+<p>以下の表は、利用可能なすべての制限演算子をまとめたものです。</p>
+<table>
+<thead>
+<tr>
+<th>演算子</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NONE</code></td>
+<td>制限なし</td>
+</tr>
+<tr>
+<td><code>EQ</code></td>
+<td>等しい場合に許可</td>
+</tr>
+<tr>
+<td><code>NE</code></td>
+<td>等しくない場合に許可</td>
+</tr>
+<tr>
+<td><code>LT</code></td>
+<td>より小さい場合に許可</td>
+</tr>
+<tr>
+<td><code>LE</code></td>
+<td>以下の場合に許可</td>
+</tr>
+<tr>
+<td><code>GT</code></td>
+<td>より大きい場合に許可</td>
+</tr>
+<tr>
+<td><code>GE</code></td>
+<td>以上の場合に許可</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -12617,7 +12824,7 @@
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年4月16日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
   </span>
 
     
@@ -12643,7 +12850,8 @@
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:okada@symbolsyndicate.us">Daoka</a>
     </nav>
   </span>
 

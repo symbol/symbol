@@ -12736,8 +12736,8 @@
 </div>
 <p>このスニペットでは、 <code>NODE_URL</code> 環境変数を使用してSymbol API<a class="mkdocs-ezglossary-link"
 	id="68f7886b9a26cb5ab0585ae0d1dbf432"
-	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
-コンセンサス とブロック生成に参加するコンピュータです。"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
 	href="../../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
@@ -12910,11 +12910,13 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 	name="ws:unconfirmedAdded&#47;{address}"
 	href="../../../devbook/reference/websockets/#362b6befe8da230ea235c506ccc3e47b">unconfirmedAdded&#47;{address}</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code>: トランザクションが<a class="mkdocs-ezglossary-link"
 	id="90e68de6d7409926ae4af9ff4bd27334"
-	title="ネットワーク全体で共有される、検証待ちトランザクションの一覧。"
+	title="ブロックへの取り込みを待つ検証済みトランザクションの一覧であり、各ノードが保持します。"
 	name="_:未承認トランザクションプール"
 	href="../../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a> に入り、<a class="mkdocs-ezglossary-link"
 	id="0447035871a5559cb220f004a560efe1"
-	title="ブロックとは、特定の時点で発生したトランザクションおよびその他の「状態変更」をまとめて記録したものです。"
+	title="ブロックとは、特定の時点で発生したトランザクションを記録し、
+それらの結果として生じる「状態変更」もまとめたものです。
+これには、過去のブロックに記録されたトランザクションから派生する状態変更も含まれます。"
 	name="_:ブロック"
 	href="../../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a> に含まれるのを待っているときに通知します。</li>
 <li><code><a class="mkdocs-ezglossary-link"

@@ -12367,8 +12367,8 @@
 	name="_:Shoestring"
 	href="../../../userbook/shoestring/overview/#2a1a9bfad06f50393b16eb629894551a">Shoestring</a> ツールを使用して新しいSymbol <a class="mkdocs-ezglossary-link"
 	id="6c2a451b90e45948013cb3451773c772"
-	title="Symbol ソフトウェアを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
-コンセンサス とブロック生成に参加するコンピュータです。"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
 	href="../../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> をデプロイし、起動する方法を示します。</p>
 <p>このチュートリアルでは、Shoestringとその依存関係がすでに<a href="../install/">インストール済み</a>であることを前提としています。</p>
@@ -12393,11 +12393,11 @@
 <p>このチュートリアルのすべてのコマンドは、このディレクトリで実行することを前提としています。</p>
 <h3 id="2-generate-the-network-configuration">2. ネットワーク設定の生成<a class="headerlink" href="#2-generate-the-network-configuration" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>最初のステップは、ターゲットとするネットワーク（ <a class="mkdocs-ezglossary-link"
-	id="03a1b7879d191dda96ad600f3d8b821f"
+	id="e9c6880a2aa1a9ef1af2c56b47f44b95"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> または <a class="mkdocs-ezglossary-link"
-	id="a3ca04ca89d1f3e1f13c10e34e58aa97"
+	id="1440dc36b91316e5812832a834cdd30c"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> ）のデフォルト設定ファイルを取得することです。</p>
@@ -12405,12 +12405,12 @@
 <div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>mainnet<span class="w"> </span>config.ini
 </span></code></pre></div>
 <p>このコマンドは、 <a class="mkdocs-ezglossary-link"
-	id="e9c6880a2aa1a9ef1af2c56b47f44b95"
+	id="3cb761ad733c14291a26aa1fcfe6e9a4"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で動作するために必要な設定ファイルをダウンロードし、 <code>config.ini</code> ファイルを作成します。</p>
 <p><a class="mkdocs-ezglossary-link"
-	id="1440dc36b91316e5812832a834cdd30c"
+	id="33d2d2d2d25fc4df5332a7f6ac4475f4"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> の場合は、代わりに <code>sai</code> パッケージを使用します。
@@ -12434,7 +12434,7 @@
 <li><code>PEER</code>: ノードはコンセンサスに参加します。</li>
 <li><code>API</code>: ノードはクライアントアプリケーション用のAPIを公開します。</li>
 <li><code>HARVESTER</code>: ノードはブロック生成に参加し、 <a class="mkdocs-ezglossary-link"
-	id="fae1f06a41eb8038ace3bdee0c6805e1"
+	id="9e4eb7a5cc8e91916e6d9e68b6bb6701"
 	title="Symbol が新しい ブロック をチェーンに追加し、参加する
 アカウント に報酬を分配するプロセスです。
 PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。"
@@ -12790,11 +12790,11 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	name="_:インポータンス"
 	href="../../../textbook/harvesting/#8d301074509fc6237fa93b125ad7eb12">インポータンス</a> が高いほど、ノードがブロックをハーベストし、報酬を受け取れる確率が高くなります。</p>
 <p>メインアカウントに資金を提供したばかりの場合、インポータンスの更新には <a class="mkdocs-ezglossary-link"
-	id="3cb761ad733c14291a26aa1fcfe6e9a4"
+	id="2764c9147c6e38a5c9718705ac32a324"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で12時間、 <a class="mkdocs-ezglossary-link"
-	id="33d2d2d2d25fc4df5332a7f6ac4475f4"
+	id="ab3f61985be59184db4de336887be053"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> で3時間かかります。</p>
