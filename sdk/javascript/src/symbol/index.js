@@ -1,3 +1,4 @@
+import { calculateTransactionFee } from './FeeCalculator.js';
 import { KeyPair, Verifier } from './KeyPair.js';
 import MessageEncoder from './MessageEncoder.js';
 import { Address, Network, NetworkTimestamp } from './Network.js';
@@ -92,6 +93,8 @@ export {
 	// endregion
 
 	// region Symbol extensions
+
+	calculateTransactionFee,
 
 	generateMosaicId,
 	generateNamespaceId,
