@@ -1,8 +1,8 @@
 {% set ns = namespace(step_count=1) %}
 {% set ns.group_count = 99 %}
-{% set lang_name = {"py":"Python", "js":"JavaScript"} %}
-{% set lang_icon = {"py":":simple-python:", "js":":simple-javascript:"} %}
-{% set lang_ext = {"py":"py", "js":"mjs"} %}
+{% set lang_name = {"py":"Python", "js":"JavaScript", "java": "Java"} %}
+{% set lang_icon = {"py":":simple-python:", "js":":simple-javascript:", "java":":fontawesome-brands-java:"} %}
+{% set lang_ext = {"py":"py", "js":"mjs", "java":"java"} %}
 
 {% macro list_begin() -%}
 {% set ns.step_count = 1 %}
