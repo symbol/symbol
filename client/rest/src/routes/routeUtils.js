@@ -207,64 +207,48 @@ const routeUtils = {
 		/**
 		 * Creates an array handler that forwards an array.
 		 * @param {object} id Array identifier.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
 		 * @returns {Function} An appropriate array handler.
 		 */
-		sendArray(id, res, next) {
+		sendArray(id) {
 			return array => {
 				if (!Array.isArray(array))
-					res.send(errors.createInternalError(`error retrieving data for id: '${id}'`));
-				else
-					res.send({ payload: array, type });
-
-				next();
+					throw errors.createInternalError(`error retrieving data for id: '${id}'`);
+				return { payload: array, type };
 			};
 		},
 
 		/**
 		 * Creates an object handler that either forwards an object corresponding to an identifier
-		 * or sends a not found error if no such object exists.
+		 * or throws a not found error if no such object exists.
 		 * @param {object} id Object identifier.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
 		 * @returns {Function} An appropriate object handler.
 		 */
-		sendOne(id, res, next) {
-			const sendOneObject = object => {
+		sendOne(id) {
+			const resolveOne = object => {
 				if (!object)
-					res.send(errors.createNotFoundError(id));
-				else
-					res.send({ payload: object, type });
+					throw errors.createResourceNotFoundError(id);
+				return { payload: object, type };
 			};
 
 			return object => {
 				if (Array.isArray(object)) {
 					if (2 <= object.length)
-						res.send(errors.createInternalError(`error retrieving data for id: '${id}' (length ${object.length})`));
-					else
-						sendOneObject(object.length && object[0]);
-				} else {
-					sendOneObject(object);
+						throw errors.createInternalError(`error retrieving data for id: '${id}' (length ${object.length})`);
+					return resolveOne(object.length && object[0]);
 				}
-
-				next();
+				return resolveOne(object);
 			};
 		},
 
 		/**
 		 * Creates a page handler that forwards a paginated result.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
 		 * @returns {Function} An appropriate object handler.
 		 */
-		sendPage(res, next) {
+		sendPage() {
 			return page => {
 				if (!isPage(page))
-					res.send(errors.createInternalError('error retrieving data'));
-				else
-					res.send({ payload: page, type, structure: 'page' });
-				next();
+					throw errors.createInternalError('error retrieving data');
+				return { payload: page, type, structure: 'page' };
 			};
 		}
 	}),
@@ -287,14 +271,16 @@ const routeUtils = {
 			routes.post += `/${routeInfo.postfixes.plural}`;
 		}
 
-		server.get(routes.get, (req, res, next) => {
-			const key = routeUtils.parseArgument(req.params, routeInfo.singular, parser);
-			return documentRetriever([key]).then(sender.sendOne(req.params[routeInfo.singular], res, next));
+		server.get(routes.get, async (request, reply) => {
+			const key = routeUtils.parseArgument(request.params, routeInfo.singular, parser);
+			const result = await documentRetriever([key]);
+			return reply.send(sender.sendOne(request.params[routeInfo.singular])(result));
 		});
 
-		server.post(routes.post, (req, res, next) => {
-			const keys = routeUtils.parseArgumentAsArray(req.params, routeInfo.plural, parser);
-			return documentRetriever(keys).then(sender.sendArray(req.params[routeInfo.plural], res, next));
+		server.post(routes.post, async (request, reply) => {
+			const keys = routeUtils.parseArgumentAsArray(request.params, routeInfo.plural, parser);
+			const result = await documentRetriever(keys);
+			return reply.send(sender.sendArray(request.params[routeInfo.plural])(result));
 		});
 	},
 
@@ -313,14 +299,10 @@ const routeUtils = {
 			return Buffer.concat(buffers, length);
 		};
 
-		server.put(routeInfo.routeName, (req, res, next) => {
-			const packetBuffer = createPacketFromBuffer(parser(req.params), routeInfo.packetType);
-			return connections.lease()
-				.then(connection => connection.send(packetBuffer))
-				.then(() => {
-					res.send(202, { message: `packet ${routeInfo.packetType} was pushed to the network via ${routeInfo.routeName}` });
-					next();
-				});
+		server.put(routeInfo.routeName, async (request, reply) => {
+			const packetBuffer = createPacketFromBuffer(parser(request.params), routeInfo.packetType);
+			await connections.lease().then(connection => connection.send(packetBuffer));
+			reply.code(202).send({ message: `packet ${routeInfo.packetType} was pushed to the network via ${routeInfo.routeName}` });
 		});
 	},
 
@@ -329,45 +311,36 @@ const routeUtils = {
 	 * @param {module:db/CatapultDb} db Catapult database.
 	 * @param {string} blockMetaCountField Field name for block meta count.
 	 * @param {string} blockMetaTreeField Field name for block meta merkle tree.
-	 * @returns {Function} Restify response function to process merkle path requests.
+	 * @returns {Function} Fastify-native async handler for merkle path requests.
 	 */
-	blockRouteMerkleProcessor: (db, blockMetaCountField, blockMetaTreeField) => (req, res, next) => {
-		const height = routeUtils.parseArgument(req.params, 'height', 'uint64');
-		const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
+	blockRouteMerkleProcessor: (db, blockMetaCountField, blockMetaTreeField) => async (request, reply) => {
+		const height = routeUtils.parseArgument(request.params, 'height', 'uint64');
+		const hash = routeUtils.parseArgument(request.params, 'hash', 'hash256');
 
-		return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithMerkleTreeAtHeight(height, blockMetaTreeField))
-			.then(result => {
-				if (!result.isRequestValid) {
-					res.send(errors.createNotFoundError(height));
-					return next();
-				}
+		const result = await dbFacade.runHeightDependentOperation(
+			db,
+			height,
+			() => db.blockWithMerkleTreeAtHeight(height, blockMetaTreeField)
+		);
 
-				const block = result.payload;
-				const errorMessage = `hash '${req.params.hash}' not included in block height '${height}'`;
-				if (!block.meta[blockMetaCountField]) {
-					res.send(errors.createInvalidArgumentError(errorMessage));
-					return next();
-				}
+		if (!result.isRequestValid)
+			throw errors.createResourceNotFoundError(height);
 
-				const merkleTree = {
-					count: block.meta[blockMetaCountField],
-					nodes: block.meta[blockMetaTreeField].map(merkleHash => merkleHash.buffer)
-				};
+		const block = result.payload;
+		const errorMessage = `hash '${request.params.hash}' not included in block height '${height}'`;
+		if (!block.meta[blockMetaCountField])
+			throw errors.createInvalidArgumentError(errorMessage);
 
-				if (0 > indexOfLeafWithHash(hash, merkleTree)) {
-					res.send(errors.createInvalidArgumentError(errorMessage));
-					return next();
-				}
+		const merkleTree = {
+			count: block.meta[blockMetaCountField],
+			nodes: block.meta[blockMetaTreeField].map(merkleHash => merkleHash.buffer)
+		};
 
-				const merklePath = buildAuditPath(hash, merkleTree);
+		if (0 > indexOfLeafWithHash(hash, merkleTree))
+			throw errors.createInvalidArgumentError(errorMessage);
 
-				res.send({
-					payload: { merklePath },
-					type: routeResultTypes.merkleProofInfo
-				});
-
-				return next();
-			});
+		const merklePath = buildAuditPath(hash, merkleTree);
+		return reply.send({ payload: { merklePath }, type: routeResultTypes.merkleProofInfo });
 	}
 };
 

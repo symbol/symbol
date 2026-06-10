@@ -23,13 +23,12 @@ import SubscriptionManager from './SubscriptionManager.js';
 import errors from './errors.js';
 import websocketMessageHandler from './websocketMessageHandler.js';
 import websocketUtils from './websocketUtils.js';
-import restify from 'restify';
-import restifyErrors from 'restify-errors';
+import accepts from '@fastify/accepts';
+import rateLimit from '@fastify/rate-limit';
+import Fastify from 'fastify';
 import winston from 'winston';
 import { WebSocketServer } from 'ws';
 import fs from 'fs';
-
-const isPromise = object => object && object.catch;
 
 const toRestError = err => {
 	const restError = errors.toRestError(err);
@@ -68,43 +67,36 @@ const TEXT_PLAIN_PATHS = [
 	'/network/currency/supply/total'
 ];
 
-const catapultRestifyPlugins = {
-	crossDomain: addCrossDomainHeaders => (req, res, next) => {
-		addCrossDomainHeaders(req, res);
-		next();
+const catapultPlugins = {
+	crossDomain: addCrossDomainHeaders => async (request, reply) => {
+		// OPTIONS CORS headers are added by the dedicated OPTIONS wildcard handler, not here,
+		// so they are only included in successful (2xx) responses and not in 404 responses
+		if ('OPTIONS' === request.method)
+			return;
+
+		addCrossDomainHeaders(request, reply);
 	},
-	body: () => (req, res, next) => {
-		// reject any GET or OPTIONS request with a body
-		const mediaType = req.contentType().toLowerCase();
-		if (['GET', 'OPTIONS'].includes(req.method)) {
-			if (!req.contentLength())
-				next();
-			else
-				next(new restifyErrors.UnsupportedMediaTypeError(mediaType));
+	body: () => async request => {
+		const mediaType = (request.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+		if (['GET', 'OPTIONS'].includes(request.method)) {
+			const len = parseInt(request.headers['content-length'] || '0', 10);
+			if (0 < len)
+				throw errors.createUnsupportedMediaTypeError(mediaType);
 
 			return;
 		}
 
-		// for other HTTP methods reject mismatched media types even if body is empty
-		if ('application/json' !== mediaType) {
-			next(new restifyErrors.UnsupportedMediaTypeError(mediaType));
-			return;
-		}
-
-		next();
+		if ('application/json' !== mediaType)
+			throw errors.createUnsupportedMediaTypeError(mediaType);
 	},
-	acceptParser: () => (req, res, next) => {
-		const isTextPlainPath = TEXT_PLAIN_PATHS.includes(req.path());
-		const accepts = isTextPlainPath ? ['text/plain'] : ['application/json'];
-
-		if (req.accepts(accepts))
-			return next();
-
-		const error = isTextPlainPath
-			? new restifyErrors.NotAcceptableError('Endpoint accepts only text/plain')
-			: new restifyErrors.NotAcceptableError('Endpoint accepts only application/json');
-
-		return next(error);
+	acceptParser: () => async request => {
+		const urlPath = request.url.split('?')[0];
+		const isTextPlainPath = TEXT_PLAIN_PATHS.includes(urlPath);
+		const acceptType = isTextPlainPath ? 'text/plain' : 'application/json';
+		if (!request.accepts().type(acceptType)) {
+			const requiredType = isTextPlainPath ? 'text/plain' : 'application/json';
+			throw errors.createNotAcceptableError(`Endpoint accepts only ${requiredType}`);
+		}
 	}
 };
 
@@ -122,6 +114,7 @@ const readSSLFileSync = (path, fileType, pathProperty) => {
 	}
 };
 
+const HTTP_METHODS = ['GET', 'POST', 'PUT'];
 export default {
 	createCrossDomainHeaderAdder,
 
@@ -142,56 +135,137 @@ export default {
 		const protocol = config.protocol || 'HTTPS';
 		winston.info(`Using protocol: ${protocol}`);
 
-		const serverOptions = {
-			name: '', // disable server header in response
-			formatters: {
-				'application/json': formatters.json
-			},
-			...('HTTPS' === protocol
-				? {
-					key: readSSLFileSync(config.sslKeyPath, 'Key', 'sslKeyPath'),
-					certificate: readSSLFileSync(
-						config.sslCertificatePath,
-						'Certificate',
-						'sslCertificatePath'
-					)
-				}
-				: {})
-		};
+		let httpsOptions = null;
+		if ('HTTPS' === protocol) {
+			httpsOptions = {
+				key: readSSLFileSync(config.sslKeyPath, 'Key', 'sslKeyPath'),
+				cert: readSSLFileSync(config.sslCertificatePath, 'Certificate', 'sslCertificatePath')
+			};
+		}
 
-		// create the server using a custom formatter
-		const server = restify.createServer(serverOptions);
+		const server = Fastify({
+			https: httpsOptions,
+			disableRequestLogging: true,
+			trustProxy: config.trustProxy || false
+		});
+		server.register(accepts);
 
-		// only allow application/json
-		server.pre(catapultRestifyPlugins.body());
-
-		// config.crossDomain: Configuration related to access control, contains allowed host and HTTP methods.
-		if (!config.crossDomain)
-			winston.warn('CORS was not enabled - configuration incomplete');
-
-		const addCrossDomainHeaders = createCrossDomainHeaderAdder(config.crossDomain || {});
-
-		server.use(catapultRestifyPlugins.crossDomain(addCrossDomainHeaders));
-		server.use(catapultRestifyPlugins.acceptParser());
-		server.use(restify.plugins.queryParser({ mapParams: true, parseArrays: false }));
-		server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
-
+		// rate limiting
 		if (throttlingConfig) {
-			if (throttlingConfig.burst && throttlingConfig.rate) {
-				server.use(restify.plugins.throttle({
-					burst: throttlingConfig.burst,
-					rate: throttlingConfig.rate,
-					ip: true
-				}));
+			if (throttlingConfig.max && throttlingConfig.timeWindow) {
+				winston.warn(`Registering throttling ${throttlingConfig.timeWindow}ms max: ${throttlingConfig.max}`);
+				server.register(rateLimit, {
+					global: true,
+					max: throttlingConfig.max,
+					timeWindow: throttlingConfig.timeWindow,
+					allowList: throttlingConfig.allowList || [],
+					keyGenerator: request => request.ip
+				});
 			} else {
 				winston.warn('throttling was not enabled - configuration is invalid or incomplete');
 			}
 		}
 
+		// config.crossDomain: Configuration related to access control, contains allowed host and HTTP methods.
+		if (!config.crossDomain)
+			winston.warn('CORS was not enabled - configuration incomplete');
+
 		// make the server promise aware (only a subset of HTTP methods are supported)
 		const routeDescriptors = [];
+		const fastifyRegisterHooks = fastify => {
+			// Override the default JSON body parser to accept empty bodies gracefully
+			// (Fastify v5 otherwise returns 400 for PUT/POST with Content-Type: application/json but no body)
+			fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
+				try {
+					done(null, body ? JSON.parse(body) : {});
+				} catch (err) {
+					const parseError = new Error(`Invalid JSON body: ${err.message}`);
+					parseError.statusCode = 400;
+					done(parseError, undefined);
+				}
+			});
+
+			fastify.addHook('onRequest', catapultPlugins.body());
+			const addCrossDomainHeaders = createCrossDomainHeaderAdder(config.crossDomain || {});
+			fastify.addHook('onRequest', catapultPlugins.crossDomain(addCrossDomainHeaders));
+			fastify.addHook('onRequest', catapultPlugins.acceptParser());
+
+			// custom error handler — covers hook errors and route errors
+			fastify.setErrorHandler((error, request, reply) => {
+				const restError = toRestError(error);
+				reply.code(restError.statusCode)
+					.type('application/json')
+					.send(restError.body || { message: restError.message });
+			});
+
+			// Merge path params + query + body into request.params (mirrors restify's mapParams:true)
+			fastify.addHook('preHandler', async request => {
+				request.params = Object.assign(
+					{},
+					request.params,
+					request.query,
+					request.body && 'object' === typeof request.body ? request.body : {}
+				);
+			});
+
+			// Format catapult payload envelopes before serialization
+			fastify.addHook('preSerialization', async (request, reply, payload) => {
+				if ('object' !== typeof payload || null === payload || Buffer.isBuffer(payload))
+					return payload;
+
+				const formatterName = payload.formatter;
+				if (undefined !== formatterName)
+					delete payload.formatter;
+
+				const formatter = formatters[formatterName || 'json'];
+				if (!formatter)
+					return payload;
+
+				reply.type('application/json');
+				const jsonString = 'ws' === formatterName ? formatter(payload) : formatter(request, reply, payload);
+
+				// jsonString is already a serialized JSON string; bypass Fastify's own
+				reply.serializer(s => s);
+				return jsonString;
+			});
+
+			const getAllowedMethodsForUrl = url => HTTP_METHODS.filter(method => null !== fastify.findRoute({ method, url }));
+
+			// Not-found handler: returns 405 for method-not-allowed, 404 for unknown paths.
+			const rateLimitHandler = throttlingConfig && throttlingConfig.max && throttlingConfig.timeWindow
+				? { preHandler: fastify.rateLimit() }
+				: {};
+			fastify.setNotFoundHandler(rateLimitHandler, (request, reply) => {
+				const urlPath = request.url.split('?')[0];
+				const methods = getAllowedMethodsForUrl(urlPath);
+				if (0 < methods.length) {
+					if ('OPTIONS' === request.method) {
+						addCrossDomainHeaders(request, reply);
+						reply.header('allow', methods.join(', '));
+						reply.code(204).send('');
+					} else {
+						reply.header('allow', methods.join(', '));
+						reply.code(405).type('application/json').send({
+							code: 'MethodNotAllowed',
+							message: `${request.method} is not allowed`
+						});
+					}
+					return;
+				}
+
+				reply.code(404).type('application/json').send({
+					code: 'ResourceNotFound', message: `${urlPath} does not exist`
+				});
+			});
+		};
+
 		const promiseAwareServer = {
-			listen: port => {
+			/**
+			 * Starts the HTTP server. Returns a promise resolving to the underlying Node.js server.
+			 * @param {number} port TCP port to listen on (0 = OS-assigned).
+			 * @returns {Promise<object>} Resolves with the underlying `http.Server` instance.
+			 */
+			listen: async port => {
 				// sort routes by route name in descending order (catapult is only using string routes) in order to ensure that
 				// exact match routes (e.g. /foo/fixed) take precedence over wildcard routes (e.g. /foo/:variable)
 				routeDescriptors.sort((lhs, rhs) => {
@@ -200,51 +274,34 @@ export default {
 
 					return lhs.route < rhs.route ? 1 : -1;
 				});
+
+				// wait for all plugins to be ready before registering routes, to ensure that hooks are properly applied
+				await server.after();
+				fastifyRegisterHooks(server);
 				routeDescriptors.forEach(descriptor => {
 					server[descriptor.method](descriptor.route, descriptor.handler);
 				});
 
-				return server.listen(port);
+				await server.listen({ port, host: '0.0.0.0' });
+				return server.server;
 			}
 		};
 
-		['get', 'put', 'post'].forEach(method => {
+		HTTP_METHODS.map(method => method.toLowerCase()).forEach(method => {
 			promiseAwareServer[method] = (route, handler) => {
-				const promiseAwareHandler = (req, res, next) => {
-					try {
-						const result = handler(req, res, next);
-						if (!isPromise(result))
-							return;
-
-						result.catch(err => {
-							next(toRestError(err));
-						});
-					} catch (err) {
-						next(toRestError(err));
-					}
-				};
-
-				routeDescriptors.push({ method, route, handler: promiseAwareHandler });
+				routeDescriptors.push({ method, route, handler });
 			};
-		});
-
-		server.on('MethodNotAllowed', (req, res) => {
-			if ('OPTIONS' === req.method) {
-				// notice that headers need to be added explicitly because catapultRestifyPlugins.crossDomain is not called after errors
-				addCrossDomainHeaders(req, res);
-				return res.send(204);
-			}
-
-			// fallback to default behavior
-			return res.send(new restifyErrors.MethodNotAllowedError(`${req.method} is not allowed`));
 		});
 
 		// handle upgrade events (for websocket support)
 		const wss = new WebSocketServer({ noServer: true, clientTracking: false });
 
-		server.on('upgrade', (req, socket, head) => {
-			wss.handleUpgrade(req, socket, head, client => {
-				wss.emit(`connection${req.url}`, client);
+		// attach the WS upgrade handler to the underlying Node.js server once Fastify is ready
+		server.ready(() => {
+			server.server.on('upgrade', (req, socket, head) => {
+				wss.handleUpgrade(req, socket, head, client => {
+					wss.emit(`connection${req.url}`, client);
+				});
 			});
 		});
 
@@ -281,7 +338,7 @@ export default {
 
 			// close the servers
 			wss.close();
-			server.close();
+			server.close(err => winston.info(`Server closed${err ? `: ${err}` : ''}`));
 		};
 
 		return promiseAwareServer;

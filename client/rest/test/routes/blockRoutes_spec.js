@@ -83,7 +83,7 @@ describe('block routes', () => {
 						type: routeResultTypes.block,
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 

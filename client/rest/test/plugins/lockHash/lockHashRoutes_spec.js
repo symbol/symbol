@@ -140,7 +140,7 @@ describe('lock hash routes', () => {
 						expect(dbHashLocksFake.calledOnce).to.equal(true);
 						expect(dbHashLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddress).bytes]);
 
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -159,7 +159,7 @@ describe('lock hash routes', () => {
 							type: 'hashLockInfo',
 							structure: 'page'
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -178,7 +178,7 @@ describe('lock hash routes', () => {
 							type: 'hashLockInfo',
 							structure: 'page'
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -187,7 +187,10 @@ describe('lock hash routes', () => {
 					const req = { params: { address: 'AB12345' } };
 
 					// Act + Assert:
-					expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
+					return mockServer.callRoute(route, req).then(() => {
+						expect(mockServer.done.calledOnce).to.equal(true);
+						expect(mockServer.done.firstCall.args[0].message).to.include('address has an invalid format');
+					});
 				});
 			});
 		});

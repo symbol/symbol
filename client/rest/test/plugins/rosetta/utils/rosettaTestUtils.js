@@ -123,7 +123,7 @@ export const assertRosettaErrorRaisedBasicWithRegister = async (registerRoutes, 
 
 	// Assert:
 	expect(mockServer.send.calledOnce).to.equal(true);
-	expect(mockServer.next.calledOnce).to.equal(true);
+	expect(mockServer.done.calledOnce).to.equal(true);
 	expect(mockServer.res.statusCode).to.equal(500);
 
 	const response = mockServer.send.firstCall.args[0];
@@ -141,7 +141,7 @@ export const assertRosettaSuccessBasicWithRegister = async (registerRoutes, rout
 
 	// Assert:
 	expect(mockServer.send.calledOnce).to.equal(true);
-	expect(mockServer.next.calledOnce).to.equal(true);
+	expect(mockServer.done.calledOnce).to.equal(true);
 	expect(mockServer.res.statusCode).to.equal(undefined);
 
 	const response = mockServer.send.firstCall.args[0];

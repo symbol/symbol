@@ -23,8 +23,8 @@
     },
 
     "throttling": {
-        "burst": 20,
-        "rate": 5
+        "max": 20,
+        "timeWindow": 1000
     },
 
     "logging": {
@@ -50,5 +50,7 @@
         "deploymentTool": "",
         "deploymentToolVersion": "",
         "lastUpdatedDate": ""
-    }
+    },
+
+    "trustProxy": false
 }

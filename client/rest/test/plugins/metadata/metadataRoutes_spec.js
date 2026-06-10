@@ -144,7 +144,7 @@ describe('metadata routes', () => {
 						type: 'metadata',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -158,7 +158,7 @@ describe('metadata routes', () => {
 					expect(dbMetadataFake.calledOnce).to.equal(true);
 					expect(dbMetadataFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -172,7 +172,7 @@ describe('metadata routes', () => {
 					expect(dbMetadataFake.calledOnce).to.equal(true);
 					expect(dbMetadataFake.firstCall.args[1]).to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -186,7 +186,7 @@ describe('metadata routes', () => {
 					expect(dbMetadataFake.calledOnce).to.equal(true);
 					expect(dbMetadataFake.firstCall.args[2]).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -200,7 +200,7 @@ describe('metadata routes', () => {
 					expect(dbMetadataFake.calledOnce).to.equal(true);
 					expect(dbMetadataFake.firstCall.args[3]).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -214,7 +214,7 @@ describe('metadata routes', () => {
 					expect(dbMetadataFake.calledOnce).to.equal(true);
 					expect(dbMetadataFake.firstCall.args[4]).to.equal(1);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -233,7 +233,7 @@ describe('metadata routes', () => {
 						type: 'metadata',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 		});
@@ -256,20 +256,18 @@ describe('metadata routes', () => {
 
 		beforeEach(() => {
 			mockServer.resetStats();
-			mockServer.res.setHeader = sinon.spy();
-			mockServer.res.write = sinon.spy();
-			mockServer.res.end = sinon.spy();
+			mockServer.header.resetHistory();
 		});
 
 		describe('get by metal id', () => {
 			const callRouteAndAssert = async (route, req, shouldCallDb) => {
 				await mockServer.callRoute(route, req).then(() => {
-					expect(mockServer.res.write.calledOnce).to.equal(true);
-					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.res.setHeader.calledWithExactly('content-type', 'image/png')).to.equal(true);
-					expect(mockServer.res.setHeader
+					expect(mockServer.send.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.header.calledWithExactly('content-type', 'image/png')).to.equal(true);
+					expect(mockServer.header
 						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
-					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_text')).to.equal(true);
+					expect(mockServer.header.calledWithExactly('Content-MetalText', 'db_text')).to.equal(true);
 					expect(db.binDataByMetalId.calledOnce).to.equal(shouldCallDb);
 					if (shouldCallDb)
 						expect(db.binDataByMetalId.alwaysCalledWith('metal_id')).to.equal(true);
@@ -289,7 +287,7 @@ describe('metadata routes', () => {
 
 			it('returns page with results and uses DB on single call', async () => {
 				// Act + Assert:
-				callRouteAndAssert(route, req, true);
+				await callRouteAndAssert(route, req, true);
 			});
 
 			it('returns page with results and uses cache on second call', async () => {
@@ -298,9 +296,9 @@ describe('metadata routes', () => {
 				await mockServer.callRoute(route, req);
 
 				// Reset the spies
-				mockServer.res.write.resetHistory();
-				mockServer.next.resetHistory();
-				mockServer.res.setHeader.resetHistory();
+				mockServer.send.resetHistory();
+				mockServer.done.resetHistory();
+				mockServer.header.resetHistory();
 				db.binDataByMetalId.resetHistory();
 
 				// Act & Assert:

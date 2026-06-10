@@ -35,8 +35,8 @@ export default {
 	register: (server, db, services) => {
 		const metadataSender = routeUtils.createSender(routeResultTypes.metadata);
 
-		server.get('/metadata', (req, res, next) => {
-			const { params } = req;
+		server.get('/metadata', async (request, reply) => {
+			const { params } = request;
 			const sourceAddress = params.sourceAddress ? routeUtils.parseArgument(params, 'sourceAddress', 'address') : undefined;
 			const targetAddress = params.targetAddress ? routeUtils.parseArgument(params, 'targetAddress', 'address') : undefined;
 			const scopedMetadataKey = params.scopedMetadataKey
@@ -46,8 +46,8 @@ export default {
 
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
-			return db.metadata(sourceAddress, targetAddress, scopedMetadataKey, targetId, metadataType, options)
-				.then(result => metadataSender.sendPage(res, next)(result));
+			const result = await db.metadata(sourceAddress, targetAddress, scopedMetadataKey, targetId, metadataType, options);
+			return reply.send(metadataSender.sendPage()(result));
 		});
 
 		routeUtils.addGetPostDocumentRoutes(
@@ -59,18 +59,16 @@ export default {
 		);
 
 		// this endpoint is here because it is expected to support requests by block other than <current block>
-		server.get('/metadata/:compositeHash/merkle', (req, res, next) => {
-			const compositeHash = routeUtils.parseArgument(req.params, 'compositeHash', 'hash256');
+		server.get('/metadata/:compositeHash/merkle', async (request, reply) => {
+			const compositeHash = routeUtils.parseArgument(request.params, 'compositeHash', 'hash256');
 			const state = PacketType.metadataStatePath;
-			return merkleUtils.requestTree(services, state, compositeHash).then(response => {
-				res.send(response);
-				next();
-			});
+			const response = await merkleUtils.requestTree(services, state, compositeHash);
+			return reply.send(response);
 		});
 
-		server.get('/metadata/metal/:metalId', async (req, res, next) => {
+		server.get('/metadata/metal/:metalId', async (request, reply) => {
 			const { cacheTtl, sizeLimit } = services.config.metal;
-			const sendData = (data, mimeType, fileName, text, download) => sendMetalData(res, next)(
+			const sendData = (data, mimeType, fileName, text, download) => sendMetalData(reply)(
 				data,
 				mimeType,
 				fileName,
@@ -87,7 +85,7 @@ export default {
 
 			const {
 				mimeType: initialMimeType, fileName: initialFileName, metalId, download
-			} = req.params;
+			} = request.params;
 			const cachePayloadKey = `metadata:${metalId}_payload`;
 			const cacheTextKey = `metadata:${metalId}_text`;
 			const cachedPayload = cache.get(cachePayloadKey);
@@ -95,20 +93,20 @@ export default {
 
 			if (undefined !== cachedPayload) {
 				const { mimeType, fileName } = deriveParams(cachedText, initialMimeType, initialFileName);
-				sendData(cachedPayload, mimeType, fileName, cachedText, download);
-			} else {
-				const { payload, text } = await db.binDataByMetalId(metalId);
-				const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
-				const estimatedNewCacheSize = cache.getStats().vsize + payload.length + (text?.length || 0);
-
-				if (estimatedNewCacheSize <= sizeLimit) {
-					// Cache the data for cacheTtl
-					cache.set(cachePayloadKey, payload, cacheTtl);
-					if (text)
-						cache.set(cacheTextKey, text, cacheTtl);
-				}
-				sendData(payload, mimeType, fileName, text, download);
+				return sendData(cachedPayload, mimeType, fileName, cachedText, download);
 			}
+
+			const { payload, text } = await db.binDataByMetalId(metalId);
+			const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
+			const estimatedNewCacheSize = cache.getStats().vsize + payload.length + (text?.length || 0);
+
+			if (estimatedNewCacheSize <= sizeLimit) {
+				// Cache the data for cacheTtl
+				cache.set(cachePayloadKey, payload, cacheTtl);
+				if (text)
+					cache.set(cacheTextKey, text, cacheTtl);
+			}
+			return sendData(payload, mimeType, fileName, text, download);
 		});
 	}
 };
