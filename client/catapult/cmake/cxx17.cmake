@@ -6,11 +6,6 @@ set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
-# Sets the default logging level affecting printout of message() commands
-if(NOT DEFINED CMAKE_MESSAGE_LOG_LEVEL)
-	set(CMAKE_MESSAGE_LOG_LEVEL "WARNING" CACHE STRING "Default logging level")
-endif()
-
 if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
 	set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "Default architecture")
 endif()
