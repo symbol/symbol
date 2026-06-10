@@ -165,10 +165,11 @@ namespace catapult { namespace test {
 
 	std::string TempDirectoryGuard::DefaultName() {
 		// computed once per process: CreateProcessUniqueName() embeds a timestamp, so the value is not constexpr
-		static const auto defaultName = []() {
-			return (std::filesystem::path(Temp_Directory_Root) / CreateProcessUniqueName()).generic_string();
-		}();
-		return defaultName;
+		// use pointer to avoid exit-time destructor (process-lifetime string, intentionally leaked)
+		static const std::string* pDefaultName = new std::string(
+			(std::filesystem::path(Temp_Directory_Root) / CreateProcessUniqueName()).generic_string()
+		);
+		return *pDefaultName;
 	}
 
 	// endregion
