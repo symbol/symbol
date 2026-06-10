@@ -36,7 +36,7 @@ export default defineConfig([
 		rules: {
 			'import/extensions': ['error', 'ignorePackages'],
 			'no-underscore-dangle': ['error', {
-				allow: ['_id']
+				allow: ['_id'] // mongodb identifier
 			}]
 		}
 	},

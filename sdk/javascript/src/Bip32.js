@@ -56,13 +56,11 @@ export class Bip32Node {
 	derivePath(path) {
 		return path.reduce(
 			/**
-			 * @param {Bip32Node} nextNode next node
-			 * @param {number} identifier identifier
+			 * @param {Bip32Node} nextNode Parent node
+			 * @param {number} identifier BIP32 path identifier
 			 * @returns {Bip32Node} BIP32 node
 			 */
-			(nextNode, identifier) => {
-				return nextNode.deriveOne(identifier);
-			},
+			(nextNode, identifier) => nextNode.deriveOne(identifier),
 			/** @type {Bip32Node} */ (this)
 		);
 	}

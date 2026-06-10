@@ -32,7 +32,7 @@ export default {
 		'no-underscore-dangle': ['error', {
 			allowAfterThis: true
 		}],
-		camelcase: ['off'],
+		camelcase: ['off'], // for consts, e.g. Foo_Bar
 		'comma-dangle': ['error', 'never'],
 		'default-case': ['off'],
 		'arrow-parens': ['error', 'as-needed'],
@@ -58,6 +58,7 @@ export default {
 		'import/extensions': ['error', 'never'],
 		'import/no-absolute-path': ['error'],
 		'import/no-unresolved': [2, {
+			// disable for symbol-sdk until https://github.com/import-js/eslint-plugin-import/issues/1810 is resolved
 			ignore: ['^symbol-sdk/']
 		}],
 		'import/no-deprecated': ['error'],

@@ -18,7 +18,8 @@ export default defineConfig([
 	},
 	{
 		plugins: {
-			import: importPlugin
+			import: importPlugin,
+			jsdoc
 		},
 		languageOptions: {
 			globals: {
@@ -49,12 +50,20 @@ export default defineConfig([
 		...sharedTestConfig
 	},
 	{
-		files: ['examples/**/*.js', 'vectors/**/*.js'],
+		files: ['vectors/**/*.js'],
 		languageOptions: {
 			globals: {
 				...globals.mocha
 			}
 		},
+		...sharedTestConfig,
+		rules: {
+			...sharedTestConfig.rules,
+			'no-console': 'off'
+		}
+	},
+	{
+		files: ['examples/**/*.js'],
 		...sharedTestConfig,
 		rules: {
 			...sharedTestConfig.rules,
