@@ -373,7 +373,9 @@ aside.md-source-file {
 
 /* Hide definition list terms generated automatically for the reference guide */
 .automatic-reference-term dt {
-	display: none;
+	visibility: hidden;
+	height: 0;
+	padding: 0 !important;
 }
 
 /* Glossaries */
@@ -392,7 +394,7 @@ aside.md-source-file {
 	margin-right: 1.875em;
 }
 
-.md-content dt:has(a:target) {
+.md-content dl::not(.automatic-reference-term) dt:has(a:target) {
 	background-color: var(--md-primary-fg-color--light);
 	display: block;
 }
