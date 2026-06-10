@@ -83,6 +83,16 @@ describe('RuleBasedTransactionFactory', () => {
 			}
 		};
 
+		static StructWrapped = class StructWrapped {
+			static TYPE_HINTS = {
+				inner: 'struct:StructPlain'
+			};
+
+			constructor() {
+				this.inner = new Module.StructPlain();
+			}
+		};
+
 		static StructArrayMember = class StructArrayParse {
 			static TYPE_HINTS = {
 				mosaicIds: 'array[UnresolvedMosaicId]'
@@ -593,6 +603,33 @@ describe('RuleBasedTransactionFactory', () => {
 				0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x5F, 0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46
 			]));
 			expect(parsed.amount).to.deep.equal(new Uint8Array([
+				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39, 0x5F,
+				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39
+			]));
+			expect(parsed.type).to.equal(undefined);
+		});
+
+		it('can create struct and auto encode nested strings', () => {
+			// Arrange: use a wrapped struct but set string values in the inner struct
+			const factory = new RuleBasedTransactionFactory(Module);
+			factory.addStructParser('StructPlain');
+			factory.addStructParser('StructWrapped');
+			const entityFactory = entityType => (123 !== entityType ? undefined : new Module.StructWrapped());
+
+			// Act:
+			const parsed = factory.createFromFactory(entityFactory, {
+				type: 123,
+				inner: {
+					mosaicId: '01234567_89ABCDEF',
+					amount: '123_456_789_123_456_789'
+				}
+			});
+
+			// Assert: string values were encoded into utf8
+			expect(parsed.inner.mosaicId).to.deep.equal(new Uint8Array([
+				0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x5F, 0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46
+			]));
+			expect(parsed.inner.amount).to.deep.equal(new Uint8Array([
 				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39, 0x5F,
 				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39
 			]));

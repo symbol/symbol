@@ -77,10 +77,6 @@ export default class TransactionFactory {
 		if (autosort)
 			transaction.sort();
 
-		// hack: explicitly translate transfer message
-		if (nc.TransactionType.TRANSFER === transaction.type && transaction.message && 'string' === typeof (transaction.message.message))
-			transaction.message.message = new TextEncoder().encode(transaction.message.message);
-
 		return transaction;
 	}
 

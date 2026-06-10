@@ -56,8 +56,11 @@ const typeConverterFactory = (module, customTypeConverter, value) => {
 const autoEncodeStrings = entity => {
 	Object.getOwnPropertyNames(entity).forEach(key => {
 		const value = entity[key];
-		if ('string' === typeof (value))
+		if ('string' === typeof value)
 			entity[key] = new TextEncoder().encode(value);
+
+		if ('object' === typeof value && null !== value)
+			autoEncodeStrings(value);
 	});
 };
 
