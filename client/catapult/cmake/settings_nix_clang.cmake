@@ -37,14 +37,12 @@ target_compile_options(build.defaults INTERFACE
 	$<$<CONFIG:RelWithDebInfo>:-g1>
 )
 
-if(ENABLE_HARDENING)
-	target_link_options(build.defaults INTERFACE
-		-fsanitize=safe-stack
-		-Wl,-z,noexecstack   # NX bit - prevent code execution from stack
-		-Wl,-z,relro         # Read-only relocation - make reloc section read-only
-		-Wl,-z,now           # Resolve all symbols immediately (no lazy binding)
-	)
-endif()
+target_link_options(build.defaults INTERFACE
+	$<$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>:-fsanitize=safe-stack>
+	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,noexecstack>   # NX bit - prevent code execution from stack
+	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,relro>          # Read-only relocation - make reloc section read-only
+	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,now>            # Resolve all symbols immediately (no lazy binding)
+)
 
 
 # fix -Wpoison-system-directories: error: include location '/usr/local/include' is "unsafe for cross-compilation"
