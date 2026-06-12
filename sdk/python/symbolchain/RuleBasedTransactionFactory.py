@@ -161,6 +161,17 @@ class RuleBasedTransactionFactory:
 
 	@staticmethod
 	def _auto_encode_strings(entity):
+		if not hasattr(entity, '__dict__'):  # skip non-objects
+			return
+
 		for key, value in vars(entity).items():
+			if '_' == key[0] and '_' == key[-1]:  # skip system properties
+				continue
+
 			if isinstance(value, str):
-				setattr(entity, key, value.encode('utf8'))
+				setattr(entity, key, value.encode('utf8'))  # convert string literals to byte array
+			elif hasattr(value, '__len__'):  # process list items
+				for item in value:
+					RuleBasedTransactionFactory._auto_encode_strings(item)
+			else:
+				RuleBasedTransactionFactory._auto_encode_strings(value)  # process nested objects

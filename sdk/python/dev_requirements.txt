@@ -1,4 +1,4 @@
-aiohttp==3.13.5
+aiohttp==3.14.1
 jinja2-cli==1.0.1
 pytest>=6.2.5
 coverage>=6.3

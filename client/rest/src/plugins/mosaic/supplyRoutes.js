@@ -61,40 +61,40 @@ export default {
 			return undefined === matchingMosaic ? 0 : matchingMosaic.amount.toNumber();
 		};
 
-		server.get('/network/currency/supply/circulating', (req, res, next) => readAndParseNetworkPropertiesFile()
-			.then(async propertiesObject => {
-				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
-				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
+		server.get('/network/currency/supply/circulating', async (request, reply) => {
+			const propertiesObject = await readAndParseNetworkPropertiesFile();
+			const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
+			const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
 
-				const accounts = await db.catapultDb.accountsByIds(getUncirculatingAccountIds(propertiesObject));
-				const burnedSupply = accounts.reduce(
-					(sum, account) => sum + lookupMosaicAmount(account.account.mosaics, currencyMosaicId),
-					0
-				);
+			const accounts = await db.catapultDb.accountsByIds(getUncirculatingAccountIds(propertiesObject));
+			const burnedSupply = accounts.reduce(
+				(sum, account) => sum + lookupMosaicAmount(account.account.mosaics, currencyMosaicId),
+				0
+			);
 
-				sendPlainText(res, next)(convertToFractionalWholeUnits(
-					currencyMosaicProperties.totalSupply - burnedSupply,
-					currencyMosaicProperties.divisibility
-				));
-			}));
+			return sendPlainText(reply)(convertToFractionalWholeUnits(
+				currencyMosaicProperties.totalSupply - burnedSupply,
+				currencyMosaicProperties.divisibility
+			));
+		});
 
-		server.get('/network/currency/supply/total', (req, res, next) => readAndParseNetworkPropertiesFile()
-			.then(async propertiesObject => {
-				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
-				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
-				sendPlainText(res, next)(convertToFractionalWholeUnits(
-					currencyMosaicProperties.totalSupply,
-					currencyMosaicProperties.divisibility
-				));
-			}));
+		server.get('/network/currency/supply/total', async (request, reply) => {
+			const propertiesObject = await readAndParseNetworkPropertiesFile();
+			const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
+			const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
+			return sendPlainText(reply)(convertToFractionalWholeUnits(
+				currencyMosaicProperties.totalSupply,
+				currencyMosaicProperties.divisibility
+			));
+		});
 
-		server.get('/network/currency/supply/max', (req, res, next) => readAndParseNetworkPropertiesFile()
-			.then(async propertiesObject => {
-				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
-				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
+		server.get('/network/currency/supply/max', async (request, reply) => {
+			const propertiesObject = await readAndParseNetworkPropertiesFile();
+			const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
+			const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
 
-				const maxSupply = parseInt(propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, ''), 10);
-				sendPlainText(res, next)(convertToFractionalWholeUnits(maxSupply, currencyMosaicProperties.divisibility));
-			}));
+			const maxSupply = parseInt(propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, ''), 10);
+			return sendPlainText(reply)(convertToFractionalWholeUnits(maxSupply, currencyMosaicProperties.divisibility));
+		});
 	}
 };

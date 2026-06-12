@@ -80,7 +80,7 @@ describe('network routes', () => {
 				const route = mockServer.getRoute('/network/properties').get();
 				return mockServer.callRoute(route).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						network: { identifier: 'testnet' },
 						chain: { enableVerifiableState: true },
@@ -174,9 +174,9 @@ describe('network routes', () => {
 				const route = mockServer.getRoute('/network/properties').get();
 				return mockServer.callRoute(route).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.done.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
 				});
 			});
 		});
@@ -191,9 +191,9 @@ describe('network routes', () => {
 				const route = mockServer.getRoute(routePath).get();
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the inflation properties file');
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.done.firstCall.args[0].message).to.equal('there was an error reading the inflation properties file');
 				});
 			};
 
@@ -211,7 +211,7 @@ describe('network routes', () => {
 				const route = mockServer.getRoute('/network/inflation').get();
 				return mockServer.callRoute(route).then(() => {
 					// Assert:
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal([
 						{ startHeight: '2', rewardAmount: '0' },
 						{ startHeight: '5760', rewardAmount: '191997042' },
@@ -277,7 +277,7 @@ describe('network routes', () => {
 					const route = mockServer.getRoute('/network/inflation/at/:height').get();
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal(expectedPoint);
 					});
 				};
@@ -316,9 +316,9 @@ describe('network routes', () => {
 					const route = mockServer.getRoute('/network/inflation/at/:height').get();
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
-						expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-						expect(mockServer.send.firstCall.args[0].message)
+						expect(mockServer.done.calledOnce).to.equal(true);
+						expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+						expect(mockServer.done.firstCall.args[0].message)
 							.to.equal('there was an error reading the inflation properties file');
 					});
 				});
@@ -377,7 +377,7 @@ describe('network routes', () => {
 							lowestFeeMultiplier: min,
 							minFeeMultiplier: 1234567
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 			};
@@ -419,7 +419,7 @@ describe('network routes', () => {
 
 				const route = mockServer.getRoute('/network/fees/rental').get();
 				return mockServer.callRoute(route).then(() => {
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						effectiveChildNamespaceRentalFee: '300',
 						effectiveMosaicRentalFee: '1500',
@@ -434,9 +434,9 @@ describe('network routes', () => {
 
 				const route = mockServer.getRoute('/network/fees/rental').get();
 				return mockServer.callRoute(route).then(() => {
-					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.done.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
 				});
 			});
 
@@ -480,7 +480,7 @@ describe('network routes', () => {
 					const route = mockServer.getRoute('/network/fees/rental').get();
 					return mockServer.callRoute(route).then(() => {
 						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							effectiveChildNamespaceRentalFee,
 							effectiveMosaicRentalFee,

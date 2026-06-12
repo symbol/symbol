@@ -27,7 +27,6 @@ import formatters from '../../src/server/formatters.js';
 import test from '../testUtils.js';
 import axios from 'axios';
 import { AssertionError, expect } from 'chai';
-import restify from 'restify';
 import sinon from 'sinon';
 import winston from 'winston';
 import WebSocket from 'ws';
@@ -60,39 +59,32 @@ const createChainStatistic = (height, scoreLow, scoreHigh) => ({
 
 const addRestRoutes = server => {
 	supportedHttpMethods.forEach(method => {
-		server[method]('/dummy/:dummyId', (req, res, next) => {
-			const { dummyId } = req.params;
+		server[method]('/dummy/:dummyId', async (request, reply) => {
+			const { dummyId } = request.params;
 
 			switch (dummyId) {
 			case dummyIds.valid: {
 				// respond with a valid chain info
 				const chainStatistic = createChainStatistic(10, 16, 11);
-				res.send({ payload: chainStatistic, type: 'chainStatistic' });
-				break;
+				return reply.send({ payload: chainStatistic, type: 'chainStatistic' });
 			}
 
 			case dummyIds.replayTag: {
 				// respond with a valid chain info computed from the tag parameter
-				const tag = req.params.tag | 0; // query parameters are parsed as strings so convert to int
+				const tag = request.params.tag | 0; // query parameters are parsed as strings so convert to int
 				const chainStatistic = createChainStatistic(tag, tag, tag);
-				res.send({ payload: chainStatistic, type: 'chainStatistic' });
-				break;
+				return reply.send({ payload: chainStatistic, type: 'chainStatistic' });
 			}
 
 			case dummyIds.notFound:
-				res.send(errors.createNotFoundError('foo')); // http errors are mapped properly
-				break;
+				throw errors.createResourceNotFoundError('foo'); // http errors are mapped properly
 
 			case dummyIds.redirect:
-				res.redirect(`/dummy/${dummyIds.valid}`, next);
-				return undefined; // don't call next below because it is called by res.redirect
+				return reply.header('location', `/dummy/${dummyIds.valid}`).code(302).type('application/json').send(Buffer.from('null'));
 
 			case dummyIds.asyncValid:
 				return Promise.resolve({ current: { height: [11, 11] } })
-					.then(chainStatistic => {
-						res.send({ payload: chainStatistic, type: 'chainStatistic' });
-						next();
-					});
+					.then(chainStatistic => reply.send({ payload: chainStatistic, type: 'chainStatistic' }));
 
 			case dummyIds.asyncError:
 				return Promise.reject(Error('async badness'));
@@ -100,17 +92,11 @@ const addRestRoutes = server => {
 			default:
 				throw Error('badness'); // exceptions are handled properly
 			}
-
-			// complete non-async, non-exceptional handling
-			next();
-			return undefined;
 		});
 
 		// text/plain endpoints (e.g. supply)
-		server[method]('/network/currency/supply/circulating', (req, res, next) => {
-			res.setHeader('content-type', 'text/plain');
-			res.send('12345.678');
-			next();
+		server[method]('/network/currency/supply/circulating', async (request, reply) => {
+			reply.type('text/plain').send('12345.678');
 		});
 	});
 };
@@ -165,7 +151,8 @@ const createWebSocketServer = () => createServer({ protocol: 'HTTP', formatterNa
 // region makeWrappedRequest
 
 const makeWrappedRequest = (server, options = {}) => {
-	const serverAddress = server.listen(options.port || 0).address();
+	// kick off the listen but don't block — route() and end() will resolve lazily
+	const listenPromise = server.listen(options.port || 0);
 
 	const requestOptions = {
 		maxRedirects: 0,
@@ -176,6 +163,8 @@ const makeWrappedRequest = (server, options = {}) => {
 			Connection: 'close'
 		}
 	};
+
+	let storedRoute = '/';
 
 	const expectations = { status: 200, headers: {} };
 	const requestWrapper = {
@@ -192,7 +181,13 @@ const makeWrappedRequest = (server, options = {}) => {
 				handler(res.headers, res.data);
 			};
 
-			return axios(requestOptions)
+			return listenPromise
+				.then(httpServer => {
+					const serverAddress = httpServer.address();
+					const protocol = options.protocol || 'http';
+					requestOptions.url = `${protocol}://127.0.0.1:${serverAddress.port}${storedRoute}`;
+				})
+				.then(() => axios(requestOptions))
 				.then(wrappedHandler)
 				.catch(error => {
 					if (error instanceof AssertionError)
@@ -206,8 +201,7 @@ const makeWrappedRequest = (server, options = {}) => {
 			return requestWrapper;
 		},
 		route: route => {
-			const protocol = options.protocol || 'http';
-			requestOptions.url = `${protocol}://127.0.0.1:${serverAddress.port}${route}`;
+			storedRoute = route;
 			return requestWrapper;
 		},
 		header: (key, value) => {
@@ -242,71 +236,58 @@ describe('server (bootstrapper)', () => {
 		}
 	});
 
-	// throttling tests are not ideal (can't guarantee those were added to the server) because everything related
-	// to the restify server happens intrinsically and is too coupled - those are best-effort tests
+	// throttling tests verify config validation behaviour; the actual rate limiting is provided by @fastify/rate-limit
 	describe('throttling config', () => {
-		it('uses provided config', () => {
+		it('uses provided config without warnings', () => {
 			// Arrange:
 			const throttlingConfig = {
-				burst: 20,
-				rate: 5
+				max: 20,
+				timeWindow: 1000
 			};
-			const spy = sinon.spy(restify.plugins, 'throttle');
+			const logSpy = sinon.spy(winston, 'warn');
 
 			// Act:
 			bootstrapper.createServer({ protocol: 'HTTP' }, createFormatters(), throttlingConfig);
+			logSpy.restore();
 
-			// Assert:
-			expect(spy.calledOnceWith({
-				burst: 20,
-				rate: 5,
-				ip: true
-			})).to.equal(true);
-
-			spy.restore();
+			// Assert: no warning should be logged when config is complete
+			expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(false);
 		});
 
 		it('does not throttle if no configuration present', () => {
 			// Arrange:
-			const spy = sinon.spy(restify.plugins, 'throttle');
+			const logSpy = sinon.spy(winston, 'warn');
 
 			// Act:
 			bootstrapper.createServer({ protocol: 'HTTP' }, createFormatters());
+			logSpy.restore();
 
-			// Assert:
-			expect(spy.notCalled).to.equal(true);
-
-			spy.restore();
+			// Assert: no incomplete-config warning (only CORS warning is expected)
+			expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(false);
 		});
 
 		describe('does not throttle for incomplete configuration and logs a warning', () => {
 			it('missing rate', () => {
 				// Arrange:
-				const spy = sinon.spy(restify.plugins, 'throttle');
 				const logSpy = sinon.spy(winston, 'warn');
 
 				// Act:
 				bootstrapper.createServer({ protocol: 'HTTP' }, createFormatters(), { burst: 20 });
-				spy.restore();
 				logSpy.restore();
 
 				// Assert:
-				expect(spy.notCalled).to.equal(true);
 				expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
 			});
 
 			it('missing burst', () => {
 				// Arrange:
-				const spy = sinon.spy(restify.plugins, 'throttle');
 				const logSpy = sinon.spy(winston, 'warn');
 
 				// Act:
 				bootstrapper.createServer({ protocol: 'HTTP' }, createFormatters(), { rate: 20 });
-				spy.restore();
 				logSpy.restore();
 
 				// Assert:
-				expect(spy.notCalled).to.equal(true);
 				expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
 			});
 		});
@@ -434,14 +415,17 @@ describe('server (bootstrapper)', () => {
 					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only application/json' });
 				}));
 
-			it('rejects application/json for text/plain endpoint', () => makeWrappedJsonRequest('/network/currency/supply/circulating', method)
-				.header('Accept', 'application/json')
-				.expectStatus(406)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 69, methodOptions);
-					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only text/plain' });
-				}));
+			it('rejects application/json for text/plain endpoint', () => {
+				const request = makeWrappedJsonRequest('/network/currency/supply/circulating', method);
+				return request
+					.header('Accept', 'application/json')
+					.expectStatus(406)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 69, methodOptions);
+						expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Endpoint accepts only text/plain' });
+					});
+			});
 
 			it('rejects unsupported accept type', () => makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, method)
 				.header('Accept', 'application/xml')
@@ -675,9 +659,8 @@ describe('server (bootstrapper)', () => {
 					protocol: 'HTTP',
 					crossDomain: { allowedMethods: ['FOO', 'OPTIONS', 'BAR'], allowedHosts: ['*'] }
 				});
-				const routeHandler = (req, res, next) => {
-					res.send(200);
-					next();
+				const routeHandler = async (request, reply) => {
+					reply.code(200).send({});
 				};
 
 				server.get('/dummy/:dummyId', routeHandler);
@@ -956,14 +939,14 @@ describe('server (bootstrapper)', () => {
 			}
 		});
 
-		const runSingleRouteTest = numClients => new Promise(resolve => {
+		const runSingleRouteTest = numClients => new Promise((resolve, reject) => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
-			server.listen(ports.server);
-
-			// Act + Assert: create a client websocket and run the test
-			createClientSockets('/ws/block', emitter, numClients, createHandlers(server, resolve));
+			server.listen(ports.server).then(() => {
+				// Act + Assert: create a client websocket and run the test
+				createClientSockets('/ws/block', emitter, numClients, createHandlers(server, resolve));
+			}).catch(reject);
 		});
 
 		// region subscribe
@@ -976,7 +959,7 @@ describe('server (bootstrapper)', () => {
 			const server = createWebSocketServer();
 			const emitter1 = registerRoute(server, '/ws/block1');
 			const emitter2 = registerRoute(server, '/ws/block2');
-			server.listen(ports.server);
+			await server.listen(ports.server);
 
 			const counts = {
 				numAllConnectedHandlers: 0,
@@ -1015,121 +998,121 @@ describe('server (bootstrapper)', () => {
 
 		// region unsubscribe
 
-		it('handles unsubscription of client from subscribed channel', () => new Promise(resolve => {
+		it('handles unsubscription of client from subscribed channel', () => new Promise((resolve, reject) => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
-			server.listen(ports.server);
+			server.listen(ports.server).then(() => {
+				// - create three client websockets
+				const defaultHandlers = createHandlers(server, resolve);
+				const defaultOnAllConnected = defaultHandlers.onAllConnected;
+				const defaultOnAllMessages = defaultHandlers.onAllMessages;
+				createClientSockets(
+					'/ws/block',
+					emitter,
+					{ numClients: 3, messageIds: new Set([1, 3]) }, // messages should only be sent to the first and last sockets
+					Object.assign(defaultHandlers, {
+						onAllConnected: (zsocket, sockets) => {
+							// Act: unsubscribe the second websocket
+							test.log('unsubscribing second websocket');
+							sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'block' }));
+							defaultOnAllConnected(zsocket, sockets);
+						},
+						onAllMessages: (zsocket, sockets) => {
+							// Assert: all sockets are still open
+							sockets.forEach(socket => {
+								expect(socket.readyState).to.equal(WebSocket.OPEN);
+							});
 
-			// - create three client websockets
-			const defaultHandlers = createHandlers(server, resolve);
-			const defaultOnAllConnected = defaultHandlers.onAllConnected;
-			const defaultOnAllMessages = defaultHandlers.onAllMessages;
-			createClientSockets(
-				'/ws/block',
-				emitter,
-				{ numClients: 3, messageIds: new Set([1, 3]) }, // messages should only be sent to the first and last sockets
-				Object.assign(defaultHandlers, {
-					onAllConnected: (zsocket, sockets) => {
-						// Act: unsubscribe the second websocket
-						test.log('unsubscribing second websocket');
-						sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'block' }));
-						defaultOnAllConnected(zsocket, sockets);
-					},
-					onAllMessages: (zsocket, sockets) => {
-						// Assert: all sockets are still open
-						sockets.forEach(socket => {
-							expect(socket.readyState).to.equal(WebSocket.OPEN);
-						});
-
-						defaultOnAllMessages(zsocket, sockets);
-					}
-				})
-			);
+							defaultOnAllMessages(zsocket, sockets);
+						}
+					})
+				);
+			}).catch(reject);
 		}));
 
-		it('handles unsubscription of client from unknown channel', () => new Promise(resolve => {
+		it('handles unsubscription of client from unknown channel', () => new Promise((resolve, reject) => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
-			server.listen(ports.server);
-
-			// - create three client websockets
-			const defaultHandlers = createHandlers(server, resolve);
-			const defaultOnAllConnected = defaultHandlers.onAllConnected;
-			createClientSockets(
-				'/ws/block',
-				emitter,
-				3,
-				Object.assign(defaultHandlers, {
-					onAllConnected: (zsocket, sockets) => {
-						// Act: unsubscribe the second websocket from an unknown channel (this should have no effect)
-						test.log('unsubscribing second websocket');
-						sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'chainStatistic' }));
-						defaultOnAllConnected(zsocket, sockets);
-					}
-				})
-			);
+			server.listen(ports.server).then(() => {
+				// - create three client websockets
+				const defaultHandlers = createHandlers(server, resolve);
+				const defaultOnAllConnected = defaultHandlers.onAllConnected;
+				createClientSockets(
+					'/ws/block',
+					emitter,
+					3,
+					Object.assign(defaultHandlers, {
+						onAllConnected: (zsocket, sockets) => {
+							// Act: unsubscribe the second websocket from an unknown channel (this should have no effect)
+							test.log('unsubscribing second websocket');
+							sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'chainStatistic' }));
+							defaultOnAllConnected(zsocket, sockets);
+						}
+					})
+				);
+			}).catch(reject);
 		}));
 
 		// endregion
 
 		// region disconnect (client)
 
-		it('handles disconnecting client sockets', () => new Promise(resolve => {
+		it('handles disconnecting client sockets', () => new Promise((resolve, reject) => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
-			server.listen(ports.server);
-
-			// - create three client websockets
-			const defaultHandlers = createHandlers(server, resolve);
-			const defaultOnAllConnected = defaultHandlers.onAllConnected;
-			createClientSockets(
-				'/ws/block',
-				emitter,
-				{ numClients: 3, messageIds: new Set([1, 3]) }, // messages should only be sent to the first and last sockets
-				Object.assign(defaultHandlers, {
-					onAllConnected: (zsocket, sockets) => {
-						// Act: close the second websocket
-						test.log('closing second websocket');
-						sockets[1].close();
-						defaultOnAllConnected(zsocket, sockets);
-					}
-				})
-			);
+			server.listen(ports.server).then(() => {
+				// - create three client websockets
+				const defaultHandlers = createHandlers(server, resolve);
+				const defaultOnAllConnected = defaultHandlers.onAllConnected;
+				createClientSockets(
+					'/ws/block',
+					emitter,
+					{ numClients: 3, messageIds: new Set([1, 3]) }, // messages should only be sent to the first and last sockets
+					Object.assign(defaultHandlers, {
+						onAllConnected: (zsocket, sockets) => {
+							// Act: close the second websocket
+							test.log('closing second websocket');
+							sockets[1].close();
+							defaultOnAllConnected(zsocket, sockets);
+						}
+					})
+				);
+			}).catch(reject);
 		}));
 
 		// endregion
 
 		// region invalid subscription requests
 
-		const runInvalidClientTest = messageCallback => new Promise(resolve => {
+		const runInvalidClientTest = messageCallback => new Promise((resolve, reject) => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			registerRoute(server, '/ws/block');
-			server.listen(ports.server);
+			server.listen(ports.server).then(() => {
+				// - connect four clients to the route
+				const numConnections = 4;
+				let numCloses = 0;
+				const addHandlers = (ws, id) => {
+					ws.on('message', messageJson => messageCallback(ws, messageJson));
+					ws.on('close', () => {
+						// Assert: all clients have been closed
+						test.log(`client ${id} was closed`);
+						if (numConnections === ++numCloses) {
+							// close server, otherwise subsequent tests would fail
+							server.close();
+							resolve();
+						}
+					});
+				};
 
-			// - connect four clients to the route
-			const numConnections = 4;
-			let numCloses = 0;
-			const addHandlers = (ws, id) => {
-				ws.on('message', messageJson => messageCallback(ws, messageJson));
-				ws.on('close', () => {
-					// Assert: all clients have been closed
-					test.log(`client ${id} was closed`);
-					if (numConnections === ++numCloses) {
-						// close server, otherwise subsequent tests would fail
-						server.close();
-						resolve();
-					}
-				});
-			};
-
-			for (let i = 0; i < numConnections; ++i) {
-				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block`);
-				addHandlers(ws, i);
-			}
+				for (let i = 0; i < numConnections; ++i) {
+					const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block`);
+					addHandlers(ws, i);
+				}
+			}).catch(reject);
 		});
 
 		it('invalid data disconnects client', () => runInvalidClientTest(ws => {
@@ -1156,39 +1139,39 @@ describe('server (bootstrapper)', () => {
 
 		// region close (server)
 
-		it('closing server closes all clients', () => new Promise(resolve => {
+		it('closing server closes all clients', () => new Promise((resolve, reject) => {
 			// Arrange: set up the server with two ws routes
 			const server = createWebSocketServer();
 			registerRoute(server, '/ws/block1');
 			registerRoute(server, '/ws/block2');
-			server.listen(ports.server);
+			server.listen(ports.server).then(() => {
+				// - connect two clients to each route
+				const numConnections = 4;
+				let numOpens = 0;
+				let numCloses = 0;
 
-			// - connect two clients to each route
-			const numConnections = 4;
-			let numOpens = 0;
-			let numCloses = 0;
+				const addHandlers = (ws, id) => {
+					ws.on('open', () => {
+						// Act: close the server after all connections have been opened
+						if (numConnections === ++numOpens)
+							// close server, otherwise subsequent tests would fail
+							server.close();
+					});
 
-			const addHandlers = (ws, id) => {
-				ws.on('open', () => {
-					// Act: close the server after all connections have been opened
-					if (numConnections === ++numOpens)
-						// close server, otherwise subsequent tests would fail
-						server.close();
-				});
+					ws.on('close', () => {
+						// Assert: all clients have been closed
+						test.log(`client ${id} was closed`);
+						if (numConnections === ++numCloses)
+							resolve();
+					});
+				};
 
-				ws.on('close', () => {
-					// Assert: all clients have been closed
-					test.log(`client ${id} was closed`);
-					if (numConnections === ++numCloses)
-						resolve();
-				});
-			};
-
-			for (let i = 0; i < numConnections; ++i) {
-				const routePostfix = (i % 2) + 1;
-				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block${routePostfix}`);
-				addHandlers(ws, i);
-			}
+				for (let i = 0; i < numConnections; ++i) {
+					const routePostfix = (i % 2) + 1;
+					const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block${routePostfix}`);
+					addHandlers(ws, i);
+				}
+			}).catch(reject);
 		}));
 
 		// endregion

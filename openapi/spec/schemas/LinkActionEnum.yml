@@ -1,0 +1,8 @@
+type: integer
+enum:
+  - 0
+  - 1
+description: |
+  Link action:
+  - `0`: Unlink key.
+  - `1`: Link key.

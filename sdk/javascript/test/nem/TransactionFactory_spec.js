@@ -188,7 +188,7 @@ describe('transaction factory (NEM)', () => {
 
 	// endregion
 
-	// region message encoding
+	// region string handling
 
 	it('can create transfer with string message', () => {
 		// Arrange:
@@ -206,6 +206,30 @@ describe('transaction factory (NEM)', () => {
 
 		// Assert:
 		expect(transaction.message.message).to.deep.equal(new TextEncoder().encode('You miss 100%% of the shots you don\'t take'));
+	});
+
+	it('can create transfer with string mosaic id', () => {
+		// Arrange:
+		const factory = testDescriptor.createFactory();
+
+		// Act:
+		const transaction = testDescriptor.createTransaction(factory)({
+			type: 'transfer_transaction_v2',
+			signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
+			mosaics: [
+				{
+					mosaic: {
+						mosaicId: { namespaceId: { name: 'foo' }, name: 'bar' },
+						amount: 1
+					}
+				}
+			]
+		});
+
+		// Assert:
+		expect(transaction.mosaics.length).to.equal(1);
+		expect(transaction.mosaics[0].mosaic.mosaicId.namespaceId.name).to.deep.equal(new TextEncoder().encode('foo'));
+		expect(transaction.mosaics[0].mosaic.mosaicId.name).to.deep.equal(new TextEncoder().encode('bar'));
 	});
 
 	// endregion

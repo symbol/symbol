@@ -22,21 +22,20 @@
 import routeResultTypes from './routeResultTypes.js';
 import routeUtils from './routeUtils.js';
 import catapult from '../catapult-sdk/index.js';
+import errors from '../server/errors.js';
 import finalizationProofCodec from '../sockets/finalizationProofCodec.js';
-import restifyErrors from 'restify-errors';
 import { utils } from 'symbol-sdk';
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;
 const { BinaryParser } = catapult.parser;
-const { NotFoundError } = restifyErrors;
 
 export default {
 	register: (server, db, services) => {
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;
 
-		const sendRequestAndResponse = (requestPacket, res, next) =>
+		const sendRequestAndResponse = (requestPacket, reply) =>
 			connections.singleUse()
 				.then(connection => connection.pushPull(requestPacket, timeout))
 				.then(packet => {
@@ -44,13 +43,12 @@ export default {
 					binaryParser.push(packet.payload);
 					const payload = finalizationProofCodec.deserialize(binaryParser);
 					if (!payload)
-						return next(new NotFoundError());
-					res.send({ payload, type: routeResultTypes.finalizationProof, formatter: 'ws' });
-					return next();
+						throw errors.createNotFoundError();
+					return reply.send({ payload, type: routeResultTypes.finalizationProof, formatter: 'ws' });
 				});
 
-		server.get('/finalization/proof/epoch/:epoch', (req, res, next) => {
-			const epoch = routeUtils.parseArgument(req.params, 'epoch', 'uint');
+		server.get('/finalization/proof/epoch/:epoch', async (request, reply) => {
+			const epoch = routeUtils.parseArgument(request.params, 'epoch', 'uint');
 
 			const uint32Size = 4;
 			const headerBuffer = packetHeader.createBuffer(PacketType.finalizationProofAtEpoch, packetHeader.size + uint32Size);
@@ -58,18 +56,18 @@ export default {
 			epochBuffer.writeUInt32LE(epoch);
 			const packetBuffer = Buffer.concat([headerBuffer, epochBuffer]);
 
-			return sendRequestAndResponse(packetBuffer, res, next);
+			return sendRequestAndResponse(packetBuffer, reply);
 		});
 
-		server.get('/finalization/proof/height/:height', (req, res, next) => {
-			const height = routeUtils.parseArgument(req.params, 'height', 'uint64');
+		server.get('/finalization/proof/height/:height', async (request, reply) => {
+			const height = routeUtils.parseArgument(request.params, 'height', 'uint64');
 
 			const uint64Size = 8;
 			const headerBuffer = packetHeader.createBuffer(PacketType.finalizationProofAtHeight, packetHeader.size + uint64Size);
 			const heightBuffer = Buffer.from(utils.intToBytes(height, 8));
 			const packetBuffer = Buffer.concat([headerBuffer, heightBuffer]);
 
-			return sendRequestAndResponse(packetBuffer, res, next);
+			return sendRequestAndResponse(packetBuffer, reply);
 		});
 	}
 };

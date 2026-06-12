@@ -152,13 +152,35 @@ const routeTestUtils = {
 	},
 
 	assert: {
-		invokerThrowsError: (invoker, expectedError) => {
-			try {
-				invoker();
-			} catch (err) {
+		invokerThrowsError: (invoker, expectedError, routeContext) => {
+			const verify = err => {
 				expect(err.statusCode).to.equal(expectedError.statusCode);
 				expect(err.message).to.contain(expectedError.message);
-				return;
+			};
+
+			let result;
+			try {
+				result = invoker();
+			} catch (err) {
+				verify(err);
+				return undefined;
+			}
+
+			// Handle async rejections (returned Promise) as well as resolved Promises
+			if (result && 'function' === typeof result.then) {
+				return result.then(
+					() => {
+						// In Fastify, async route rejections are surfaced via setErrorHandler;
+						// the test invoker captures them in routeContext.responses
+						if (routeContext && routeContext.responses) {
+							expect(routeContext.responses.length).to.be.equal(1);
+							verify(routeContext.responses[0]);
+							return;
+						}
+						throw Error('no exception was thrown by test');
+					},
+					err => verify(err)
+				);
 			}
 
 			throw Error('no exception was thrown by test');
@@ -184,24 +206,50 @@ const routeTestUtils = {
 			// - set up the route params
 			const routeContext = {
 				numNextCalls: 0,
+				statusCode: undefined,
 				responses: [],
 				redirects: []
 			};
 
-			const next = () => { ++routeContext.numNextCalls; };
 			const req = { params };
 
-			const res = {
-				send: response => { routeContext.responses.push(response); },
+			// Fastify-style reply mock: chainable, captures send/redirect calls
+			const reply = {
+				code: code => {
+					routeContext.statusCode = code;
+					return reply;
+				},
+				type: () => reply,
+				header: () => reply,
+				send: response => {
+					routeContext.responses.push(response);
+					++routeContext.numNextCalls;
+					return reply;
+				},
 				redirect: uri => {
 					routeContext.redirects.push(uri);
-					next();
+					++routeContext.numNextCalls;
+					return reply;
 				}
 			};
 
 			// Act: get the desired route and call it
 			const route = routeTestUtils.setup.findRoute(routes, routeName);
-			routeContext.routeInvoker = () => route(req, res, next);
+			routeContext.routeInvoker = () => {
+				let result;
+				try {
+					result = route(req, reply);
+				} catch (err) {
+					// Sync throw: reject so invokerThrowsError can inspect it
+					return Promise.reject(err);
+				}
+				return Promise.resolve(result).catch(err => {
+					// Async rejection not handled by the route: capture it as if Fastify's
+					// setErrorHandler had received it (so error-path tests can inspect responses[0])
+					routeContext.responses.push(err);
+					++routeContext.numNextCalls;
+				});
+			};
 			return assertRoute(routeContext);
 		},
 
@@ -222,12 +270,10 @@ const routeTestUtils = {
 				params,
 				db,
 				{ config },
-				routeContext => {
-					routeTestUtils.assert.invokerThrowsError(routeContext.routeInvoker, {
-						statusCode: expectedStatusCode,
-						message: expectedMessage
-					});
-				}
+				routeContext => routeTestUtils.assert.invokerThrowsError(routeContext.routeInvoker, {
+					statusCode: expectedStatusCode,
+					message: expectedMessage
+				}, routeContext)
 			),
 
 		executeRedirects: (registerRoutes, routeName, routeCaptureMethod, params, config, assertRedirect) => {
@@ -499,7 +545,9 @@ const routeTestUtils = {
 					// - set up the route params
 					const routeContext = {
 						sendPayloads: [],
-						numNextCalls: 0
+						numNextCalls: 0,
+						statusCode: undefined,
+						responses: []
 					};
 
 					const services = {
@@ -513,18 +561,29 @@ const routeTestUtils = {
 						}
 					};
 
-					const next = () => { ++routeContext.numNextCalls; };
 					const req = { params };
 
-					routeContext.responses = [];
-					const res = { send: (status, response) => { routeContext.responses.push({ status, response }); } };
+					// Fastify-style reply mock
+					const reply = {
+						code: code => {
+							routeContext.statusCode = code;
+							return reply;
+						},
+						type: () => reply,
+						header: () => reply,
+						send: response => {
+							routeContext.responses.push({ status: routeContext.statusCode, response });
+							++routeContext.numNextCalls;
+							return reply;
+						}
+					};
 
 					// - register the routes
 					registerRoutes(server, undefined, services);
 
 					// Act: get the desired route and call it
 					const route = routeTestUtils.setup.findRoute(routes, rd.routeName);
-					routeContext.routeInvoker = () => route(req, res, next);
+					routeContext.routeInvoker = () => route(req, reply);
 					return assertRoute(routeContext);
 				};
 
@@ -553,7 +612,7 @@ const routeTestUtils = {
 						routeTestUtils.assert.invokerThrowsError(routeContext.routeInvoker, {
 							statusCode: 409,
 							message: `${rd.inputs.invalid.error.key} has an invalid format`
-						});
+						}, routeContext);
 					}));
 			}
 		}

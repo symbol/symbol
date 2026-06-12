@@ -21,14 +21,12 @@
 
 import routeResultTypes from '../../routes/routeResultTypes.js';
 import routeUtils from '../../routes/routeUtils.js';
-import restifyErrors from 'restify-errors';
-
-const { NotFoundError } = restifyErrors;
+import errors from '../../server/errors.js';
 
 export default {
 	register: (server, db, services) => {
-		server.get('/statements/transaction', (req, res, next) => {
-			const { params } = req;
+		server.get('/statements/transaction', async (request, reply) => {
+			const { params } = request;
 			const filters = {
 				height: params.height ? routeUtils.parseArgument(params, 'height', 'uint64') : undefined,
 				fromHeight: params.fromHeight ? routeUtils.parseArgument(params, 'fromHeight', 'uint64') : undefined,
@@ -40,22 +38,22 @@ export default {
 				artifactId: params.artifactId ? routeUtils.parseArgument(params, 'artifactId', 'uint64hex') : undefined
 			};
 
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
+			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, { id: 'objectId' });
 
-			return db.transactionStatements(filters, options)
-				.then(result => routeUtils.createSender(routeResultTypes.transactionStatement).sendPage(res, next)(result));
+			const result = await db.transactionStatements(filters, options);
+			return reply.send(routeUtils.createSender(routeResultTypes.transactionStatement).sendPage()(result));
 		});
 
-		server.get('/statements/resolutions/:artifact', (req, res, next) => {
-			const { artifact } = req.params;
+		server.get('/statements/resolutions/:artifact', async (request, reply) => {
+			const { artifact } = request.params;
 			if (!artifact || !['address', 'mosaic'].includes(artifact))
-				return next(new NotFoundError());
+				throw errors.createNotFoundError();
 
-			const height = req.params.height ? routeUtils.parseArgument(req.params, 'height', 'uint64') : undefined;
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
+			const height = request.params.height ? routeUtils.parseArgument(request.params, 'height', 'uint64') : undefined;
+			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, { id: 'objectId' });
 
-			return db.artifactStatements(height, artifact, options)
-				.then(result => routeUtils.createSender(routeResultTypes[`${artifact}ResolutionStatement`]).sendPage(res, next)(result));
+			const result = await db.artifactStatements(height, artifact, options);
+			return reply.send(routeUtils.createSender(routeResultTypes[`${artifact}ResolutionStatement`]).sendPage()(result));
 		});
 
 		server.get(

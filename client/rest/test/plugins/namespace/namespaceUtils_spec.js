@@ -75,7 +75,6 @@ describe('namespace utils', () => {
 		});
 
 		const sendFake = sinon.fake();
-		const nextFake = sinon.fake();
 
 		const db = {
 			activeNamespacesWithAlias: activeNamespacesWithAliasFake,
@@ -98,7 +97,6 @@ describe('namespace utils', () => {
 
 		beforeEach(() => {
 			sendFake.resetHistory();
-			nextFake.resetHistory();
 			activeNamespacesWithAliasFake.resetHistory();
 			registerNamespaceTransactionsFromNamespaceIdsFake.resetHistory();
 			getParamsFake.resetHistory();
@@ -110,7 +108,7 @@ describe('namespace utils', () => {
 			const req = {};
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(activeNamespacesWithAliasFake.calledOnce).to.equal(true);
 
@@ -125,7 +123,7 @@ describe('namespace utils', () => {
 			const req = {};
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(registerNamespaceTransactionsFromNamespaceIdsFake.calledOnce).to.equal(true);
 
@@ -139,7 +137,7 @@ describe('namespace utils', () => {
 			const req = { params: { ids: [1, 2, 3] } };
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(getParamsFake.calledOnce).to.equal(true);
 
@@ -152,7 +150,7 @@ describe('namespace utils', () => {
 			const req = {};
 
 			// Act:
-			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+			return processorFunction(req, { send: sendFake }).then(() => {
 				// Assert:
 				expect(sendFake.firstCall.args[0]).to.deep.equal({
 					payload: {
@@ -178,7 +176,7 @@ describe('namespace utils', () => {
 					type: schemaName
 				});
 
-				expect(nextFake.calledOnce).to.equal(true);
+				expect(sendFake.calledOnce).to.equal(true);
 			});
 		});
 	});

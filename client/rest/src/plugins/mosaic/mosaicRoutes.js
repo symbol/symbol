@@ -30,13 +30,15 @@ export default {
 	register: (server, db, services) => {
 		const mosaicSender = routeUtils.createSender('mosaicDescriptor');
 
-		server.get('/mosaics', (req, res, next) => {
-			const ownerAddress = req.params.ownerAddress ? routeUtils.parseArgument(req.params, 'ownerAddress', 'address') : undefined;
+		server.get('/mosaics', async (request, reply) => {
+			const ownerAddress = request.params.ownerAddress
+				? routeUtils.parseArgument(request.params, 'ownerAddress', 'address')
+				: undefined;
 
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
+			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, { id: 'objectId' });
 
-			return db.mosaics(ownerAddress, options)
-				.then(result => mosaicSender.sendPage(res, next)(result));
+			const result = await db.mosaics(ownerAddress, options);
+			return reply.send(mosaicSender.sendPage()(result));
 		});
 
 		routeUtils.addGetPostDocumentRoutes(
@@ -48,14 +50,12 @@ export default {
 		);
 
 		// this endpoint is here because it is expected to support requests by block other than <current block>
-		server.get('/mosaics/:mosaicId/merkle', (req, res, next) => {
-			const mosaicId = routeUtils.parseArgument(req.params, 'mosaicId', 'uint64hex');
+		server.get('/mosaics/:mosaicId/merkle', async (request, reply) => {
+			const mosaicId = routeUtils.parseArgument(request.params, 'mosaicId', 'uint64hex');
 			const state = PacketType.mosaicStatePath;
 
-			return merkleUtils.requestTree(services, state, utils.intToBytes(mosaicId, 8)).then(response => {
-				res.send(response);
-				next();
-			});
+			const response = await merkleUtils.requestTree(services, state, utils.intToBytes(mosaicId, 8));
+			return reply.send(response);
 		});
 	}
 };

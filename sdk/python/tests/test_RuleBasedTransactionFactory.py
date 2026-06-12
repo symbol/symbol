@@ -56,6 +56,22 @@ class Module:
 			self.mosaic_id = 0
 			self.amount = 0
 
+	class StructWrapped:
+		TYPE_HINTS = {
+			'inner': 'struct:StructPlain'
+		}
+
+		def __init__(self):
+			self.inner = Module.StructPlain()
+
+	class StructAggregate:
+		TYPE_HINTS = {
+			'components': 'array[StructPlain]'
+		}
+
+		def __init__(self):
+			self.components = []
+
 	class StructArrayMember:
 		TYPE_HINTS = {
 			'mosaic_ids': 'array[UnresolvedMosaicId]'
@@ -475,6 +491,56 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 		# Assert: string values were encoded into utf8
 		self.assertEqual(b'01234567_89ABCDEF', parsed.mosaic_id)
 		self.assertEqual(b'123_456_789_123_456_789', parsed.amount)
+		self.assertFalse(hasattr(parsed, 'type'))
+
+	def test_can_create_struct_from_factory_and_auto_encode_nested_strings(self):
+		# Arrange: use a wrapped struct but set string values in the inner struct
+		factory = RuleBasedTransactionFactory(Module)
+		factory.add_struct_parser('StructPlain')
+		factory.add_struct_parser('StructWrapped')
+
+		def entity_factory(entity_type):
+			return None if 123 != entity_type else Module.StructWrapped()
+
+		# Act:
+		parsed = factory.create_from_factory(entity_factory, {
+			'type': 123,
+			'inner': {
+				'mosaic_id': '01234567_89ABCDEF',
+				'amount': '123_456_789_123_456_789'
+			}
+		})
+
+		# Assert: string values were encoded into utf8
+		self.assertEqual(b'01234567_89ABCDEF', parsed.inner.mosaic_id)
+		self.assertEqual(b'123_456_789_123_456_789', parsed.inner.amount)
+		self.assertFalse(hasattr(parsed, 'type'))
+
+	def test_can_create_struct_from_factory_and_auto_encode_nested_strings_in_array(self):
+		# Arrange: use an aggregate struct but set string values in the inner struct
+		factory = RuleBasedTransactionFactory(Module)
+		factory.add_struct_parser('StructPlain')
+		factory.add_array_parser('struct:StructPlain')
+		factory.add_struct_parser('StructAggregate')
+
+		def entity_factory(entity_type):
+			return None if 123 != entity_type else Module.StructAggregate()
+
+		# Act:
+		parsed = factory.create_from_factory(entity_factory, {
+			'type': 123,
+			'components': [
+				{
+					'mosaic_id': '01234567_89ABCDEF',
+					'amount': '123_456_789_123_456_789'
+				}
+			]
+		})
+
+		# Assert: string values were encoded into utf8
+		self.assertEqual(1, len(parsed.components))
+		self.assertEqual(b'01234567_89ABCDEF', parsed.components[0].mosaic_id)
+		self.assertEqual(b'123_456_789_123_456_789', parsed.components[0].amount)
 		self.assertFalse(hasattr(parsed, 'type'))
 
 	def test_cannot_create_struct_from_factory_when_descriptor_does_not_have_type(self):

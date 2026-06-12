@@ -145,7 +145,7 @@ describe('mosaic routes', () => {
 						type: 'mosaicDescriptor',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -159,7 +159,7 @@ describe('mosaic routes', () => {
 					expect(dbMosaicsFake.calledOnce).to.equal(true);
 					expect(dbMosaicsFake.firstCall.args[0]).to.deep.equal(undefined);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -173,7 +173,7 @@ describe('mosaic routes', () => {
 					expect(dbMosaicsFake.calledOnce).to.equal(true);
 					expect(dbMosaicsFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -192,7 +192,7 @@ describe('mosaic routes', () => {
 						type: 'mosaicDescriptor',
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -201,7 +201,10 @@ describe('mosaic routes', () => {
 				const req = { params: { ownerAddress: 'AB12345' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('ownerAddress has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('ownerAddress has an invalid format');
+				});
 			});
 		});
 	});

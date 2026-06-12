@@ -180,7 +180,7 @@ describe('formatters', () => {
 
 			const resHeaders = [];
 			const res = {
-				setHeader: (key, value) => {
+				header: (key, value) => {
 					resHeaders.push({ key, value });
 				}
 			};
@@ -207,7 +207,7 @@ describe('formatters', () => {
 
 				const resHeaders = [];
 				const res = {
-					setHeader: (key, value) => {
+					header: (key, value) => {
 						resHeaders.push({ key, value });
 					}
 				};
