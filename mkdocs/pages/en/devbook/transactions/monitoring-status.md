@@ -12,10 +12,15 @@ confirmation or failure.
 
 This tutorial shows how to monitor a transaction's status as it moves from unconfirmed to confirmed.
 
-!!! note "Confirmed transactions can still be reversed"
-    A confirmed transaction has been included in a block but is not yet irreversible.
-    The final state is <finalization:>, which occurs only after the block is finalized by the network.
-    Until then, <rollbacks:> are still possible.
+This kind of monitoring typically happens right after announcing a transaction, as shown in the
+[Transfer tutorial](./transfer.md), to make sure it gets confirmed.
+
+!!! warning "Polling is not recommended for production"
+    This tutorial uses polling to check the transaction status.
+    Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
+
+    [WebSockets](../websockets/listen-transaction-flow.md) provide a more responsive solution without the overhead of
+    repeated API calls.
 
 ## Prerequisites
 
@@ -23,10 +28,6 @@ This tutorial uses the [Symbol REST API](../reference/rest/symbol.md) without re
 You only need a way to make HTTP requests.
 
 ## Full Code
-
-This tutorial uses polling to check the transaction status.
-Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
-[WebSockets](../websockets/listen-transaction-flow.md) provide a more responsive solution without the overhead of repeated API calls.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -92,6 +93,12 @@ After parsing the response, the function checks the `group` field.
 If it is `confirmed`, the transaction was successfully included in a <block:> through <harvesting:>, and the function
 returns successfully.
 
+!!! warning "Confirmed transactions can still be reversed"
+
+    A confirmed transaction has been included in a block but is not yet irreversible.
+    The final state is <finalization:>, which occurs only after the block is finalized by the network.
+    Until then, <rollbacks:> are still possible.
+
 ### Checking for Failure
 
 {{ tutorial.code_snippet_tagged('step-4') }}
@@ -139,16 +146,21 @@ take appropriate action, such as:
 
 The following output shows a typical run monitoring a transaction as it moves from unconfirmed to confirmed:
 
-```text
+```text linenums="1" hl_lines="2 4 19"
 --8<-- 'devbook/transactions/monitoring_status.log'
 ```
 
-The output shows:
+Some highlights from the output:
 
-1. The transaction hash being monitored.
-2. Multiple polling attempts showing the transaction status, code, hash, and deadline.
-3. The status changing from `unconfirmed` to `confirmed` between attempts.
-4. A success message when the transaction is confirmed.
+* **Transaction hash** (line 2): The hash of the transaction to monitor, which uniquely identifies it on the network.
+
+* **Polling start** (line 4): Polling begins on the <get:/transactionStatus/{hash}> endpoint.
+    The first attempts (lines 6-7) return HTTP 404 because the <node:> has not yet received the transaction.
+
+* **Unconfirmed status** (lines 8-17): The transaction enters the <unconfirmed pool:> and waits to be included in a
+    block.
+
+* **Confirmation** (line 19): The status changes to `confirmed`, meaning the transaction has been included in a block.
 
 The number of attempts and timing vary depending on network conditions and block production rate.
 On the Symbol network, blocks are typically produced every 30 seconds, so you may see several `unconfirmed` status
