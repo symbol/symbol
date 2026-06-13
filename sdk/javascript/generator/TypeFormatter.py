@@ -105,8 +105,6 @@ class TypeFormatter(ClassFormatter):
 
 		method_descriptor.method_name = 'sort'
 		method_descriptor.arguments = []
-		if not method_descriptor.body:
-			method_descriptor.disabled_warnings = ['class-methods-use-this']
 
 		return self.generate_method(method_descriptor)
 
@@ -148,7 +146,6 @@ class TypeFormatter(ClassFormatter):
 
 		method_descriptor.method_name = 'get size'
 		method_descriptor.arguments = []
-		method_descriptor.disabled_warnings = ['class-methods-use-this']
 		return self.generate_method(method_descriptor)
 
 	def generate_getters_setters(self):

@@ -1,9 +1,7 @@
 import { Hash256 } from '../../src/CryptoTypes.js';
 import {
-	/* eslint-disable no-unused-vars */
 	BranchNode,
 	LeafNode,
-	/* eslint-enable no-unused-vars */
 	MerkleHashBuilder,
 	PatriciaMerkleProofResult,
 	deserializePatriciaTreeNodes,

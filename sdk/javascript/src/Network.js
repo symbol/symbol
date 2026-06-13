@@ -1,7 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { PublicKey } from './CryptoTypes.js';
 import { NetworkTimestamp, NetworkTimestampDatetimeConverter } from './NetworkTimestamp.js';
-/* eslint-enable no-unused-vars */
 import Ripemd160 from 'ripemd160';
 
 const BASE32_RFC4648_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';

@@ -1,4 +1,4 @@
-/* eslint-disable max-len, object-property-newline, no-underscore-dangle, no-use-before-define */
+/* eslint-disable max-len, no-underscore-dangle */
 
 import BaseValue from '../BaseValue.js';
 import ByteArray from '../ByteArray.js';
@@ -81,7 +81,7 @@ export class Address extends ByteArray {
 		super(Address.SIZE, address);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 40;
 	}
 
@@ -102,7 +102,7 @@ export class Hash256 extends ByteArray {
 		super(Hash256.SIZE, hash256);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 32;
 	}
 
@@ -123,7 +123,7 @@ export class PublicKey extends ByteArray {
 		super(PublicKey.SIZE, publicKey);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 32;
 	}
 
@@ -144,7 +144,7 @@ export class Signature extends ByteArray {
 		super(Signature.SIZE, signature);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 64;
 	}
 
@@ -186,7 +186,7 @@ export class NetworkType {
 		return NetworkType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -254,7 +254,7 @@ export class TransactionType {
 		return TransactionType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 4;
 	}
 
@@ -306,7 +306,7 @@ export class Transaction {
 		this._signatureSize = 64; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get type() {
@@ -373,7 +373,7 @@ export class Transaction {
 		this._deadline = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.type.size;
 		size += 1;
@@ -502,7 +502,7 @@ export class NonVerifiableTransaction {
 		this._signerPublicKeySize = 32; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get type() {
@@ -561,7 +561,7 @@ export class NonVerifiableTransaction {
 		this._deadline = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.type.size;
 		size += 1;
@@ -683,7 +683,7 @@ export class LinkAction {
 		return LinkAction[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 4;
 	}
 
@@ -730,7 +730,7 @@ export class AccountKeyLinkTransactionV1 extends Transaction {
 		this._remotePublicKeySize = 32; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkAction() {
@@ -749,7 +749,7 @@ export class AccountKeyLinkTransactionV1 extends Transaction {
 		this._remotePublicKey = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkAction.size;
@@ -827,7 +827,7 @@ export class NonVerifiableAccountKeyLinkTransactionV1 extends NonVerifiableTrans
 		this._remotePublicKeySize = 32; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkAction() {
@@ -846,7 +846,7 @@ export class NonVerifiableAccountKeyLinkTransactionV1 extends NonVerifiableTrans
 		this._remotePublicKey = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkAction.size;
@@ -913,7 +913,7 @@ export class NamespaceId {
 		this._name = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get name() {
@@ -924,7 +924,7 @@ export class NamespaceId {
 		this._name = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this._name.length;
@@ -999,7 +999,7 @@ export class MosaicId {
 		this._name = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.namespaceId.size;
 		size += 4;
@@ -1081,7 +1081,7 @@ export class Mosaic {
 		this._amount = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this.mosaicId.size;
@@ -1154,7 +1154,7 @@ export class SizePrefixedMosaic {
 		this._mosaic = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this.mosaic.size;
@@ -1227,7 +1227,7 @@ export class MosaicTransferFeeType {
 		return MosaicTransferFeeType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 4;
 	}
 
@@ -1306,7 +1306,7 @@ export class MosaicLevy {
 		this._fee = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.transferFeeType.size;
 		size += 4;
@@ -1389,7 +1389,7 @@ export class MosaicProperty {
 		this._value = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get name() {
@@ -1408,7 +1408,7 @@ export class MosaicProperty {
 		this._value = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this._name.length;
@@ -1484,7 +1484,7 @@ export class SizePrefixedMosaicProperty {
 		this._property = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this.property.size;
@@ -1597,7 +1597,7 @@ export class MosaicDefinition {
 		return this.levy ? this.levy.size + 0 : 0;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this.ownerPublicKey.size;
@@ -1749,7 +1749,7 @@ export class MosaicDefinitionTransactionV1 extends Transaction {
 		this._rentalFee = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -1869,7 +1869,7 @@ export class NonVerifiableMosaicDefinitionTransactionV1 extends NonVerifiableTra
 		this._rentalFee = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -1967,7 +1967,7 @@ export class MosaicSupplyChangeAction {
 		return MosaicSupplyChangeAction[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 4;
 	}
 
@@ -2043,7 +2043,7 @@ export class MosaicSupplyChangeTransactionV1 extends Transaction {
 		this._delta = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -2156,7 +2156,7 @@ export class NonVerifiableMosaicSupplyChangeTransactionV1 extends NonVerifiableT
 		this._delta = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -2248,7 +2248,7 @@ export class MultisigAccountModificationType {
 		return MultisigAccountModificationType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 4;
 	}
 
@@ -2294,7 +2294,7 @@ export class MultisigAccountModification {
 		];
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get modificationType() {
@@ -2313,7 +2313,7 @@ export class MultisigAccountModification {
 		this._cosignatoryPublicKey = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.modificationType.size;
 		size += 4;
@@ -2387,7 +2387,7 @@ export class SizePrefixedMultisigAccountModification {
 		this._modification = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this.modification.size;
@@ -2464,7 +2464,7 @@ export class MultisigAccountModificationTransactionV1 extends Transaction {
 		this._modifications = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -2545,7 +2545,7 @@ export class NonVerifiableMultisigAccountModificationTransactionV1 extends NonVe
 		this._modifications = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -2636,7 +2636,7 @@ export class MultisigAccountModificationTransactionV2 extends Transaction {
 		this._minApprovalDelta = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -2740,7 +2740,7 @@ export class NonVerifiableMultisigAccountModificationTransactionV2 extends NonVe
 		this._minApprovalDelta = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -2820,7 +2820,7 @@ export class CosignatureV1Body {
 		this._multisigAccountAddressSize = 40; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get otherTransactionHash() {
@@ -2839,7 +2839,7 @@ export class CosignatureV1Body {
 		this._multisigAccountAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += 4;
@@ -2926,7 +2926,7 @@ export class CosignatureV1 extends Transaction {
 		this._multisigAccountAddressSize = 40; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get otherTransactionHash() {
@@ -2945,7 +2945,7 @@ export class CosignatureV1 extends Transaction {
 		this._multisigAccountAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -3037,7 +3037,7 @@ export class NonVerifiableCosignatureV1 extends NonVerifiableTransaction {
 		this._multisigAccountAddressSize = 40; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get otherTransactionHash() {
@@ -3056,7 +3056,7 @@ export class NonVerifiableCosignatureV1 extends NonVerifiableTransaction {
 		this._multisigAccountAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -3147,7 +3147,7 @@ export class SizePrefixedCosignatureV1 {
 		this._cosignature = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += this.cosignature.size;
@@ -3231,7 +3231,7 @@ export class MultisigTransactionV1 extends Transaction {
 		this._cosignatures = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -3321,7 +3321,7 @@ export class NonVerifiableMultisigTransactionV1 extends NonVerifiableTransaction
 		this._innerTransaction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -3395,7 +3395,7 @@ export class NamespaceRegistrationTransactionV1 extends Transaction {
 		this._rentalFeeSinkSize = 40; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get rentalFeeSink() {
@@ -3430,7 +3430,7 @@ export class NamespaceRegistrationTransactionV1 extends Transaction {
 		this._parentName = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -3545,7 +3545,7 @@ export class NonVerifiableNamespaceRegistrationTransactionV1 extends NonVerifiab
 		this._rentalFeeSinkSize = 40; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get rentalFeeSink() {
@@ -3580,7 +3580,7 @@ export class NonVerifiableNamespaceRegistrationTransactionV1 extends NonVerifiab
 		this._parentName = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -3699,7 +3699,7 @@ export class MessageType {
 		return MessageType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 4;
 	}
 
@@ -3737,7 +3737,7 @@ export class Message {
 		this._message = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get messageType() {
@@ -3756,7 +3756,7 @@ export class Message {
 		this._message = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.messageType.size;
 		size += 4;
@@ -3862,7 +3862,7 @@ export class TransferTransactionV1 extends Transaction {
 		return this.message ? this.message.size + 0 : 0;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -3997,7 +3997,7 @@ export class NonVerifiableTransferTransactionV1 extends NonVerifiableTransaction
 		return this.message ? this.message.size + 0 : 0;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -4142,7 +4142,7 @@ export class TransferTransactionV2 extends Transaction {
 		return this.message ? this.message.size + 0 : 0;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -4298,7 +4298,7 @@ export class NonVerifiableTransferTransactionV2 extends NonVerifiableTransaction
 		return this.message ? this.message.size + 0 : 0;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;

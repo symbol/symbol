@@ -62,6 +62,9 @@ export default {
 			ignore: ['^symbol-sdk/']
 		}],
 		'import/no-deprecated': ['error'],
-		'import/named': ['error']
+		'import/named': ['error'],
+		'no-await-in-loop': 'error',
+		'import/prefer-default-export': 'error',
+		'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }]
 	}
 };

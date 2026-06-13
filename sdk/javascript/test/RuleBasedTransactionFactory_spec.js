@@ -13,7 +13,6 @@ describe('RuleBasedTransactionFactory', () => {
 		static SigningPublicKey = PublicKey;
 
 		// intentionally shadow Hash256 to emulate code produced by catbuffer generator, which shadows byte array types
-		// eslint-disable-next-line no-shadow
 		static Hash256 = class Hash256 extends ByteArray {
 			constructor(hash256) {
 				super(32, hash256);

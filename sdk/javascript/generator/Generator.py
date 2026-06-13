@@ -47,7 +47,7 @@ def generate_files(ast_models, output_directory: Path):
 
 	with open(output_directory / 'models.js', 'w', encoding='utf8', newline='\n') as output_file:
 		output_file.write(
-			'''/* eslint-disable max-len, object-property-newline, no-underscore-dangle, no-use-before-define */
+			'''/* eslint-disable max-len, no-underscore-dangle */
 
 import BaseValue from '../BaseValue.js';
 import ByteArray from '../ByteArray.js';

@@ -7,7 +7,7 @@ import { NetworkLocator } from '../src/Network.js';
 import { NemFacade } from '../src/facade/NemFacade.js';
 import { SymbolFacade } from '../src/facade/SymbolFacade.js';
 import { Network as NemNetwork } from '../src/nem/Network.js';
-import { deriveSharedKeyDeprecated } from '../src/nem/SharedKey.js'; // eslint-disable-line import/no-deprecated
+import { deriveSharedKeyDeprecated } from '../src/nem/SharedKey.js';
 import { Network as SymbolNetwork } from '../src/symbol/Network.js';
 import VotingKeysGenerator from '../src/symbol/VotingKeysGenerator.js';
 import { generateMosaicId } from '../src/symbol/idGenerator.js';
@@ -138,7 +138,7 @@ import path from 'path';
 			const salt = hexToUint8(testVector.salt);
 
 			// Act:
-			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt); // eslint-disable-line import/no-deprecated
+			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
 
 			// Assert:
 			return [[new SharedKey256(testVector.sharedKey), sharedKey]];
@@ -175,7 +175,7 @@ import path from 'path';
 			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
 			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
 			const salt = hexToUint8(testVector.salt);
-			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt); // eslint-disable-line import/no-deprecated
+			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
 
 			const iv = hexToUint8(testVector.iv);
 			const cipherText = hexToUint8(testVector.cipherText);

@@ -12,11 +12,6 @@ export default defineConfig([
 		ignores: ['_build/**', 'dist/**', 'ts/**/*.d.ts']
 	},
 	{
-		linterOptions: {
-			reportUnusedDisableDirectives: false
-		}
-	},
-	{
 		plugins: {
 			import: importPlugin,
 			jsdoc
@@ -71,4 +66,3 @@ export default defineConfig([
 		}
 	}
 ]);
-

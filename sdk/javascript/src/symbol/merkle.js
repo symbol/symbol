@@ -143,7 +143,7 @@ export class TreeNode {
 	 * Calculates node hash.
 	 * @returns {Hash256} Hash of the node.
 	 */
-	calculateHash() { // eslint-disable-line class-methods-use-this
+	calculateHash() {
 		return Hash256.zero();
 	}
 }

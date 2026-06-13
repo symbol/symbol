@@ -110,7 +110,7 @@ describe('NEM Facade', () => {
 
 	it('cannot create around unknown network by name', () => {
 		expect(() => {
-			new NemFacade('foo'); // eslint-disable-line no-new
+			new NemFacade('foo');
 		}).to.throw('no network found with name \'foo\'');
 	});
 
@@ -149,7 +149,7 @@ describe('NEM Facade', () => {
 
 			const endTime = new Date().getTime();
 			if (startTime !== endTime)
-				continue; // eslint-disable-line no-continue
+				continue;
 
 			// Assert:
 			expect(nowFromFacade).to.deep.equal(nowFromNetwork);

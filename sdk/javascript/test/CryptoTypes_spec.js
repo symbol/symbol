@@ -25,7 +25,7 @@ describe('CryptoTypes', () => {
 	const assertCannotCreateByteArrayWithIncorrectNumberOfBytes = (ByteArrayClass, requiredSize) => {
 		[0, requiredSize - 1, requiredSize + 1].forEach(size => {
 			expect(() => {
-				new ByteArrayClass(size, crypto.randomBytes(size)); // eslint-disable-line no-new
+				new ByteArrayClass(size, crypto.randomBytes(size));
 			}).to.throw('bytes was size');
 		});
 	};

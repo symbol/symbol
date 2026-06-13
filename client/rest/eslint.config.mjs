@@ -11,11 +11,6 @@ export default defineConfig([
 		ignores: ['src/plugins/rosetta/openApi/**']
 	},
 	{
-		linterOptions: {
-			reportUnusedDisableDirectives: false
-		}
-	},
-	{
 		plugins: {
 			import: importPlugin,
 			jsdoc
@@ -56,4 +51,3 @@ export default defineConfig([
 		}
 	}
 ]);
-

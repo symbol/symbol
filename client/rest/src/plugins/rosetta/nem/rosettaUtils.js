@@ -27,7 +27,7 @@ import { Network } from 'symbol-sdk/nem';
  * @param {object} config Services configuration.
  * @returns {object} Blockchain descriptor.
  */
-export const getBlockchainDescriptor = config => ({ // eslint-disable-line import/prefer-default-export
+export const getBlockchainDescriptor = config => ({
 	blockchain: 'NEM',
 	network: config.network.name
 });

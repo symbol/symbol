@@ -214,7 +214,7 @@ describe('Symbol Facade', () => {
 
 	it('cannot create around unknown network by name', () => {
 		expect(() => {
-			new SymbolFacade('foo'); // eslint-disable-line no-new
+			new SymbolFacade('foo');
 		}).to.throw('no network found with name \'foo\'');
 	});
 
@@ -253,7 +253,7 @@ describe('Symbol Facade', () => {
 
 			const endTime = new Date().getTime();
 			if (startTime !== endTime)
-				continue; // eslint-disable-line no-continue
+				continue;
 
 			// Assert:
 			expect(nowFromFacade).to.deep.equal(nowFromNetwork);

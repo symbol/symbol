@@ -1,16 +1,12 @@
 import {
 	Address,
-	/* eslint-disable no-unused-vars */
 	Network
-	/* eslint-enable no-unused-vars */
 } from './Network.js';
 import * as nc from './models.js';
 import {
 	Hash256,
 	PublicKey,
-	/* eslint-disable no-unused-vars */
 	Signature
-	/* eslint-enable no-unused-vars */
 } from '../CryptoTypes.js';
 import RuleBasedTransactionFactory from '../RuleBasedTransactionFactory.js';
 import { uint8ToHex } from '../utils/converter.js';
@@ -40,7 +36,7 @@ export default class TransactionFactory {
 	 * Gets class type.
 	 * @returns {typeof TransactionFactory} Class type.
 	 */
-	get static() { // eslint-disable-line class-methods-use-this
+	get static() {
 		return TransactionFactory;
 	}
 

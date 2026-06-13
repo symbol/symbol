@@ -23,7 +23,7 @@ describe('ByteArray', () => {
 	it('cannot create byte array with incorrect number of bytes', () => {
 		[0, FIXED_SIZE - 1, FIXED_SIZE + 1].forEach(size => {
 			expect(() => {
-				new ByteArray(FIXED_SIZE, crypto.randomBytes(size)); // eslint-disable-line no-new
+				new ByteArray(FIXED_SIZE, crypto.randomBytes(size));
 			}).to.throw('bytes was size');
 		});
 	});
@@ -39,7 +39,7 @@ describe('ByteArray', () => {
 	it('cannot create byte array with incorrect number of hex characters', () => {
 		[0, FIXED_SIZE - 1, FIXED_SIZE + 1].forEach(size => {
 			expect(() => {
-				new ByteArray(FIXED_SIZE, uint8ToHex(crypto.randomBytes(size))); // eslint-disable-line no-new
+				new ByteArray(FIXED_SIZE, uint8ToHex(crypto.randomBytes(size)));
 			}).to.throw('bytes was size');
 		});
 	});

@@ -1,13 +1,9 @@
-/* eslint-disable no-unused-vars */
 import { Bip32Node } from '../Bip32.js';
-/* eslint-enable no-unused-vars */
 import {
 	Hash256,
 	PrivateKey,
 	PublicKey,
-	/* eslint-disable no-unused-vars */
 	SharedKey256,
-	/* eslint-enable no-unused-vars */
 	Signature
 } from '../CryptoTypes.js';
 import { NetworkLocator } from '../Network.js';
@@ -16,9 +12,7 @@ import MessageEncoder from '../symbol/MessageEncoder.js';
 import {
 	Address,
 	Network,
-	/* eslint-disable no-unused-vars */
 	NetworkTimestamp
-	/* eslint-enable no-unused-vars */
 } from '../symbol/Network.js';
 import { deriveSharedKey } from '../symbol/SharedKey.js';
 import TransactionFactory from '../symbol/TransactionFactory.js';
@@ -213,7 +207,7 @@ export class SymbolFacade {
 	 * Gets class type.
 	 * @returns {typeof SymbolFacade} Class type.
 	 */
-	get static() { // eslint-disable-line class-methods-use-this
+	get static() {
 		return SymbolFacade;
 	}
 

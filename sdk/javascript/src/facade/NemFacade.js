@@ -1,14 +1,10 @@
-/* eslint-disable no-unused-vars */
 import { Bip32Node } from '../Bip32.js';
-/* eslint-enable no-unused-vars */
 import {
 	Hash256,
 	PrivateKey,
-	/* eslint-disable no-unused-vars */
 	PublicKey,
 	SharedKey256,
 	Signature
-	/* eslint-enable no-unused-vars */
 } from '../CryptoTypes.js';
 import { NetworkLocator } from '../Network.js';
 import { KeyPair, Verifier } from '../nem/KeyPair.js';
@@ -16,15 +12,11 @@ import MessageEncoder from '../nem/MessageEncoder.js';
 import {
 	Address,
 	Network,
-	/* eslint-disable no-unused-vars */
 	NetworkTimestamp
-	/* eslint-enable no-unused-vars */
 } from '../nem/Network.js';
 import { deriveSharedKey } from '../nem/SharedKey.js';
 import TransactionFactory from '../nem/TransactionFactory.js';
-/* eslint-disable no-unused-vars */
 import * as nc from '../nem/models.js';
-/* eslint-enable no-unused-vars */
 import { keccak_256 } from '@noble/hashes/sha3.js';
 
 // region NemPublicAccount / NemAccount
@@ -155,7 +147,7 @@ export class NemFacade {
 	 * Gets class type.
 	 * @returns {typeof NemFacade} Class type.
 	 */
-	get static() { // eslint-disable-line class-methods-use-this
+	get static() {
 		return NemFacade;
 	}
 
@@ -213,7 +205,7 @@ export class NemFacade {
 	 * @param {nc.Transaction} transaction Transaction object.
 	 * @returns {Hash256} Transaction hash.
 	 */
-	hashTransaction(transaction) { // eslint-disable-line class-methods-use-this
+	hashTransaction(transaction) {
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
 		return new Hash256(keccak_256(nonVerifiableTransaction.serialize()));
 	}
@@ -223,7 +215,7 @@ export class NemFacade {
 	 * @param {nc.Transaction} transaction Transaction object.
 	 * @returns {Uint8Array} Verifiable data to sign.
 	 */
-	extractSigningPayload(transaction) { // eslint-disable-line class-methods-use-this
+	extractSigningPayload(transaction) {
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
 		return nonVerifiableTransaction.serialize();
 	}

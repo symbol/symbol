@@ -23,8 +23,6 @@
 
 // this file only contains an interface for prettier documentation, so ignore no-unused-vars warnings
 
-/* eslint-disable no-unused-vars */
-
 /**
  * A transaction state descriptor.
  * @typedef {object} TransactionStateDescriptor
@@ -41,30 +39,28 @@ export default {
 	/**
 	 * Creates a plugin specific database.
 	 * @instance
-	 * @param {module:db/CatapultDb} db Catapult database.
+	 * @param {module:db/CatapultDb} _db Catapult database.
 	 */
-	createDb: db => {},
+	createDb: _db => {},
 
 	/**
 	 * Registers transaction state descriptors.
 	 * @instance
-	 * @param {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} states Transaction state descriptors.
+	 * @param {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} _states Transaction state descriptors.
 	 */
-	registerTransactionStates: states => {},
+	registerTransactionStates: _states => {},
 
 	/**
 	 * Registers message channels.
 	 * @instance
-	 * @param {module:connection/MessageChannelBuilder~MessageChannelBuilder} builder Message channel builder.
+	 * @param {module:connection/MessageChannelBuilder~MessageChannelBuilder} _builder Message channel builder.
 	 */
-	registerMessageChannels: builder => {},
+	registerMessageChannels: _builder => {},
 
 	/**
 	 * Registers route extensions.
 	 * @instance
-	 * @param {...args} args Arguments needed to register the routes.
+	 * @param {..._args} _args Arguments needed to register the routes.
 	 */
-	registerRoutes: (...args) => {}
+	registerRoutes: (..._args) => {}
 };
-
-/* eslint-enable */
