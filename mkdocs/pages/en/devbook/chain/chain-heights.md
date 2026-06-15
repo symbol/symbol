@@ -86,17 +86,19 @@ The loop then sleeps for one second between iterations.
 
 The following output shows a typical run monitoring the chain and finalization heights:
 
-```text
+```text linenums="1" hl_lines="5 7"
 --8<-- 'devbook/chain/chain_heights.log'
 ```
 
-The output shows:
+Some highlights from the output:
 
-1. The chain height advances 1 block, from `3,159,411` to `3,159,412`.
-    At that point, the change counter starts from `0s`.
-2. Later, the finalized height catches up and advances 23 blocks, from `3,159,388` to `3,159,411`.
-    Its change counter starts from `0s` too.
-3. Both heights initially show `-` because no change has been observed yet.
+* **Before any change** (lines 2-4): Both counters show `-` because no change has been observed yet.
+
+* **A new block confirms** (line 5): The chain height advances from `3,159,411` to `3,159,412` and its change counter
+    starts from `0s`.
+
+* **A finalization round completes** (line 7): The finalized height jumps 23 blocks from `3,159,388` to `3,159,411`,
+    and its change counter starts from `0s`.
 
 The gap between the chain height and the finalized height is normal.
 A transaction included in a block at the chain tip is confirmed but not yet irreversible.
