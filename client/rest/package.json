@@ -37,7 +37,7 @@
     "mongodb": "^7.0.0",
     "node-cache": "^5.1.2",
     "fastify": "^5.8.5",
-    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/rate-limit": "^11.0.0",
     "@fastify/accepts": "^5.0.4",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
