@@ -26,19 +26,20 @@ for (;;) {
 		finalizedHeight !== prevFinalizedHeight)
 		finalizedChangedAt = now;
 
-	const hAgo = null !== heightChangedAt ?
+	const heightAgo = null !== heightChangedAt ?
 		`${Math.floor((now - heightChangedAt) / 1000)}s ago` :
 		'-';
-	const fAgo = null !== finalizedChangedAt ?
+	const finalizedAgo = null !== finalizedChangedAt ?
 		`${Math.floor((now - finalizedChangedAt) / 1000)}s ago` :
 		'-'; // [<step-2]
 	// [>step-3]
-	const h = height.toLocaleString().padStart(10);
-	const fh = finalizedHeight.toLocaleString().padStart(10);
+	const heightLabel = height.toLocaleString().padStart(10);
+	const finalizedHeightLabel =
+		finalizedHeight.toLocaleString().padStart(10);
 	console.log(
-		`Height: ${h}  (changed ${hAgo})` +
-		`  |  Finalized: ${fh}` +
-		`  (changed ${fAgo})`
+		`Height: ${heightLabel}  (changed ${heightAgo})` +
+		`  |  Finalized: ${finalizedHeightLabel}` +
+		`  (changed ${finalizedAgo})`
 	);
 
 	prevHeight = height;
