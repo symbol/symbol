@@ -31,19 +31,19 @@ try:
 			finalized_changed_at = now
 
 		if height_changed_at is not None:
-			h_ago = f'{int(now - height_changed_at)}s ago'
+			height_ago = f'{int(now - height_changed_at)}s ago'
 		else:
-			h_ago = '-'
+			height_ago = '-'
 		if finalized_changed_at is not None:
-			f_ago = f'{int(now - finalized_changed_at)}s ago'
+			finalized_ago = f'{int(now - finalized_changed_at)}s ago'
 		else:
-			f_ago = '-'  # [<step-2]
+			finalized_ago = '-'  # [<step-2]
 		# [>step-3]
 		print(
 			f'Height: {height:>10,}'
-			f'  (changed {h_ago})'
+			f'  (changed {height_ago})'
 			f'  |  Finalized: {finalized_height:>10,}'
-			f'  (changed {f_ago})'
+			f'  (changed {finalized_ago})'
 		)
 
 		prev_height = height
