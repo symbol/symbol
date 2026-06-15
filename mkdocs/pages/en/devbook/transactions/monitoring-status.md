@@ -12,9 +12,6 @@ confirmation or failure.
 
 This tutorial shows how to monitor a transaction's status as it moves from unconfirmed to confirmed.
 
-This kind of monitoring typically happens right after announcing a transaction, as shown in the
-[Transfer tutorial](./transfer.md), to make sure it gets confirmed.
-
 !!! warning "Polling is not recommended for production"
     This tutorial uses polling to check the transaction status.
     Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
@@ -95,9 +92,9 @@ returns successfully.
 
 !!! warning "Confirmed transactions can still be reversed"
 
-    A confirmed transaction has been included in a block but is not yet irreversible.
-    The final state is <finalization:>, which occurs only after the block is finalized by the network.
-    Until then, <rollbacks:> are still possible.
+    A confirmed transaction has been included in a block, but it is not yet irreversible.
+    Only <finalization:> makes a transaction final, when the block containing it is finalized by the network.
+    Until then, <rollbacks:> remain possible.
 
 ### Checking for Failure
 
@@ -155,7 +152,7 @@ Some highlights from the output:
 * **Transaction hash** (line 2): The hash of the transaction to monitor, which uniquely identifies it on the network.
 
 * **Polling start** (line 4): Polling begins on the <get:/transactionStatus/{hash}> endpoint.
-    The first attempts (lines 6-7) return HTTP 404 because the <node:> has not yet received the transaction.
+    During the first attempts (lines 6-7) the <node:> has not yet received the transaction.
 
 * **Unconfirmed status** (lines 8-17): The transaction enters the <unconfirmed pool:> and waits to be included in a
     block.
