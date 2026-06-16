@@ -90,11 +90,11 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 {{ tutorial.code_snippet_tagged('step-5') }}
 
 コードはトランザクションをアナウンスし、受信メッセージをリスニングします。
-各メッセージは [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) スキーマに従い、以下が含まれます。
+各メッセージは [TransactionStatusDTO](../reference/rest/symbol.md#model/TransactionStatusDTO) スキーマに従い、以下が含まれます。
 
 * **hash:** 拒否されたトランザクションのハッシュ。
 * **code:** トランザクションが拒否された理由を説明するエラーコード。
-    すべての可能な値については、 [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) スキーマを参照してください。
+    すべての可能な値については、 [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) スキーマを参照してください。
 
 受信したハッシュがアナウンスされたトランザクションと一致すると、プログラムはエラーコードを出力して終了します。
 
@@ -127,4 +127,4 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 |----------------------------------------------------------------------|--------------------------------------------------------------------------------|
 | [status チャネルのサブスクライブ](#subscribing-to-the-status-channel)            | <ws:status&#47;{address}>                                                      |
 | [拒否をトリガーする](#building-and-signing-an-invalid-transfer-transaction) | [転送トランザクション](../transactions/transfer.md)                                    |
-| [エラーメッセージの処理](#announcing-and-waiting-for-the-error)               | [TransactionStatusDTO](../reference/rest/symbol.md#model-TransactionStatusDTO) |
+| [エラーメッセージの処理](#announcing-and-waiting-for-the-error)               | [TransactionStatusDTO](../reference/rest/symbol.md#model/TransactionStatusDTO) |
