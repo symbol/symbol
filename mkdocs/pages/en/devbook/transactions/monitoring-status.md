@@ -152,7 +152,7 @@ Some highlights from the output:
 * **Transaction hash** (line 2): The hash of the transaction to monitor, which uniquely identifies it on the network.
 
 * **Polling start** (line 4): Polling begins on the <get:/transactionStatus/{hash}> endpoint.
-    During the first attempts (lines 6-7) the <node:> has not yet received the transaction.
+    During the first attempts (lines 6-7) the <node:> has not yet started processing the transaction.
 
 * **Unconfirmed status** (lines 8-17): The transaction enters the <unconfirmed pool:> and waits to be included in a
     block.
