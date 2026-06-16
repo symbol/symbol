@@ -109,7 +109,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 
 各メッセージには、チャネルを識別する `topic` フィールドと、イベントペイロードを含む `data` オブジェクトが含まれます。
 
-`confirmedAdded` および `unconfirmedAdded` メッセージの場合、ペイロードは [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) スキーマに従います。
+`confirmedAdded` および `unconfirmedAdded` メッセージの場合、ペイロードは [TransactionInfoDTO](../reference/rest/symbol.md#model/TransactionInfoDTO) スキーマに従います。
 `unconfirmedRemoved` メッセージの場合、ペイロードにはトランザクションハッシュ（ `meta.hash` ）のみが含まれます。
 
 ハッシュがアナウンスされたトランザクションと一致する `confirmedAdded` メッセージが到着すると、プログラムは承認メッセージを出力して終了します。
@@ -151,7 +151,7 @@ WebSocket URLは、HTTPプロトコルをWebSocketプロトコルに置き換え
 | [unconfirmedAdded のサブスクライブ](#subscribing-to-channels)          | <ws:unconfirmedAdded&#47;{address}>                                        |
 | [unconfirmedRemoved のサブスクライブ](#subscribing-to-channels)        | <ws:unconfirmedRemoved&#47;{address}>                                      |
 | [confirmedAdded のサブスクライブ](#subscribing-to-channels)            | <ws:confirmedAdded&#47;{address}>                                          |
-| [トランザクションメッセージの処理](#announcing-and-waiting-for-confirmation) | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO) |
+| [トランザクションメッセージの処理](#announcing-and-waiting-for-confirmation) | [TransactionInfoDTO](../reference/rest/symbol.md#model/TransactionInfoDTO) |
 
 ## 次のステップ {: #next-steps }
 
