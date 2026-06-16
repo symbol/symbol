@@ -6,7 +6,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.symbol.sdk.facade.SymbolFacade;
+import org.symbol.sdk.symbol.SymbolFacade;
 import org.symbol.sdk.symbol.NetworkTimestamp;
 
 class HelloWorld {
@@ -14,9 +14,9 @@ class HelloWorld {
 		// [>step-1]
 		var facade = new SymbolFacade("mainnet");
 		System.out.println(
-			"Network name: " + facade.getNetwork().getName());
+			"Network name: " + facade.network.name);
 		// NetworkTimestamp(0) is the genesis block timestamp
-		var launchDate = facade.getNetwork().toDatetime(
+		var launchDate = facade.network.toDatetime(
 			new NetworkTimestamp(0));
 		System.out.println("Network launch date: " + launchDate); // [<step-1]
 		// [>step-2]
