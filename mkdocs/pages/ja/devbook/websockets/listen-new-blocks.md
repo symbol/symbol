@@ -70,13 +70,13 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 コードは、プログラムが中断されるまで受信メッセージをリスニングします。
 各メッセージには、チャネルを識別する `topic` フィールドと、イベントペイロードを含む `data` オブジェクトが含まれます。
 
-`block` メッセージの場合、ペイロードは [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO) スキーマに従います。
+`block` メッセージの場合、ペイロードは [BlockInfoDTO](../reference/rest/symbol.md#model/BlockInfoDTO) スキーマに従います。
 このチュートリアルでは、各ブロックを識別するためにそのうちの2つを使用します。
 
 * `data.block.height`: 新しいブロックの高さ。
 * `data.meta.hash`: 新しいブロックのハッシュ。
 
-`finalizedBlock` メッセージの場合、ペイロードは [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) スキーマに従います。
+`finalizedBlock` メッセージの場合、ペイロードは [FinalizedBlockDTO](../reference/rest/symbol.md#model/FinalizedBlockDTO) スキーマに従います。
 このチュートリアルでは以下を使用します。
 
 * `data.height`: ファイナライズされたブロックの高さ。
@@ -118,5 +118,5 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 |----------------------------------------------------|--------------------------------------------------------------------------|
 | [block チャネルのサブスクライブ](#subscribing-to-channels)     | <ws:block>                                                               |
 | [finalized チャネルのサブスクライブ](#subscribing-to-channels) | <ws:finalizedBlock>                                                      |
-| [ブロックメッセージの処理](#handling-messages)               | [BlockInfoDTO](../reference/rest/symbol.md#model-BlockInfoDTO)           |
-| [ファイナライズメッセージの処理](#handling-messages)            | [FinalizedBlockDTO](../reference/rest/symbol.md#model-FinalizedBlockDTO) |
+| [ブロックメッセージの処理](#handling-messages)               | [BlockInfoDTO](../reference/rest/symbol.md#model/BlockInfoDTO)           |
+| [ファイナライズメッセージの処理](#handling-messages)            | [FinalizedBlockDTO](../reference/rest/symbol.md#model/FinalizedBlockDTO) |
