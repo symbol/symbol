@@ -102,7 +102,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 {{ tutorial.code_snippet_tagged('step-5') }}
 
 アカウント B は受信メッセージをリスニングし、チャネルごとに振り分けます。
-メッセージのスキーマは、 `cosignature` メッセージを除き、 [通常のトランザクションフロー](./listen-transaction-flow.md) チュートリアルと同じです。 `cosignature` メッセージは [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO) スキーマに従い、他のチャネルで使用される `meta.hash` フィールドは含まれません。
+メッセージのスキーマは、 `cosignature` メッセージを除き、 [通常のトランザクションフロー](./listen-transaction-flow.md) チュートリアルと同じです。 `cosignature` メッセージは [CosignatureDTO](../reference/rest/symbol.md#model/CosignatureDTO) スキーマに従い、他のチャネルで使用される `meta.hash` フィールドは含まれません。
 
 重要なアクションは `partialAdded` で発生します。ハッシュが期待されるアグリゲートと一致した場合、アカウント B は `detached` パラメータを `true` に設定した <dy:SymbolFacade.cosignTransactionHash> を使用してトランザクションに連署し、 <put:/transactions/cosignature> に連署をアナウンスします。
 より深い検証を行うために、アカウント B は <get:/transactions/partial/{transactionId}> から完全なトランザクションを取得し、内容を検査してから連署するかどうかを決定することができます。
@@ -147,6 +147,6 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 | [partialAdded をサブスクライブする](#account-b-connecting-and-subscribing-to-channels)      | <ws:partialAdded&#47;{address}>                                             |
 | [partialRemoved をサブスクライブする](#account-b-connecting-and-subscribing-to-channels)    | <ws:partialRemoved&#47;{address}>                                           |
 | [cosignature をサブスクライブする](#account-b-connecting-and-subscribing-to-channels)       | <ws:cosignature&#47;{address}>                                              |
-| [トランザクションメッセージを処理する](#account-b-handling-websocket-messages-and-cosigning)      | [TransactionInfoDTO](../reference/rest/symbol.md#model-TransactionInfoDTO)  |
-| [連署メッセージを処理する](#account-b-handling-websocket-messages-and-cosigning)          | [CosignatureDTO](../reference/rest/symbol.md#model-CosignatureDTO)          |
+| [トランザクションメッセージを処理する](#account-b-handling-websocket-messages-and-cosigning)      | [TransactionInfoDTO](../reference/rest/symbol.md#model/TransactionInfoDTO)  |
+| [連署メッセージを処理する](#account-b-handling-websocket-messages-and-cosigning)          | [CosignatureDTO](../reference/rest/symbol.md#model/CosignatureDTO)          |
 | [partialAdded で連署を送信する](#account-b-handling-websocket-messages-and-cosigning) | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature> |
