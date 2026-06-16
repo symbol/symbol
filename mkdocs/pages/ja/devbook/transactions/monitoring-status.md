@@ -11,10 +11,16 @@ Symbol ネットワークに [トランザクション](default: トランザク
 
 このチュートリアルでは、トランザクションが未承認から承認済みへと移行する際のステータスを監視する方法を説明します。
 
-!!! note "承認されたトランザクションでも覆る可能性があります"
-    承認されたトランザクションはブロックに含まれていますが、まだ不可逆ではありません。
-    最終的な状態は [ファイナライズ](default: ファイナライズ) であり、これはブロックがネットワークによってファイナライズされた後にのみ発生します。
-    それまでは、 [ロールバック](default: ロールバック) が発生する可能性がまだあります。
+この種の監視は、トランザクションが確実に承認されたことを確認するため、 [転送チュートリアル](./transfer.md) で示されているように、
+トランザクションをアナウンスした直後に行うのが一般的です。
+
+!!! warning "ポーリングは本番環境では推奨されません"
+
+    このチュートリアルでは、トランザクションのステータスを確認するためにポーリングを使用します。
+    ここでは説明の目的でポーリングを使用していますが、本番環境のアプリケーションには推奨されるアプローチではありません。
+
+    [WebSocket](../websockets/listen-transaction-flow.md) を使用すると、API 呼び出しを繰り返すオーバーヘッドなしに、
+    よりレスポンスの高いソリューションを提供できます。
 
 ## 前提条件 {: #prerequisites }
 
@@ -22,10 +28,6 @@ Symbol ネットワークに [トランザクション](default: トランザク
 HTTP リクエストを行う方法さえあれば実行可能です。
 
 ## 完全なコード {: #full-code }
-
-このチュートリアルでは、トランザクションのステータスを確認するためにポーリングを使用します。
-ここでは説明の目的でポーリングを使用していますが、本番環境のアプリケーションには推奨されるアプローチではありません。
-WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッドなしに、よりレスポンスの高いソリューションを提供できます。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
@@ -52,7 +54,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-`wait_for_transaction_confirmation` 関数は、このチュートリアルの中核です。
+{{ tutorial.var('wait_for_transaction_confirmation') }} 関数は、このチュートリアルの中核です。
 トランザクションが承認されるか失敗するまで監視します。
 
 `for` ループを使用して、デフォルトで最大60回（2秒間隔で2分間）トランザクションのステータスを確認します。
@@ -72,7 +74,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
     | `partial`     | [アグリゲートボンデッドトランザクション](default:アグリゲートボンデッドトランザクション) の[連署](default:マルチシグアカウント)待ち。 |
 
 * **Code (コード):** より詳細な情報を提供するステータスコード（例： `Success` や特定のエラーコード）。
-    すべての可能な値については、 [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) スキーマを参照してください。
+    すべての可能な値については、 [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) スキーマを参照してください。
 * **Hash (ハッシュ):** 監視されているトランザクションハッシュ。
 * **Deadline (有効期限):** ネットワーク時間でのトランザクションの有効期限。
 
@@ -85,6 +87,12 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 レスポンスを解析した後、関数は `group` フィールドを確認します。
 それが `confirmed` の場合、トランザクションは [ハーベスティング](default: ハーベスティング) を通じて正常に[ブロック](default:ブロック)に含まれており、関数は正常に終了します。
 
+!!! warning "承認されたトランザクションでも覆る可能性があります"
+
+    承認されたトランザクションはブロックに含まれていますが、まだ不可逆ではありません。
+    最終的な状態は [ファイナライズ](default: ファイナライズ) であり、これはブロックがネットワークによってファイナライズされた後にのみ発生します。
+    それまでは、 [ロールバック](default: ロールバック) が発生する可能性がまだあります。
+
 ### 失敗の確認 {: #checking-for-failure }
 
 {{ tutorial.code_snippet_tagged('step-4') }}
@@ -94,7 +102,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 一般的な理由には、残高不足、無効な [署名](default: 署名)、または有効期限切れが含まれます。
 失敗したトランザクションは検証中に拒否され、ブロックには含まれません。
 
-すべての可能なコードについては、 [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) を参照してください。
+すべての可能なコードについては、 [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) を参照してください。
 
 ### 不明なステータスの処理 {: #handling-unknown-status }
 
@@ -127,18 +135,22 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 
 ## 出力 {: #output }
 
-以下の出力は、トランザクションが未承認から承認済みへと移行する様子を監視する典型的な実行例を示しています。
+以下の出力は、アナウンスされたばかりのトランザクションを監視する典型的な実行例を示しています。
 
-```text
+```text linenums="1" hl_lines="2 4 19"
 --8<-- 'devbook/transactions/monitoring_status.log'
 ```
 
 出力のポイント:
 
-1. 監視されているトランザクションハッシュ。
-2. トランザクションのステータス、コード、ハッシュ、および有効期限を示す複数回のポーリング試行。
-3. 試行の間にステータスが `unconfirmed` から `confirmed` に変化しています。
-4. トランザクションが承認されたときの成功メッセージ。
+* **トランザクションハッシュ** (2行目): 監視対象のトランザクションのハッシュで、ネットワーク上でトランザクションを一意に識別します。
+
+* **ポーリングの開始** (4行目): <get:/transactionStatus/{hash}> エンドポイントへのポーリングが開始されます。
+    最初の試行（6〜7行目）は、 [ノード](default: ノード) がまだトランザクションの処理を開始していないため、HTTP 404 を返します。
+
+* **未承認ステータス** (8〜17行目): トランザクションは [未承認トランザクションプール](default: 未承認トランザクションプール) に入り、ブロックに含まれるのを待ちます。
+
+* **承認** (19行目): ステータスが `confirmed` に変わり、トランザクションがブロックに含まれたことを示します。
 
 試行回数とタイミングは、ネットワークの状態とブロックの生成速度によって異なります。
 Symbol ネットワークでは、ブロックは通常30秒ごとに生成されるため、トランザクションが承認されるまでに数回の `unconfirmed` ステータスレスポンスが表示される場合があります。
@@ -154,8 +166,8 @@ Symbol ネットワークでは、ブロックは通常30秒ごとに生成さ�
 | ステップ                                                | 関連ドキュメント                                                                       |
 |-----------------------------------------------------|----------------------------------------------------------------------------------|
 | [ステータスエンドポイントへの照会](#querying-the-status-endpoint) | <get:/transactionStatus/{hash}>                                                  |
-| [承認の確認](#checking-for-confirmation)             | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
-| [失敗の確認](#checking-for-failure)                  | [TransactionStatusEnum](../reference/rest/symbol.md#model-TransactionStatusEnum) |
+| [承認の確認](#checking-for-confirmation)             | [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) |
+| [失敗の確認](#checking-for-failure)                  | [TransactionStatusEnum](../reference/rest/symbol.md#model/TransactionStatusEnum) |
 
 ## 次のステップ {: #next-steps }
 
