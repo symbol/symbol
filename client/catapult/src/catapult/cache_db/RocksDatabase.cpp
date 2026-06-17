@@ -25,8 +25,12 @@
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/exceptions.h"
 #include "src/catapult/utils/HexFormatter.h"
+#include "src/catapult/utils/Logging.h"
 #include "src/catapult/utils/PathUtils.h"
 #include "src/catapult/utils/StackLogger.h"
+#ifdef _WIN32
+#include <thread>
+#endif
 
 namespace catapult { namespace cache {
 
@@ -169,7 +173,26 @@ namespace catapult { namespace cache {
 
 		rocksdb::DB* pDb;
 		auto dbOptions = CreateDatabaseOptions(m_settings.DatabaseConfig);
-		auto status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+		rocksdb::Status status;
+#ifdef _WIN32
+		// On Windows, the OS may hold file handles open briefly after a prior instance closes,
+		// causing RocksDB's internal CURRENT rename to fail with ACCESS_DENIED. Retry with backoff.
+		for (auto attempt = 0u; attempt < 5u; ++attempt) {
+			m_handles.clear();
+			status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+			if (status.ok() || !status.IsIOError() || 4u == attempt)
+				break;
+			auto delayMs = 100u << attempt;
+			CATAPULT_LOG(warning)
+				<< "RocksDB open failed (attempt "
+				<< (attempt + 1) << "/5): "
+				<< status.ToString()
+				<< ", retrying in " << delayMs << "ms";
+			std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+		}
+#else
+		status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+#endif
 		m_pDb.reset(pDb);
 		if (!status.ok())
 			CATAPULT_THROW_RUNTIME_ERROR_2("couldn't open database", m_settings.DatabaseDirectory, status.ToString());
