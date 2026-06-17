@@ -359,7 +359,8 @@ namespace catapult { namespace local {
 
 				// - push a random number of different (valid) blocks to each node
 				// - vary time spacing so that all chains will have different scores
-				auto numBlocks = RandomByteClamped(Max_Rollback_Blocks - 1) + 1u; // always generate at least one block
+				auto numBlocks = RandomByteClamped(Max_Rollback_Blocks - 1) + 1u;
+				CATAPULT_LOG(debug) << "node " << i << " drawn numBlocks=" << numBlocks;
 
 				// - when stateHashCalculator data directory is empty, there is no cache lock so node resources can be used directly
 				CATAPULT_LOG(debug) << "pushing initial chain to node " << i;
