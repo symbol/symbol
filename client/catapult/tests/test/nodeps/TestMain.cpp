@@ -102,7 +102,7 @@ namespace catapult { namespace test {
 }}
 
 int main(int argc, char** argv) {
-	std::set_terminate(&TerminateHandler);
+	std::set_terminate(&catapult::test::TerminateHandler);
 
 	catapult::version::WriteVersionInformation(std::cout);
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
