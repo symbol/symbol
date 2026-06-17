@@ -25,6 +25,12 @@ This tutorial only reads data from the network. No <account:> or <XYM:> balance 
 
 {{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards', ['py', 'js']) }}
 
+The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
+If no value is provided, a default <testnet:> node is used.
+
+The `BLOCK_HEIGHT` environment variable selects which block to query.
+If not set, it defaults to `3222290`, a block harvested on testnet.
+
 ## Code Explanation
 
 The code retrieves the block's signer key, beneficiary and network sink addresses, along with the inflation amount.
@@ -35,10 +41,6 @@ Finally, it derives the transaction fees by subtracting inflation from the total
 ### Fetching Block Information
 
 {{ tutorial.code_snippet_tagged('step-1') }}
-
-The snippet retrieves the block header using the `NODE_URL` and `BLOCK_HEIGHT` environment variables to select the API
-node and the target block.
-If not set, they default to the reference testnet node and block `3222290`.
 
 The <get:/blocks/{height}> endpoint returns the block header, which includes the `signerPublicKey` and the
 `beneficiaryAddress` designated by the node operator.
