@@ -22,6 +22,7 @@
 #include "src/catapult/crypto/OpensslInit.h"
 #include "src/catapult/preprocessor.h"
 #include "src/catapult/utils/ConfigurationValueParsers.h"
+#include "src/catapult/utils/ExceptionLogging.h"
 #include "src/catapult/utils/Logging.h"
 #include "src/catapult/version/version.h"
 #include "tests/TestHarness.h"
@@ -86,10 +87,23 @@ namespace catapult { namespace test {
 
 			return 0;
 		}
+
+		[[noreturn]]
+		void TerminateHandler() noexcept {
+			if (std::current_exception())
+				CATAPULT_LOG(fatal) << UNHANDLED_EXCEPTION_MESSAGE("running test");
+			else
+				CATAPULT_LOG(fatal) << "terminating due to unknown reason";
+
+			catapult::utils::CatapultLogFlush();
+			std::abort();
+		}
 	}
 }}
 
 int main(int argc, char** argv) {
+	std::set_terminate(&TerminateHandler);
+
 	catapult::version::WriteVersionInformation(std::cout);
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 

@@ -24,6 +24,7 @@
 #include "ThreadInfo.h"
 #include "src/catapult/exceptions.h"
 #include "src/catapult/utils/AtomicIncrementDecrementGuard.h"
+#include "src/catapult/utils/ExceptionLogging.h"
 #include "src/catapult/utils/Logging.h"
 #include <boost/asio.hpp>
 
@@ -119,7 +120,12 @@ namespace catapult { namespace thread {
 				CATAPULT_LOG(trace) << "worker thread started" << m_tag;
 
 				auto incrementDecrementGuard = utils::MakeIncrementDecrementGuard(m_numWorkerThreads);
-				m_ioContext.run();
+				try {
+					m_ioContext.run();
+				} catch (...) {
+					CATAPULT_LOG(fatal) << "unhandled exception in thread pool worker" << m_tag << "!" << EXCEPTION_DIAGNOSTIC_MESSAGE();
+					throw;
+				}
 
 				CATAPULT_LOG(trace) << "worker thread finished" << m_tag;
 			}
