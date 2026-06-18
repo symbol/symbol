@@ -815,7 +815,7 @@ namespace catapult { namespace ionet {
 			void cancel() {
 				m_isCancelled = true;
 				m_resolver.cancel();
-				m_pSocket->close();
+				m_pSocket->abort();
 			}
 
 		public:
