@@ -26,7 +26,7 @@ You only need a way to make HTTP requests.
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
 
-!!! warning "Using a mainnet node"
+!!! warning "Default node is testnet"
     The default node points to testnet.
     For production supply data, set `NODE_URL` to a <mainnet:> node.
     For a list of available mainnet nodes, see [symbol.fyi/nodes](https://symbol.fyi/nodes).
@@ -69,7 +69,7 @@ After fetching all three values, the code derives two additional metrics:
 
 The following output shows a typical run querying the currency supply:
 
-```text
+```text linenums="1" hl_lines="2 3 4 5 6"
 --8<-- 'devbook/network-currency/query_currency_supply.log'
 ```
 
@@ -77,11 +77,11 @@ These values come from a <testnet:> node and do not reflect mainnet supply figur
 
 The output shows the full breakdown of the XYM supply:
 
-* The **maximum supply** is the hard cap for XYM.
-* The **total supply** is lower, because not all XYM has been minted yet.
-* The **circulating supply** is lower still, because some minted XYM is held by non-circulating accounts.
-* The **non-circulating** value accounts for the difference between total and circulating supply.
-* The **unminted** value shows the remaining XYM that will be gradually minted through inflation rewards.
+* **Maximum supply** (line 2): The hard cap for XYM.
+* **Total supply** (line 3): Lower than the maximum, because not all XYM has been minted yet.
+* **Circulating supply** (line 4): Lower still, because some minted XYM is held by non-circulating accounts.
+* **Non-circulating supply** (line 5): The difference between total and circulating supply.
+* **Unminted supply** (line 6): The remaining XYM that will be gradually minted through inflation rewards.
 
 ## Conclusion
 
