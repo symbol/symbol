@@ -4,13 +4,16 @@ ubuntu-lts:
   image: ubuntu:24.04
   python: 3.12
   nodejs: 24
+  java: 11
 ubuntu-base:
   image: ubuntu:22.04
   python: '3.10'
   nodejs: 22
+  java: 17
 ubuntu-latest:
   image: ubuntu:26.04
   python: 3.14
   nodejs: 26
+  java: 21
 windows-lts:
   image: symbolplatform/symbol-server-compiler:windows-msvc-17
