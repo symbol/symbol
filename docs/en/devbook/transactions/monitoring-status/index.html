@@ -12281,29 +12281,17 @@ together with any resulting state changes, including those derived from transact
 <p>Monitoring status changes is essential for building responsive applications that can react to transaction
 confirmation or failure.</p>
 <p>This tutorial shows how to monitor a transaction's status as it moves from unconfirmed to confirmed.</p>
-<div class="admonition note">
-<p class="admonition-title">Confirmed transactions can still be reversed</p>
-<p>A confirmed transaction has been included in a block but is not yet irreversible.
-The final state is <a class="mkdocs-ezglossary-link"
-	id="daf0b1b43b179e4084574ae900c89f50"
-	title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
-rollbacks."
-	name="_:Finalization"
-	href="../../../textbook/consensus/#8fe31d7fd591e1fd0d06f55c2ea53850">finalization</a>, which occurs only after the block is finalized by the network.
-Until then, <a class="mkdocs-ezglossary-link"
-	id="dbc1bb9bbf8b7b9716009a2613684543"
-	title="The process of discarding one or more recently added blocks when a node switches to a better chain,
-typically after a fork is resolved."
-	name="_:Rollback"
-	href="../../../textbook/consensus/#fa68d384bf5dbf284e2a6a02fb2ef92d">rollbacks</a> are still possible.</p>
+<div class="admonition warning">
+<p class="admonition-title">Polling is not recommended for production</p>
+<p>This tutorial uses polling to check the transaction status.
+Polling is used here for illustration purposes, but it is not the recommended approach for production applications.</p>
+<p><a href="../../websockets/listen-transaction-flow/">WebSockets</a> provide a more responsive solution without the overhead of
+repeated API calls.</p>
 </div>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>This tutorial uses the <a href="../../reference/rest/symbol/">Symbol REST API</a> without requiring an SDK.
 You only need a way to make HTTP requests.</p>
 <h2 id="full-code">Full Code<a class="headerlink" href="#full-code" title="Anchor link to this section for reference">⚓︎</a></h2>
-<p>This tutorial uses polling to check the transaction status.
-Polling is used here for illustration purposes, but it is not the recommended approach for production applications.
-<a href="../../websockets/listen-transaction-flow/">WebSockets</a> provide a more responsive solution without the overhead of repeated API calls.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -12985,6 +12973,22 @@ It plays a similar role to mining in PoW or staking in PoS."
 	name="_:Harvesting"
 	href="../../../textbook/harvesting/#4da2a5a68444f540bbf5e10a08b085e4">harvesting</a>, and the function
 returns successfully.</p>
+<div class="admonition warning">
+<p class="admonition-title">Confirmed transactions can still be reversed</p>
+<p>A confirmed transaction has been included in a block, but it is not yet irreversible.
+Only <a class="mkdocs-ezglossary-link"
+	id="daf0b1b43b179e4084574ae900c89f50"
+	title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
+rollbacks."
+	name="_:Finalization"
+	href="../../../textbook/consensus/#8fe31d7fd591e1fd0d06f55c2ea53850">finalization</a> makes a transaction final, when the block containing it is finalized by the network.
+Until then, <a class="mkdocs-ezglossary-link"
+	id="dbc1bb9bbf8b7b9716009a2613684543"
+	title="The process of discarding one or more recently added blocks when a node switches to a better chain,
+typically after a fork is resolved."
+	name="_:Rollback"
+	href="../../../textbook/consensus/#fa68d384bf5dbf284e2a6a02fb2ef92d">rollbacks</a> remain possible.</p>
+</div>
 <h3 id="checking-for-failure">Checking for Failure<a class="headerlink" href="#checking-for-failure" title="Anchor link to this section for reference">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_5_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
@@ -13161,38 +13165,80 @@ take appropriate action, such as:</p>
 </ul>
 <h2 id="output">Output<a class="headerlink" href="#output" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>The following output shows a typical run monitoring a transaction as it moves from unconfirmed to confirmed:</p>
-<div class="highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Using node https://reference.symboltest.net:3001
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Monitoring transaction: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>Waiting for transaction confirmation
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>Polling /transactionStatus/2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  Attempt 1: Transaction status not yet available
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>  Attempt 2: Transaction status not yet available
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>  Attempt 3:
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    Status: unconfirmed
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    Code: Success
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>    Deadline: 47578965854
-</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>  Attempt 4:
-</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>    Status: unconfirmed
-</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    Code: Success
-</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>    Deadline: 47578965854
-</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>  Attempt 5:
-</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>    Status: confirmed
-</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>    Code: Success
-</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>    Deadline: 47578965854
-</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>
-</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>Transaction confirmed!
-</span></code></pre></div>
-<p>The output shows:</p>
-<ol>
-<li>The transaction hash being monitored.</li>
-<li>Multiple polling attempts showing the transaction status, code, hash, and deadline.</li>
-<li>The status changing from <code>unconfirmed</code> to <code>confirmed</code> between attempts.</li>
-<li>A success message when the transaction is confirmed.</li>
-</ol>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-16-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-16-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-16-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-16-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-16-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-16-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-16-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-16-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-16-10">10</a></span>
+<span class="normal"><a href="#__codelineno-16-11">11</a></span>
+<span class="normal"><a href="#__codelineno-16-12">12</a></span>
+<span class="normal"><a href="#__codelineno-16-13">13</a></span>
+<span class="normal"><a href="#__codelineno-16-14">14</a></span>
+<span class="normal"><a href="#__codelineno-16-15">15</a></span>
+<span class="normal"><a href="#__codelineno-16-16">16</a></span>
+<span class="normal"><a href="#__codelineno-16-17">17</a></span>
+<span class="normal"><a href="#__codelineno-16-18">18</a></span>
+<span class="normal"><a href="#__codelineno-16-19">19</a></span>
+<span class="normal"><a href="#__codelineno-16-20">20</a></span>
+<span class="normal"><a href="#__codelineno-16-21">21</a></span>
+<span class="normal"><a href="#__codelineno-16-22">22</a></span>
+<span class="normal"><a href="#__codelineno-16-23">23</a></span>
+<span class="normal"><a href="#__codelineno-16-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1"></a>Using node https://reference.symboltest.net:3001
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="hll">Monitoring transaction: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span></span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="hll">Waiting for transaction confirmation
+</span></span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5"></a>Polling /transactionStatus/2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6"></a>  Attempt 1: Transaction status not yet available
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7"></a>  Attempt 2: Transaction status not yet available
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8"></a>  Attempt 3:
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9"></a>    Status: unconfirmed
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10"></a>    Code: Success
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12"></a>    Deadline: 47578965854
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13"></a>  Attempt 4:
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14"></a>    Status: unconfirmed
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15"></a>    Code: Success
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17"></a>    Deadline: 47578965854
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18"></a>  Attempt 5:
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19"></a><span class="hll">    Status: confirmed
+</span></span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20"></a>    Code: Success
+</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22"></a>    Deadline: 47578965854
+</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23"></a>
+</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24"></a>Transaction confirmed!
+</span></code></pre></div></td></tr></table></div>
+<p>Some highlights from the output:</p>
+<ul>
+<li>
+<p><strong>Transaction hash</strong> (line 2): The hash of the transaction to monitor, which uniquely identifies it on the network.</p>
+</li>
+<li>
+<p><strong>Polling start</strong> (line 4): Polling begins on the <a href="/en/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint.
+    During the first attempts (lines 6-7) the <a class="mkdocs-ezglossary-link"
+	id="51512f1c1797ac635548a14e030a96e3"
+	title="A computer running the Symbol protocol which shares information with other nodes,
+validates incoming transactions, and can participate in consensus and block creation."
+	name="_:Node"
+	href="../../../textbook/nodes/#bc6d0fc1a92ae07d7739daed957574ab">node</a> has not yet started processing the transaction.</p>
+</li>
+<li>
+<p><strong>Unconfirmed status</strong> (lines 8-17): The transaction enters the <a class="mkdocs-ezglossary-link"
+	id="0cce01a0f2521877aedce2dfc45dadab"
+	title="A list of validated transactions awaiting inclusion in a block, maintained by each node in the network."
+	name="_:Unconfirmed pool"
+	href="../../../textbook/transactions/#90027de0459d0c0423628636c2148dc4">unconfirmed pool</a> and waits to be included in a
+    block.</p>
+</li>
+<li>
+<p><strong>Confirmation</strong> (line 19): The status changes to <code>confirmed</code>, meaning the transaction has been included in a block.</p>
+</li>
+</ul>
 <p>The number of attempts and timing vary depending on network conditions and block production rate.
 On the Symbol network, blocks are typically produced every 30 seconds, so you may see several <code>unconfirmed</code> status
 responses before the transaction is confirmed.</p>
@@ -13264,7 +13310,7 @@ validates incoming transactions, and can participate in consensus and block crea
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 18, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 16, 2026</span>
   </span>
 
     

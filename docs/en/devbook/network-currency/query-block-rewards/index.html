@@ -12559,6 +12559,16 @@ It functions similarly to a safe deposit box in traditional banking."
 </div>
 </div>
 </div>
+<p>The snippet uses the <code>NODE_URL</code> environment variable to set the Symbol API node.
+If no value is provided, a default <a class="mkdocs-ezglossary-link"
+	id="2b873dd9478efee3b219fcd5eb9d1e74"
+	title="Symbol's Test Network, intended for development. Test XYM can be freely obtained from a
+faucet, so transactions on this network do not have real value,
+as opposed to transactions on the mainnet."
+	name="_:testnet"
+	href="../../../textbook/glossary/#262d64215cb8a7e5964c686c42e15de0">testnet</a> node is used.</p>
+<p>The <code>BLOCK_HEIGHT</code> environment variable selects which block to query.
+If not set, it defaults to <code>3222290</code>, a block harvested on testnet.</p>
 <h2 id="code-explanation">Code Explanation<a class="headerlink" href="#code-explanation" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>The code retrieves the block's signer key, beneficiary and network sink addresses, along with the inflation amount.
 It then queries the block's harvest receipts and labels each recipient by comparing addresses, identifying the harvester
@@ -12619,9 +12629,6 @@ Finally, it derives the transaction fees by subtracting inflation from the total
 </div>
 </div>
 </div>
-<p>The snippet retrieves the block header using the <code>NODE_URL</code> and <code>BLOCK_HEIGHT</code> environment variables to select the API
-node and the target block.
-If not set, they default to the reference testnet node and block <code>3222290</code>.</p>
 <p>The <a href="/en/devbook/reference/rest/symbol#tag/Block_routes/getBlockByHeight" title="Get block information"><code>/blocks/{height}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> endpoint returns the block header, which includes the <code>signerPublicKey</code> and the
 <code>beneficiaryAddress</code> designated by the node operator.
 The beneficiary address is needed later to identify beneficiary receipts.</p>
@@ -12992,7 +12999,7 @@ bytes multiplied by the block header's <code>feeMultiplier</code>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">June 18, 2026</span>
   </span>
 
     

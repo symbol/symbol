@@ -1791,7 +1791,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -1819,7 +1819,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -12310,13 +12310,13 @@
 </dl>
 <p>このメッセージを受信する考えられるシナリオは次のとおりです。
 トランザクションが <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_routes/announceTransaction" title="Announce a new transaction"><code>/transactions</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> HTTP エンドポイントを介してネットワークにアナウンスされた場合、または <a class="mkdocs-ezglossary-link"
-	id="6640cce9175dd73e44355456a45aaaf0"
+	id="23eb6427c215a4e524d2c2f92a597e5c"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> が必要なすべての連署者を集め、状態が <code>partial</code> から <code>unconfirmed</code> に変更された場合です。</p>
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> が必要なすべての連署者を集め、状態が <code>partial</code> から <code>unconfirmed</code> に変更された場合です。</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">リクエストボディ</label><label for="__tabbed_4_2">レスポンスボディ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -12362,13 +12362,13 @@
 	<a id="5116996bf63e52dcfaf41c3ec9b7e8fb">partialAdded&#47;{address}</a> 
 </dt>
 <dd>指定されたアドレスに関連する <a class="mkdocs-ezglossary-link"
-	id="b6e5427d2a488fe7a860ed8f8c7d814c"
+	id="68b34e389528d826f0e9146bdcdfd916"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> が、必要なすべての連署が完了するのを待つ <code>partial</code> 状態になったときに、サブスクライブしているクライアントに通知します。
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> が、必要なすべての連署が完了するのを待つ <code>partial</code> 状態になったときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、追加された1つのパーシャルトランザクションに関する情報が含まれます。</dd>
 
 </dl>
@@ -12392,13 +12392,13 @@
 	<a id="51be887f99b55b03a758865f2638ae4b">partialRemoved&#47;{address}</a> 
 </dt>
 <dd>指定されたアドレスに関連する <a class="mkdocs-ezglossary-link"
-	id="021005f7c2eac700f1b87bb759f03831"
+	id="0c02007b1b5ca616422049d8d6857078"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> が <code>partial</code> 状態を抜けたときに、サブスクライブしているクライアントに通知します。
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> が <code>partial</code> 状態を抜けたときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、削除された1つのパーシャルトランザクションのハッシュが含まれます。</dd>
 
 </dl>
@@ -12432,13 +12432,13 @@
 	title="トランザクションが複数の署名を必要とする場合、それらの署名を「連署（コシグネチャ）」と呼びます。"
 	name="_:連署"
 	href="../../../textbook/transactions/#0d9f53f6c473e3eab0848f7682e83bc5">連署</a> が、 <code>partial</code> 状態の <a class="mkdocs-ezglossary-link"
-	id="d05a7ca6df71a906cdf68d2c01b4b9fc"
+	id="3efcbc01267d45c0a1f302b671699133"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> に追加されたときに、サブスクライブしているクライアントに通知します。
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> に追加されたときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、連署付きトランザクションが1つ含まれます。</dd>
 
 </dl>

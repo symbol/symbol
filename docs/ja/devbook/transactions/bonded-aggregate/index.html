@@ -29,7 +29,7 @@
     
     
       
-        <title>アグリゲートボンデッドトランザクション - Symbolドキュメント WIP ⚠</title>
+        <title>ボンデッドアグリゲートトランザクション - Symbolドキュメント WIP ⚠</title>
       
     
     
@@ -145,7 +145,7 @@
 					<span class="md-ellipsis">
 						
 						
-							アグリゲートボンデッドトランザクション
+							ボンデッドアグリゲートトランザクション
 						
 					</span>
 				</div>
@@ -1795,7 +1795,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -1832,7 +1832,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -1850,7 +1850,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -12388,26 +12388,26 @@
 	
 
 
-<h1 id="creating-a-bonded-aggregate-transaction">アグリゲートボンデッドトランザクションの作成<a class="headerlink" href="#creating-a-bonded-aggregate-transaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
+<h1 id="creating-a-bonded-aggregate-transaction">ボンデッドアグリゲートトランザクションの作成<a class="headerlink" href="#creating-a-bonded-aggregate-transaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <p>このチュートリアルでは、<a class="mkdocs-ezglossary-link"
-	id="f9e57891b9a0c274ec139e468b59b7fe"
+	id="c4e59a5aa1ede01b64ccce23cab54d6b"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> を使用してアセットスワップを作成する方法を説明します。</p>
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> を使用してアセットスワップを作成する方法を説明します。</p>
 <p>この例では、アカウント A が アカウント B に 10<a class="mkdocs-ezglossary-link"
 	id="206ba3a1e5957f753f1fd1aea49958dc"
 	title="Symbol ブロックチェーンのネイティブ通貨。"
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> を送信し、同時に アカウント B が 1 つのカスタム <a class="mkdocs-ezglossary-link"
-	id="f721ca102a6389a465b0dbb90edbb5be"
+	id="057a30f32d82ee04d000d75ff23689be"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
 	href="../../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a> をアカウント A に送り返します。</p>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="506pt" height="231pt" viewBox="0.00 0.00 506.00 231.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 227)"><polygon fill="none" stroke="none" points="-4,4 -4,-227 501.52,-227 501.52,4 -4,4"/><g id="clust1" class="cluster"><title>clusterAggregate</title><g id="a_clust1"><a xlink:title="アグリゲートボンデッドトランザクション"><polygon fill="none" stroke="#789abc" points="8,-8 8,-215 489.52,-215 489.52,-8 8,-8"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-199.6" font-family="Times,serif" font-size="12.00" fill="#789abc">アグリゲートボンデッドトランザクション</text></a></g></g><g id="clust2" class="cluster"><title>clusterT1</title><g id="a_clust2"><a xlink:title="埋め込み転送 1"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-16 16,-95 481.52,-95 481.52,-16 16,-16"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-79.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 1</text></a></g></g><g id="clust3" class="cluster"><title>clusterT2</title><g id="a_clust3"><a xlink:title="埋め込み転送 2"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-103 16,-182 481.52,-182 481.52,-103 16,-103"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-166.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 2</text></a></g></g><!-- A2 --><g id="node1" class="node"><title>A2</title><g id="a_node1"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-43" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B2 --><g id="node2" class="node"><title>B2</title><g id="a_node2"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-43" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A2&#45;&gt;B2 --><g id="edge1" class="edge"><title>A2&#45;&gt;B2</title><path fill="none" stroke="#789abc" d="M166.87,-43C212.07,-43 270.9,-43 318.25,-43"/><polygon fill="#789abc" stroke="#789abc" points="318.21,-46.5 328.21,-43 318.21,-39.5 318.21,-46.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-46.95" font-family="Times,serif" font-size="14.00" fill="#789abc">10 XYM</text></g><!-- A1 --><g id="node3" class="node"><title>A1</title><g id="a_node3"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-130" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B1 --><g id="node4" class="node"><title>B1</title><g id="a_node4"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-130" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A1&#45;&gt;B1 --><g id="edge2" class="edge"><title>A1&#45;&gt;B1</title><path fill="none" stroke="#789abc" d="M178.31,-130C225.59,-130 284.43,-130 329.72,-130"/><polygon fill="#789abc" stroke="#789abc" points="178.38,-126.5 168.38,-130 178.38,-133.5 178.38,-126.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-135.66" font-family="Times,serif" font-size="14.00" fill="#789abc">1 カスタムモザイク</text></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="506pt" height="231pt" viewBox="0.00 0.00 506.00 231.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 227)"><polygon fill="none" stroke="none" points="-4,4 -4,-227 501.52,-227 501.52,4 -4,4"/><g id="clust1" class="cluster"><title>clusterAggregate</title><g id="a_clust1"><a xlink:title="ボンデッドアグリゲートトランザクション"><polygon fill="none" stroke="#789abc" points="8,-8 8,-215 489.52,-215 489.52,-8 8,-8"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-199.6" font-family="Times,serif" font-size="12.00" fill="#789abc">ボンデッドアグリゲートトランザクション</text></a></g></g><g id="clust2" class="cluster"><title>clusterT1</title><g id="a_clust2"><a xlink:title="埋め込み転送 1"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-16 16,-95 481.52,-95 481.52,-16 16,-16"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-79.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 1</text></a></g></g><g id="clust3" class="cluster"><title>clusterT2</title><g id="a_clust3"><a xlink:title="埋め込み転送 2"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-103 16,-182 481.52,-182 481.52,-103 16,-103"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-166.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 2</text></a></g></g><!-- A2 --><g id="node1" class="node"><title>A2</title><g id="a_node1"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-43" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B2 --><g id="node2" class="node"><title>B2</title><g id="a_node2"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-43" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A2&#45;&gt;B2 --><g id="edge1" class="edge"><title>A2&#45;&gt;B2</title><path fill="none" stroke="#789abc" d="M166.87,-43C212.07,-43 270.9,-43 318.25,-43"/><polygon fill="#789abc" stroke="#789abc" points="318.21,-46.5 328.21,-43 318.21,-39.5 318.21,-46.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-46.95" font-family="Times,serif" font-size="14.00" fill="#789abc">10 XYM</text></g><!-- A1 --><g id="node3" class="node"><title>A1</title><g id="a_node3"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-130" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B1 --><g id="node4" class="node"><title>B1</title><g id="a_node4"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-130" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A1&#45;&gt;B1 --><g id="edge2" class="edge"><title>A1&#45;&gt;B1</title><path fill="none" stroke="#789abc" d="M178.31,-130C225.59,-130 284.43,-130 329.72,-130"/><polygon fill="#789abc" stroke="#789abc" points="178.38,-126.5 168.38,-130 178.38,-133.5 178.38,-126.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-135.66" font-family="Times,serif" font-size="14.00" fill="#789abc">1 カスタムモザイク</text></g></g></svg></p>
 <div class="admonition note">
 <p class="admonition-title">2種類のアグリゲートトランザクション</p>
 <p><a class="mkdocs-ezglossary-link"
@@ -12427,14 +12427,14 @@
 デジタルの付加情報です。"
 	name="_:署名"
 	href="../../../textbook/cryptography/#fb3cdcf8ddb4db189882f259452068d0">署名</a> を必要とします。</p>
-<p>「アグリゲートボンデッドトランザクション」は、アナウンスされた後にオンチェーンで署名を収集します。これは、オフチェーンでの調整が実用的でない場合に有効です。</p>
+<p>「ボンデッドアグリゲートトランザクション」は、アナウンスされた後にオンチェーンで署名を収集します。これは、オフチェーンでの調整が実用的でない場合に有効です。</p>
 <p>例：</p>
 <ul>
 <li><strong>共有インフラがない:</strong> 当事者間で共通のシステムを通じた調整ができないため、ブロックチェーンを共通のインターフェースとして使用します。</li>
 <li><strong>非同期ワークフロー:</strong> 連署者が同時に対応できない、またはリアルタイムでの調整ができません。</li>
 </ul>
-<p>スパムを防止するため、アグリゲートボンデッドには「<a class="mkdocs-ezglossary-link"
-	id="f0d118dbb374291577384a8066fdec7e"
+<p>スパムを防止するため、ボンデッドアグリゲートには「<a class="mkdocs-ezglossary-link"
+	id="86eb836a083e7e55a470b7433091fe87"
 	title="暗号ハッシュとは、任意のサイズの入力データを固定長の文字列に変換する数学関数
 （ハッシュ関数）によって生成される文字列のことです。"
 	name="_:ハッシュ"
@@ -12444,12 +12444,12 @@
 	name="_:連署"
 	href="../../../textbook/transactions/#0d9f53f6c473e3eab0848f7682e83bc5">連署</a> が届き、トランザクションが承認されると、ネットワークはこのデポジットを返却します。</p>
 <p>当事者がオフチェーンで通信して署名を交換できる場合、<a class="mkdocs-ezglossary-link"
-	id="11ec1da900ee665598dc5fb5ea720033"
+	id="b0738b3e09fda7da352d3ac2f91a0fa7"
 	title="すべての必要な連署がすでに付与された状態でネットワークに送信される
 アグリゲートトランザクション。
 ノードはすぐに検証を行い、ブロックに含めることができます。"
-	name="_:アグリゲートコンプリートトランザクション"
-	href="../../../textbook/transactions/#c150f8d401536cf5a504f7747fc08a7c">アグリゲートコンプリートトランザクション</a> を使用すれば、このデポジットは不要です。</p>
+	name="_:コンプリートアグリゲートトランザクション"
+	href="../../../textbook/transactions/#b04bcfd6bf77869adb5cd80d5e5f74d8">コンプリートアグリゲートトランザクション</a> を使用すれば、このデポジットは不要です。</p>
 </div>
 <h2 id="prerequisites">前提条件<a class="headerlink" href="#prerequisites" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>開始する前に、開発環境がセットアップされていることを確認してください。
@@ -12464,7 +12464,7 @@
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
 	href="../../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> と1つのカスタム <a class="mkdocs-ezglossary-link"
-	id="057a30f32d82ee04d000d75ff23689be"
+	id="80267afa0a9ee98a5cfab19fce54f466"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -13542,7 +13542,7 @@
 </div>
 </div>
 </div>
-<p>アグリゲートボンデッドトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築・署名・アナウンスする <strong>開始者</strong>（アカウント A）と、保留中のトランザクションをポーリングし、内容を確認した後に署名を追加する1人以上の <strong>連署者</strong>（アカウント B）です。</p>
+<p>ボンデッドアグリゲートトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築・署名・アナウンスする <strong>開始者</strong>（アカウント A）と、保留中のトランザクションをポーリングし、内容を確認した後に署名を追加する1人以上の <strong>連署者</strong>（アカウント B）です。</p>
 <p>実際には、それぞれの役割は別々のマシンの別々のプログラムとして動作します。このチュートリアルでは、簡略化のため両方の役割を1つのスクリプトにまとめています。</p>
 <p>コード全体は、単純なエラー処理を提供するために単一の <code>try</code> ブロックでラップされていますが、実際のアプリケーションではより詳細な制御が必要になるでしょう。</p>
 <h2 id="account-a-initiator-workflow">アカウント A: 開始者のワークフロー<a class="headerlink" href="#account-a-initiator-workflow" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
@@ -13843,7 +13843,7 @@
 </div>
 </div>
 <p><a class="mkdocs-ezglossary-link"
-	id="23807a13d897e142fe9f87863fbce454"
+	id="a83e27e15a9945bace8f3daf327d2486"
 	title="基本トランザクションがアグリゲートトランザクションに含まれる場合、それらは「埋め込みトランザクション」と呼ばれます。"
 	name="_:埋め込みトランザクション"
 	href="../../../textbook/transactions/#b2256dd158538dc3ffeb771673f3f34d">埋め込みトランザクション</a> は、アトミック（不可分）に実行される操作を定義します。各埋め込みトランザクションでは以下を指定します。</p>
@@ -13860,7 +13860,7 @@
 </li>
 <li>
 <p><strong>トランザクション固有のフィールド:</strong> トランザクションタイプに固有のすべてのフィールドを指定する必要があります。転送の場合は、受信者アドレスと送信する <a class="mkdocs-ezglossary-link"
-	id="80267afa0a9ee98a5cfab19fce54f466"
+	id="c6fa7427d0c97744f89706f043054755"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -13966,14 +13966,14 @@
 </div>
 </div>
 </div>
-<p>埋め込みトランザクションの準備ができたら、それらをラップするアグリゲートボンデッドトランザクションを作成します：</p>
+<p>埋め込みトランザクションの準備ができたら、それらをラップするボンデッドアグリゲートトランザクションを作成します：</p>
 <ul>
 <li>
 <p><strong>タイプ:</strong> <code><a class="mkdocs-ezglossary-link"
 	id="e4bf1a4b7d80fa486c3e43bbbcb3631f"
 	title="Propose an arrangement of transactions between different accounts (V3, latest). Use this transaction when not all required signatures are available when the transaction is created. Missing signatures must be provided using a Cosignature or DetachedCosignature. To prevent spam attacks, before trying to announce this transaction a HashLockTransactionV1 must be successfully announced and confirmed."
 	name="ser:AggregateBondedTransactionV3"
-	href="../../../devbook/reference/serialization/#532dbbaff0086e05aeeaf4a9022d4b4c">AggregateBondedTransactionV3</a></code> を使用します。</p>
+	href="../../../devbook/reference/serialization/#532dbbaff0086e05aeeaf4a9022d4b4c">aggregate_bonded_transaction_v3</a></code> を使用します。</p>
 </li>
 <li>
 <p><strong>署名者の公開鍵:</strong> アグリゲートを開始するアカウントです。このアカウントがトランザクションをアナウンスし、トランザクション手数料を支払います。</p>
@@ -14173,14 +14173,14 @@
 </div>
 </div>
 </div>
-<p>アグリゲートボンデッドをアナウンスする前に、ハッシュロックトランザクションを作成し、承認させる必要があります。ハッシュロックは、スパムを防止し、未完了の <a class="mkdocs-ezglossary-link"
-	id="715e90d319cb60dc66a409e84911f750"
+<p>ボンデッドアグリゲートをアナウンスする前に、ハッシュロックトランザクションを作成し、承認させる必要があります。ハッシュロックは、スパムを防止し、未完了の <a class="mkdocs-ezglossary-link"
+	id="57999ed1a7f014c4aeddef4c14d6de9a"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">部分トランザクション</a> によってネットワークリソースが枯渇しないようにするためのデポジットとして機能します。</p>
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">部分トランザクション</a> によってネットワークリソースが枯渇しないようにするためのデポジットとして機能します。</p>
 <p>ハッシュロックトランザクションでは以下を指定します。</p>
 <ul>
 <li>
@@ -14194,10 +14194,10 @@
 <p><strong>モザイク:</strong> デポジット額（10 XYM）。このデポジットは連署を待つ間、一時的にロックされます。</p>
 </li>
 <li>
-<p><strong>期間 (Duration):</strong> デポジットがロックされるブロック数（この例では 100 ブロック）。期間が切れる前にすべての連署が収集され、アグリゲートボンデッドが承認されれば、デポジットは返却されます。そうでない場合は没収されます。</p>
+<p><strong>期間 (Duration):</strong> デポジットがロックされるブロック数（この例では 100 ブロック）。期間が切れる前にすべての連署が収集され、ボンデッドアグリゲートが承認されれば、デポジットは返却されます。そうでない場合は没収されます。</p>
 </li>
 <li>
-<p><strong>ハッシュ:</strong> ロック対象となるアグリゲートボンデッドトランザクションのハッシュです。</p>
+<p><strong>ハッシュ:</strong> ロック対象となるボンデッドアグリゲートトランザクションのハッシュです。</p>
 </li>
 </ul>
 <p>ハッシュロックは <span markdown class="dylink"><input type="radio" name="rGroup1000" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
@@ -14208,7 +14208,7 @@
 	id="41d55e4d03cc6d50e5202b663acf021a"
 	title="Signs a Symbol transaction."
 	name="js:SymbolFacade.signTransaction"
-	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#signtransaction">SymbolFacade.signTransaction</a></code></label></span> を使用して署名され、ヘルパー関数 <code>announce_transaction</code> を使用してアナウンスされます。アグリゲートボンデッドをアナウンスするには、ハッシュロックが先に承認されている必要があります。</p>
+	href="../../../devbook/reference/ts/symbol/classes/SymbolFacade/#signtransaction">SymbolFacade.signTransaction</a></code></label></span> を使用して署名され、ヘルパー関数 <code>announce_transaction</code> を使用してアナウンスされます。ボンデッドアグリゲートをアナウンスするには、ハッシュロックが先に承認されている必要があります。</p>
 <p>その後、<code>wait_for_status</code> ヘルパー関数が承認されるまでトランザクションステータスをポーリングします。</p>
 <h3 id="announcing-the-bonded-transaction">ボンデッドトランザクションのアナウンス<a class="headerlink" href="#announcing-the-bonded-transaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_8_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
@@ -14251,7 +14251,7 @@
 </div>
 </div>
 </div>
-<p>ハッシュロックが承認されたら、アグリゲートボンデッドを <code>announce_transaction</code> ヘルパーを使用して <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_routes/announcePartialTransaction" title="Announce an aggregate bonded transaction"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> にアナウンスします。</p>
+<p>ハッシュロックが承認されたら、ボンデッドアグリゲートを <code>announce_transaction</code> ヘルパーを使用して <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_routes/announcePartialTransaction" title="Announce an aggregate bonded transaction"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-put">PUT</code></a> にアナウンスします。</p>
 <p><a class="mkdocs-ezglossary-link"
 	id="03858959df83525b58a4763f46079b66"
 	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
@@ -14366,7 +14366,7 @@
 </div>
 </div>
 </div>
-<p>トランザクションペイロードがオフチェーンで共有されるアグリゲートコンプリートとは異なり、アグリゲートボンデッドはオンチェーンでの調整を可能にします。</p>
+<p>トランザクションペイロードがオフチェーンで共有されるコンプリートアグリゲートとは異なり、ボンデッドアグリゲートはオンチェーンでの調整を可能にします。</p>
 <p>まず、アカウント B は <code>address</code> パラメータを指定して <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_routes/searchPartialTransactions" title="Search partial transactions"><code>/transactions/partial</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> をポーリングし、自身の署名を待っているトランザクションを探します。これにより、アカウント B が関与している部分的トランザクションのリストが返されます。</p>
 <p>この例では、両方のアカウントが同じスクリプトで動作しているため、特定のトランザクションハッシュを探しています。実際には、アカウント B はポーリングによって保留中のトランザクションを発見し、その内容に基づいてどれに連署するかを決定します。</p>
 <h3 id="verifying-the-transaction">トランザクションの検証<a class="headerlink" href="#verifying-the-transaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
@@ -14837,7 +14837,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
 <ul>
 <li><strong>WebSocket による監視:</strong> ポーリングの代わりに、<a href="../../websockets/listen-bonded-transaction-flow/">ボンデッドトランザクションフローのリスニング</a> チュートリアルを使用してリアルタイム通知を使用します。</li>
 <li><strong>手数料のスポンサー:</strong> <a href="../fee-sponsorship/">他のアカウントの代理でのトランザクション手数料の支払い</a> チュートリアルを使用して、あるアカウントが別のアカウントの代わりに手数料を支払えるようにします。</li>
-<li><strong>アグリゲートコンプリートの使用:</strong> 当事者間でオフチェーンでの調整ができる場合は、<a href="../complete-aggregate/">アグリゲートコンプリートトランザクションの作成</a> チュートリアルを使用してハッシュロックをスキップします。</li>
+<li><strong>コンプリートアグリゲートの使用:</strong> 当事者間でオフチェーンでの調整ができる場合は、<a href="../complete-aggregate/">コンプリートアグリゲートトランザクションの作成</a> チュートリアルを使用してハッシュロックをスキップします。</li>
 </ul>
 
 
@@ -14861,7 +14861,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年5月18日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
   </span>
 
     

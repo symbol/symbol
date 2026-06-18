@@ -1786,7 +1786,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -1814,7 +1814,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -11913,7 +11913,7 @@
   <a href="#harvester-nodes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ハーベスターノード
+        ハーベスタノード
       
     </span>
   </a>
@@ -12252,7 +12252,7 @@
   <a href="#harvester-nodes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ハーベスターノード
+        ハーベスタノード
       
     </span>
   </a>
@@ -12346,7 +12346,7 @@
 </dl>
 <p>ノードはブロックチェーンの中核を成し、少なくとも 1 つのノードが稼働している限りネットワークが機能し続けることを保証します。</p>
 <p>ブロック生成に参加するためには、各ノードはハーベスタの <a class="mkdocs-ezglossary-link"
-	id="aa4483cb0d7e4f455f7f64fd16d68dc2"
+	id="5276d1608e5764b3e9b8d3e3351502e1"
 	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
@@ -12401,18 +12401,18 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	name="_:レシート"
 	href="../../textbook/blocks/#0303715b5e779219310bce1284937305">レシート</a>は、ファイルベースのデータベースに保存されます。
 <a class="mkdocs-ezglossary-link"
-	id="1fc94b8171c5925d2f210f7e915093e2"
+	id="b0df723b17482fd6469f9f7c006e30fa"
 	title="ブロックへの取り込みを待つ検証済みトランザクションの一覧であり、各ノードが保持します。"
 	name="_:未承認トランザクションプール"
 	href="../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a>と、
 完了待ちの<a class="mkdocs-ezglossary-link"
-	id="58196980a66a8ede6ad2913cec8493ee"
+	id="314111f8304d77df22d6c3411dc7482b"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a>は
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a>は
 メモリ上に保持されます。</p>
 <h3 id="rest-gateway"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.25 12a.75.75 0 0 1-.22.53l-2.75 2.75a.75.75 0 0 1-1.06-1.06L7.44 12 5.22 9.78a.75.75 0 1 1 1.06-1.06l2.75 2.75c.141.14.22.331.22.53m2 2a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z"/><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"/></svg></span> REST ゲートウェイ<a class="headerlink" href="#rest-gateway" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>外部クライアント（アプリやウォレットなど）がブロックチェーンとやり取りするための HTTP API を提供する。</p>
@@ -12478,7 +12478,7 @@ Catapult の時間に敏感な処理を妨げないようにしています。</
 </dt>
 <dd>ピアノードは受信したトランザクションとブロックを検証し、
 それらを隣接ノードへ中継することでネットワークのコンセンサスプロセスに参加します。
-さらに<a href="#harvester-nodes">ハーベスターノード</a>ロールを有効化している場合は、新しいブロックも生成できます。</dd>
+さらに<a href="#harvester-nodes">ハーベスタノード</a>ロールを有効化している場合は、新しいブロックも生成できます。</dd>
 
 </dl>
 <p>ピアノードは受信データを独立して検証したうえで転送し、ネットワークの整合性を保ちます。</p>
@@ -12505,13 +12505,13 @@ Catapult の時間に敏感な処理を妨げないようにしています。</
 <p>このロールでは <a href="#node-structure">ノード構造</a> で説明したすべてのコンポーネントを有効化する必要があります。
 すべての API ノードはピアノードでもあります。</p>
 <p>また、<a class="mkdocs-ezglossary-link"
-	id="bf8550407fa9740f91258d0f90d05178"
+	id="5e0a819795eee228ea8485e33d9d329b"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> を保存し、
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> を保存し、
 トランザクションが完了して処理可能になるまで連署を収集します。</p>
 <div class="admonition info">
 <p class="admonition-title">ライト API</p>
@@ -12558,12 +12558,12 @@ Catapult の時間に敏感な処理を妨げないようにしています。</
 
 </dl>
 <p>投票ノードはピアノードまたは API ノードのどちらでもあり得ます。つまり API を公開していても公開していなくても構いません。</p>
-<h3 id="harvester-nodes">ハーベスターノード<a class="headerlink" href="#harvester-nodes" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
+<h3 id="harvester-nodes">ハーベスタノード<a class="headerlink" href="#harvester-nodes" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <dl>
 <dt>
-	<a id="1cff7dfbca95b273fba4fced01d281f8">ハーベスターノード</a> 
+	<a id="2a47c5e8bfd0123bf8f1e17bb636ca1b">ハーベスタノード</a> 
 </dt>
-<dd>ハーベスターノードはブロック生成に貢献し、<a class="mkdocs-ezglossary-link"
+<dd>ハーベスタノードはブロック生成に貢献し、<a class="mkdocs-ezglossary-link"
 	id="24cc86b34fb9780fba0e9390f747151f"
 	title="Symbol が新しい ブロック をチェーンに追加し、参加する
 アカウント に報酬を分配するプロセスです。
@@ -12580,7 +12580,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 ネットワークとやり取りするための公開 REST
 インターフェイスを提供します。"
 	name="_:API ノード"
-	href="../../textbook/nodes/#f122706c9a281f6f1f2eaae142d365d1">API ノード</a>と<a href="#harvester-nodes">ハーベスターノード</a>の両方のロールを有効化したノードは、
+	href="../../textbook/nodes/#f122706c9a281f6f1f2eaae142d365d1">API ノード</a>と<a href="#harvester-nodes">ハーベスタノード</a>の両方のロールを有効化したノードは、
 <em>デュアルノード</em> と呼ばれることがあります。</p>
 <p>これは非公式な用語で、API とハーベスティングの両方の機能を組み合わせたノードを表します。</p>
 </div>
@@ -12651,7 +12651,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月8日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
   </span>
 
     

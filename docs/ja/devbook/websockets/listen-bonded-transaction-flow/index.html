@@ -1793,7 +1793,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -1821,7 +1821,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -12224,13 +12224,13 @@
 
 <h1 id="listening-to-bonded-transaction-flow">ボンデッドトランザクションフローのリスニング<a class="headerlink" href="#listening-to-bonded-transaction-flow" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <p><a class="mkdocs-ezglossary-link"
-	id="4c36ae463aeaa29a699e44e758742e7e"
+	id="0cb47d7498e0a16031f62839e7b4cd04"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> は、通常の <a class="mkdocs-ezglossary-link"
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> は、通常の <a class="mkdocs-ezglossary-link"
 	id="6835b765a460e4f9a695b20f2d8341b8"
 	title="トランザクションとは、Symbol ブロックチェーン上で実行される1つまたは複数のアクションを表します。
 例えば、あるアカウントから別のアカウントへの資金移動や、新しい通貨の登録などが該当します。"
@@ -12242,7 +12242,7 @@
 	name="_:連署"
 	href="../../../textbook/transactions/#0d9f53f6c473e3eab0848f7682e83bc5">連署</a> を受け取る <code>partial</code>状態に入ります。
 すべての連署が届いて初めて、トランザクションは標準の <code>unconfirmed</code>および <code>confirmed</code>状態へと進みます。</p>
-<p>このチュートリアルでは、<a href="../../transactions/bonded-aggregate/">アグリゲートボンデッドトランザクション</a> チュートリアルのアセットスワップを行いますが、ポーリングの代わりに <a href="../../reference/websockets/">WebSocket</a> チャネルを使用してボンデッドのライフサイクル全体を監視します。</p>
+<p>このチュートリアルでは、<a href="../../transactions/bonded-aggregate/">ボンデッドアグリゲートトランザクション</a> チュートリアルのアセットスワップを行いますが、ポーリングの代わりに <a href="../../reference/websockets/">WebSocket</a> チャネルを使用してボンデッドのライフサイクル全体を監視します。</p>
 <p>アカウント A がアグリゲートを構築してアナウンスする一方、アカウント B は WebSocket チャネルを購読し、連署を行い、承認を待ちます。</p>
 <h2 id="prerequisites">前提条件<a class="headerlink" href="#prerequisites" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>開始する前に、開発環境がセットアップされていることを確認してください。
@@ -12265,8 +12265,13 @@
 	id="2905eaa888a722e7bfd76716abbb6a7f"
 	title="Symbol ブロックチェーンのネイティブ通貨。"
 	name="_:XYM"
-	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> を持つ2つの [アカウント] (default: アカウント) と1つのカスタム <a class="mkdocs-ezglossary-link"
-	id="52c1cbc982ee7eff107dfa32568540bd"
+	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> を持つ2つの <a class="mkdocs-ezglossary-link"
+	id="5975fc999776c59201ac203b0b431aab"
+	title="暗号資産や NFT などのデジタル資産を安全に保管する場所です。
+従来の銀行における貸金庫に似た役割を果たします。"
+	name="_:アカウント"
+	href="../../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> と1つのカスタム <a class="mkdocs-ezglossary-link"
+	id="ab1ac207001f6811ed4ca6bd068ee0c9"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -12275,7 +12280,12 @@
 <ul>
 <li>アグリゲートトランザクションを開始するためのアカウント（アカウント A）を、 <a href="../../accounts/create-from-private-key/">コード</a> または <a href="../../../userbook/wallet/create-account/">ウォレット</a> を使用して作成します。</li>
 <li>スワップに参加するための2つ目のアカウント（アカウント B）を作成します。</li>
-<li>トランザクション手数料、転送量、および [ハッシュロック] (default: ハッシュ) のデポジットを支払うための XYM をアカウント A で入手します。
+<li>トランザクション手数料、転送量、および <a class="mkdocs-ezglossary-link"
+	id="3ff38e3a9b8f9da97a6e90ac2dfdee1b"
+	title="暗号ハッシュとは、任意のサイズの入力データを固定長の文字列に変換する数学関数
+（ハッシュ関数）によって生成される文字列のことです。"
+	name="_:ハッシュ"
+	href="../../../textbook/cryptography/#6c309d47e81e4d5f3e1aecbe24662b4d">ハッシュロック</a> のデポジットを支払うための XYM をアカウント A で入手します。
   <a href="../../accounts/testnet-faucet/">蛇口 (Faucet) からテストネットの通貨を入手する</a> を参照してください。</li>
 <li>スワップのためにアカウント B が所有するモザイクを作成します。
   <a href="../../mosaics/create-mosaic/">モザイクの作成</a> を参照してください。</li>
@@ -13375,8 +13385,8 @@
 </div>
 </div>
 </div>
-<p>アグリゲートボンデッドトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築、署名、アナウンスする <strong>開始者</strong> （アカウント A）と、WebSocket チャネルを監視し、トランザクションを検証した後に連署する1人以上の <strong>連署者</strong> （アカウント B）です。</p>
-<p>実際には、それぞれの役割は別々のマシンの別々のプログラムとして実行され、すべての連署者は開始者がアグリゲートボンデッドを送信する前にすでにリスニング状態（待ち受け状態）になっている必要があります。
+<p>ボンデッドアグリゲートトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築、署名、アナウンスする <strong>開始者</strong> （アカウント A）と、WebSocket チャネルを監視し、トランザクションを検証した後に連署する1人以上の <strong>連署者</strong> （アカウント B）です。</p>
+<p>実際には、それぞれの役割は別々のマシンの別々のプログラムとして実行され、すべての連署者は開始者がボンデッドアグリゲートを送信する前にすでにリスニング状態（待ち受け状態）になっている必要があります。
 このチュートリアルでは、簡略化のため両方の役割を1つのスクリプトにまとめています。</p>
 <h2 id="code-explanation">コード解説<a class="headerlink" href="#code-explanation" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <h3 id="account-a-setting-up-accounts">アカウント A: アカウントの設定<a class="headerlink" href="#account-a-setting-up-accounts" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
@@ -13469,7 +13479,7 @@
 	name="_:署名"
 	href="../../../textbook/cryptography/#fb3cdcf8ddb4db189882f259452068d0">署名</a> します。
 アカウント A は、<a class="mkdocs-ezglossary-link"
-	id="b8c062b0ff5f5af051b56a0ca3e7ea8e"
+	id="fbb96e35b3d1b1932f9b1223fd2c7aa5"
 	title="基本トランザクションがアグリゲートトランザクションに含まれる場合、それらは「埋め込みトランザクション」と呼ばれます。"
 	name="_:埋め込みトランザクション"
 	href="../../../textbook/transactions/#b2256dd158538dc3ffeb771673f3f34d">埋め込みトランザクション</a> の署名者としてアカウント B を設定し、B の <a class="mkdocs-ezglossary-link"
@@ -13964,7 +13974,7 @@
 </div>
 </div>
 </div>
-<p>アカウント A は、 <a href="../../transactions/bonded-aggregate/">アグリゲートボンデッドトランザクション</a> チュートリアルで説明されているのと同じパターンに従い、アカウント B の 1 つのカスタムモザイクと 10 XYM を交換するアグリゲートボンデッドを作成して署名し、必要なハッシュロックをアナウンスします。</p>
+<p>アカウント A は、 <a href="../../transactions/bonded-aggregate/">ボンデッドアグリゲートトランザクション</a> チュートリアルで説明されているのと同じパターンに従い、アカウント B の 1 つのカスタムモザイクと 10 XYM を交換するボンデッドアグリゲートを作成して署名し、必要なハッシュロックをアナウンスします。</p>
 <p>唯一の違いは、ハッシュロックを確認するために <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> をポーリングする代わりに、このチュートリアルでは <a href="../listen-transaction-flow/">トランザクションフローのリスニング</a> チュートリアルで説明されているものと同じアプローチに従って WebSocket を使用することです。</p>
 <h3 id="account-b-connecting-and-subscribing-to-channels">アカウント B: 接続とチャネルのサブスクライブ<a class="headerlink" href="#account-b-connecting-and-subscribing-to-channels" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_5_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
@@ -14072,7 +14082,7 @@
 </div>
 </div>
 <p>このスニペットでは、 <code>NODE_URL</code> 環境変数を使用して Symbol API <a class="mkdocs-ezglossary-link"
-	id="0ae3299d1c7b8bc435c8cd159044e013"
+	id="a570b8d6e16d2bfff4f58725037b5ef1"
 	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
 コンセンサス とブロック生成に参加できるコンピュータです。"
 	name="_:ノード"
@@ -14084,19 +14094,19 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 <ul>
 <li><code><a class="mkdocs-ezglossary-link"
 	id="bb90bd7cb3d0f228593496737430683d"
-	title="指定されたアドレスに関連する アグリゲートボンデッドトランザクション が、必要なすべての連署が完了するのを待つ partial 状態になったときに、サブスクライブしているクライアントに通知します。
+	title="指定されたアドレスに関連する ボンデッドアグリゲートトランザクション が、必要なすべての連署が完了するのを待つ partial 状態になったときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、追加された1つのパーシャルトランザクションに関する情報が含まれます。"
 	name="ws:partialAdded&#47;{address}"
 	href="../../../devbook/reference/websockets/#5116996bf63e52dcfaf41c3ec9b7e8fb">partialAdded&#47;{address}</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code>: ボンデッドアグリゲートが <code>partial</code> 状態になり、連署を待っているときに通知します。</li>
 <li><code><a class="mkdocs-ezglossary-link"
 	id="d1450aa1fa722d3bdeecab1ba980f06e"
-	title="指定されたアドレスに関連する アグリゲートボンデッドトランザクション が partial 状態を抜けたときに、サブスクライブしているクライアントに通知します。
+	title="指定されたアドレスに関連する ボンデッドアグリゲートトランザクション が partial 状態を抜けたときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、削除された1つのパーシャルトランザクションのハッシュが含まれます。"
 	name="ws:partialRemoved&#47;{address}"
 	href="../../../devbook/reference/websockets/#51be887f99b55b03a758865f2638ae4b">partialRemoved&#47;{address}</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code>: ボンデッドアグリゲートが <code>partial</code> 状態を抜けたとき（すべての連署が収集されたか、期限が切れたとき）に通知します。</li>
 <li><code><a class="mkdocs-ezglossary-link"
 	id="1cd17088ce2fd0e4c93a7ae592edce07"
-	title="指定されたアドレスに関連する 連署 が、 partial 状態の アグリゲートボンデッドトランザクション に追加されたときに、サブスクライブしているクライアントに通知します。
+	title="指定されたアドレスに関連する 連署 が、 partial 状態の ボンデッドアグリゲートトランザクション に追加されたときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、連署付きトランザクションが1つ含まれます。"
 	name="ws:cosignature&#47;{address}"
 	href="../../../devbook/reference/websockets/#13804351de42e6a6c900bc415265497c">cosignature&#47;{address}</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code>: 部分的トランザクションに連署が追加されたときに通知します。</li>
@@ -14383,7 +14393,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 </div>
 </div>
 <p>アカウント B は受信メッセージをリスニングし、チャネルごとに振り分けます。
-メッセージのスキーマは、 <code>cosignature</code> メッセージを除き、 <a href="../listen-transaction-flow/">通常のトランザクションフロー</a> チュートリアルと同じです。 <code>cosignature</code> メッセージは <a href="../../reference/rest/symbol/#model-CosignatureDTO">CosignatureDTO</a> スキーマに従い、他のチャネルで使用される <code>meta.hash</code> フィールドは含まれません。</p>
+メッセージのスキーマは、 <code>cosignature</code> メッセージを除き、 <a href="../listen-transaction-flow/">通常のトランザクションフロー</a> チュートリアルと同じです。 <code>cosignature</code> メッセージは <a href="../../reference/rest/symbol/#model/CosignatureDTO">CosignatureDTO</a> スキーマに従い、他のチャネルで使用される <code>meta.hash</code> フィールドは含まれません。</p>
 <p>重要なアクションは <code>partialAdded</code> で発生します。ハッシュが期待されるアグリゲートと一致した場合、アカウント B は <code>detached</code> パラメータを <code>true</code> に設定した <span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="c696312981c38564681402a75c386fa5"
 	title="Cosigns a Symbol transaction hash."
@@ -14398,7 +14408,11 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 <ol>
 <li><code>partialAdded</code>: ボンデッドアグリゲートがパーシャル（部分的）キャッシュに入り、連署を待ちます。</li>
 <li><code>cosignature</code>: アカウント B からの連署が追加されます。</li>
-<li><code>unconfirmedAdded</code>: 完全に署名されたトランザクションが [未承認トランザクションプール] (default: 未承認トランザクションプール) に入ります。</li>
+<li><code>unconfirmedAdded</code>: 完全に署名されたトランザクションが <a class="mkdocs-ezglossary-link"
+	id="fb2094102150247b3a58d95337b2355e"
+	title="ブロックへの取り込みを待つ検証済みトランザクションの一覧であり、各ノードが保持します。"
+	name="_:未承認トランザクションプール"
+	href="../../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a> に入ります。</li>
 <li><code>partialRemoved</code>: トランザクションが <code>partial</code> 状態を抜けます。</li>
 <li><code>unconfirmedRemoved</code>: トランザクションが未承認プールを抜けます。</li>
 <li><code>confirmedAdded</code>: トランザクションがブロック内で承認されます。</li>
@@ -14510,7 +14524,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 <td><a href="#account-b-connecting-and-subscribing-to-channels">partialAdded をサブスクライブする</a></td>
 <td><code><a class="mkdocs-ezglossary-link"
 	id="ee2e97142df22772696d24219aadbf2c"
-	title="指定されたアドレスに関連する アグリゲートボンデッドトランザクション が、必要なすべての連署が完了するのを待つ partial 状態になったときに、サブスクライブしているクライアントに通知します。
+	title="指定されたアドレスに関連する ボンデッドアグリゲートトランザクション が、必要なすべての連署が完了するのを待つ partial 状態になったときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、追加された1つのパーシャルトランザクションに関する情報が含まれます。"
 	name="ws:partialAdded&#47;{address}"
 	href="../../../devbook/reference/websockets/#5116996bf63e52dcfaf41c3ec9b7e8fb">partialAdded&#47;{address}</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code></td>
@@ -14519,7 +14533,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 <td><a href="#account-b-connecting-and-subscribing-to-channels">partialRemoved をサブスクライブする</a></td>
 <td><code><a class="mkdocs-ezglossary-link"
 	id="902b6481cf5654de5fcbe587233f86ec"
-	title="指定されたアドレスに関連する アグリゲートボンデッドトランザクション が partial 状態を抜けたときに、サブスクライブしているクライアントに通知します。
+	title="指定されたアドレスに関連する ボンデッドアグリゲートトランザクション が partial 状態を抜けたときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、削除された1つのパーシャルトランザクションのハッシュが含まれます。"
 	name="ws:partialRemoved&#47;{address}"
 	href="../../../devbook/reference/websockets/#51be887f99b55b03a758865f2638ae4b">partialRemoved&#47;{address}</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code></td>
@@ -14528,18 +14542,18 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 <td><a href="#account-b-connecting-and-subscribing-to-channels">cosignature をサブスクライブする</a></td>
 <td><code><a class="mkdocs-ezglossary-link"
 	id="e33e0c35106a051fa2f1a1b2fa058f89"
-	title="指定されたアドレスに関連する 連署 が、 partial 状態の アグリゲートボンデッドトランザクション に追加されたときに、サブスクライブしているクライアントに通知します。
+	title="指定されたアドレスに関連する 連署 が、 partial 状態の ボンデッドアグリゲートトランザクション に追加されたときに、サブスクライブしているクライアントに通知します。
 返される各メッセージには、連署付きトランザクションが1つ含まれます。"
 	name="ws:cosignature&#47;{address}"
 	href="../../../devbook/reference/websockets/#13804351de42e6a6c900bc415265497c">cosignature&#47;{address}</a></code>&nbsp;<code class="rest-method rest-method-ws">WS</code></td>
 </tr>
 <tr>
 <td><a href="#account-b-handling-websocket-messages-and-cosigning">トランザクションメッセージを処理する</a></td>
-<td><a href="../../reference/rest/symbol/#model-TransactionInfoDTO">TransactionInfoDTO</a></td>
+<td><a href="../../reference/rest/symbol/#model/TransactionInfoDTO">TransactionInfoDTO</a></td>
 </tr>
 <tr>
 <td><a href="#account-b-handling-websocket-messages-and-cosigning">連署メッセージを処理する</a></td>
-<td><a href="../../reference/rest/symbol/#model-CosignatureDTO">CosignatureDTO</a></td>
+<td><a href="../../reference/rest/symbol/#model/CosignatureDTO">CosignatureDTO</a></td>
 </tr>
 <tr>
 <td><a href="#account-b-handling-websocket-messages-and-cosigning">partialAdded で連署を送信する</a></td>
@@ -14577,7 +14591,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年5月29日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
   </span>
 
     

@@ -1793,7 +1793,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -1821,7 +1821,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -12258,33 +12258,43 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 <span class="normal"><a href="#__codelineno-1-24">24</a></span>
 <span class="normal"><a href="#__codelineno-1-25">25</a></span>
 <span class="normal"><a href="#__codelineno-1-26">26</a></span>
-<span class="normal"><a href="#__codelineno-1-27">27</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">NODE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_URL</span><span class="w"> </span><span class="o">||</span>
+<span class="normal"><a href="#__codelineno-1-27">27</a></span>
+<span class="normal"><a href="#__codelineno-1-28">28</a></span>
+<span class="normal"><a href="#__codelineno-1-29">29</a></span>
+<span class="normal"><a href="#__codelineno-1-30">30</a></span>
+<span class="normal"><a href="#__codelineno-1-31">31</a></span>
+<span class="normal"><a href="#__codelineno-1-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">NODE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_URL</span><span class="w"> </span><span class="o">||</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">    </span><span class="s1">&#39;https://reference.symboltest.net:3001&#39;</span><span class="p">;</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Using node </span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">SUPPLY_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/network/currency/supply&#39;</span><span class="p">;</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="kd">const</span><span class="w"> </span><span class="nx">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">v</span><span class="p">.</span><span class="nx">toLocaleString</span><span class="p">(</span><span class="s1">&#39;en-US&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">minimumFractionDigits</span><span class="o">:</span><span class="w"> </span><span class="mf">6</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="kd">const</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/max`</span><span class="p">);</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="kd">const</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Maximum supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">maximumSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="kd">const</span><span class="w"> </span><span class="nx">totalResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/total`</span><span class="p">);</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="kd">const</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">totalResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Total supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">totalSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16"></a>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/circulating`</span><span class="p">);</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="w">    </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">circulatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22"></a>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="kd">const</span><span class="w"> </span><span class="nx">nonCirculatingSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="p">;</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Non-circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">nonCirculatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25"></a>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26"></a><span class="kd">const</span><span class="w"> </span><span class="nx">unmintedSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">totalSupply</span><span class="p">;</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Unminted supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">unmintedSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="p">=&gt;</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">        </span><span class="nx">v</span><span class="p">.</span><span class="nx">toLocaleString</span><span class="p">(</span><span class="s1">&#39;en-US&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">minimumFractionDigits</span><span class="o">:</span><span class="w"> </span><span class="mf">6</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/max`</span><span class="p">);</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Maximum supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">maximumSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">totalResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/total`</span><span class="p">);</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">totalResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Total supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">totalSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/circulating`</span><span class="p">);</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="w">        </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">circulatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24"></a>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nonCirculatingSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="p">;</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Non-circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">nonCirculatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27"></a>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">unmintedSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">totalSupply</span><span class="p">;</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Unminted supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">unmintedSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30"></a><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
 <p><a class="source-link" href="https://github.com/symbol/symbol/raw/refs/heads/new-docs/mkdocs/overrides/devbook/network-currency/query_currency_supply.mjs">Download source</a></p>
 </div>
@@ -12297,12 +12307,12 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 	name="_:ノード"
 	href="../../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a>を設定します。
 値が指定されない場合は、デフォルトの<a class="mkdocs-ezglossary-link"
-	id="ed98ff7778ba822de722b0d1940f753e"
+	id="9f036a6076d1b517e6e68c7941f1e061"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a>ノードが使用されます。</p>
 <div class="admonition warning">
-<p class="admonition-title">注意: メインネットノードの使用</p>
+<p class="admonition-title">デフォルトノードはテストネットです</p>
 <p>デフォルトのノードはテストネットを指しています。
 本番環境の供給量データについては、 <code>NODE_URL</code> を<a class="mkdocs-ezglossary-link"
 	id="5b0e29b8a09285ebb976641bb735e71d"
@@ -12340,8 +12350,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
 <span class="normal"><a href="#__codelineno-3-10">10</a></span>
 <span class="normal"><a href="#__codelineno-3-11">11</a></span>
@@ -12354,21 +12363,24 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 <span class="normal"><a href="#__codelineno-3-18">18</a></span>
 <span class="normal"><a href="#__codelineno-3-19">19</a></span>
 <span class="normal"><a href="#__codelineno-3-20">20</a></span>
-<span class="normal"><a href="#__codelineno-3-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="kd">const</span><span class="w"> </span><span class="nx">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">v</span><span class="p">.</span><span class="nx">toLocaleString</span><span class="p">(</span><span class="s1">&#39;en-US&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">minimumFractionDigits</span><span class="o">:</span><span class="w"> </span><span class="mf">6</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="kd">const</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/max`</span><span class="p">);</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="kd">const</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Maximum supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">maximumSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="kd">const</span><span class="w"> </span><span class="nx">totalResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/total`</span><span class="p">);</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="kd">const</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">totalResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Total supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">totalSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/circulating`</span><span class="p">);</span>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="w">    </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">circulatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span>
+<span class="normal"><a href="#__codelineno-3-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="p">=&gt;</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">        </span><span class="nx">v</span><span class="p">.</span><span class="nx">toLocaleString</span><span class="p">(</span><span class="s1">&#39;en-US&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">minimumFractionDigits</span><span class="o">:</span><span class="w"> </span><span class="mf">6</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/max`</span><span class="p">);</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">maximumResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Maximum supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">maximumSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">totalResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/total`</span><span class="p">);</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">totalResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Total supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">totalSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18"></a>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">NODE_URL</span><span class="si">}${</span><span class="nx">SUPPLY_PATH</span><span class="si">}</span><span class="sb">/circulating`</span><span class="p">);</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="w">        </span><span class="nb">parseFloat</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">circulatingResponse</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">trim</span><span class="p">());</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">circulatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -12395,10 +12407,10 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 <p>これら3つのエンドポイントはすべて、（JSONではなく）プレーンテキストの数値を返します。これらは<a class="mkdocs-ezglossary-link"
 	id="1da57eae55aace97d4a042a1e72fcd14"
 	title="モザイク数量の小数点以下の桁数を定義するプロパティです。
-可分性が 0 のモザイクは分割不可能であり、整数単位でしか転送できません。
+可分性が 0 のモザイクは分割不可能であり、全体単位でしか転送できません。
 より大きな値を設定すると、単位を小数に分割できます。"
 	name="_:可分性"
-	href="../../../textbook/mosaics/#68f8f72c82203df377d60076c144cc92">絶対（アトミック）</a>単位ではなく、すでに小数点以下の桁数を含む全体単位（例： <code>8999999999.000000</code> ）で表されています。</p>
+	href="../../../textbook/mosaics/#68f8f72c82203df377d60076c144cc92">絶対単位</a>ではなく、すでに小数点以下の桁数を含む全体単位（例： <code>8999999999.000000</code> ）で表されています。</p>
 <div class="admonition warning">
 <p class="admonition-title">注意: 循環供給量はノードに依存します</p>
 <p>非循環アカウントのリストは各ノードオペレーターによって（ノードの <code>rest.json</code> ファイル内で）設定されるため、異なるノードが異なる循環供給量の値を報告する可能性があります。
@@ -12420,15 +12432,15 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-23">23</a></span>
-<span class="normal"><a href="#__codelineno-5-24">24</a></span>
-<span class="normal"><a href="#__codelineno-5-25">25</a></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-25">25</a></span>
 <span class="normal"><a href="#__codelineno-5-26">26</a></span>
-<span class="normal"><a href="#__codelineno-5-27">27</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23"></a><span class="kd">const</span><span class="w"> </span><span class="nx">nonCirculatingSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="p">;</span>
-</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Non-circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">nonCirculatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
-</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25"></a>
-</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26"></a><span class="kd">const</span><span class="w"> </span><span class="nx">unmintedSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">totalSupply</span><span class="p">;</span>
-</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Unminted supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">unmintedSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+<span class="normal"><a href="#__codelineno-5-27">27</a></span>
+<span class="normal"><a href="#__codelineno-5-28">28</a></span>
+<span class="normal"><a href="#__codelineno-5-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nonCirculatingSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">totalSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">circulatingSupply</span><span class="p">;</span>
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Non-circulating supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">nonCirculatingSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
+</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27"></a>
+</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">unmintedSupply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">maximumSupply</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">totalSupply</span><span class="p">;</span>
+</span><span id="__span-5-29"><a id="__codelineno-5-29" name="__codelineno-5-29"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Unminted supply: </span><span class="si">${</span><span class="nx">fmt</span><span class="p">(</span><span class="nx">unmintedSupply</span><span class="p">)</span><span class="si">}</span><span class="sb"> XYM`</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -12440,31 +12452,26 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 </ul>
 <h2 id="output">出力<a class="headerlink" href="#output" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>以下の出力は、通貨供給量を照会する典型的な実行例を示しています。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Using node https://reference.symboltest.net:3001
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Maximum supply: 8,999,999,999.000000 XYM
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Total supply: 8,323,505,878.695894 XYM
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>Circulating supply: 8,323,495,854.693871 XYM
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>Non-circulating supply: 10,024.002024 XYM
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>Unminted supply: 676,494,120.304106 XYM
-</span></code></pre></div>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span>
+<span class="normal"><a href="#__codelineno-6-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>Using node https://reference.symboltest.net:3001
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="hll">Maximum supply: 8,999,999,999.000000 XYM
+</span></span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="hll">Total supply: 8,323,505,878.695894 XYM
+</span></span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="hll">Circulating supply: 8,323,495,854.693871 XYM
+</span></span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="hll">Non-circulating supply: 10,024.002024 XYM
+</span></span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="hll">Unminted supply: 676,494,120.304106 XYM
+</span></span></code></pre></div></td></tr></table></div>
 <p>これらの値はテストネットノードからのものであり、メインネットの供給量の数値を反映していません。</p>
 <p>出力は、XYMの供給量の完全な内訳を示しています。</p>
 <ul>
-<li>
-<p>最大供給量 (maximum supply) はXYMのハードキャップです。</p>
-</li>
-<li>
-<p>すべてのXYMがまだ発行されているわけではないため、 総供給量 (total supply) はそれより少なくなります。</p>
-</li>
-<li>
-<p>一部の発行済みXYMは非循環アカウントによって保持されているため、 循環供給量 (circulating supply) はさらに少なくなります。</p>
-</li>
-<li>
-<p>非循環 (non-circulating) の値は、総供給量と循環供給量の差を説明しています。</p>
-</li>
-<li>
-<p>未発行 (unminted) の値は、インフレーション報酬を通じて徐々に発行される残りのXYMを示しています。</p>
-</li>
+<li><strong>最大供給量 (maximum supply)</strong> (2行目): XYMのハードキャップです。</li>
+<li><strong>総供給量 (total supply)</strong> (3行目): すべてのXYMがまだ発行されているわけではないため、最大供給量より少なくなります。</li>
+<li><strong>循環供給量 (circulating supply)</strong> (4行目): 一部の発行済みXYMは非循環アカウントによって保持されているため、さらに少なくなります。</li>
+<li><strong>非循環供給量 (non-circulating supply)</strong> (5行目): 総供給量と循環供給量の差を表します。</li>
+<li><strong>未発行供給量 (unminted supply)</strong> (6行目): インフレーション報酬を通じて徐々に発行される残りのXYMを示しています。</li>
 </ul>
 <h2 id="conclusion">結論<a class="headerlink" href="#conclusion" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>このチュートリアルでは、以下の方法を説明しました。</p>
@@ -12472,7 +12479,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
 <thead>
 <tr>
 <th>ステップ</th>
-<th>関連ドキュメント documentation</th>
+<th>関連ドキュメント</th>
 </tr>
 </thead>
 <tbody>
@@ -12518,7 +12525,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年5月11日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
   </span>
 
     
@@ -12544,7 +12551,8 @@ HTTPリクエストを行う方法さえあれば実行可能です。</p>
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:zero4862@pm.me">zero</a>
     </nav>
   </span>
 

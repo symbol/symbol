@@ -29,7 +29,7 @@
     
     
       
-        <title>アグリゲートコンプリートトランザクション - Symbolドキュメント WIP ⚠</title>
+        <title>コンプリートアグリゲートトランザクション - Symbolドキュメント WIP ⚠</title>
       
     
     
@@ -145,7 +145,7 @@
 					<span class="md-ellipsis">
 						
 						
-							アグリゲートコンプリートトランザクション
+							コンプリートアグリゲートトランザクション
 						
 					</span>
 				</div>
@@ -1804,7 +1804,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -1822,7 +1822,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -2077,7 +2077,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -12378,25 +12378,25 @@
 	
 
 
-<h1 id="creating-a-complete-aggregate-transaction">アグリゲートコンプリートトランザクションの作成<a class="headerlink" href="#creating-a-complete-aggregate-transaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
+<h1 id="creating-a-complete-aggregate-transaction">コンプリートアグリゲートトランザクションの作成<a class="headerlink" href="#creating-a-complete-aggregate-transaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
 <p>このチュートリアルでは、<a class="mkdocs-ezglossary-link"
-	id="ed780fde2e740735d160969dddf14818"
+	id="f947415b23ced101bc9525c7927b03e6"
 	title="すべての必要な連署がすでに付与された状態でネットワークに送信される
 アグリゲートトランザクション。
 ノードはすぐに検証を行い、ブロックに含めることができます。"
-	name="_:アグリゲートコンプリートトランザクション"
-	href="../../../textbook/transactions/#c150f8d401536cf5a504f7747fc08a7c">アグリゲートコンプリートトランザクション</a> を使用してアセットスワップを作成する方法を説明します。</p>
+	name="_:コンプリートアグリゲートトランザクション"
+	href="../../../textbook/transactions/#b04bcfd6bf77869adb5cd80d5e5f74d8">コンプリートアグリゲートトランザクション</a> を使用してアセットスワップを作成する方法を説明します。</p>
 <p>この例では、アカウント A がアカウント B に 10 <a class="mkdocs-ezglossary-link"
 	id="e828c7ad1b604c2da3dd2c516c3fd9ac"
 	title="Symbol ブロックチェーンのネイティブ通貨。"
 	name="_:XYM"
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> を送信し、同時にアカウント B が 1 つのカスタム <a class="mkdocs-ezglossary-link"
-	id="c6fa7427d0c97744f89706f043054755"
+	id="6373314f304f3494b163622928575653"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
 	href="../../../textbook/mosaics/#02c49666fe8c25093e4c18ac0636381f">モザイク</a> をアカウント A に送り返します。</p>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="506pt" height="231pt" viewBox="0.00 0.00 506.00 231.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 227)"><polygon fill="none" stroke="none" points="-4,4 -4,-227 501.52,-227 501.52,4 -4,4"/><g id="clust1" class="cluster"><title>clusterAggregate</title><g id="a_clust1"><a xlink:title="アグリゲートコンプリートトランザクション"><polygon fill="none" stroke="#789abc" points="8,-8 8,-215 489.52,-215 489.52,-8 8,-8"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-199.6" font-family="Times,serif" font-size="12.00" fill="#789abc">アグリゲートコンプリートトランザクション</text></a></g></g><g id="clust2" class="cluster"><title>clusterT1</title><g id="a_clust2"><a xlink:title="埋め込み転送 1"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-16 16,-95 481.52,-95 481.52,-16 16,-16"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-79.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 1</text></a></g></g><g id="clust3" class="cluster"><title>clusterT2</title><g id="a_clust3"><a xlink:title="埋め込み転送 2"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-103 16,-182 481.52,-182 481.52,-103 16,-103"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-166.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 2</text></a></g></g><!-- A2 --><g id="node1" class="node"><title>A2</title><g id="a_node1"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-43" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B2 --><g id="node2" class="node"><title>B2</title><g id="a_node2"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-43" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A2&#45;&gt;B2 --><g id="edge1" class="edge"><title>A2&#45;&gt;B2</title><path fill="none" stroke="#789abc" d="M166.87,-43C212.07,-43 270.9,-43 318.25,-43"/><polygon fill="#789abc" stroke="#789abc" points="318.21,-46.5 328.21,-43 318.21,-39.5 318.21,-46.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-46.95" font-family="Times,serif" font-size="14.00" fill="#789abc">10 XYM</text></g><!-- A1 --><g id="node3" class="node"><title>A1</title><g id="a_node3"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-130" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B1 --><g id="node4" class="node"><title>B1</title><g id="a_node4"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-130" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A1&#45;&gt;B1 --><g id="edge2" class="edge"><title>A1&#45;&gt;B1</title><path fill="none" stroke="#789abc" d="M178.31,-130C225.59,-130 284.43,-130 329.72,-130"/><polygon fill="#789abc" stroke="#789abc" points="178.38,-126.5 168.38,-130 178.38,-133.5 178.38,-126.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-135.66" font-family="Times,serif" font-size="14.00" fill="#789abc">1 カスタムモザイク</text></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="506pt" height="231pt" viewBox="0.00 0.00 506.00 231.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 227)"><polygon fill="none" stroke="none" points="-4,4 -4,-227 501.52,-227 501.52,4 -4,4"/><g id="clust1" class="cluster"><title>clusterAggregate</title><g id="a_clust1"><a xlink:title="コンプリートアグリゲートトランザクション"><polygon fill="none" stroke="#789abc" points="8,-8 8,-215 489.52,-215 489.52,-8 8,-8"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-199.6" font-family="Times,serif" font-size="12.00" fill="#789abc">コンプリートアグリゲートトランザクション</text></a></g></g><g id="clust2" class="cluster"><title>clusterT1</title><g id="a_clust2"><a xlink:title="埋め込み転送 1"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-16 16,-95 481.52,-95 481.52,-16 16,-16"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-79.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 1</text></a></g></g><g id="clust3" class="cluster"><title>clusterT2</title><g id="a_clust3"><a xlink:title="埋め込み転送 2"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="16,-103 16,-182 481.52,-182 481.52,-103 16,-103"/><text xml:space="preserve" text-anchor="middle" x="248.76" y="-166.6" font-family="Times,serif" font-size="12.00" fill="#789abc">埋め込み転送 2</text></a></g></g><!-- A2 --><g id="node1" class="node"><title>A2</title><g id="a_node1"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-43" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B2 --><g id="node2" class="node"><title>B2</title><g id="a_node2"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-43" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-39.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A2&#45;&gt;B2 --><g id="edge1" class="edge"><title>A2&#45;&gt;B2</title><path fill="none" stroke="#789abc" d="M166.87,-43C212.07,-43 270.9,-43 318.25,-43"/><polygon fill="#789abc" stroke="#789abc" points="318.21,-46.5 328.21,-43 318.21,-39.5 318.21,-46.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-46.95" font-family="Times,serif" font-size="14.00" fill="#789abc">10 XYM</text></g><!-- A1 --><g id="node3" class="node"><title>A1</title><g id="a_node3"><a xlink:title="アカウント A"><ellipse fill="none" stroke="#789abc" cx="95.24" cy="-130" rx="71.24" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="95.24" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント A</text></a></g></g><!-- B1 --><g id="node4" class="node"><title>B1</title><g id="a_node4"><a xlink:title="アカウント B"><ellipse fill="none" stroke="#789abc" cx="401.75" cy="-130" rx="71.77" ry="19.07"/><text xml:space="preserve" text-anchor="middle" x="401.75" y="-126.18" font-family="Times,serif" font-size="14.00" fill="#789abc">アカウント B</text></a></g></g><!-- A1&#45;&gt;B1 --><g id="edge2" class="edge"><title>A1&#45;&gt;B1</title><path fill="none" stroke="#789abc" d="M178.31,-130C225.59,-130 284.43,-130 329.72,-130"/><polygon fill="#789abc" stroke="#789abc" points="178.38,-126.5 168.38,-130 178.38,-133.5 178.38,-126.5"/><text xml:space="preserve" text-anchor="middle" x="248.23" y="-135.66" font-family="Times,serif" font-size="14.00" fill="#789abc">1 カスタムモザイク</text></g></g></svg></p>
 <p>両者はアナウンス前にオフチェーンで署名を収集するように調整し、スワップが単一のアトミックな <a class="mkdocs-ezglossary-link"
 	id="153ef41f629079c23ddd0ac06da0f1fb"
 	title="トランザクションとは、Symbol ブロックチェーン上で実行される1つまたは複数のアクションを表します。
@@ -12417,7 +12417,7 @@
 デジタルの付加情報です。"
 	name="_:署名"
 	href="../../../textbook/cryptography/#fb3cdcf8ddb4db189882f259452068d0">署名</a> を必要とします。</p>
-<p>アグリゲートコンプリートトランザクションは、アナウンスされる前にすべての署名を収集します。この手順は、例えば以下のようなシナリオでうまく機能します。</p>
+<p>コンプリートアグリゲートトランザクションは、アナウンスされる前にすべての署名を収集します。この手順は、例えば以下のようなシナリオでうまく機能します。</p>
 <ul>
 <li><strong>複数者間の調整</strong>: 当事者がオフチェーンで通信し、トランザクションペイロードと連署（<a class="mkdocs-ezglossary-link"
 	id="9be2668d638444119757b0a716251a02"
@@ -12429,13 +12429,13 @@
 <li><strong>単一アカウントによるバッチ処理</strong>: 1つのアカウントが複数のトランザクションをアトミックに実行したい場合。この場合、連署は不要です。</li>
 </ul>
 <p>オフチェーンでの調整が実用的でない場合は、代わりに <a class="mkdocs-ezglossary-link"
-	id="bfbba0c0e24da4d6fb34f9b03667275f"
+	id="5838ccbe4aaeb0c1e21167329480bafd"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a>を使用してください。これにより、オンチェーンで連署を追加できるようになります。</p>
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a>を使用してください。これにより、オンチェーンで連署を追加できるようになります。</p>
 </div>
 <h2 id="prerequisites">前提条件<a class="headerlink" href="#prerequisites" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>開始する前に、開発環境がセットアップされていることを確認してください。
@@ -12450,7 +12450,7 @@
 従来の銀行における貸金庫に似た役割を果たします。"
 	name="_:アカウント"
 	href="../../../textbook/accounts/#0d4e381dd7b4044bd8c6dc95c5fc5921">アカウント</a> と1つのカスタム <a class="mkdocs-ezglossary-link"
-	id="6373314f304f3494b163622928575653"
+	id="6003c77cb1f753fe7defcf619ac477f6"
 	title="Symbol ブロックチェーン上の資産を表す単位で、他のプロトコルで一般的に「トークン」と呼ばれるものに相当します。
 例として、通貨、ライセンス、コレクションアイテム、アクセス権、投票権などがあります。"
 	name="_:モザイク"
@@ -13193,7 +13193,7 @@
 </div>
 </div>
 <p>コード全体は、単純なエラー処理を提供するために単一の <code>try</code> ブロックでラップされていますが、実際のアプリケーションではより詳細な制御が必要になるでしょう。</p>
-<p>アグリゲートコンプリートトランザクションには、2つの異なる役割が含まれる場合があります。アグリゲートを構築してアナウンスする <strong>開始者</strong> （アカウント A）と、オフチェーンでトランザクションペイロードを受け取り、トランザクションを検証した後に署名を追加する1人以上の <strong>連署者</strong> （アカウント B）です。1つのアカウントのみが関与する場合、連署は不要です。</p>
+<p>コンプリートアグリゲートトランザクションには、2つの異なる役割が含まれる場合があります。アグリゲートを構築してアナウンスする <strong>開始者</strong> （アカウント A）と、オフチェーンでトランザクションペイロードを受け取り、トランザクションを検証した後に署名を追加する1人以上の <strong>連署者</strong> （アカウント B）です。1つのアカウントのみが関与する場合、連署は不要です。</p>
 <p>実際には、それぞれの役割は別々のマシンの別々のプログラムとして動作します。このチュートリアルでは複数者が関与するケースを実演しますが、簡略化のため両方の役割を1つのスクリプトにまとめています。</p>
 <h2 id="account-a-initiator-workflow">アカウント A: 開始者のワークフロー<a class="headerlink" href="#account-a-initiator-workflow" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <h3 id="setting-up-accounts">アカウントの設定<a class="headerlink" href="#setting-up-accounts" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
@@ -13293,7 +13293,7 @@
 	name="_:秘密鍵"
 	href="../../../textbook/cryptography/#87b32666b22cbcb8905e62db6871dccf">秘密鍵</a> を含めています。実際には、各当事者が自身のマシンで署名します。
 アカウント A は、 <a class="mkdocs-ezglossary-link"
-	id="a83e27e15a9945bace8f3daf327d2486"
+	id="c08c30f057a8327b41649a214a9a705b"
 	title="基本トランザクションがアグリゲートトランザクションに含まれる場合、それらは「埋め込みトランザクション」と呼ばれます。"
 	name="_:埋め込みトランザクション"
 	href="../../../textbook/transactions/#b2256dd158538dc3ffeb771673f3f34d">埋め込みトランザクション</a> の署名者としてアカウント B を設定し、B の <a class="mkdocs-ezglossary-link"
@@ -13500,7 +13500,7 @@
 </div>
 </div>
 <p><a class="mkdocs-ezglossary-link"
-	id="c08c30f057a8327b41649a214a9a705b"
+	id="b86a939b9d012f8899a5b59c33410ff7"
 	title="基本トランザクションがアグリゲートトランザクションに含まれる場合、それらは「埋め込みトランザクション」と呼ばれます。"
 	name="_:埋め込みトランザクション"
 	href="../../../textbook/transactions/#b2256dd158538dc3ffeb771673f3f34d">埋め込みトランザクション</a> は、アトミックに実行される操作を定義します。各埋め込みトランザクションでは以下を指定します。</p>
@@ -13607,13 +13607,13 @@
 </div>
 </div>
 </div>
-<p>埋め込みトランザクションの準備ができたら、それらをラップするアグリゲートコンプリートトランザクションを作成します。</p>
+<p>埋め込みトランザクションの準備ができたら、それらをラップするコンプリートアグリゲートトランザクションを作成します。</p>
 <ul>
 <li><strong>タイプ</strong>: <code><a class="mkdocs-ezglossary-link"
 	id="edf8f493c514261c253cfad2c1b8c43a"
 	title="Send transactions in batches to different accounts (V3, latest). Use this transaction when all required signatures are available when the transaction is created."
 	name="ser:AggregateCompleteTransactionV3"
-	href="../../../devbook/reference/serialization/#2858cf107dc7233c8b73cc9779b674c1">AggregateCompleteTransactionV3</a></code> を使用します。</li>
+	href="../../../devbook/reference/serialization/#2858cf107dc7233c8b73cc9779b674c1">aggregate_complete_transaction_v3</a></code> を使用します。</li>
 <li>
 <p><strong>署名者の公開鍵</strong>: アグリゲートを開始するアカウントです。このアカウントがトランザクションをアナウンスし、トランザクション手数料を支払います。</p>
 <div class="admonition tip">
@@ -13773,7 +13773,15 @@
 </div>
 </div>
 </div>
-<p>アカウント B はペイロードを受け取り、デシリアライズしてトランザクションオブジェクトを再構築します。アカウント B は、埋め込みトランザクションが自身が署名しようとしている内容と一致しているか検証する必要があります。</p>
+<p>アカウント B はペイロードを受け取り、 <span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+	id="f4b3efee537b029cc740ca31dbbcca3e"
+	title="Deserializes a transaction from a binary payload."
+	name="py:TransactionFactory.deserialize"
+	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.deserialize">TransactionFactory.deserialize</a></code></label><input type="radio" name="rGroup999" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	id="14269b55901167f061d31b21fb52ad7a"
+	title="Deserializes a transaction from a binary payload."
+	name="js:SymbolTransactionFactory.deserialize"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#deserialize">SymbolTransactionFactory.deserialize</a></code></label></span> を使用してデシリアライズし、トランザクションオブジェクトを再構築します。アカウント B は、埋め込みトランザクションが自身が署名しようとしている内容と一致しているか検証する必要があります。</p>
 <p>その後、連署します。これによりトランザクションハッシュが計算され、連署オブジェクトが生成されます。この連署のみがアカウント A に送り返されます。</p>
 <div class="admonition warning">
 <p class="admonition-title">連署する前に検証すること</p>
@@ -13994,7 +14002,7 @@
 </div>
 </div>
 </div>
-<p>アナウンス後、トランザクションステータスを監視します。</p>
+<p>アナウンス後、 <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> を使用してトランザクションステータスを監視します。</p>
 <p>ポーリングループは、トランザクションが承認されるか失敗するまで、1秒ごとにステータスを確認します。承認されるとスワップが完了し、両方の転送が実行されます。</p>
 <h2 id="output">出力<a class="headerlink" href="#output" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>以下に示す出力は、プログラムの典型的な実行結果に対応しています。</p>
@@ -14167,13 +14175,13 @@
 <tbody>
 <tr>
 <td><a href="#creating-embedded-transactions">埋め込みトランザクションの作成</a></td>
-<td><span markdown class="dylink"><input type="radio" name="rGroup999" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+<td><span markdown class="dylink"><input type="radio" name="rGroup1000" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="19db9e57ab5c6c72170ec8d57fd3ce10"
 	title="Creates an embedded transaction from a transaction descriptor.
 When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
 When unset, descriptor arrays will be presumed to be already sorted."
 	name="py:TransactionFactory.create_embedded"
-	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create_embedded">TransactionFactory.create_embedded</a></code></label><input type="radio" name="rGroup999" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create_embedded">TransactionFactory.create_embedded</a></code></label><input type="radio" name="rGroup1000" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
 	id="f1f73c8cd9410ea19a8c868d6daa4045"
 	title="Creates an embedded transaction from a transaction descriptor."
 	name="js:SymbolTransactionFactory.createEmbedded"
@@ -14181,21 +14189,21 @@ When unset, descriptor arrays will be presumed to be already sorted."
 </tr>
 <tr>
 <td><a href="#building-the-aggregate-transaction">アグリゲートの構築</a></td>
-<td><span markdown class="dylink"><input type="radio" name="rGroup1000" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+<td><span markdown class="dylink"><input type="radio" name="rGroup1001" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="f7facf9e1a9aad738d7940b6560288cd"
 	title="Creates a transaction from a transaction descriptor.
 When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
 When unset, descriptor arrays will be presumed to be already sorted."
 	name="py:TransactionFactory.create"
-	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create">TransactionFactory.create</a></code></label><input type="radio" name="rGroup1000" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.create">TransactionFactory.create</a></code></label><input type="radio" name="rGroup1001" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
 	id="d07eb76978bcae764b5a26771e4a72f2"
 	title="Creates a transaction from a transaction descriptor."
 	name="js:SymbolTransactionFactory.create"
-	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span><br/><span markdown class="dylink"><input type="radio" name="rGroup1001" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+	href="../../../devbook/reference/ts/symbol/classes/SymbolTransactionFactory/#create">SymbolTransactionFactory.create</a></code></label></span><br/><span markdown class="dylink"><input type="radio" name="rGroup1002" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="c419a5791d92f71333f882fd4339603a"
 	title="Hashes embedded transactions of an aggregate."
 	name="py:SymbolFacade.hash_embedded_transactions"
-	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.hash_embedded_transactions">SymbolFacade.hash_embedded_transactions</a></code></label><input type="radio" name="rGroup1001" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.hash_embedded_transactions">SymbolFacade.hash_embedded_transactions</a></code></label><input type="radio" name="rGroup1002" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
 	id="ce3723cb52a8e796cc84a0504fcdf1ed"
 	title="Hashes embedded transactions of an aggregate transaction."
 	name="js:SymbolFacade.hashEmbeddedTransactions"
@@ -14203,11 +14211,11 @@ When unset, descriptor arrays will be presumed to be already sorted."
 </tr>
 <tr>
 <td><a href="#signing-the-transaction">トランザクションの署名</a></td>
-<td><span markdown class="dylink"><input type="radio" name="rGroup1002" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+<td><span markdown class="dylink"><input type="radio" name="rGroup1003" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="4a60ef2ccecca8cf3c371283091fee10"
 	title="Signs a Symbol transaction."
 	name="py:SymbolFacade.sign_transaction"
-	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.sign_transaction">SymbolFacade.sign_transaction</a></code></label><input type="radio" name="rGroup1002" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.sign_transaction">SymbolFacade.sign_transaction</a></code></label><input type="radio" name="rGroup1003" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
 	id="cf8e62a11455f0ee5e7518cad37cb7db"
 	title="Signs a Symbol transaction."
 	name="js:SymbolFacade.signTransaction"
@@ -14215,11 +14223,11 @@ When unset, descriptor arrays will be presumed to be already sorted."
 </tr>
 <tr>
 <td><a href="#verifying-and-cosigning">検証と連署</a></td>
-<td><span markdown class="dylink"><input type="radio" name="rGroup1003" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+<td><span markdown class="dylink"><input type="radio" name="rGroup1004" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="d9125b87727668ff4de42cec9ea4a52f"
 	title="Cosigns a Symbol transaction."
 	name="py:SymbolFacade.cosign_transaction"
-	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.cosign_transaction">SymbolFacade.cosign_transaction</a></code></label><input type="radio" name="rGroup1003" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	href="../../../devbook/reference/py/facade/SymbolFacade/#SymbolFacade.cosign_transaction">SymbolFacade.cosign_transaction</a></code></label><input type="radio" name="rGroup1004" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
 	id="b1ac18e42663b3f47a6cb507360dea76"
 	title="Cosigns a Symbol transaction."
 	name="js:SymbolFacade.cosignTransaction"
@@ -14227,11 +14235,11 @@ When unset, descriptor arrays will be presumed to be already sorted."
 </tr>
 <tr>
 <td><a href="#collecting-the-cosignature">連署の収集</a></td>
-<td><span markdown class="dylink"><input type="radio" name="rGroup1004" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
+<td><span markdown class="dylink"><input type="radio" name="rGroup1005" id="Python" /><label class="dylink-option" for="Python" markdown><code><a class="mkdocs-ezglossary-link"
 	id="b67493d4567437d4b6d0e6344cec8647"
 	title="Attaches a signature to a transaction."
 	name="py:TransactionFactory.attach_signature"
-	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.attach_signature">TransactionFactory.attach_signature</a></code></label><input type="radio" name="rGroup1004" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
+	href="../../../devbook/reference/py/symbol/TransactionFactory/#TransactionFactory.attach_signature">TransactionFactory.attach_signature</a></code></label><input type="radio" name="rGroup1005" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code><a class="mkdocs-ezglossary-link"
 	id="70184e9587146d63cf0cdf3a973fc21a"
 	title="Attaches a signature to a transaction."
 	name="js:SymbolTransactionFactory.attachSignature"
@@ -14243,7 +14251,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
 <ul>
 <li><strong>1つのアカウントからの一括処理</strong>: すべての取引で署名者が同じであり、連署が必要ない場合、より簡単な手順について<a href="../transaction-batching/">トランザクションの一括処理</a>を参照してください。</li>
 <li><strong>手数料のスポンサー</strong>: <a href="../fee-sponsorship/">他のアカウントの代理でのトランザクション手数料の支払い</a> チュートリアルを使用して、あるアカウントが別のアカウントの代わりにトランザクション手数料を支払えるようにします。</li>
-<li><strong>ボンデッドアグリゲートの使用</strong>: 当事者間でオフチェーンでの調整ができない場合は、完全にオンチェーンの代替手段として <a href="../bonded-aggregate/">アグリゲートコンプリートトランザクションの作成</a> チュートリアルを参照してください。</li>
+<li><strong>ボンデッドアグリゲートの使用</strong>: 当事者間でオフチェーンでの調整ができない場合は、完全にオンチェーンの代替手段として <a href="../bonded-aggregate/">ボンデッドアグリゲートトランザクションの作成</a> チュートリアルを参照してください。</li>
 </ul>
 
 
@@ -14267,7 +14275,7 @@ When unset, descriptor arrays will be presumed to be already sorted."
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年5月18日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
   </span>
 
     

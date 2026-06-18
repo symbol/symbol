@@ -1993,7 +1993,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートコンプリートトランザクション
+    コンプリートアグリゲートトランザクション
   
 
     
@@ -2021,7 +2021,7 @@
   <span class="md-ellipsis">
     
   
-    アグリゲートボンデッドトランザクション
+    ボンデッドアグリゲートトランザクション
   
 
     
@@ -12281,29 +12281,19 @@
 	href="../../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a> に含まれるまでは未承認の状態が続きます。</p>
 <p>ステータスの変化を監視することは、トランザクションの承認や失敗に反応できる、レスポンスの高いアプリケーションを構築する上で不可欠です。</p>
 <p>このチュートリアルでは、トランザクションが未承認から承認済みへと移行する際のステータスを監視する方法を説明します。</p>
-<div class="admonition note">
-<p class="admonition-title">承認されたトランザクションでも覆る可能性があります</p>
-<p>承認されたトランザクションはブロックに含まれていますが、まだ不可逆ではありません。
-最終的な状態は <a class="mkdocs-ezglossary-link"
-	id="88b8243e7188e0972618d6bff8f1eeb1"
-	title="ロールバック のリスクを取り除き、
-ブロックおよびその中のトランザクションを不可逆にするプロセスです。"
-	name="_:ファイナライズ"
-	href="../../../textbook/consensus/#1dbe2b6d0705a0c83c92093e71bec62f">ファイナライズ</a> であり、これはブロックがネットワークによってファイナライズされた後にのみ発生します。
-それまでは、 <a class="mkdocs-ezglossary-link"
-	id="db8b4f7a1b73386a5a018aac5689028e"
-	title="フォーク解消後にノードがより良いチェーンへ切り替える際、
-最近追加された 1 つまたは複数のブロックを破棄する処理のことです。"
-	name="_:ロールバック"
-	href="../../../textbook/consensus/#a94e0dd5a6ab3a09f0700c6540777c6c">ロールバック</a> が発生する可能性がまだあります。</p>
+<p>この種の監視は、トランザクションが確実に承認されたことを確認するため、 <a href="../transfer/">転送チュートリアル</a> で示されているように、
+トランザクションをアナウンスした直後に行うのが一般的です。</p>
+<div class="admonition warning">
+<p class="admonition-title">ポーリングは本番環境では推奨されません</p>
+<p>このチュートリアルでは、トランザクションのステータスを確認するためにポーリングを使用します。
+ここでは説明の目的でポーリングを使用していますが、本番環境のアプリケーションには推奨されるアプローチではありません。</p>
+<p><a href="../../websockets/listen-transaction-flow/">WebSocket</a> を使用すると、API 呼び出しを繰り返すオーバーヘッドなしに、
+よりレスポンスの高いソリューションを提供できます。</p>
 </div>
 <h2 id="prerequisites">前提条件<a class="headerlink" href="#prerequisites" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>このチュートリアルでは、SDK を必要とせずに <a href="../../reference/rest/symbol/">Symbol REST API</a> を使用します。
 HTTP リクエストを行う方法さえあれば実行可能です。</p>
 <h2 id="full-code">完全なコード<a class="headerlink" href="#full-code" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
-<p>このチュートリアルでは、トランザクションのステータスを確認するためにポーリングを使用します。
-ここでは説明の目的でポーリングを使用していますが、本番環境のアプリケーションには推奨されるアプローチではありません。
-WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッドなしに、よりレスポンスの高いソリューションを提供できます。</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -12882,7 +12872,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 </div>
 </div>
 </div>
-<p><code>wait_for_transaction_confirmation</code> 関数は、このチュートリアルの中核です。
+<p><span markdown class="dylink"><input type="radio" name="rGroup99" id="Python" /><label class="dylink-option" for="Python" markdown><code>wait_for_transaction_confirmation</code></label><input type="radio" name="rGroup99" id="JavaScript" /><label class="dylink-option" for="JavaScript" markdown><code>waitForTransactionConfirmation</code></label></span> 関数は、このチュートリアルの中核です。
 トランザクションが承認されるか失敗するまで監視します。</p>
 <p><code>for</code> ループを使用して、デフォルトで最大60回（2秒間隔で2分間）トランザクションのステータスを確認します。
 このループ構造により、トランザクションが承認されなかった場合でも、最終的には監視が停止することが保証されます。</p>
@@ -12918,13 +12908,13 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 <tr>
 <td><code>partial</code></td>
 <td><a class="mkdocs-ezglossary-link"
-	id="3634710be45875d91e679c9888ddfbc8"
+	id="622b4185b4e37ec0794d53217cf67eb1"
 	title="必要な連署がすべて揃っていない状態でネットワークに送信される
 アグリゲートトランザクション。
 ネットワークは追加署名を待つ間、そのトランザクションを一時的に保持します。
 パーシャルトランザクション（部分トランザクション）とも呼ばれます。"
-	name="_:アグリゲートボンデッドトランザクション"
-	href="../../../textbook/transactions/#3ed54d9f28a8ec4deec540862e5751a1">アグリゲートボンデッドトランザクション</a> の<a class="mkdocs-ezglossary-link"
+	name="_:ボンデッドアグリゲートトランザクション"
+	href="../../../textbook/transactions/#23ad9ba995be8391cbaf852eb63ddeca">ボンデッドアグリゲートトランザクション</a> の<a class="mkdocs-ezglossary-link"
 	id="ee0c00f6eb42290b558de4018e99a557"
 	title="トランザクションを受け入れるために複数の署名者（連署人）による署名を必要とする
 特別な アカウント です。
@@ -12937,7 +12927,7 @@ WebSocket を使用すると、API 呼び出しを繰り返すオーバーヘッ
 </li>
 <li>
 <p><strong>Code (コード):</strong> より詳細な情報を提供するステータスコード（例： <code>Success</code> や特定のエラーコード）。
-    すべての可能な値については、 <a href="../../reference/rest/symbol/#model-TransactionStatusEnum">TransactionStatusEnum</a> スキーマを参照してください。</p>
+    すべての可能な値については、 <a href="../../reference/rest/symbol/#model/TransactionStatusEnum">TransactionStatusEnum</a> スキーマを参照してください。</p>
 </li>
 <li><strong>Hash (ハッシュ):</strong> 監視されているトランザクションハッシュ。</li>
 <li><strong>Deadline (有効期限):</strong> ネットワーク時間でのトランザクションの有効期限。</li>
@@ -12984,6 +12974,22 @@ PoW におけるマイニング、または PoS におけるステーキング�
 これには、過去のブロックに記録されたトランザクションから派生する状態変更も含まれます。"
 	name="_:ブロック"
 	href="../../../textbook/blocks/#0c50277fba1b640d6d52ddc5ed4d2657">ブロック</a>に含まれており、関数は正常に終了します。</p>
+<div class="admonition warning">
+<p class="admonition-title">承認されたトランザクションでも覆る可能性があります</p>
+<p>承認されたトランザクションはブロックに含まれていますが、まだ不可逆ではありません。
+最終的な状態は <a class="mkdocs-ezglossary-link"
+	id="88b8243e7188e0972618d6bff8f1eeb1"
+	title="ロールバック のリスクを取り除き、
+ブロックおよびその中のトランザクションを不可逆にするプロセスです。"
+	name="_:ファイナライズ"
+	href="../../../textbook/consensus/#1dbe2b6d0705a0c83c92093e71bec62f">ファイナライズ</a> であり、これはブロックがネットワークによってファイナライズされた後にのみ発生します。
+それまでは、 <a class="mkdocs-ezglossary-link"
+	id="db8b4f7a1b73386a5a018aac5689028e"
+	title="フォーク解消後にノードがより良いチェーンへ切り替える際、
+最近追加された 1 つまたは複数のブロックを破棄する処理のことです。"
+	name="_:ロールバック"
+	href="../../../textbook/consensus/#a94e0dd5a6ab3a09f0700c6540777c6c">ロールバック</a> が発生する可能性がまだあります。</p>
+</div>
 <h3 id="checking-for-failure">失敗の確認<a class="headerlink" href="#checking-for-failure" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_5_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
@@ -13031,7 +13037,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	name="_:署名"
 	href="../../../textbook/cryptography/#fb3cdcf8ddb4db189882f259452068d0">署名</a>、または有効期限切れが含まれます。
 失敗したトランザクションは検証中に拒否され、ブロックには含まれません。</p>
-<p>すべての可能なコードについては、 <a href="../../reference/rest/symbol/#model-TransactionStatusEnum">TransactionStatusEnum</a> を参照してください。</p>
+<p>すべての可能なコードについては、 <a href="../../reference/rest/symbol/#model/TransactionStatusEnum">TransactionStatusEnum</a> を参照してください。</p>
 <h3 id="handling-unknown-status">不明なステータスの処理<a class="headerlink" href="#handling-unknown-status" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.25.18.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span> Python</label><label for="__tabbed_6_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179z"/></svg></span> JavaScript</label></div>
 <div class="tabbed-content">
@@ -13152,39 +13158,80 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <li>調査のための問題のログ記録</li>
 </ul>
 <h2 id="output">出力<a class="headerlink" href="#output" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
-<p>以下の出力は、トランザクションが未承認から承認済みへと移行する様子を監視する典型的な実行例を示しています。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Using node https://reference.symboltest.net:3001
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Monitoring transaction: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>Waiting for transaction confirmation
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>Polling /transactionStatus/2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  Attempt 1: Transaction status not yet available
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>  Attempt 2: Transaction status not yet available
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>  Attempt 3:
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    Status: unconfirmed
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    Code: Success
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>    Deadline: 47578965854
-</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>  Attempt 4:
-</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>    Status: unconfirmed
-</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    Code: Success
-</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>    Deadline: 47578965854
-</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>  Attempt 5:
-</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>    Status: confirmed
-</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>    Code: Success
-</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
-</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>    Deadline: 47578965854
-</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>
-</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>Transaction confirmed!
-</span></code></pre></div>
+<p>以下の出力は、アナウンスされたばかりのトランザクションを監視する典型的な実行例を示しています。</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-16-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-16-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-16-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-16-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-16-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-16-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-16-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-16-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-16-10">10</a></span>
+<span class="normal"><a href="#__codelineno-16-11">11</a></span>
+<span class="normal"><a href="#__codelineno-16-12">12</a></span>
+<span class="normal"><a href="#__codelineno-16-13">13</a></span>
+<span class="normal"><a href="#__codelineno-16-14">14</a></span>
+<span class="normal"><a href="#__codelineno-16-15">15</a></span>
+<span class="normal"><a href="#__codelineno-16-16">16</a></span>
+<span class="normal"><a href="#__codelineno-16-17">17</a></span>
+<span class="normal"><a href="#__codelineno-16-18">18</a></span>
+<span class="normal"><a href="#__codelineno-16-19">19</a></span>
+<span class="normal"><a href="#__codelineno-16-20">20</a></span>
+<span class="normal"><a href="#__codelineno-16-21">21</a></span>
+<span class="normal"><a href="#__codelineno-16-22">22</a></span>
+<span class="normal"><a href="#__codelineno-16-23">23</a></span>
+<span class="normal"><a href="#__codelineno-16-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1"></a>Using node https://reference.symboltest.net:3001
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="hll">Monitoring transaction: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span></span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="hll">Waiting for transaction confirmation
+</span></span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5"></a>Polling /transactionStatus/2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6"></a>  Attempt 1: Transaction status not yet available
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7"></a>  Attempt 2: Transaction status not yet available
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8"></a>  Attempt 3:
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9"></a>    Status: unconfirmed
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10"></a>    Code: Success
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12"></a>    Deadline: 47578965854
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13"></a>  Attempt 4:
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14"></a>    Status: unconfirmed
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15"></a>    Code: Success
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17"></a>    Deadline: 47578965854
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18"></a>  Attempt 5:
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19"></a><span class="hll">    Status: confirmed
+</span></span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20"></a>    Code: Success
+</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21"></a>    Hash: 2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF9523653406E04C7EA
+</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22"></a>    Deadline: 47578965854
+</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23"></a>
+</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24"></a>Transaction confirmed!
+</span></code></pre></div></td></tr></table></div>
 <p>出力のポイント:</p>
-<ol>
-<li>監視されているトランザクションハッシュ。</li>
-<li>トランザクションのステータス、コード、ハッシュ、および有効期限を示す複数回のポーリング試行。</li>
-<li>試行の間にステータスが <code>unconfirmed</code> から <code>confirmed</code> に変化しています。</li>
-<li>トランザクションが承認されたときの成功メッセージ。</li>
-</ol>
+<ul>
+<li>
+<p><strong>トランザクションハッシュ</strong> (2行目): 監視対象のトランザクションのハッシュで、ネットワーク上でトランザクションを一意に識別します。</p>
+</li>
+<li>
+<p><strong>ポーリングの開始</strong> (4行目): <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_status_routes/getTransactionStatus" title="Get transaction status"><code>/transactionStatus/{hash}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> エンドポイントへのポーリングが開始されます。
+    最初の試行（6〜7行目）は、 <a class="mkdocs-ezglossary-link"
+	id="c4095ad8fa4c4f4910379d8ba1315762"
+	title="Symbol プロトコルを実行し、他のノードと情報を共有し、受信した トランザクション を検証し、
+コンセンサス とブロック生成に参加できるコンピュータです。"
+	name="_:ノード"
+	href="../../../textbook/nodes/#af6cdf577b0065a2726adc5f90cbf612">ノード</a> がまだトランザクションの処理を開始していないため、HTTP 404 を返します。</p>
+</li>
+<li>
+<p><strong>未承認ステータス</strong> (8〜17行目): トランザクションは <a class="mkdocs-ezglossary-link"
+	id="90e68de6d7409926ae4af9ff4bd27334"
+	title="ブロックへの取り込みを待つ検証済みトランザクションの一覧であり、各ノードが保持します。"
+	name="_:未承認トランザクションプール"
+	href="../../../textbook/transactions/#f9279437b1f6a360aa36542ce9b7ab11">未承認トランザクションプール</a> に入り、ブロックに含まれるのを待ちます。</p>
+</li>
+<li>
+<p><strong>承認</strong> (19行目): ステータスが <code>confirmed</code> に変わり、トランザクションがブロックに含まれたことを示します。</p>
+</li>
+</ul>
 <p>試行回数とタイミングは、ネットワークの状態とブロックの生成速度によって異なります。
 Symbol ネットワークでは、ブロックは通常30秒ごとに生成されるため、トランザクションが承認されるまでに数回の <code>unconfirmed</code> ステータスレスポンスが表示される場合があります。</p>
 <p>承認されると、トランザクションハッシュを使用して <a href="/ja/devbook/reference/rest/symbol#tag/Transaction_routes/getConfirmedTransaction" title="Get confirmed transaction information"><code>/transactions/confirmed/{transactionId}</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> に照会することで、トランザクションが含まれたブロック高などの追加の詳細を取得できます。</p>
@@ -13205,11 +13252,11 @@ Symbol ネットワークでは、ブロックは通常30秒ごとに生成さ�
 </tr>
 <tr>
 <td><a href="#checking-for-confirmation">承認の確認</a></td>
-<td><a href="../../reference/rest/symbol/#model-TransactionStatusEnum">TransactionStatusEnum</a></td>
+<td><a href="../../reference/rest/symbol/#model/TransactionStatusEnum">TransactionStatusEnum</a></td>
 </tr>
 <tr>
 <td><a href="#checking-for-failure">失敗の確認</a></td>
-<td><a href="../../reference/rest/symbol/#model-TransactionStatusEnum">TransactionStatusEnum</a></td>
+<td><a href="../../reference/rest/symbol/#model/TransactionStatusEnum">TransactionStatusEnum</a></td>
 </tr>
 </tbody>
 </table>
@@ -13246,7 +13293,7 @@ Symbol ネットワークでは、ブロックは通常30秒ごとに生成さ�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年5月11日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
   </span>
 
     
@@ -13272,7 +13319,8 @@ Symbol ネットワークでは、ブロックは通常30秒ごとに生成さ�
     <nav>
       
         <a href="mailto:daoka@symbolsyndicate.us">daoka</a>, 
-        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>
+        <a href="mailto:xavi@symbolsyndicate.us">segfaultxavi</a>, 
+        <a href="mailto:zero4862@pm.me">zero</a>
     </nav>
   </span>
 
