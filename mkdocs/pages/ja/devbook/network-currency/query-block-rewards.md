@@ -22,6 +22,12 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 {{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards', ['py', 'js']) }}
 
+このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API ノードを設定します。
+値が指定されない場合は、デフォルトの[テストネット](default:テストネット)ノードが使用されます。
+
+`BLOCK_HEIGHT` 環境変数は、照会するブロックを指定します。
+設定されていない場合は、デフォルトでテストネットでハーベストされたブロック `3222290` が使用されます。
+
 ## コード解説 {: #code-explanation }
 
 コードは、ブロックの署名者キー、受益者およびネットワークのシンクアドレスを、インフレーション額とともに取得します。
@@ -31,9 +37,6 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 ### ブロック情報の取得 {: #fetching-block-information }
 
 {{ tutorial.code_snippet_tagged('step-1') }}
-
-このスニペットは、 `NODE_URL` および `BLOCK_HEIGHT` 環境変数を使用して、APIノードと対象ブロックを選択し、ブロックヘッダーを取得します。
-設定されていない場合は、デフォルトで参照用のテストネットノードとブロック `3222290` が使用されます。
 
 <get:/blocks/{height}> エンドポイントは、ブロックヘッダーを返します。これには、ノードオペレーターによって指定された `signerPublicKey` および `beneficiaryAddress` が含まれます。
 受益者アドレスは、後で受益者のレシートを特定するために必要になります。
