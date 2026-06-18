@@ -25,10 +25,7 @@
 #include "src/catapult/thread/IoThreadPool.h"
 #include "src/catapult/thread/TimedCallback.h"
 #include "src/catapult/utils/Logging.h"
-#include "src/catapult/utils/SpinLock.h"
 #include "src/catapult/utils/WeakContainer.h"
-#include <algorithm>
-#include <vector>
 
 namespace catapult { namespace net {
 
@@ -72,27 +69,16 @@ namespace catapult { namespace net {
 				auto pRequest = thread::MakeTimedCallback(m_ioContext, callback, PeerConnectCode::Timed_Out, ionet::PacketSocketInfo());
 				pRequest->setTimeout(m_settings.Timeout);
 
-				auto pCancel = std::make_shared<action>();
 				auto socketOptions = m_settings.toSocketOptions();
 				const auto& endpoint = node.endpoint();
-				auto cancel = ionet::Connect(m_ioContext, socketOptions, endpoint, [pThis = shared_from_this(), identityKey, pRequest, pCancel](
+				auto cancel = ionet::Connect(m_ioContext, socketOptions, endpoint, [pThis = shared_from_this(), identityKey, pRequest](
 						auto result,
 						const auto& connectedSocketInfo) {
-					*pCancel = action{};
 					if (ionet::ConnectResult::Connected != result)
 						return pRequest->callback(PeerConnectCode::Socket_Error, ionet::PacketSocketInfo());
 
 					pThis->verify(identityKey, connectedSocketInfo, pRequest);
 				});
-				*pCancel = cancel;
-
-				{
-					utils::SpinLockGuard guard(m_cancelsLock);
-					m_pendingCancels.erase(
-						std::remove_if(m_pendingCancels.begin(), m_pendingCancels.end(), [](const auto& p) { return !*p; }),
-						m_pendingCancels.end());
-					m_pendingCancels.push_back(pCancel);
-				}
 
 				pRequest->setTimeoutHandler([pThis = shared_from_this(), cancel]() {
 					cancel();
@@ -120,18 +106,6 @@ namespace catapult { namespace net {
 		public:
 			void shutdown() override {
 				CATAPULT_LOG(info) << "closing all connections in ServerConnector" << m_tag;
-
-				std::vector<std::shared_ptr<action>> pendingCancels;
-				{
-					utils::SpinLockGuard guard(m_cancelsLock);
-					pendingCancels = std::move(m_pendingCancels);
-				}
-
-				for (auto& pCancel : pendingCancels) {
-					if (*pCancel)
-						(*pCancel)();
-				}
-
 				m_sockets.clear();
 			}
 
@@ -143,8 +117,6 @@ namespace catapult { namespace net {
 			std::string m_name;
 			std::string m_tag;
 
-			utils::SpinLock m_cancelsLock;
-			std::vector<std::shared_ptr<action>> m_pendingCancels;
 			utils::WeakContainer<ionet::PacketSocket> m_sockets;
 		};
 	}

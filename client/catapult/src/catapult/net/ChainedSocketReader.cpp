@@ -53,7 +53,7 @@ namespace catapult { namespace net {
 			}
 
 			void stop() override {
-				m_pPacketSocket->abort();
+				m_pPacketSocket->close();
 			}
 
 		private:
