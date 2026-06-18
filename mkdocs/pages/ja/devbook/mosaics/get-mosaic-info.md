@@ -94,7 +94,7 @@ XYM（可分性 `6` ）の場合、 `8325447775994408` 絶対単位の供給量�
 | ステップ                                           | 関連ドキュメント                |
 |------------------------------------------------|---------------------------|
 | [モザイクプロパティの取得](#fetching-mosaic-information) | <get:/mosaics/{mosaicId}> |
-| [ネームスペースエイリアスの取得](#fetching-namespace-aliases) | <dy:post:/namespaces/mosaic/names> |
+| [ネームスペースエイリアスの取得](#fetching-namespace-aliases) | <post:/namespaces/mosaic/names> |
 
 ## 次のステップ {: #next-steps }
 
