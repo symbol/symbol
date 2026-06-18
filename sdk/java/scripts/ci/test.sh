@@ -2,4 +2,5 @@
 
 set -ex
 
-./gradlew test
+# jacoco coverage report is always produced as `test` is finalized by `jacocoTestReport` in build.gradle.kts
+./gradlew --no-daemon test

@@ -1,14 +1,24 @@
 package org.symbol.sdk.utils;
 
-import java.util.Map;
-
 /**
- * Base32 implementation
+ * Base32 encode / decode (RFC 4648, no padding) used by NEM and Symbol addresses.
  */
-public class Base32 {
-	final static char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".toCharArray();
-	final static int DECODED_BLOCK_SIZE = 5;
-	final static int ENCODED_BLOCK_SIZE = 8;
+public final class Base32 {
+	private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".toCharArray();
+	private static final int DECODED_BLOCK_SIZE = 5;
+	private static final int ENCODED_BLOCK_SIZE = 8;
+
+	private static final java.util.Map<Character, Byte> CHAR_TO_DECODED;
+
+	static {
+		final CharMapping.CharacterMapBuilder builder = CharMapping.createBuilder();
+		builder.addRange('A', 'Z', 0);
+		builder.addRange('2', '7', 26);
+		CHAR_TO_DECODED = builder.map();
+	}
+
+	private Base32() {
+	}
 
 	// region encode
 
@@ -31,17 +41,12 @@ public class Base32 {
 
 	// region decode
 
-	private final static Map<Character, Byte> Char_To_Decoded_Char_Map = CharacterMapBuilder.create(builder -> {
-		builder.addRange('A', 'Z', (byte) 0);
-		builder.addRange('2', '7', (byte) 26);
-	}).build();
-
 	private static Byte decodeChar(final char c) {
-		final Byte decodedChar = Char_To_Decoded_Char_Map.get(c);
-		if (null != decodedChar)
-			return decodedChar;
+		final Byte decoded = CHAR_TO_DECODED.get(c);
+		if (null != decoded)
+			return decoded;
 
-		throw new IllegalArgumentException(String.format("illegal base32 character '%c'", c));
+		throw new IllegalArgumentException(String.format("illegal base32 character %c", c));
 	}
 
 	private static void decodeBlock(final char[] input, final int inputOffset, final byte[] output, final int outputOffset) {
@@ -72,8 +77,8 @@ public class Base32 {
 		for (int i = 0; i < data.length / DECODED_BLOCK_SIZE; ++i)
 			encodeBlock(data, i * DECODED_BLOCK_SIZE, output, i * ENCODED_BLOCK_SIZE);
 
-		return String.valueOf(output);
-	};
+		return new String(output);
+	}
 
 	/**
 	 * Base32 decodes a base32 encoded string.
