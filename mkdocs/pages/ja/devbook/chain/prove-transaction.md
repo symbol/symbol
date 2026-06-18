@@ -69,13 +69,13 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています：
 
-```text linenums="1" hl_lines="5-6 15 39 40"
+```text linenums="1" hl_lines="5 7 15 39 40"
 --8<-- 'devbook/chain/prove_transaction.log'
 ```
 
 出力の主なポイント：
 
-* **トランザクションメタデータ**（5-6行目）: <get:/transactions/confirmed/{transactionId}> からのJSONレスポンスには、証明に必要なブロックの高さ（ `height` ）と `merkleComponentHash` が含まれています。
+* **トランザクションメタデータ**（5行目と7行目）: <get:/transactions/confirmed/{transactionId}> からのJSONレスポンスには、証明に必要なブロックの高さ（ `height` ）と `merkleComponentHash` が含まれています。
 
 * **ブロックトランザクションハッシュ**（15行目）: <get:/blocks/{height}> からのJSONレスポンスには、そのブロックで承認された全トランザクションのマークルルートである `transactionsHash` が含まれています。
 
@@ -95,3 +95,8 @@ Symbolの各 [ブロック](default:ブロック) は、その [トランザク�
 | [ブロックヘッダーの取得](#fetching-the-block-header)                 | <get:/blocks/{height}>                            |
 | [マークル証明パスの取得](#fetching-the-merkle-proof-path)          | <get:/blocks/{height}/transactions/{hash}/merkle> |
 | [証明の検証](#verifying-the-proof)                           | <dy:Merkle.proveMerkle>                           |
+
+## 次のステップ {: #next-steps }
+
+同じ手順は、 <get:/blocks/{height}/statements/{hash}/merkle> エンドポイントを使用し、
+ブロックの `receiptsHash` に対して検証することで、レシートの証明にも使用できます。

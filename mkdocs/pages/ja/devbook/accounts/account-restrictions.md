@@ -186,7 +186,7 @@ tutorial_level: advanced
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-## 結論 {: # }
+## 結論 {: #conclusion }
 
 このチュートリアルでは、以下の方法を説明しました。
 

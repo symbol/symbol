@@ -42,7 +42,7 @@ tutorial_level: beginner
 
 {{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_error', ['py', 'js']) }}
 
-このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード] (default: ノード) を設定します。
+このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
 WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き換え、 `/ws` を追加することで `NODE_URL` から派生します。
 
