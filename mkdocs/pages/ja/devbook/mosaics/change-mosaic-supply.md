@@ -26,7 +26,7 @@ tutorial_level: beginner
 
 1. `action` を `increase`（増加）に設定します。
 2. `delta`（差分）に追加する絶対単位の数を設定します。
-    差分は絶対単位で表されるため、モザイクの [可分性](../../textbook/mosaics.md#divisibility) によって、整数単位への換算が決まることに注意してください。
+    差分は絶対単位で表されるため、モザイクの [可分性](../../textbook/mosaics.md#divisibility) によって、全体単位への換算が決まることに注意してください。
 
 新しいユニットは、モザイク作成者のアカウント残高に追加されます。
 

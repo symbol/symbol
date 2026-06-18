@@ -174,7 +174,8 @@ friendlyName = My Symbol Node
 
 どちらのオプションでも、秘密鍵を含む `ca.key.pem` という名前のPEMファイルが作成されます。
 
-このファイルは**安全に保管する必要があります**。
+!!! warning "このファイルは安全に保管する必要があります"
+
 今のところは、このディレクトリに残しておいてください。
 後でオフラインに移動します。
 
@@ -329,7 +330,7 @@ python3 -m shoestring announce-transaction \
     i     | transaction was successfully sent to the network
 ```
 
-## 10. 承認の待機  {: #10-wait-for-confirmation }
+### 10. 承認の待機 {: #10-wait-for-confirmation }
 
 `announce-transaction` コマンドは承認を待たずに終了するため、結果を手動で確認する必要があります。
 

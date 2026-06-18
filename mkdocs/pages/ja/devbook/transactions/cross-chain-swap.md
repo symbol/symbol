@@ -208,7 +208,7 @@ digraph CrossChainSwapSteps {
 次に、ボブはSymbolで <ser:SecretLockTransactionV1> を作成し、**同じハッシュロック**を使用してアリスのために1 XYMをロックします。
 
 * **受信者:** アリスのSymbolアドレス。
-* **モザイク:** 1 XYM（可分性6の `1_000000` アトミック単位として表現）。
+* **モザイク:** 1 XYM（可分性6の `1_000000` 絶対単位として表現）。
 * **期間:** 5760ブロック（30秒のブロック時間で約48時間）。
 
     !!! warning "タイムロックの順序"
@@ -296,7 +296,7 @@ digraph CrossChainSwapSteps {
 | [Symbolで証明を公開する](#step-3-alice-claiming-xym-on-symbol)             | <ser:SecretProofTransactionV1> |
 | [イーサリアムでETHを引き出す](#step-4-bob-withdrawing-eth-on-ethereum)            | イーサリアムHTLCコントラクト         |
 
-## 次のステップ {: # }
+## 次のステップ {: #next-steps }
 
 このチュートリアルは簡略化された例です。
 本番環境でクロスチェーンスワップを使用する前に、テキストブックの[安全上の考慮事項](../../textbook/cross-chain-swaps.md#safety-considerations)を確認してください。
