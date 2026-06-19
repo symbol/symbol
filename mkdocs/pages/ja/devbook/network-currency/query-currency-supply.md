@@ -3,7 +3,7 @@ title: 通貨供給量の照会
 tutorial_level: beginner
 ---
 
-# 通貨供給量の照会 {: #querying-currency-supply }
+# 通貨供給量の照会
 
 取引所や市場データアグリゲーターは、時価総額やトークン指標を表示するために正確な供給量の数値を必要とします。
 

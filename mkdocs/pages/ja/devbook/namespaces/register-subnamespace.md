@@ -3,7 +3,7 @@ title: サブネームスペースの登録
 tutorial_level: intermediate
 ---
 
-# サブネームスペースの登録 {: #registering-a-subnamespace }
+# サブネームスペースの登録
 
 [サブネームスペース](default:ネームスペース) （「子」ネームスペースとも呼ばれます）は、 [ネームスペース](default:ネームスペース) の階層構造を拡張します。
 

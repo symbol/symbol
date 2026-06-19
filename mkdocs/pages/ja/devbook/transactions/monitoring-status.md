@@ -3,7 +3,7 @@ title: トランザクションステータス
 tutorial_level: beginner
 ---
 
-# トランザクションステータスの監視 {: #monitoring-transaction-status }
+# トランザクションステータスの監視
 
 Symbol ネットワークに [トランザクション](default: トランザクション) をアナウンスした後、それが [ブロック](default: ブロック) に含まれるまでは未承認の状態が続きます。
 

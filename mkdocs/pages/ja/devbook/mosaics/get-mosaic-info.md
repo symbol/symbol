@@ -3,7 +3,7 @@ title: モザイク情報の取得
 tutorial_level: beginner
 ---
 
-# モザイク情報の取得 {: #getting-mosaic-information }
+# モザイク情報の取得
 
 Symbol上のすべての[モザイク](default:モザイク)には、供給量、可分性、振る舞いのフラグといったオンチェーンプロパティのセットがあります。
 

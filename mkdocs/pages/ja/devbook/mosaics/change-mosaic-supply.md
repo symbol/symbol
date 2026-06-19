@@ -3,7 +3,7 @@ title: モザイク供給量の変更
 tutorial_level: beginner
 ---
 
-# モザイク供給量の変更 {: #changing-mosaic-supply }
+# モザイク供給量の変更
 
 `supply_mutable`（供給量可変）フラグを有効にして作成された [モザイク](default: モザイク) は、作成後に総供給量を増加または減少させることができます。
 

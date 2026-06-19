@@ -3,7 +3,7 @@ title: 蛇口 (Faucet) からの通貨の入手
 tutorial_level: beginner
 ---
 
-# 蛇口 (Faucet) からのテストネット通貨の入手 {: #getting-testnet-funds-from-the-faucet }
+# 蛇口 (Faucet) からのテストネット通貨の入手
 
 Symbol [テストネット](default:テストネット) では、テスト目的で開発者の [アカウント](default:アカウント) に <XYM:> を無料で配布する「蛇口 (Faucet)」を提供しています。このガイドでは、ウェブベースの Faucet を使用してテストネットの通貨を請求する方法を説明します。
 

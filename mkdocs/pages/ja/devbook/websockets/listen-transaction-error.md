@@ -3,7 +3,7 @@ title: トランザクションエラー
 tutorial_level: beginner
 ---
 
-# トランザクションエラーのリスニング {: #listening-to-transaction-errors }
+# トランザクションエラーのリスニング
 
 <ws:status&#47;{address}> WebSocket チャネルは、特定の [アカウント](default: アカウント) に関連する [トランザクション](default: トランザクション) がネットワークによって拒否されたときに、リアルタイムの通知を送信します。
 <get:/transactionStatus/{hash}> エンドポイントをポーリングする代わりに、 `status` チャネルはネットワークがトランザクションを拒否するとすぐにエラーの詳細をプッシュします。
