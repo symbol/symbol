@@ -1,6 +1,5 @@
 ---
 title: セットアップ
-tutorial_level: beginner
 ---
 
 # 開発環境のセットアップ
