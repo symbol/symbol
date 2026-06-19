@@ -69,7 +69,15 @@ namespace catapult { namespace net {
 				}
 
 				auto pAcceptedSocket = acceptedSocketInfo.socket();
-				m_sockets.insert(pAcceptedSocket);
+				if (!m_sockets.insert(pAcceptedSocket)) {
+					// connector was shut down after this connection was accepted; close it instead of tracking it.
+					// tracking it would leave a stale weak_ptr in m_sockets that keeps the socket control block
+					// (and the AsyncTcpServer reference captured by its destruction hook) alive past shutdown.
+					CATAPULT_LOG(debug) << "rejecting incoming connection accepted during shutdown" << m_tag;
+					pAcceptedSocket->close();
+					return callback(PeerConnectCode::Socket_Error, nullptr, Empty_Key);
+				}
+
 				callback(PeerConnectCode::Accepted, pAcceptedSocket, acceptedSocketInfo.publicKey());
 			}
 

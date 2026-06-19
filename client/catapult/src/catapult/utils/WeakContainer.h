@@ -48,21 +48,26 @@ namespace catapult { namespace utils {
 		}
 
 		/// Adds \a pEntry to this container and removes all previously deleted items.
-		void insert(const std::weak_ptr<T>& pEntry) {
+		/// Returns \c false without adding when the container has already been cleared (during shutdown).
+		/// This prevents a late insert from leaving a stale weak_ptr that would keep the entry's control
+		/// block - and anything its custom deleter captures - alive past shutdown.
+		bool insert(const std::weak_ptr<T>& pEntry) {
 			SpinLockGuard guard(m_lock);
+			if (m_isClosed)
+				return false;
+
 			pruneInternal();
 			m_entries.push_back(pEntry);
+			return true;
 		}
 
-		/// Closes and removes all items in this container.
+		/// Closes and removes all items in this container and rejects subsequent inserts.
 		void clear() {
 			SpinLockGuard guard(m_lock);
+			m_isClosed = true;
 			for (const auto& pEntry : m_entries) {
-				auto pSharedEntry = pEntry.lock();
-				if (!pSharedEntry)
-					continue;
-
-				m_close(*pSharedEntry);
+				if(auto pSharedEntry = pEntry.lock(); pSharedEntry)
+					m_close(*pSharedEntry);
 			}
 
 			m_entries.clear();
@@ -76,6 +81,7 @@ namespace catapult { namespace utils {
 	private:
 		consumer<T&> m_close;
 		std::list<std::weak_ptr<T>> m_entries;
+		bool m_isClosed = false;
 		mutable utils::SpinLock m_lock;
 	};
 }}
