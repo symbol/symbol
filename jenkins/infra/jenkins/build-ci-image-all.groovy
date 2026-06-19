@@ -77,6 +77,13 @@ pipeline {
 						}
 					}
 				}
+				stage('java - ubuntu latest') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('java', 'latest', 'ubuntu')
+						}
+					}
+				}
 
 				stage('javascript') {
 					steps {
