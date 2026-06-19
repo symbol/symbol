@@ -385,7 +385,7 @@ List<String> resolveCiEnvironment(Map params) {
 	List<String> environmentTags = params.otherEnvironments?.clone() ?: []
 
 	// default environment is LTS
-	String defaultEnvironment = environmentName.contains("-") ? environmentName : "${environmentName}-${params.operatingSystem[0]}-lts"
+	String defaultEnvironment = environmentName.contains('-') ? environmentName : "${environmentName}-${params.operatingSystem[0]}-lts"
 	environmentTags.add(0, defaultEnvironment)
 	return environmentTags
 }
