@@ -25,10 +25,10 @@ export class NetworkTimestamp {
 	/**
 	 * Adds a specified number of seconds to this timestamp.
 	 * @abstract
-	 * @param {number|bigint} _count Number of seconds to add.
+	 * @param {number|bigint} count Number of seconds to add.
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of seconds past this timestamp.
 	 */
-	addSeconds(_count) {  // eslint-disable-line @typescript-eslint/no-unused-vars
+	addSeconds(count) { // eslint-disable-line no-unused-vars, @typescript-eslint/no-unused-vars
 		throw new Error('`addSeconds` must be implemented by concrete class');
 	}
 

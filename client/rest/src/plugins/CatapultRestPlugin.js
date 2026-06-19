@@ -39,28 +39,28 @@ export default {
 	/**
 	 * Creates a plugin specific database.
 	 * @instance
-	 * @param {module:db/CatapultDb} _db Catapult database.
+	 * @param {module:db/CatapultDb} db Catapult database.
 	 */
-	createDb: _db => {},
+	createDb: db => {}, // eslint-disable-line no-unused-vars
 
 	/**
 	 * Registers transaction state descriptors.
 	 * @instance
-	 * @param {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} _states Transaction state descriptors.
+	 * @param {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} states Transaction state descriptors.
 	 */
-	registerTransactionStates: _states => {},
+	registerTransactionStates: states => {}, // eslint-disable-line no-unused-vars
 
 	/**
 	 * Registers message channels.
 	 * @instance
-	 * @param {module:connection/MessageChannelBuilder~MessageChannelBuilder} _builder Message channel builder.
+	 * @param {module:connection/MessageChannelBuilder~MessageChannelBuilder} builder Message channel builder.
 	 */
-	registerMessageChannels: _builder => {},
+	registerMessageChannels: builder => {}, // eslint-disable-line no-unused-vars
 
 	/**
 	 * Registers route extensions.
 	 * @instance
-	 * @param {..._args} _args Arguments needed to register the routes.
+	 * @param {...args} args Arguments needed to register the routes.
 	 */
-	registerRoutes: (..._args) => {}
+	registerRoutes: (...args) => {} // eslint-disable-line no-unused-vars
 };

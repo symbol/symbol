@@ -31,7 +31,7 @@ export default {
 	/**
 	 * Registers schema extensions.
 	 * @instance
-	 * @param {module:model/ModelSchemaBuilder} _schemaBuilder Schema builder to augment.
+	 * @param {module:model/ModelSchemaBuilder} schemaBuilder Schema builder to augment.
 	 */
-	registerSchema: _schemaBuilder => {}
+	registerSchema: schemaBuilder => {} // eslint-disable-line no-unused-vars
 };

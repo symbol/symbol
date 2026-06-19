@@ -65,6 +65,6 @@ export default {
 		'import/named': ['error'],
 		'no-await-in-loop': 'error',
 		'import/prefer-default-export': 'error',
-		'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }]
+		'no-unused-vars': ['error']
 	}
 };
