@@ -3,7 +3,7 @@ title: ルートネームスペースの延長
 tutorial_level: beginner
 ---
 
-# ルートネームスペースの延長 {: #extending-a-root-namespace }
+# ルートネームスペースの延長
 
 [ルートネームスペース](default:ネームスペース) は、1回の登録につき最大5年間の限定された [有効期間](../../textbook/namespaces.md#duration) でレンタルされます。最初のレンタル期間を超えてネームスペースを保持したい場合は、延長を行う必要があります。
 

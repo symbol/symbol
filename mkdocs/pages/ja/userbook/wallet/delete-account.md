@@ -2,7 +2,7 @@
 title: アカウントの削除
 ---
 
-# プロファイルからのアカウントの削除 {: #deleting-an-account-from-a-profile }
+# プロファイルからのアカウントの削除
 
 このページでは、Symbol Desktop Walletの [プロファイル](default:プロファイル) から既存の [アカウント](default:アカウント) を削除する方法を説明します。
 

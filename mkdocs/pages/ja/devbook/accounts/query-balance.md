@@ -3,7 +3,7 @@ title: アカウント残高の照会
 tutorial_level: beginner
 ---
 
-# アカウント残高の照会 {: #querying-an-account-balance }
+# アカウント残高の照会
 
 Symbol上の [アカウント](default:アカウント) は、ネットワークのネイティブ通貨である [XYM](default: XYM) を含む [モザイク](default:モザイク)（代替可能トークン）を保持できます。
 

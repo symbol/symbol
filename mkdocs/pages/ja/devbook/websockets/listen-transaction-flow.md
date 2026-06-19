@@ -3,7 +3,7 @@ title: トランザクションフロー
 tutorial_level: beginner
 ---
 
-# トランザクションフローのリスニング {: #listening-to-transaction-flow }
+# トランザクションフローのリスニング
 
 Symbolは、特定の[アカウント](default: アカウント) に対する[トランザクション](default: トランザクション) が承認プロセスを進む際に、リアルタイムの通知を送信するWebSocketチャネルを提供しています。
 <get:/transactionStatus/{hash}> エンドポイントをポーリングする場合と比較して、WebSocketはAPI呼び出しを繰り返すオーバーヘッドなしに、更新が発生した瞬間にプッシュします。

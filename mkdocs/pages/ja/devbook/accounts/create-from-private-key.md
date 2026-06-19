@@ -3,7 +3,7 @@ title: 秘密鍵からの作成
 tutorial_level: beginner
 ---
 
-# 秘密鍵からのアカウント作成 {: #creating-accounts-from-private-keys }
+# 秘密鍵からのアカウント作成
 
 このチュートリアルでは、既存の [秘密鍵](default:秘密鍵) を使用するか、新しいランダムなアカウントを生成して、Symbolブロックチェーンの [アカウント](default:アカウント) を作成する方法を説明します。
 

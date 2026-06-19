@@ -3,7 +3,7 @@ title: レシートからのネームスペース解決
 tutorial_level: intermediate
 ---
 
-# レシートからのネームスペース解決 {: #resolving-a-namespace-from-a-receipt }
+# レシートからのネームスペース解決
 
 [ネームスペース](default:ネームスペース) のエイリアスは [時間の経過とともに変更される](../../textbook/namespaces.md#duration) 可能性があるため、ネームスペースの現在の値が [トランザクション](default: トランザクション) 承認時の値と一致しない場合があります。
 

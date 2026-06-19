@@ -3,7 +3,7 @@ title: トランザクション包含の証明
 tutorial_level: intermediate
 ---
 
-# ブロックへのトランザクション包含の証明 {: #proving-a-Transaction's-inclusion-in-a-block }
+# ブロックへのトランザクション包含の証明
 
 Symbolの各 [ブロック](default:ブロック) は、その [トランザクション](default: トランザクション) を [マークルツリー](default:マークルツリー) （Merkle tree）に記録します。そのルート（根）である `transactionsHash` は、ブロックヘッダーに保存されます。ブロックの全トランザクションをダウンロードすることなく、このルートに対してトランザクションを検証することで、そのトランザクションがブロックに含まれていることを証明できます。
 

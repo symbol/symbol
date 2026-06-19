@@ -3,7 +3,7 @@ title: アカウント制限の追加
 tutorial_level: advanced
 ---
 
-# アカウントへの制限の追加 {: #adding-restrictions-to-an-account }
+# アカウントへの制限の追加
 
 アカウントは、以下の項目に対して制限を課すことができます。
 
