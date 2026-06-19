@@ -3,7 +3,7 @@ title: ブロック報酬の照会
 tutorial_level: beginner
 ---
 
-# ブロック報酬の照会 {: #querying-block-rewards }
+# ブロック報酬の照会
 
 Symbol上の各[ブロック](default:ブロック)は、[インフレーション](default:インフレーション)と、そのブロックで収集された[トランザクション](default:トランザクション)手数料からなる報酬を生成します。
 この報酬はその後、[ハーベスタ](default:ハーベスティング)、ノードの受益者（ベネフィシャリー）、およびネットワークのシンクアカウントの間で[分配](../../textbook/harvesting.md#reward-distribution)されます。

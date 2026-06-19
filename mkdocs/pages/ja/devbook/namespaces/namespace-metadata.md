@@ -3,7 +3,7 @@ title: ネームスペースメタデータの追加
 tutorial_level: advanced
 ---
 
-# ネームスペースへのメタデータの追加 {: #adding-metadata-to-a-namespace }
+# ネームスペースへのメタデータの追加
 
 [ネームスペース](default: ネームスペース) は、[アカウント](default:アカウント) や [モザイク](default:モザイク) と同様に、キーと値のペアとして [メタデータ](default:メタデータ) を保存できます。
 

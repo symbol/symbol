@@ -3,7 +3,7 @@ title: モザイクメタデータの追加
 tutorial_level: advanced
 ---
 
-# モザイクへのメタデータの追加 {: #adding-metadata-to-a-mosaic }
+# モザイクへのメタデータの追加
 
 [モザイク](default:モザイク) は、[アカウント](default:アカウント) や [ネームスペース](default:ネームスペース) と同様に、キーと値のペアとして [メタデータ](default:メタデータ) を保存できます。
 

@@ -460,10 +460,10 @@ struct Car
 例：
 
 ```cats
-# This comment is ignored {: #this-comment-is-ignored }
+# This comment is ignored
 
-# This comment is included as documentation {: #this-comment-is-included-as-documentation }
-# and will be associated with the `Height` alias. {: #and-will-be-associated-with-the-height-alias }
+# This comment is included as documentation
+# and will be associated with the `Height` alias.
 using Height = uint64
 ```
 

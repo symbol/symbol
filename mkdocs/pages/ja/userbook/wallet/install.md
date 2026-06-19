@@ -2,7 +2,7 @@
 title: ウォレットのインストール
 ---
 
-# Symbol Desktop Wallet のインストール {: #installing-the-symbol-desktop-wallet }
+# Symbol Desktop Wallet のインストール
 
 ## 概要 {: #what-is-it }
 

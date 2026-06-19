@@ -3,7 +3,7 @@ title: 新しいブロック
 tutorial_level: beginner
 ---
 
-# 新しいブロックのリスニング {: #listening-to-new-blocks }
+# 新しいブロックのリスニング
 
 <ws:block> と <ws:finalizedBlock> WebSocket チャネルは、新しい [ブロック](default: ブロック) が生成されたとき、または [ファイナライズ](../../textbook/consensus.md#finalization) されたときにリアルタイムの通知を送信します。
 <get:/chain/info> エンドポイントをポーリングする場合と比較して、WebSocket は API 呼び出しを繰り返すオーバーヘッドなしに、更新が発生した瞬間にプッシュします。

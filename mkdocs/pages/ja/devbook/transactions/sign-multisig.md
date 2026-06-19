@@ -3,7 +3,7 @@ title: マルチシグでの署名
 tutorial_level: intermediate
 ---
 
-# マルチシグアカウントからのトランザクション署名 {: #signing-a-transaction-from-a -multisignature-account }
+# マルチシグアカウントからのトランザクション署名
 
 このチュートリアルでは、[転送トランザクションの作成](../transactions/transfer.md) チュートリアルと同様に、[アカウント](default: アカウント) から自身へ 1 [XYM](default: XYM) を転送します。
 

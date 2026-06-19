@@ -3,7 +3,7 @@ title: ニーモニックからの作成
 tutorial_level: beginner
 ---
 
-# ニーモニックからのアカウント作成 {: #creating-accounts-from-mnemonics }
+# ニーモニックからのアカウント作成
 
 このチュートリアルでは、[ニーモニックフレーズ](default: ニーモニックフレーズ)（単に「ニーモニック」とも呼ばれます）を使用して、Symbolブロックチェーンの [アカウント](default: アカウント) を作成する方法を説明します。
 

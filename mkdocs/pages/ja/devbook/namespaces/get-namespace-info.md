@@ -3,7 +3,7 @@ title: ネームスペース情報の取得
 tutorial_level: beginner
 ---
 
-# ネームスペース情報の取得 {: #getting-namespace-information }
+# ネームスペース情報の取得
 
 このチュートリアルでは、 [ネームスペース](default:ネームスペース)のプロパティと、それが指し示す [モザイク](default:モザイク)または[アカウント](default:アカウント)を取得する方法を説明します。
 

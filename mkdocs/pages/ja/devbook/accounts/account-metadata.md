@@ -3,7 +3,7 @@ title: アカウントメタデータの追加
 tutorial_level: advanced
 ---
 
-# アカウントへのメタデータの追加 {: #adding-metadata-to-an-account }
+# アカウントへのメタデータの追加
 
 [アカウント](default:アカウント) は、[モザイク](default:モザイク) や [ネームスペース](default:ネームスペース) と同様に、キーと値のペアとして [メタデータ](default:メタデータ) を保存できます。
 

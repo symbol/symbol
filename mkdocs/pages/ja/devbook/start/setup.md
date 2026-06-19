@@ -3,7 +3,7 @@ title: セットアップ
 tutorial_level: beginner
 ---
 
-# 開発環境のセットアップ {: #setting-up-a-development-environment }
+# 開発環境のセットアップ
 
 このページでは、本ドキュメントのチュートリアルを実行するために必要な依存関係と、その実行方法について説明します。
 

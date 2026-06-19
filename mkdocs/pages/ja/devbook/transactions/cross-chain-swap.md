@@ -3,7 +3,7 @@ title: クロスチェーンスワップ
 tutorial_level: advanced
 ---
 
-# Symbolとイーサリアム間のクロスチェーンスワップ {: #cross-chain-swap-between-symbol-and-ethereum }
+# Symbolとイーサリアム間のクロスチェーンスワップ
 
 2つの当事者であるアリスとボブは、互いを信頼したり仲介者を使用したりすることなく、0.01 ETH（イーサリアム上）と1 <XYM:>（Symbol上）を交換したいと考えています。
 

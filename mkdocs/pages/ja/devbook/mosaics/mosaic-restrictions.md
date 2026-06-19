@@ -3,7 +3,7 @@ title: モザイク制限の追加
 tutorial_level: advanced
 ---
 
-# モザイクへの制限の追加 {: #adding-restrictions-to-a-mosaic }
+# モザイクへの制限の追加
 
 [モザイク](default:モザイク) の所有者は、そのモザイクを取引できる [アカウント](default:アカウント) を制限できます。これらの条件は [モザイク制限](default:モザイク制限) と呼ばれ、以下の2つの部分で構成されます。
 

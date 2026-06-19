@@ -3,7 +3,7 @@ title: 型付き記述子
 tutorial_level: beginner
 ---
 
-# JavaScriptで型付き記述子を使用してトランザクションを作成する {: #creating-transactions-using-typed-descriptors-in-javascript }
+# JavaScriptで型付き記述子を使用してトランザクションを作成する
 
 ネットワークとのやり取りのほとんどはトランザクションを通じて行われるため、[トランザクション](default:トランザクション) はSymbolブロックチェーンの基本的な要素です。これにより、[XYM](default:XYM)やその他の[モザイク](default:モザイク)を、任意でメッセージを添えて、ある[アカウント](default:アカウント)から別のアカウントへ送信することができます。
 

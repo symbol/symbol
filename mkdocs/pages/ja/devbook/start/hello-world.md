@@ -3,7 +3,7 @@ title: Hello World
 tutorial_level: beginner
 ---
 
-# Hello World {: #hello-world }
+# Hello World
 
 このチュートリアルでは、以下を行う最小限のプログラムを記述することで、Symbol SDK のインストールが正しく機能しているかを確認する方法を説明します。
 
