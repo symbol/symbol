@@ -57,19 +57,11 @@ val mergedJacocoExecs = fileTree(layout.buildDirectory).include("jacoco/*.exec")
 
 tasks.jacocoTestReport {
 	dependsOn(tasks.test)
-	// `catVectors` writes its own .exec file into the merged set; declare ordering so Gradle's
-	// strict validation doesn't flag jacocoTestReport as reading an undeclared input. The task
-	// only runs when explicitly requested — mustRunAfter is a no-op when it isn't in the graph.
-	mustRunAfter(tasks.named("catVectors"))
-	// Pick up coverage from every JaCoCo-agent-instrumented run: the unit-test `test` task,
-	// the cross-language `catVectors` Test task, plus any examples that ran (see
-	// examples/build.gradle.kts where each JavaExec writes into this same jacoco directory).
-	// Tasks that haven't run produce no .exec file — the merge silently degrades.
 	executionData.setFrom(mergedJacocoExecs)
 	reports {
 		xml.required.set(true)
 		html.required.set(true)
-		xml.outputLocation.set(layout.buildDirectory.file("jacoco/test.xml"))
+		xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/report.xml"))
 	}
 	doLast {
 		// Print an aggregate coverage summary to the console, plus a per-class breakdown for the
@@ -184,9 +176,6 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestCoverageVerification {
 	dependsOn(tasks.test)
-	// Same ordering constraint as jacocoTestReport — catVectors's .exec contributes when it
-	// runs, but isn't a hard prerequisite for `check`.
-	mustRunAfter(tasks.named("catVectors"))
 	executionData.setFrom(mergedJacocoExecs)
 	violationRules {
 		rule {
@@ -217,7 +206,9 @@ spotless {
 	java {
 		target("src/**/*.java")
 
-		eclipse().configFile("eclipse-formatter.xml")
+		val gitRoot = rootProject.layout.projectDirectory.asFile.parentFile.parentFile
+		eclipse().configFile("$gitRoot/linters/java/eclipse-formatter.xml")
+
 		trimTrailingWhitespace()
 		endWithNewline()
 		removeUnusedImports()
@@ -276,8 +267,7 @@ val generateDescriptors by tasks.registering(Exec::class) {
 	group = "build"
 	description = "Regenerate Java catbuffer typed descriptor classes from catbuffer/schemas."
 	workingDir = layout.projectDirectory.asFile
-	// The script formats its own output by shelling to gradlew; suppress that here (we are already
-	// inside a Gradle build) and run spotlessApply as a finalizer instead, avoiding nested Gradle.
+
 	environment("SKIP_SPOTLESS", "1")
 	commandLine("bash", "scripts/run_catbuffer_descriptor_generator.sh")
 	finalizedBy("spotlessApply")
