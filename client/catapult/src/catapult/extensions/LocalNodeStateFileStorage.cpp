@@ -34,7 +34,10 @@
 #include "src/catapult/io/FilesystemUtils.h"
 #include "src/catapult/io/IndexFile.h"
 #include "src/catapult/plugins/PluginManager.h"
+#include "src/catapult/utils/Logging.h"
 #include "src/catapult/utils/StackLogger.h"
+#include <chrono>
+#include <thread>
 
 namespace catapult { namespace extensions {
 
@@ -193,7 +196,33 @@ namespace catapult { namespace extensions {
 	void LocalNodeStateSerializer::moveTo(const config::CatapultDirectory& destinationDirectory) {
 		io::PurgeDirectory(destinationDirectory.str());
 		std::filesystem::remove(destinationDirectory.path());
-		std::filesystem::rename(m_directory.path(), destinationDirectory.path());
+
+		const auto& from = m_directory.path();
+		const auto& to = destinationDirectory.path();
+#ifdef _WIN32
+		// On Windows a transient open handle on the destination - delete-pending state files, antivirus,
+		// or the search indexer - can make the rename fail with ACCESS_DENIED even when it would succeed on
+		// POSIX (which frees the name on unlink). Retry with backoff before giving up; otherwise the
+		// filesystem_error escapes the block dispatcher consumer and terminates the process.
+		// (cf. RocksDatabase open-retry on Windows.)
+		std::error_code ec;
+		for (auto attempt = 0u; attempt < 5u; ++attempt) {
+			std::filesystem::rename(from, to, ec);
+			if (!ec || 4u == attempt)
+				break;
+
+			auto delayMs = 100u << attempt;
+			CATAPULT_LOG(warning)
+					<< "renaming '" << from << "' to '" << to << "' failed (attempt " << (attempt + 1) << "/5): "
+					<< ec.message() << ", retrying in " << delayMs << "ms";
+			std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+		}
+
+		if (ec)
+			throw std::filesystem::filesystem_error("could not rename state directory", from, to, ec);
+#else
+		std::filesystem::rename(from, to);
+#endif
 	}
 
 	// endregion
