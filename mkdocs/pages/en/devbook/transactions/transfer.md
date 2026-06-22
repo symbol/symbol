@@ -198,7 +198,7 @@ This tutorial showed how to:
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | [Obtain deadline information](#fetching-network-time)    | <get:/node/time>                                                                    |
 | [Obtain fee information](#fetching-recommended-fees)     | <get:/network/fees/transaction>                                                     |
-| [Create a transaction](#creating-a-transfer-transaction) | <dy:SymbolTransactionFactory.create>                                                |
+| [Build a transaction](#building-the-transaction)         | <dy:SymbolTransactionFactory.create>                                                |
 | [Sign the transaction](#signing-and-serializing)         | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
 | [Announce the transaction](#announcing-the-transaction)  | <put:/transactions>                                                                 |
 | [Wait for confirmation](#waiting-for-confirmation)       | <get:/transactionStatus/{hash}>                                                     |
