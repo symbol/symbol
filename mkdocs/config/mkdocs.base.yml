@@ -153,7 +153,7 @@ extra:
       - Restriction
       - ripemd160
 copyright: >
-  Copyright &copy; 2025 The Symbol Syndicate
+  Copyright &copy; 2025-2026 The Symbol Syndicate
 extra_css:
   - assets/stylesheets/extra.css
   - https://unpkg.com/katex@0/dist/katex.min.css
