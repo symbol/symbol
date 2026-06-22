@@ -22,7 +22,6 @@
 #include "ClientConnector.h"
 #include "src/catapult/ionet/PacketSocket.h"
 #include "src/catapult/thread/IoThreadPool.h"
-#include "src/catapult/thread/TimedCallback.h"
 #include "src/catapult/utils/Logging.h"
 #include "src/catapult/utils/WeakContainer.h"
 
@@ -68,7 +67,7 @@ namespace catapult { namespace net {
 					return callback(PeerConnectCode::Self_Connection_Error, nullptr, Empty_Key);
 				}
 
-				auto pAcceptedSocket = acceptedSocketInfo.socket();
+				auto& pAcceptedSocket = acceptedSocketInfo.socket();
 				if (!m_sockets.insert(pAcceptedSocket)) {
 					// connector was shut down after this connection was accepted; close it instead of tracking it.
 					// tracking it would leave a stale weak_ptr in m_sockets that keeps the socket control block
