@@ -502,6 +502,21 @@ code.doc-symbol-interface::after {
 	margin-left: 1em;
 }
 
+.md-typeset .tutorial.tutorial-portrait img {
+	width: 25%;
+	outline: 1px solid var(--md-default-bg-color--light);
+}
+
+.md-typeset img.tutorial-result {
+	width: 50%;
+	outline: 1px solid var(--md-default-bg-color--light);
+}
+
+.md-typeset a.glightbox:has(img.tutorial-result) {
+	display: block;
+	text-align: center;
+}
+
 .md-typeset .tutorial td {
 	padding: 1em;
 	border-top: 1px solid var(--md-default-bg-color--light);

@@ -573,7 +573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/install/" class="md-nav__link">
+      <a href="../../desktop-wallet/install/" class="md-nav__link">
         
   
   
@@ -651,7 +651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/create-profile/" class="md-nav__link">
+      <a href="../../desktop-wallet/create-profile/" class="md-nav__link">
         
   
   
@@ -679,7 +679,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/import-profile/" class="md-nav__link">
+      <a href="../../desktop-wallet/import-profile/" class="md-nav__link">
         
   
   
@@ -707,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/export-profile/" class="md-nav__link">
+      <a href="../../desktop-wallet/export-profile/" class="md-nav__link">
         
   
   
@@ -735,7 +735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/delete-profile/" class="md-nav__link">
+      <a href="../../desktop-wallet/delete-profile/" class="md-nav__link">
         
   
   
@@ -821,7 +821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/create-account/" class="md-nav__link">
+      <a href="../../desktop-wallet/create-account/" class="md-nav__link">
         
   
   
@@ -849,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/import-account/" class="md-nav__link">
+      <a href="../../desktop-wallet/import-account/" class="md-nav__link">
         
   
   
@@ -877,7 +877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../wallet/delete-account/" class="md-nav__link">
+      <a href="../../desktop-wallet/delete-account/" class="md-nav__link">
         
   
   
@@ -12357,7 +12357,6 @@
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
 		</a>
 	
-	
 
 
 <h1 id="_1">ノードの作成と実行<a class="headerlink" href="#_1" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h1>
@@ -12393,11 +12392,11 @@
 <p>このチュートリアルのすべてのコマンドは、このディレクトリで実行することを前提としています。</p>
 <h3 id="2-generate-the-network-configuration">2. ネットワーク設定の生成<a class="headerlink" href="#2-generate-the-network-configuration" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>最初のステップは、ターゲットとするネットワーク（ <a class="mkdocs-ezglossary-link"
-	id="e9c6880a2aa1a9ef1af2c56b47f44b95"
+	id="3cb761ad733c14291a26aa1fcfe6e9a4"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> または <a class="mkdocs-ezglossary-link"
-	id="33d2d2d2d25fc4df5332a7f6ac4475f4"
+	id="ab3f61985be59184db4de336887be053"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> ）のデフォルト設定ファイルを取得することです。</p>
@@ -12405,12 +12404,12 @@
 <div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>mainnet<span class="w"> </span>config.ini
 </span></code></pre></div>
 <p>このコマンドは、 <a class="mkdocs-ezglossary-link"
-	id="3cb761ad733c14291a26aa1fcfe6e9a4"
+	id="2764c9147c6e38a5c9718705ac32a324"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で動作するために必要な設定ファイルをダウンロードし、 <code>config.ini</code> ファイルを作成します。</p>
 <p><a class="mkdocs-ezglossary-link"
-	id="ab3f61985be59184db4de336887be053"
+	id="6e2fbfd88c88caa148d386b13dd25cda"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> の場合は、代わりに <code>sai</code> パッケージを使用します。
@@ -12510,7 +12509,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <h3 id="5-create-the-node-identity">5. ノードIDの作成<a class="headerlink" href="#5-create-the-node-identity" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>各ノードには、他のノードとの安全な通信のための暗号化IDが必要です。
 このIDの中心となるのが <a class="mkdocs-ezglossary-link"
-	id="efb4e59c8b9ed6d037106cf6e13e9d7b"
+	id="2ed1fcd8666e3b8eb3ff3aa126f52f08"
 	title="非常に長い数値であり、厳重に秘匿すべき情報です。
 値そのものに意味はなく、第三者に推測されることは想定されていません。
 通常はランダムに生成され、同じキーが偶然に生成されることはほぼありません。"
@@ -12566,7 +12565,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 </span></code></pre></div></td></tr></table></div>
 <p>アカウントへ資金を送信するには、このアカウントのアドレスが必要です。
 その後、ハーベスティングを有効にする際などにトランザクション手数料を支払うために資金が必要になります。</p>
-<p><code>--show-private</code> パラメータを使用して秘密鍵を表示し、<a href="../../wallet/import-account/">ウォレットにインポート</a>することもできます。
+<p><code>--show-private</code> パラメータを使用して秘密鍵を表示し、<a href="../../desktop-wallet/import-account/">ウォレットにインポート</a>することもできます。
 この手順により、アカウントをより便利に管理できるようになりますが、このガイドでは必須ではありません。</p>
 <p>あるいは、 <code>openssl</code> ツールを直接使用してアカウントの公開鍵を表示することもできます。</p>
 <div class="highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>openssl<span class="w"> </span>pkey<span class="w"> </span>-in<span class="w"> </span>ca.key.pem<span class="w"> </span>-text
@@ -12792,11 +12791,11 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	name="_:インポータンス"
 	href="../../../textbook/harvesting/#8d301074509fc6237fa93b125ad7eb12">インポータンス</a> が高いほど、ノードがブロックをハーベストし、報酬を受け取れる確率が高くなります。</p>
 <p>メインアカウントに資金を提供したばかりの場合、インポータンスの更新には <a class="mkdocs-ezglossary-link"
-	id="2764c9147c6e38a5c9718705ac32a324"
+	id="944318759dbcb2b10b47f27eca630ce8"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で12時間、 <a class="mkdocs-ezglossary-link"
-	id="6e2fbfd88c88caa148d386b13dd25cda"
+	id="a213cfcc5b83eb5d9fd4ec8ce9b1821e"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> で3時間かかります。</p>
@@ -12919,7 +12918,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月22日</span>
   </span>
 
     
@@ -13042,7 +13041,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <div class="md-copyright">
 	
 		<div>
-			Copyright &copy; 2025 The Symbol Syndicate
+			Copyright &copy; 2025-2026 The Symbol Syndicate
 
 		</div>
 	
