@@ -217,7 +217,7 @@ namespace catapult { namespace ionet {
 			Socket m_socket;
 			boost::asio::steady_timer m_drainTimer;
 			std::array<uint8_t, 1024> m_drainBuffer;
-			bool m_isFinalizing = false;
+			std::atomic_bool m_isFinalizing = false;
 			std::atomic_flag m_isClosed;
 		};
 
