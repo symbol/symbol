@@ -62,10 +62,28 @@ target_link_options(build.defaults INTERFACE
 	$<$<CONFIG:RelWithDebInfo>:/OPT:REF>
 )
 
-if (CCACHE_EXE AND USE_CCACHE_ON_WINDOWS)
-	set(_msvc_debug_flag "/Z7")
-else()
-	set(_msvc_debug_flag "/Zi")
+if(CCACHE_BIN)
+	# ccache cannot cache MSVC compilations when debug info is written to a shared .pdb (/Zi, the default).
+	# CMake 3.25+ controls this via CMAKE_MSVC_DEBUG_INFORMATION_FORMAT rather than CMAKE_CXX_FLAGS_<CONFIG>.
+	# "Embedded" maps to /Z7, which embeds debug info into each .obj — self-contained and cacheable.
+	if(CMAKE_VERSION VERSION_LESS 3.25)
+		foreach(_config DEBUG RELWITHDEBINFO)
+			foreach(_lang CXX C)
+				string(REPLACE "/Zi" "/Z7" _patched_flags "${CMAKE_${_lang}_FLAGS_${_config}}")
+				set("CMAKE_${_lang}_FLAGS_${_config}" "${_patched_flags}" CACHE STRING "" FORCE)
+			endforeach()
+		endforeach()			
+	else()
+		cmake_policy(GET CMP0141 _cmp0141_state)
+		if(_cmp0141_state STREQUAL "NEW")
+			set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT $<$<CONFIG:Debug,RelWithDebInfo>:Embedded> CACHE STRING "" FORCE)
+		else()
+			foreach(_config DEBUG RELWITHDEBINFO)
+				foreach(_lang CXX C)
+					string(REPLACE "/Zi" "/Z7" _patched_flags "${CMAKE_${_lang}_FLAGS_${_config}}")
+					set("CMAKE_${_lang}_FLAGS_${_config}" "${_patched_flags}" CACHE STRING "" FORCE)
+				endforeach()
+			endforeach()			
+		endif()
+	endif()
 endif()
-
-target_compile_options(build.defaults INTERFACE $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:${_msvc_debug_flag}>)

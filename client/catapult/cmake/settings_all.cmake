@@ -11,30 +11,15 @@ if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8 OR NOT CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_
 endif()
 
 ### enable ccache if available
-find_program(CCACHE_EXE ccache)
-if(CCACHE_EXE)
-	# ccache on windows requires real binary instead of the shims used by scoop to be in the PATH
-	# Covers both cl (MSVC) and clang-cl (Clang with MSVC frontend)
-	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-		set(_msvc_frontend_tool "clang-cl.exe")
-	elseif(MSVC)
-		set(_msvc_frontend_tool "cl.exe")
-	endif()
-
-	if(_msvc_frontend_tool AND ENABLE_CCACHE_ON_WINDOWS)
-		file(COPY_FILE ${CCACHE_EXE} ${CMAKE_BINARY_DIR}/${_msvc_frontend_tool} ONLY_IF_DIFFERENT)
-		set(CMAKE_VS_GLOBALS
-			"CLToolExe=${_msvc_frontend_tool}"
-			"CLToolPath=${CMAKE_BINARY_DIR}"
-			"TrackFileAccess=false"
-			"UseMultiToolTask=true"
-			"DebugInformationFormat=OldStyle"
-		)
-	else()
-		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-		set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-	endif()
-endif(CCACHE_EXE)
+if(ENABLE_CCACHE)
+	find_program(CCACHE_BIN ccache)
+	if(CCACHE_BIN)
+		set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_BIN}")
+		set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_BIN}")
+		set(CMAKE_C_LINKER_LAUNCHER "${CCACHE_BIN}")
+		set(CMAKE_CXX_LINKER_LAUNCHER "${CCACHE_BIN}")
+	endif(CCACHE_BIN)
+endif(ENABLE_CCACHE)
 
 if(CATAPULT_BUILD_RELEASE)
 	set(ENABLE_HARDENING ON)
