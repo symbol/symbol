@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 
+{% block extrahead %}
+{{ super() }}
+{% if page and page.meta and page.meta.preload_home_card_images %}
+<link rel="preload" href="{{ 'assets/images/userbook.png' | url }}" as="image" type="image/png">
+<link rel="preload" href="{{ 'assets/images/devbook.png' | url }}" as="image" type="image/png">
+<link rel="preload" href="{{ 'assets/images/textbook.png' | url }}" as="image" type="image/png">
+<link rel="preload" href="{{ 'assets/images/userbook-open.svg' | url }}" as="image" type="image/svg+xml">
+<link rel="preload" href="{{ 'assets/images/devbook-open.svg' | url }}" as="image" type="image/svg+xml">
+<link rel="preload" href="{{ 'assets/images/textbook-open.svg' | url }}" as="image" type="image/svg+xml">
+{% endif %}
+{% endblock %}
+
 {% block styles %}
 {{ super() }}
 {% if page and page.meta and page.meta.section_name %}

@@ -4,6 +4,7 @@ hide:
   - toc
 section_name: textbook
 disable_actions: true
+preload_home_card_images: true
 ---
 
 # Welcome to the Symbol documentation pages
