@@ -102,7 +102,7 @@ message(STATUS
 		"============================================================================\n"
 		"   Options :\n"
 		"   --------------\n"
-		"   Ccache		   ${ENABLE_CCACHE}\n"
+		"   Ccache         ${ENABLE_CCACHE}\n"
 		"   Coverage       ${ENABLE_CODE_COVERAGE}\n"
 		"   Tests          ${ENABLE_TESTS}\n"
 		"   Diagnostics    ${ENABLE_CATAPULT_DIAGNOSTICS}\n"
