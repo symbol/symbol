@@ -21,7 +21,7 @@ target_compile_options(build.defaults INTERFACE
 	$<$<COMPILE_LANGUAGE:CXX>:-Wconversion>										# warn on type conversions that may change a value
 	$<$<COMPILE_LANGUAGE:CXX>:-Wformat-security>								# warn about format string vulnerabilities
 	$<$<COMPILE_LANGUAGE:CXX>:-Werror>											# treat warnings as errors
-	$<$<COMPILE_LANGUAGE:CXX>:-Wstrict-aliasing=1>								# perform most paranoid strict aliasing checks
+	$<$<COMPILE_LANGUAGE:CXX>:-Wstrict-aliasing=1>								# perform most pedantic strict aliasing checks
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-maybe-uninitialized>							# allow uninitialized variables
 
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${ENABLE_CODE_COVERAGE}>>:--coverage>
