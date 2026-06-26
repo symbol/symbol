@@ -1,81 +1,19 @@
-import json
 import logging
 import os
 import re
 import shutil
 import sys
-from html import escape
 from pathlib import Path
-from urllib.parse import urlparse
 
 import mkdocs.plugins
 import yaml
 from mkdocs.structure import files
 
 from mkdocs.config import Config, base
+from hooks.deploy_root import write_deploy_root_files
+from hooks.redirects import write_redirects
 
 log = logging.getLogger('mkdocs')
-
-
-REDIRECT_TEMPLATE = """<!doctype html>
-<html lang="en">
-<head>
-\t<meta charset="utf-8">
-\t<title>Redirecting...</title>
-\t<link rel="canonical" href="{target}">
-\t<script>var anchor=window.location.hash.substr(1);location.href={target_json}+(anchor?"#"+anchor:"");</script>
-\t<meta http-equiv="refresh" content="0; url={target}">
-</head>
-<body>
-You're being redirected to a <a href="{target}">new destination</a>.
-</body>
-</html>
-"""
-
-
-ROOT_404_TEMPLATE = """<!doctype html>
-<html>
-\t<head>
-\t\t<!-- Root static-host 404 shim. Redirects missing URLs to the matching language 404 page. -->
-\t\t<meta charset="utf-8">
-\t\t<script>
-\t\t\tvar supportedLanguages = {supported_languages};
-\t\t\tvar defaultLanguage = supportedLanguages[0];
-\t\t\tvar match = location.pathname.match(/^\\/([^/]+)\\//);
-\t\t\tvar language = match && supportedLanguages.indexOf(match[1]) >= 0 ? match[1] : defaultLanguage;
-
-\t\t\tif (language) {{
-\t\t\t\tvar target = "/" + language + "/404/";
-\t\t\t\tif (location.pathname !== target)
-\t\t\t\t\tlocation.replace(target);
-\t\t\t}}
-\t\t</script>
-\t</head>
-</html>
-"""
-
-
-ROOT_INDEX_TEMPLATE = """<!doctype html>
-<html>
-\t<head>
-\t\t<meta charset="utf-8">
-\t\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-\t\t<script>
-\t\t\tvar userLang = navigator.language || navigator.userLanguage;
-\t\t\tvar urls = {language_urls};
-\t\t\tvar defaultUrl = {default_url};
-
-\t\t\tvar url = urls[userLang] || urls[userLang.split("-")[0]] || defaultUrl;
-\t\t\twindow.location.href += url;
-\t\t</script>
-\t</head>
-\t<body>
-\t\tRedirecting to your language...
-\t\t<br/>
-\t\tUse these links if redirection does not work: {language_links}
-\t</body>
-</html>
-"""
 
 
 def build_nav_order_and_section(config):
@@ -351,68 +289,13 @@ def on_pre_build(config: base.Config):
 	extract_tutorial_code(config)
 
 
-def render_redirect_page(target: str) -> str:
-	# The target is used both in HTML attributes and in a JavaScript string.
-	escaped_target = escape(target, quote=True)
-	return REDIRECT_TEMPLATE.format(target=escaped_target, target_json=json.dumps(target))
-
-
-def render_root_404_page(config: base.Config) -> str:
-	languages = [alternate["lang"] for alternate in config["extra"].get("alternate", [])]
-	return ROOT_404_TEMPLATE.format(supported_languages=json.dumps(languages))
-
-
-def render_root_index_page(config: base.Config) -> str:
-	alternates = config["extra"].get("alternate", [])
-	language_urls = {alternate["lang"]: alternate["lang"] for alternate in alternates}
-	default_url = alternates[0]["lang"] if alternates else ""
-	language_links = " ".join(
-		f'<a href="{escape(alternate["lang"], quote=True)}">{escape(alternate["name"])}</a>'
-		for alternate in alternates
-	)
-	return ROOT_INDEX_TEMPLATE.format(
-		language_urls=json.dumps(language_urls),
-		default_url=json.dumps(default_url),
-		language_links=language_links
-	)
-
-
-def render_cname(config: base.Config) -> str:
-	hostname = urlparse(config.site_url).hostname
-	if not hostname:
-		raise ValueError(f"site_url must include a hostname to generate CNAME: {config.site_url}")
-	return f"{hostname}\n"
-
-
 def on_post_build(config: base.Config):
 	"""
 	Write shared-root files that are outside each language build.
 	"""
-	# Language builds write into docs/en or docs/ja, while legacy redirects live at docs/.
 	site_root = Path(config.site_dir).resolve().parent
-	(site_root / ".nojekyll").touch()
-	log.info("Custom hook: Wrote GitHub Pages .nojekyll marker")
-
-	(site_root / "CNAME").write_text(render_cname(config), encoding="utf-8")
-	log.info("Custom hook: Wrote GitHub Pages CNAME")
-
-	(site_root / "index.html").write_text(render_root_index_page(config), encoding="utf-8")
-	log.info("Custom hook: Wrote root language redirect")
-
-	(site_root / "404.html").write_text(render_root_404_page(config), encoding="utf-8")
-	log.info("Custom hook: Wrote root 404 redirect")
-
-	redirects = config["extra"]["symbol"].get("redirections", [])
-	for redirect in redirects:
-		source = redirect["from"].lstrip("/")
-		# Configured paths must stay inside the generated site root.
-		if Path(source).is_absolute() or ".." in Path(source).parts:
-			raise ValueError(f"Invalid redirect source path: {redirect['from']}")
-
-		target_path = site_root / source
-		target_path.parent.mkdir(parents=True, exist_ok=True)
-		target_path.write_text(render_redirect_page(redirect["to"]), encoding="utf-8")
-		log.info(f"Custom hook: Wrote redirect {source} -> {redirect['to']}")
+	write_deploy_root_files(site_root, config)
+	write_redirects(site_root, config)
 
 
 def page_markdown_js_typedoc(content, page, config, files):
