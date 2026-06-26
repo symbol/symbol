@@ -1,0 +1,128 @@
+---
+# clang-tidy configuration for catapult
+# Covers the subset of rules from linters/cpp/validation.py that are
+# expressible as AST-level checks. The Python linter remains authoritative
+# for: TypoChecker patterns, namespace/path matching, first-include ordering,
+# deps.config, copyright SHA1, TEST_CLASS rules, and region validation.
+
+Checks: >-
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  -clang-analyzer-cplusplus.NewDeleteLeaks,
+  google-explicit-constructor,
+  modernize-use-nullptr,
+  modernize-use-using,
+  modernize-use-override,
+  modernize-use-nodiscard,
+  modernize-avoid-bind,
+  modernize-type-traits,
+  modernize-loop-convert,
+  modernize-use-emplace,
+  performance-for-range-copy,
+  performance-implicit-conversion-in-loop,
+  performance-inefficient-algorithm,
+  performance-inefficient-string-concatenation,
+  performance-inefficient-vector-operation,
+  performance-move-const-arg,
+  performance-move-constructor-init,
+  performance-no-automatic-move,
+  performance-trivially-destructible,
+  performance-type-promotion-in-math-fn,
+  performance-unnecessary-copy-initialization,
+  performance-unnecessary-value-param,
+  bugprone-use-after-move,
+  bugprone-infinite-loop,
+  bugprone-signed-char-misuse,
+  bugprone-suspicious-memset-usage,
+  bugprone-suspicious-semicolon,
+  bugprone-undefined-memory-manipulation,
+  bugprone-unused-raii,
+  bugprone-macro-repeated-side-effects,
+  readability-identifier-naming,
+  readability-avoid-const-params-in-decls,
+  readability-const-return-type,
+  readability-container-size-empty,
+  readability-delete-null-pointer,
+  readability-redundant-smartptr-get,
+  misc-unused-using-decls,
+  misc-definitions-in-headers,
+  misc-misplaced-const,
+  misc-redundant-expression,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -bugprone-easily-swappable-parameters,
+  -misc-non-private-member-variables-in-classes
+
+# Pedantic posture matching the Python linter — all warnings are errors.
+# Disable per-check during initial rollout if needed.
+WarningsAsErrors: "*"
+
+CheckOptions:
+  # Private members: m_ prefix + camelBack  (e.g. m_blockRangeConsumer)
+  - key:   readability-identifier-naming.PrivateMemberPrefix
+    value: m_
+  - key:   readability-identifier-naming.PrivateMemberCase
+    value: camelBack
+
+  # Protected members: same convention as private
+  - key:   readability-identifier-naming.ProtectedMemberPrefix
+    value: m_
+  - key:   readability-identifier-naming.ProtectedMemberCase
+    value: camelBack
+
+  # Public members: PascalCase (e.g. IsOpen, NumBytes)
+  - key:   readability-identifier-naming.PublicMemberCase
+    value: CamelCase
+
+  # Methods: camelBack (e.g. createView, shouldStartSync)
+  - key:   readability-identifier-naming.MethodCase
+    value: camelBack
+
+  # Classes and structs: PascalCase
+  - key:   readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key:   readability-identifier-naming.StructCase
+    value: CamelCase
+
+  # Template parameters: T prefix + PascalCase (e.g. TCache, TInput)
+  - key:   readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key:   readability-identifier-naming.TemplateParameterPrefix
+    value: T
+
+  # Enums and enum constants: PascalCase
+  - key:   readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key:   readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+
+  # Type aliases (using declarations): PascalCase
+  - key:   readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+
+  # Local variables: camelBack
+  - key:   readability-identifier-naming.LocalVariableCase
+    value: camelBack
+
+  # Parameters: camelBack
+  - key:   readability-identifier-naming.ParameterCase
+    value: camelBack
+
+  # Namespaces: lower_case (project uses all-lowercase)
+  - key:   readability-identifier-naming.NamespaceCase
+    value: lower_case
+
+  # Functions (free): camelBack
+  - key:   readability-identifier-naming.FunctionCase
+    value: camelBack
+
+  # modernize-loop-convert: prefer range-based for
+  - key:   modernize-loop-convert.MinConfidence
+    value: risky
+
+# Apply header checks too (project has heavy logic in headers)
+HeaderFilterRegex: '.*\.(h|hpp)$'
+
+# Use the .clang-format file for any format-related suggestions
+FormatStyle: file
