@@ -1,19 +1,19 @@
 <!doctype html>
 <html>
 	<head>
+		<!-- Root static-host 404 shim. Redirects missing URLs to the matching language 404 page. -->
 		<meta charset="utf-8">
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<script>
-			const userLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-			const supported = ['en', 'ja'];
-			const lang = supported.includes(userLang.slice(0, 2)) ? userLang.slice(0, 2) : 'en';
+			var supportedLanguages = ["en", "ja"];
+			var defaultLanguage = supportedLanguages[0];
+			var match = location.pathname.match(/^\/([^/]+)\//);
+			var language = match && supportedLanguages.indexOf(match[1]) >= 0 ? match[1] : defaultLanguage;
 
-			window.location.pathname = lang + '/404/';
+			if (language) {
+				var target = "/" + language + "/404/";
+				if (location.pathname !== target)
+					location.replace(target);
+			}
 		</script>
 	</head>
-	<body>
-		Redirecting to your language...
-		<br/>
-		Use these links if redirection does not work: <a href="en/404/">English</a> <a href="ja/404/">日本語</a>
-	</body>
 </html>
