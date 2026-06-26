@@ -79,6 +79,9 @@
 
     
     
+
+
+
    <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
@@ -573,7 +576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/install/" class="md-nav__link">
+      <a href="../../wallet/install/" class="md-nav__link">
         
   
   
@@ -651,7 +654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/create-profile/" class="md-nav__link">
+      <a href="../../wallet/create-profile/" class="md-nav__link">
         
   
   
@@ -679,7 +682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/import-profile/" class="md-nav__link">
+      <a href="../../wallet/import-profile/" class="md-nav__link">
         
   
   
@@ -707,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/export-profile/" class="md-nav__link">
+      <a href="../../wallet/export-profile/" class="md-nav__link">
         
   
   
@@ -735,7 +738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/delete-profile/" class="md-nav__link">
+      <a href="../../wallet/delete-profile/" class="md-nav__link">
         
   
   
@@ -821,7 +824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/create-account/" class="md-nav__link">
+      <a href="../../wallet/create-account/" class="md-nav__link">
         
   
   
@@ -849,7 +852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/import-account/" class="md-nav__link">
+      <a href="../../wallet/import-account/" class="md-nav__link">
         
   
   
@@ -877,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/delete-account/" class="md-nav__link">
+      <a href="../../wallet/delete-account/" class="md-nav__link">
         
   
   
@@ -4128,6 +4131,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../devbook/reference/py/symbol/FeeCalculator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FeeCalculator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -12146,7 +12177,7 @@
 <summary>Docker Composeのインストール</summary>
 <p>プラグインとしてのインストールを推奨します。
 例えば、UbuntuやDebianでは以下を実行します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>docker-compose-v2
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>docker-compose-v2
 </span></code></pre></div>
 <p>プラグインバージョンがシステムで利用できない場合は、古い <code>docker-compose</code> パッケージをインストールし、以下のコマンドの <code>docker compose</code> を <code>docker-compose</code> に置き換えてください（ハイフンに注意）。</p>
 </details>
@@ -12251,7 +12282,7 @@
 </div>
 <h2 id="installing-with-pip">pipを使用したインストール<a class="headerlink" href="#installing-with-pip" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>Pythonパッケージマネージャーを使用してShoestringをインストールします。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>symbol-shoestring
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>symbol-shoestring
 </span></code></pre></div>
 <p>このコマンドはShoestringツールとその依存関係をインストールします。</p>
 <div class="admonition warning">
@@ -12260,21 +12291,21 @@
 <p>ヘッダー、ライブラリ、またはコンパイラツールの欠落に関連するエラーでインストールが失敗した場合は、システムに必要な<strong>開発用パッケージ</strong>をインストールし、再度インストールを実行してください。</p>
 <p>一般的な症状には、<code>pyconfig.h</code>、OpenSSLヘッダー、またはビルドツールチェーンの欠落に言及するエラーが含まれます。</p>
 <p>UbuntuおよびDebianでは、通常、以下をインストールすれば十分です。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-dev<span class="w"> </span>libssl-dev
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-dev<span class="w"> </span>libssl-dev
 </span></code></pre></div>
 <p>その後、Shoestringのインストールを再度実行してください。</p>
 </div>
 <h2 id="verifying-the-installation">インストールの確認<a class="headerlink" href="#verifying-the-installation" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>インストール後、以下を実行してツールが利用可能であることを確認します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>--help
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>--help
 </span></code></pre></div>
 <p>インストールが成功した場合、コマンドは利用可能なShoestringコマンドのリストを出力します。</p>
 <p>特定のコマンドで利用可能なオプションを確認するには、次を使用します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>&lt;command&gt;<span class="w"> </span>--help
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>&lt;command&gt;<span class="w"> </span>--help
 </span></code></pre></div>
 <h2 id="updating-shoestring">Shoestringのアップデート<a class="headerlink" href="#updating-shoestring" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>Shoestringを最新バージョンにアップグレードするには、以下を実行します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>symbol-shoestring
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>symbol-shoestring
 </span></code></pre></div>
 <h2 id="next-steps">次のステップ<a class="headerlink" href="#next-steps" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>Shoestringをインストールした後の次のステップは、<a href="../quickstart/">ノードの作成と起動</a>です。</p>

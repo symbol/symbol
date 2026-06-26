@@ -79,6 +79,9 @@
 
     
     
+
+
+
    <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
@@ -573,7 +576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/install/" class="md-nav__link">
+      <a href="../../wallet/install/" class="md-nav__link">
         
   
   
@@ -651,7 +654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/create-profile/" class="md-nav__link">
+      <a href="../../wallet/create-profile/" class="md-nav__link">
         
   
   
@@ -679,7 +682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/import-profile/" class="md-nav__link">
+      <a href="../../wallet/import-profile/" class="md-nav__link">
         
   
   
@@ -707,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/export-profile/" class="md-nav__link">
+      <a href="../../wallet/export-profile/" class="md-nav__link">
         
   
   
@@ -735,7 +738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/delete-profile/" class="md-nav__link">
+      <a href="../../wallet/delete-profile/" class="md-nav__link">
         
   
   
@@ -821,7 +824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/create-account/" class="md-nav__link">
+      <a href="../../wallet/create-account/" class="md-nav__link">
         
   
   
@@ -849,7 +852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/import-account/" class="md-nav__link">
+      <a href="../../wallet/import-account/" class="md-nav__link">
         
   
   
@@ -877,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/delete-account/" class="md-nav__link">
+      <a href="../../wallet/delete-account/" class="md-nav__link">
         
   
   
@@ -4139,6 +4142,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../devbook/reference/py/symbol/FeeCalculator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FeeCalculator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -12160,7 +12191,7 @@
 <p><strong>REST ヘルスエンドポイントをリモートで確認する</strong></p>
 <p>REST Gatewayが有効になっている場合、ノードはヘルスエンドポイント <a href="/ja/devbook/reference/rest/symbol#tag/Node_routes/getNodeHealth" title="Get the node health information"><code>/node/health</code>&nbsp;<code class="rest-method rest-method-get">GET</code></a> を公開します。</p>
 <p>正常なレスポンスは以下のようになります。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="nt">&quot;apiNode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="nt">&quot;db&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;up&quot;</span>
@@ -12172,11 +12203,11 @@
 <li>
 <p :=":" id="check-node-health-with-shoestring"><strong>Shoestringでノードのヘルスを確認する</strong></p>
 <p>Shoestringには、組み込みのヘルスチェックコマンドが含まれています。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
 </span></code></pre></div>
 <p>このコマンドは、ローカルノードの基本的なステータスチェックを実行し、サービスが正常に稼働しているように見えるか、およびすべての必要な鍵が正しく登録され、<a href="#key-and-certificate-renewals">有効期限が近づいていないか</a>を報告します。</p>
 <p>正常なノードのレポートは以下のようになります。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    ...    | running health agent for peer certificate
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    ...    | running health agent for peer certificate
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    i     | ca certificate not near expiry (7299 day(s))
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    i     | node certificate not near expiry (374 day(s))
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>keys/cert/ca.crt.pem: OK
@@ -12195,7 +12226,7 @@
 <p><strong>Dockerコンテナのステータスを確認する</strong></p>
 <p>ShoestringノードはDockerコンテナ内で実行されます。
 すべての必要なコンテナが実行されていることを確認するには、以下のコマンドを使用します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
 </span></code></pre></div>
 <p>再起動ループに陥っている、または終了（exited）と表示されているコンテナは、通常、設定または起動時の問題を示しています。</p>
 </li>
@@ -12203,10 +12234,10 @@
 <p :=":" id="view-logs"><strong>ログの表示</strong></p>
 <p>ログは多くの場合、ノードの問題を診断する最も速い方法です。</p>
 <p>最近のログを表示するには：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span>
 </span></code></pre></div>
 <p>ログをリアルタイムで追跡するには（<code>Ctrl+C</code>で停止）：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
 </span></code></pre></div>
 <p>オプションで、 <code>client</code> 、 <code>db</code> 、 <code>broker</code> など、調査したいサービスを指定できます。</p>
 <p>繰り返し発生するエラー、データベースの問題、接続の失敗、またはファイルの欠落に関する警告を探してください。</p>
@@ -12241,7 +12272,7 @@
 <li>
 <p :=":" id="stop-the-node-cleanly"><strong>ノードを正常に停止する</strong></p>
 <p>メンテナンスや復旧作業を行う前に、すべてのサービスを正常に終了（graceful stop）させます。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 </span></code></pre></div>
 <p>これにより、コンテナが正常にシャットダウンし、データベース破損のリスクを軽減できます。
 ノードが正常にシャットダウンするまでに最大5分かかる場合があることに留意してください。</p>
@@ -12249,14 +12280,14 @@
 <li>
 <p :=":" id="start-the-node-again"><strong>ノードを再度起動する</strong></p>
 <p>シャットダウン後にノードを起動するには：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
 <p>起動後、すべてのサービスが初期化されるまで少し待ちます。</p>
 </li>
 <li>
 <p><strong>コンテナのステータスを確認する</strong></p>
 <p>必要なすべてのコンテナが実行されていることを確認します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> </span>-a
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> </span>-a
 </span></code></pre></div>
 <p>いずれかのコンテナがすぐに終了したり、繰り返し再起動したりする場合は、<a href="#view-logs">ログを調べてください</a>。</p>
 </li>
@@ -12273,10 +12304,10 @@
 <p><strong>Shoestringのアップデート</strong></p>
 <p>Shoestring自体はPythonパッケージとしてインストールされています。
 利用可能な最新バージョンにアップデートするには：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>symbol-shoestring
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>symbol-shoestring
 </span></code></pre></div>
 <p>アップデート後、インストールされたバージョンを確認します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>show<span class="w"> </span>symbol-shoestring
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>show<span class="w"> </span>symbol-shoestring
 </span></code></pre></div>
 </li>
 <li>
@@ -12287,7 +12318,7 @@
 <p class="admonition-title">警告</p>
 <p>アップグレードする前に<a href="#stop-the-node-cleanly">ノードを正常に停止</a>し、その後<a href="#start-the-node-again">再起動</a>してください。</p>
 </div>
-<div class="highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>upgrade<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>upgrade<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span>--directory<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span>--overrides<span class="w"> </span>overrides.ini
@@ -12311,7 +12342,7 @@
 	name="_:メインキー"
 	href="../../../textbook/cryptography/#c946a784ffb575f121b19bb1e95e604c">メインキー</a> を使用して、Shoestringが<a href="../quickstart/#6-create-the-node-installation">セットアップフェーズ</a>で生成した<a href="https://en.wikipedia.org/wiki/Transport_Layer_Security">TLS</a>証明書を使用して暗号化します。</p>
 <p>この証明書のデフォルトの有効期間は375日であり、 <code>renew-certificates</code> コマンドで更新します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>renew-certificates<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>renew-certificates<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span>--directory<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span>--ca-key-path<span class="w"> </span>ca.key.pem
@@ -12353,11 +12384,11 @@
 	name="_:投票キー"
 	href="../../../textbook/cryptography/#797365cbdc42fd9918de0ac28f769b1d">投票キー</a> が必要であり、限られた有効期間で登録する必要があります。</p>
 <p>セキュリティ上の理由から、各投票キーの有効期間は最大180日（約6ヶ月）であるため、ノードが <a class="mkdocs-ezglossary-link"
-	id="e9c6880a2aa1a9ef1af2c56b47f44b95"
+	id="03a1b7879d191dda96ad600f3d8b821f"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> と <a class="mkdocs-ezglossary-link"
-	id="33d2d2d2d25fc4df5332a7f6ac4475f4"
+	id="1440dc36b91316e5812832a834cdd30c"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> の両方でファイナライゼーションの投票資格を維持するには、鍵を定期的に更新する必要があります。</p>
@@ -12365,7 +12396,7 @@
 これにより有効期間を重複させることができるため、ある鍵の期限が切れた場合でもバックアップキーを引き続き利用できます。</p>
 <p>Shoestringが<a href="../quickstart/#configure-voting-optional">投票ノードを作成</a>する際、投票キーを登録しています。
 更新するためのコマンドも提供されています。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>renew-voting-keys<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>renew-voting-keys<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
 </span></code></pre></div>
 <p>このコマンドは、現在の鍵の有効期限が切れるとアクティブになる新しい鍵を作成し、以下のために必要なトランザクションを準備します。</p>
 <ul>

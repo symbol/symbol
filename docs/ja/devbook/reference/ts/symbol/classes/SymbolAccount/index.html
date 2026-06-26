@@ -79,6 +79,9 @@
 
     
     
+
+
+
    <link href="../../../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
@@ -570,7 +573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/install/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/install/" class="md-nav__link">
         
   
   
@@ -648,7 +651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/create-profile/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/create-profile/" class="md-nav__link">
         
   
   
@@ -676,7 +679,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/import-profile/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/import-profile/" class="md-nav__link">
         
   
   
@@ -704,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/export-profile/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/export-profile/" class="md-nav__link">
         
   
   
@@ -732,7 +735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/delete-profile/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/delete-profile/" class="md-nav__link">
         
   
   
@@ -818,7 +821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/create-account/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/create-account/" class="md-nav__link">
         
   
   
@@ -846,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/import-account/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/import-account/" class="md-nav__link">
         
   
   
@@ -874,7 +877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../userbook/desktop-wallet/delete-account/" class="md-nav__link">
+      <a href="../../../../../../userbook/wallet/delete-account/" class="md-nav__link">
         
   
   
@@ -3998,6 +4001,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../py/symbol/FeeCalculator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FeeCalculator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -12187,7 +12218,7 @@
 </ul>
 <h2 id="constructors">Constructors<a id="constructor"></a><a class="headerlink" href="#constructors" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <h3 id="new-symbolaccount">new SymbolAccount()<a class="headerlink" href="#new-symbolaccount" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ow">new</span><span class="w"> </span><span class="nx">SymbolAccount</span><span class="p">(</span><span class="nx">facade</span><span class="p">,</span><span class="w"> </span><span class="nx">keyPair</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">SymbolAccount</span>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ow">new</span><span class="w"> </span><span class="nx">SymbolAccount</span><span class="p">(</span><span class="nx">facade</span><span class="p">,</span><span class="w"> </span><span class="nx">keyPair</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">SymbolAccount</span>
 </span></code></pre></div>
 <p>Creates a Symbol account.</p>
 <h4 id="parameters">Parameters<a class="headerlink" href="#parameters" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h4>
@@ -12260,7 +12291,7 @@
 </table>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <h3 id="cosigntransaction">cosignTransaction()<a class="headerlink" href="#cosigntransaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nx">cosignTransaction</span><span class="p">(</span><span class="nx">transaction</span><span class="p">,</span><span class="w"> </span><span class="nx">detached</span><span class="o">?</span><span class="p">)</span><span class="o">:</span><span class="w"> </span>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nx">cosignTransaction</span><span class="p">(</span><span class="nx">transaction</span><span class="p">,</span><span class="w"> </span><span class="nx">detached</span><span class="o">?</span><span class="p">)</span><span class="o">:</span><span class="w"> </span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="nx">Cosignature</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="nx">DetachedCosignature</span>
 </span></code></pre></div>
@@ -12299,7 +12330,7 @@
 <p>Signed cosignature.</p>
 <hr />
 <h3 id="cosigntransactionhash">cosignTransactionHash()<a class="headerlink" href="#cosigntransactionhash" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">cosignTransactionHash</span><span class="p">(</span><span class="nx">transactionHash</span><span class="p">,</span><span class="w"> </span><span class="nx">detached</span><span class="o">?</span><span class="p">)</span><span class="o">:</span><span class="w"> </span>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">cosignTransactionHash</span><span class="p">(</span><span class="nx">transactionHash</span><span class="p">,</span><span class="w"> </span><span class="nx">detached</span><span class="o">?</span><span class="p">)</span><span class="o">:</span><span class="w"> </span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="nx">Cosignature</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="nx">DetachedCosignature</span>
 </span></code></pre></div>
@@ -12338,7 +12369,7 @@
 <p>Signed cosignature.</p>
 <hr />
 <h3 id="messageencoder">messageEncoder()<a class="headerlink" href="#messageencoder" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nx">messageEncoder</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">default</span>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nx">messageEncoder</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">default</span>
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <dt>
@@ -12352,7 +12383,7 @@
 <p>Message encoder using this account as one party.</p>
 <hr />
 <h3 id="signtransaction">signTransaction()<a class="headerlink" href="#signtransaction" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<div class="highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nx">signTransaction</span><span class="p">(</span><span class="nx">transaction</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Signature</span>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nx">signTransaction</span><span class="p">(</span><span class="nx">transaction</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Signature</span>
 </span></code></pre></div>
 <dl class="automatic-reference-term">
 <dt>

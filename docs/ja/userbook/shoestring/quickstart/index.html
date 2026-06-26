@@ -79,6 +79,9 @@
 
     
     
+
+
+
    <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
@@ -573,7 +576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/install/" class="md-nav__link">
+      <a href="../../wallet/install/" class="md-nav__link">
         
   
   
@@ -651,7 +654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/create-profile/" class="md-nav__link">
+      <a href="../../wallet/create-profile/" class="md-nav__link">
         
   
   
@@ -679,7 +682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/import-profile/" class="md-nav__link">
+      <a href="../../wallet/import-profile/" class="md-nav__link">
         
   
   
@@ -707,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/export-profile/" class="md-nav__link">
+      <a href="../../wallet/export-profile/" class="md-nav__link">
         
   
   
@@ -735,7 +738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/delete-profile/" class="md-nav__link">
+      <a href="../../wallet/delete-profile/" class="md-nav__link">
         
   
   
@@ -821,7 +824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/create-account/" class="md-nav__link">
+      <a href="../../wallet/create-account/" class="md-nav__link">
         
   
   
@@ -849,7 +852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/import-account/" class="md-nav__link">
+      <a href="../../wallet/import-account/" class="md-nav__link">
         
   
   
@@ -877,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../desktop-wallet/delete-account/" class="md-nav__link">
+      <a href="../../wallet/delete-account/" class="md-nav__link">
         
   
   
@@ -4244,6 +4247,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../devbook/reference/py/symbol/FeeCalculator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FeeCalculator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -12377,7 +12408,7 @@
 <details class="info">
 <summary>Shoestringウィザードの使用</summary>
 <p>Shoestringが提供する対話型のセットアップウィザードを使用することもできます。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring.wizard
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring.wizard
 </span></code></pre></div>
 <p>ウィザードは質問に回答することで、このチュートリアルで作成されるのと同じ設定ファイルを生成します。</p>
 <p>ウィザードによって作成されたノードは、以下のコマンドラインの手順で作成されたノードと同じように動作します。</p>
@@ -12386,45 +12417,45 @@
 <h3 id="1-create-a-working-directory">1. 作業ディレクトリの作成<a class="headerlink" href="#1-create-a-working-directory" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>Shoestringは現在のディレクトリ内にノードファイルを作成します。</p>
 <p>ノード用のディレクトリを作成し、そのディレクトリに移動します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkdir<span class="w"> </span>symbol-node
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkdir<span class="w"> </span>symbol-node
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>symbol-node
 </span></code></pre></div>
 <p>このチュートリアルのすべてのコマンドは、このディレクトリで実行することを前提としています。</p>
 <h3 id="2-generate-the-network-configuration">2. ネットワーク設定の生成<a class="headerlink" href="#2-generate-the-network-configuration" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>最初のステップは、ターゲットとするネットワーク（ <a class="mkdocs-ezglossary-link"
-	id="3cb761ad733c14291a26aa1fcfe6e9a4"
+	id="e9c6880a2aa1a9ef1af2c56b47f44b95"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> または <a class="mkdocs-ezglossary-link"
-	id="ab3f61985be59184db4de336887be053"
+	id="33d2d2d2d25fc4df5332a7f6ac4475f4"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> ）のデフォルト設定ファイルを取得することです。</p>
 <p>以下を実行します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>mainnet<span class="w"> </span>config.ini
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>mainnet<span class="w"> </span>config.ini
 </span></code></pre></div>
 <p>このコマンドは、 <a class="mkdocs-ezglossary-link"
-	id="2764c9147c6e38a5c9718705ac32a324"
+	id="3cb761ad733c14291a26aa1fcfe6e9a4"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で動作するために必要な設定ファイルをダウンロードし、 <code>config.ini</code> ファイルを作成します。</p>
 <p><a class="mkdocs-ezglossary-link"
-	id="6e2fbfd88c88caa148d386b13dd25cda"
+	id="ab3f61985be59184db4de336887be053"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> の場合は、代わりに <code>sai</code> パッケージを使用します。
 後続のコマンドで <code>--network</code> パラメータを使用する場合は、 <code>mainnet</code> の代わりに <code>testnet</code> を指定してください。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>sai<span class="w"> </span>config.ini
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>sai<span class="w"> </span>config.ini
 </span></code></pre></div>
 <h3 id="3-configure-shoestring">3. Shoestringの設定<a class="headerlink" href="#3-configure-shoestring" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>前の手順で生成された <code>config.ini</code> ファイルには、必要な設定のほとんどがすでに含まれています。
-ご自身のノード用にカスタマイズする必要がある値は通常いくつかしかなく、それらはすべて <code class="highlight"><span class="k">[node]</span></code> セクションにあります。</p>
+ご自身のノード用にカスタマイズする必要がある値は通常いくつかしかなく、それらはすべて <code class="language-ini highlight"><span class="k">[node]</span></code> セクションにあります。</p>
 <ul>
 <li>
 <p>ノードの<a href="../../../textbook/nodes/#roles">ロール</a>。Shoestringでは <em>features（機能）</em> と呼ばれます。</p>
 <p>リストから必要なノード機能を設定します： <code>PEER</code> 、 <code>API</code> 、 <code>HARVESTER</code> 、および <code>VOTER</code> 。
 縦棒 <code>|</code> で区切ることで、複数の機能を組み合わせることができます。例：</p>
-<div class="highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[node]</span>
+<div class="language-ini highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[node]</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="na">features</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">PEER | API</span>
 </span></code></pre></div>
 <p>詳細な説明については、<a href="../../../textbook/nodes/#roles">ロール</a>のページを確認してください。
@@ -12463,7 +12494,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p><code>caCommonName</code> および <code>nodeCommonName</code> プロパティは、ノード用に生成される<a href="https://en.wikipedia.org/wiki/X.509">証明書</a>の一般名（CN: Common Names）として使用されます。</p>
 <p>これらはノードの動作には影響しませんが、空であってはなりません。空の場合、証明書の生成に失敗します。</p>
 <p>例：</p>
-<div class="highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[node]</span>
+<div class="language-ini highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[node]</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="na">caCommonName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">My Symbol Node CA</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="na">nodeCommonName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">My Symbol Node</span>
 </span></code></pre></div>
@@ -12471,7 +12502,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <li>
 <p>HTTPSリクエストを受け入れる必要がある <code>API</code> ノードは、 <code>apiHttps</code> プロパティを <code>true</code> に設定する必要があります。
     そうしないと、ノードはHTTPリクエストしか受け入れません。</p>
-<div class="highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[node]</span>
+<div class="language-ini highlight"><span class="filename">config.ini</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[node]</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="na">apiHttps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
 </span></code></pre></div>
 <p>HTTPSサポートを有効にするには、次に示すように有効な <code>host</code> を設定する必要もあります。</p>
@@ -12481,7 +12512,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p>ノード固有の設定を定義するには、追加の設定ファイルが必要です。
 これがないと、ノードは正しく使用できません。</p>
 <p>以下の内容で <code>overrides.ini</code> という名前の新しいファイルを作成します。</p>
-<div class="highlight"><span class="filename">overrides.ini</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[node.localnode]</span>
+<div class="language-ini highlight"><span class="filename">overrides.ini</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[node.localnode]</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="na">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my-symbol-node.com</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="na">friendlyName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">My Symbol Node</span>
 </span></code></pre></div>
@@ -12509,7 +12540,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <h3 id="5-create-the-node-identity">5. ノードIDの作成<a class="headerlink" href="#5-create-the-node-identity" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>各ノードには、他のノードとの安全な通信のための暗号化IDが必要です。
 このIDの中心となるのが <a class="mkdocs-ezglossary-link"
-	id="2ed1fcd8666e3b8eb3ff3aa126f52f08"
+	id="efb4e59c8b9ed6d037106cf6e13e9d7b"
 	title="非常に長い数値であり、厳重に秘匿すべき情報です。
 値そのものに意味はなく、第三者に推測されることは想定されていません。
 通常はランダムに生成され、同じキーが偶然に生成されることはほぼありません。"
@@ -12523,12 +12554,12 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <ul>
 <li>
 <p>OpenSSLを使用して新しい鍵を作成する：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>ed25519<span class="w"> </span>-out<span class="w"> </span>ca.key.pem
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>ed25519<span class="w"> </span>-out<span class="w"> </span>ca.key.pem
 </span></code></pre></div>
 </li>
 <li>
 <p>既存の秘密鍵をインポートする：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemtool<span class="w"> </span>--output<span class="w"> </span>ca.key.pem
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemtool<span class="w"> </span>--output<span class="w"> </span>ca.key.pem
 </span></code></pre></div>
 <p>このコマンドは秘密鍵を貼り付けるよう求めますが、 <code>--input</code> パラメータを使用してファイル経由で提供することもできます。
 秘密鍵をファイルやコマンド履歴に露出させたままにしないよう、特に注意してください。</p>
@@ -12536,7 +12567,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p class="admonition-title">Bootstrapのメインキーを再利用する</p>
 <p>既存のBootstrapノードで使用しているのと同じメインアカウントを再利用したい場合、メインの秘密鍵はノードのBootstrap内の <code>target/addresses.yml</code> ファイルから取得できます。</p>
 <p>ファイルが暗号化されている場合は、まず以下のコマンドを実行します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>symbol-bootstrap<span class="w"> </span>decrypt<span class="w"> </span><span class="se">\</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>symbol-bootstrap<span class="w"> </span>decrypt<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span>--source<span class="w"> </span>target/addresses.yml<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span>--destination<span class="w"> </span>target/addresses_plaintext.yml
 </span></code></pre></div>
@@ -12554,10 +12585,10 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <div class="admonition info">
 <p class="admonition-title">メインアカウントのアドレス</p>
 <p>この秘密鍵に対応するアドレスと公開鍵を表示するには、Shoestringの <code>pemview</code> ツールを使用できます。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemview<span class="w"> </span>--input<span class="w"> </span>ca.key.pem<span class="w"> </span>--network<span class="w"> </span>mainnet
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>pemview<span class="w"> </span>--input<span class="w"> </span>ca.key.pem<span class="w"> </span>--network<span class="w"> </span>mainnet
 </span></code></pre></div>
 <p>出力は以下のようになります。</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
 <span class="normal"><a href="#__codelineno-12-2">2</a></span>
 <span class="normal"><a href="#__codelineno-12-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a>    i     | loaded ca.key.pem
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a>    i     |     address: TCUCHCSSTTXRU3BMOBMAQXY2WMGSBICEH6WB77I
@@ -12565,10 +12596,10 @@ PoW におけるマイニング、または PoS におけるステーキング�
 </span></code></pre></div></td></tr></table></div>
 <p>アカウントへ資金を送信するには、このアカウントのアドレスが必要です。
 その後、ハーベスティングを有効にする際などにトランザクション手数料を支払うために資金が必要になります。</p>
-<p><code>--show-private</code> パラメータを使用して秘密鍵を表示し、<a href="../../desktop-wallet/import-account/">ウォレットにインポート</a>することもできます。
+<p><code>--show-private</code> パラメータを使用して秘密鍵を表示し、<a href="../../wallet/import-account/">ウォレットにインポート</a>することもできます。
 この手順により、アカウントをより便利に管理できるようになりますが、このガイドでは必須ではありません。</p>
 <p>あるいは、 <code>openssl</code> ツールを直接使用してアカウントの公開鍵を表示することもできます。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>openssl<span class="w"> </span>pkey<span class="w"> </span>-in<span class="w"> </span>ca.key.pem<span class="w"> </span>-text
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>openssl<span class="w"> </span>pkey<span class="w"> </span>-in<span class="w"> </span>ca.key.pem<span class="w"> </span>-text
 </span></code></pre></div>
 </div>
 <div class="admonition tip">
@@ -12586,7 +12617,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	title="ファイナライズ プロセスに参加するノードが必要とする キーペア。"
 	name="_:投票キー"
 	href="../../../textbook/cryptography/#797365cbdc42fd9918de0ac28f769b1d">投票キー</a> など、以前のノードと同じ鍵を引き続き使用したい場合は、以下のコマンドで今すぐインポートしてください。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>import-bootstrap<span class="w"> </span><span class="se">\</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>import-bootstrap<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>--bootstrap<span class="w"> </span><span class="o">[</span>Bootstrapターゲットディレクトリへのパス<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span>--include-node-key
@@ -12598,7 +12629,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 </div>
 <h3 id="6-create-the-node-installation">6. ノードのインストール環境を作成<a class="headerlink" href="#6-create-the-node-installation" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>設定ファイルと鍵ファイルの準備ができたら、以下を使用してノードのインストール環境を作成します。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>setup<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>setup<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span>--overrides<span class="w"> </span>./overrides.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span>--package<span class="w"> </span>mainnet<span class="w"> </span><span class="se">\</span>
@@ -12644,14 +12675,14 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> で十分です。</p>
 <h3 id="8-sign-the-transactions">8. トランザクションへの署名<a class="headerlink" href="#8-sign-the-transactions" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>Shoestringの <code>signer</code> ツールは <code>linking_transaction.dat</code> を読み取り、 <code>ca.key.pem</code> （ノードのメインアカウント）に保存されている鍵でその中のトランザクションに署名します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>signer<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>signer<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span>--ca-key-path<span class="w"> </span>ca.key.pem<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span>--save<span class="w"> </span>linking_transaction.dat
 </span></code></pre></div>
 <p>署名はトランザクションとともに <code>linking_transaction.dat</code> に書き戻されるため、新しいファイルは作成されません。</p>
 <p>出力は以下のようになります：</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1"> 1</a></span>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-17-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-17-3"> 3</a></span>
 <span class="normal"><a href="#__codelineno-17-4"> 4</a></span>
@@ -12702,13 +12733,13 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	href="../../../textbook/transactions/#6dd08aca9c0c19b00fed342e463abd43">アグリゲートトランザクション</a> 内にラップされていることに注意してください。</p>
 <h3 id="9-announce-the-transactions">9. トランザクションのアナウンス<a class="headerlink" href="#9-announce-the-transactions" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>announce-transaction ツールを使用して、署名されたトランザクションをネットワークに送信します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>announce-transaction<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>announce-transaction<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span>--config<span class="w"> </span>config.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span>--transaction<span class="w"> </span>linking_transaction.dat
 </span></code></pre></div>
 <p>このツールはネットワーク上の利用可能なノードに接続し、署名されたトランザクションを送信します。
 出力は以下のようになります：</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span>
 <span class="normal"><a href="#__codelineno-19-2">2</a></span>
 <span class="normal"><a href="#__codelineno-19-3">3</a></span>
 <span class="normal"><a href="#__codelineno-19-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a>    i     | connecting to https://401-sai-dual.symboltest.net:3001
@@ -12728,7 +12759,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p>ノードがトランザクションをネットワーク上の他のノードにアナウンスせずに拒否した場合、他のすべてのノードはこのURLに対して「transaction unknown（不明なトランザクション）」エラーで応答します。そのため、トランザクションのステータスは常に送信したのと同じノードで確認するようにしてください。</p>
 </div>
 <p>トランザクションが受け入れられた場合、ノードは以下のようなメッセージを返します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">{</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">{</span>
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nt">&quot;hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5E59A0A009A885B8DA0A6E1CE18BAE26A83441414E595799F25DB94848CCDEEB&quot;</span><span class="p">,</span>
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Success&quot;</span><span class="p">,</span>
 </span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="nt">&quot;deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;107120562182&quot;</span><span class="p">,</span>
@@ -12791,11 +12822,11 @@ PoW におけるマイニング、または PoS におけるステーキング�
 	name="_:インポータンス"
 	href="../../../textbook/harvesting/#8d301074509fc6237fa93b125ad7eb12">インポータンス</a> が高いほど、ノードがブロックをハーベストし、報酬を受け取れる確率が高くなります。</p>
 <p>メインアカウントに資金を提供したばかりの場合、インポータンスの更新には <a class="mkdocs-ezglossary-link"
-	id="944318759dbcb2b10b47f27eca630ce8"
+	id="2764c9147c6e38a5c9718705ac32a324"
 	title="Symbolのメインネットはテストネットとは対照的に実際の価値を持つ取引が行われる。"
 	name="_:メインネット"
 	href="../../../textbook/glossary/#0f82624c9b003a6230068ba8fcc615c2">メインネット</a> で12時間、 <a class="mkdocs-ezglossary-link"
-	id="a213cfcc5b83eb5d9fd4ec8ce9b1821e"
+	id="6e2fbfd88c88caa148d386b13dd25cda"
 	title="Symbolのテストネットは開発を目的としている。テストネットのXYMはfaucetから入手できるため、メインネットとは対照的にこのネットワークのトランザクションには実際の価値はない。"
 	name="_:テストネット"
 	href="../../../textbook/glossary/#38975deb943c5f87ef53f33749c34d72">テストネット</a> で3時間かかります。</p>
@@ -12831,32 +12862,32 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p><code>ca.key.pem</code> を安全なストレージ（理想的にはオフライン）にコピーし、<strong>ノードを実行するマシンからは削除してください</strong>。</p>
 </div>
 <p>Dockerを使用してノードコンテナを起動します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
 <p><code>-d</code> オプションはコンテナをデタッチドモードで実行するため、ターミナルを閉じた後もノードの実行を継続できます。</p>
 <div class="admonition warning">
 <p class="admonition-title">Dockerの権限</p>
 <p>以下のようなエラーが表示される場合：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>permission denied while trying to connect to the Docker daemon socket
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>permission denied while trying to connect to the Docker daemon socket
 </span></code></pre></div>
 <p>実行ユーザーにDockerのコマンドを実行する権限がありません。</p>
 <p>Linuxでは、以下のコマンドを使用してユーザーを <code>docker</code> グループに追加できます：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
 </span></code></pre></div>
 <p>その後、一度ログアウトして再ログインしてから、再度コマンドを実行してください。</p>
 </div>
 <p>ノードを停止するには、同じフォルダーから以下を実行します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 </span></code></pre></div>
 <p>ノードのデータはディスク上に保持されるため、<code>docker compose up -d</code> で再度ノードを起動します。</p>
 <p>ノードを正常にシャットダウンするまでに最大 5分 かかる場合があることに注意してください。
 途中で中断された場合、データが不整合な状態になり、<a href="#node-recovery">リカバリ（復旧）</a>が必要になる可能性があります。</p>
 <h2 id="verify-the-node">ノードの検証<a class="headerlink" href="#verify-the-node" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>ノードが正しく動作しているか確認します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>health<span class="w"> </span>--config<span class="w"> </span>config.ini<span class="w"> </span>--directory<span class="w"> </span>.
 </span></code></pre></div>
 <p>ノードが正常に起動した場合、このコマンドは（有効にした機能であると想定して）ピアエンドポイント、REST API、およびWebSocketサービスがアクセス可能であることを報告します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>     ...    | running health agent for peer certificate
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>     ...    | running health agent for peer certificate
 </span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>      i     | ca certificate not near expiry (7299 day(s))
 </span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>      i     | node certificate not near expiry (374 day(s))
 </span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>keys/cert/ca.crt.pem: OK
@@ -12879,7 +12910,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <h2 id="node-recovery">ノードのリカバリ（復旧）<a class="headerlink" href="#node-recovery" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p>停電などによる不適切なシャットダウンが発生した場合、<code>data</code> フォルダーにロックファイルが残り、ノードの起動が妨げられることがあります。</p>
 <p>以下のコマンドは、ノードのリカバリを試み、正常な状態に復元します：</p>
-<div class="highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose-recovery.yaml<span class="w"> </span>up<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose-recovery.yaml<span class="w"> </span>up<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span>--abort-on-container-exit
 </span></code></pre></div>
 <p>リカバリコマンドが完了したら、<code>data</code> ディレクトリ内の <code>.lock</code> ファイルが消えているか確認してください。
@@ -12889,7 +12920,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p>リカバリコマンドで問題が解決しない場合は、<code>reset-data</code> を使用できます。</p>
 <p>このコマンドはダウンロード済みのブロックチェーンデータをすべて削除するため、ノードは最初から同期し直す必要があります。
 ただし、ノードの設定や鍵は保持されます。</p>
-<div class="highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>reset-data<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>reset-data<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span>--config<span class="w"> </span>./config.ini<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span>--directory<span class="w"> </span>.
 </span></code></pre></div>
@@ -12918,7 +12949,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
     <span class="md-icon" title="最終更新日">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月22日</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">2026年6月18日</span>
   </span>
 
     
