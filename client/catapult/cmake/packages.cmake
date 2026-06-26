@@ -16,7 +16,7 @@ set(MongoDB_IMPORTED_TARGETS $<IF:$<TARGET_EXISTS:mongo::mongocxx_static>,mongo:
 find_package(mongoc 2.2.1 ${_CONFIG_FLAG} REQUIRED)
 find_package(cppzmq 4.11.0 ${_CONFIG_FLAG} REQUIRED)
 
-if(ENABLE_TESTS)
+if(W-TESTS)
 	find_package(GTest 1.16.0 ${_CONFIG_FLAG} REQUIRED)
 	find_package(benchmark 1.9.4 ${_CONFIG_FLAG} REQUIRED)
 	if(USE_VCPKG OR USE_CONAN)

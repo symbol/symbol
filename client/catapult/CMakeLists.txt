@@ -17,18 +17,17 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)								# use FOLDER target property
 get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 # setup configurable options
-option(ENABLE_CCACHE "Enable ccache (if available)" OFF)
-option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
-option(ENABLE_TESTS "Enable tests" ON)
-option(ENABLE_CATAPULT_DIAGNOSTICS "Enable custom diagnostics" OFF)
-option(ENABLE_FUZZ_BUILD "Enable fuzz testing build" OFF)
-option(ENABLE_HARDENING "Enable compiler hardening flags" OFF)
-option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
+option(W-CCACHE "Enable ccache (if available)" OFF)
+option(W-CODE-COVERAGE "Enable code coverage" OFF)
+option(W-TESTS "Enable tests" ON)
+option(W-CATAPULT-DIAGNOSTICS "Enable custom diagnostics" OFF)
+option(W-FUZZ-BUILD "Enable fuzz testing build" OFF)
+option(W-HARDENING "Enable compiler hardening flags" OFF)
 
-if(ENABLE_FUZZ_BUILD)
-	set(USE_SANITIZER "undefined" CACHE STRING "Sanitizer to use (address, undefined, etc.)")
+if(W-FUZZ-BUILD)
+	set(W-SANITIZER "undefined" CACHE STRING "Sanitizer to use (address, undefined, etc.)")
 else()
-	set(USE_SANITIZER "" CACHE STRING "Sanitizer to use (address, undefined, etc.)")
+	set(W-SANITIZER "" CACHE STRING "Sanitizer to use (address, undefined, etc.)")
 endif()
 
 include(cmake/packages.cmake)                                               # setup dependencies and related helper functions
@@ -102,13 +101,13 @@ message(STATUS
 		"============================================================================\n"
 		"   Options :\n"
 		"   --------------\n"
-		"   Ccache         ${ENABLE_CCACHE}\n"
-		"   Coverage       ${ENABLE_CODE_COVERAGE}\n"
-		"   Tests          ${ENABLE_TESTS}\n"
-		"   Diagnostics    ${ENABLE_CATAPULT_DIAGNOSTICS}\n"
-		"   Fuzz Build     ${ENABLE_FUZZ_BUILD}\n"
-		"   Hardening      ${ENABLE_HARDENING}\n"
-		"   Sanitizer      ${USE_SANITIZER}\n"
+		"   Ccache         ${W-CCACHE}\n"
+		"   Coverage       ${W-CODE-COVERAGE}\n"
+		"   Tests          ${W-TESTS}\n"
+		"   Diagnostics    ${W-CATAPULT-DIAGNOSTICS}\n"
+		"   Fuzz Build     ${W-FUZZ-BUILD}\n"
+		"   Hardening      ${W-HARDENING}\n"
+		"   Sanitizer      ${W-SANITIZER}\n"
 		"============================================================================\n"
 		"   Dependencies:\n"
 		"   --------------\n"

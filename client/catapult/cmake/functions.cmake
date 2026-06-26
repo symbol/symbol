@@ -134,7 +134,7 @@ function(glob_subdirs OUT_VAR)
 		message(FATAL_ERROR "glob_subdirs: missing values for keyword(s): ${_arg_KEYWORDS_MISSING_VALUES}")
 	endif()
 	if(NOT DEFINED _arg_WITH_TESTS)
-		set(_arg_WITH_TESTS ${ENABLE_TESTS})
+		set(_arg_WITH_TESTS ${W-TESTS})
 	endif()
 
 	set(_path)
@@ -237,7 +237,7 @@ function(add_subdirs)
 	)
 
 	if(NOT DEFINED _arg_WITH_TESTS)
-		set(_arg_WITH_TESTS ${ENABLE_TESTS})
+		set(_arg_WITH_TESTS ${W-TESTS})
 	endif()
 
 	set(_glob)

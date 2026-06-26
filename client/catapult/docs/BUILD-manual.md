@@ -49,7 +49,7 @@ PYTHONPATH="../../jenkins/catapult/" python3 "../../jenkins/catapult/installDeps
 To create or update the ``_build`` directory type into a terminal:
 
 > **NOTE**:
-> When building with clang, add `-DENABLE_FUZZ_BUILD=ON` to build with UBSAN and ASAN (recommended for development).
+> When building with clang, add `-DW-FUZZ-BUILD=ON` to build with UBSAN and ASAN (recommended for development).
 
 ```sh
 mkdir -p _build && cd _build

@@ -19,29 +19,29 @@ target_compile_options(build.defaults INTERFACE
 
 	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>      # allow unsafe buffer usage https://reviews.llvm.org/D137379
 
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${ENABLE_CODE_COVERAGE}>>:-fprofile-instr-generate>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${ENABLE_CODE_COVERAGE}>>:-fcoverage-mapping>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${W-CODE-COVERAGE}>>:-fprofile-instr-generate>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${W-CODE-COVERAGE}>>:-fcoverage-mapping>
 
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${USE_SANITIZER}>>:-fno-omit-frame-pointer>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${USE_SANITIZER}>>:-fsanitize=${USE_SANITIZER}>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${USE_SANITIZER}>>:-fsanitize-ignorelist=${PROJECT_SOURCE_DIR}/sanitizer_ignorelist.txt>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>>:-fsanitize=implicit-conversion,nullability>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<BOOL:${ENABLE_FUZZ_BUILD}>>:-fsanitize=address>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<BOOL:${ENABLE_FUZZ_BUILD}>>:-fno-sanitize-recover=all>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${USE_SANITIZER},undefined>,$<STREQUAL:${CMAKE_SYSTEM_NAME},Darwin>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>>:-fno-sanitize=vptr>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${W-SANITIZER}>>:-fno-omit-frame-pointer>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${W-SANITIZER}>>:-fsanitize=${W-SANITIZER}>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${W-SANITIZER}>>:-fsanitize-ignorelist=${PROJECT_SOURCE_DIR}/sanitizer_ignorelist.txt>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${W-SANITIZER},undefined>>:-fsanitize=implicit-conversion,nullability>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${W-SANITIZER},undefined>,$<BOOL:${W-FUZZ-BUILD}>>:-fsanitize=address>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${W-SANITIZER},undefined>,$<BOOL:${W-FUZZ-BUILD}>>:-fno-sanitize-recover=all>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:${W-SANITIZER},undefined>,$<STREQUAL:${CMAKE_SYSTEM_NAME},Darwin>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>>:-fno-sanitize=vptr>
 
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-D_FORTIFY_SOURCE=3>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fstack-protector-all>
-	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fsanitize=safe-stack>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${W-HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-D_FORTIFY_SOURCE=3>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${W-HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fstack-protector-all>
+	$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<OR:$<BOOL:${W-HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>>:-fsanitize=safe-stack>
 
 	$<$<CONFIG:RelWithDebInfo>:-g1>
 )
 
 target_link_options(build.defaults INTERFACE
-	$<$<OR:$<BOOL:${ENABLE_HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>:-fsanitize=safe-stack>
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,noexecstack>   # NX bit - prevent code execution from stack
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,relro>          # Read-only relocation - make reloc section read-only
-	$<$<BOOL:${ENABLE_HARDENING}>:-Wl,-z,now>            # Resolve all symbols immediately (no lazy binding)
+	$<$<OR:$<BOOL:${W-HARDENING}>,$<CONFIG:Release,RelWithDebInfo>>:-fsanitize=safe-stack>
+	$<$<BOOL:${W-HARDENING}>:-Wl,-z,noexecstack>   # NX bit - prevent code execution from stack
+	$<$<BOOL:${W-HARDENING}>:-Wl,-z,relro>          # Read-only relocation - make reloc section read-only
+	$<$<BOOL:${W-HARDENING}>:-Wl,-z,now>            # Resolve all symbols immediately (no lazy binding)
 )
 
 
@@ -63,7 +63,7 @@ endif()
 target_compile_options(build.tests INTERFACE
 	# - Wno-global-constructors: required for GTEST test definition macros
 	# - Wno-zero-as-null-pointer-constant: workaround for GTEST NULL/nullptr mismatch https://github.com/google/googletest/issues/1323
-	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-global-constructors>
-	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-zero-as-null-pointer-constant>
-	$<$<AND:$<BOOL:${ENABLE_TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-missing-noreturn>
+	$<$<AND:$<BOOL:${W-TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-global-constructors>
+	$<$<AND:$<BOOL:${W-TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-zero-as-null-pointer-constant>
+	$<$<AND:$<BOOL:${W-TESTS}>,$<COMPILE_LANGUAGE:CXX>>:-Wno-missing-noreturn>
 )

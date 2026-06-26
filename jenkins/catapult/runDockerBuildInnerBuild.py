@@ -82,7 +82,7 @@ class BuildManager(BasicBuildManager):
 			('CMAKE_BUILD_TYPE', self.build_configuration),
 			('CATAPULT_TEST_DB_URL', 'mongodb://db:27017'),
 			('CATAPULT_DOCKER_TESTS', 'ON'),
-			('ENABLE_CODE_COVERAGE', 'ON' if self.enable_code_coverage else 'OFF')
+			('W-CODE-COVERAGE', 'ON' if self.enable_code_coverage else 'OFF')
 		]
 
 		if self.environment_manager.is_windows_platform():
@@ -93,7 +93,7 @@ class BuildManager(BasicBuildManager):
 				settings.append(('ARCHITECTURE_NAME', self.architecture))
 
 		if self.enable_diagnostics:
-			settings.append(('ENABLE_CATAPULT_DIAGNOSTICS', 'ON'))
+			settings.append(('W-CATAPULT-DIAGNOSTICS', 'ON'))
 
 		if self.use_conan:
 			settings.append(('USE_CONAN', 'ON'))
@@ -107,11 +107,11 @@ class BuildManager(BasicBuildManager):
 				settings.append(('OPENSSL_ROOT_DIR', '/usr/catapult/deps'))
 
 		if self.sanitizers:
-			settings.append(('USE_SANITIZER', ','.join(self.sanitizers)))
+			settings.append(('W-SANITIZER', ','.join(self.sanitizers)))
 
 		if self.is_release:
 			settings.append(('CATAPULT_BUILD_RELEASE', 'ON'))
-			settings.append(('ENABLE_TESTS', 'OFF'))
+			settings.append(('W-TESTS', 'OFF'))
 
 		if 'public' == self.build_disposition:
 			settings.append(('CATAPULT_BUILD_RELEASE_PUBLIC', 'ON'))
