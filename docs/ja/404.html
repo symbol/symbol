@@ -1,15 +1,10 @@
 <!doctype html>
 <html>
 	<head>
+		<!-- Language static-host 404 shim. Generated as /<language>/404.html and redirects to /<language>/404/. -->
 		<meta charset="utf-8">
 		<script>
-			var supportedLanguages = [
-				
-					"en",
-				
-					"ja"
-				
-			];
+			var supportedLanguages = ["en","ja"];
 			var defaultLanguage = supportedLanguages[0];
 			var match = location.pathname.match(/^\/([^/]+)\//);
 			var language = match && supportedLanguages.indexOf(match[1]) >= 0 ? match[1] : defaultLanguage;
