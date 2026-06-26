@@ -6,9 +6,19 @@
 <link rel="preload" href="{{ 'assets/images/userbook.png' | url }}" as="image" type="image/png">
 <link rel="preload" href="{{ 'assets/images/devbook.png' | url }}" as="image" type="image/png">
 <link rel="preload" href="{{ 'assets/images/textbook.png' | url }}" as="image" type="image/png">
-<link rel="preload" href="{{ 'assets/images/userbook-open.svg' | url }}" as="image" type="image/svg+xml">
-<link rel="preload" href="{{ 'assets/images/devbook-open.svg' | url }}" as="image" type="image/svg+xml">
-<link rel="preload" href="{{ 'assets/images/textbook-open.svg' | url }}" as="image" type="image/svg+xml">
+<script>
+	// Warm hover images without triggering unused-preload warnings.
+	[
+		"{{ 'assets/images/userbook-open.svg' | url }}",
+		"{{ 'assets/images/devbook-open.svg' | url }}",
+		"{{ 'assets/images/textbook-open.svg' | url }}"
+	].forEach((src) => {
+		const image = new Image();
+		image.src = src;
+		if (image.decode)
+			image.decode().catch(() => {});
+	});
+</script>
 {% endif %}
 {% endblock %}
 
