@@ -1,12 +1,13 @@
 <!doctype html>
 <html>
 	<head>
+		<!-- Language static-host 404 shim. Generated as /<language>/404.html and redirects to /<language>/404/. -->
 		<meta charset="utf-8">
 		<script>
 			var supportedLanguages = [
-				{% for alternate in config.extra.alternate %}
+				{%- for alternate in config.extra.alternate -%}
 					"{{ alternate.lang }}"{% if not loop.last %},{% endif %}
-				{% endfor %}
+				{%- endfor -%}
 			];
 			var defaultLanguage = supportedLanguages[0];
 			var match = location.pathname.match(/^\/([^/]+)\//);
