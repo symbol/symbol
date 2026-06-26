@@ -54,6 +54,29 @@ ROOT_404_TEMPLATE = """<!doctype html>
 """
 
 
+ROOT_INDEX_TEMPLATE = """<!doctype html>
+<html>
+\t<head>
+\t\t<meta charset="utf-8">
+\t\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+\t\t<script>
+\t\t\tvar userLang = navigator.language || navigator.userLanguage;
+\t\t\tvar urls = {language_urls};
+\t\t\tvar defaultUrl = {default_url};
+
+\t\t\tvar url = urls[userLang] || urls[userLang.split("-")[0]] || defaultUrl;
+\t\t\twindow.location.href += url;
+\t\t</script>
+\t</head>
+\t<body>
+\t\tRedirecting to your language...
+\t\t<br/>
+\t\tUse these links if redirection does not work: {language_links}
+\t</body>
+</html>
+"""
+
+
 def build_nav_order_and_section(config):
 	order = {}
 	section = {}
@@ -338,12 +361,30 @@ def render_root_404_page(config: base.Config) -> str:
 	return ROOT_404_TEMPLATE.format(supported_languages=json.dumps(languages))
 
 
+def render_root_index_page(config: base.Config) -> str:
+	alternates = config["extra"].get("alternate", [])
+	language_urls = {alternate["lang"]: alternate["lang"] for alternate in alternates}
+	default_url = alternates[0]["lang"] if alternates else ""
+	language_links = " ".join(
+		f'<a href="{escape(alternate["lang"], quote=True)}">{escape(alternate["name"])}</a>'
+		for alternate in alternates
+	)
+	return ROOT_INDEX_TEMPLATE.format(
+		language_urls=json.dumps(language_urls),
+		default_url=json.dumps(default_url),
+		language_links=language_links
+	)
+
+
 def on_post_build(config: base.Config):
 	"""
 	Write shared-root files that are outside each language build.
 	"""
 	# Language builds write into docs/en or docs/ja, while legacy redirects live at docs/.
 	site_root = Path(config.site_dir).resolve().parent
+	(site_root / "index.html").write_text(render_root_index_page(config), encoding="utf-8")
+	log.info("Custom hook: Wrote root language redirect")
+
 	(site_root / "404.html").write_text(render_root_404_page(config), encoding="utf-8")
 	log.info("Custom hook: Wrote root 404 redirect")
 
