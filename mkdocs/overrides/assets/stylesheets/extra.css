@@ -706,3 +706,9 @@ code.doc-symbol-interface::after {
 :hover>.md-code__nav {
 	background-color: transparent;
 }
+
+/* CATS documentation placeholders, such as <TypeName>. */
+.md-typeset .language-cats .nt {
+	font-style: italic;
+	color: var(--md-code-hl-generic-color);
+}
