@@ -6,6 +6,7 @@ import shutil
 import sys
 from html import escape
 from pathlib import Path
+from urllib.parse import urlparse
 
 import mkdocs.plugins
 import yaml
@@ -376,12 +377,25 @@ def render_root_index_page(config: base.Config) -> str:
 	)
 
 
+def render_cname(config: base.Config) -> str:
+	hostname = urlparse(config.site_url).hostname
+	if not hostname:
+		raise ValueError(f"site_url must include a hostname to generate CNAME: {config.site_url}")
+	return f"{hostname}\n"
+
+
 def on_post_build(config: base.Config):
 	"""
 	Write shared-root files that are outside each language build.
 	"""
 	# Language builds write into docs/en or docs/ja, while legacy redirects live at docs/.
 	site_root = Path(config.site_dir).resolve().parent
+	(site_root / ".nojekyll").touch()
+	log.info("Custom hook: Wrote GitHub Pages .nojekyll marker")
+
+	(site_root / "CNAME").write_text(render_cname(config), encoding="utf-8")
+	log.info("Custom hook: Wrote GitHub Pages CNAME")
+
 	(site_root / "index.html").write_text(render_root_index_page(config), encoding="utf-8")
 	log.info("Custom hook: Wrote root language redirect")
 
