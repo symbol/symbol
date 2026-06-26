@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script>
+			var userLang = navigator.language || navigator.userLanguage;
+			var urls = {{ language_urls | tojson }};
+			var defaultUrl = {{ default_url | tojson }};
+
+			var url = urls[userLang] || urls[userLang.split("-")[0]] || defaultUrl;
+			window.location.href += url;
+		</script>
+	</head>
+	<body>
+		Redirecting to your language...
+		<br/>
+		Use these links if redirection does not work: {% for alternate in alternates -%}
+			<a href="{{ alternate.lang }}">{{ alternate.name }}</a>{% if not loop.last %} {% endif %}
+		{%- endfor %}
+	</body>
+</html>
