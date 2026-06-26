@@ -17,7 +17,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)								# use FOLDER target property
 get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 # setup configurable options
-option(W-CCACHE "Enable ccache (if available)" OFF)
+option(W-NO-CCACHE "Disable ccache even if available" OFF)
 option(W-CODE-COVERAGE "Enable code coverage" OFF)
 option(W-TESTS "Enable tests" ON)
 option(W-CATAPULT-DIAGNOSTICS "Enable custom diagnostics" OFF)
@@ -86,7 +86,15 @@ else()
 	set(BUILD_TYPE_DISPLAY "${CMAKE_BUILD_TYPE}")
 endif()
 
-message(STATUS 
+if(W-NO-CCACHE)
+	set(_ccache_display "disabled")
+elseif(CCACHE_BIN)
+	set(_ccache_display "${CCACHE_BIN}")
+else()
+	set(_ccache_display "not found")
+endif()
+
+message(STATUS
 		"\n============================================================================\n"
 		"   Summary :\n"
 		"   --------------\n"
@@ -101,7 +109,7 @@ message(STATUS
 		"============================================================================\n"
 		"   Options :\n"
 		"   --------------\n"
-		"   Ccache         ${W-CCACHE}\n"
+		"   Ccache         ${_ccache_display}\n"
 		"   Coverage       ${W-CODE-COVERAGE}\n"
 		"   Tests          ${W-TESTS}\n"
 		"   Diagnostics    ${W-CATAPULT-DIAGNOSTICS}\n"

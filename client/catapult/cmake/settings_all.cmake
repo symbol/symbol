@@ -10,16 +10,16 @@ if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8 OR NOT CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_
 	)
 endif()
 
-### enable ccache if available
-if(W-CCACHE)
+### enable ccache by default if available
+if(NOT W-NO-CCACHE)
 	find_program(CCACHE_BIN ccache)
 	if(CCACHE_BIN)
 		set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_BIN}")
 		set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_BIN}")
 		set(CMAKE_C_LINKER_LAUNCHER "${CCACHE_BIN}")
 		set(CMAKE_CXX_LINKER_LAUNCHER "${CCACHE_BIN}")
-	endif(CCACHE_BIN)
-endif(W-CCACHE)
+	endif()
+endif()
 
 if(CATAPULT_BUILD_RELEASE)
 	set(W-HARDENING ON)
