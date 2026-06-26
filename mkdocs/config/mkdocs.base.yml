@@ -153,6 +153,9 @@ extra:
       - IdGenerator
       - Restriction
       - ripemd160
+    redirections:
+      - from: guides/account/scams-and-security.html
+        to: /en/userbook/security/
 copyright: >
   Copyright &copy; 2025-2026 The Symbol Syndicate
 extra_css:
