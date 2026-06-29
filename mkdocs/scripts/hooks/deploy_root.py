@@ -2,9 +2,9 @@ import logging
 from pathlib import Path
 from urllib.parse import urlparse
 
-from mkdocs.config import base
-
 from hooks.templates import render_template
+
+from mkdocs.config import base
 
 log = logging.getLogger("mkdocs")
 

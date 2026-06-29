@@ -7,11 +7,11 @@ from pathlib import Path
 
 import mkdocs.plugins
 import yaml
+from hooks.deploy_root import write_deploy_root_files
+from hooks.redirects import write_redirects
 from mkdocs.structure import files
 
 from mkdocs.config import Config, base
-from hooks.deploy_root import write_deploy_root_files
-from hooks.redirects import write_redirects
 
 log = logging.getLogger('mkdocs')
 
