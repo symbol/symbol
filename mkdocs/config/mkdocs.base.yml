@@ -56,7 +56,7 @@ plugins:
   site-urls: {}
 hooks:
   - ../scripts/hooks.py
-  - ../scripts/typedoc-plugin.py
+  - ../scripts/typedoc_plugin.py
   - ../scripts/register_cats_lexer.py
 markdown_extensions:
   attr_list: {}
