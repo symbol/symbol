@@ -21,6 +21,9 @@ log = logging.getLogger('mkdocs')
 
 
 def build_nav_order_and_section(config):
+	"""
+	Flatten the configured nav into page order and top-level section lookup tables.
+	"""
 	order = {}
 	section = {}
 	counter = 0
@@ -377,6 +380,9 @@ def page_markdown_js_typedoc(content, page, config, in_files):
 
 
 def camel_to_snake(name):
+	"""
+	Convert JavaScript-style names into the Python reference naming convention.
+	"""
 	first_pass = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
 	return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', first_pass).lower()
 
@@ -442,6 +448,10 @@ def page_markdown_dylinks(content, page, config, in_files):
 
 
 def page_markdown_rest(content, page, config, in_files):
+	"""
+	Expand REST shortcut tags into links to the generated OpenAPI reference.
+	Supported tags are <get:endpoit>, <put:endpoint>, and <post:endpoint>.
+	"""
 	def path_formatter(match):
 		method = match.group(1)
 		path = match.group(2)
@@ -466,11 +476,17 @@ def page_markdown_rest(content, page, config, in_files):
 
 
 def page_markdown_ws(content, page, config, in_files):
+	"""
+	Add the WebSocket method badge next to WebSocket shortcut tags <ws:endpoint>.
+	"""
 	content = re.sub(r'(<ws:[^>]*>)', r'\1&nbsp;<code class="rest-method rest-method-ws">WS</code>', content)
 	return content
 
 
 def page_markdown_tutorial_complexity(content, page, config, in_files):
+	"""
+	Add a tutorial difficulty badge below the title of pages with tutorial_level metadata.
+	"""
 	if 'tutorial_level' in page.meta:
 		level = page.meta['tutorial_level']
 		tag = (
@@ -484,6 +500,9 @@ def page_markdown_tutorial_complexity(content, page, config, in_files):
 
 @mkdocs.plugins.event_priority(0)
 def on_page_markdown(content, page, config, files):
+	"""
+	Run all custom markdown rewrites after MkDocs has loaded each page.
+	"""
 	content = page_markdown_js_typedoc(content, page, config, files)
 	content = page_markdown_dylinks(content, page, config, files)
 	content = page_markdown_rest(content, page, config, files)
@@ -493,6 +512,11 @@ def on_page_markdown(content, page, config, files):
 
 
 class IgnoreRestAnchors(logging.Filter):
+	"""
+	Filter out warnings about missing anchors in the REST reference page.
+	The REST reference guide is generated at run-time, therefore, any
+	link to its anchors found at build-time produces a noisy warning.
+	"""
 	def filter(self, record):
 		return not re.search(r'reference/rest/symbol.md.*does not contain an anchor', record.msg)
 
