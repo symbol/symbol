@@ -1,17 +1,21 @@
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements,unused-argument,wrong-import-order
+
 import logging
 import os
 import re
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 
 import mkdocs.plugins
 import yaml
 from hooks.deploy_root import write_deploy_root_files
 from hooks.redirects import write_redirects
-from mkdocs.structure import files
+from mkdocs.structure import files as mkdocs_files
+from mkdocs.structure.files import File
 
-from mkdocs.config import Config, base
+from mkdocs.config import base
 
 log = logging.getLogger('mkdocs')
 
@@ -39,11 +43,11 @@ def build_nav_order_and_section(config):
 					elif isinstance(value, list):
 						walk(value, name)
 
-	walk(config.get("nav", []), 'None')
+	walk(config.get('nav', []), 'None')
 	return order, section
 
 
-def parse_page_header(text: str) -> tuple[dict, str | None]:
+def parse_page_header(text: str) -> tuple[dict, Optional[str]]:
 	"""
 	Return the YAML frontmatter of a page and its first level 1 header
 	"""
@@ -51,69 +55,69 @@ def parse_page_header(text: str) -> tuple[dict, str | None]:
 	meta = {}
 	start = 0
 
-	if lines and lines[0].strip() == "---":
+	if lines and lines[0].strip() == '---':
 		for i in range(1, len(lines)):
-			if lines[i].strip() == "---":
-				raw_yaml = "\n".join(lines[1:i])
+			if lines[i].strip() == '---':
+				raw_yaml = '\n'.join(lines[1:i])
 				meta = yaml.safe_load(raw_yaml) or {}
 				start = i + 1
 				break
 
 	for line in lines[start:]:
 		stripped = line.strip()
-		if stripped.startswith("# "):
+		if stripped.startswith('# '):
 			return meta, stripped[2:]
 
 	return meta, None
 
 
 @mkdocs.plugins.event_priority(-50)
-def on_files(in_files: files.Files, config: base.Config) -> files.Files:
+def on_files(in_files: mkdocs_files.Files, config: base.Config) -> mkdocs_files.Files:
 	"""
 	Exclude from processing files we don't care about:
 		Doxygen-generated: We only keep filenames starting with configured prefixes.
 	Parse frontmatter of developer tutorials to find their level and store it for later.
 	"""
 	out_files: list[File] = []
-	prefixes = tuple(config["extra"]["symbol"]["java-sdk"]["include-prefixes"] + ["links"])
+	prefixes = tuple(config['extra']['symbol']['java-sdk']['include-prefixes'] + ['links'])
 	config['extra']['symbol']['tutorials'] = {}
 	nav_order, nav_section = build_nav_order_and_section(config)
 	section_order = {}
-	for f in in_files:
-		if f.src_uri.startswith("devbook/reference/java"):
-			if not f.name.startswith(prefixes):
-				log.debug(f"Custom hook: Removing {f.name}")
+	for file in in_files:
+		if file.src_uri.startswith('devbook/reference/java'):
+			if not file.name.startswith(prefixes):
+				log.debug('Custom hook: Removing %s', file.name)
 				continue
-		out_files.append(f)
+		out_files.append(file)
 
-		if not f.src_path.startswith("devbook/") or not f.src_path.endswith(".md"):
+		if not file.src_path.startswith('devbook/') or not file.src_path.endswith('.md'):
 			continue
 
-		src = Path(config["docs_dir"]) / f.src_path
+		src = Path(config['docs_dir']) / file.src_path
 		if not src.is_file():
 			continue
-		text = src.read_text(encoding="utf-8")
+		text = src.read_text(encoding='utf-8')
 		meta, title = parse_page_header(text)
 
-		if "tutorial_level" not in meta:
+		if 'tutorial_level' not in meta:
 			continue
 
-		section = nav_section[f.src_path]
-		level = meta["tutorial_level"]
+		section = nav_section[file.src_path]
+		level = meta['tutorial_level']
 		if section not in config['extra']['symbol']['tutorials']:
 			config['extra']['symbol']['tutorials'][section] = {}
 		if level not in config['extra']['symbol']['tutorials'][section]:
 			config['extra']['symbol']['tutorials'][section][level] = []
 		config['extra']['symbol']['tutorials'][section][level].append({
-			"title": meta.get("title") or title,
-			"url": '/'.join(f.url.split('/')[1:-1]) + '.md',
-			"order": nav_order[f.url[:-1] + '.md']
+			'title': meta.get('title') or title,
+			'url': '/'.join(file.url.split('/')[1:-1]) + '.md',
+			'order': nav_order[file.url[:-1] + '.md']
 		})
-		section_order[section] = min(section_order.get(section, 999999), nav_order.get(f.src_path, 999999))
+		section_order[section] = min(section_order.get(section, 999999), nav_order.get(file.src_path, 999999))
 
 	for section in config['extra']['symbol']['tutorials'].values():
 		for items in section.values():
-			items.sort(key=lambda t: t["order"])
+			items.sort(key=lambda t: t['order'])
 
 	tutorials = config['extra']['symbol']['tutorials']
 	config['extra']['symbol']['tutorials'] = dict(
@@ -122,11 +126,11 @@ def on_files(in_files: files.Files, config: base.Config) -> files.Files:
 			key=lambda item: section_order.get(item[0], 999999),
 		)
 	)
-	return files.Files(out_files)
+	return mkdocs_files.Files(out_files)
 
 
-TAG_RE = re.compile(r"\[(?P<kind>[<>])(?P<name>[A-Za-z0-9_.:-]+)\]")
-COMMENT_RE = re.compile(r"(?P<prefix>[ \t]*(#|//))\s*(?P<body>.*)$")
+TAG_RE = re.compile(r'\[(?P<kind>[<>])(?P<name>[A-Za-z0-9_.:-]+)\]')
+COMMENT_RE = re.compile(r'(?P<prefix>[ \t]*(#|//))\s*(?P<body>.*)$')
 
 
 def extract_tutorial_code(config: base.Config) -> None:
@@ -155,14 +159,14 @@ def extract_tutorial_code(config: base.Config) -> None:
 	- Inline tag comments are stripped, preserving the code before the tag.
 	"""
 	def _comment_contains_only_tags(body: str) -> bool:
-		without_tags = TAG_RE.sub("", body).strip()
-		return without_tags == ""
+		without_tags = TAG_RE.sub('', body).strip()
+		return '' == without_tags
 
 	def _remove_tags_from_comment(body: str) -> str:
-		return TAG_RE.sub("", body)
+		return TAG_RE.sub('', body)
 
 	def _process_file(path: Path) -> dict:
-		lines = path.read_text(encoding="utf-8").splitlines()
+		lines = path.read_text(encoding='utf-8').splitlines()
 
 		clean_full_lines: list[str] = []
 		snippets: dict[str, dict] = {}
@@ -174,26 +178,24 @@ def extract_tutorial_code(config: base.Config) -> None:
 			tags = []
 
 			if comment_match:
-				tags = list(TAG_RE.finditer(comment_match.group("body")))
+				tags = list(TAG_RE.finditer(comment_match.group('body')))
 
 			has_tags = bool(comment_match and tags)
-			comment_only_line = has_tags and (line[:comment_match.start()].strip() == "")
-			is_tag_only_comment = comment_only_line and _comment_contains_only_tags(comment_match.group("body"))
 
 			clean_line = line
 
 			if has_tags:
 				before_comment = line[:comment_match.start()].rstrip()
-				after_tags = _remove_tags_from_comment(comment_match.group("body")).strip()
+				after_tags = _remove_tags_from_comment(comment_match.group('body')).strip()
 
 				if before_comment and after_tags:
-					clean_line = f"{before_comment} {comment_match.group('prefix')} {after_tags}"
+					clean_line = f'{before_comment} {comment_match.group("prefix")} {after_tags}'
 				elif before_comment:
 					clean_line = before_comment
 				elif after_tags:
-					clean_line = f"{line[:comment_match.start()]}{comment_match.group('prefix')} {after_tags}"
+					clean_line = f'{line[:comment_match.start()]}{comment_match.group("prefix")} {after_tags}'
 				else:
-					clean_line = ""
+					clean_line = ''
 
 			# First process closing tags on this line.
 			#
@@ -203,38 +205,38 @@ def extract_tutorial_code(config: base.Config) -> None:
 			#
 			# to close `first` before opening `second`.
 			for tag in tags:
-				if tag.group("kind") != "<":
+				if tag.group('kind') != '<':
 					continue
 
-				name = tag.group("name")
+				name = tag.group('name')
 
 				if name not in open_sections:
-					raise ValueError(f"{path}:{index}: closing unopened snippet section '{name}'")
+					raise ValueError(f'{path}:{index}: closing unopened snippet section {name!r}')
 
 				section = open_sections.pop(name)
 				if clean_line:
-					section["lines"].append(clean_line)
+					section['lines'].append(clean_line)
 				snippets[name] = {
-					"code": "\n".join(section["lines"]),
-					"start_line": section["start_line"],
+					'code': '\n'.join(section['lines']),
+					'start_line': section['start_line'],
 				}
 
 			# Then process opening tags on this line.
 			for tag in tags:
-				if tag.group("kind") != ">":
+				if tag.group('kind') != '>':
 					continue
 
-				name = tag.group("name")
+				name = tag.group('name')
 
 				if name in open_sections:
-					raise ValueError(f"{path}:{index}: snippet section '{name}' is already open")
+					raise ValueError(f'{path}:{index}: snippet section {name!r} is already open')
 
 				if name in snippets:
-					raise ValueError(f"{path}:{index}: duplicate snippet section '{name}'")
+					raise ValueError(f'{path}:{index}: duplicate snippet section {name!r}')
 
 				open_sections[name] = {
-					"start_line": index if clean_line else index + 1,
-					"lines": [],
+					'start_line': index if clean_line else index + 1,
+					'lines': [],
 				}
 
 			# Remove tag-only comments from rendered full code, but preserve line numbers.
@@ -246,32 +248,32 @@ def extract_tutorial_code(config: base.Config) -> None:
 			# not in extracted snippets.
 			if clean_line or not has_tags:
 				for section in open_sections.values():
-					section["lines"].append(clean_line)
+					section['lines'].append(clean_line)
 
 		if open_sections:
-			still_open = ", ".join(sorted(open_sections))
-			raise ValueError(f"{path}: unclosed snippet section(s): {still_open}")
+			still_open = ', '.join(sorted(open_sections))
+			raise ValueError(f'{path}: unclosed snippet section(s): {still_open}')
 
 		return {
-			"full": "\n".join(clean_full_lines),
-			"snippets": snippets,
+			'full': '\n'.join(clean_full_lines),
+			'snippets': snippets,
 		}
 
-	root = Path(__file__).parent.parent.joinpath("snippets").resolve()
-	examples_dir = root / "devbook"
+	root = Path(__file__).parent.parent.joinpath('snippets').resolve()
+	examples_dir = root / 'devbook'
 
-	config["extra"]["symbol"]["tutorial_code"] = {}
+	config['extra']['symbol']['tutorial_code'] = {}
 
-	for path in examples_dir.rglob("*"):
+	for path in examples_dir.rglob('*'):
 		if not path.is_file():
 			continue
 
-		if path.suffix not in {".py", ".mjs"}:
+		if path.suffix not in {'.py', '.mjs'}:
 			continue
 
 		rel_path = path.relative_to(root).as_posix()
 		result = _process_file(path)
-		config["extra"]["symbol"]["tutorial_code"][rel_path] = result
+		config['extra']['symbol']['tutorial_code'][rel_path] = result
 
 
 @mkdocs.plugins.event_priority(50)
@@ -280,12 +282,12 @@ def on_pre_build(config: base.Config):
 	Copy the OpenAPI spec file next to its markdown, and load it into the config.
 	Load all tutorial sample code into memory and parse sections.
 	"""
-	spec_path = Path(__file__).parent.parent.parent.joinpath("openapi", "_build").resolve()
-	md_path = Path(config.docs_dir).joinpath("devbook", "reference", "rest").resolve()
+	spec_path = Path(__file__).parent.parent.parent.joinpath('openapi', '_build').resolve()
+	md_path = Path(config.docs_dir).joinpath('devbook', 'reference', 'rest').resolve()
 	spec_fname = 'openapi3.yml'
 	shutil.copy2(spec_path / spec_fname, md_path / spec_fname)
-	with open(spec_path / spec_fname, 'r', encoding='utf-8') as f:
-		config['extra']['symbol']['openapi'] = yaml.safe_load(f)
+	with open(spec_path / spec_fname, 'r', encoding='utf-8') as input_file:
+		config['extra']['symbol']['openapi'] = yaml.safe_load(input_file)
 	extract_tutorial_code(config)
 
 
@@ -298,29 +300,33 @@ def on_post_build(config: base.Config):
 	write_redirects(site_root, config)
 
 
-def page_markdown_js_typedoc(content, page, config, files):
+def page_markdown_js_typedoc(content, page, config, in_files):
 	"""
 	Customize markdown for JS API pages. The Typedoc-markdown plugin does not
 	support templates so we need this workaround.
 	"""
-	if not page.url.startswith("devbook/reference/ts"):
+	if not page.url.startswith('devbook/reference/ts'):
 		return content
 
 	symbol_name = ''
 	parent_name = page.parent.title if page.parent else ''
 
-	def symbol_type_repl(m):
-		dict = {"Class": "class", "Function": "method"}
+	def symbol_type_repl(match):
+		symbol_types = {'Class': 'class', 'Function': 'method'}
 		nonlocal symbol_name
-		symbol_name = m.group(2).removesuffix('()')
-		if symbol_name == "default":
+		symbol_name = match.group(2).removesuffix('()')
+		if symbol_name == 'default':
 			nonlocal parent_name
 			symbol_name = parent_name
 		# Insert manual word breaks in camel-case titles, in case they are very long
 		symbol_name_wbr = re.sub(r'([a-z])([A-Z])', r'\1<wbr>\2', symbol_name)
-		if m.group(1) not in dict:
-			return f'# {m.group(1)}: {symbol_name_wbr}'
-		return f'# :simple-javascript: <code class="doc-symbol doc-symbol-heading doc-symbol-{dict[m.group(1)]}"></code> {symbol_name_wbr}'
+		if match.group(1) not in symbol_types:
+			return f'# {match.group(1)}: {symbol_name_wbr}'
+		return (
+			'# :simple-javascript: '
+			f'<code class="doc-symbol doc-symbol-heading doc-symbol-{symbol_types[match.group(1)]}"></code> '
+			f'{symbol_name_wbr}'
+		)
 
 	# Add object type icon at the header
 	content = re.sub(r'^# ([^:]*): ([^\n]*)', symbol_type_repl, content, count=1)
@@ -333,25 +339,25 @@ def page_markdown_js_typedoc(content, page, config, files):
 
 	# Add glossary definition to accessors
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
-	m = re.search(r'\n## Accessors\n', content)
-	if m:
-		content = content[:m.start()] + re.sub(
-			r"(\n### )([^\n]*?)(\n\n#### Get Signature\n\n```.*?```\n\n)([^#].*?)(\n\n#####)",
+	match = re.search(r'\n## Accessors\n', content)
+	if match:
+		content = content[:match.start()] + re.sub(
+			r'(\n### )([^\n]*?)(\n\n#### Get Signature\n\n```.*?```\n\n)([^#].*?)(\n\n#####)',
 			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5',
-			content[m.start():], flags=re.DOTALL)
+			content[match.start():], flags=re.DOTALL)
 
 	# Add glossary definition to methods
 	# Documentation MUST NOT start with # so we can tell it apart from the next markdown heading
-	m = re.search(r'\n## Methods\n', content)
-	if m:
-		content = content[:m.start()] + re.sub(
-			r"(\n### )([^(]*?)(\(\)\n\n```.*?```\n\n)([^#].*?)(\n\n####)",
+	match = re.search(r'\n## Methods\n', content)
+	if match:
+		content = content[:match.start()] + re.sub(
+			r'(\n### )([^(]*?)(\(\)\n\n```.*?```\n\n)([^#].*?)(\n\n####)',
 			rf'\1\2\3<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}.\2</dt><dd>\4</dd></dl>\5',
-			content[m.start():], flags=re.DOTALL)
+			content[match.start():], flags=re.DOTALL)
 
 	# Add glossary definition to global functions
 	content = re.sub(
-		r"(```ts\nfunction .*?)\n\n(.*?)(\n\n## )",
+		r'(```ts\nfunction .*?)\n\n(.*?)(\n\n## )',
 		rf'<dl class="automatic-reference-term" markdown><dt>js:{symbol_name}</dt><dd>\2</dd></dl>\1\2\3',
 		content, flags=re.DOTALL)
 
@@ -371,11 +377,11 @@ def page_markdown_js_typedoc(content, page, config, files):
 
 
 def camel_to_snake(name):
-	s1 = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
-	return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+	first_pass = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
+	return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', first_pass).lower()
 
 
-def page_markdown_dylinks(content, page, config, files):
+def page_markdown_dylinks(content, page, config, in_files):
 	"""
 	The Dynamic Links (dylinks) parser.
 	Turn expressions like <dy:ClassName> and <dy:ClassName.methodName> into links to the reference pages that change
@@ -391,43 +397,43 @@ def page_markdown_dylinks(content, page, config, files):
 	global_namespaces = config['extra']['symbol']['global-namespaces']
 	rgroup_id = 999
 
-	def class_formatter(m):
+	def class_formatter(match):
 		nonlocal rgroup_id
-		r = '<span markdown class="dylink">'
-		for ndx, l in enumerate(langs):
-			class_name = m.group(1)
-			if l == 'py' and class_name in class_remaps:
+		result = '<span markdown class="dylink">'
+		for ndx, lang in enumerate(langs):
+			class_name = match.group(1)
+			if lang == 'py' and class_name in class_remaps:
 				class_name = class_remaps[class_name]
-			r += (
+			result += (
 				f'<input type="radio" name="rGroup{rgroup_id}" '
 				f'id="{lang_names[ndx]}" />'
 				f'<label class="dylink-option" for="{lang_names[ndx]}" markdown>'
-				f'<{l}:{class_name}></label>'
+				f'<{lang}:{class_name}></label>'
 			)
-		r += '</span>'
+		result += '</span>'
 		rgroup_id += 1
-		return r
+		return result
 
-	def method_formatter(m):
+	def method_formatter(match):
 		nonlocal rgroup_id
-		r = '<span markdown class="dylink">'
-		for ndx, l in enumerate(langs):
-			class_name = m.group(1)
-			method_name = m.group(2)
-			if l == 'py':
+		result = '<span markdown class="dylink">'
+		for ndx, lang in enumerate(langs):
+			class_name = match.group(1)
+			method_name = match.group(2)
+			if lang == 'py':
 				if class_name in class_remaps:
 					class_name = class_remaps[class_name]
 				method_name = camel_to_snake(method_name)
-			if l == 'js' and class_name in global_namespaces:
-				class_name = ""
-			r += (
+			if lang == 'js' and class_name in global_namespaces:
+				class_name = ''
+			result += (
 				f'<input type="radio" name="rGroup{rgroup_id}" '
 				f'id="{lang_names[ndx]}" /><label class="dylink-option" for="{lang_names[ndx]}" markdown>'
-				f'<{l}:{class_name}{'.' if class_name else ''}{method_name}></label>'
+				f'<{lang}:{class_name}{'.' if class_name else ''}{method_name}></label>'
 			)
-		r += '</span>'
+		result += '</span>'
 		rgroup_id += 1
-		return r
+		return result
 
 	content = re.sub(r'<dy:([A-Za-z0-9]*)>', class_formatter, content)
 	content = re.sub(r'<dy:([A-Za-z0-9]*)\.([A-Za-z0-9_]*)>', method_formatter, content)
@@ -435,36 +441,36 @@ def page_markdown_dylinks(content, page, config, files):
 	return content
 
 
-def page_markdown_rest(content, page, config, files):
-	def path_formatter(m):
-		method = m.group(1)
-		path = m.group(2)
+def page_markdown_rest(content, page, config, in_files):
+	def path_formatter(match):
+		method = match.group(1)
+		path = match.group(2)
 		spec = config['extra']['symbol']['openapi']['paths']
 		if path not in spec:
-			log.warning(f'Page {page.file.src_path} has invalid path {path}')
+			log.warning('Page %s has invalid path %s', page.file.src_path, path)
 			return f'**INVALID PATH `{path}`**'
 		spec = spec[path]
 		if method not in spec:
-			log.warning(f'Page {page.file.src_path} has invalid method `{method}` in path {path}')
+			log.warning('Page %s has invalid method `%s` in path %s', page.file.src_path, method, path)
 			return f'**INVALID PATH `{method}:{path}`**'
 		spec = spec[method]
 		summary = spec['summary']
-		r = (
+		result = (
 			f'[`{path}`&nbsp;`{method.upper()}`{{.rest-method .rest-method-{method}}}]'
 			f'(site:/devbook/reference/rest/symbol#tag/{spec['tags'][0].replace(' ', '_')}/{spec['operationId']} "{summary}")'
 		)
-		return r
+		return result
 
 	content = re.sub(r'<(get|put|post):([^>]*)>', path_formatter, content)
 	return content
 
 
-def page_markdown_ws(content, page, config, files):
+def page_markdown_ws(content, page, config, in_files):
 	content = re.sub(r'(<ws:[^>]*>)', r'\1&nbsp;<code class="rest-method rest-method-ws">WS</code>', content)
 	return content
 
 
-def page_markdown_tutorial_complexity_tags(content, page, config, files):
+def page_markdown_tutorial_complexity(content, page, config, in_files):
 	if 'tutorial_level' in page.meta:
 		level = page.meta['tutorial_level']
 		tag = (
@@ -482,16 +488,16 @@ def on_page_markdown(content, page, config, files):
 	content = page_markdown_dylinks(content, page, config, files)
 	content = page_markdown_rest(content, page, config, files)
 	content = page_markdown_ws(content, page, config, files)
-	content = page_markdown_tutorial_complexity_tags(content, page, config, files)
+	content = page_markdown_tutorial_complexity(content, page, config, files)
 	return content
 
 
-class ignoreRESTAnchors(logging.Filter):
+class IgnoreRestAnchors(logging.Filter):
 	def filter(self, record):
 		return not re.search(r'reference/rest/symbol.md.*does not contain an anchor', record.msg)
 
 
-def on_startup(*args, **kwargs):
+def on_startup(*_args, **_kwargs):
 	"""
 	Add the mkdocs folder to PYTHONPATH, so custom modules like the CATS lexer are found.
 	Customize the log level of individual plugins.
@@ -502,8 +508,8 @@ def on_startup(*args, **kwargs):
 	# Make this noisy plugin shut up a bit
 	mkdocs.plugins.get_plugin_logger('mkdocs_site_urls').setLevel(logging.WARNING)
 	# Silence messages about missing anchors in links to the REST reference guide because that's a dynamic page
-	pagesLog = logging.getLogger('mkdocs.structure.pages')
-	pagesLog.addFilter(ignoreRESTAnchors())
+	pages_log = logging.getLogger('mkdocs.structure.pages')
+	pages_log.addFilter(IgnoreRestAnchors())
 
 
 def on_nav(nav, config, files):
@@ -521,4 +527,4 @@ def on_nav(nav, config, files):
 
 	num_pages = count_pages(nav)
 	config['extra']['symbol']['page_count'] = num_pages
-	log.info(f"Custom hook: Counted {num_pages} pages")
+	log.info('Custom hook: Counted %d pages', num_pages)
