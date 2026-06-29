@@ -108,10 +108,8 @@ def add_typedoc_files(files, config, doc_path):
 
 def is_typedoc_summary_file(dirpath, filename):
 	stem, extension = os.path.splitext(filename)
-	return (
-		filename.startswith("README") and ".md" == extension
-	) or (
-		".md" == extension and os.path.isdir(os.path.join(dirpath, stem))
+	return ".md" == extension and (
+		filename.startswith("README") or os.path.isdir(os.path.join(dirpath, stem))
 	)
 
 
