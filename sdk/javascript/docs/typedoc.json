@@ -14,7 +14,7 @@
         "typedoc-plugin-markdown"
     ],
 
-    "router": "kind-structure",
+    "router": "structure",
     "includeVersion": true,
     "excludePrivate": true,
     "excludeExternals": true,

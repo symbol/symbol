@@ -85,7 +85,7 @@ Plugins:
     * Typedoc is an external TypeScript tool that uses Node.js to run.
     * The `typedoc-plugin-markdown` is required to produce markdown output and connect with the rest of the MkDocs pipeline.
         Otherwise, HTML is produced by default.
-    * The code for this plugin was moved to a hook in `scripts/typedoc-plugin.py` in order to customize it.
+    * The code for this plugin was moved to a hook in `scripts/typedoc_plugin.py` in order to customize it.
         For example, to remove the unwanted `README.md` files.
     * The `on_page_markdown` hook adds term definitions and customizes the generated files via regexes, because TypeDoc does not support templates.
 * MkDocStrings: Generates API docs for different languages using handlers.
