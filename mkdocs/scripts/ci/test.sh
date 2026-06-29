@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "no tests for docs (for now)"
+echo "no tests for docs"
