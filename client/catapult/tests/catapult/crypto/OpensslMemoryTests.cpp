@@ -393,9 +393,8 @@ namespace catapult { namespace crypto {
 		// and the slot is now zeroed.
 		auto* pReused = pool.tryAllocate();
 		ASSERT_EQ(pElement, pReused);
-		auto nonZeroCount = static_cast<size_t>(
-				Element_Size - std::count(pReused, pReused + Element_Size, uint8_t(0)));
-		EXPECT_EQ(0u, nonZeroCount) << "free() must zero the slot before releasing it";
+		auto numZeroBytes = static_cast<size_t>(std::count(pReused, pReused + Element_Size, uint8_t(0)));
+		EXPECT_EQ(Element_Size, numZeroBytes) << "free() must zero the slot before releasing it";
 
 		pool.free(pReused);
 	}
@@ -413,10 +412,8 @@ namespace catapult { namespace crypto {
 		// Assert: re-allocating yields the same address with zeroed content.
 		auto* pReused = allocator.allocate(TTraits::Unaligned_Element_Size);
 		ASSERT_EQ(pSlot, pReused);
-		auto nonZeroCount = static_cast<size_t>(
-				TTraits::Unaligned_Element_Size
-				- std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
-		EXPECT_EQ(0u, nonZeroCount) << "free() must zero the slot before releasing it";
+		auto numZeroBytes = static_cast<size_t>(std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
+		EXPECT_EQ(TTraits::Unaligned_Element_Size, numZeroBytes) << "free() must zero the slot before releasing it";
 
 		allocator.free(pReused);
 	}
@@ -437,8 +434,8 @@ namespace catapult { namespace crypto {
 		allocator.free(pSlot);
 
 		// Assert: the returned buffer contains all original sentinel bytes.
-		auto preserved = std::count(pResult.get(), pResult.get() + TTraits::Unaligned_Element_Size, Sentinel);
-		EXPECT_EQ(static_cast<ptrdiff_t>(TTraits::Unaligned_Element_Size), preserved)
+		auto numPreserved = static_cast<size_t>(std::count(pResult.get(), pResult.get() + TTraits::Unaligned_Element_Size, Sentinel));
+		EXPECT_EQ(TTraits::Unaligned_Element_Size, numPreserved)
 				<< "realloc must copy all " << TTraits::Unaligned_Element_Size << " bytes to the destination";
 	}
 
@@ -459,10 +456,8 @@ namespace catapult { namespace crypto {
 		// Assert: source slot is zeroed — verified by re-allocating it.
 		auto* pReused = allocator.allocate(TTraits::Unaligned_Element_Size);
 		ASSERT_EQ(pSlot, pReused) << "Expected original slot to be returned on next allocation";
-		auto nonZeroCount = static_cast<size_t>(
-				TTraits::Unaligned_Element_Size
-				- std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
-		EXPECT_EQ(0u, nonZeroCount) << "source slot must be zeroed after realloc";
+		auto numZeroBytes = static_cast<size_t>(std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
+		EXPECT_EQ(TTraits::Unaligned_Element_Size, numZeroBytes) << "source slot must be zeroed after realloc";
 
 		allocator.free(pReused);
 	}
@@ -475,22 +470,28 @@ namespace catapult { namespace crypto {
 		static SpecializedOpensslPoolAllocator pool;
 		static SpecializedOpensslPoolAllocator* pPool = &pool;
 
-		auto catMalloc = [](size_t n, const char*, int) -> void* {
+		auto catMalloc = [](size_t n, const char*, int) {
 			auto* p = pPool->allocate(n);
 			return p ? p : malloc(n);
 		};
-		auto catRealloc = [](void* p, size_t newSize, const char*, int) -> void* {
+		auto catRealloc = [](void* p, size_t newSize, const char*, int) {
 			if (pPool->isFromPool(p)) {
 				auto* result = malloc(newSize);
-				if (!result) return nullptr;
-				pPool->copyTo(result, p, newSize); // correct: dst first
+				if (!result)
+					return static_cast<void*>(nullptr);
+				pPool->copyTo(result, p, newSize);
 				pPool->free(p);
 				return result;
 			}
+
 			return realloc(p, newSize);
 		};
 		auto catFree = [](void* p, const char*, int) {
-			if (pPool->isFromPool(p)) { pPool->free(p); return; }
+			if (pPool->isFromPool(p)) {
+				pPool->free(p);
+				return;
+			}
+
 			free(p);
 		};
 
@@ -500,9 +501,9 @@ namespace catapult { namespace crypto {
 			return;
 		}
 
-		constexpr size_t Pool3_Size = Allocator::Pool3::Unaligned_Element_Size; // 224
-		constexpr size_t Grow_Size  = Pool3_Size + 200;
-		constexpr uint8_t Sentinel  = 0xAB;
+		constexpr size_t Pool3_Size = Allocator::Pool3::Unaligned_Element_Size;
+		constexpr size_t Grow_Size = Pool3_Size + 200;
+		constexpr uint8_t Sentinel = 0xAB;
 
 		auto* pOld = reinterpret_cast<uint8_t*>(CRYPTO_malloc(Pool3_Size, __FILE__, __LINE__));
 		ASSERT_TRUE(!!pOld);
