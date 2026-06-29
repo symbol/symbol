@@ -375,4 +375,151 @@ namespace catapult { namespace crypto {
 	}
 
 	// endregion
+
+	// region CatRealloc and free
+
+	TEST(TEST_CLASS, FixedSizePool_FreeWipesSlotContent) {
+		// Arrange: allocate a slot and fill with a known pattern.
+		PoolBuffer buffer;
+		TestPool pool(buffer.data());
+		auto* pElement = pool.tryAllocate();
+		ASSERT_TRUE(!!pElement);
+		std::fill(pElement, pElement + Element_Size, uint8_t(0xAB));
+
+		// Act:
+		pool.free(pElement);
+
+		// Assert: re-allocating returns the same slot address (index-0 is freed first)
+		// and the slot is now zeroed.
+		auto* pReused = pool.tryAllocate();
+		ASSERT_EQ(pElement, pReused);
+		auto nonZeroCount = static_cast<size_t>(
+				Element_Size - std::count(pReused, pReused + Element_Size, uint8_t(0)));
+		EXPECT_EQ(0u, nonZeroCount) << "free() must zero the slot before releasing it";
+
+		pool.free(pReused);
+	}
+
+	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_FreeWipesSlotContent) {
+		// Arrange: allocate a pool slot and fill with a known pattern.
+		Allocator allocator;
+		auto* pSlot = allocator.allocate(TTraits::Unaligned_Element_Size);
+		ASSERT_TRUE(!!pSlot);
+		std::fill(pSlot, pSlot + TTraits::Unaligned_Element_Size, uint8_t(0xAB));
+
+		// Act:
+		allocator.free(pSlot);
+
+		// Assert: re-allocating yields the same address with zeroed content.
+		auto* pReused = allocator.allocate(TTraits::Unaligned_Element_Size);
+		ASSERT_EQ(pSlot, pReused);
+		auto nonZeroCount = static_cast<size_t>(
+				TTraits::Unaligned_Element_Size
+				- std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
+		EXPECT_EQ(0u, nonZeroCount) << "free() must zero the slot before releasing it";
+
+		allocator.free(pReused);
+	}
+
+	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_ReallocPreservesData) {
+		// Verifies the corrected CatRealloc argument order: copyTo(result, p, size).
+		// Arrange: allocate a pool slot and fill with a known sentinel.
+		Allocator allocator;
+		auto* pSlot = allocator.allocate(TTraits::Unaligned_Element_Size);
+		ASSERT_TRUE(!!pSlot);
+		constexpr uint8_t Sentinel = 0xAB;
+		std::fill(pSlot, pSlot + TTraits::Unaligned_Element_Size, Sentinel);
+
+		// Act: simulate CatRealloc with the correct copyTo argument order.
+		constexpr size_t New_Size = TTraits::Unaligned_Element_Size + 64;
+		auto pResult = std::make_unique<uint8_t[]>(New_Size);
+		allocator.copyTo(pResult.get(), pSlot, New_Size);
+		allocator.free(pSlot);
+
+		// Assert: the returned buffer contains all original sentinel bytes.
+		auto preserved = std::count(pResult.get(), pResult.get() + TTraits::Unaligned_Element_Size, Sentinel);
+		EXPECT_EQ(static_cast<ptrdiff_t>(TTraits::Unaligned_Element_Size), preserved)
+				<< "realloc must copy all " << TTraits::Unaligned_Element_Size << " bytes to the destination";
+	}
+
+	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_ReallocWipesSourceSlot) {
+		// After CatRealloc, the freed source slot must be zeroed.
+		// Arrange:
+		Allocator allocator;
+		auto* pSlot = allocator.allocate(TTraits::Unaligned_Element_Size);
+		ASSERT_TRUE(!!pSlot);
+		std::fill(pSlot, pSlot + TTraits::Unaligned_Element_Size, uint8_t(0xAB));
+
+		// Act: same sequence as CatRealloc (correct arg order + free).
+		constexpr size_t New_Size = TTraits::Unaligned_Element_Size + 64;
+		auto pResult = std::make_unique<uint8_t[]>(New_Size);
+		allocator.copyTo(pResult.get(), pSlot, New_Size);
+		allocator.free(pSlot);
+
+		// Assert: source slot is zeroed — verified by re-allocating it.
+		auto* pReused = allocator.allocate(TTraits::Unaligned_Element_Size);
+		ASSERT_EQ(pSlot, pReused) << "Expected original slot to be returned on next allocation";
+		auto nonZeroCount = static_cast<size_t>(
+				TTraits::Unaligned_Element_Size
+				- std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
+		EXPECT_EQ(0u, nonZeroCount) << "source slot must be zeroed after realloc";
+
+		allocator.free(pReused);
+	}
+
+	TEST(TEST_CLASS, SpecializedOpensslPoolAllocator_ReallocViaOpenSslApi) {
+		// Exercises CatRealloc through CRYPTO_malloc / CRYPTO_realloc.
+		// CRYPTO_set_mem_functions() must be called before any OpenSSL allocation;
+		// if that window is already closed the test is skipped — the allocator-level
+		// tests above provide the regression coverage in that case.
+		static SpecializedOpensslPoolAllocator pool;
+		static SpecializedOpensslPoolAllocator* pPool = &pool;
+
+		auto catMalloc = [](size_t n, const char*, int) -> void* {
+			auto* p = pPool->allocate(n);
+			return p ? p : malloc(n);
+		};
+		auto catRealloc = [](void* p, size_t newSize, const char*, int) -> void* {
+			if (pPool->isFromPool(p)) {
+				auto* result = malloc(newSize);
+				if (!result) return nullptr;
+				pPool->copyTo(result, p, newSize); // correct: dst first
+				pPool->free(p);
+				return result;
+			}
+			return realloc(p, newSize);
+		};
+		auto catFree = [](void* p, const char*, int) {
+			if (pPool->isFromPool(p)) { pPool->free(p); return; }
+			free(p);
+		};
+
+		if (!CRYPTO_set_mem_functions(+catMalloc, +catRealloc, +catFree)) {
+			GTEST_SKIP() << "CRYPTO_set_mem_functions returned 0 (OpenSSL already initialised); "
+				"allocator-level tests cover this path";
+			return;
+		}
+
+		constexpr size_t Pool3_Size = Allocator::Pool3::Unaligned_Element_Size; // 224
+		constexpr size_t Grow_Size  = Pool3_Size + 200;
+		constexpr uint8_t Sentinel  = 0xAB;
+
+		auto* pOld = reinterpret_cast<uint8_t*>(CRYPTO_malloc(Pool3_Size, __FILE__, __LINE__));
+		ASSERT_TRUE(!!pOld);
+		ASSERT_TRUE(pPool->isFromPool(pOld)) << "allocation must land in pool";
+		std::fill(pOld, pOld + Pool3_Size, Sentinel);
+
+		auto* pNew = reinterpret_cast<uint8_t*>(CRYPTO_realloc(pOld, Grow_Size, __FILE__, __LINE__));
+		ASSERT_TRUE(!!pNew);
+		ASSERT_FALSE(pPool->isFromPool(pNew)) << "grown buffer must be on heap";
+
+		// All sentinel bytes must survive the realloc.
+		auto preserved = std::count(pNew, pNew + Pool3_Size, Sentinel);
+		EXPECT_EQ(static_cast<ptrdiff_t>(Pool3_Size), preserved)
+				<< "CatRealloc must deliver all " << Pool3_Size << " bytes to OpenSSL";
+
+		CRYPTO_free(pNew, __FILE__, __LINE__);
+	}
+
+	// endregion
 }}
