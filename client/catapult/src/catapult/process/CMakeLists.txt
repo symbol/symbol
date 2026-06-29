@@ -1,5 +1,7 @@
 add_target(catapult.process LIBRARY
-	LINK_LIBS catapult.version
+	LINK_LIBS
+		catapult.version
+		OpenSSL::SSL
 	SOURCES ./
 )
 
