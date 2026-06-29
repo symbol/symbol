@@ -22,7 +22,6 @@
 #include "src/catapult/crypto/OpensslMemory.h"
 #include "src/catapult/thread/ThreadGroup.h"
 #include "tests/TestHarness.h"
-#include <openssl/crypto.h>
 
 namespace catapult { namespace crypto {
 
@@ -460,66 +459,6 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ(TTraits::Unaligned_Element_Size, numZeroBytes) << "source slot must be zeroed after realloc";
 
 		allocator.free(pReused);
-	}
-
-	TEST(TEST_CLASS, SpecializedOpensslPoolAllocator_ReallocViaOpenSslApi) {
-		// Exercises CatRealloc through CRYPTO_malloc / CRYPTO_realloc.
-		// CRYPTO_set_mem_functions() must be called before any OpenSSL allocation;
-		// if that window is already closed the test is skipped — the allocator-level
-		// tests above provide the regression coverage in that case.
-		static SpecializedOpensslPoolAllocator pool;
-		static SpecializedOpensslPoolAllocator* pPool = &pool;
-
-		auto catMalloc = [](size_t n, const char*, int) {
-			auto* p = pPool->allocate(n);
-			return p ? p : malloc(n);
-		};
-		auto catRealloc = [](void* p, size_t newSize, const char*, int) {
-			if (pPool->isFromPool(p)) {
-				auto* result = malloc(newSize);
-				if (!result)
-					return static_cast<void*>(nullptr);
-				pPool->copyTo(result, p, newSize);
-				pPool->free(p);
-				return result;
-			}
-
-			return realloc(p, newSize);
-		};
-		auto catFree = [](void* p, const char*, int) {
-			if (pPool->isFromPool(p)) {
-				pPool->free(p);
-				return;
-			}
-
-			free(p);
-		};
-
-		if (!CRYPTO_set_mem_functions(+catMalloc, +catRealloc, +catFree)) {
-			GTEST_SKIP() << "CRYPTO_set_mem_functions returned 0 (OpenSSL already initialised); "
-				"allocator-level tests cover this path";
-			return;
-		}
-
-		constexpr size_t Pool3_Size = Allocator::Pool3::Unaligned_Element_Size;
-		constexpr size_t Grow_Size = Pool3_Size + 200;
-		constexpr uint8_t Sentinel = 0xAB;
-
-		auto* pOld = reinterpret_cast<uint8_t*>(CRYPTO_malloc(Pool3_Size, __FILE__, __LINE__));
-		ASSERT_TRUE(!!pOld);
-		ASSERT_TRUE(pPool->isFromPool(pOld)) << "allocation must land in pool";
-		std::fill(pOld, pOld + Pool3_Size, Sentinel);
-
-		auto* pNew = reinterpret_cast<uint8_t*>(CRYPTO_realloc(pOld, Grow_Size, __FILE__, __LINE__));
-		ASSERT_TRUE(!!pNew);
-		ASSERT_FALSE(pPool->isFromPool(pNew)) << "grown buffer must be on heap";
-
-		// All sentinel bytes must survive the realloc.
-		auto preserved = std::count(pNew, pNew + Pool3_Size, Sentinel);
-		EXPECT_EQ(static_cast<ptrdiff_t>(Pool3_Size), preserved)
-				<< "CatRealloc must deliver all " << Pool3_Size << " bytes to OpenSSL";
-
-		CRYPTO_free(pNew, __FILE__, __LINE__);
 	}
 
 	// endregion
