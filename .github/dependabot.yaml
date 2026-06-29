@@ -55,6 +55,7 @@ updates:
     directories:
       - /client/rest
       - /sdk/javascript
+      - /mkdocs
 
   - package-ecosystem: pip
     schedule:
