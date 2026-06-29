@@ -11,7 +11,6 @@ export default defineConfig([
 	{
 		...defaultConfig,
 		plugins: {
-			...defaultConfig.plugins,
 			import: importPlugin,
 			jsdoc
 		},
