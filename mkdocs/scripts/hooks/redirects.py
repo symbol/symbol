@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
 
-from mkdocs.config import base
-
 from hooks.templates import render_template
+
+from mkdocs.config import base
 
 log = logging.getLogger("mkdocs")
 
@@ -25,4 +25,4 @@ def write_redirects(site_root: Path, config: base.Config) -> None:
 		target_path = site_root / source
 		target_path.parent.mkdir(parents=True, exist_ok=True)
 		target_path.write_text(render_redirect_page(redirect["to"]), encoding="utf-8")
-		log.info(f"Custom hook: Wrote redirect {source} -> {redirect['to']}")
+		log.info("Custom hook: Wrote redirect %s -> %s", source, redirect["to"])

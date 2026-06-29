@@ -1,7 +1,12 @@
 from pygments.lexer import RegexLexer, words
-from pygments.token import *
+from pygments.token import Comment, Keyword, Name, Number, Operator, Punctuation, String, Text
 
 __all__ = ['CATSLexer']
+
+ATTRIBUTE_REGEX = (
+	r'@(is_bitwise|is_byte_constrained|alignment|sort_key|sizeref|is_aligned|is_size_implicit|size|'
+	r'initializes|discriminator|comparer)\b'
+)
 
 
 class CATSLexer(RegexLexer):
@@ -28,7 +33,7 @@ class CATSLexer(RegexLexer):
 			(words(('equals', 'in', 'not'), prefix=r'\b', suffix=r'\b'), Operator.Word),
 
 			# Attributes, placeholders and transforms.
-			(r'@(is_bitwise|is_byte_constrained|alignment|sort_key|sizeref|is_aligned|is_size_implicit|size|initializes|discriminator|comparer)\b', Name.Decorator),
+			(ATTRIBUTE_REGEX, Name.Decorator),
 			(words(('pad_last', '__FILL__', '__value__'), prefix=r'\b', suffix=r'\b'), Keyword.Pseudo),
 			(r'\bripemd_keccak_256\b', Name.Function),
 
