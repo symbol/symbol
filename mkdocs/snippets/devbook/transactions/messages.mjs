@@ -25,7 +25,7 @@ async function retrieveConfirmedTransaction(hash, label) {
 				console.log(`  ${label} confirmed!`);
 				return await transaction_confirmed.json();
 			}
-		} catch (error) {
+		} catch {
 			// Transaction not yet confirmed
 		}
 		attempts++;
