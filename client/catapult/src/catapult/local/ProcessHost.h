@@ -31,6 +31,7 @@ namespace catapult { namespace local {
 
 	public:
 		/// Shuts down the process host.
+		/// \note No-op if the host was never booted or has already been shut down. Safe to call from destructors.
 		virtual void shutdown() = 0;
 	};
 }}

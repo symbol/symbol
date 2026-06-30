@@ -232,7 +232,7 @@ namespace catapult { namespace local {
 			}
 
 		public:
-			void boot() {
+			void boot() override {
 				if(m_isBooted)
 					CATAPULT_THROW_RUNTIME_ERROR("local node is already booted");
 
