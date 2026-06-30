@@ -73,6 +73,10 @@ namespace catapult { namespace local {
 	/// Represents a local node.
 	class LocalNode : public ProcessHost {
 	public:
+		/// Boots the local node.
+		/// \throws catapult_runtime_error if the node has already been booted. Calling boot() twice is always a programming error.
+		virtual void boot() = 0;
+
 		/// Gets the current cache.
 		virtual const cache::CatapultCache& cache() const = 0;
 

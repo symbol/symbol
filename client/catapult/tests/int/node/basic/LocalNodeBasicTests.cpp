@@ -157,4 +157,29 @@ namespace catapult { namespace local {
 	}
 
 	// endregion
+
+	// region reentrancy guard tests
+
+	TEST(TEST_CLASS, BootThrowsWhenNodeIsAlreadyBooted) {
+		// Arrange: create and boot a local node
+		TestContext context(NodeFlag::Regular);
+
+		// Act & Assert: calling boot again on an already booted node throws
+		EXPECT_THROW(context.localNode().boot(), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, ShutdownIsIdempotentAndCanBeCalledMultipleTimes) {
+		// Arrange: create and boot a local node
+		TestContext context(NodeFlag::Regular);
+
+		// Act & Assert: calling shutdown multiple times should not throw
+		context.localNode().shutdown();
+		context.localNode().shutdown();
+		context.localNode().shutdown();
+
+		// Assert: the node shutdown properly
+		context.assertShutdown();
+	}
+
+	// endregion
 }}
