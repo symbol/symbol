@@ -20,19 +20,43 @@
 **/
 
 #pragma once
+#include <chrono>
+#include <thread>
 #include <stdint.h>
 
 namespace catapult { namespace utils {
 
+	/// Maximum delay, in milliseconds, below which RetryWithBackoff yields instead of sleeping.
+	/// \note Windows timer resolution is coarser, so it gets a higher threshold than other platforms.
+#ifdef _WIN32
+	constexpr uint32_t Retry_Yield_Threshold_Ms = 50;
+#else
+	constexpr uint32_t Retry_Yield_Threshold_Ms = 20;
+#endif
+
 	/// Runs \a operation up to \a numAttempts times, retrying only while \a shouldRetry returns \c true
-	/// for the most recent result and further attempts remain. \a onRetry is invoked with the zero-based
-	/// attempt index and the result before every retry; it is expected to apply backoff.
+	/// for the most recent result and further attempts remain. Waits between attempts with exponential
+	/// backoff starting at \a baseDelayMs (doubling each attempt): a zero delay does not wait at all,
+	/// a delay up to \c Retry_Yield_Threshold_Ms yields the thread, otherwise it sleeps for that long.
+	/// \a onRetry is invoked with the zero-based attempt index, the result and the upcoming delay before
+	/// every retry, for logging purposes only.
 	/// \note \a shouldRetry must return \c false for a result that indicates success.
 	template<typename TOperation, typename TShouldRetry, typename TOnRetry>
-	auto RetryWithBackoff(TOperation operation, TShouldRetry shouldRetry, uint32_t numAttempts, TOnRetry onRetry) {
+	auto RetryWithBackoff(
+			TOperation operation,
+			TShouldRetry shouldRetry,
+			uint32_t numAttempts,
+			TOnRetry onRetry,
+			uint32_t baseDelayMs = 100) {
 		auto result = operation();
 		for (auto attempt = 0u; shouldRetry(result) && attempt + 1 < numAttempts; ++attempt) {
-			onRetry(attempt, result);
+			auto delayMs = baseDelayMs << attempt;
+			onRetry(attempt, result, delayMs);
+			if (delayMs > Retry_Yield_Threshold_Ms)
+				std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+			else if (delayMs > 0)
+				std::this_thread::yield();
+
 			result = operation();
 		}
 
