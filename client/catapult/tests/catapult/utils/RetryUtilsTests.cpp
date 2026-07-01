@@ -65,15 +65,20 @@ namespace catapult { namespace utils {
 				};
 			}
 		};
+
+		// Creates an operation that increments \a context's call counter and always returns \a result.
+		auto MakeOperation(RetryContext& context, std::error_code result) {
+			return [&context, result]() {
+				++context.NumOperationCalls;
+				return result;
+			};
+		}
 	}
 
 	TEST(TEST_CLASS, SucceedsOnFirstAttempt_WithoutRetrying) {
 		// Arrange:
 		RetryContext context;
-		auto operation = [&context]() {
-			++context.NumOperationCalls;
-			return Success();
-		};
+		auto operation = MakeOperation(context, Success());
 
 		// Act:
 		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry(), 0);
@@ -87,10 +92,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, StopsImmediately_WhenErrorIsNotRetryable) {
 		// Arrange:
 		RetryContext context;
-		auto operation = [&context]() {
-			++context.NumOperationCalls;
-			return NonRetryableError();
-		};
+		auto operation = MakeOperation(context, NonRetryableError());
 
 		// Act:
 		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry(), 0);
@@ -125,10 +127,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, GivesUpAfterExhaustingAttempts_WhenErrorPersists) {
 		// Arrange:
 		RetryContext context;
-		auto operation = [&context]() {
-			++context.NumOperationCalls;
-			return RetryableError();
-		};
+		auto operation = MakeOperation(context, RetryableError());
 
 		// Act:
 		auto result = RetryWithBackoff(operation, IsRetryable, 3u, context.onRetry(), 0);
@@ -142,10 +141,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, NeverRetries_WhenNumAttemptsIsOne) {
 		// Arrange:
 		RetryContext context;
-		auto operation = [&context]() {
-			++context.NumOperationCalls;
-			return RetryableError();
-		};
+		auto operation = MakeOperation(context, RetryableError());
 
 		// Act:
 		auto result = RetryWithBackoff(operation, IsRetryable, 1u, context.onRetry(), 0);
@@ -159,10 +155,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, DelayDoublesEachAttempt_WhenBaseDelayIsNonzero) {
 		// Arrange:
 		RetryContext context;
-		auto operation = [&context]() {
-			++context.NumOperationCalls;
-			return RetryableError();
-		};
+		auto operation = MakeOperation(context, RetryableError());
 
 		// Act: use a tiny base delay so the (real) sleeps stay negligible
 		auto result = RetryWithBackoff(operation, IsRetryable, 4u, context.onRetry(), 1);
@@ -178,10 +171,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, ZeroBaseDelaySkipsWait) {
 		// Arrange:
 		RetryContext context;
-		auto operation = [&context]() {
-			++context.NumOperationCalls;
-			return RetryableError();
-		};
+		auto operation = MakeOperation(context, RetryableError());
 
 		// Act:
 		RetryWithBackoff(operation, IsRetryable, 3u, context.onRetry(), 0);
