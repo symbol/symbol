@@ -221,7 +221,8 @@ namespace catapult { namespace local {
 							m_dataDirectory))
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pluginManager(m_pBootstrapper->pluginManager())
-					, m_isBooted(false) {
+					, m_isBooted(false)
+					, m_isShutdown(false) {
 				ValidateNodes(m_pBootstrapper->staticNodes());
 				AddLocalNode(m_nodes, m_pBootstrapper->config());
 			}
@@ -231,7 +232,10 @@ namespace catapult { namespace local {
 			}
 
 		public:
-			void boot() {
+			void boot() override {
+				if (m_isBooted)
+					CATAPULT_THROW_RUNTIME_ERROR("local node is already booted");
+
 				CATAPULT_LOG(info) << "registering system plugins";
 				m_pluginModules = LoadAllPlugins(*m_pBootstrapper);
 
@@ -336,6 +340,10 @@ namespace catapult { namespace local {
 
 		public:
 			void shutdown() override {
+				if (!m_isBooted || m_isShutdown)
+					return;
+
+				m_isShutdown = true;
 				utils::StackLogger stackLogger("shutting down local node", utils::LogLevel::info);
 
 				m_pBootstrapper->pool().shutdown();
@@ -344,9 +352,6 @@ namespace catapult { namespace local {
 
 		private:
 			void saveStateToDisk() {
-				// only save to storage if boot succeeded
-				if (!m_isBooted)
-					return;
 
 				constexpr auto SaveStateToDirectoryWithCheckpointing = extensions::SaveStateToDirectoryWithCheckpointing;
 				SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_score.get());
@@ -404,6 +409,7 @@ namespace catapult { namespace local {
 			std::vector<utils::DiagnosticCounter> m_counters;
 			extensions::BannedNodeIdentitySink m_bannedNodeIdentitySink;
 			bool m_isBooted;
+			bool m_isShutdown;
 		};
 	}
 
