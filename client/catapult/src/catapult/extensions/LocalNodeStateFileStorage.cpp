@@ -29,7 +29,6 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/config/NodeConfiguration.h"
 #include "catapult/consumers/BlockchainSyncHandlers.h"
-#include "catapult/exceptions.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/io/BufferedFileStream.h"
 #include "catapult/io/FilesystemUtils.h"
@@ -38,6 +37,7 @@
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/RetryUtils.h"
 #include "catapult/utils/StackLogger.h"
+#include "catapult/exceptions.h"
 #include <chrono>
 #include <system_error>
 #include <thread>

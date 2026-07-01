@@ -23,12 +23,12 @@
 #include "RocksInclude.h"
 #include "RocksPruningFilter.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/PathUtils.h"
 #include "catapult/utils/RetryUtils.h"
 #include "catapult/utils/StackLogger.h"
+#include "catapult/exceptions.h"
 #include <chrono>
 #include <thread>
 
@@ -155,6 +155,10 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	bool IsRetryableAfterFailedOpen(const rocksdb::Status& status) {
+		return !status.ok() && status.IsIOError();
+	}
+
 	RocksDatabase::RocksDatabase() = default;
 
 	RocksDatabase::RocksDatabase(const RocksDatabaseSettings& settings)
@@ -186,7 +190,7 @@ namespace catapult { namespace cache {
 					m_handles.clear();
 					return rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
 				},
-				[](const rocksdb::Status& openStatus) { return !openStatus.ok() && openStatus.IsIOError(); },
+				IsRetryableAfterFailedOpen,
 				Num_Open_Attempts,
 				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus) {
 					auto delayMs = 100u << attempt;
