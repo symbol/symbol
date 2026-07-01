@@ -45,16 +45,23 @@ namespace catapult { namespace utils {
 			return std::errc::permission_denied == ec;
 		}
 
-		// Tracks operation invocations and onRetry (attempt, error) callbacks for assertions.
+		struct RetryCall {
+		public:
+			uint32_t Attempt;
+			std::error_code Error;
+			uint32_t DelayMs;
+		};
+
+		// Tracks operation invocations and onRetry (attempt, error, delay) callbacks for assertions.
 		struct RetryContext {
 		public:
 			size_t NumOperationCalls = 0;
-			std::vector<std::pair<uint32_t, std::error_code>> RetryCalls;
+			std::vector<RetryCall> RetryCalls;
 
 		public:
 			auto onRetry() {
-				return [this](auto attempt, const auto& ec) {
-					RetryCalls.emplace_back(attempt, ec);
+				return [this](auto attempt, const auto& ec, auto delayMs) {
+					RetryCalls.push_back({ attempt, ec, delayMs });
 				};
 			}
 		};
@@ -69,10 +76,10 @@ namespace catapult { namespace utils {
 		};
 
 		// Act:
-		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry());
+		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry(), 0);
 
 		// Assert:
-		EXPECT_FALSE(result);
+		EXPECT_EQ(std::error_code(), result);
 		EXPECT_EQ(1u, context.NumOperationCalls);
 		EXPECT_TRUE(context.RetryCalls.empty());
 	}
@@ -86,7 +93,7 @@ namespace catapult { namespace utils {
 		};
 
 		// Act:
-		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry());
+		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry(), 0);
 
 		// Assert:
 		EXPECT_EQ(NonRetryableError(), result);
@@ -103,16 +110,16 @@ namespace catapult { namespace utils {
 		};
 
 		// Act:
-		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry());
+		auto result = RetryWithBackoff(operation, IsRetryable, 5u, context.onRetry(), 0);
 
 		// Assert:
-		EXPECT_FALSE(result);
+		EXPECT_EQ(std::error_code(), result);
 		EXPECT_EQ(3u, context.NumOperationCalls);
 		ASSERT_EQ(2u, context.RetryCalls.size());
-		EXPECT_EQ(0u, context.RetryCalls[0].first);
-		EXPECT_EQ(1u, context.RetryCalls[1].first);
-		EXPECT_EQ(RetryableError(), context.RetryCalls[0].second);
-		EXPECT_EQ(RetryableError(), context.RetryCalls[1].second);
+		EXPECT_EQ(0u, context.RetryCalls[0].Attempt);
+		EXPECT_EQ(1u, context.RetryCalls[1].Attempt);
+		EXPECT_EQ(RetryableError(), context.RetryCalls[0].Error);
+		EXPECT_EQ(RetryableError(), context.RetryCalls[1].Error);
 	}
 
 	TEST(TEST_CLASS, GivesUpAfterExhaustingAttempts_WhenErrorPersists) {
@@ -124,7 +131,7 @@ namespace catapult { namespace utils {
 		};
 
 		// Act:
-		auto result = RetryWithBackoff(operation, IsRetryable, 3u, context.onRetry());
+		auto result = RetryWithBackoff(operation, IsRetryable, 3u, context.onRetry(), 0);
 
 		// Assert: three attempts total, two retries in between
 		EXPECT_EQ(RetryableError(), result);
@@ -141,11 +148,47 @@ namespace catapult { namespace utils {
 		};
 
 		// Act:
-		auto result = RetryWithBackoff(operation, IsRetryable, 1u, context.onRetry());
+		auto result = RetryWithBackoff(operation, IsRetryable, 1u, context.onRetry(), 0);
 
 		// Assert:
 		EXPECT_EQ(RetryableError(), result);
 		EXPECT_EQ(1u, context.NumOperationCalls);
 		EXPECT_TRUE(context.RetryCalls.empty());
+	}
+
+	TEST(TEST_CLASS, DelayDoublesEachAttempt_WhenBaseDelayIsNonzero) {
+		// Arrange:
+		RetryContext context;
+		auto operation = [&context]() {
+			++context.NumOperationCalls;
+			return RetryableError();
+		};
+
+		// Act: use a tiny base delay so the (real) sleeps stay negligible
+		auto result = RetryWithBackoff(operation, IsRetryable, 4u, context.onRetry(), 1);
+
+		// Assert:
+		EXPECT_EQ(RetryableError(), result);
+		ASSERT_EQ(3u, context.RetryCalls.size());
+		EXPECT_EQ(1u, context.RetryCalls[0].DelayMs);
+		EXPECT_EQ(2u, context.RetryCalls[1].DelayMs);
+		EXPECT_EQ(4u, context.RetryCalls[2].DelayMs);
+	}
+
+	TEST(TEST_CLASS, ZeroBaseDelaySkipsWait) {
+		// Arrange:
+		RetryContext context;
+		auto operation = [&context]() {
+			++context.NumOperationCalls;
+			return RetryableError();
+		};
+
+		// Act:
+		RetryWithBackoff(operation, IsRetryable, 3u, context.onRetry(), 0);
+
+		// Assert: delay is reported as zero to onRetry (and, per contract, no sleep is performed)
+		ASSERT_EQ(2u, context.RetryCalls.size());
+		EXPECT_EQ(0u, context.RetryCalls[0].DelayMs);
+		EXPECT_EQ(0u, context.RetryCalls[1].DelayMs);
 	}
 }}

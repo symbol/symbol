@@ -38,9 +38,7 @@
 #include "src/catapult/utils/Logging.h"
 #include "src/catapult/utils/RetryUtils.h"
 #include "src/catapult/utils/StackLogger.h"
-#include <chrono>
 #include <system_error>
-#include <thread>
 
 namespace catapult { namespace extensions {
 
@@ -221,12 +219,10 @@ namespace catapult { namespace extensions {
 				},
 				[](const std::error_code& innerEc) { return std::errc::permission_denied == innerEc; },
 				Num_Rename_Attempts,
-				[&from, &to](uint32_t attempt, const std::error_code& innerEc) {
-					auto delayMs = 100u << attempt;
+				[&from, &to](uint32_t attempt, const std::error_code& innerEc, uint32_t delayMs) {
 					CATAPULT_LOG(warning)
 							<< "renaming '" << from << "' to '" << to << "' failed (attempt " << (attempt + 1) << "/"
 							<< Num_Rename_Attempts << "): " << innerEc.message() << ", retrying in " << delayMs << "ms";
-					std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
 				});
 
 		if (ec)

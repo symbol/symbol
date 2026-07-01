@@ -29,8 +29,6 @@
 #include "src/catapult/utils/PathUtils.h"
 #include "src/catapult/utils/RetryUtils.h"
 #include "src/catapult/utils/StackLogger.h"
-#include <chrono>
-#include <thread>
 
 namespace catapult { namespace cache {
 
@@ -191,12 +189,10 @@ namespace catapult { namespace cache {
 				},
 				IsRetryableAfterFailedOpen,
 				Num_Open_Attempts,
-				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus) {
-					auto delayMs = 100u << attempt;
+				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus, uint32_t delayMs) {
 					CATAPULT_LOG(warning)
 							<< "RocksDB open failed (attempt " << (attempt + 1) << "/" << Num_Open_Attempts << "): "
 							<< openStatus.ToString() << ", retrying in " << delayMs << "ms";
-					std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
 				});
 		m_pDb.reset(pDb);
 		if (!status.ok())
