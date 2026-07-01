@@ -155,6 +155,10 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	bool IsRetryableAfterFailedOpen(const rocksdb::Status& status) {
+		return !status.ok() && status.IsIOError();
+	}
+
 	RocksDatabase::RocksDatabase() = default;
 
 	RocksDatabase::RocksDatabase(const RocksDatabaseSettings& settings)
@@ -186,7 +190,7 @@ namespace catapult { namespace cache {
 					m_handles.clear();
 					return rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
 				},
-				[](const rocksdb::Status& openStatus) { return !openStatus.ok() && openStatus.IsIOError(); },
+				IsRetryableAfterFailedOpen,
 				Num_Open_Attempts,
 				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus) {
 					auto delayMs = 100u << attempt;
