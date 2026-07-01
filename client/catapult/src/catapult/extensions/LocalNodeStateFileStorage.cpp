@@ -29,6 +29,7 @@
 #include "src/catapult/config/CatapultDataDirectory.h"
 #include "src/catapult/config/NodeConfiguration.h"
 #include "src/catapult/consumers/BlockchainSyncHandlers.h"
+#include "src/catapult/exceptions.h"
 #include "src/catapult/io/BlockStorageCache.h"
 #include "src/catapult/io/BufferedFileStream.h"
 #include "src/catapult/io/FilesystemUtils.h"
@@ -37,6 +38,7 @@
 #include "src/catapult/utils/Logging.h"
 #include "src/catapult/utils/StackLogger.h"
 #include <chrono>
+#include <system_error>
 #include <thread>
 
 namespace catapult { namespace extensions {
@@ -199,16 +201,16 @@ namespace catapult { namespace extensions {
 
 		const auto& from = m_directory.path();
 		const auto& to = destinationDirectory.path();
+		std::error_code ec;
 #ifdef _WIN32
 		// On Windows a transient open handle on the destination - delete-pending state files, antivirus,
 		// or the search indexer - can make the rename fail with ACCESS_DENIED even when it would succeed on
 		// POSIX (which frees the name on unlink). Retry with backoff before giving up; otherwise the
 		// filesystem_error escapes the block dispatcher consumer and terminates the process.
 		// (cf. RocksDatabase open-retry on Windows.)
-		std::error_code ec;
 		for (auto attempt = 0u; attempt < 5u; ++attempt) {
 			std::filesystem::rename(from, to, ec);
-			if (!ec || 4u == attempt)
+			if (!ec || std::errc::permission_denied != ec || 4u == attempt)
 				break;
 
 			auto delayMs = 100u << attempt;
@@ -217,12 +219,12 @@ namespace catapult { namespace extensions {
 					<< ec.message() << ", retrying in " << delayMs << "ms";
 			std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
 		}
+#else
+		std::filesystem::rename(from, to, ec);
+#endif
 
 		if (ec)
-			throw std::filesystem::filesystem_error("could not rename state directory", from, to, ec);
-#else
-		std::filesystem::rename(from, to);
-#endif
+			CATAPULT_THROW_RUNTIME_ERROR_2(("could not rename state directory: " + ec.message()).c_str(), from, to);
 	}
 
 	// endregion
