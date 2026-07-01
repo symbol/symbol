@@ -187,7 +187,6 @@ namespace catapult { namespace cache {
 #endif
 		auto status = utils::RetryWithBackoff(
 				[this, &dbOptions, &columnFamilies, &pDb]() {
-					m_handles.clear();
 					return rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
 				},
 				IsRetryableAfterFailedOpen,
