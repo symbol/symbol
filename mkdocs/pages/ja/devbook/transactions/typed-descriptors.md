@@ -41,8 +41,6 @@ tutorial_level: beginner
 
 例えば、コードで使用されている <js:TransferTransactionV1Descriptor> を参照してください。
 
-そのような記述子が利用可能な場合、チュートリアルは常に関連するリファレンスページとこのガイドの両方にリンクします。
-
 ### トランザクションの作成 {: #creating-the-transaction }
 
 === "JavaScript"
