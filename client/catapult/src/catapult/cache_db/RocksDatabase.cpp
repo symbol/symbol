@@ -27,10 +27,10 @@
 #include "src/catapult/utils/HexFormatter.h"
 #include "src/catapult/utils/Logging.h"
 #include "src/catapult/utils/PathUtils.h"
+#include "src/catapult/utils/RetryUtils.h"
 #include "src/catapult/utils/StackLogger.h"
-#ifdef _WIN32
+#include <chrono>
 #include <thread>
-#endif
 
 namespace catapult { namespace cache {
 
@@ -173,26 +173,28 @@ namespace catapult { namespace cache {
 
 		rocksdb::DB* pDb;
 		auto dbOptions = CreateDatabaseOptions(m_settings.DatabaseConfig);
-		rocksdb::Status status;
-#ifdef _WIN32
+
 		// On Windows, the OS may hold file handles open briefly after a prior instance closes,
 		// causing RocksDB's internal CURRENT rename to fail with ACCESS_DENIED. Retry with backoff.
-		for (auto attempt = 0u; attempt < 5u; ++attempt) {
-			m_handles.clear();
-			status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
-			if (status.ok() || !status.IsIOError() || 4u == attempt)
-				break;
-			auto delayMs = 100u << attempt;
-			CATAPULT_LOG(warning)
-				<< "RocksDB open failed (attempt "
-				<< (attempt + 1) << "/5): "
-				<< status.ToString()
-				<< ", retrying in " << delayMs << "ms";
-			std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
-		}
+#ifdef _WIN32
+		constexpr uint32_t Num_Open_Attempts = 5;
 #else
-		status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+		constexpr uint32_t Num_Open_Attempts = 1;
 #endif
+		auto status = utils::RetryWithBackoff(
+				[this, &dbOptions, &columnFamilies, &pDb]() {
+					m_handles.clear();
+					return rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+				},
+				[](const rocksdb::Status& openStatus) { return !openStatus.ok() && openStatus.IsIOError(); },
+				Num_Open_Attempts,
+				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus) {
+					auto delayMs = 100u << attempt;
+					CATAPULT_LOG(warning)
+							<< "RocksDB open failed (attempt " << (attempt + 1) << "/" << Num_Open_Attempts << "): "
+							<< openStatus.ToString() << ", retrying in " << delayMs << "ms";
+					std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+				});
 		m_pDb.reset(pDb);
 		if (!status.ok())
 			CATAPULT_THROW_RUNTIME_ERROR_1(("couldn't open database: " + status.ToString()).c_str(), m_settings.DatabaseDirectory);
