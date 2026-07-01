@@ -24,18 +24,18 @@
 
 namespace catapult { namespace utils {
 
-	/// Runs \a operation up to \a numAttempts times, retrying only while \a isRetryable returns \c true
-	/// for the most recent error and further attempts remain. \a onRetry is invoked with the zero-based
-	/// attempt index and the error before every retry; it is expected to apply backoff.
-	/// \note \a operation must return a default-constructed (falsy) error to signal success.
-	template<typename TOperation, typename TIsRetryable, typename TOnRetry>
-	auto RetryWithBackoff(TOperation operation, TIsRetryable isRetryable, uint32_t numAttempts, TOnRetry onRetry) {
-		auto error = operation();
-		for (auto attempt = 0u; error && isRetryable(error) && attempt + 1 < numAttempts; ++attempt) {
-			onRetry(attempt, error);
-			error = operation();
+	/// Runs \a operation up to \a numAttempts times, retrying only while \a shouldRetry returns \c true
+	/// for the most recent result and further attempts remain. \a onRetry is invoked with the zero-based
+	/// attempt index and the result before every retry; it is expected to apply backoff.
+	/// \note \a shouldRetry must return \c false for a result that indicates success.
+	template<typename TOperation, typename TShouldRetry, typename TOnRetry>
+	auto RetryWithBackoff(TOperation operation, TShouldRetry shouldRetry, uint32_t numAttempts, TOnRetry onRetry) {
+		auto result = operation();
+		for (auto attempt = 0u; shouldRetry(result) && attempt + 1 < numAttempts; ++attempt) {
+			onRetry(attempt, result);
+			result = operation();
 		}
 
-		return error;
+		return result;
 	}
 }}
