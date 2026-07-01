@@ -1,24 +1,16 @@
 ### enable testing
 enable_testing()
 
-### enable ccache if available
-find_program(CCACHE_EXE ccache)
-if(CCACHE_EXE)
-# ccache on windows requires real binary instead of the shims used by scoop to be in the PATH
-	if (MSVC AND USE_CCACHE_ON_WINDOWS)
-		file(COPY_FILE ${CCACHE_EXE} ${CMAKE_BINARY_DIR}/cl.exe ONLY_IF_DIFFERENT)
-		set(CMAKE_VS_GLOBALS
-			"CLToolExe=cl.exe"
-			"CLToolPath=${CMAKE_BINARY_DIR}"
-			"TrackFileAccess=false"
-			"UseMultiToolTask=true"
-			"DebugInformationFormat=OldStyle"
-		)
-	else()
-		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-		set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+### enable ccache by default if available
+if(NOT NO_CCACHE)
+	find_program(CCACHE_BIN ccache)
+	if(CCACHE_BIN)
+		set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_BIN}")
+		set(CMAKE_C_LINKER_LAUNCHER "${CCACHE_BIN}")
+		set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_BIN}")
+		set(CMAKE_CXX_LINKER_LAUNCHER "${CCACHE_BIN}")
 	endif()
-endif(CCACHE_EXE)
+endif()
 
 ### set general cmake settings
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -109,17 +101,29 @@ endif()
 if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc /Zc:__cplusplus")
 	# in debug disable "potentially uninitialized local variable" (FP)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /D_SCL_SECURE_NO_WARNINGS /wd4701")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_SCL_SECURE_NO_WARNINGS /wd4701")
 	# also enable name return value optimization to allow proper tests validation
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zc:nrvo")
-	if (CCACHE_EXE AND USE_CCACHE_ON_WINDOWS)
-		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Z7")
-	else()
-		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Zi")
+	if(CCACHE_BIN)
+		# ccache cannot cache MSVC compilations when debug info is written to a shared .pdb (/Zi, the default).
+		# /Z7 embeds debug info into each .obj — self-contained and cacheable.
+		if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
+			cmake_policy(GET CMP0141 _cmp0141_state)
+		endif()
+
+		if(_cmp0141_state STREQUAL "NEW")
+			set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT $<$<CONFIG:Debug,RelWithDebInfo>:Embedded> CACHE STRING "" FORCE)
+		else()
+			foreach(_config DEBUG RELWITHDEBINFO)
+				foreach(_lang CXX C)
+					string(REPLACE "/Zi" "/Z7" _patched_flags "${CMAKE_${_lang}_FLAGS_${_config}}")
+					set("CMAKE_${_lang}_FLAGS_${_config}" "${_patched_flags}" CACHE STRING "" FORCE)
+				endforeach()
+			endforeach()
+		endif()
 	endif()
 
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-
 	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG:FASTLINK")
 	set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG")
 

@@ -83,9 +83,7 @@ class BuildManager(BasicBuildManager):
 			('ENABLE_CODE_COVERAGE', 'ON' if self.enable_code_coverage else 'OFF')
 		]
 
-		if self.environment_manager.is_windows_platform():
-			settings.append(('USE_CCACHE_ON_WINDOWS', 'ON'))
-		else:
+		if not self.environment_manager.is_windows_platform():
 			if 'arm64' != self.architecture:
 				# ARCHITECTURE_NAME is used to set `-march`, disable on windows and arm
 				settings.append(('ARCHITECTURE_NAME', self.architecture))

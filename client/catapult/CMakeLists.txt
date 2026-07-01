@@ -17,9 +17,7 @@ endif ()
 project(catapult_server)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_TESTS "Enable tests" ON)
-
-# ccache on windows requires real binary instead of the shims used by scoop to be in the path
-option(USE_CCACHE_ON_WINDOWS "Enable use ccache on Windows" OFF)
+option(NO_CCACHE "Disable ccache even if available" OFF)
 
 include(CMakeGlobalSettings.cmake)
 
