@@ -233,7 +233,7 @@ namespace catapult { namespace local {
 
 		public:
 			void boot() override {
-				if(m_isBooted)
+				if (m_isBooted)
 					CATAPULT_THROW_RUNTIME_ERROR("local node is already booted");
 
 				CATAPULT_LOG(info) << "registering system plugins";
