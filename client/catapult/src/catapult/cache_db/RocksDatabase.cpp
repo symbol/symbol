@@ -195,7 +195,7 @@ namespace catapult { namespace cache {
 #endif
 		m_pDb.reset(pDb);
 		if (!status.ok())
-			CATAPULT_THROW_RUNTIME_ERROR_2("couldn't open database", m_settings.DatabaseDirectory, status.ToString());
+			CATAPULT_THROW_RUNTIME_ERROR_1(("couldn't open database: " + status.ToString()).c_str(), m_settings.DatabaseDirectory);
 	}
 
 	RocksDatabase::~RocksDatabase() {
