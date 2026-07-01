@@ -46,8 +46,6 @@ because of their constructors with structured parameters.
 
 See for example the <js:TransferTransactionV1Descriptor> used in the code.
 
-Whenever one such descriptor is available, tutorials will link to both the relevant reference page and this guide.
-
 ### Creating the Transaction
 
 === "JavaScript"
