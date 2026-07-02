@@ -1,13 +1,13 @@
 package org.symbol.sdk;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.symbol.sdk.utils.Converter;
 
@@ -54,16 +54,14 @@ final class ByteArrayTest {
 			assertThat(ba.bytes(), equalTo(TEST_BYTES));
 		}
 
-		@Test
-		void cannotCreateByteArrayWithIncorrectNumberOfBytes() {
-			// Act + Assert:
-			for (int size : new int[]{
-					0, FIXED_SIZE - 1, FIXED_SIZE + 1
-			}) {
-				final byte[] payload = new byte[size];
-				final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> new Fixed(payload));
-				assertThat(ex.getMessage(), containsString("bytes was size"));
-			}
+		@ParameterizedTest
+		@ValueSource(ints = {
+				0, FIXED_SIZE - 1, FIXED_SIZE + 1
+		})
+		void cannotCreateByteArrayWithIncorrectNumberOfBytes(final int size) {
+			final byte[] payload = new byte[size];
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> new Fixed(payload));
+			assertThat(ex.getMessage(), containsString("bytes was size"));
 		}
 
 		@Test
@@ -75,16 +73,14 @@ final class ByteArrayTest {
 			assertThat(ba.bytes(), equalTo(TEST_BYTES));
 		}
 
-		@Test
-		void cannotCreateByteArrayWithIncorrectNumberOfHexCharacters() {
-			// Act + Assert:
-			for (int size : new int[]{
-					0, FIXED_SIZE - 1, FIXED_SIZE + 1
-			}) {
-				final String hex = "AB".repeat(size);
-				final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> new Fixed(hex));
-				assertThat(ex.getMessage(), containsString("bytes was size"));
-			}
+		@ParameterizedTest
+		@ValueSource(ints = {
+				0, FIXED_SIZE - 1, FIXED_SIZE + 1
+		})
+		void cannotCreateByteArrayWithIncorrectNumberOfHexCharacters(final int size) {
+			final String hex = "AB".repeat(size);
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> new Fixed(hex));
+			assertThat(ex.getMessage(), containsString("bytes was size"));
 		}
 	}
 
@@ -109,11 +105,9 @@ final class ByteArrayTest {
 			// Arrange:
 			final Fixed ba = new Fixed(TEST_BYTES);
 
-			// Act:
-			final byte[] bytes = ba.bytes();
-
-			// Assert:
-			assertThat(bytes, equalTo(TEST_BYTES));
+			// Act + Assert: bytes() exposes the live internal buffer (no per-call copy), so repeat reads are the same instance
+			assertThat(ba.bytes(), equalTo(TEST_BYTES));
+			assertThat(ba.bytes(), sameInstance(ba.bytes()));
 		}
 	}
 
@@ -124,7 +118,7 @@ final class ByteArrayTest {
 	@Nested
 	final class DefensiveCopying {
 		@Test
-		void constructorDefensivelyCopieslInput() {
+		void constructorDefensivelyCopiesInput() {
 			// Arrange:
 			final byte[] input = TEST_BYTES.clone();
 
@@ -180,14 +174,20 @@ final class ByteArrayTest {
 	final class StringRepresentation {
 		@Test
 		void supportsToString() {
-			// Act + Assert:
-			assertThat(new Fixed(TEST_BYTES).toString(), equalTo(TEST_HEX));
+			// Act:
+			final String actual = new Fixed(TEST_BYTES).toString();
+
+			// Assert:
+			assertThat(actual, equalTo(TEST_HEX));
 		}
 
 		@Test
 		void supportsToJson() {
-			// Act + Assert:
-			assertThat(new Fixed(TEST_BYTES).toJson(), equalTo(TEST_HEX));
+			// Act:
+			final String actual = new Fixed(TEST_BYTES).toJson();
+
+			// Assert:
+			assertThat(actual, equalTo(TEST_HEX));
 		}
 
 		@Test
@@ -202,9 +202,6 @@ final class ByteArrayTest {
 		@Test
 		void toStringOutputsUppercaseHex() {
 			// Arrange:
-			final byte[] bytes = {
-					(byte) 0xAB, (byte) 0xCD, (byte) 0xEF
-			};
 			final Fixed ba = new Fixed(Converter.hexToUint8("ABcDeF" + "00".repeat(21)));
 
 			// Act:
@@ -287,25 +284,16 @@ final class ByteArrayTest {
 		}
 
 		@Test
-		void equalsIsSymmetric() {
-			// Arrange:
-			final Fixed ba1 = new Fixed(TEST_BYTES);
-			final Fixed ba2 = new Fixed(TEST_HEX);
-
-			// Act + Assert:
-			assertThat(ba1.equals(ba2), equalTo(ba2.equals(ba1)));
-		}
-
-		@Test
-		void equalsIsTransitive() {
+		void equalsIsSymmetricAndTransitive() {
 			// Arrange:
 			final Fixed ba1 = new Fixed(TEST_BYTES);
 			final Fixed ba2 = new Fixed(TEST_HEX);
 			final Fixed ba3 = new Fixed(Converter.hexToUint8(TEST_HEX));
 
 			// Act + Assert:
-			if (ba1.equals(ba2) && ba2.equals(ba3))
-				assertThat(ba1.equals(ba3), equalTo(true));
+			assertThat(ba1.equals(ba2), equalTo(true));
+			assertThat(ba2.equals(ba1), equalTo(true));
+			assertThat(ba1.equals(ba3), equalTo(true));
 		}
 	}
 
@@ -322,8 +310,7 @@ final class ByteArrayTest {
 			final Fixed ba2 = new Fixed(TEST_HEX);
 
 			// Act + Assert:
-			if (ba1.equals(ba2))
-				assertThat(ba1.hashCode(), equalTo(ba2.hashCode()));
+			assertThat(ba1.hashCode(), equalTo(ba2.hashCode()));
 		}
 
 		@Test
@@ -384,23 +371,23 @@ final class ByteArrayTest {
 		}
 
 		@Test
-		void cannotConvertNull() {
-			// Act + Assert:
-			final InvalidDescriptorException ex = assertThrows(InvalidDescriptorException.class, () -> ByteArray.toBytes(null));
-			assertThat(ex.getMessage(), containsString("cannot convert"));
+		void canConvertHexString() {
+			// Act: a String is read as hex (a byte-array POD's canonical form)
+			final byte[] result = ByteArray.toBytes(TEST_HEX);
+
+			// Assert:
+			assertThat(result, equalTo(TEST_BYTES));
 		}
 
 		@Test
-		void cannotConvertString() {
-			// Act + Assert:
-			final InvalidDescriptorException ex = assertThrows(InvalidDescriptorException.class, () -> ByteArray.toBytes("not bytes"));
+		void cannotConvertNull() {
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ByteArray.toBytes(null));
 			assertThat(ex.getMessage(), containsString("cannot convert"));
 		}
 
 		@Test
 		void cannotConvertInteger() {
-			// Act + Assert:
-			final InvalidDescriptorException ex = assertThrows(InvalidDescriptorException.class, () -> ByteArray.toBytes(42));
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ByteArray.toBytes(42));
 			assertThat(ex.getMessage(), containsString("cannot convert"));
 		}
 
@@ -413,7 +400,7 @@ final class ByteArrayTest {
 			final byte[] result = ByteArray.toBytes(input);
 
 			// Assert:
-			assertThat(result == input, equalTo(true)); // Same reference
+			assertThat(result, sameInstance(input));
 		}
 	}
 

@@ -18,8 +18,11 @@ final class CryptoExceptionTest {
 	final class Inheritance {
 		@Test
 		void extendsIllegalStateException() {
-			// Act + Assert:
-			assertThat(new CryptoException("test"), instanceOf(IllegalStateException.class));
+			// Act:
+			final CryptoException actual = new CryptoException("test");
+
+			// Assert:
+			assertThat(actual, instanceOf(IllegalStateException.class));
 		}
 
 		@Test
@@ -50,18 +53,6 @@ final class CryptoExceptionTest {
 			// Assert:
 			assertThat(ce.getMessage(), equalTo(message));
 			assertThat(ce.getCause(), nullValue());
-		}
-
-		@Test
-		void messageIsPreserved() {
-			// Arrange:
-			final String message = "AES encryption failed";
-
-			// Act:
-			final CryptoException ce = new CryptoException(message);
-
-			// Assert:
-			assertThat(ce.getMessage(), equalTo(message));
 		}
 
 		@Test
@@ -112,8 +103,8 @@ final class CryptoExceptionTest {
 			final CryptoException ce = new CryptoException((String) null, cause);
 
 			// Assert:
-			assertThat(ce.getCause(), sameInstance(cause));
 			assertThat(ce.getMessage(), nullValue());
+			assertThat(ce.getCause(), sameInstance(cause));
 		}
 
 		@Test
@@ -147,18 +138,6 @@ final class CryptoExceptionTest {
 	@Nested
 	final class CauseOnlyConstructor {
 		@Test
-		void canCreateWithOnlyCause() {
-			// Arrange:
-			final IOException cause = new IOException("file not found");
-
-			// Act:
-			final CryptoException ce = new CryptoException(cause);
-
-			// Assert:
-			assertThat(ce.getCause(), sameInstance(cause));
-		}
-
-		@Test
 		void messageIsGeneratedFromCause() {
 			// Arrange:
 			final String message = "invalid input";
@@ -179,6 +158,7 @@ final class CryptoExceptionTest {
 			final CryptoException ce = new CryptoException((Throwable) null);
 
 			// Assert: Should not throw
+			assertThat(ce.getMessage(), equalTo(null));
 			assertThat(ce.getCause(), nullValue());
 		}
 	}

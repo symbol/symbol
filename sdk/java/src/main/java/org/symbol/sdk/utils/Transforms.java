@@ -42,7 +42,21 @@ public final class Transforms {
 		return doFinal(hasher);
 	}
 
-	private static byte[] doFinal(final SHA3Digest hasher) {
+	/**
+	 * Hashes the in-order concatenation of {@code parts} with Keccak-256 (the pre-standardisation SHA3 used by NEM).
+	 *
+	 * @param parts Input buffers to hash, in order.
+	 * @return 32-byte Keccak-256 digest.
+	 */
+	public static byte[] keccak_256(final byte[]... parts) {
+		final KeccakDigest hasher = new KeccakDigest(256);
+		for (final byte[] part : parts)
+			hasher.update(part, 0, part.length);
+
+		return doFinal(hasher);
+	}
+
+	private static byte[] doFinal(final org.bouncycastle.crypto.Digest hasher) {
 		final byte[] out = new byte[hasher.getDigestSize()];
 		hasher.doFinal(out, 0);
 		return out;

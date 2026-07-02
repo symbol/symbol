@@ -1,5 +1,7 @@
 package org.symbol.sdk.utils;
 
+import java.util.Arrays;
+
 /**
  * Base32 encode / decode (RFC 4648, no padding) used by NEM and Symbol addresses.
  */
@@ -8,13 +10,19 @@ public final class Base32 {
 	private static final int DECODED_BLOCK_SIZE = 5;
 	private static final int ENCODED_BLOCK_SIZE = 8;
 
-	private static final java.util.Map<Character, Byte> CHAR_TO_DECODED;
+	// reverse of ALPHABET: maps a char to its 5-bit value, or -1 when the char is not a base32 symbol. Sized to just span
+	// the alphabet (its highest char, 'Z', + 1) rather than the full ASCII range; decodeChar bounds-checks above that.
+	private static final byte[] CHAR_TO_DECODED;
 
 	static {
-		final CharMapping.CharacterMapBuilder builder = CharMapping.createBuilder();
-		builder.addRange('A', 'Z', 0);
-		builder.addRange('2', '7', 26);
-		CHAR_TO_DECODED = builder.map();
+		int maxChar = 0;
+		for (final char symbol : ALPHABET)
+			maxChar = Math.max(maxChar, symbol);
+
+		CHAR_TO_DECODED = new byte[maxChar + 1];
+		Arrays.fill(CHAR_TO_DECODED, (byte) -1);
+		for (int i = 0; i < ALPHABET.length; ++i)
+			CHAR_TO_DECODED[ALPHABET[i]] = (byte) i;
 	}
 
 	private Base32() {
@@ -23,7 +31,7 @@ public final class Base32 {
 	// region encode
 
 	private static int byteToInt(final byte b) {
-		return (b & 0xFF);
+		return Byte.toUnsignedInt(b);
 	}
 
 	private static void encodeBlock(final byte[] input, final int inputOffset, final char[] output, final int outputOffset) {
@@ -39,14 +47,24 @@ public final class Base32 {
 
 	// endregion
 
+	/**
+	 * Returns whether {@code c} is a valid base32 (RFC 4648) symbol, i.e. one of {@code A-Z} or {@code 2-7}.
+	 *
+	 * @param c Character to test.
+	 * @return {@code true} if {@code c} is a base32 symbol.
+	 */
+	public static boolean isValidChar(final char c) {
+		return c < CHAR_TO_DECODED.length && 0 <= CHAR_TO_DECODED[c];
+	}
+
 	// region decode
 
-	private static Byte decodeChar(final char c) {
-		final Byte decoded = CHAR_TO_DECODED.get(c);
-		if (null != decoded)
-			return decoded;
+	private static byte decodeChar(final char c) {
+		final byte decoded = c < CHAR_TO_DECODED.length ? CHAR_TO_DECODED[c] : -1;
+		if (0 > decoded)
+			throw new IllegalArgumentException(String.format("illegal base32 character %c", c));
 
-		throw new IllegalArgumentException(String.format("illegal base32 character %c", c));
+		return decoded;
 	}
 
 	private static void decodeBlock(final char[] input, final int inputOffset, final byte[] output, final int outputOffset) {
@@ -73,7 +91,14 @@ public final class Base32 {
 		if (0 != data.length % DECODED_BLOCK_SIZE)
 			throw new IllegalArgumentException(String.format("decoded size must be multiple of %d", DECODED_BLOCK_SIZE));
 
-		final char[] output = new char[data.length / DECODED_BLOCK_SIZE * ENCODED_BLOCK_SIZE];
+		final int outputLength;
+		try {
+			outputLength = Math.multiplyExact(data.length / DECODED_BLOCK_SIZE, ENCODED_BLOCK_SIZE);
+		} catch (final ArithmeticException ex) {
+			throw new IllegalArgumentException(String.format("input too large to base32 encode: %d bytes", data.length), ex);
+		}
+
+		final char[] output = new char[outputLength];
 		for (int i = 0; i < data.length / DECODED_BLOCK_SIZE; ++i)
 			encodeBlock(data, i * DECODED_BLOCK_SIZE, output, i * ENCODED_BLOCK_SIZE);
 

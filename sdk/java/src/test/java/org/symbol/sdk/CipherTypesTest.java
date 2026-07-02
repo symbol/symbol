@@ -2,7 +2,10 @@ package org.symbol.sdk;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.function.Function;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,6 +44,46 @@ final class CipherTypesTest {
 		}
 	}
 
+	private static class CipherTestHelper<T extends CipherTypes.SymmetricCipher> {
+		private final Function<CryptoTypes.SharedKey256, T> factory;
+		private final TestCase[] testCases;
+
+		CipherTestHelper(final Function<CryptoTypes.SharedKey256, T> factory, final TestCase[] testCases) {
+			this.factory = factory;
+			this.testCases = testCases;
+		}
+
+		void assertCanEncryptOrDecrypt(final boolean encryptMode) {
+			for (int i = 0; i < testCases.length; ++i) {
+				final TestCase tc = testCases[i];
+				final T cipher = factory.apply(tc.sharedKey());
+				final byte[] result = encryptMode
+						? cipher.encrypt(tc.clearText(), tc.iv())
+						: cipher.decrypt(tc.cipherTextWithTag(), tc.iv());
+				assertThat("id " + i, result, equalTo(encryptMode ? tc.cipherTextWithTag() : tc.clearText()));
+			}
+		}
+
+		public void assertCanEncrypt() {
+			assertCanEncryptOrDecrypt(true);
+		}
+
+		public void assertCanDecrypt() {
+			assertCanEncryptOrDecrypt(false);
+		}
+
+		void assertDecryptRejectsWrongIv() {
+			// Arrange: an authenticated cipher (GCM) rejects a wrong IV because the tag no longer verifies
+			final TestCase tc = testCases[0];
+			final T cipher = factory.apply(tc.sharedKey());
+			final byte[] wrongIv = tc.iv();
+			wrongIv[0] ^= (byte) 0xFF; // deterministic wrong IV (mirrors the CBC test) — never depends on RNG not colliding
+
+			// Act + Assert:
+			assertThrows(CryptoException.class, () -> cipher.decrypt(tc.cipherTextWithTag(), wrongIv));
+		}
+	}
+
 	@Nested
 	final class AesCbcCipherTest {
 		// Test vectors from the wycheproof project (aes_cbc_pkcs5_test.json).
@@ -56,46 +99,39 @@ final class CipherTypesTest {
 
 		@Test
 		void canEncrypt() {
-			// Act + Assert:
-			for (int i = 0; i < testCases.length; ++i) {
-				final TestCase tc = testCases[i];
-				final CipherTypes.AesCbcCipher cipher = new CipherTypes.AesCbcCipher(tc.sharedKey());
-				final byte[] result = cipher.encrypt(tc.clearText(), tc.iv());
-				assertThat("id " + i, result, equalTo(tc.cipherTextWithTag()));
-			}
+			new CipherTestHelper<>(CipherTypes.AesCbcCipher::new, testCases).assertCanEncrypt();
 		}
 
 		@Test
 		void canDecrypt() {
-			// Act + Assert:
-			for (int i = 0; i < testCases.length; ++i) {
-				final TestCase tc = testCases[i];
-				final CipherTypes.AesCbcCipher cipher = new CipherTypes.AesCbcCipher(tc.sharedKey());
-				final byte[] result = cipher.decrypt(tc.cipherTextWithTag(), tc.iv());
-				assertThat("id " + i, result, equalTo(tc.clearText()));
-			}
+			new CipherTestHelper<>(CipherTypes.AesCbcCipher::new, testCases).assertCanDecrypt();
 		}
 
 		@Test
-		void cannotDecryptWithWrongIv() {
-			// Arrange:
-			final TestCase tc = testCases[0];
+		void decryptWithWrongIvProducesDifferentPlaintext() {
+			// AES-CBC is unauthenticated, so a wrong IV does not reject — it corrupts only the first block. Use the
+			// multi-block vector (its PKCS7 padding sits in the last block, which the IV does not affect) so decryption
+			// reliably succeeds, then assert the recovered plaintext merely differs from the original.
+			final TestCase tc = testCases[2];
 			final CipherTypes.AesCbcCipher cipher = new CipherTypes.AesCbcCipher(tc.sharedKey());
-			final byte[] wrongIv = new byte[tc.iv().length];
-			new java.security.SecureRandom().nextBytes(wrongIv);
+			final byte[] wrongIv = tc.iv();
+			wrongIv[0] ^= (byte) 0xFF;
 
-			// Act + Assert:
-			assertThrows(IllegalStateException.class, () -> cipher.decrypt(tc.cipherText(), wrongIv));
+			// Act:
+			final byte[] decrypted = cipher.decrypt(tc.cipherText(), wrongIv);
+
+			// Assert:
+			assertThat(decrypted, not(equalTo(tc.clearText())));
 		}
 
 		@Test
-		void encryptWrapsSecurityExceptionAsIllegalState() {
+		void encryptWrapsSecurityExceptionAsCryptoException() {
 			// Arrange:
 			final CipherTypes.AesCbcCipher cipher = new CipherTypes.AesCbcCipher(testCases[0].sharedKey());
 
 			// Act + Assert:
 			// AES/CBC requires a 16-byte IV; a 3-byte IV makes Cipher.init throw a GeneralSecurityException.
-			assertThrows(IllegalStateException.class, () -> cipher.encrypt(new byte[16], new byte[3]));
+			assertThrows(CryptoException.class, () -> cipher.encrypt(new byte[16], new byte[3]));
 		}
 	}
 
@@ -119,38 +155,21 @@ final class CipherTypesTest {
 								+ "826CEA6B36FCE452FA9B5475E2AAF25499499D8A8932A19EB987C903BD8502FE")
 		};
 
+		final CipherTestHelper<CipherTypes.AesGcmCipher> helper = new CipherTestHelper<>(CipherTypes.AesGcmCipher::new, testCases);
+
 		@Test
 		void canEncrypt() {
-			// Act + Assert:
-			for (int i = 0; i < testCases.length; ++i) {
-				final TestCase tc = testCases[i];
-				final CipherTypes.AesGcmCipher cipher = new CipherTypes.AesGcmCipher(tc.sharedKey());
-				final byte[] result = cipher.encrypt(tc.clearText(), tc.iv());
-				assertThat("id " + i, result, equalTo(tc.cipherTextWithTag()));
-			}
+			helper.assertCanEncrypt();
 		}
 
 		@Test
 		void canDecrypt() {
-			// Act + Assert:
-			for (int i = 0; i < testCases.length; ++i) {
-				final TestCase tc = testCases[i];
-				final CipherTypes.AesGcmCipher cipher = new CipherTypes.AesGcmCipher(tc.sharedKey());
-				final byte[] result = cipher.decrypt(tc.cipherTextWithTag(), tc.iv());
-				assertThat("id " + i, result, equalTo(tc.clearText()));
-			}
+			helper.assertCanDecrypt();
 		}
 
 		@Test
 		void cannotDecryptWithWrongIv() {
-			// Arrange:
-			final TestCase tc = testCases[0];
-			final CipherTypes.AesGcmCipher cipher = new CipherTypes.AesGcmCipher(tc.sharedKey());
-			final byte[] wrongIv = new byte[tc.iv().length];
-			new java.security.SecureRandom().nextBytes(wrongIv);
-
-			// Act + Assert:
-			assertThrows(IllegalStateException.class, () -> cipher.decrypt(tc.cipherTextWithTag(), wrongIv));
+			helper.assertDecryptRejectsWrongIv();
 		}
 
 		@Test
@@ -158,15 +177,15 @@ final class CipherTypesTest {
 			// Arrange:
 			final TestCase tc = testCases[0];
 			final CipherTypes.AesGcmCipher cipher = new CipherTypes.AesGcmCipher(tc.sharedKey());
-			final byte[] tagBytes = new byte[tc.tag().length];
-			new java.security.SecureRandom().nextBytes(tagBytes);
+			final byte[] tagBytes = tc.tag();
+			tagBytes[0] ^= (byte) 0xFF; // deterministic wrong tag — never depends on RNG not colliding with the authentic tag
 			final byte[] cipherText = tc.cipherText();
 			final byte[] withWrongTag = new byte[cipherText.length + tagBytes.length];
 			System.arraycopy(cipherText, 0, withWrongTag, 0, cipherText.length);
 			System.arraycopy(tagBytes, 0, withWrongTag, cipherText.length, tagBytes.length);
 
 			// Act + Assert:
-			assertThrows(IllegalStateException.class, () -> cipher.decrypt(withWrongTag, tc.iv()));
+			assertThrows(CryptoException.class, () -> cipher.decrypt(withWrongTag, tc.iv()));
 		}
 	}
 }

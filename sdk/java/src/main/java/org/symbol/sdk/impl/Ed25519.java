@@ -47,23 +47,20 @@ public final class Ed25519 {
 		if (!Tweetnacl.signDetachedVerify(message, signature, publicKey, mode))
 			return false;
 
-		final byte[] encodedS = new byte[32];
-		System.arraycopy(signature, 32, encodedS, 0, 32);
-		return isCanonicalS(encodedS);
+		return isCanonicalS(signature);
 	}
 
-	private static boolean isCanonicalS(final byte[] encodedS) {
-		// require canonical signature
+	private static boolean isCanonicalS(final byte[] signature) {
+		// require a canonical signature: S (the high 32 bytes of the 64-byte signature) must already be reduced mod L. Read
+		// S in place and range-compare it against the reduced result, avoiding two throwaway 32-byte arrays on the verify path.
 		final double[] x = new double[64];
 		for (int i = 0; i < 32; ++i)
-			x[i] = encodedS[i] & 0xFF;
+			x[i] = signature[32 + i] & 0xFF;
 		// rest is zero
 
-		final byte[] reducedEncodedS = new byte[64];
+		final byte[] reducedEncodedS = new byte[32];
 		Tweetnacl.modL(reducedEncodedS, 0, x);
 
-		final byte[] reducedFirst32 = new byte[32];
-		System.arraycopy(reducedEncodedS, 0, reducedFirst32, 0, 32);
-		return Arrays.equals(encodedS, reducedFirst32);
+		return Arrays.equals(signature, 32, 64, reducedEncodedS, 0, 32);
 	}
 }

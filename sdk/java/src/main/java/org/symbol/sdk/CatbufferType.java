@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.symbol.sdk.utils.Converter;
 import org.symbol.sdk.utils.Writer;
 
 /**
@@ -12,15 +13,16 @@ import org.symbol.sdk.utils.Writer;
  */
 public abstract class CatbufferType implements Serializer {
 	/**
-	 * * Calculates the size of the object when serialized. Every generated struct overrides.
+	 * Serializes this object to bytes: allocates a {@link Writer} sized by {@link #size()} and threads it through
+	 * {@link #serializeInto(Writer)}.
 	 *
-	 * @return bytes.
+	 * @return Serialized bytes.
 	 */
 	@Override
 	public final byte[] serialize() {
 		final Writer buffer = new Writer(this.size());
 		serializeInto(buffer);
-		return buffer.storage;
+		return buffer.storage();
 	}
 
 	/**
@@ -32,15 +34,12 @@ public abstract class CatbufferType implements Serializer {
 	protected abstract void serializeInto(Writer buffer);
 
 	/**
-	 * Returns the JSON-serializable projection of this object (nested {@code Map}/{@code List} tree with string-encoded u64 values). Every
-	 * generated struct overrides; the projection is a wire snapshot, not a descriptor — byte fields render as hex while descriptor input
-	 * reads strings as UTF-8 text.
+	 * Returns the JSON-serializable projection of this object (nested {@code Map}/{@code List} tree with string-encoded u64 values); the
+	 * projection is a wire snapshot, not a descriptor — byte fields render as hex while descriptor input reads strings as UTF-8 text.
 	 *
 	 * @return JSON-serializable representation of this object.
 	 */
-	public Object toJson() {
-		throw new UnsupportedOperationException(getClass().getName() + " does not implement toJson");
-	}
+	public abstract Object toJson();
 
 	/**
 	 * Serializes {@link #toJson()} to a JSON document.
@@ -109,7 +108,7 @@ public abstract class CatbufferType implements Serializer {
 	 * @param elementType Expected element class.
 	 * @return Mutable list of checked elements, or {@code null} when {@code value} is null.
 	 */
-	protected static <T> java.util.List<T> asList(final Object value, final Class<T> elementType) {
+	protected static final <T> java.util.List<T> asList(final Object value, final Class<T> elementType) {
 		if (null == value)
 			return null;
 
@@ -117,6 +116,7 @@ public abstract class CatbufferType implements Serializer {
 		final java.util.List<T> result = new java.util.ArrayList<>(list.size());
 		for (final Object element : list)
 			result.add(elementType.cast(element));
+
 		return result;
 	}
 
@@ -127,7 +127,7 @@ public abstract class CatbufferType implements Serializer {
 	 * @param value Source value.
 	 * @return Byte array view of the value.
 	 */
-	protected static byte[] asBytes(final Object value) {
+	protected static final byte[] asBytes(final Object value) {
 		if (null == value)
 			return null;
 
@@ -140,12 +140,13 @@ public abstract class CatbufferType implements Serializer {
 		if (value instanceof ByteArray byteArray)
 			return byteArray.bytes();
 
-		throw new InvalidDescriptorException("cannot adapt " + value.getClass().getName() + " to byte[]");
+		throw new IllegalArgumentException("cannot convert " + value.getClass().getName() + " to byte[]");
 	}
 
 	/**
 	 * Convert a descriptor value into a {@link ByteArray} subtype: short-circuits when the value already matches the target type, otherwise
-	 * rewraps the underlying bytes via the supplied constructor reference.
+	 * rewraps the underlying bytes of a same-named ByteArray twin (across packages) or a raw {@code byte[]} via the supplied constructor
+	 * reference; an unrelated ByteArray type is rejected.
 	 *
 	 * @param value Source value.
 	 * @param target Target class (also used for {@link Class#isInstance} short-circuit).
@@ -153,73 +154,57 @@ public abstract class CatbufferType implements Serializer {
 	 * @param <T> Target type.
 	 * @return Adapted value (or {@code null} when {@code value} is {@code null}).
 	 */
-	protected static <T extends ByteArray> T asByteArray(final Object value, final Class<T> target, final Function<byte[], T> ctor) {
+	protected static final <T extends ByteArray> T asByteArray(final Object value, final Class<T> target, final Function<byte[], T> ctor) {
 		if (null == value)
 			return null;
 
 		if (target.isInstance(value))
 			return target.cast(value);
 
-		if (value instanceof ByteArray byteArray)
+		// bridge a same-named ByteArray across packages: hand-written CryptoTypes values adapt to their generated model twin
+		// (e.g. CryptoTypes.PublicKey -> models.PublicKey).
+		if (value instanceof ByteArray byteArray && value.getClass().getSimpleName().equals(target.getSimpleName()))
 			return ctor.apply(byteArray.bytes());
 
 		if (value instanceof byte[] bytes)
 			return ctor.apply(bytes);
 
-		throw new InvalidDescriptorException(String.format("cannot adapt %s to %s", value.getClass().getName(), target.getSimpleName()));
+		throw new IllegalArgumentException(String.format("cannot convert %s to %s", value.getClass().getName(), target.getSimpleName()));
 	}
 
 	/**
-	 *
-	 * Convert a descriptor value to {@code int}. Accepts any {@link Number}.
+	 * Converts a descriptor value to an exact {@code int} via {@link Converter#toInt(Number)} / {@link Converter#toInt(String)}: a
+	 * fixed-width integral wrapper or a decimal/{@code 0x}-hex string, rejecting out-of-range values rather than truncating.
 	 *
 	 * @param value Source value.
 	 * @return Integer value.
 	 */
-	protected static int asInt(final Object value) {
-		if (value instanceof Number number)
-			return number.intValue();
+	protected static final int asInt(final Object value) {
+		if (value instanceof String string)
+			return Converter.toInt(string);
 
-		throw new InvalidDescriptorException("cannot adapt " + value.getClass().getName() + " to int");
+		if (value instanceof Number number)
+			return Converter.toInt(number);
+
+		throw new IllegalArgumentException("cannot convert " + (null == value ? "null" : value.getClass().getName()) + " to int");
 	}
 
 	/**
-	 * Convert a descriptor value to {@code long}. Accepts any {@link Number}.
+	 * Converts a descriptor value to a {@code long} via {@link Converter#toLong(Number)} / {@link Converter#toLong(String)}: a fixed-width
+	 * integral wrapper or a decimal/{@code 0x}-hex string ({@link java.math.BigInteger} and non-integral {@link Float}/{@link Double} are
+	 * rejected — pass a u64 {@code >= 2^63} as a string).
 	 *
 	 * @param value Source value.
 	 * @return Long value.
 	 */
-	protected static long asLong(final Object value) {
+	protected static final long asLong(final Object value) {
+		if (value instanceof String string)
+			return Converter.toLong(string);
+
 		if (value instanceof Number number)
-			return number.longValue();
+			return Converter.toLong(number);
 
-		throw new InvalidDescriptorException("cannot adapt " + value.getClass().getName() + " to long");
-	}
-
-	/**
-	 * Convert a descriptor value to {@code short}. Accepts any {@link Number}.
-	 *
-	 * @param value Source value.
-	 * @return Short value.
-	 */
-	protected static short asShort(final Object value) {
-		if (value instanceof Number number)
-			return number.shortValue();
-
-		throw new InvalidDescriptorException("cannot adapt " + value.getClass().getName() + " to short");
-	}
-
-	/**
-	 * Convert a descriptor value to {@code byte}. Accepts any {@link Number}.
-	 *
-	 * @param value Source value.
-	 * @return Byte value.
-	 */
-	protected static byte asByte(final Object value) {
-		if (value instanceof Number number)
-			return number.byteValue();
-
-		throw new InvalidDescriptorException("cannot adapt " + value.getClass().getName() + " to byte");
+		throw new IllegalArgumentException("cannot convert " + (null == value ? "null" : value.getClass().getName()) + " to long");
 	}
 
 	// endregion

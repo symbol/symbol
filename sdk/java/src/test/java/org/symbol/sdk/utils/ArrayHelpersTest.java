@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.junit.jupiter.api.Nested;
@@ -96,15 +97,19 @@ final class ArrayHelpersTest {
 		}
 
 		@Override
-		public TaggedElement deserialize(final byte[] buffer, final int offset) {
-			final int tag = startTag + offset;
+		public TaggedElement deserialize(final BufferView view) {
+			// the view is positioned at the element start but not advanced
+			final int tag = startTag + Byte.toUnsignedInt(view.peekBytes(1)[0]);
 			return new TaggedElement(sizes[index++], tag);
 		}
 	}
 
-	private static byte[] makeSubView(final int viewSize) {
-		// window at offset 15 — only positions matter, observed via the mock factory
-		return new byte[viewSize];
+	private static BufferView makeSubView(final int viewSize) {
+		// fill each byte with its own index so the mock factory can recover the cursor position by reading it
+		final byte[] backing = new byte[viewSize];
+		for (int i = 0; i < viewSize; ++i)
+			backing[i] = (byte) i;
+		return new BufferView(backing);
 	}
 
 	private static List<MockElement> makeElements(final int[] sizes) {
@@ -137,8 +142,11 @@ final class ArrayHelpersTest {
 	}
 
 	private static byte[] sliceWritten(final Writer writer) {
-		return Arrays.copyOf(writer.storage, writer.offset);
+		return Arrays.copyOf(writer.storage(), writer.offset());
 	}
+
+	// strictly-increasing sort-key comparator used by the order-validation cases
+	private static final Comparator<MockElement> BY_SIZE = Comparator.comparingInt(MockElement::size);
 
 	// endregion
 
@@ -147,13 +155,17 @@ final class ArrayHelpersTest {
 	@Nested
 	final class AlignUp {
 		private void assertAlignUp(final int lo, final int hi, final int alignment, final int expectedValue) {
-			for (int i = lo; i <= hi; ++i)
-				assertThat(ArrayHelpers.alignUp(i, alignment), equalTo(expectedValue));
+			for (int i = lo; i <= hi; ++i) {
+				// Act:
+				final int actual = ArrayHelpers.alignUp(i, alignment);
+
+				// Assert:
+				assertThat(actual, equalTo(expectedValue));
+			}
 		}
 
 		@Test
 		void alwaysAlignsUp() {
-			// Act + Assert:
 			assertAlignUp(0, 0, 8, 0);
 			assertAlignUp(1, 8, 8, 8);
 			assertAlignUp(9, 16, 8, 16);
@@ -162,7 +174,6 @@ final class ArrayHelpersTest {
 
 		@Test
 		void canAlignUsingCustomAlignment() {
-			// Act + Assert:
 			assertAlignUp(0, 0, 11, 0);
 			assertAlignUp(1, 11, 11, 11);
 			assertAlignUp(12, 22, 11, 22);
@@ -177,8 +188,13 @@ final class ArrayHelpersTest {
 	@Nested
 	final class Size {
 		private void assertSize(final int[] sizes, final int expectedSize, final int alignment, final boolean skipLastElementPadding) {
+			// Arrange:
 			final List<MockElement> elements = makeElements(sizes);
+
+			// Act:
 			final int elementsSize = ArrayHelpers.size(elements, alignment, skipLastElementPadding);
+
+			// Assert:
 			assertThat(elementsSize, equalTo(expectedSize));
 		}
 
@@ -192,7 +208,6 @@ final class ArrayHelpersTest {
 
 		@Test
 		void returnsSumOfSizes() {
-			// Act + Assert:
 			assertSize(new int[]{}, 0, 0, false);
 			assertSize(new int[]{
 					13
@@ -207,7 +222,6 @@ final class ArrayHelpersTest {
 
 		@Test
 		void returnsSumOfAlignedSizes() {
-			// Act + Assert:
 			assertSizeAligned(new int[]{}, 0);
 			assertSizeAligned(new int[]{
 					1
@@ -225,7 +239,6 @@ final class ArrayHelpersTest {
 
 		@Test
 		void returnsSumOfAlignedSizesExLast() {
-			// Act + Assert:
 			assertSizeAlignedExLast(new int[]{}, 0);
 			assertSizeAlignedExLast(new int[]{
 					1
@@ -252,22 +265,31 @@ final class ArrayHelpersTest {
 	 */
 	private static void runReadTraits(final int[] sizes, final int viewSize, final List<TaggedElement> expectedElements,
 			final ReadInvoker readInvoker) {
-		final byte[] subView = makeSubView(viewSize);
+		// Arrange:
+		final BufferView subView = makeSubView(viewSize);
 		final MockFactory factory = new MockFactory(sizes, 15, viewSize);
-		assertThat(readInvoker.invoke(subView, factory), equalTo(expectedElements));
+
+		// Act:
+		final List<TaggedElement> actual = readInvoker.invoke(subView, factory);
+
+		// Assert:
+		assertThat(actual, equalTo(expectedElements));
 	}
 
 	@FunctionalInterface
 	private interface ReadInvoker {
-		List<TaggedElement> invoke(byte[] subView, ArrayHelpers.Factory<TaggedElement> factory);
+		List<TaggedElement> invoke(BufferView subView, ArrayHelpers.Factory<TaggedElement> factory);
 	}
 
 	private static void assertThrowsWhenAnyElementHasZeroSize(final ReadInvoker readInvoker) {
+		// Arrange:
 		final int[] sizes = {
 				10, 11, 0, 1, 1
 		};
-		final byte[] subView = makeSubView(52);
+		final BufferView subView = makeSubView(52);
 		final MockFactory factory = new MockFactory(sizes, 15, 52);
+
+		// Act + Assert:
 		final IndexOutOfBoundsException ex = assertThrows(IndexOutOfBoundsException.class, () -> readInvoker.invoke(subView, factory));
 		assertThat(ex.getMessage(), equalTo("element size has invalid size"));
 	}
@@ -280,17 +302,28 @@ final class ArrayHelpersTest {
 	final class ReadArray {
 		@Test
 		void throwsWhenAnyElementHasZeroSize() {
-			// Act + Assert:
 			assertThrowsWhenAnyElementHasZeroSize((subView, factory) -> ArrayHelpers.readArray(subView, factory));
 		}
 
 		@Test
 		void traitBasedReaderTests() {
-			// Act + Assert:
 			runReadTraits(new int[]{
 					10, 11, 12, 13, 6
 			}, 52, List.of(new TaggedElement(10, 15), new TaggedElement(11, 25), new TaggedElement(12, 36), new TaggedElement(13, 48),
 					new TaggedElement(6, 61)), (subView, factory) -> ArrayHelpers.readArray(subView, factory));
+		}
+
+		@Test
+		void acceptsSortedElements() {
+			// Arrange:
+			final java.util.Iterator<Integer> sizes = List.of(3, 4).iterator();
+			final ArrayHelpers.Factory<MockElement> factory = view -> new MockElement(sizes.next());
+
+			// Act:
+			final List<MockElement> elements = ArrayHelpers.readArray(new BufferView(new byte[7]), factory, BY_SIZE);
+
+			// Assert: sorted elements are accepted and returned in order.
+			assertThat(elements.stream().map(MockElement::size).toList(), equalTo(List.of(3, 4)));
 		}
 	}
 
@@ -302,17 +335,38 @@ final class ArrayHelpersTest {
 	final class ReadArrayCount {
 		@Test
 		void throwsWhenAnyElementHasZeroSize() {
-			// Act + Assert:
 			assertThrowsWhenAnyElementHasZeroSize((subView, factory) -> ArrayHelpers.readArrayCount(subView, factory, 3));
 		}
 
 		@Test
 		void traitBasedReaderTests() {
-			// Act + Assert:
 			runReadTraits(new int[]{
 					10, 11, 12, 43, 79
 			}, 52, List.of(new TaggedElement(10, 15), new TaggedElement(11, 25), new TaggedElement(12, 36)),
 					(subView, factory) -> ArrayHelpers.readArrayCount(subView, factory, 3));
+		}
+
+		@Test
+		void throwsOnNegativeCount() {
+			// Arrange: a corrupt u32 count field can narrow below zero; it must throw rather than silently read nothing
+			final MockFactory factory = new MockFactory(new int[0], 15, 52);
+
+			// Act + Assert:
+			assertThrows(IndexOutOfBoundsException.class, () -> ArrayHelpers.readArrayCount(makeSubView(52), factory, -1));
+		}
+
+		@Test
+		void rejectsUnsortedElements() {
+			// Arrange: elements deserialize with sizes 4, 3 — decreasing, so the read must throw.
+			final java.util.Iterator<Integer> sizes = List.of(4, 3).iterator();
+			final ArrayHelpers.Factory<MockElement> factory = view -> new MockElement(sizes.next());
+
+			// Act:
+			final IllegalStateException ex = assertThrows(IllegalStateException.class,
+					() -> ArrayHelpers.readArrayCount(new BufferView(new byte[7]), factory, 2, BY_SIZE));
+
+			// Assert:
+			assertThat(ex.getMessage(), equalTo("elements in array are not sorted"));
 		}
 	}
 
@@ -324,19 +378,7 @@ final class ArrayHelpersTest {
 	final class ReadVariableSizeElements {
 		@Test
 		void throwsWhenAnyElementHasZeroSize() {
-			// Arrange:
-			final int[] sizes = {
-					10, 11, 0, 1, 1
-			};
-			final byte[] subView = makeSubView(52);
-			final MockFactory factory = new MockFactory(sizes, 15, 52);
-
-			// Act:
-			final IndexOutOfBoundsException ex = assertThrows(IndexOutOfBoundsException.class,
-					() -> ArrayHelpers.readVariableSizeElements(subView, factory, 4));
-
-			// Assert:
-			assertThat(ex.getMessage(), equalTo("element size has invalid size"));
+			assertThrowsWhenAnyElementHasZeroSize((subView, factory) -> ArrayHelpers.readVariableSizeElements(subView, factory, 4, false));
 		}
 
 		@Test
@@ -345,14 +387,14 @@ final class ArrayHelpersTest {
 			final int[] sizes = {
 					7, 11, 12, 13, 3
 			};
-			final byte[] subView = makeSubView(52);
+			final BufferView subView = makeSubView(52);
 			final MockFactory factory = new MockFactory(sizes, 15, 52);
 			final List<TaggedElement> expectedElements = List.of(new TaggedElement(7, 15), new TaggedElement(11, 15 + 8),
 					new TaggedElement(12, 15 + 8 + 12), new TaggedElement(13, 15 + 8 + 12 + 12),
 					new TaggedElement(3, 15 + 8 + 12 + 12 + 16));
 
 			// Act:
-			final List<TaggedElement> elements = ArrayHelpers.readVariableSizeElements(subView, factory, 4);
+			final List<TaggedElement> elements = ArrayHelpers.readVariableSizeElements(subView, factory, 4, false);
 
 			// Assert:
 			assertThat(elements, equalTo(expectedElements));
@@ -364,7 +406,7 @@ final class ArrayHelpersTest {
 			final int[] sizes = {
 					23, 25
 			};
-			final byte[] subView = makeSubView(49);
+			final BufferView subView = makeSubView(49);
 			final MockFactory factory = new MockFactory(sizes, 15, 49);
 
 			// Sanity: use same context, but readArray
@@ -372,14 +414,17 @@ final class ArrayHelpersTest {
 				final int[] sanitySizes = {
 						24, 25
 				};
-				final byte[] subView2 = makeSubView(49);
+				final BufferView subView2 = makeSubView(49);
 				final MockFactory factory2 = new MockFactory(sanitySizes, 15, 49);
 				final List<TaggedElement> elements = ArrayHelpers.readArray(subView2, factory2);
 				assertThat(elements, equalTo(List.of(new TaggedElement(24, 15), new TaggedElement(25, 15 + 24))));
 			}
 
+			// Act:
 			final IndexOutOfBoundsException ex = assertThrows(IndexOutOfBoundsException.class,
-					() -> ArrayHelpers.readVariableSizeElements(subView, factory, 4));
+					() -> ArrayHelpers.readVariableSizeElements(subView, factory, 4, false));
+
+			// Assert:
 			assertThat(ex.getMessage(), equalTo("unexpected buffer length"));
 		}
 
@@ -389,7 +434,7 @@ final class ArrayHelpersTest {
 			final int[] sizes = {
 					23, 25
 			};
-			final byte[] subView = makeSubView(49);
+			final BufferView subView = makeSubView(49);
 			final MockFactory factory = new MockFactory(sizes, 15, 49);
 			final List<TaggedElement> expectedElements = List.of(new TaggedElement(23, 15), new TaggedElement(25, 15 + 24));
 
@@ -406,11 +451,11 @@ final class ArrayHelpersTest {
 			final int[] sizes = {
 					23, 25
 			};
-			final byte[] subView = makeSubView(48);
+			final BufferView subView = makeSubView(48);
 			final MockFactory factory = new MockFactory(sizes, 15, 48);
 
 			final IndexOutOfBoundsException ex = assertThrows(IndexOutOfBoundsException.class,
-					() -> ArrayHelpers.readVariableSizeElements(subView, factory, 4));
+					() -> ArrayHelpers.readVariableSizeElements(subView, factory, 4, false));
 			assertThat(ex.getMessage(), equalTo("unexpected buffer length"));
 		}
 	}
@@ -425,9 +470,14 @@ final class ArrayHelpersTest {
 	}
 
 	private static void runWriteTraits(final WriteInvoker writeInvoker, final byte[] expectedBytes) {
+		// Arrange:
 		final List<MockElement> elements = makeDefaultElements();
 		final Writer output = new Writer(1024);
+
+		// Act:
 		writeInvoker.invoke(output, elements);
+
+		// Assert:
 		assertThat(sliceWritten(output), equalTo(expectedBytes));
 	}
 
@@ -445,87 +495,42 @@ final class ArrayHelpersTest {
 			// Act + Assert:
 			runWriteTraits((output, elements) -> ArrayHelpers.writeArray(output, elements), expected);
 		}
-	}
-
-	// endregion
-
-	// region sorted-order validation
-
-	@Nested
-	final class OrderValidation {
-		private final java.util.Comparator<MockElement> bySize = java.util.Comparator.comparingInt(MockElement::size);
 
 		@Test
-		void writeArrayAcceptsSortedElements() {
+		void acceptsSortedElements() {
 			// Arrange:
+			final List<MockElement> elements = List.of(new MockElement(1), new MockElement(2), new MockElement(3));
 			final Writer output = new Writer(1 + 2 + 3);
 
 			// Act:
-			ArrayHelpers.writeArray(output, java.util.List.of(new MockElement(1), new MockElement(2), new MockElement(3)), bySize);
+			ArrayHelpers.writeArray(output, elements, BY_SIZE);
+
+			// Assert: sorted elements are accepted and written in order.
+			assertThat(sliceWritten(output), equalTo(expectedSerializedSlice(elements, 3)));
 		}
 
 		@Test
-		void writeArrayRejectsUnsortedElements() {
+		void rejectsUnsortedElements() {
 			// Arrange:
 			final Writer output = new Writer(1 + 3 + 2);
 
 			// Act:
-			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ArrayHelpers.writeArray(output,
-					java.util.List.of(new MockElement(1), new MockElement(3), new MockElement(2)), bySize));
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+					() -> ArrayHelpers.writeArray(output, List.of(new MockElement(1), new MockElement(3), new MockElement(2)), BY_SIZE));
 
 			// Assert:
 			assertThat(ex.getMessage(), equalTo("array passed to write array is not sorted"));
 		}
 
 		@Test
-		void writeArrayRejectsEqualAdjacentElements() {
+		void rejectsEqualAdjacentElements() {
 			// strictly increasing: duplicates are rejected too.
 			// Arrange:
 			final Writer output = new Writer(2 + 2);
 
 			// Act + Assert:
 			assertThrows(IllegalArgumentException.class,
-					() -> ArrayHelpers.writeArray(output, java.util.List.of(new MockElement(2), new MockElement(2)), bySize));
-		}
-
-		@Test
-		void writeArrayCountValidatesOnlyWrittenPrefix() {
-			// the unsorted element sits past the count window, so it is neither written nor validated.
-			// Arrange:
-			final Writer output = new Writer(1 + 2);
-
-			// Act:
-			ArrayHelpers.writeArrayCount(output, java.util.List.of(new MockElement(1), new MockElement(2), new MockElement(1)), 2, bySize);
-		}
-
-		@Test
-		void readArrayCountRejectsUnsortedElements() {
-			// elements deserialize with sizes 4, 3 — decreasing, so the read must throw.
-			// Arrange:
-			final byte[] buffer = new byte[7];
-			final java.util.Iterator<Integer> sizes = java.util.List.of(4, 3).iterator();
-			final ArrayHelpers.Factory<MockElement> factory = (payload, offset) -> new MockElement(sizes.next());
-
-			// Act:
-			final IllegalStateException ex = assertThrows(IllegalStateException.class,
-					() -> ArrayHelpers.readArrayCount(buffer, 0, buffer.length, factory, 2, bySize));
-
-			// Assert:
-			assertThat(ex.getMessage(), equalTo("elements in array are not sorted"));
-		}
-
-		@Test
-		void readArrayAcceptsSortedElements() {
-			// Arrange:
-			final byte[] buffer = new byte[7];
-			final java.util.Iterator<Integer> sizes = java.util.List.of(3, 4).iterator();
-			final ArrayHelpers.Factory<MockElement> factory = (payload, offset) -> new MockElement(sizes.next());
-
-			// Act:
-			final java.util.List<MockElement> elements = ArrayHelpers.readArray(buffer, 0, buffer.length, factory, bySize);
-
-			// Assert:
-			assertThat(elements.size(), equalTo(2));
+					() -> ArrayHelpers.writeArray(output, List.of(new MockElement(2), new MockElement(2)), BY_SIZE));
 		}
 	}
 
@@ -542,6 +547,20 @@ final class ArrayHelpersTest {
 
 			// Act + Assert:
 			runWriteTraits((output, elements) -> ArrayHelpers.writeArrayCount(output, elements, 3), expected);
+		}
+
+		@Test
+		void validatesOnlyWrittenPrefix() {
+			// the unsorted element sits past the count window, so it is neither written nor validated.
+			// Arrange:
+			final List<MockElement> elements = List.of(new MockElement(1), new MockElement(2), new MockElement(1));
+			final Writer output = new Writer(1 + 2);
+
+			// Act:
+			ArrayHelpers.writeArrayCount(output, elements, 2, BY_SIZE);
+
+			// Assert: only the first 2 (sorted) elements are written.
+			assertThat(sliceWritten(output), equalTo(expectedSerializedSlice(elements, 2)));
 		}
 	}
 
@@ -596,6 +615,111 @@ final class ArrayHelpersTest {
 					(byte) 0x8D
 			};
 			assertThat(sliceWritten(output), equalTo(expected));
+		}
+	}
+
+	// endregion
+
+	// region concat
+
+	@Nested
+	final class Concat {
+		@Test
+		void noPartsProducesEmptyArray() {
+			assertThat(ArrayHelpers.concat(), equalTo(new byte[0]));
+		}
+
+		@Test
+		void singlePartIsContentEqualButAFreshArray() {
+			// Act:
+			final byte[] part = {
+					1, 2, 3
+			};
+			final byte[] result = ArrayHelpers.concat(part);
+
+			// Assert: content equal, but a new array (concat always allocates)
+			assertThat(result, equalTo(new byte[]{
+					1, 2, 3
+			}));
+			assertThat(result != part, equalTo(true));
+		}
+
+		@Test
+		void joinsPartsInOrderAndSkipsEmptyOnes() {
+			assertThat(ArrayHelpers.concat(new byte[]{
+					1, 2
+			}, new byte[0], new byte[]{
+					3
+			}, new byte[]{
+					4, 5
+			}), equalTo(new byte[]{
+					1, 2, 3, 4, 5
+			}));
+		}
+
+		@Test
+		void doesNotMutateInputs() {
+			// Arrange:
+			final byte[] a = {
+					1, 2
+			};
+			final byte[] b = {
+					3, 4
+			};
+
+			// Act:
+			ArrayHelpers.concat(a, b);
+
+			// Assert:
+			assertThat(a, equalTo(new byte[]{
+					1, 2
+			}));
+			assertThat(b, equalTo(new byte[]{
+					3, 4
+			}));
+		}
+	}
+
+	// endregion
+
+	// region reverse
+
+	@Nested
+	final class Reverse {
+		@Test
+		void emptyReversesToEmpty() {
+			assertThat(ArrayHelpers.reverse(new byte[0]), equalTo(new byte[0]));
+		}
+
+		@Test
+		void reversesEvenAndOddLengths() {
+			assertThat(ArrayHelpers.reverse(new byte[]{
+					1, 2, 3, 4
+			}), equalTo(new byte[]{
+					4, 3, 2, 1
+			}));
+			assertThat(ArrayHelpers.reverse(new byte[]{
+					1, 2, 3
+			}), equalTo(new byte[]{
+					3, 2, 1
+			}));
+		}
+
+		@Test
+		void returnsNewArrayWithoutMutatingInput() {
+			// Arrange:
+			final byte[] input = {
+					1, 2, 3
+			};
+
+			// Act:
+			final byte[] reversed = ArrayHelpers.reverse(input);
+
+			// Assert: input untouched, result is a distinct array
+			assertThat(input, equalTo(new byte[]{
+					1, 2, 3
+			}));
+			assertThat(reversed != input, equalTo(true));
 		}
 	}
 

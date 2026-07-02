@@ -1,6 +1,5 @@
 package org.symbol.sdk.utils;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -9,8 +8,7 @@ import java.nio.ByteOrder;
  * {@link ByteBuffer}; the visible window is {@code [position, limit)}.
  */
 public final class BufferView {
-	private final byte[] backing;
-	private final ByteBuffer buffer;
+	private ByteBuffer buffer;
 
 	/**
 	 * Creates buffer view around a buffer.
@@ -18,48 +16,29 @@ public final class BufferView {
 	 * @param buffer Initial buffer view.
 	 */
 	public BufferView(final byte[] buffer) {
-		this(buffer, 0, buffer.length);
+		this(ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN));
+	}
+
+	private BufferView(final ByteBuffer buffer) {
+		this.buffer = buffer;
+	}
+
+	private static ByteBuffer rebasedSlice(final ByteBuffer source) {
+		return source.slice().order(ByteOrder.LITTLE_ENDIAN);
 	}
 
 	/**
-	 * Creates a buffer view over a window of a backing array, without copying.
+	 * Copies the first {@code size} bytes of the visible window into a fresh array, bounded to the window (a {@code size} larger than the
+	 * remaining bytes throws). The current position is not advanced (the caller shiftRights by the field's size).
 	 *
-	 * @param backing Backing array.
-	 * @param offset Offset of the visible window in the backing array.
-	 * @param length Length of the visible window.
+	 * @param size Number of bytes to copy.
+	 * @return Copied bytes.
 	 */
-	public BufferView(final byte[] backing, final int offset, final int length) {
-		this.backing = backing;
-		this.buffer = ByteBuffer.wrap(backing, offset, length).order(ByteOrder.LITTLE_ENDIAN);
-	}
-
-	/**
-	 * Returns a copy of the currently visible bytes.
-	 *
-	 * @return Visible bytes.
-	 */
-	public byte[] buffer() {
-		final byte[] copy = new byte[buffer.remaining()];
-		buffer.duplicate().get(copy);
+	public byte[] peekBytes(final int size) {
+		validateSizeWithinWindow(size);
+		final byte[] copy = new byte[size];
+		buffer.get(buffer.position(), copy);
 		return copy;
-	}
-
-	/**
-	 * Returns the underlying backing array. Callers must use {@link #offset()} and {@link #length()}.
-	 *
-	 * @return Backing array (not copied).
-	 */
-	public byte[] backing() {
-		return backing;
-	}
-
-	/**
-	 * Returns the offset of the visible window in the backing array.
-	 *
-	 * @return Offset.
-	 */
-	public int offset() {
-		return buffer.position();
 	}
 
 	/**
@@ -71,40 +50,46 @@ public final class BufferView {
 		return buffer.remaining();
 	}
 
+	/** Rejects a size outside {@code [0, remaining]}. */
+	private void validateSizeWithinWindow(final int size) {
+		if (0 > size)
+			throw new IndexOutOfBoundsException("size cannot be negative: " + size);
+
+		if (size > buffer.remaining())
+			throw new IndexOutOfBoundsException(String.format("size %d exceeds the %d remaining bytes", size, buffer.remaining()));
+	}
+
 	/**
 	 * Moves view right.
 	 *
 	 * @param size Amount of bytes to shift.
 	 */
 	public void shiftRight(final int size) {
-		requireNonNegative(size);
-		final int newPosition = buffer.position() + size;
-		if (newPosition > buffer.limit())
-			throw new IndexOutOfBoundsException(String.format("shift of %d would exceed buffer (remaining %d)", size, buffer.remaining()));
-
-		buffer.position(newPosition);
-	}
-
-	/** Rejects negative sizes up front so corrupted size arithmetic fails with a clear message. */
-	private static void requireNonNegative(final int size) {
-		if (0 > size)
-			throw new IndexOutOfBoundsException("size cannot be negative: " + size);
+		validateSizeWithinWindow(size);
+		buffer.position(buffer.position() + size);
 	}
 
 	/**
-	 * Returns a new limited view.
+	 * Returns a zero-copy view over the first {@code size} bytes of the visible window (sharing the backing array; this view is not
+	 * advanced). The window is rebased so reads start at its first byte; copy it out with {@link #peekBytes(int)}.
 	 *
 	 * @param size Length in bytes.
 	 * @return View limited to specified size.
 	 */
-	public byte[] window(final int size) {
-		requireNonNegative(size);
-		if (size > buffer.remaining())
-			throw new IndexOutOfBoundsException(String.format("invalid shrink value: %d vs %d", size, buffer.remaining()));
+	public BufferView window(final int size) {
+		validateSizeWithinWindow(size);
+		return new BufferView(rebasedSlice(buffer).limit(size));
+	}
 
-		final byte[] copy = new byte[size];
-		buffer.duplicate().get(copy, 0, size);
-		return copy;
+	/**
+	 * Returns an independent, zero-copy view over this view's current window (rebased so reads start at its first byte). Reads on the
+	 * returned cursor do not advance this view — used by deserializers to walk a private cursor while the caller advances the original by
+	 * the object's size().
+	 *
+	 * @return Independent view over the same window.
+	 */
+	public BufferView snapshot() {
+		return window(length());
 	}
 
 	/**
@@ -113,54 +98,20 @@ public final class BufferView {
 	 * @param size New length in bytes.
 	 */
 	public void shrink(final int size) {
-		requireNonNegative(size);
-		if (size > buffer.remaining())
-			throw new IndexOutOfBoundsException(String.format("invalid shrink value: %d vs %d", size, buffer.remaining()));
-
-		buffer.limit(buffer.position() + size);
+		validateSizeWithinWindow(size);
+		buffer = rebasedSlice(buffer).limit(size);
 	}
 
 	/**
-	 * Reads a little-endian integer at the current position without advancing.
+	 * Reads a little-endian integer of {@code size} bytes at the current position without advancing, sign- or zero-extended into a
+	 * {@code long} (an 8-byte unsigned {@code u64 >= 2^63} reads back negative — see {@link Long#toUnsignedString(long)}).
 	 *
-	 * @param size Byte width (1, 2 or 4).
-	 * @param isSigned {@code true} if the value should be treated as signed.
+	 * @param size Byte width (1, 2, 4 or 8).
+	 * @param isSigned {@code true} if the value should be signed (ignored for {@code size == 8}, which keeps the raw 64-bit pattern).
 	 * @return Decoded value.
 	 */
 	public long peekInt(final int size, final boolean isSigned) {
-		final int position = buffer.position();
-		long raw = switch (size) {
-			case 1 -> buffer.get(position) & 0xFFL;
-			case 2 -> buffer.getShort(position) & 0xFFFFL;
-			case 4 -> buffer.getInt(position) & 0xFFFFFFFFL;
-			default -> throw new IllegalArgumentException(String.format("unsupported int size %d", size));
-		};
-		if (isSigned) {
-			final long signMask = 1L << (8 * size - 1);
-			if (0 != (raw & signMask))
-				raw -= 1L << (8 * size);
-		}
-
-		return raw;
-	}
-
-	/**
-	 * Reads a little-endian 8-byte integer at the current position without advancing.
-	 *
-	 * @param size Byte width (must be 8).
-	 * @param isSigned {@code true} if the value should be treated as signed.
-	 * @return Decoded value.
-	 */
-	public BigInteger peekBigInt(final int size, final boolean isSigned) {
-		if (8 != size)
-			throw new IllegalArgumentException(String.format("unsupported int size %d", size));
-
-		final long raw = buffer.getLong(buffer.position());
-		BigInteger value = BigInteger.valueOf(raw);
-		// Java's `long` is always signed; flip negative results into the unsigned u64 range when asked.
-		if (!isSigned && 0 > raw)
-			value = value.add(BigInteger.ONE.shiftLeft(64));
-
-		return value;
+		validateSizeWithinWindow(size);
+		return Converter.readInt(buffer, size, isSigned);
 	}
 }

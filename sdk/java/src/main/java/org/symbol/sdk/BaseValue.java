@@ -1,45 +1,45 @@
 package org.symbol.sdk;
 
-import java.math.BigInteger;
 import java.util.Locale;
 import java.util.Objects;
 
 import org.symbol.sdk.utils.Converter;
 
 /**
- * Fixed-size integer value (amount, height, mosaic id, …) extended by every generated integer POD. F-bounded so {@link Comparable} is
- * type-safe per POD. The base class owns the value semantics (equals/hashCode/toString/serialize/compareTo) that an interface cannot
- * provide for {@link Object} methods.
+ * Fixed-size integer value (amount, height, mosaic id, …) extended by every generated integer POD; F-bounded for a type-safe
+ * {@link Comparable}. The backing {@code long} holds an unsigned u64 {@code >= 2^63} as its negative two's-complement pattern (see
+ * {@link #value()}).
  *
  * @param <T> Self-type — the concrete POD extending this class.
  */
 public abstract class BaseValue<T extends BaseValue<T>> implements Serializer, Comparable<T> {
-	private final BigInteger value;
+	private final long value;
 
 	private final int size;
 
-	private final boolean signed;
+	private final boolean isSigned;
 
 	/**
 	 * Creates a fixed-size integer value, validating that it fits in {@code size} bytes with the given signedness.
 	 *
-	 * @param value Underlying integer value.
+	 * @param value Underlying value as a 64-bit two's-complement bit pattern (unsigned u64 values {@code >= 2^63} are stored negative).
 	 * @param size Byte width.
 	 * @param isSigned {@code true} if signed.
 	 */
-	protected BaseValue(final BigInteger value, final int size, final boolean isSigned) {
+	protected BaseValue(final long value, final int size, final boolean isSigned) {
 		requireRange(value, size, isSigned);
 		this.value = value;
 		this.size = size;
-		this.signed = isSigned;
+		this.isSigned = isSigned;
 	}
 
 	/**
-	 * Returns the underlying integer value.
+	 * Returns the underlying value as a {@code long}. Java {@code long} is signed, so unsigned 64-bit values {@code >= 2^63} are returned
+	 * as negative numbers; interpret them with {@link Long#toUnsignedString(long)} and {@link Long#compareUnsigned(long, long)}.
 	 *
-	 * @return Value.
+	 * @return Value (64-bit two's-complement bit pattern).
 	 */
-	public final BigInteger value() {
+	public final long value() {
 		return value;
 	}
 
@@ -49,7 +49,7 @@ public abstract class BaseValue<T extends BaseValue<T>> implements Serializer, C
 	 * @return {@code true} if signed.
 	 */
 	public final boolean isSigned() {
-		return signed;
+		return isSigned;
 	}
 
 	@Override
@@ -59,27 +59,30 @@ public abstract class BaseValue<T extends BaseValue<T>> implements Serializer, C
 
 	@Override
 	public final byte[] serialize() {
-		return Converter.intToBytes(value, size, signed);
+		return Converter.intToBytes(value, size, isSigned);
 	}
 
 	@Override
 	public final int compareTo(final T other) {
-		return value.compareTo(other.value());
+		return isSigned ? Long.compare(value, other.value()) : Long.compareUnsigned(value, other.value());
 	}
 
 	/**
 	 * Returns the JSON-safe representation: a number for values below 8 bytes, a base-10 string for 8-byte values (which can exceed the
-	 * 2^53 safe-integer range of JSON readers).
+	 * 2^53 safe-integer range of JSON readers); unsigned 8-byte values render via {@link Long#toUnsignedString(long)}.
 	 *
 	 * @return JSON-safe representation of this value.
 	 */
 	public final Object toJson() {
-		return 8 <= size ? value.toString(10) : (Object) value.longValueExact();
+		if (8 <= size)
+			return isSigned ? Long.toString(value) : Long.toUnsignedString(value);
+
+		return value;
 	}
 
 	@Override
 	public final String toString() {
-		return toHexString(value, size, signed);
+		return toHexString(value, size, isSigned);
 	}
 
 	@Override
@@ -87,101 +90,45 @@ public abstract class BaseValue<T extends BaseValue<T>> implements Serializer, C
 		if (this == other)
 			return true;
 
-		// match by concrete type as well as width/signedness/value; mirrors the reference SDK's per-type tag so that
-		// distinct same-width types (e.g. Amount vs Height, both 8-byte unsigned) never compare equal
+		// match by concrete type as well as width/signedness/value
 		if (null == other || getClass() != other.getClass())
 			return false;
 
 		final BaseValue<?> rb = (BaseValue<?>) other;
-		return size == rb.size && signed == rb.signed && value.equals(rb.value);
+		return size == rb.size && isSigned == rb.isSigned && value == rb.value;
 	}
 
 	@Override
 	public final int hashCode() {
-		return Objects.hash(getClass(), size, signed, value);
+		return Objects.hash(getClass(), size, isSigned, value);
 	}
 
-	// validates that value fits in size bytes with the given signedness
-	private static void requireRange(final BigInteger value, final int size, final boolean isSigned) {
-		final int bits = 8 * size;
-		final BigInteger lowerBound = isSigned ? BigInteger.ONE.shiftLeft(bits - 1).negate() : BigInteger.ZERO;
-		final BigInteger upperBound = BigInteger.ONE.shiftLeft(isSigned ? bits - 1 : bits).subtract(BigInteger.ONE);
+	// validates that value fits in size bytes with the given signedness; size 8 admits any 64-bit pattern
+	private static void requireRange(final long value, final int size, final boolean isSigned) {
+		if (1 != size && 2 != size && 4 != size && 8 != size)
+			throw new IllegalArgumentException(String.format("\"size\" (%d) must be 1, 2, 4 or 8 bytes", size));
 
-		if (0 > value.compareTo(lowerBound) || 0 < value.compareTo(upperBound))
-			throw new IllegalArgumentException(String.format("\"value\" (%s) is outside of valid %d-bit range", value, bits));
+		if (8 == size)
+			return;
+
+		final int bits = 8 * size;
+		final long lowerBound = isSigned ? -(1L << (bits - 1)) : 0L;
+		final long upperBound = (1L << (isSigned ? bits - 1 : bits)) - 1;
+		if (value < lowerBound || value > upperBound)
+			throw new IllegalArgumentException(String.format("\"value\" (%d) is outside of valid %d-bit range", value, bits));
 	}
 
 	/**
-	 * Renders {@code value} as a zero-padded uppercase {@code 0x}-prefixed hex string; signed negative values are rendered as unsigned
-	 * two's-complement.
+	 * Renders {@code value} as a zero-padded uppercase {@code 0x}-prefixed hex string showing the {@code size}-byte unsigned bit pattern
+	 * (signed negative values render as their two's-complement).
 	 *
-	 * @param value Value to render.
+	 * @param value Value (64-bit two's-complement bit pattern).
 	 * @param size Byte width.
-	 * @param isSigned {@code true} if signed.
+	 * @param isSigned {@code true} if signed (unused; kept for API symmetry).
 	 * @return Hex string.
 	 */
-	public static String toHexString(final BigInteger value, final int size, final boolean isSigned) {
-		final BigInteger unsigned = !isSigned || 0 <= value.signum() ? value : value.add(BigInteger.ONE.shiftLeft(size * 8));
-		return "0x" + String.format(Locale.ROOT, "%0" + (size * 2) + "X", unsigned);
-	}
-
-	/**
-	 * Convert a descriptor value (integral {@link Number}, {@link BigInteger}, or {@link String}) to a {@link BigInteger}. A string is
-	 * decimal by default, or hexadecimal when {@code 0x}/{@code 0X}-prefixed (so ids conventionally written in hex — mosaic id, namespace
-	 * id — parse naturally).
-	 *
-	 * @param value Raw descriptor value.
-	 * @return Converted value.
-	 */
-	public static BigInteger toBigInteger(final Object value) {
-		if (value instanceof BigInteger bigInteger)
-			return bigInteger;
-
-		if (value instanceof Integer || value instanceof Long || value instanceof Short || value instanceof Byte)
-			return BigInteger.valueOf(((Number) value).longValue());
-
-		if (value instanceof String string) {
-			try {
-				if (string.startsWith("0x") || string.startsWith("0X"))
-					return new BigInteger(string.substring(2), 16);
-
-				return new BigInteger(string);
-			} catch (final NumberFormatException ex) {
-				throw new InvalidDescriptorException("cannot parse \"" + string + "\" as an integer value", ex);
-			}
-		}
-
-		throw new InvalidDescriptorException(
-				"cannot convert " + (null == value ? "null" : value.getClass().getName()) + " to an integer value");
-	}
-
-	/**
-	 * Convert a descriptor value to an exact {@code int} via {@link #toBigInteger(Object)}; out-of-range values are rejected rather than
-	 * silently truncated.
-	 *
-	 * @param value Raw descriptor value.
-	 * @return Converted value.
-	 */
-	public static int toInt(final Object value) {
-		try {
-			return toBigInteger(value).intValueExact();
-		} catch (final ArithmeticException ex) {
-			throw new InvalidDescriptorException("value " + value + " does not fit in an int", ex);
-		}
-	}
-
-	/**
-	 * Convert a descriptor value to an exact {@code long} via {@link #toBigInteger(Object)}; out-of-range values are rejected rather than
-	 * silently truncated.
-	 *
-	 * @param value Raw descriptor value.
-	 * @return Converted value.
-	 */
-	public static long toLong(final Object value) {
-		try {
-			return toBigInteger(value).longValueExact();
-		} catch (final ArithmeticException ex) {
-			throw new InvalidDescriptorException("value " + value + " does not fit in a long", ex);
-		}
+	static String toHexString(final long value, final int size, final boolean isSigned) {
+		final long masked = 8 == size ? value : value & ((1L << (8 * size)) - 1);
+		return "0x" + String.format(Locale.ROOT, "%0" + (2 * size) + "X", masked);
 	}
 }

@@ -1,5 +1,8 @@
 package org.symbol.sdk;
 
+import java.security.GeneralSecurityException;
+import java.security.spec.AlgorithmParameterSpec;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
@@ -13,12 +16,48 @@ public final class CipherTypes {
 	private CipherTypes() {
 	}
 
+	/**
+	 * Symmetric cipher interface
+	 */
+	public interface SymmetricCipher {
+		/**
+		 * Encrypts clear text.
+		 *
+		 * @param clearText Clear text to encrypt.
+		 * @param iv IV bytes (Initialization Vector).
+		 * @return Cipher text.
+		 */
+		byte[] encrypt(final byte[] clearText, final byte[] iv);
+
+		/**
+		 * Decrypts cipher text.
+		 *
+		 * @param cipherText Cipher text to decrypt.
+		 * @param iv IV bytes (Initialization Vector).
+		 * @return Clear text.
+		 */
+		byte[] decrypt(final byte[] cipherText, final byte[] iv);
+	}
+
 	private static final String AES = "AES";
+
+	// single point for the getInstance -> init -> doFinal -> wrap-as-CryptoException plumbing shared by both ciphers; the
+	// GeneralSecurityException -> CryptoException wrapping (with cause preserved) is relied on by MessageEncoder's decode paths
+	private static byte[] runCipher(final String transformation, final int mode, final SecretKeySpec key,
+			final AlgorithmParameterSpec params, final byte[] data) {
+		try {
+			final Cipher cipher = Cipher.getInstance(transformation);
+			cipher.init(mode, key, params);
+			return cipher.doFinal(data);
+		} catch (final GeneralSecurityException ex) {
+			throw new CryptoException(ex);
+		}
+	}
 
 	/**
 	 * Performs AES CBC encryption and decryption with a given key.
 	 */
-	public static final class AesCbcCipher {
+	public static final class AesCbcCipher implements SymmetricCipher {
 		private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
 
 		private final SecretKeySpec key;
@@ -40,13 +79,7 @@ public final class CipherTypes {
 		 * @return Cipher text.
 		 */
 		public byte[] encrypt(final byte[] clearText, final byte[] iv) {
-			try {
-				final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-				cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-				return cipher.doFinal(clearText);
-			} catch (java.security.GeneralSecurityException ex) {
-				throw new IllegalStateException(ex);
-			}
+			return runCipher(TRANSFORMATION, Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv), clearText);
 		}
 
 		/**
@@ -57,20 +90,14 @@ public final class CipherTypes {
 		 * @return Clear text.
 		 */
 		public byte[] decrypt(final byte[] cipherText, final byte[] iv) {
-			try {
-				final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-				cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-				return cipher.doFinal(cipherText);
-			} catch (java.security.GeneralSecurityException ex) {
-				throw new IllegalStateException(ex);
-			}
+			return runCipher(TRANSFORMATION, Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv), cipherText);
 		}
 	}
 
 	/**
 	 * Performs AES GCM encryption and decryption with a given key.
 	 */
-	public static final class AesGcmCipher {
+	public static final class AesGcmCipher implements SymmetricCipher {
 		/**
 		 * Byte size of GCM tag.
 		 */
@@ -97,14 +124,8 @@ public final class CipherTypes {
 		 * @return Cipher text with appended tag.
 		 */
 		public byte[] encrypt(final byte[] clearText, final byte[] iv) {
-			try {
-				final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-				cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(TAG_SIZE * 8, iv));
-				// JDK's GCM cipher already appends the auth tag at the end of the output of doFinal.
-				return cipher.doFinal(clearText);
-			} catch (java.security.GeneralSecurityException ex) {
-				throw new IllegalStateException(ex);
-			}
+			// JDK's GCM cipher already appends the auth tag at the end of the output of doFinal.
+			return runCipher(TRANSFORMATION, Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(TAG_SIZE * 8, iv), clearText);
 		}
 
 		/**
@@ -115,13 +136,7 @@ public final class CipherTypes {
 		 * @return Clear text.
 		 */
 		public byte[] decrypt(final byte[] cipherText, final byte[] iv) {
-			try {
-				final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-				cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_SIZE * 8, iv));
-				return cipher.doFinal(cipherText);
-			} catch (java.security.GeneralSecurityException ex) {
-				throw new IllegalStateException(ex);
-			}
+			return runCipher(TRANSFORMATION, Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_SIZE * 8, iv), cipherText);
 		}
 	}
 }

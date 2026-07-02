@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 final class Base32Test {
 	private record TestVector(String decoded, String encoded) {
@@ -24,15 +26,22 @@ final class Base32Test {
 	final class Encode {
 		@Test
 		void canConvertEmptyInput() {
-			// Act + Assert:
-			assertThat(Base32.encode(new byte[0]), equalTo(""));
+			// Act:
+			final String actual = Base32.encode(new byte[0]);
+
+			// Assert:
+			assertThat(actual, equalTo(""));
 		}
 
 		@Test
 		void canConvertTestVectors() {
-			// Act + Assert:
-			for (TestVector v : TEST_VECTORS)
-				assertThat("input " + v.decoded(), Base32.encode(Converter.hexToUint8(v.decoded())), equalTo(v.encoded()));
+			for (TestVector v : TEST_VECTORS) {
+				// Act:
+				final String actual = Base32.encode(Converter.hexToUint8(v.decoded()));
+
+				// Assert:
+				assertThat("input " + v.decoded(), actual, equalTo(v.encoded()));
+			}
 		}
 
 		@Test
@@ -42,24 +51,29 @@ final class Base32Test {
 			for (int i = 0; i < 260; ++i)
 				data[i] = (byte) (i & 0xFF);
 
-			final String expected = "" + "AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYY" + "DENBWHA5DYPSAIJCEMSCKJRHFAUSUKZMFUXC6MBR"
+			final String expected = "AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYY" + "DENBWHA5DYPSAIJCEMSCKJRHFAUSUKZMFUXC6MBR"
 					+ "GIZTINJWG44DSOR3HQ6T4P2AIFBEGRCFIZDUQSKK" + "JNGE2TSPKBIVEU2UKVLFOWCZLJNVYXK6L5QGCYTD"
 					+ "MRSWMZ3INFVGW3DNNZXXA4LSON2HK5TXPB4XU634" + "PV7H7AEBQKBYJBMGQ6EITCULRSGY5D4QSGJJHFEV"
 					+ "S2LZRGM2TOOJ3HU7UCQ2FI5EUWTKPKFJVKV2ZLNO" + "V6YLDMVTWS23NN5YXG5LXPF5X274BQOCYPCMLRWH"
 					+ "ZDE4VS6MZXHM7UGR2LJ5JVOW27MNTWW33TO55X7A" + "4HROHZHF43T6R2PK5PWO33XP6DY7F47U6X3PP6HZ" + "7L57Z7P674AACAQD";
 
-			// Act + Assert:
-			assertThat(Base32.encode(data), equalTo(expected));
+			// Act:
+			final String actual = Base32.encode(data);
+
+			// Assert:
+			assertThat(actual, equalTo(expected));
 		}
 
-		@Test
-		void throwsIfInputSizeIsNotMultipleOfBlockSize() {
-			// Act + Assert:
-			for (int i = 2; i < 10; i += 2) {
-				final int size = i;
-				final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Base32.encode(new byte[size]));
-				assertThat(ex.getMessage(), containsString("decoded size must be multiple of 5"));
-			}
+		@ParameterizedTest
+		@ValueSource(ints = {
+				2, 4, 6, 8
+		})
+		void throwsIfInputSizeIsNotMultipleOfBlockSize(final int size) {
+			// Act:
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Base32.encode(new byte[size]));
+
+			// Assert:
+			assertThat(ex.getMessage(), containsString("decoded size must be multiple of 5"));
 		}
 	}
 
@@ -67,28 +81,34 @@ final class Base32Test {
 	final class Decode {
 		@Test
 		void canConvertEmptyInput() {
-			// Act + Assert:
-			assertThat(Converter.uint8ToHex(Base32.decode("")), equalTo(""));
+			// Act:
+			final String actual = Converter.uint8ToHex(Base32.decode(""));
+
+			// Assert:
+			assertThat(actual, equalTo(""));
 		}
 
 		@Test
 		void canConvertTestVectors() {
-			// Act + Assert:
-			for (TestVector v : TEST_VECTORS)
-				assertThat("input " + v.encoded(), Converter.uint8ToHex(Base32.decode(v.encoded())), equalTo(v.decoded()));
+			for (TestVector v : TEST_VECTORS) {
+				// Act:
+				final String actual = Converter.uint8ToHex(Base32.decode(v.encoded()));
+
+				// Assert:
+				assertThat("input " + v.encoded(), actual, equalTo(v.decoded()));
+			}
 		}
 
-		@Test
-		void throwsIfInputSizeIsNotMultipleOfBlockSize() {
-			// Act + Assert:
-			for (int i = 2; i < 16; i += 2) {
-				if (0 == i % 8)
-					continue;
+		@ParameterizedTest
+		@ValueSource(ints = {
+				2, 4, 6, 10, 12, 14
+		})
+		void throwsIfInputSizeIsNotMultipleOfBlockSize(final int size) {
+			// Act:
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Base32.decode("A".repeat(size)));
 
-				final int size = i;
-				final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Base32.decode("A".repeat(size)));
-				assertThat(ex.getMessage(), containsString("encoded size must be multiple of 8"));
-			}
+			// Assert:
+			assertThat(ex.getMessage(), containsString("encoded size must be multiple of 8"));
 		}
 
 		@Test
@@ -99,5 +119,20 @@ final class Base32Test {
 			// Assert:
 			assertThat(ex.getMessage(), containsString("illegal base32 character"));
 		}
+	}
+
+	@Test
+	void isValidCharAcceptsAlphabetAndRejectsEverythingElse() {
+		// valid: A-Z and 2-7
+		for (char c = 'A'; c <= 'Z'; ++c)
+			assertThat("char " + c, Base32.isValidChar(c), equalTo(true));
+		for (char c = '2'; c <= '7'; ++c)
+			assertThat("char " + c, Base32.isValidChar(c), equalTo(true));
+
+		// invalid: non-alphabet digits, lowercase, punctuation, and a char beyond the decode table
+		for (final char c : new char[]{
+				'0', '1', '8', '9', 'a', 'z', '!', ' ', '\u00FF'
+		})
+			assertThat("char " + (int) c, Base32.isValidChar(c), equalTo(false));
 	}
 }

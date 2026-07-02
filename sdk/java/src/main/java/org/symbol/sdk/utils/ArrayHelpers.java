@@ -21,36 +21,37 @@ public final class ArrayHelpers {
 	@FunctionalInterface
 	public interface Factory<T extends Serializer> {
 		/**
-		 * Deserializes a single element from the given buffer at the specified offset.
+		 * Deserializes a single element from the current position of the given view. The view is not advanced — the caller moves the cursor
+		 * by the returned element's {@code size()}.
 		 *
-		 * @param buffer Buffer to read from.
-		 * @param offset Offset into the buffer at which to start reading.
+		 * @param view Buffer view positioned at the element.
 		 * @return Deserialized element.
 		 */
-		T deserialize(byte[] buffer, int offset);
+		T deserialize(BufferView view);
 	}
 
-	private interface ContinuationPredicate<T extends Serializer> {
-		boolean shouldContinue(int index, BufferView view);
+	private interface ContinuationPredicate {
+		boolean shouldContinue(int index, BufferView cursor);
 	}
 
-	private static <T extends Serializer> List<T> readArrayImpl(final byte[] bufferInput, final int offset, final int length,
-			final Factory<T> factoryClass, final Comparator<? super T> comparator, final ContinuationPredicate<T> shouldContinue) {
-		final BufferView view = new BufferView(bufferInput, offset, length);
+	private static <T extends Serializer> List<T> readArrayImpl(final BufferView view, final Factory<T> factoryClass,
+			final Comparator<? super T> comparator, final ContinuationPredicate shouldContinue) {
+		final BufferView cursor = view.snapshot();
 		final List<T> elements = new ArrayList<>();
 		T previousElement = null;
 		int i = 0;
-		while (shouldContinue.shouldContinue(i, view)) {
-			final T element = factoryClass.deserialize(view.backing(), view.offset());
+		while (shouldContinue.shouldContinue(i, cursor)) {
+			final T element = factoryClass.deserialize(cursor);
+			final int elementSize = element.size();
 
-			if (0 >= element.size())
+			if (0 >= elementSize)
 				throw new IndexOutOfBoundsException("element size has invalid size");
 
 			if (null != comparator && null != previousElement && 0 <= comparator.compare(previousElement, element))
 				throw new IllegalStateException("elements in array are not sorted");
 
 			elements.add(element);
-			view.shiftRight(element.size());
+			cursor.shiftRight(elementSize);
 			previousElement = element;
 			++i;
 		}
@@ -123,173 +124,97 @@ public final class ArrayHelpers {
 	}
 
 	/**
-	 * Reads array of objects until the buffer window is exhausted, without order verification.
+	 * Reads array of objects until the view's window is exhausted, without order verification.
 	 *
 	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param offset Offset into the buffer at which to start reading.
-	 * @param length Length of the readable window.
+	 * @param view View positioned at the array, whose window bounds the read.
 	 * @param factoryClass Factory used to deserialize objects.
 	 * @return Array of deserialized objects.
 	 */
-	public static <T extends Serializer> List<T> readArray(final byte[] bufferInput, final int offset, final int length,
-			final Factory<T> factoryClass) {
-		return readArray(bufferInput, offset, length, factoryClass, null);
+	public static <T extends Serializer> List<T> readArray(final BufferView view, final Factory<T> factoryClass) {
+		return readArray(view, factoryClass, null);
 	}
 
 	/**
-	 * Reads array of objects until the buffer window is exhausted, verifying strictly increasing element order.
+	 * Reads array of objects until the view's window is exhausted, verifying strictly increasing element order.
 	 *
 	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param offset Offset into the buffer at which to start reading.
-	 * @param length Length of the readable window.
+	 * @param view View positioned at the array, whose window bounds the read.
 	 * @param factoryClass Factory used to deserialize objects.
 	 * @param comparator Sort-key comparator enforcing element order; {@code null} skips the check.
 	 * @return Array of deserialized objects.
 	 */
-	public static <T extends Serializer> List<T> readArray(final byte[] bufferInput, final int offset, final int length,
-			final Factory<T> factoryClass, final Comparator<? super T> comparator) {
-		return readArrayImpl(bufferInput, offset, length, factoryClass, comparator, (idx, view) -> 0 < view.length());
-	}
-
-	/**
-	 * Reads array of objects from the start of the buffer to its end.
-	 *
-	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param factoryClass Factory used to deserialize objects.
-	 * @return Array of deserialized objects.
-	 */
-	public static <T extends Serializer> List<T> readArray(final byte[] bufferInput, final Factory<T> factoryClass) {
-		return readArray(bufferInput, 0, bufferInput.length, factoryClass);
+	public static <T extends Serializer> List<T> readArray(final BufferView view, final Factory<T> factoryClass,
+			final Comparator<? super T> comparator) {
+		return readArrayImpl(view, factoryClass, comparator, (idx, cursor) -> 0 < cursor.length());
 	}
 
 	/**
 	 * Reads array of a deterministic number of objects.
 	 *
 	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param offset Offset into the buffer at which to start reading.
-	 * @param length Length of the readable window.
+	 * @param view View positioned at the array, whose window bounds the read.
 	 * @param factoryClass Factory used to deserialize objects.
 	 * @param count Number of objects to deserialize.
 	 * @return Array of deserialized objects.
 	 */
-	public static <T extends Serializer> List<T> readArrayCount(final byte[] bufferInput, final int offset, final int length,
-			final Factory<T> factoryClass, final int count) {
-		return readArrayCount(bufferInput, offset, length, factoryClass, count, null);
+	public static <T extends Serializer> List<T> readArrayCount(final BufferView view, final Factory<T> factoryClass, final int count) {
+		return readArrayCount(view, factoryClass, count, null);
 	}
 
 	/**
 	 * Reads array of a deterministic number of objects, verifying strictly increasing element order.
 	 *
 	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param offset Offset into the buffer at which to start reading.
-	 * @param length Length of the readable window.
+	 * @param view View positioned at the array, whose window bounds the read.
 	 * @param factoryClass Factory used to deserialize objects.
 	 * @param count Number of objects to deserialize.
 	 * @param comparator Sort-key comparator enforcing element order; {@code null} skips the check.
 	 * @return Array of deserialized objects.
+	 * @throws IndexOutOfBoundsException if {@code count} is negative (e.g. a corrupt u32 count field that narrowed below zero).
 	 */
-	public static <T extends Serializer> List<T> readArrayCount(final byte[] bufferInput, final int offset, final int length,
-			final Factory<T> factoryClass, final int count, final Comparator<? super T> comparator) {
-		return readArrayImpl(bufferInput, offset, length, factoryClass, comparator, (idx, view) -> count > idx);
-	}
+	public static <T extends Serializer> List<T> readArrayCount(final BufferView view, final Factory<T> factoryClass, final int count,
+			final Comparator<? super T> comparator) {
+		// Reject a negative count rather than silently returning an empty list.
+		if (0 > count)
+			throw new IndexOutOfBoundsException("count cannot be negative: " + count);
 
-	/**
-	 * Reads array of deterministic number of objects from the start of the buffer.
-	 *
-	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param factoryClass Factory used to deserialize objects.
-	 * @param count Number of objects to deserialize.
-	 * @return Array of deserialized objects.
-	 */
-	public static <T extends Serializer> List<T> readArrayCount(final byte[] bufferInput, final Factory<T> factoryClass, final int count) {
-		return readArrayCount(bufferInput, 0, bufferInput.length, factoryClass, count);
+		return readArrayImpl(view, factoryClass, comparator, (idx, cursor) -> count > idx);
 	}
 
 	/**
 	 * Reads array of variable size objects.
 	 *
 	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param offset Offset into the buffer at which to start reading.
-	 * @param length Length of the readable window.
+	 * @param view View positioned at the array, whose window bounds the read.
 	 * @param factoryClass Factory used to deserialize objects.
 	 * @param alignment Alignment used to make sure each object is at boundary.
 	 * @param skipLastElementPadding {@code true} if last element is not aligned/padded.
 	 * @return Array of deserialized objects.
 	 */
-	public static <T extends Serializer> List<T> readVariableSizeElements(final byte[] bufferInput, final int offset, final int length,
-			final Factory<T> factoryClass, final int alignment, final boolean skipLastElementPadding) {
-		final BufferView view = new BufferView(bufferInput, offset, length);
+	public static <T extends Serializer> List<T> readVariableSizeElements(final BufferView view, final Factory<T> factoryClass,
+			final int alignment, final boolean skipLastElementPadding) {
+		final BufferView cursor = view.snapshot();
 		final List<T> elements = new ArrayList<>();
-		while (0 < view.length()) {
-			final T element = factoryClass.deserialize(view.backing(), view.offset());
+		while (0 < cursor.length()) {
+			final T element = factoryClass.deserialize(cursor);
+			final int elementSize = element.size();
 
-			if (0 >= element.size())
+			if (0 >= elementSize)
 				throw new IndexOutOfBoundsException("element size has invalid size");
 
 			elements.add(element);
 
-			final int alignedSize = (skipLastElementPadding && element.size() >= view.length())
-					? element.size()
-					: alignUp(element.size(), alignment);
-			if (alignedSize > view.length())
+			final int alignedSize = (skipLastElementPadding && elementSize >= cursor.length())
+					? elementSize
+					: alignUp(elementSize, alignment);
+			if (alignedSize > cursor.length())
 				throw new IndexOutOfBoundsException("unexpected buffer length");
 
-			view.shiftRight(alignedSize);
+			cursor.shiftRight(alignedSize);
 		}
 
 		return elements;
-	}
-
-	/**
-	 * Reads array of variable size objects.
-	 *
-	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param factoryClass Factory used to deserialize objects.
-	 * @param alignment Alignment used to make sure each object is at boundary.
-	 * @param skipLastElementPadding {@code true} if last element is not aligned/padded.
-	 * @return Array of deserialized objects.
-	 */
-	public static <T extends Serializer> List<T> readVariableSizeElements(final byte[] bufferInput, final Factory<T> factoryClass,
-			final int alignment, final boolean skipLastElementPadding) {
-		return readVariableSizeElements(bufferInput, 0, bufferInput.length, factoryClass, alignment, skipLastElementPadding);
-	}
-
-	/**
-	 * Reads array of variable size objects at specific offset without skipping the last element's padding.
-	 *
-	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param offset Offset into the buffer at which to start reading.
-	 * @param length Length of the readable window.
-	 * @param factoryClass Factory used to deserialize objects.
-	 * @param alignment Alignment.
-	 * @return Array of deserialized objects.
-	 */
-	public static <T extends Serializer> List<T> readVariableSizeElements(final byte[] bufferInput, final int offset, final int length,
-			final Factory<T> factoryClass, final int alignment) {
-		return readVariableSizeElements(bufferInput, offset, length, factoryClass, alignment, false);
-	}
-
-	/**
-	 * Reads array of variable size objects without skipping the last element's padding.
-	 *
-	 * @param <T> Element type.
-	 * @param bufferInput Buffer input.
-	 * @param factoryClass Factory used to deserialize objects.
-	 * @param alignment Alignment.
-	 * @return Array of deserialized objects.
-	 */
-	public static <T extends Serializer> List<T> readVariableSizeElements(final byte[] bufferInput, final Factory<T> factoryClass,
-			final int alignment) {
-		return readVariableSizeElements(bufferInput, factoryClass, alignment, false);
 	}
 
 	/**
@@ -357,8 +282,8 @@ public final class ArrayHelpers {
 			final T element = elements.get(index);
 			output.write(element.serialize());
 			if (!skipLastElementPadding || elements.size() - 1 != index) {
-				final int alignedSize = alignUp(element.size(), alignment);
-				final int padding = alignedSize - element.size();
+				final int elementSize = element.size();
+				final int padding = alignUp(elementSize, alignment) - elementSize;
 				if (0 != padding)
 					output.write(new byte[padding]);
 			}
@@ -375,5 +300,40 @@ public final class ArrayHelpers {
 	 */
 	public static <T extends Serializer> void writeVariableSizeElements(final Writer output, final List<T> elements, final int alignment) {
 		writeVariableSizeElements(output, elements, alignment, false);
+	}
+
+	/**
+	 * Concatenates byte arrays in order into a single new array.
+	 *
+	 * @param parts Byte arrays to concatenate, in order.
+	 * @return New array holding every part end to end.
+	 */
+	public static byte[] concat(final byte[]... parts) {
+		int total = 0;
+		for (final byte[] part : parts)
+			total += part.length;
+
+		final byte[] result = new byte[total];
+		int offset = 0;
+		for (final byte[] part : parts) {
+			System.arraycopy(part, 0, result, offset, part.length);
+			offset += part.length;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Returns a new array with the bytes of {@code input} in reverse order (NEM reverses the private-key seed before ed25519 use).
+	 *
+	 * @param input Byte array to reverse.
+	 * @return New reversed array.
+	 */
+	public static byte[] reverse(final byte[] input) {
+		final byte[] result = new byte[input.length];
+		for (int i = 0; i < input.length; ++i)
+			result[i] = input[input.length - 1 - i];
+
+		return result;
 	}
 }

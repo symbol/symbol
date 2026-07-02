@@ -82,13 +82,11 @@ updates:
       - /sdk/python
 
   - package-ecosystem: gradle
-    directory: /sdk/java
     schedule:
       interval: weekly
       day: sunday
     target-branch: dev
     labels: [sdk-java]
-    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
     groups:
@@ -98,3 +96,5 @@ updates:
         update-types:
           - minor
           - patch
+    directories:
+      - /sdk/java

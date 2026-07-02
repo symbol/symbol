@@ -42,22 +42,6 @@ public final class CryptoTypes {
 		}
 
 		/**
-		 * Parses a descriptor value (Hash256, hex string, byte array, or SDK ByteArray) into a Hash256.
-		 *
-		 * @param descriptorValue Raw descriptor value.
-		 * @return Parsed value.
-		 */
-		public static Hash256 parse(final Object descriptorValue) {
-			if (descriptorValue instanceof Hash256 typed)
-				return typed;
-
-			if (descriptorValue instanceof String string)
-				return new Hash256(string);
-
-			return new Hash256(ByteArray.toBytes(descriptorValue));
-		}
-
-		/**
 		 * Creates a zeroed hash.
 		 *
 		 * @return Zeroed hash.
@@ -132,22 +116,6 @@ public final class CryptoTypes {
 		 */
 		public PublicKey(final PublicKey other) {
 			this(other.bytes());
-		}
-
-		/**
-		 * Parses a descriptor value (PublicKey, hex string, byte array, or SDK ByteArray) into a PublicKey.
-		 *
-		 * @param descriptorValue Raw descriptor value.
-		 * @return Parsed value.
-		 */
-		public static PublicKey parse(final Object descriptorValue) {
-			if (descriptorValue instanceof PublicKey typed)
-				return typed;
-
-			if (descriptorValue instanceof String string)
-				return new PublicKey(string);
-
-			return new PublicKey(ByteArray.toBytes(descriptorValue));
 		}
 	}
 

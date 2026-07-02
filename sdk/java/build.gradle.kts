@@ -20,6 +20,9 @@ java {
 // creeps back in.
 allprojects {
 	tasks.withType<JavaCompile>().configureEach {
+		// Pin the source charset so non-ASCII (em-dashes / arrows in comments, CJK BIP-39 mnemonics in tests) decodes
+		// identically regardless of the platform default locale (CI runners are not guaranteed UTF-8).
+		options.encoding = "UTF-8"
 		options.compilerArgs.addAll(listOf("-Xlint:unchecked,deprecation", "-Werror"))
 	}
 }
@@ -35,6 +38,9 @@ dependencies {
 	// JSON descriptor parsing (JsonDescriptor / facade createTransactionFromJson) and, in tests,
 	// the catbuffer vector toJson() serializability checks.
 	implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
+	// BIP-39 mnemonic generation / validation / seed derivation + bundled wordlists (used by Bip32). The
+	// ed25519 SLIP-0010 + keccak key derivation has no library and stays hand-rolled. Pulls kotlin-stdlib transitively.
+	implementation("network.lightsail:mnemonic4j:0.1.1")
 
 	testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
 	testImplementation("org.hamcrest:hamcrest:2.2")

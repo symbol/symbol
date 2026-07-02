@@ -367,4 +367,43 @@ final class TransformsTest {
 	}
 
 	// endregion
+
+	// region keccak_256
+
+	@Nested
+	final class Keccak_256 {
+		@Test
+		void matchesKnownEmptyInputVector() {
+			// the pre-standardisation Keccak-256 of empty input (differs from NIST SHA3-256)
+			assertThat(Converter.uint8ToHex(Transforms.keccak_256(new byte[0])),
+					equalTo("C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470"));
+		}
+
+		@Test
+		void differsFromSha3ForSameInput() {
+			// Arrange: proves keccak_256 uses Keccak, not the NIST SHA3 padding
+			final byte[] payload = Converter.hexToUint8("AABBCC");
+
+			// Act + Assert:
+			assertThat(Arrays.equals(Transforms.keccak_256(payload), Transforms.sha3_256(payload)), equalTo(false));
+		}
+
+		@Test
+		void varargsConcatenationHashesTheJoinedBuffer() {
+			// Arrange:
+			final byte[] first = Converter.hexToUint8("0011");
+			final byte[] second = Converter.hexToUint8("2233");
+			final byte[] third = Converter.hexToUint8("4455");
+
+			// Act + Assert: hashing the parts equals hashing their concatenation, and is deterministic
+			assertThat(Transforms.keccak_256(first, second, third), equalTo(Transforms.keccak_256(Converter.hexToUint8("001122334455"))));
+		}
+
+		@Test
+		void producesThirtyTwoByteDigest() {
+			assertThat(Transforms.keccak_256(Converter.hexToUint8("DEADBEEF")).length, equalTo(32));
+		}
+	}
+
+	// endregion
 }

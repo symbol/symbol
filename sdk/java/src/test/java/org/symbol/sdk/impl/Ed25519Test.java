@@ -13,6 +13,29 @@ import org.symbol.sdk.utils.Converter;
  * against a deterministic NEM keypair vector.
  */
 final class Ed25519Test {
+	// RFC 8032 §7.1 Test 1 seed, reused as the canonical keypair for the tamper/canonicality tests below.
+	private static final String RFC8032_TEST1_SEED = "9D61B19DEFFD5A60BA844AF492EC2CC44449C5697B326919703BAC031CAE7F60";
+
+	private static Tweetnacl.KeyPair sha512KeyPair() {
+		final byte[] seed = Converter.hexToUint8(RFC8032_TEST1_SEED);
+		return Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
+	}
+
+	private static void assertRfc8032Vector(final String seedHex, final String expectedPubKeyHex, final String msgHex,
+			final String expectedSigHex) {
+		// Arrange:
+		final byte[] seed = Converter.hexToUint8(seedHex);
+		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
+		assertThat(Converter.uint8ToHex(kp.publicKey), equalTo(expectedPubKeyHex));
+
+		// Act:
+		final byte[] msg = Converter.hexToUint8(msgHex);
+		final byte[] sig = Ed25519.sign(Tweetnacl.HashMode.SHA2_512, msg, kp);
+
+		// Assert:
+		assertThat(Converter.uint8ToHex(sig), equalTo(expectedSigHex));
+	}
+
 	@Test
 	void sha512_keypairFromSeed_matchesSymbolDeterministicVector() {
 		// Arrange:
@@ -43,60 +66,47 @@ final class Ed25519Test {
 
 	@Test
 	void sha512_rfc8032_test1() {
-		// Arrange:
 		// RFC 8032 §7.1 Test 1
-		final byte[] seed = Converter.hexToUint8("9D61B19DEFFD5A60BA844AF492EC2CC44449C5697B326919703BAC031CAE7F60");
-		final String expectedPublicKey = "D75A980182B10AB7D54BFED3C964073A0EE172F3DAA62325AF021A68F707511A";
-		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
-		assertThat(Converter.uint8ToHex(kp.publicKey), equalTo(expectedPublicKey));
-
-		// Act:
-		final byte[] msg = new byte[0];
-		final byte[] sig = Ed25519.sign(Tweetnacl.HashMode.SHA2_512, msg, kp);
-
-		// Assert:
-		final String expectedSignature = "E5564300C360AC729086E2CC806E828A84877F1EB8E5D974D873E06522490155"
-				+ "5FB8821590A33BACC61E39701CF9B46BD25BF5F0595BBE24655141438E7A100B";
-		assertThat(Converter.uint8ToHex(sig), equalTo(expectedSignature));
+		assertRfc8032Vector(RFC8032_TEST1_SEED, "D75A980182B10AB7D54BFED3C964073A0EE172F3DAA62325AF021A68F707511A", "",
+				"E5564300C360AC729086E2CC806E828A84877F1EB8E5D974D873E06522490155"
+						+ "5FB8821590A33BACC61E39701CF9B46BD25BF5F0595BBE24655141438E7A100B");
 	}
 
 	@Test
 	void sha512_rfc8032_test2() {
-		// Arrange:
 		// RFC 8032 §7.1 Test 2
-		final byte[] seed = Converter.hexToUint8("4CCD089B28FF96DA9DB6C346EC114E0F5B8A319F35ABA624DA8CF6ED4FB8A6FB");
-		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
-		assertThat(Converter.uint8ToHex(kp.publicKey), equalTo("3D4017C3E843895A92B70AA74D1B7EBC9C982CCF2EC4968CC0CD55F12AF4660C"));
+		assertRfc8032Vector("4CCD089B28FF96DA9DB6C346EC114E0F5B8A319F35ABA624DA8CF6ED4FB8A6FB",
+				"3D4017C3E843895A92B70AA74D1B7EBC9C982CCF2EC4968CC0CD55F12AF4660C", "72",
+				"92A009A9F0D4CAB8720E820B5F642540A2B27B5416503F8FB3762223EBDB69DA"
+						+ "085AC1E43E15996E458F3613D0F11D8C387B2EAEB4302AEEB00D291612BB0C00");
 
-		// Act:
+		// Assert (test2 additionally round-trips through verify):
+		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512,
+				Converter.hexToUint8("4CCD089B28FF96DA9DB6C346EC114E0F5B8A319F35ABA624DA8CF6ED4FB8A6FB"));
 		final byte[] msg = Converter.hexToUint8("72");
 		final byte[] sig = Ed25519.sign(Tweetnacl.HashMode.SHA2_512, msg, kp);
-
-		// Assert:
-		final String expectedSignature = "92A009A9F0D4CAB8720E820B5F642540A2B27B5416503F8FB3762223EBDB69DA"
-				+ "085AC1E43E15996E458F3613D0F11D8C387B2EAEB4302AEEB00D291612BB0C00";
-		assertThat(Converter.uint8ToHex(sig), equalTo(expectedSignature));
 		assertThat(Ed25519.verify(Tweetnacl.HashMode.SHA2_512, msg, sig, kp.publicKey), is(true));
 	}
 
 	@Test
 	void sha512_verifyFailsOnTamperedMessage() {
 		// Arrange:
-		final byte[] seed = Converter.hexToUint8("9D61B19DEFFD5A60BA844AF492EC2CC44449C5697B326919703BAC031CAE7F60");
-		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
+		final Tweetnacl.KeyPair kp = sha512KeyPair();
 		final byte[] msg = "Hello".getBytes();
 		final byte[] sig = Ed25519.sign(Tweetnacl.HashMode.SHA2_512, msg, kp);
 		final byte[] tampered = "Hellp".getBytes();
 
-		// Act + Assert:
-		assertThat(Ed25519.verify(Tweetnacl.HashMode.SHA2_512, tampered, sig, kp.publicKey), is(false));
+		// Act:
+		final boolean isVerified = Ed25519.verify(Tweetnacl.HashMode.SHA2_512, tampered, sig, kp.publicKey);
+
+		// Assert:
+		assertThat(isVerified, is(false));
 	}
 
 	@Test
 	void sha512_verifyFailsOnTamperedSignature() {
 		// Arrange:
-		final byte[] seed = Converter.hexToUint8("9D61B19DEFFD5A60BA844AF492EC2CC44449C5697B326919703BAC031CAE7F60");
-		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
+		final Tweetnacl.KeyPair kp = sha512KeyPair();
 		final byte[] msg = "Hello".getBytes();
 		final byte[] sig = Ed25519.sign(Tweetnacl.HashMode.SHA2_512, msg, kp);
 
@@ -134,16 +144,18 @@ final class Ed25519Test {
 
 		final Tweetnacl.KeyPair kpSha = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
 
-		// Act + Assert:
-		assertThat(Ed25519.verify(Tweetnacl.HashMode.SHA2_512, msg, sigKeccak, kpSha.publicKey), is(false));
+		// Act:
+		final boolean isVerified = Ed25519.verify(Tweetnacl.HashMode.SHA2_512, msg, sigKeccak, kpSha.publicKey);
+
+		// Assert:
+		assertThat(isVerified, is(false));
 	}
 
 	@Test
 	void rejectsNonCanonicalS() {
 		// Arrange:
 		// An "all 0xFF" S component must be rejected as non-canonical.
-		final byte[] seed = Converter.hexToUint8("9D61B19DEFFD5A60BA844AF492EC2CC44449C5697B326919703BAC031CAE7F60");
-		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
+		final Tweetnacl.KeyPair kp = sha512KeyPair();
 		final byte[] msg = "msg".getBytes();
 		final byte[] sig = Ed25519.sign(Tweetnacl.HashMode.SHA2_512, msg, kp);
 
@@ -167,8 +179,7 @@ final class Ed25519Test {
 		// Arrange:
 		// A signature (R, S+L) still satisfies the curve equation (because [L]B is the identity), so the raw
 		// curve verify passes -- but S+L >= L is non-canonical, so Ed25519.verify must reject it via isCanonicalS.
-		final byte[] seed = Converter.hexToUint8("9D61B19DEFFD5A60BA844AF492EC2CC44449C5697B326919703BAC031CAE7F60");
-		final Tweetnacl.KeyPair kp = Ed25519.keyPairFromSeed(Tweetnacl.HashMode.SHA2_512, seed);
+		final Tweetnacl.KeyPair kp = sha512KeyPair();
 		final byte[] msg = "malleable".getBytes();
 		final byte[] sig = Ed25519.sign(Tweetnacl.HashMode.SHA2_512, msg, kp);
 

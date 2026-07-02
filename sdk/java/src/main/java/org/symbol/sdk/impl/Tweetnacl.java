@@ -22,13 +22,13 @@ public final class Tweetnacl {
 	}
 
 	/** Public key length in bytes. */
-	public static final int CRYPTO_SIGN_PUBLICKEYBYTES = 32;
+	private static final int CRYPTO_SIGN_PUBLICKEYBYTES = 32;
 	/** Secret key length in bytes (seed || public key). */
-	public static final int CRYPTO_SIGN_SECRETKEYBYTES = 64;
+	private static final int CRYPTO_SIGN_SECRETKEYBYTES = 64;
 	/** Signature length in bytes. */
-	public static final int CRYPTO_SIGN_BYTES = 64;
+	private static final int CRYPTO_SIGN_BYTES = 64;
 	/** Seed length in bytes. */
-	public static final int CRYPTO_SIGN_SEEDBYTES = 32;
+	private static final int CRYPTO_SIGN_SEEDBYTES = 32;
 
 	// region field element constants
 
@@ -38,7 +38,7 @@ public final class Tweetnacl {
 	}
 
 	/** Allocates a field element initialized from {@code init}. */
-	public static double[] gf(final double... init) {
+	private static double[] gf(final double... init) {
 		final double[] r = new double[16];
 		for (int i = 0; i < init.length; ++i)
 			r[i] = init[i];
@@ -76,7 +76,7 @@ public final class Tweetnacl {
 	}
 
 	/** Constant-time comparison of two 32-byte arrays. */
-	public static int cryptoVerify32(final byte[] x, final int xi, final byte[] y, final int yi) {
+	private static int cryptoVerify32(final byte[] x, final int xi, final byte[] y, final int yi) {
 		return vn(x, xi, y, yi, 32);
 	}
 

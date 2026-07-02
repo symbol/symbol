@@ -85,18 +85,22 @@ public abstract class ByteArray implements Serializer {
 	}
 
 	/**
-	 * Convert a descriptor value ({@code byte[]} or any {@link ByteArray}) to raw bytes.
+	 * Converts a raw value ({@code byte[]}, hex {@link String}, or any {@link ByteArray}) to raw bytes. A {@link String} is read as
+	 * <em>hex</em>, not UTF-8.
 	 *
-	 * @param value Raw descriptor value.
+	 * @param value Raw value.
 	 * @return Converted bytes.
 	 */
 	public static byte[] toBytes(final Object value) {
 		if (value instanceof byte[] bytes)
 			return bytes;
 
+		if (value instanceof String hex)
+			return Converter.hexToUint8(hex);
+
 		if (value instanceof ByteArray byteArray)
 			return byteArray.bytes();
 
-		throw new InvalidDescriptorException("cannot convert " + (null == value ? "null" : value.getClass().getName()) + " to bytes");
+		throw new IllegalArgumentException("cannot convert " + (null == value ? "null" : value.getClass().getName()) + " to bytes");
 	}
 }

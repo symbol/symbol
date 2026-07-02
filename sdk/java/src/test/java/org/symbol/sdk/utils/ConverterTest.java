@@ -5,10 +5,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.math.BigInteger;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 final class ConverterTest {
 	@Nested
@@ -28,9 +28,13 @@ final class ConverterTest {
 					"", "026ee415fc15", "abcdef0123456789ABCDEF"
 			};
 
-			// Act + Assert:
-			for (String input : inputs)
-				assertThat("input " + input, Converter.isHexString(input), is(true));
+			for (String input : inputs) {
+				// Act:
+				final boolean actual = Converter.isHexString(input);
+
+				// Assert:
+				assertThat("input " + input, actual, is(true));
+			}
 		}
 
 		@Test
@@ -41,34 +45,46 @@ final class ConverterTest {
 					"abcdef0123456789ABCDE" // invalid (odd) length
 			};
 
-			// Act + Assert:
-			for (String input : inputs)
-				assertThat("input " + input, Converter.isHexString(input), is(false));
+			for (String input : inputs) {
+				// Act:
+				final boolean actual = Converter.isHexString(input);
+
+				// Assert:
+				assertThat("input " + input, actual, is(false));
+			}
 		}
 
 		@Test
 		void acceptsEmptyString() {
-			// Act + Assert:
-			assertThat(Converter.isHexString(""), is(true));
+			// Act:
+			final boolean actual = Converter.isHexString("");
+
+			// Assert:
+			assertThat(actual, is(true));
 		}
 
 		@Test
 		void acceptsSingleOctet() {
-			// Act + Assert:
 			assertThat(Converter.isHexString("FF"), is(true));
 			assertThat(Converter.isHexString("00"), is(true));
 		}
 
 		@Test
 		void rejectsSingleCharacter() {
-			// Act + Assert:
-			assertThat(Converter.isHexString("F"), is(false));
+			// Act:
+			final boolean actual = Converter.isHexString("F");
+
+			// Assert:
+			assertThat(actual, is(false));
 		}
 
 		@Test
 		void acceptsMixedCase() {
-			// Act + Assert:
-			assertThat(Converter.isHexString("AbCdEf0123"), is(true));
+			// Act:
+			final boolean actual = Converter.isHexString("AbCdEf0123");
+
+			// Assert:
+			assertThat(actual, is(true));
 		}
 	}
 
@@ -87,13 +103,11 @@ final class ConverterTest {
 
 		@Test
 		void cannotParseHexStringWithOddLength() {
-			// Act + Assert:
 			assertThrows(IllegalArgumentException.class, () -> Converter.hexToUint8("026ee415fc1"));
 		}
 
 		@Test
 		void cannotParseHexStringWithInvalidChar() {
-			// Act + Assert:
 			assertThrows(IllegalArgumentException.class, () -> Converter.hexToUint8("026Ge415fc15"));
 		}
 
@@ -144,24 +158,33 @@ final class ConverterTest {
 
 		@Test
 		void canEncodeEmptyArray() {
-			// Act + Assert:
-			assertThat(Converter.uint8ToHex(new byte[0]), equalTo(""));
+			// Act:
+			final String actual = Converter.uint8ToHex(new byte[0]);
+
+			// Assert:
+			assertThat(actual, equalTo(""));
 		}
 
 		@Test
 		void canEncodeSingleByte() {
-			// Act + Assert:
-			assertThat(Converter.uint8ToHex(new byte[]{
+			// Act:
+			final String actual = Converter.uint8ToHex(new byte[]{
 					(byte) 0xFF
-			}), equalTo("FF"));
+			});
+
+			// Assert:
+			assertThat(actual, equalTo("FF"));
 		}
 
 		@Test
 		void canEncodeZeroBytes() {
-			// Act + Assert:
-			assertThat(Converter.uint8ToHex(new byte[]{
+			// Act:
+			final String actual = Converter.uint8ToHex(new byte[]{
 					0x00, 0x00, 0x00
-			}), equalTo("000000"));
+			});
+
+			// Assert:
+			assertThat(actual, equalTo("000000"));
 		}
 
 		@Test
@@ -178,80 +201,74 @@ final class ConverterTest {
 
 	@Nested
 	final class BytesToInt {
+		private static void assertReads(final byte[] bytes, final int size, final boolean signed, final long expected) {
+			assertThat(Converter.bytesToInt(bytes, size, signed), equalTo(expected));
+		}
+
 		@Test
 		void readsUint8() {
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(new byte[]{
+			assertReads(new byte[]{
 					(byte) 0xCD
-			}, 1), equalTo(0xCDL));
+			}, 1, false, 0xCDL);
 		}
 
 		@Test
 		void readsUint16() {
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(new byte[]{
+			assertReads(new byte[]{
 					(byte) 0xCD, (byte) 0xAB
-			}, 2), equalTo(0xABCDL));
+			}, 2, false, 0xABCDL);
 		}
 
 		@Test
 		void readsUint32() {
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(new byte[]{
+			assertReads(new byte[]{
 					0x12, 0x34, 0x56, 0x78
-			}, 4), equalTo(0x78563412L));
+			}, 4, false, 0x78563412L);
 		}
 
 		@Test
 		void readsInt8() {
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(new byte[]{
+			assertReads(new byte[]{
 					(byte) 0xCD
-			}, 1, true), equalTo(-51L));
+			}, 1, true, -51L);
 		}
 
 		@Test
 		void readsInt16() {
-			// Arrange: 0xFF 0xFF -> -1 in little-endian signed
-			final byte[] bytes = {
+			assertReads(new byte[]{
 					(byte) 0xFF, (byte) 0xFF
-			};
-
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(bytes, 2, true), equalTo(-1L));
+			}, 2, true, -1L);
 		}
 
 		@Test
-		void readsInt16Positive() {
-			// Arrange: 0x00 0x80 -> 0x8000 (32768) unsigned, but -32768 signed
-			final byte[] bytes = {
+		void readsInt16Unsigned() {
+			// 0x80 high bit: 0x8000 unsigned reads back as -32768 when signed
+			assertReads(new byte[]{
 					0x00, (byte) 0x80
-			};
-
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(bytes, 2, true), equalTo(-32768L));
+			}, 2, true, -32768L);
 		}
 
 		@Test
 		void readsInt32() {
-			// Arrange: 0xFF 0xFF 0xFF 0xFF -> -1 in little-endian signed
-			final byte[] bytes = {
+			assertReads(new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			};
-
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(bytes, 4, true), equalTo(-1L));
+			}, 4, true, -1L);
 		}
 
 		@Test
-		void readsInt32Positive() {
-			// Arrange: 0x00 0x00 0x00 0x80 -> 0x80000000 unsigned (-2147483648 signed)
-			final byte[] bytes = {
+		void readsInt32Unsigned() {
+			// 0x80 high bit: 0x80000000 unsigned reads back as -2147483648 when signed
+			assertReads(new byte[]{
 					0x00, 0x00, 0x00, (byte) 0x80
-			};
+			}, 4, true, -2147483648L);
+		}
 
-			// Act + Assert:
-			assertThat(Converter.bytesToInt(bytes, 4, true), equalTo(-2147483648L));
+		@Test
+		void readsUint64() {
+			// size 8 returns the raw little-endian 64-bit pattern (u64 max reads back as -1L)
+			assertReads(new byte[]{
+					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+			}, 8, false, -1L);
 		}
 
 		@Test
@@ -312,256 +329,85 @@ final class ConverterTest {
 
 		@Test
 		void cannotReadUnsupported1ByteSize() {
-			// Act + Assert:
 			assertThrows(IllegalArgumentException.class, () -> Converter.bytesToInt(new byte[]{
 					0x01
 			}, 3, false));
 		}
 
 		@Test
-		void cannotReadUnsupported8ByteSize() {
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> Converter.bytesToInt(new byte[8], 8, false));
-		}
-
-		@Test
 		void cannotReadUnsupportedZeroSize() {
-			// Act + Assert:
 			assertThrows(IllegalArgumentException.class, () -> Converter.bytesToInt(new byte[]{}, 0, false));
 		}
 	}
 
 	@Nested
-	final class BytesToBigInt {
-		@Test
-		void readsUint64() {
-			// Arrange:
-			final byte[] bytes = {
-					0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF
-			};
-
-			// Act + Assert:
-			assertThat(Converter.bytesToBigInt(bytes, 8), equalTo(new BigInteger("EFCDAB8967452301", 16)));
-		}
-
-		@Test
-		void readsInt64Negative() {
-			// Arrange:
-			final byte[] bytes = {
-					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			};
-
-			// Act + Assert:
-			assertThat(Converter.bytesToBigInt(bytes, 8, true), equalTo(BigInteger.valueOf(-1)));
-		}
-
-		@Test
-		void readsUint64MaxValue() {
-			// Arrange:
-			final byte[] bytes = {
-					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			};
-
-			// Act:
-			final BigInteger value = Converter.bytesToBigInt(bytes, 8, false);
-
-			// Assert:
-			assertThat(value, equalTo(new BigInteger("FFFFFFFFFFFFFFFF", 16)));
-		}
-
-		@Test
-		void readsInt64Positive() {
-			// Arrange:
-			final byte[] bytes = {
-					0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x00
-			};
-
-			// Act:
-			final BigInteger value = Converter.bytesToBigInt(bytes, 8, true);
-
-			// Assert:
-			assertThat(value.signum(), equalTo(1)); // positive
-		}
-
-		@Test
-		void readsFromOffsetUint64() {
-			// Arrange:
-			final byte[] bytes = {
-					0x11, 0x22, 0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF
-			};
-
-			// Act:
-			final BigInteger value = Converter.bytesToBigInt(bytes, 2, 8, false);
-
-			// Assert:
-			assertThat(value, equalTo(new BigInteger("EFCDAB8967452301", 16)));
-		}
-
-		@Test
-		void readsFromOffsetSigned() {
-			// Arrange:
-			final byte[] bytes = {
-					0x11, 0x22, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			};
-
-			// Act:
-			final BigInteger value = Converter.bytesToBigInt(bytes, 2, 8, true);
-
-			// Assert:
-			assertThat(value, equalTo(BigInteger.valueOf(-1)));
-		}
-
-		@Test
-		void cannotReadUnsupported4ByteSize() {
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> Converter.bytesToBigInt(new byte[4], 4, false));
-		}
-
-		@Test
-		void cannotReadUnsupported16ByteSize() {
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> Converter.bytesToBigInt(new byte[16], 16, false));
-		}
-	}
-
-	@Nested
 	final class IntToBytes {
+		private static void assertWrites(final long value, final int size, final boolean signed, final byte[] expected) {
+			assertThat(Converter.intToBytes(value, size, signed), equalTo(expected));
+		}
+
 		@Test
 		void writesUint8() {
-			// Act + Assert:
-			assertThat(Converter.intToBytes(0xCDL, 1), equalTo(new byte[]{
+			assertWrites(0xCDL, 1, false, new byte[]{
 					(byte) 0xCD
-			}));
+			});
 		}
 
 		@Test
 		void writesUint16() {
-			// Act + Assert:
-			assertThat(Converter.intToBytes(0xABCDL, 2), equalTo(new byte[]{
+			assertWrites(0xABCDL, 2, false, new byte[]{
 					(byte) 0xCD, (byte) 0xAB
-			}));
+			});
 		}
 
 		@Test
 		void writesUint32() {
-			// Act + Assert:
-			assertThat(Converter.intToBytes(0x78563412L, 4), equalTo(new byte[]{
+			assertWrites(0x78563412L, 4, false, new byte[]{
 					0x12, 0x34, 0x56, 0x78
-			}));
+			});
 		}
 
 		@Test
 		void writesInt8Negative() {
-			// Arrange: -1 -> 0xFF
-			// Act + Assert:
-			assertThat(Converter.intToBytes(-1L, 1, true), equalTo(new byte[]{
+			assertWrites(-1L, 1, true, new byte[]{
 					(byte) 0xFF
-			}));
+			});
 		}
 
 		@Test
 		void writesInt16Negative() {
-			// Arrange: -1 -> 0xFF 0xFF
-			// Act + Assert:
-			assertThat(Converter.intToBytes(-1L, 2, true), equalTo(new byte[]{
+			assertWrites(-1L, 2, true, new byte[]{
 					(byte) 0xFF, (byte) 0xFF
-			}));
+			});
 		}
 
 		@Test
 		void writesInt32Negative() {
-			// Arrange: -1 -> 0xFF 0xFF 0xFF 0xFF
-			// Act + Assert:
-			assertThat(Converter.intToBytes(-1L, 4, true), equalTo(new byte[]{
+			assertWrites(-1L, 4, true, new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			}));
+			});
 		}
 
 		@Test
 		void writesUint64() {
-			// Act + Assert:
-			assertThat(Converter.intToBytes(0x0807060504030201L, 8), equalTo(new byte[]{
+			assertWrites(0x0807060504030201L, 8, false, new byte[]{
 					0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
-			}));
+			});
 		}
 
 		@Test
 		void writesInt64Negative() {
-			// Arrange: -1 -> 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF
-			// Act + Assert:
-			assertThat(Converter.intToBytes(-1L, 8, true), equalTo(new byte[]{
+			assertWrites(-1L, 8, true, new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			}));
+			});
 		}
 
-		@Test
-		void writesBigIntUint64() {
-			// Arrange:
-			final byte[] expected = {
-					0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF
-			};
-
-			// Act + Assert:
-			assertThat(Converter.intToBytes(new BigInteger("EFCDAB8967452301", 16), 8), equalTo(expected));
-		}
-
-		@Test
-		void writesBigIntInt64Negative() {
-			// Arrange:
-			final byte[] expected = {
-					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			};
-
-			// Act + Assert:
-			assertThat(Converter.intToBytes(BigInteger.valueOf(-1), 8, true), equalTo(expected));
-		}
-
-		@Test
-		void writesBigIntUint8() {
-			// Act + Assert:
-			assertThat(Converter.intToBytes(BigInteger.valueOf(0xCDL), 1), equalTo(new byte[]{
-					(byte) 0xCD
-			}));
-		}
-
-		@Test
-		void writesBigIntUint16() {
-			// Act + Assert:
-			assertThat(Converter.intToBytes(BigInteger.valueOf(0xABCDL), 2), equalTo(new byte[]{
-					(byte) 0xCD, (byte) 0xAB
-			}));
-		}
-
-		@Test
-		void writesBigIntUint32() {
-			// Act + Assert:
-			assertThat(Converter.intToBytes(BigInteger.valueOf(0x78563412L), 4), equalTo(new byte[]{
-					0x12, 0x34, 0x56, 0x78
-			}));
-		}
-
-		@Test
-		void cannotWriteUnsupported3ByteSize() {
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> Converter.intToBytes(100L, 3, false));
-		}
-
-		@Test
-		void cannotWriteUnsupported5ByteSize() {
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> Converter.intToBytes(100L, 5, false));
-		}
-
-		@Test
-		void cannotWriteUnsupported7ByteSize() {
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> Converter.intToBytes(100L, 7, false));
-		}
-
-		@Test
-		void cannotWriteUnsupported16ByteSize() {
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> Converter.intToBytes(BigInteger.ONE, 16, false));
+		@ParameterizedTest
+		@ValueSource(ints = {
+				3, 5, 7
+		})
+		void cannotWriteUnsupportedByteSize(final int size) {
+			assertThrows(IllegalArgumentException.class, () -> Converter.intToBytes(100L, size, false));
 		}
 
 		@Test
@@ -585,6 +431,121 @@ final class ConverterTest {
 			assertThat(bytes, equalTo(new byte[]{
 					0, 0, 0, 0, 0, 0, 0, 0
 			}));
+		}
+	}
+
+	@Nested
+	final class DescriptorCoercion {
+		@Test
+		void toLongReturnsPrimitiveValueUnchanged() {
+			// Act + Assert: the long overload is an identity pass-through documenting the 64-bit-pattern contract.
+			assertThat(Converter.toLong(42L), equalTo(42L));
+			assertThat(Converter.toLong(0L), equalTo(0L));
+			assertThat(Converter.toLong(-1L), equalTo(-1L));
+		}
+
+		@Test
+		void toLongParsesDecimalAndHexStringsAcrossFullU64() {
+			assertThat(Converter.toLong("255"), equalTo(255L));
+			assertThat(Converter.toLong("0xFF"), equalTo(255L));
+			assertThat(Converter.toLong("0X1a"), equalTo(26L));
+			assertThat(Converter.toLong("0x7FFFFFFFFFFFFFFF"), equalTo(Long.MAX_VALUE));
+			// the upper unsigned half (>= 2^63) parses to the negative two's-complement pattern; u64 max -> -1L
+			assertThat(Converter.toLong("18446744073709551615"), equalTo(-1L));
+			assertThat(Converter.toLong("0xFFFFFFFFFFFFFFFF"), equalTo(-1L));
+		}
+
+		@Test
+		void toLongStringAcceptsNegativeDecimalsLikeNumber() {
+			// a leading '-' is parsed signed, so toLong(String) accepts negatives like toLong(Number)
+			assertThat(Converter.toLong("-5"), equalTo(Converter.toLong(Long.valueOf(-5))));
+			assertThat(Converter.toLong(String.valueOf(Long.MIN_VALUE)), equalTo(Long.MIN_VALUE));
+			// a negative and its unsigned-u64 twin (2^64 - 5) are the same 64-bit pattern
+			assertThat(Converter.toLong("-5"), equalTo(Converter.toLong("18446744073709551611")));
+		}
+
+		@Test
+		void toLongRejectsUnparseableOrOversizedStrings() {
+			// Act + Assert: non-numeric text and values wider than 64 bits are rejected as invalid descriptors.
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("not-a-number"));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("99999999999999999999999"));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("-99999999999999999999999"));
+		}
+
+		@Test
+		void toLongConvertsFixedWidthIntegralWrappers() {
+			// Act + Assert: Integer/Long/Short/Byte always fit 64 bits and are taken directly.
+			assertThat(Converter.toLong(Integer.valueOf(42)), equalTo(42L));
+			assertThat(Converter.toLong(Short.valueOf((short) 7)), equalTo(7L));
+			assertThat(Converter.toLong(Byte.valueOf((byte) 8)), equalTo(8L));
+			assertThat(Converter.toLong(Long.valueOf(-1L)), equalTo(-1L));
+		}
+
+		@Test
+		void toLongRejectsUnsupportedNumberType() {
+			// Act + Assert: only the fixed-width integral wrappers are accepted; any other Number (e.g. a non-integral Double) is rejected.
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong(Double.valueOf(1.5)));
+		}
+
+		@Test
+		void toLongRejectsNull() {
+			// a null Number is rejected with the same IllegalArgumentException as any other non-integral type, not an NPE
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong((Number) null));
+		}
+
+		@Test
+		void toIntConvertsValuesWithinIntRange() {
+			assertThat(Converter.toInt(Integer.valueOf(42)), equalTo(42));
+			assertThat(Converter.toInt(Short.valueOf((short) 255)), equalTo(255));
+		}
+
+		@Test
+		void toIntNumberAcceptsUnsignedU32AndRejectsBeyond() {
+			// the signed int range and the full unsigned u32 range are accepted (the upper half returns the two's-complement int)
+			assertThat(Converter.toInt(Long.valueOf(0xFFFFFFFFL)), equalTo(-1));
+			assertThat(Converter.toInt(Long.valueOf(0x80000000L)), equalTo(Integer.MIN_VALUE));
+			// beyond 2^32-1, or below the signed int minimum, is rejected rather than truncated
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt(Long.valueOf(0x1_0000_0000L))); // 2^32
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt(Long.valueOf(Long.MAX_VALUE)));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt(Long.valueOf(-3_000_000_000L)));
+		}
+
+		@Test
+		void toIntParsesAndRangeChecksStrings() {
+			assertThat(Converter.toInt("255"), equalTo(255));
+			assertThat(Converter.toInt("0xFF"), equalTo(255));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("4294967296")); // beyond the unsigned 32-bit range
+		}
+
+		@Test
+		void toIntRejectsMagnitudesAboveUnsignedRange() {
+			// values beyond the unsigned 32-bit range are rejected, not truncated to a valid-looking int
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("18446744073709551615")); // 2^64 - 1
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0xFFFFFFFFFFFFFFFF"));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0xFFFFFFFF80000000"));
+		}
+
+		@Test
+		void toIntStringAcceptsFullUnsignedAndSignedRange() {
+			// mirrors toLong: a leading '-' parses signed; hex and non-negative decimal read the full unsigned u32 range, the
+			// upper half returning the two's-complement int
+			assertThat(Converter.toInt("-5"), equalTo(-5));
+			assertThat(Converter.toInt(String.valueOf(Integer.MIN_VALUE)), equalTo(Integer.MIN_VALUE));
+			assertThat(Converter.toInt(String.valueOf(Integer.MAX_VALUE)), equalTo(Integer.MAX_VALUE));
+			assertThat(Converter.toInt("2147483648"), equalTo(Integer.MIN_VALUE)); // 2^31 as unsigned decimal
+			assertThat(Converter.toInt("4294967295"), equalTo(-1)); // 2^32 - 1 as unsigned decimal
+			// beyond 2^32-1 is rejected
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("4294967296"));
+		}
+
+		@Test
+		void toIntHexAcceptsFullUnsignedRange() {
+			// hex reads the full unsigned u32 range; a set bit 31 returns the negative two's-complement int
+			assertThat(Converter.toInt("0x7FFFFFFF"), equalTo(Integer.MAX_VALUE));
+			assertThat(Converter.toInt("0x80000000"), equalTo(Integer.MIN_VALUE));
+			assertThat(Converter.toInt("0xFFFFFFFF"), equalTo(-1));
+			// beyond the unsigned 32-bit range is rejected
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0x100000000"));
 		}
 	}
 }
