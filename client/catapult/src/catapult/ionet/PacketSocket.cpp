@@ -139,7 +139,7 @@ namespace catapult { namespace ionet {
 				// peer's. The subsequent raw drain empties whatever is still buffered. On Windows, closing a
 				// socket with unread data buffered makes Winsock emit an abortive RST instead of a FIN; that
 				// RST fails peers' in-flight writes (WSAECONNRESET) and drives a reset/reconnect storm.
-				// The whole sequence is bounded by a short timer so teardown stays prompt if the peer stalls.
+				// This whole sequence is bounded by a short timer so teardown stays prompt if the peer stalls.
 				boost::system::error_code ignoredEc;
 				m_socket.lowest_layer().cancel(ignoredEc);
 
@@ -375,8 +375,8 @@ namespace catapult { namespace ionet {
 
 			void readSome(const PacketSocket::ReadCallback& callback, bool allowMultiple) {
 				// once a close has been requested, do not issue another socket read: closeImpl runs the SSL
-				// shutdown handshake and a receive drain on the same stream, and a concurrent async_read_some
-				// would both race that teardown and deliver a stale packet after the owner asked to stop.
+				// shutdown handshake and a receive drain on the same stream; a concurrent async_read_some
+				// would race that teardown and could deliver a stale packet after the owner asked to stop.
 				if (m_wrapper.isClosePending())
 					return callback(SocketOperationCode::Read_Error, nullptr);
 
