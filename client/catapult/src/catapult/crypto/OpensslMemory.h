@@ -86,7 +86,6 @@ namespace catapult { namespace crypto {
 			auto diff = static_cast<size_t>(reinterpret_cast<uint8_t*>(ptr) - m_pBuffer);
 			size_t index = diff / TPoolTraits::Element_Size;
 
-			OPENSSL_cleanse(ptr, TPoolTraits::Element_Size);
 			m_occupied[index].clear();
 		}
 

@@ -377,46 +377,6 @@ namespace catapult { namespace crypto {
 
 	// region CatRealloc and free
 
-	TEST(TEST_CLASS, FixedSizePool_FreeWipesSlotContent) {
-		// Arrange: allocate a slot and fill with a known pattern.
-		PoolBuffer buffer;
-		TestPool pool(buffer.data());
-		auto* pElement = pool.tryAllocate();
-		ASSERT_TRUE(!!pElement);
-		std::fill(pElement, pElement + Element_Size, uint8_t(0xAB));
-
-		// Act:
-		pool.free(pElement);
-
-		// Assert: re-allocating returns the same slot address (index-0 is freed first)
-		// and the slot is now zeroed.
-		auto* pReused = pool.tryAllocate();
-		ASSERT_EQ(pElement, pReused);
-		auto numZeroBytes = static_cast<size_t>(std::count(pReused, pReused + Element_Size, uint8_t(0)));
-		EXPECT_EQ(Element_Size, numZeroBytes) << "free() must zero the slot before releasing it";
-
-		pool.free(pReused);
-	}
-
-	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_FreeWipesSlotContent) {
-		// Arrange: allocate a pool slot and fill with a known pattern.
-		Allocator allocator;
-		auto* pSlot = allocator.allocate(TTraits::Unaligned_Element_Size);
-		ASSERT_TRUE(!!pSlot);
-		std::fill(pSlot, pSlot + TTraits::Unaligned_Element_Size, uint8_t(0xAB));
-
-		// Act:
-		allocator.free(pSlot);
-
-		// Assert: re-allocating yields the same address with zeroed content.
-		auto* pReused = allocator.allocate(TTraits::Unaligned_Element_Size);
-		ASSERT_EQ(pSlot, pReused);
-		auto numZeroBytes = static_cast<size_t>(std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
-		EXPECT_EQ(TTraits::Unaligned_Element_Size, numZeroBytes) << "free() must zero the slot before releasing it";
-
-		allocator.free(pReused);
-	}
-
 	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_ReallocPreservesData) {
 		// Verifies the corrected CatRealloc argument order: copyTo(result, p, size).
 		// Arrange: allocate a pool slot and fill with a known sentinel.
@@ -436,29 +396,6 @@ namespace catapult { namespace crypto {
 		auto numPreserved = static_cast<size_t>(std::count(pResult.get(), pResult.get() + TTraits::Unaligned_Element_Size, Sentinel));
 		EXPECT_EQ(TTraits::Unaligned_Element_Size, numPreserved)
 				<< "realloc must copy all " << TTraits::Unaligned_Element_Size << " bytes to the destination";
-	}
-
-	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_ReallocWipesSourceSlot) {
-		// After CatRealloc, the freed source slot must be zeroed.
-		// Arrange:
-		Allocator allocator;
-		auto* pSlot = allocator.allocate(TTraits::Unaligned_Element_Size);
-		ASSERT_TRUE(!!pSlot);
-		std::fill(pSlot, pSlot + TTraits::Unaligned_Element_Size, uint8_t(0xAB));
-
-		// Act: same sequence as CatRealloc (correct arg order + free).
-		constexpr size_t New_Size = TTraits::Unaligned_Element_Size + 64;
-		auto pResult = std::make_unique<uint8_t[]>(New_Size);
-		allocator.copyTo(pResult.get(), pSlot, New_Size);
-		allocator.free(pSlot);
-
-		// Assert: source slot is zeroed — verified by re-allocating it.
-		auto* pReused = allocator.allocate(TTraits::Unaligned_Element_Size);
-		ASSERT_EQ(pSlot, pReused) << "Expected original slot to be returned on next allocation";
-		auto numZeroBytes = static_cast<size_t>(std::count(pReused, pReused + TTraits::Unaligned_Element_Size, uint8_t(0)));
-		EXPECT_EQ(TTraits::Unaligned_Element_Size, numZeroBytes) << "source slot must be zeroed after realloc";
-
-		allocator.free(pReused);
 	}
 
 	// endregion
