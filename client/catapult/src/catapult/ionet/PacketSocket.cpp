@@ -92,7 +92,8 @@ namespace catapult { namespace ionet {
 					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(ioContext, sslContext)
-					, m_drainTimer(ioContext) {
+					, m_drainTimer(ioContext)
+					, m_isFinalizing(false) {
 				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
@@ -101,7 +102,8 @@ namespace catapult { namespace ionet {
 					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(std::move(socket), sslContext)
-					, m_drainTimer(ioContext) {
+					, m_drainTimer(ioContext)
+					, m_isFinalizing(false) {
 				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
@@ -225,7 +227,7 @@ namespace catapult { namespace ionet {
 			Socket m_socket;
 			boost::asio::steady_timer m_drainTimer;
 			std::array<uint8_t, 1024> m_drainBuffer;
-			std::atomic_bool m_isFinalizing = false;
+			std::atomic_bool m_isFinalizing;
 			std::atomic_flag m_isClosed;
 		};
 
@@ -579,6 +581,7 @@ namespace catapult { namespace ionet {
 					: m_strandWrapper(pSocketGuard->strand())
 					, m_socket(pSocketGuard, options, *this)
 					, m_id(s_idCounter.fetch_add(1))
+					, m_isClosePending(false)
 			{}
 
 			~StrandedPacketSocket() override {
@@ -701,7 +704,7 @@ namespace catapult { namespace ionet {
 			thread::StrandOwnerLifetimeExtender<StrandedPacketSocket> m_strandWrapper;
 			SocketType m_socket;
 			SocketIdentifier m_id;
-			std::atomic<bool> m_isClosePending{ false };
+			std::atomic<bool> m_isClosePending;
 		};
 
 		std::atomic<uint64_t> StrandedPacketSocket::s_idCounter(1);
