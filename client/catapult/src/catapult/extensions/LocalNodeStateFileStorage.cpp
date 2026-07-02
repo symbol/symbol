@@ -34,7 +34,11 @@
 #include "catapult/io/FilesystemUtils.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/plugins/PluginManager.h"
+#include "catapult/utils/Logging.h"
+#include "catapult/utils/RetryUtils.h"
 #include "catapult/utils/StackLogger.h"
+#include "catapult/exceptions.h"
+#include <system_error>
 
 namespace catapult { namespace extensions {
 
@@ -193,7 +197,36 @@ namespace catapult { namespace extensions {
 	void LocalNodeStateSerializer::moveTo(const config::CatapultDirectory& destinationDirectory) {
 		io::PurgeDirectory(destinationDirectory.str());
 		std::filesystem::remove(destinationDirectory.path());
-		std::filesystem::rename(m_directory.path(), destinationDirectory.path());
+
+		const auto& from = m_directory.path();
+		const auto& to = destinationDirectory.path();
+
+		// On Windows a transient open handle on the destination - delete-pending state files, antivirus,
+		// or the search indexer - can make the rename fail with ACCESS_DENIED even when it would succeed on
+		// POSIX (which frees the name on unlink). Retry with backoff before giving up; otherwise the
+		// filesystem_error escapes the block dispatcher consumer and terminates the process.
+		// (cf. RocksDatabase open-retry on Windows.)
+#ifdef _WIN32
+		constexpr uint32_t Num_Rename_Attempts = 5;
+#else
+		constexpr uint32_t Num_Rename_Attempts = 1;
+#endif
+		auto ec = utils::RetryWithBackoff(
+				[&from, &to]() {
+					std::error_code innerEc;
+					std::filesystem::rename(from, to, innerEc);
+					return innerEc;
+				},
+				[](const std::error_code& innerEc) { return std::errc::permission_denied == innerEc; },
+				Num_Rename_Attempts,
+				[&from, &to](uint32_t attempt, const std::error_code& innerEc, uint32_t delayMs) {
+					CATAPULT_LOG(warning)
+							<< "renaming '" << from << "' to '" << to << "' failed (attempt " << (attempt + 1) << "/"
+							<< Num_Rename_Attempts << "): " << innerEc.message() << ", retrying in " << delayMs << "ms";
+				});
+
+		if (ec)
+			CATAPULT_THROW_RUNTIME_ERROR_2(("could not rename state directory: " + ec.message()).c_str(), from, to);
 	}
 
 	// endregion

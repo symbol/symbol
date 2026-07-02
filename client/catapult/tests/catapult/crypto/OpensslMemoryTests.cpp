@@ -22,7 +22,6 @@
 #include "catapult/crypto/OpensslMemory.h"
 #include "catapult/thread/ThreadGroup.h"
 #include "tests/TestHarness.h"
-#include <openssl/crypto.h>
 
 namespace catapult { namespace crypto {
 
@@ -372,6 +371,31 @@ namespace catapult { namespace crypto {
 
 			pPrevious = pCurrent;
 		}
+	}
+
+	// endregion
+
+	// region CatRealloc and free
+
+	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_ReallocPreservesData) {
+		// Verifies the corrected CatRealloc argument order: copyTo(result, p, size).
+		// Arrange: allocate a pool slot and fill with a known sentinel.
+		Allocator allocator;
+		auto* pSlot = allocator.allocate(TTraits::Unaligned_Element_Size);
+		ASSERT_TRUE(!!pSlot);
+		constexpr uint8_t Sentinel = 0xAB;
+		std::fill(pSlot, pSlot + TTraits::Unaligned_Element_Size, Sentinel);
+
+		// Act: simulate CatRealloc with the correct copyTo argument order.
+		constexpr size_t New_Size = TTraits::Unaligned_Element_Size + 64;
+		auto pResult = std::make_unique<uint8_t[]>(New_Size);
+		allocator.copyTo(pResult.get(), pSlot, New_Size);
+		allocator.free(pSlot);
+
+		// Assert: the returned buffer contains all original sentinel bytes.
+		auto numPreserved = static_cast<size_t>(std::count(pResult.get(), pResult.get() + TTraits::Unaligned_Element_Size, Sentinel));
+		EXPECT_EQ(TTraits::Unaligned_Element_Size, numPreserved)
+				<< "realloc must copy all " << TTraits::Unaligned_Element_Size << " bytes to the destination";
 	}
 
 	// endregion
