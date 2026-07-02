@@ -92,8 +92,7 @@ namespace catapult { namespace ionet {
 					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(ioContext, sslContext)
-					, m_drainTimer(ioContext)
-					, m_isFinalizing(false) {
+					, m_drainTimer(ioContext) {
 				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
@@ -102,8 +101,7 @@ namespace catapult { namespace ionet {
 					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(std::move(socket), sslContext)
-					, m_drainTimer(ioContext)
-					, m_isFinalizing(false) {
+					, m_drainTimer(ioContext) {
 				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
@@ -222,13 +220,12 @@ namespace catapult { namespace ionet {
 		private:
 			static constexpr auto Drain_Timeout = std::chrono::milliseconds(100);
 
-		private:
 			Strand m_strand;
 			thread::StrandOwnerLifetimeExtender<SocketGuard> m_strandWrapper;
 			Socket m_socket;
 			boost::asio::steady_timer m_drainTimer;
 			std::array<uint8_t, 1024> m_drainBuffer;
-			std::atomic_bool m_isFinalizing;
+			std::atomic_bool m_isFinalizing = false;
 			std::atomic_flag m_isClosed;
 		};
 
