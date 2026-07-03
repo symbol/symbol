@@ -24,7 +24,9 @@
 #include "RocksPruningFilter.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/utils/HexFormatter.h"
+#include "catapult/utils/Logging.h"
 #include "catapult/utils/PathUtils.h"
+#include "catapult/utils/RetryUtils.h"
 #include "catapult/utils/StackLogger.h"
 #include "catapult/exceptions.h"
 
@@ -151,6 +153,10 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	bool IsRetryableAfterFailedOpen(const rocksdb::Status& status) {
+		return !status.ok() && status.IsIOError();
+	}
+
 	RocksDatabase::RocksDatabase() = default;
 
 	RocksDatabase::RocksDatabase(const RocksDatabaseSettings& settings)
@@ -169,7 +175,25 @@ namespace catapult { namespace cache {
 
 		rocksdb::DB* pDb;
 		auto dbOptions = CreateDatabaseOptions(m_settings.DatabaseConfig);
-		auto status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+
+		// On Windows, the OS may hold file handles open briefly after a prior instance closes,
+		// causing RocksDB's internal CURRENT rename to fail with ACCESS_DENIED. Retry with backoff.
+#ifdef _WIN32
+		constexpr uint32_t Num_Open_Attempts = 5;
+#else
+		constexpr uint32_t Num_Open_Attempts = 1;
+#endif
+		auto status = utils::RetryWithBackoff(
+				[this, &dbOptions, &columnFamilies, &pDb]() {
+					return rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+				},
+				IsRetryableAfterFailedOpen,
+				Num_Open_Attempts,
+				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus, uint32_t delayMs) {
+					CATAPULT_LOG(warning)
+							<< "RocksDB open failed (attempt " << (attempt + 1) << "/" << Num_Open_Attempts << "): "
+							<< openStatus.ToString() << ", retrying in " << delayMs << "ms";
+				});
 		m_pDb.reset(pDb);
 		if (!status.ok())
 			CATAPULT_THROW_RUNTIME_ERROR_2("couldn't open database", m_settings.DatabaseDirectory, status.ToString());

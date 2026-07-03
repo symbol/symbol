@@ -20,6 +20,7 @@
 **/
 
 #include "catapult/cache_db/RocksDatabase.h"
+#include "catapult/cache_db/RocksInclude.h"
 #include "catapult/io/FileLock.h"
 #include "catapult/io/RawFile.h"
 #include "tests/catapult/cache_db/test/RdbTestUtils.h"
@@ -58,6 +59,20 @@ namespace catapult { namespace cache {
 			return CreateSettings({ "default", "beta", "gamma" });
 		}
 	}
+
+	// region IsRetryableAfterFailedOpen
+
+	TEST(TEST_CLASS, IsRetryableAfterFailedOpen_ReturnsTrueOnlyForIoError) {
+		EXPECT_TRUE(IsRetryableAfterFailedOpen(rocksdb::Status::IOError()));
+
+		EXPECT_FALSE(IsRetryableAfterFailedOpen(rocksdb::Status::OK()));
+		EXPECT_FALSE(IsRetryableAfterFailedOpen(rocksdb::Status::InvalidArgument()));
+		EXPECT_FALSE(IsRetryableAfterFailedOpen(rocksdb::Status::NotFound()));
+		EXPECT_FALSE(IsRetryableAfterFailedOpen(rocksdb::Status::Corruption()));
+		EXPECT_FALSE(IsRetryableAfterFailedOpen(rocksdb::Status::NotSupported()));
+	}
+
+	// endregion
 
 	// region constructor
 
