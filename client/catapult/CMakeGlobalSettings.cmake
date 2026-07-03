@@ -167,7 +167,6 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	# - Wno-shadow-uncaptured-local: allow shadowing of local variables in lambdas https://github.com/llvm/llvm-project/issues/81307
 	# - Wno-thread-safety-negative: error: acquiring mutex 'm_mutex' requires negative capability '!m_mutex'
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-		-stdlib=libc++ \
 		-Weverything \
 		-Werror \
 		-Wno-c++98-compat \
@@ -180,6 +179,13 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		-Wno-shadow-uncaptured-local \
 		-Wno-switch-default \
 		-Wno-thread-safety-negative")
+
+	# metal/Jenkins builds link against prebuilt deps compiled with libc++ (see jenkins/catapult/compilers/clang-latest.yaml
+	# and baseImageDockerfileGenerator.py). conan/vcpkg builds should instead follow whatever compiler.libcxx
+	# their toolchain/profile resolved to, since they build their own deps against it.
+	if(NOT USE_CONAN AND NOT USE_VCPKG)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	endif()
 
 	if("${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^21.")
 		# - Wno-nrvo: error: not eliding copy on return

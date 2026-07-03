@@ -1,23 +1,12 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy
 
 
 class CatapultConan(ConanFile):
 	settings = "os", "compiler", "build_type", "arch"  # pylint: disable=invalid-name
-
-	def validate(self):
-		# pylint: disable=no-member
-		# CMakeGlobalSettings.cmake hardcodes -stdlib=libc++ for Clang; a profile built against
-		# libstdc++ links fine on its own but fails at link time against catapult's own libc++ objects.
-		if "clang" == self.settings.compiler and "libc++" != self.settings.compiler.libcxx:
-			raise ConanInvalidConfiguration(
-				"Clang builds require compiler.libcxx=libc++ (got '{}'). "
-				"Install libc++-dev/libc++abi-dev, then set compiler.libcxx=libc++ in your conan profile.".format(
-					self.settings.compiler.libcxx))
 
 	def requirements(self):
 		self.requires("boost/1.91.0", run=True)

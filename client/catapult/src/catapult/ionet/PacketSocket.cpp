@@ -27,6 +27,9 @@
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/StackTimer.h"
 #include <boost/asio/ssl.hpp>
+#include <boost/asio/steady_timer.hpp>
+#include <array>
+#include <chrono>
 
 namespace catapult { namespace ionet {
 
@@ -81,7 +84,8 @@ namespace catapult { namespace ionet {
 					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(ioContext, sslContext)
-					, m_sentinelByte(0) {
+					, m_drainTimer(ioContext)
+					, m_isFinalizing(false) {
 				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
@@ -90,7 +94,8 @@ namespace catapult { namespace ionet {
 					: m_strand(boost::asio::make_strand(ioContext))
 					, m_strandWrapper(m_strand)
 					, m_socket(std::move(socket), sslContext)
-					, m_sentinelByte(0) {
+					, m_drainTimer(ioContext)
+					, m_isFinalizing(false) {
 				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
@@ -128,19 +133,54 @@ namespace catapult { namespace ionet {
 					return;
 				}
 
-				m_socket.async_shutdown(wrap([](const auto& ec) {
-					if (ec && boost::asio::error::operation_aborted != ec && boost::asio::error::bad_descriptor != ec)
+				// graceful drained close: complete the SSL shutdown handshake, then drain any remaining
+				// received bytes to EOF, before closing the lowest layer. async_shutdown sends our
+				// close_notify (so the peer sees an orderly shutdown, not a truncation) and consumes the
+				// peer's. The subsequent raw drain empties whatever is still buffered. On Windows, closing a
+				// socket with unread data buffered makes Winsock emit an abortive RST instead of a FIN; that
+				// RST fails peers' in-flight writes (WSAECONNRESET) and drives a reset/reconnect storm.
+				// This whole sequence is bounded by a short timer so teardown stays prompt if the peer stalls.
+				boost::system::error_code ignoredEc;
+				m_socket.lowest_layer().cancel(ignoredEc);
+
+				m_drainTimer.expires_after(Drain_Timeout);
+				m_drainTimer.async_wait(wrap([this](const auto& ec) {
+					if (boost::asio::error::operation_aborted != ec)
+						finalizeImpl();
+				}));
+
+				m_socket.async_shutdown(wrap([this](const auto& ec) {
+					if (ec && boost::asio::error::operation_aborted != ec && boost::asio::error::eof != ec
+							&& boost::asio::error::bad_descriptor != ec && !IsProtocolShutdown(ec))
 						CATAPULT_LOG(warning) << "async_shutdown returned an error: " << ec.message();
-				}));
 
-				// write must be of non-zero length to avoid asio optimization to no-op
-				auto asioBuffer = boost::asio::buffer(&m_sentinelByte, 1);
-				boost::asio::async_write(m_socket, asioBuffer, wrap([this](const auto& ec, auto) {
-					if (ec && !IsProtocolShutdown(ec))
-						CATAPULT_LOG(warning) << "async_write returned an error: " << ec.message();
-
-					abortImpl();
+					if (!m_isFinalizing)
+						drainImpl();
 				}));
+			}
+
+			void drainImpl() {
+				m_socket.next_layer().async_read_some(boost::asio::buffer(m_drainBuffer), wrap([this](const auto& ec, auto) {
+					if (m_isFinalizing)
+						return;
+
+					// EOF (peer FIN) or any read error means the receive side is drained; otherwise discard
+					// the bytes just read and keep draining
+					if (ec)
+						finalizeImpl();
+					else
+						drainImpl();
+				}));
+			}
+
+			void finalizeImpl() {
+				if (m_isFinalizing)
+					return;
+
+				m_isFinalizing = true;
+
+				m_drainTimer.cancel();
+				abortImpl();
 			}
 
 		public:
@@ -172,10 +212,14 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
+			static constexpr auto Drain_Timeout = std::chrono::milliseconds(100);
+
 			Strand m_strand;
 			thread::StrandOwnerLifetimeExtender<SocketGuard> m_strandWrapper;
 			Socket m_socket;
-			uint8_t m_sentinelByte;
+			boost::asio::steady_timer m_drainTimer;
+			std::array<uint8_t, 1024> m_drainBuffer;
+			std::atomic_bool m_isFinalizing;
 			std::atomic_flag m_isClosed;
 		};
 
@@ -329,6 +373,12 @@ namespace catapult { namespace ionet {
 			}
 
 			void readSome(const PacketSocket::ReadCallback& callback, bool allowMultiple) {
+				// once a close has been requested, do not issue another socket read: closeImpl runs the SSL
+				// shutdown handshake and a receive drain on the same stream; a concurrent async_read_some
+				// would race that teardown and could deliver a stale packet after the owner asked to stop.
+				if (m_wrapper.isClosePending())
+					return callback(SocketOperationCode::Read_Error, nullptr);
+
 				auto pAppendContext = std::make_shared<SharedAppendContext>(m_buffer.prepareAppend());
 				auto readHandler = [this, callback, allowMultiple, pAppendContext](const auto& ec, auto bytesReceived) {
 					auto code = mapReadErrorCodeToSocketOperationCode(ec);
@@ -523,6 +573,7 @@ namespace catapult { namespace ionet {
 					: m_strandWrapper(pSocketGuard->strand())
 					, m_socket(pSocketGuard, options, *this)
 					, m_id(s_idCounter.fetch_add(1))
+					, m_isClosePending(false)
 			{}
 
 			~StrandedPacketSocket() override {
@@ -561,15 +612,23 @@ namespace catapult { namespace ionet {
 			}
 
 			void close() override {
+				// set synchronously (before the posted handler runs) so an in-flight reader stops
+				// re-issuing socket reads as soon as a close is requested
+				m_isClosePending = true;
 				postCloseOnce("close", [](auto& socket) {
 					socket.close();
 				});
 			}
 
 			void abort() override {
+				m_isClosePending = true;
 				postCloseOnce("abort", [](auto& socket) {
 					socket.abort();
 				});
+			}
+
+			bool isClosePending() const {
+				return m_isClosePending;
 			}
 
 			std::shared_ptr<PacketIo> buffered() override {
@@ -637,6 +696,7 @@ namespace catapult { namespace ionet {
 			thread::StrandOwnerLifetimeExtender<StrandedPacketSocket> m_strandWrapper;
 			SocketType m_socket;
 			SocketIdentifier m_id;
+			std::atomic<bool> m_isClosePending;
 		};
 
 		std::atomic<uint64_t> StrandedPacketSocket::s_idCounter(1);
