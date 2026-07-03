@@ -189,7 +189,7 @@ namespace catapult { namespace cache {
 				},
 				IsRetryableAfterFailedOpen,
 				Num_Open_Attempts,
-				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus, uint32_t delayMs) {
+				[](uint32_t attempt, const rocksdb::Status& openStatus, uint32_t delayMs) {
 					CATAPULT_LOG(warning)
 							<< "RocksDB open failed (attempt " << (attempt + 1) << "/" << Num_Open_Attempts << "): "
 							<< openStatus.ToString() << ", retrying in " << delayMs << "ms";
