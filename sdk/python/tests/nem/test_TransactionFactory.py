@@ -182,7 +182,7 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 
 	# endregion
 
-	# region message encoding
+	# region string handling
 
 	def test_can_create_transfer_with_string_message(self):
 		# Arrange:
@@ -200,6 +200,29 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 
 		# Assert:
 		self.assertEqual(b'You miss 100%% of the shots you don\'t take', transaction.message.message)
+
+	def test_can_create_transfer_with_string_mosaic_id(self):
+		# Arrange:
+		factory = self.create_factory()
+
+		# Act:
+		transaction = self.create_transaction(factory)({
+			'type': 'transfer_transaction_v2',
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
+			'mosaics': [
+				{
+					'mosaic': {
+						'mosaic_id': {'namespace_id': {'name': 'foo'}, 'name': 'bar'},
+						'amount': 1
+					}
+				}
+			]
+		})
+
+		# Assert:
+		self.assertEqual(1, len(transaction.mosaics))
+		self.assertEqual(b'foo', transaction.mosaics[0].mosaic.mosaic_id.namespace_id.name)
+		self.assertEqual(b'bar', transaction.mosaics[0].mosaic.mosaic_id.name)
 
 	# endregion
 

@@ -23,8 +23,6 @@
 
 // this file only contains an interface for prettier documentation, so ignore no-unused-vars warnings
 
-/* eslint-disable no-unused-vars */
-
 /**
  * A transaction state descriptor.
  * @typedef {object} TransactionStateDescriptor
@@ -43,28 +41,26 @@ export default {
 	 * @instance
 	 * @param {module:db/CatapultDb} db Catapult database.
 	 */
-	createDb: db => {},
+	createDb: db => {}, // eslint-disable-line no-unused-vars
 
 	/**
 	 * Registers transaction state descriptors.
 	 * @instance
 	 * @param {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} states Transaction state descriptors.
 	 */
-	registerTransactionStates: states => {},
+	registerTransactionStates: states => {}, // eslint-disable-line no-unused-vars
 
 	/**
 	 * Registers message channels.
 	 * @instance
 	 * @param {module:connection/MessageChannelBuilder~MessageChannelBuilder} builder Message channel builder.
 	 */
-	registerMessageChannels: builder => {},
+	registerMessageChannels: builder => {}, // eslint-disable-line no-unused-vars
 
 	/**
 	 * Registers route extensions.
 	 * @instance
 	 * @param {...args} args Arguments needed to register the routes.
 	 */
-	registerRoutes: (...args) => {}
+	registerRoutes: (...args) => {} // eslint-disable-line no-unused-vars
 };
-
-/* eslint-enable */

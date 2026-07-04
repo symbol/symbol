@@ -2,6 +2,11 @@
 
 set -ex
 
+if ! [ -x "$(command -v rg)" ]; then
+	echo "Error: rg is not installed"
+	exit 1
+fi
+
 ! rg \
 		--files-with-matches \
 		--type-not=json \

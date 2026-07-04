@@ -4,25 +4,13 @@
 // - ES6
 
 /* eslint-disable
-	comma-spacing,
-	computed-property-spacing,
 	curly,
 	func-style,
 	indent,
-	keyword-spacing,
 	max-len,
 	no-mixed-operators,
-	no-mixed-spaces-and-tabs,
-	no-multi-spaces,
 	no-underscore-dangle,
-	no-var,
 	nonblock-statement-body-position,
-	object-curly-spacing,
-	one-var,
-	one-var-declaration-per-line,
-	space-before-function-paren,
-	space-infix-ops,
-	vars-on-top,
 	yoda,
 	jsdoc/require-jsdoc
 */

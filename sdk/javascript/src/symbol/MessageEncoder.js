@@ -96,7 +96,6 @@ export default class MessageEncoder {
 	 * @param {KeyPair} vrfKeyPair Vrf key pair.
 	 * @returns {Uint8Array} Encrypted and encoded harvesting delegation request.
 	 */
-	// eslint-disable-next-line class-methods-use-this
 	encodePersistentHarvestingDelegation(nodePublicKey, remoteKeyPair, vrfKeyPair) {
 		const ephemeralKeyPair = new KeyPair(PrivateKey.random());
 		const message = concatArrays(remoteKeyPair.privateKey.bytes, vrfKeyPair.privateKey.bytes);

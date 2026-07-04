@@ -41,6 +41,7 @@ const signAndPrint = (facade, transaction) => {
 		deadline,
 		...rawEmbeddedDescriptor
 	} = rawDescriptor; // remove fee and deadline from rawDescriptor
+	console.log(`fee: ${fee}, deadline: ${deadline} removed from raw descriptor for embedded transaction`);
 	const embeddedTransaction = facade.transactionFactory.createEmbedded(rawEmbeddedDescriptor);
 	signAndPrint(facade, embeddedTransaction);
 })();

@@ -4,9 +4,6 @@ import {
 } from '../../src/CryptoTypes.js';
 import { SymbolFacade } from '../../src/facade/SymbolFacade.js';
 import { Address, Network } from '../../src/symbol/Network.js';
-/* eslint-disable no-unused-vars */
-import TransactionFactory from '../../src/symbol/TransactionFactory.js';
-/* eslint-enable no-unused-vars */
 import * as sc from '../../src/symbol/models.js';
 import * as descriptors from '../../src/symbol/models_ts.js';
 import { sha3_256 } from '@noble/hashes/sha3.js';
@@ -217,7 +214,7 @@ describe('Symbol Facade', () => {
 
 	it('cannot create around unknown network by name', () => {
 		expect(() => {
-			new SymbolFacade('foo'); // eslint-disable-line no-new
+			new SymbolFacade('foo');
 		}).to.throw('no network found with name \'foo\'');
 	});
 
@@ -256,7 +253,7 @@ describe('Symbol Facade', () => {
 
 			const endTime = new Date().getTime();
 			if (startTime !== endTime)
-				continue; // eslint-disable-line no-continue
+				continue;
 
 			// Assert:
 			expect(nowFromFacade).to.deep.equal(nowFromNetwork);

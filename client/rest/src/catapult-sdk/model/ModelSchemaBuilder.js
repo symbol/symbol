@@ -317,7 +317,7 @@ export default class ModelSchemaBuilder {
 				const transactionName = new models.TransactionType(transaction.type).toString();
 				if (this.schema[transactionName])
 					return transactionName;
-			} catch (RuntimeError) {
+			} catch {
 				// ignore, unknown transaction type
 			}
 

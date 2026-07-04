@@ -7,7 +7,7 @@ RUN apt-get update >/dev/null \
 
 # install npm-groovy-lint which requires java 17
 ENV NODE_OPTIONS="--dns-result-order=ipv4first"
-ARG NODE_MAJOR=18
+ARG NODE_MAJOR=22
 RUN apt-get install -y openjdk-17-jre ca-certificates curl gnupg \
 	&& mkdir -p /etc/apt/keyrings \
 	&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \

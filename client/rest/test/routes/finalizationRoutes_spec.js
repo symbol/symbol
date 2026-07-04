@@ -92,7 +92,7 @@ describe('finalization routes', () => {
 					const route = mockServer.getRoute(endpointUnderTest).get();
 					return mockServer.callRoute(route, { params: { epoch: '11' } }).then(() => {
 						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -124,7 +124,7 @@ describe('finalization routes', () => {
 							formatter: 'ws',
 							type: routeResultTypes.finalizationProof
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -144,8 +144,8 @@ describe('finalization routes', () => {
 					const route = mockServer.getRoute(endpointUnderTest).get();
 					return mockServer.callRoute(route, { params: { epoch: '11' } }).then(() => {
 						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+						expect(mockServer.done.calledOnce).to.equal(true);
+						expect(mockServer.done.firstCall.args[0].statusCode).to.equal(404);
 					});
 				});
 			});
@@ -180,7 +180,7 @@ describe('finalization routes', () => {
 					const route = mockServer.getRoute(endpointUnderTest).get();
 					return mockServer.callRoute(route, { params: { height: '1024' } }).then(() => {
 						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -212,7 +212,7 @@ describe('finalization routes', () => {
 							formatter: 'ws',
 							type: routeResultTypes.finalizationProof
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -232,8 +232,8 @@ describe('finalization routes', () => {
 					const route = mockServer.getRoute(endpointUnderTest).get();
 					return mockServer.callRoute(route, { params: { height: '1024' } }).then(() => {
 						// Assert:
-						expect(mockServer.next.calledOnce).to.equal(true);
-						expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+						expect(mockServer.done.calledOnce).to.equal(true);
+						expect(mockServer.done.firstCall.args[0].statusCode).to.equal(404);
 					});
 				});
 			});

@@ -1,11 +1,7 @@
-/* eslint-disable no-unused-vars */
 import { KeyPair } from './KeyPair.js';
-/* eslint-enable no-unused-vars */
-import { deriveSharedKey, deriveSharedKeyDeprecated } from './SharedKey.js'; // eslint-disable-line import/no-deprecated
+import { deriveSharedKey, deriveSharedKeyDeprecated } from './SharedKey.js';
 import { Message, MessageType } from './models.js';
-/* eslint-disable no-unused-vars */
 import { PublicKey } from '../CryptoTypes.js';
-/* eslint-enable no-unused-vars */
 import {
 	concatArrays, decodeAesCbc, decodeAesGcm, encodeAesCbc, encodeAesGcm
 } from '../impl/CipherHelpers.js';
@@ -63,7 +59,6 @@ export default class MessageEncoder {
 			return { isDecoded: true, message };
 
 		[result, message] = filterExceptions(
-			// eslint-disable-next-line import/no-deprecated
 			() => decodeAesCbc(deriveSharedKeyDeprecated, this._keyPair, recipientPublicKey, encodedMessage.message),
 			[
 				'bad decrypt',
@@ -101,7 +96,6 @@ export default class MessageEncoder {
 	 * @returns {Message} Encrypted and encoded message.
 	 */
 	encodeDeprecated(recipientPublicKey, message) {
-		// eslint-disable-next-line import/no-deprecated
 		const encoded = encodeAesCbc(deriveSharedKeyDeprecated, this._keyPair, recipientPublicKey, message);
 
 		const encodedMessage = new Message();

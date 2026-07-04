@@ -29,22 +29,22 @@ export default {
 	register: (server, db, services) => {
 		const sender = routeUtils.createSender('secretLockInfo');
 
-		server.get('/account/:address/lock/secret', (req, res, next) => {
-			const { params } = req;
+		server.get('/account/:address/lock/secret', async (request, reply) => {
+			const { params } = request;
 			const accountAddresses = params.address ? [routeUtils.parseArgument(params, 'address', 'address')] : [];
 			const secret = params.secret ? routeUtils.parseArgument(params, 'secret', 'hash256') : undefined;
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
-			return db.secretLocks(accountAddresses, secret, options)
-				.then(result => sender.sendPage(res, next)(result));
+			const result = await db.secretLocks(accountAddresses, secret, options);
+			return reply.send(sender.sendPage()(result));
 		});
 
-		server.get('/lock/secret', (req, res, next) => {
-			const { params } = req;
+		server.get('/lock/secret', async (request, reply) => {
+			const { params } = request;
 			const accountAddresses = params.address ? [routeUtils.parseArgument(params, 'address', 'address')] : [];
 			const secret = params.secret ? routeUtils.parseArgument(params, 'secret', 'hash256') : undefined;
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
-			return db.secretLocks(accountAddresses, secret, options)
-				.then(result => sender.sendPage(res, next)(result));
+			const result = await db.secretLocks(accountAddresses, secret, options);
+			return reply.send(sender.sendPage()(result));
 		});
 
 		routeUtils.addGetPostDocumentRoutes(
@@ -55,13 +55,11 @@ export default {
 			routeUtils.namedParserMap.hash256
 		);
 
-		server.get('/lock/secret/:compositeHash/merkle', (req, res, next) => {
-			const compositeHash = routeUtils.parseArgument(req.params, 'compositeHash', 'hash256');
+		server.get('/lock/secret/:compositeHash/merkle', async (request, reply) => {
+			const compositeHash = routeUtils.parseArgument(request.params, 'compositeHash', 'hash256');
 			const state = PacketType.secretLockStatePath;
-			return merkleUtils.requestTree(services, state, compositeHash).then(response => {
-				res.send(response);
-				next();
-			});
+			const response = await merkleUtils.requestTree(services, state, compositeHash);
+			return reply.send(response);
 		});
 	}
 };

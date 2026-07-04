@@ -33,6 +33,7 @@ namespace rocksdb {
 	class DB;
 	class PinnableSlice;
 	class Slice;
+	class Status;
 	class WriteBatch;
 }
 
@@ -127,6 +128,11 @@ namespace catapult { namespace cache {
 	};
 
 	// endregion
+
+	/// Returns \c true if a database open that failed with \a status is worth retrying
+	/// (a transient I/O failure, e.g. Windows delayed file handle release after a prior close).
+	/// \note Exposed for testing; used internally to gate RocksDatabase's open-retry loop.
+	bool IsRetryableAfterFailedOpen(const rocksdb::Status& status);
 
 	// region RocksDatabase
 

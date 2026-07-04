@@ -195,22 +195,34 @@ describe('rosetta utils', () => {
 		});
 
 		const createRosettaRouteTestSetup = () => {
-			const routeContext = { numNextCalls: 0 };
-			const next = () => { ++routeContext.numNextCalls; };
+			const routeContext = { numDoneCalls: 0 };
+			const done = () => { ++routeContext.numDoneCalls; };
 
 			routeContext.responses = [];
 			routeContext.headers = [];
 			const res = {
 				statusCode: 200,
-				send: response => { routeContext.responses.push(response); },
-				setHeader: (name, value) => { routeContext.headers.push({ name, value }); }
+				send: response => {
+					routeContext.responses.push(response);
+					++routeContext.numDoneCalls;
+					return res;
+				},
+				code: code => {
+					res.statusCode = code;
+					return res;
+				},
+				type: () => res,
+				header: (name, value) => {
+					routeContext.headers.push({ name, value });
+					return res;
+				}
 			};
 
-			return { routeContext, next, res };
+			return { routeContext, done, res };
 		};
 
 		const assertRosettaErrorRaised = (routeContext, res, expectedError) => {
-			expect(routeContext.numNextCalls).to.equal(1);
+			expect(routeContext.numDoneCalls).to.equal(1);
 			expect(routeContext.responses.length).to.equal(1);
 			expect(res.statusCode).to.equal(500);
 
@@ -221,13 +233,13 @@ describe('rosetta utils', () => {
 
 		it('fails when request is invalid', async () => {
 			// Arrange: corrupt the request by removing a required subfield
-			const { routeContext, next, res } = createRosettaRouteTestSetup();
+			const { routeContext, done, res } = createRosettaRouteTestSetup();
 			const request = createValidRequest();
 			delete request.network_identifier.network;
 
 			// Act:
 			const postHandler = rosettaPostRouteWithNetwork({ blockchain: 'Foo', network: 'testnet' }, ConstructionDeriveRequest, () => {});
-			await postHandler({ body: request }, res, next);
+			await postHandler({ body: request }, res, done);
 
 			// Assert:
 			assertRosettaErrorRaised(routeContext, res, RosettaErrorFactory.INVALID_REQUEST_DATA);
@@ -235,12 +247,12 @@ describe('rosetta utils', () => {
 
 		const assertFailsWhenIsNotTargetNetwork = async blockchainDescriptor => {
 			// Arrange:
-			const { routeContext, next, res } = createRosettaRouteTestSetup();
+			const { routeContext, done, res } = createRosettaRouteTestSetup();
 			const request = createValidRequest();
 
 			// Act:
 			const postHandler = rosettaPostRouteWithNetwork(blockchainDescriptor, ConstructionDeriveRequest, () => {});
-			await postHandler({ body: request }, res, next);
+			await postHandler({ body: request }, res, done);
 
 			// Assert:
 			assertRosettaErrorRaised(routeContext, res, RosettaErrorFactory.UNSUPPORTED_NETWORK);
@@ -252,7 +264,7 @@ describe('rosetta utils', () => {
 
 		const assertFailsWhenHandlerRaisesError = async (raisedError, expectedError) => {
 			// Arrange:
-			const { routeContext, next, res } = createRosettaRouteTestSetup();
+			const { routeContext, done, res } = createRosettaRouteTestSetup();
 			const request = createValidRequest();
 
 			// Act:
@@ -260,7 +272,7 @@ describe('rosetta utils', () => {
 				{ blockchain: 'Foo', network: 'testnet' },
 				ConstructionDeriveRequest, () => Promise.reject(raisedError)
 			);
-			await postHandler({ body: request }, res, next);
+			await postHandler({ body: request }, res, done);
 
 			// Assert:
 			assertRosettaErrorRaised(routeContext, res, expectedError);
@@ -278,15 +290,15 @@ describe('rosetta utils', () => {
 
 		const assertSuccessWhenValid = async handler => {
 			// Arrange:
-			const { routeContext, next, res } = createRosettaRouteTestSetup();
+			const { routeContext, done, res } = createRosettaRouteTestSetup();
 			const request = createValidRequest();
 
 			// Act:
 			const postHandler = rosettaPostRouteWithNetwork({ blockchain: 'Foo', network: 'testnet' }, ConstructionDeriveRequest, handler);
-			await postHandler({ body: request }, res, next);
+			await postHandler({ body: request }, res, done);
 
 			// Assert:
-			expect(routeContext.numNextCalls).to.equal(1);
+			expect(routeContext.numDoneCalls).to.equal(1);
 			expect(routeContext.responses.length).to.equal(1);
 			expect(res.statusCode).to.equal(200);
 			expect(routeContext.responses[0]).to.deep.equal({ foo: 'testnet' });

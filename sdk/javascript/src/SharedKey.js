@@ -1,9 +1,7 @@
 // this file contains implementation details and is not intended to be used directly
 
 import {
-	/* eslint-disable no-unused-vars */
 	PublicKey,
-	/* eslint-enable no-unused-vars */
 	SharedKey256
 } from './CryptoTypes.js';
 import tweetnacl from './impl/external/tweetnacl-nacl-fast-symbol.js';

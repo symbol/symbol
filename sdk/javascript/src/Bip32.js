@@ -49,18 +49,20 @@ export class Bip32Node {
 	}
 
 	/**
-	 * Derives a descendent node with specified path.
+	 * Derives a descendant node with the specified path.
 	 * @param {Array<number>} path BIP32 path.
 	 * @returns {Bip32Node} BIP32 node at the end of the path.
 	 */
 	derivePath(path) {
-		/** @type {Bip32Node} */
-		let nextNode = this;
-		path.forEach(identifier => {
-			nextNode = nextNode.deriveOne(identifier);
-		});
-
-		return nextNode;
+		return path.reduce(
+			/**
+			 * @param {Bip32Node} nextNode Parent node.
+			 * @param {number} identifier BIP32 path identifier.
+			 * @returns {Bip32Node} BIP32 node.
+			 */
+			(nextNode, identifier) => nextNode.deriveOne(identifier),
+			/** @type {Bip32Node} */ (this)
+		);
 	}
 }
 

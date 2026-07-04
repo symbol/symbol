@@ -1,7 +1,7 @@
 ARG UBUNTU_VERSION=24.04
-ARG NODE_MAJOR=20
+ARG NODE_MAJOR=24
 
-FROM ubuntu:${UBUNTU_VERSION} as builder
+FROM ubuntu:${UBUNTU_VERSION} AS builder
 
 ARG NODE_MAJOR
 ARG NODE_OPTIONS="--dns-result-order=ipv4first"
@@ -18,7 +18,7 @@ RUN apt-get install -y build-essential
 
 WORKDIR /app
 COPY . .
-RUN npm uninstall . && rm -rf node_modules && npm install --omit=dev
+RUN npm install --omit=dev
 
 FROM ubuntu:${UBUNTU_VERSION}
 

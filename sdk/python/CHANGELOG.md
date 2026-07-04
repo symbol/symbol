@@ -5,6 +5,17 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.3.2] - 15-Jun-2026
+
+### Added
+- add calculate_mosaic_rental_fee function for calculating NEM Mosaic rental fee.
+- add calculate_namespace_rental_fee function for calculating NEM Namespace rental fee.
+- add calculate_transaction_fee function for calculating NEM transaction fee.
+- add calculate_transaction_fee function for calculating Symbol transaction fee.
+
+### Fixed
+- automatically convert string types in nested NEM transaction entities by walking the object tree.
+
 ## [3.3.1] - 14-Apr-2026
 
 ### Added

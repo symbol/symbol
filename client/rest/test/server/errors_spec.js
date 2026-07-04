@@ -21,7 +21,6 @@
 
 import errors from '../../src/server/errors.js';
 import { expect } from 'chai';
-import restifyErrors from 'restify-errors';
 
 describe('errors', () => {
 	describe('toRestError', () => {
@@ -36,27 +35,48 @@ describe('errors', () => {
 
 		it('can map basic error with message', () => {
 			// Act:
-			const err = errors.toRestError(new Error('badness'));
+			const originalError = new Error('badness');
+			const err = errors.toRestError(originalError);
 
 			// Assert:
 			expect(err.statusCode).to.equal(500);
 			expect(err.body).to.deep.equal({ code: 'Internal', message: 'badness' });
+			expect(err.cause).to.deep.equal(originalError);
 		});
 
-		it('can map rest error', () => {
+		it('returns original error when already a rest error', () => {
+			// Arrange:
+			const originalError = {
+				statusCode: 400,
+				body: { code: 'user', message: 'test error' }
+			};
+
 			// Act:
-			const err = new restifyErrors.NotFoundError('not found');
+			const err = errors.toRestError(originalError);
 
 			// Assert:
-			expect(err.statusCode).to.equal(404);
-			expect(err.body).to.deep.equal({ code: 'NotFound', message: 'not found' });
+			expect(err).to.deep.equal(originalError);
+			expect(err.cause).to.equal(undefined);
 		});
 	});
 
 	describe('create', () => {
-		it('can create not found error', () => {
+		const assertTestNotFoundError = expectedMessage => {
 			// Act:
-			const err = errors.createNotFoundError('foo');
+			const err = expectedMessage ? errors.createNotFoundError(expectedMessage) : errors.createNotFoundError();
+
+			// Assert:
+			expect(err.statusCode).to.equal(404);
+			expect(err.body).to.deep.equal({ code: 'NotFound', message: expectedMessage || '' });
+		};
+
+		it('can create not found error with default message', () => assertTestNotFoundError());
+
+		it('can create not found error', () => assertTestNotFoundError('Not Found'));
+
+		it('can create resource not found error', () => {
+			// Act:
+			const err = errors.createResourceNotFoundError('foo');
 
 			// Assert:
 			expect(err.statusCode).to.equal(404);
@@ -70,7 +90,7 @@ describe('errors', () => {
 			// Assert:
 			expect(err.statusCode).to.equal(409);
 			expect(err.body).to.deep.equal({ code: 'InvalidArgument', message: 'badness' });
-			expect(err.jse_cause).to.equal(undefined);
+			expect(err.cause).to.equal(undefined);
 		});
 
 		it('can create invalid argument error with cause', () => {
@@ -80,8 +100,8 @@ describe('errors', () => {
 			// Assert:
 			expect(err.statusCode).to.equal(409);
 			expect(err.body).to.deep.equal({ code: 'InvalidArgument', message: 'badness' });
-			expect(err.jse_cause).to.not.equal(undefined);
-			expect(err.jse_cause.message).to.equal('foo');
+			expect(err.cause).to.not.equal(undefined);
+			expect(err.cause.message).to.equal('foo');
 		});
 
 		it('can create service unavailable error', () => {
@@ -100,6 +120,24 @@ describe('errors', () => {
 			// Assert:
 			expect(err.statusCode).to.equal(500);
 			expect(err.body).to.deep.equal({ code: 'Internal', message: 'badness' });
+		});
+
+		it('can create unsupported media type error', () => {
+			// Act:
+			const err = errors.createUnsupportedMediaTypeError('badness');
+
+			// Assert:
+			expect(err.statusCode).to.equal(415);
+			expect(err.body).to.deep.equal({ code: 'UnsupportedMediaType', message: 'badness' });
+		});
+
+		it('can create not acceptable error', () => {
+			// Act:
+			const err = errors.createNotAcceptableError('badness');
+
+			// Assert:
+			expect(err.statusCode).to.equal(406);
+			expect(err.body).to.deep.equal({ code: 'NotAcceptable', message: 'badness' });
 		});
 	});
 });

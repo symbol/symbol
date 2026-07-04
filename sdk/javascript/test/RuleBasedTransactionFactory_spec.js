@@ -13,7 +13,6 @@ describe('RuleBasedTransactionFactory', () => {
 		static SigningPublicKey = PublicKey;
 
 		// intentionally shadow Hash256 to emulate code produced by catbuffer generator, which shadows byte array types
-		// eslint-disable-next-line no-shadow
 		static Hash256 = class Hash256 extends ByteArray {
 			constructor(hash256) {
 				super(32, hash256);
@@ -80,6 +79,26 @@ describe('RuleBasedTransactionFactory', () => {
 			constructor() {
 				this.mosaicId = 0;
 				this.amount = 0;
+			}
+		};
+
+		static StructWrapped = class StructWrapped {
+			static TYPE_HINTS = {
+				inner: 'struct:StructPlain'
+			};
+
+			constructor() {
+				this.inner = new Module.StructPlain();
+			}
+		};
+
+		static StructAggregate = class StructAggregate {
+			TYPE_HINTS = {
+				components: 'array[StructPlain]'
+			};
+
+			constructor() {
+				this.components = [];
 			}
 		};
 
@@ -593,6 +612,64 @@ describe('RuleBasedTransactionFactory', () => {
 				0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x5F, 0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46
 			]));
 			expect(parsed.amount).to.deep.equal(new Uint8Array([
+				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39, 0x5F,
+				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39
+			]));
+			expect(parsed.type).to.equal(undefined);
+		});
+
+		it('can create struct and auto encode nested strings', () => {
+			// Arrange: use a wrapped struct but set string values in the inner struct
+			const factory = new RuleBasedTransactionFactory(Module);
+			factory.addStructParser('StructPlain');
+			factory.addStructParser('StructWrapped');
+			const entityFactory = entityType => (123 !== entityType ? undefined : new Module.StructWrapped());
+
+			// Act:
+			const parsed = factory.createFromFactory(entityFactory, {
+				type: 123,
+				inner: {
+					mosaicId: '01234567_89ABCDEF',
+					amount: '123_456_789_123_456_789'
+				}
+			});
+
+			// Assert: string values were encoded into utf8
+			expect(parsed.inner.mosaicId).to.deep.equal(new Uint8Array([
+				0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x5F, 0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46
+			]));
+			expect(parsed.inner.amount).to.deep.equal(new Uint8Array([
+				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39, 0x5F,
+				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39
+			]));
+			expect(parsed.type).to.equal(undefined);
+		});
+
+		it('can create struct and auto encode nested strings in array', () => {
+			// Arrange: use an aggregate struct but set string values in the inner struct
+			const factory = new RuleBasedTransactionFactory(Module);
+			factory.addStructParser('StructPlain');
+			factory.addArrayParser('struct:StructPlain');
+			factory.addStructParser('StructAggregate');
+			const entityFactory = entityType => (123 !== entityType ? undefined : new Module.StructAggregate());
+
+			// Act:
+			const parsed = factory.createFromFactory(entityFactory, {
+				type: 123,
+				components: [
+					{
+						mosaicId: '01234567_89ABCDEF',
+						amount: '123_456_789_123_456_789'
+					}
+				]
+			});
+
+			// Assert: string values were encoded into utf8
+			expect(parsed.components.length).to.equal(1);
+			expect(parsed.components[0].mosaicId).to.deep.equal(new Uint8Array([
+				0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x5F, 0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46
+			]));
+			expect(parsed.components[0].amount).to.deep.equal(new Uint8Array([
 				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39, 0x5F,
 				0x31, 0x32, 0x33, 0x5F, 0x34, 0x35, 0x36, 0x5F, 0x37, 0x38, 0x39
 			]));

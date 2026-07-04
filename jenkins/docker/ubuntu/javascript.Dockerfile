@@ -17,7 +17,7 @@ RUN apt-get install -y wget gnupg \
 
 # nodejs
 ENV NODE_OPTIONS="--dns-result-order=ipv4first"
-ARG NODEJS_VERSION=20
+ARG NODEJS_VERSION=22
 RUN apt-get install -y ca-certificates curl gnupg \
 	&& mkdir -p /etc/apt/keyrings \
 	&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
@@ -64,7 +64,7 @@ RUN mkdir -p /data/db \
 
 # install rust and wasm-pack
 ENV PATH=$PATH:/home/ubuntu/.cargo/bin
-ENV CARGO_HOME=/home/ubuntu/.cargo 
+ENV CARGO_HOME=/home/ubuntu/.cargo
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
 	&& curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | bash -s -- \
 	&& chown -R ubuntu:ubuntu /home/ubuntu/.cargo \

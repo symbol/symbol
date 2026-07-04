@@ -5,6 +5,17 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.3.2] - 15-Jun-2026
+
+### Added
+- add calculateMosaicRentalFee function for calculating NEM Mosaic rental fee.
+- add calculateNamespaceRentalFee function for calculating NEM Namespace rental fee.
+- add calculateTransactionFee function for calculating NEM transaction fee.
+- add calculateTransactionFee function for calculating Symbol transaction fee.
+
+### Fixed
+- automatically convert string types in nested NEM transaction entities by walking the object tree.
+
 ## [3.3.1] - 14-Apr-2026
 
 ### Added
@@ -148,6 +159,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.3.2]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.3.1...sdk%2Fjavascript%2Fv3.3.2
 [3.3.1]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.3.0...sdk%2Fjavascript%2Fv3.3.1
 [3.3.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.3...sdk%2Fjavascript%2Fv3.3.0
 [3.2.3]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.2...sdk%2Fjavascript%2Fv3.2.3

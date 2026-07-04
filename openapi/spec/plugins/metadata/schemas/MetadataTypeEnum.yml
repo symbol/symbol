@@ -1,0 +1,10 @@
+type: integer
+enum:
+  - 0
+  - 1
+  - 2
+description: |
+  Type of resource targeted by the metadata entry:
+  - `0`: Account metadata
+  - `1`: Mosaic metadata
+  - `2`: Namespace metadata

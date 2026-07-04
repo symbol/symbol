@@ -23,8 +23,6 @@
 
 // this file only contains an interface for prettier documentation, so ignore no-unused-vars warnings
 
-/* eslint-disable no-unused-vars */
-
 /**
  * Adds support for a particular subsystem.
  * @interface
@@ -35,7 +33,5 @@ export default {
 	 * @instance
 	 * @param {module:model/ModelSchemaBuilder} schemaBuilder Schema builder to augment.
 	 */
-	registerSchema: schemaBuilder => {}
+	registerSchema: schemaBuilder => {} // eslint-disable-line no-unused-vars
 };
-
-/* eslint-enable */

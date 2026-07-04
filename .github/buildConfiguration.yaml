@@ -35,6 +35,11 @@ builds:
     path: linters
     required: true
 
+  - name: OpenAPI
+    path: openapi
+    dependsOn:
+      - linters
+
 customBuilds:
   - name: Nightly Job
     jobName: nightlyJob

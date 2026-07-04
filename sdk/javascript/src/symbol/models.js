@@ -1,4 +1,4 @@
-/* eslint-disable max-len, object-property-newline, no-underscore-dangle, no-use-before-define */
+/* eslint-disable max-len, no-underscore-dangle */
 
 import BaseValue from '../BaseValue.js';
 import ByteArray from '../ByteArray.js';
@@ -278,7 +278,7 @@ export class UnresolvedAddress extends ByteArray {
 		super(UnresolvedAddress.SIZE, unresolvedAddress);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 24;
 	}
 
@@ -299,7 +299,7 @@ export class Address extends ByteArray {
 		super(Address.SIZE, address);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 24;
 	}
 
@@ -320,7 +320,7 @@ export class Hash256 extends ByteArray {
 		super(Hash256.SIZE, hash256);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 32;
 	}
 
@@ -341,7 +341,7 @@ export class Hash512 extends ByteArray {
 		super(Hash512.SIZE, hash512);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 64;
 	}
 
@@ -362,7 +362,7 @@ export class PublicKey extends ByteArray {
 		super(PublicKey.SIZE, publicKey);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 32;
 	}
 
@@ -383,7 +383,7 @@ export class VotingPublicKey extends ByteArray {
 		super(VotingPublicKey.SIZE, votingPublicKey);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 32;
 	}
 
@@ -404,7 +404,7 @@ export class Signature extends ByteArray {
 		super(Signature.SIZE, signature);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 64;
 	}
 
@@ -429,7 +429,7 @@ export class Mosaic {
 		this._amount = new Amount();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -448,7 +448,7 @@ export class Mosaic {
 		this._amount = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.mosaicId.size;
 		size += this.amount.size;
@@ -520,7 +520,7 @@ export class UnresolvedMosaic {
 		this._amount = new Amount();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -539,7 +539,7 @@ export class UnresolvedMosaic {
 		this._amount = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.mosaicId.size;
 		size += this.amount.size;
@@ -614,7 +614,7 @@ export class LinkAction {
 		return LinkAction[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -669,7 +669,7 @@ export class NetworkType {
 		return NetworkType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -775,7 +775,7 @@ export class TransactionType {
 		return TransactionType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 2;
 	}
 
@@ -824,7 +824,7 @@ export class Transaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get signature() {
@@ -883,7 +883,7 @@ export class Transaction {
 		this._deadline = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += 4;
@@ -998,7 +998,7 @@ export class EmbeddedTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get signerPublicKey() {
@@ -1033,7 +1033,7 @@ export class EmbeddedTransaction {
 		this._type = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += 4;
@@ -1118,7 +1118,7 @@ export class ProofGamma extends ByteArray {
 		super(ProofGamma.SIZE, proofGamma);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 32;
 	}
 
@@ -1139,7 +1139,7 @@ export class ProofVerificationHash extends ByteArray {
 		super(ProofVerificationHash.SIZE, proofVerificationHash);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 16;
 	}
 
@@ -1160,7 +1160,7 @@ export class ProofScalar extends ByteArray {
 		super(ProofScalar.SIZE, proofScalar);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 32;
 	}
 
@@ -1204,7 +1204,7 @@ export class BlockType {
 		return BlockType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 2;
 	}
 
@@ -1244,7 +1244,7 @@ export class VrfProof {
 		this._scalar = new ProofScalar();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get gamma() {
@@ -1271,7 +1271,7 @@ export class VrfProof {
 		this._scalar = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.gamma.size;
 		size += this.verificationHash.size;
@@ -1487,7 +1487,7 @@ export class Block {
 		this._feeMultiplier = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += 4;
@@ -1709,7 +1709,7 @@ export class NemesisBlockV1 extends Block {
 		this._transactions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -1812,7 +1812,7 @@ export class NormalBlockV1 extends Block {
 		this._transactions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -1930,7 +1930,7 @@ export class ImportanceBlockV1 extends Block {
 		this._transactions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 4;
@@ -2014,7 +2014,7 @@ export class FinalizationRound {
 		this._point = new FinalizationPoint();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get epoch() {
@@ -2033,7 +2033,7 @@ export class FinalizationRound {
 		this._point = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.epoch.size;
 		size += this.point.size;
@@ -2121,7 +2121,7 @@ export class FinalizedBlockHeader {
 		this._hash = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.round.size;
 		size += this.height.size;
@@ -2233,7 +2233,7 @@ export class ReceiptType {
 		return ReceiptType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 2;
 	}
 
@@ -2270,7 +2270,7 @@ export class Receipt {
 		this._type = ReceiptType.MOSAIC_RENTAL_FEE;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get version() {
@@ -2289,7 +2289,7 @@ export class Receipt {
 		this._type = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += 2;
@@ -2390,7 +2390,7 @@ export class HarvestFeeReceipt extends Receipt {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -2483,7 +2483,7 @@ export class InflationReceipt extends Receipt {
 		this._mosaic = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -2576,7 +2576,7 @@ export class LockHashCreatedFeeReceipt extends Receipt {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -2679,7 +2679,7 @@ export class LockHashCompletedFeeReceipt extends Receipt {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -2782,7 +2782,7 @@ export class LockHashExpiredFeeReceipt extends Receipt {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -2885,7 +2885,7 @@ export class LockSecretCreatedFeeReceipt extends Receipt {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -2988,7 +2988,7 @@ export class LockSecretCompletedFeeReceipt extends Receipt {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -3091,7 +3091,7 @@ export class LockSecretExpiredFeeReceipt extends Receipt {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -3172,7 +3172,7 @@ export class MosaicExpiredReceipt extends Receipt {
 		this._artifactId = new MosaicId();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get artifactId() {
@@ -3183,7 +3183,7 @@ export class MosaicExpiredReceipt extends Receipt {
 		this._artifactId = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.artifactId.size;
@@ -3286,7 +3286,7 @@ export class MosaicRentalFeeReceipt extends Receipt {
 		this._recipientAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -3413,7 +3413,7 @@ export class NamespaceRegistrationType {
 		return NamespaceRegistrationType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -3468,7 +3468,7 @@ export class AliasAction {
 		return AliasAction[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -3509,7 +3509,7 @@ export class NamespaceExpiredReceipt extends Receipt {
 		this._artifactId = new NamespaceId();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get artifactId() {
@@ -3520,7 +3520,7 @@ export class NamespaceExpiredReceipt extends Receipt {
 		this._artifactId = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.artifactId.size;
@@ -3591,7 +3591,7 @@ export class NamespaceDeletedReceipt extends Receipt {
 		this._artifactId = new NamespaceId();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get artifactId() {
@@ -3602,7 +3602,7 @@ export class NamespaceDeletedReceipt extends Receipt {
 		this._artifactId = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.artifactId.size;
@@ -3705,7 +3705,7 @@ export class NamespaceRentalFeeReceipt extends Receipt {
 		this._recipientAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -3791,7 +3791,7 @@ export class ReceiptSource {
 		this._secondaryId = 0;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get primaryId() {
@@ -3810,7 +3810,7 @@ export class ReceiptSource {
 		this._secondaryId = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += 4;
@@ -3888,7 +3888,7 @@ export class AddressResolutionEntry {
 		this._resolvedValue = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.source.size;
 		size += this.resolvedValue.size;
@@ -3946,7 +3946,7 @@ export class AddressResolutionStatement {
 		this._resolutionEntries = [];
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get unresolved() {
@@ -3965,7 +3965,7 @@ export class AddressResolutionStatement {
 		this._resolutionEntries = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.unresolved.size;
 		size += 4;
@@ -4047,7 +4047,7 @@ export class MosaicResolutionEntry {
 		this._resolvedValue = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.source.size;
 		size += this.resolvedValue.size;
@@ -4105,7 +4105,7 @@ export class MosaicResolutionStatement {
 		this._resolutionEntries = [];
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get unresolved() {
@@ -4124,7 +4124,7 @@ export class MosaicResolutionStatement {
 		this._resolutionEntries = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += this.unresolved.size;
 		size += 4;
@@ -4186,7 +4186,7 @@ export class TransactionStatement {
 		this._receipts = [];
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get primaryId() {
@@ -4213,7 +4213,7 @@ export class TransactionStatement {
 		this._receipts = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += 4;
@@ -4284,7 +4284,7 @@ export class BlockStatement {
 		this._mosaicResolutionStatements = [];
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get transactionStatements() {
@@ -4311,7 +4311,7 @@ export class BlockStatement {
 		this._mosaicResolutionStatements = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 4;
 		size += arrayHelpers.size(this.transactionStatements);
@@ -4396,7 +4396,7 @@ export class AccountKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -4415,7 +4415,7 @@ export class AccountKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -4486,7 +4486,7 @@ export class EmbeddedAccountKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -4505,7 +4505,7 @@ export class EmbeddedAccountKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -4576,7 +4576,7 @@ export class NodeKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -4595,7 +4595,7 @@ export class NodeKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -4666,7 +4666,7 @@ export class EmbeddedNodeKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -4685,7 +4685,7 @@ export class EmbeddedNodeKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -4749,7 +4749,7 @@ export class Cosignature {
 		this._signature = new Signature();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get version() {
@@ -4776,7 +4776,7 @@ export class Cosignature {
 		this._signature = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 8;
 		size += this.signerPublicKey.size;
@@ -4844,7 +4844,7 @@ export class DetachedCosignature {
 		this._parentHash = new Hash256();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get version() {
@@ -4879,7 +4879,7 @@ export class DetachedCosignature {
 		this._parentHash = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += 8;
 		size += this.signerPublicKey.size;
@@ -4962,7 +4962,7 @@ export class AggregateCompleteTransactionV1 extends Transaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get transactionsHash() {
@@ -4989,7 +4989,7 @@ export class AggregateCompleteTransactionV1 extends Transaction {
 		this._cosignatures = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.transactionsHash.size;
@@ -5080,7 +5080,7 @@ export class AggregateCompleteTransactionV2 extends Transaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get transactionsHash() {
@@ -5107,7 +5107,7 @@ export class AggregateCompleteTransactionV2 extends Transaction {
 		this._cosignatures = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.transactionsHash.size;
@@ -5198,7 +5198,7 @@ export class AggregateCompleteTransactionV3 extends Transaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get transactionsHash() {
@@ -5225,7 +5225,7 @@ export class AggregateCompleteTransactionV3 extends Transaction {
 		this._cosignatures = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.transactionsHash.size;
@@ -5316,7 +5316,7 @@ export class AggregateBondedTransactionV1 extends Transaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get transactionsHash() {
@@ -5343,7 +5343,7 @@ export class AggregateBondedTransactionV1 extends Transaction {
 		this._cosignatures = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.transactionsHash.size;
@@ -5434,7 +5434,7 @@ export class AggregateBondedTransactionV2 extends Transaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get transactionsHash() {
@@ -5461,7 +5461,7 @@ export class AggregateBondedTransactionV2 extends Transaction {
 		this._cosignatures = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.transactionsHash.size;
@@ -5552,7 +5552,7 @@ export class AggregateBondedTransactionV3 extends Transaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get transactionsHash() {
@@ -5579,7 +5579,7 @@ export class AggregateBondedTransactionV3 extends Transaction {
 		this._cosignatures = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.transactionsHash.size;
@@ -5671,7 +5671,7 @@ export class VotingKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -5706,7 +5706,7 @@ export class VotingKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -5795,7 +5795,7 @@ export class EmbeddedVotingKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -5830,7 +5830,7 @@ export class EmbeddedVotingKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -5915,7 +5915,7 @@ export class VrfKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -5934,7 +5934,7 @@ export class VrfKeyLinkTransactionV1 extends Transaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -6005,7 +6005,7 @@ export class EmbeddedVrfKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = LinkAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get linkedPublicKey() {
@@ -6024,7 +6024,7 @@ export class EmbeddedVrfKeyLinkTransactionV1 extends EmbeddedTransaction {
 		this._linkAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.linkedPublicKey.size;
@@ -6125,7 +6125,7 @@ export class HashLockTransactionV1 extends Transaction {
 		this._hash = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -6233,7 +6233,7 @@ export class EmbeddedHashLockTransactionV1 extends EmbeddedTransaction {
 		this._hash = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaic.size;
@@ -6322,7 +6322,7 @@ export class LockHashAlgorithm {
 		return LockHashAlgorithm[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -6418,7 +6418,7 @@ export class SecretLockTransactionV1 extends Transaction {
 		this._hashAlgorithm = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.recipientAddress.size;
@@ -6560,7 +6560,7 @@ export class EmbeddedSecretLockTransactionV1 extends EmbeddedTransaction {
 		this._hashAlgorithm = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.recipientAddress.size;
@@ -6656,7 +6656,7 @@ export class SecretProofTransactionV1 extends Transaction {
 		this._proof = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get recipientAddress() {
@@ -6691,7 +6691,7 @@ export class SecretProofTransactionV1 extends Transaction {
 		this._proof = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.recipientAddress.size;
@@ -6784,7 +6784,7 @@ export class EmbeddedSecretProofTransactionV1 extends EmbeddedTransaction {
 		this._proof = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get recipientAddress() {
@@ -6819,7 +6819,7 @@ export class EmbeddedSecretProofTransactionV1 extends EmbeddedTransaction {
 		this._proof = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.recipientAddress.size;
@@ -6910,7 +6910,7 @@ export class AccountMetadataTransactionV1 extends Transaction {
 		this._value = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get targetAddress() {
@@ -6945,7 +6945,7 @@ export class AccountMetadataTransactionV1 extends Transaction {
 		this._value = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.targetAddress.size;
@@ -7036,7 +7036,7 @@ export class EmbeddedAccountMetadataTransactionV1 extends EmbeddedTransaction {
 		this._value = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get targetAddress() {
@@ -7071,7 +7071,7 @@ export class EmbeddedAccountMetadataTransactionV1 extends EmbeddedTransaction {
 		this._value = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.targetAddress.size;
@@ -7164,7 +7164,7 @@ export class MosaicMetadataTransactionV1 extends Transaction {
 		this._value = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get targetAddress() {
@@ -7207,7 +7207,7 @@ export class MosaicMetadataTransactionV1 extends Transaction {
 		this._value = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.targetAddress.size;
@@ -7307,7 +7307,7 @@ export class EmbeddedMosaicMetadataTransactionV1 extends EmbeddedTransaction {
 		this._value = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get targetAddress() {
@@ -7350,7 +7350,7 @@ export class EmbeddedMosaicMetadataTransactionV1 extends EmbeddedTransaction {
 		this._value = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.targetAddress.size;
@@ -7450,7 +7450,7 @@ export class NamespaceMetadataTransactionV1 extends Transaction {
 		this._value = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get targetAddress() {
@@ -7493,7 +7493,7 @@ export class NamespaceMetadataTransactionV1 extends Transaction {
 		this._value = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.targetAddress.size;
@@ -7593,7 +7593,7 @@ export class EmbeddedNamespaceMetadataTransactionV1 extends EmbeddedTransaction 
 		this._value = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get targetAddress() {
@@ -7636,7 +7636,7 @@ export class EmbeddedNamespaceMetadataTransactionV1 extends EmbeddedTransaction 
 		this._value = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.targetAddress.size;
@@ -7754,7 +7754,7 @@ export class MosaicFlags {
 		return 0 !== (this.value & flag);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -7822,7 +7822,7 @@ export class MosaicSupplyChangeAction {
 		return MosaicSupplyChangeAction[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -7873,7 +7873,7 @@ export class MosaicDefinitionTransactionV1 extends Transaction {
 		this._divisibility = 0;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get id() {
@@ -7916,7 +7916,7 @@ export class MosaicDefinitionTransactionV1 extends Transaction {
 		this._divisibility = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.id.size;
@@ -8013,7 +8013,7 @@ export class EmbeddedMosaicDefinitionTransactionV1 extends EmbeddedTransaction {
 		this._divisibility = 0;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get id() {
@@ -8056,7 +8056,7 @@ export class EmbeddedMosaicDefinitionTransactionV1 extends EmbeddedTransaction {
 		this._divisibility = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.id.size;
@@ -8150,7 +8150,7 @@ export class MosaicSupplyChangeTransactionV1 extends Transaction {
 		this._action = MosaicSupplyChangeAction.DECREASE;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -8177,7 +8177,7 @@ export class MosaicSupplyChangeTransactionV1 extends Transaction {
 		this._action = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaicId.size;
@@ -8257,7 +8257,7 @@ export class EmbeddedMosaicSupplyChangeTransactionV1 extends EmbeddedTransaction
 		this._action = MosaicSupplyChangeAction.DECREASE;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -8284,7 +8284,7 @@ export class EmbeddedMosaicSupplyChangeTransactionV1 extends EmbeddedTransaction
 		this._action = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaicId.size;
@@ -8382,7 +8382,7 @@ export class MosaicSupplyRevocationTransactionV1 extends Transaction {
 		this._mosaic = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.sourceAddress.size;
@@ -8473,7 +8473,7 @@ export class EmbeddedMosaicSupplyRevocationTransactionV1 extends EmbeddedTransac
 		this._mosaic = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.sourceAddress.size;
@@ -8547,7 +8547,7 @@ export class MultisigAccountModificationTransactionV1 extends Transaction {
 		this._multisigAccountModificationTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get minRemovalDelta() {
@@ -8582,7 +8582,7 @@ export class MultisigAccountModificationTransactionV1 extends Transaction {
 		this._addressDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 1;
@@ -8684,7 +8684,7 @@ export class EmbeddedMultisigAccountModificationTransactionV1 extends EmbeddedTr
 		this._multisigAccountModificationTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get minRemovalDelta() {
@@ -8719,7 +8719,7 @@ export class EmbeddedMultisigAccountModificationTransactionV1 extends EmbeddedTr
 		this._addressDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += 1;
@@ -8820,7 +8820,7 @@ export class AddressAliasTransactionV1 extends Transaction {
 		this._aliasAction = AliasAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get namespaceId() {
@@ -8847,7 +8847,7 @@ export class AddressAliasTransactionV1 extends Transaction {
 		this._aliasAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.namespaceId.size;
@@ -8927,7 +8927,7 @@ export class EmbeddedAddressAliasTransactionV1 extends EmbeddedTransaction {
 		this._aliasAction = AliasAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get namespaceId() {
@@ -8954,7 +8954,7 @@ export class EmbeddedAddressAliasTransactionV1 extends EmbeddedTransaction {
 		this._aliasAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.namespaceId.size;
@@ -9034,7 +9034,7 @@ export class MosaicAliasTransactionV1 extends Transaction {
 		this._aliasAction = AliasAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get namespaceId() {
@@ -9061,7 +9061,7 @@ export class MosaicAliasTransactionV1 extends Transaction {
 		this._aliasAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.namespaceId.size;
@@ -9141,7 +9141,7 @@ export class EmbeddedMosaicAliasTransactionV1 extends EmbeddedTransaction {
 		this._aliasAction = AliasAction.UNLINK;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get namespaceId() {
@@ -9168,7 +9168,7 @@ export class EmbeddedMosaicAliasTransactionV1 extends EmbeddedTransaction {
 		this._aliasAction = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.namespaceId.size;
@@ -9252,7 +9252,7 @@ export class NamespaceRegistrationTransactionV1 extends Transaction {
 		this._name = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get duration() {
@@ -9295,7 +9295,7 @@ export class NamespaceRegistrationTransactionV1 extends Transaction {
 		this._name = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		if (NamespaceRegistrationType.ROOT === this.registrationType)
@@ -9422,7 +9422,7 @@ export class EmbeddedNamespaceRegistrationTransactionV1 extends EmbeddedTransact
 		this._name = new Uint8Array();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get duration() {
@@ -9465,7 +9465,7 @@ export class EmbeddedNamespaceRegistrationTransactionV1 extends EmbeddedTransact
 		this._name = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		if (NamespaceRegistrationType.ROOT === this.registrationType)
@@ -9586,7 +9586,7 @@ export class AccountRestrictionFlags {
 		return 0 !== (this.value & flag);
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 2;
 	}
 
@@ -9648,7 +9648,7 @@ export class AccountAddressRestrictionTransactionV1 extends Transaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get restrictionFlags() {
@@ -9675,7 +9675,7 @@ export class AccountAddressRestrictionTransactionV1 extends Transaction {
 		this._restrictionDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.restrictionFlags.size;
@@ -9770,7 +9770,7 @@ export class EmbeddedAccountAddressRestrictionTransactionV1 extends EmbeddedTran
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get restrictionFlags() {
@@ -9797,7 +9797,7 @@ export class EmbeddedAccountAddressRestrictionTransactionV1 extends EmbeddedTran
 		this._restrictionDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.restrictionFlags.size;
@@ -9892,7 +9892,7 @@ export class AccountMosaicRestrictionTransactionV1 extends Transaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get restrictionFlags() {
@@ -9919,7 +9919,7 @@ export class AccountMosaicRestrictionTransactionV1 extends Transaction {
 		this._restrictionDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.restrictionFlags.size;
@@ -10014,7 +10014,7 @@ export class EmbeddedAccountMosaicRestrictionTransactionV1 extends EmbeddedTrans
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get restrictionFlags() {
@@ -10041,7 +10041,7 @@ export class EmbeddedAccountMosaicRestrictionTransactionV1 extends EmbeddedTrans
 		this._restrictionDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.restrictionFlags.size;
@@ -10136,7 +10136,7 @@ export class AccountOperationRestrictionTransactionV1 extends Transaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get restrictionFlags() {
@@ -10163,7 +10163,7 @@ export class AccountOperationRestrictionTransactionV1 extends Transaction {
 		this._restrictionDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.restrictionFlags.size;
@@ -10258,7 +10258,7 @@ export class EmbeddedAccountOperationRestrictionTransactionV1 extends EmbeddedTr
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get restrictionFlags() {
@@ -10285,7 +10285,7 @@ export class EmbeddedAccountOperationRestrictionTransactionV1 extends EmbeddedTr
 		this._restrictionDeletions = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.restrictionFlags.size;
@@ -10380,7 +10380,7 @@ export class MosaicAddressRestrictionTransactionV1 extends Transaction {
 		this._targetAddress = new UnresolvedAddress();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -10423,7 +10423,7 @@ export class MosaicAddressRestrictionTransactionV1 extends Transaction {
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaicId.size;
@@ -10518,7 +10518,7 @@ export class EmbeddedMosaicAddressRestrictionTransactionV1 extends EmbeddedTrans
 		this._targetAddress = new UnresolvedAddress();
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -10561,7 +10561,7 @@ export class EmbeddedMosaicAddressRestrictionTransactionV1 extends EmbeddedTrans
 		this._targetAddress = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaicId.size;
@@ -10694,7 +10694,7 @@ export class MosaicRestrictionType {
 		return MosaicRestrictionType[this.valueToKey(value)];
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		return 1;
 	}
 
@@ -10747,7 +10747,7 @@ export class MosaicGlobalRestrictionTransactionV1 extends Transaction {
 		this._newRestrictionType = MosaicRestrictionType.NONE;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -10806,7 +10806,7 @@ export class MosaicGlobalRestrictionTransactionV1 extends Transaction {
 		this._newRestrictionType = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaicId.size;
@@ -10919,7 +10919,7 @@ export class EmbeddedMosaicGlobalRestrictionTransactionV1 extends EmbeddedTransa
 		this._newRestrictionType = MosaicRestrictionType.NONE;
 	}
 
-	sort() { // eslint-disable-line class-methods-use-this
+	sort() {
 	}
 
 	get mosaicId() {
@@ -10978,7 +10978,7 @@ export class EmbeddedMosaicGlobalRestrictionTransactionV1 extends EmbeddedTransa
 		this._newRestrictionType = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.mosaicId.size;
@@ -11119,7 +11119,7 @@ export class TransferTransactionV1 extends Transaction {
 		this._message = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.recipientAddress.size;
@@ -11252,7 +11252,7 @@ export class EmbeddedTransferTransactionV1 extends EmbeddedTransaction {
 		this._message = value;
 	}
 
-	get size() { // eslint-disable-line class-methods-use-this
+	get size() {
 		let size = 0;
 		size += super.size;
 		size += this.recipientAddress.size;

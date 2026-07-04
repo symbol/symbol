@@ -106,7 +106,7 @@ export class RosettaPublicKeyProcessor {
 
 		try {
 			return new this.PublicKeyClass(rosettaPublicKey.hex_bytes);
-		} catch (err) {
+		} catch {
 			throw RosettaErrorFactory.INVALID_PUBLIC_KEY;
 		}
 	}
@@ -137,21 +137,22 @@ export class RosettaPublicKeyProcessor {
  * @param {object} blockchainDescriptor Blockchain descriptor.
  * @param {object} Request Type of request object.
  * @param {Function} handler User callback that is called with request data after validating request.
- * @returns {Function} Restify POST handler.
+ * @returns {Function} Fastify POST handler.
  */
-export const rosettaPostRouteWithNetwork = (blockchainDescriptor, Request, handler) => async (req, res, next) => {
+export const rosettaPostRouteWithNetwork = (blockchainDescriptor, Request, handler) => async (request, reply) => {
 	const send = data => {
-		const sender = sendJson(res, next);
+		const sender = sendJson(reply);
 		return data instanceof RosettaError ? sender(data.apiError, 500) : sender(data, undefined);
 	};
 
+	const requestBody = request.body;
 	try {
-		Request.validateJSON(req.body);
-	} catch (err) {
+		Request.validateJSON(requestBody);
+	} catch {
 		return send(RosettaErrorFactory.INVALID_REQUEST_DATA);
 	}
 
-	const typedRequest = Request.constructFromObject(req.body);
+	const typedRequest = Request.constructFromObject(requestBody);
 	const isTargetNetwork = networkIdentifier =>
 		blockchainDescriptor.blockchain === networkIdentifier.blockchain && blockchainDescriptor.network === networkIdentifier.network;
 	if (!isTargetNetwork(typedRequest.network_identifier))

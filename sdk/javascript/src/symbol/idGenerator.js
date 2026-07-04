@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
 import { Address } from './Network.js';
-/* eslint-enable no-unused-vars */
 import { sha3_256 } from '@noble/hashes/sha3.js';
 import { utf8ToBytes } from '@noble/hashes/utils.js';
 

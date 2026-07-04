@@ -10,7 +10,7 @@ String resolveBranchName(String manualBranch) {
 }
 
 Boolean isPublicBuild(String buildConfiguration) {
-	return buildConfiguration == 'release-public'
+	return null == buildConfiguration || '' == buildConfiguration || 'release-public' == buildConfiguration
 }
 
 String resolveRepoName() {

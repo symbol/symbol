@@ -29,19 +29,19 @@ export default {
 	register: (server, db, services) => {
 		const sender = routeUtils.createSender('hashLockInfo');
 
-		server.get('/account/:address/lock/hash', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
-			return db.hashLocks([accountAddress], options)
-				.then(result => sender.sendPage(res, next)(result));
+		server.get('/account/:address/lock/hash', async (request, reply) => {
+			const accountAddress = routeUtils.parseArgument(request.params, 'address', 'address');
+			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, { id: 'objectId' });
+			const result = await db.hashLocks([accountAddress], options);
+			return reply.send(sender.sendPage()(result));
 		});
 
 		// Search
-		server.get('/lock/hash', (req, res, next) => {
-			const accountAddresses = req.params.address ? [routeUtils.parseArgument(req.params, 'address', 'address')] : [];
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
-			return db.hashLocks(accountAddresses, options)
-				.then(result => sender.sendPage(res, next)(result));
+		server.get('/lock/hash', async (request, reply) => {
+			const accountAddresses = request.params.address ? [routeUtils.parseArgument(request.params, 'address', 'address')] : [];
+			const options = routeUtils.parsePaginationArguments(request.params, services.config.pageSize, { id: 'objectId' });
+			const result = await db.hashLocks(accountAddresses, options);
+			return reply.send(sender.sendPage()(result));
 		});
 
 		// Get by ids
@@ -54,13 +54,11 @@ export default {
 		);
 
 		// Merkle
-		server.get('/lock/hash/:hash/merkle', (req, res, next) => {
-			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
+		server.get('/lock/hash/:hash/merkle', async (request, reply) => {
+			const hash = routeUtils.parseArgument(request.params, 'hash', 'hash256');
 			const state = PacketType.hashLockStatePath;
-			return merkleUtils.requestTree(services, state, hash).then(response => {
-				res.send(response);
-				next();
-			});
+			const response = await merkleUtils.requestTree(services, state, hash);
+			return reply.send(response);
 		});
 	}
 };

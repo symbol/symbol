@@ -54,7 +54,7 @@ namespace catapult { namespace crypto {
 				if (!result)
 					return nullptr;
 
-				GetPool().copyTo(p, result, newSize);
+				GetPool().copyTo(result, p, newSize);
 				GetPool().free(p);
 				return result;
 			}

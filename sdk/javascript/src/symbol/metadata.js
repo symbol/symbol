@@ -33,7 +33,7 @@ const metadataUpdateValue = (oldValue, newValue) => {
 	const result = new Uint8Array(longerLength);
 
 	let i = 0;
-	for (i = 0; i < shorterLength; ++i)
+	for (; i < shorterLength; ++i)
 		result[i] = oldValue[i] ^ newValue[i];
 
 	for (; i < longerLength; ++i)

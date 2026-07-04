@@ -3,9 +3,7 @@ import { Hash256, PublicKey } from '../src/CryptoTypes.js';
 import RuleBasedTransactionFactory from '../src/RuleBasedTransactionFactory.js';
 import {
 	Address,
-	/* eslint-disable no-unused-vars */
 	Network
-	/* eslint-enable no-unused-vars */
 } from '../src/symbol/Network.js';
 import * as sc from '../src/symbol/models.js';
 

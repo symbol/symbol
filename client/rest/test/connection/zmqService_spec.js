@@ -364,7 +364,7 @@ describe('zmq service', () => {
 			cleanupActions.push(() => service.close());
 
 			const blockBuffers = generateBlockBuffers();
-			return new Promise((resolve, reject) => {
+			return new Promise(resolve => {
 				// Arrange: create a publisher and publish a block
 				const endpoint = `tcp://${zmqConfig.host}:${zmqConfig.port}`;
 				const zsocket = new zmq.Publisher();

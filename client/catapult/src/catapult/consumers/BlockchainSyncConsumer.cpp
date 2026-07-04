@@ -336,11 +336,10 @@ namespace catapult { namespace consumers {
 
 		private:
 			static bool Contains(const io::BlockStorageView& storageView, const model::HeightHashPair& heightHashPair) {
-				if (storageView.chainHeight() < heightHashPair.Height)
-					return false;
-
+				// loadHashesFrom returns an empty range when the height is unavailable (Height(0) or above the
+				// chain height), so an empty result is the single, authoritative signal that the block is absent
 				auto storageHashRange = storageView.loadHashesFrom(heightHashPair.Height, 1);
-				return heightHashPair.Hash == *storageHashRange.cbegin();
+				return !storageHashRange.empty() && heightHashPair.Hash == *storageHashRange.cbegin();
 			}
 
 			static bool Contains(const BlockElements& elements, const model::HeightHashPair& heightHashPair) {

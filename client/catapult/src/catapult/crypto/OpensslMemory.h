@@ -24,6 +24,7 @@
 #include <atomic>
 #include <memory>
 #include <vector>
+#include <openssl/crypto.h>
 
 namespace catapult { namespace crypto {
 

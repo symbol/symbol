@@ -23,18 +23,16 @@ import routeResultTypes from './routeResultTypes.js';
 
 export default {
 	register: (server, db) => {
-		server.get('/chain/info', (req, res, next) =>
-			Promise.all([
+		server.get('/chain/info', async (request, reply) => {
+			const [chainInfoResult, latestFinalizedBlock] = await Promise.all([
 				db.chainStatisticCurrent(),
 				db.latestFinalizedBlock()
-			]).then(dbResults => {
-				const chainInfoResult = dbResults[0];
-				chainInfoResult.latestFinalizedBlock = dbResults[1].block;
-				res.send({
-					payload: chainInfoResult,
-					type: routeResultTypes.chainInfo
-				});
-				next();
-			}));
+			]);
+			chainInfoResult.latestFinalizedBlock = latestFinalizedBlock.block;
+			return reply.send({
+				payload: chainInfoResult,
+				type: routeResultTypes.chainInfo
+			});
+		});
 	}
 };

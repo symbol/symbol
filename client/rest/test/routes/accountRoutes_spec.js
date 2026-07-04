@@ -29,7 +29,7 @@ import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
-import { Address } from 'symbol-sdk/symbol';
+import { Address, Network } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
 
@@ -159,7 +159,7 @@ describe('account routes', () => {
 						type: routeResultTypes.account,
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -173,7 +173,7 @@ describe('account routes', () => {
 					expect(dbAccountsFake.calledOnce).to.equal(true);
 					expect(dbAccountsFake.firstCall.args[0]).to.deep.equal(undefined);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -187,7 +187,7 @@ describe('account routes', () => {
 					expect(dbAccountsFake.calledOnce).to.equal(true);
 					expect(dbAccountsFake.firstCall.args[1]).to.deep.equal(undefined);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -201,7 +201,7 @@ describe('account routes', () => {
 					expect(dbAccountsFake.calledOnce).to.equal(true);
 					expect(dbAccountsFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -215,7 +215,7 @@ describe('account routes', () => {
 					expect(dbAccountsFake.calledOnce).to.equal(true);
 					expect(dbAccountsFake.firstCall.args[1]).to.deep.equal(0xABCDEF0123456789n);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -235,7 +235,7 @@ describe('account routes', () => {
 						type: routeResultTypes.account,
 						structure: 'page'
 					});
-					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.done.calledOnce).to.equal(true);
 				});
 			});
 
@@ -244,7 +244,10 @@ describe('account routes', () => {
 				const req = { params: { address: 'AB12345' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('address has an invalid format');
+				});
 			});
 
 			it('throws error if mosaicId is invalid', () => {
@@ -252,7 +255,10 @@ describe('account routes', () => {
 				const req = { params: { mosaicId: 'AB12345' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('mosaicId has an invalid format');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('mosaicId has an invalid format');
+				});
 			});
 
 			it('throws error if there is no mosaicId when sorting by balance', () => {
@@ -260,7 +266,10 @@ describe('account routes', () => {
 				const req = { params: { orderBy: 'balance' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('mosaicId must be provided when sorting by balance');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('mosaicId must be provided when sorting by balance');
+				});
 			});
 		});
 
@@ -325,7 +334,10 @@ describe('account routes', () => {
 				const req = { params: { addresses: [], publicKeys: [] } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('publicKeys and addresses cannot both be provided');
+				return mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.done.calledOnce).to.equal(true);
+					expect(mockServer.done.firstCall.args[0].message).to.include('publicKeys and addresses cannot both be provided');
+				});
 			});
 
 			const runParseArgumentAsArrayParamTest = (paramValues, paramName, parserName) => {
@@ -366,7 +378,7 @@ describe('account routes', () => {
 							payload: fakeAccounts,
 							type: routeResultTypes.account
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 
@@ -384,7 +396,7 @@ describe('account routes', () => {
 							payload: fakeAccounts,
 							type: routeResultTypes.account
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.done.calledOnce).to.equal(true);
 					});
 				});
 			});
@@ -425,24 +437,27 @@ describe('account routes', () => {
 			const merkleTree = new MerkleTree();
 			const tree = merkleTree.parseMerkleTreeFromRaw(stateTreeBytes);
 
-			// Act:
-			it(`for ${packetType} state`, () =>
-				test.route.prepareExecuteRoute(
-					accountRoutes.register,
-					'/accounts/:accountId/merkle',
-					'get',
-					{ accountId: testAddress },
-					{}, services, routeContext => routeContext.routeInvoker().then(() => {
-						// Assert:
-						expect(routeContext.numNextCalls).to.equal(1);
-						expect(routeContext.responses.length).to.equal(1);
-						expect(routeContext.redirects.length).to.equal(0);
-						expect(routeContext.responses[0]).to.deep.equal({
-							raw: stateTree,
-							tree
-						});
-					})
-				));
+			const assertCanAccessStateTree = accountId => test.route.prepareExecuteRoute(
+				accountRoutes.register,
+				'/accounts/:accountId/merkle',
+				'get',
+				{ accountId },
+				{ networkId: Network.TESTNET.identifier },
+				services,
+				routeContext => routeContext.routeInvoker().then(() => {
+					// Assert:
+					expect(routeContext.numNextCalls).to.equal(1);
+					expect(routeContext.responses.length).to.equal(1);
+					expect(routeContext.redirects.length).to.equal(0);
+					expect(routeContext.responses[0]).to.deep.equal({
+						raw: stateTree,
+						tree
+					});
+				})
+			);
+
+			it(`for ${packetType} state (address)`, () => assertCanAccessStateTree(testAddress));
+			it(`for ${packetType} state (publicKey)`, () => assertCanAccessStateTree(testPublicKey));
 		});
 
 		it('returns error for invalid address', () =>
@@ -456,7 +471,7 @@ describe('account routes', () => {
 					test.assert.invokerThrowsError(routeContext.routeInvoker, {
 						statusCode: 409,
 						message: 'accountId has an invalid format'
-					})
+					}, routeContext)
 			));
 	});
 });

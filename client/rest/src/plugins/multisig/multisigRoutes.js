@@ -28,31 +28,27 @@ const { PacketType } = catapult.packet;
 
 export default {
 	register: (server, db, services) => {
-		server.get('/account/:address/multisig', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
+		server.get('/account/:address/multisig', async (request, reply) => {
+			const accountAddress = routeUtils.parseArgument(request.params, 'address', 'address');
 
-			return db.multisigsByAddresses([accountAddress])
-				.then(routeUtils.createSender('multisigEntry').sendOne(req.params.address, res, next));
+			const result = await db.multisigsByAddresses([accountAddress]);
+			return reply.send(routeUtils.createSender('multisigEntry').sendOne(request.params.address)(result));
 		});
 
-		server.get('/account/:address/multisig/merkle', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
+		server.get('/account/:address/multisig/merkle', async (request, reply) => {
+			const accountAddress = routeUtils.parseArgument(request.params, 'address', 'address');
 			const state = PacketType.multisigStatePath;
-			return merkleUtils.requestTree(services, state, accountAddress).then(response => {
-				res.send(response);
-				next();
-			});
+			const response = await merkleUtils.requestTree(services, state, accountAddress);
+			return reply.send(response);
 		});
 
-		server.get('/account/:address/multisig/graph', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			return multisigUtils.getMultisigGraph(db, accountAddress)
-				.then(response => {
-					const sender = routeUtils.createSender('multisigGraph');
-					return undefined === response
-						? sender.sendOne(req.params.address, res, next)(response)
-						: sender.sendArray(req.params.address, res, next)(response);
-				});
+		server.get('/account/:address/multisig/graph', async (request, reply) => {
+			const accountAddress = routeUtils.parseArgument(request.params, 'address', 'address');
+			const response = await multisigUtils.getMultisigGraph(db, accountAddress);
+			const sender = routeUtils.createSender('multisigGraph');
+			return reply.send(undefined === response
+				? sender.sendOne(request.params.address)(response)
+				: sender.sendArray(request.params.address)(response));
 		});
 	}
 };
