@@ -20,6 +20,7 @@
 **/
 
 #include "catapult/crypto/OpensslInit.h"
+#include "catapult/crypto/SecureRandomGenerator.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/version/version.h"
@@ -101,6 +102,14 @@ int main(int argc, char** argv) {
 
 	std::cout << "Initializing OpenSSL crypto functions" << std::endl;
 	auto pOpensslContext = catapult::crypto::SetupOpensslCryptoFunctions();
+
+	// force OpenSSL's lazy algorithm fetch cache to populate here, single threaded,
+	// so concurrent RAND_bytes calls from worker threads only read from it (avoids TSAN
+	// race in libcrypto's OSSL_METHOD_STORE, see issue #2080)
+	{
+		uint8_t warmupBuffer[16];
+		catapult::crypto::SecureRandomGenerator().fill(warmupBuffer, sizeof(warmupBuffer));
+	}
 
 #ifdef CATAPULT_DOCKER_TESTS
 	global_argc = argc;
