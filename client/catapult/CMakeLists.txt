@@ -76,6 +76,11 @@ add_subdirs(
 
 if(USE_CONAN)
 	install(DIRECTORY ${CMAKE_BINARY_DIR}/deps/ DESTINATION deps)
+elseif(USE_VCPKG)
+	# mirror Conan's deps/ layout so CMAKE_INSTALL_RPATH ($ORIGIN/../deps) resolves after install;
+	# vcpkg keeps debug and release shared libs in separate subtrees, pick the one matching this config
+	install(DIRECTORY "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/$<$<CONFIG:Debug>:debug/>lib/"
+		DESTINATION deps FILES_MATCHING PATTERN "*.so*")
 endif()
 
 # Print summary of configuration
