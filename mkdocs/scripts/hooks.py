@@ -10,8 +10,8 @@ from typing import Optional
 
 import mkdocs.plugins
 import yaml
-from hooks.deploy_root import write_deploy_root_files
-from hooks.redirects import write_redirects
+from hooks_helpers.deploy_root import write_deploy_root_files
+from hooks_helpers.redirects import write_redirects
 from mkdocs.structure import files as mkdocs_files
 from mkdocs.structure.files import File
 
