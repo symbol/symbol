@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from urllib.parse import urlparse
 
-from hooks.templates import render_template
+from hooks_helpers.templates import render_template
 
 from mkdocs.config import base
 
