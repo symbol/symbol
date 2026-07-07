@@ -23,7 +23,7 @@ tutorial_level: beginner
     --8<-- "devbook/transactions/transfer.typed.mjs:41:55"
     ```
 
-    [完全なチュートリアルコードをダウンロードする]({{ config.repo_url }}/raw/refs/heads/{{config.extra.symbol.branch}}/mkdocs/overrides/devbook/transactions/transfer.typed.mjs){ .source-link }
+    [完全なチュートリアルコードをダウンロードする]({{ config.repo_url }}/raw/refs/heads/{{config.extra.symbol.branch}}/mkdocs/snippets/devbook/transactions/transfer.typed.mjs){ .source-link }
 
 ## 作成プロセス {: #creation-process }
 
