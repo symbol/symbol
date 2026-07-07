@@ -33,7 +33,7 @@ public final class Tweetnacl {
 	// region field element constants
 
 	/** Allocates a fresh field element. */
-	public static double[] gf() {
+	static double[] gf() {
 		return new double[16];
 	}
 
@@ -59,7 +59,7 @@ public final class Tweetnacl {
 			0xdf0b, 0x4fc1, 0x2480, 0x2b83);
 
 	/** L is the order of the ed25519 curve. */
-	public static final double[] L = {
+	static final double[] L = {
 			0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0x10
 	};
@@ -130,7 +130,7 @@ public final class Tweetnacl {
 	}
 
 	/** Returns 0 if the two field elements pack to identical 32-byte sequences. */
-	public static int neq25519(double[] a, double[] b) {
+	static int neq25519(double[] a, double[] b) {
 		final byte[] c = new byte[32];
 		final byte[] d = new byte[32];
 		pack25519(c, a);
@@ -156,7 +156,7 @@ public final class Tweetnacl {
 	}
 
 	/** Field subtraction: o = a - b. Public for use by SharedKey/scalarmult helpers. */
-	public static void zSub(double[] o, double[] a, double[] b) {
+	static void zSub(double[] o, double[] a, double[] b) {
 		for (int i = 0; i < 16; ++i)
 			o[i] = a[i] - b[i];
 	}
@@ -634,7 +634,7 @@ public final class Tweetnacl {
 	 * @param n Number of message bytes to hash.
 	 * @param mode Hash mode.
 	 */
-	public static void cryptoHash(final byte[] out, final byte[] m, final int n, final HashMode mode) {
+	static void cryptoHash(final byte[] out, final byte[] m, final int n, final HashMode mode) {
 		cryptoHash(out, m, 0, n, mode);
 	}
 
@@ -690,7 +690,7 @@ public final class Tweetnacl {
 	}
 
 	/** Packs an extended Edwards point into a 32-byte encoding. */
-	public static void pack(final byte[] r, final double[][] p) {
+	static void pack(final byte[] r, final double[][] p) {
 		final double[] tx = gf(), ty = gf(), zi = gf();
 		inv25519(zi, p[2]);
 		fieldMul(tx, p[0], zi);
@@ -700,7 +700,7 @@ public final class Tweetnacl {
 	}
 
 	/** Computes p = q^s on the curve, with s a little-endian byte string scalar. */
-	public static void scalarmult(final double[][] p, final double[][] q, final byte[] s) {
+	static void scalarmult(final double[][] p, final double[][] q, final byte[] s) {
 		set25519(p[0], GF0);
 		set25519(p[1], GF1);
 		set25519(p[2], GF1);
@@ -715,7 +715,7 @@ public final class Tweetnacl {
 	}
 
 	/** Variant of scalarmult that accepts a {@code double[]} scalar (used by L-multiplication). */
-	public static void scalarmult(final double[][] p, final double[][] q, final double[] s) {
+	static void scalarmult(final double[][] p, final double[][] q, final double[] s) {
 		final byte[] sb = new byte[32];
 		for (int i = 0; i < 32; ++i)
 			sb[i] = (byte) ((long) s[i] & 0xFF);
@@ -758,7 +758,7 @@ public final class Tweetnacl {
 	 * @param rOffset Offset within {@code r} to start writing.
 	 * @param x Input scratch (length &gt;= 64). This is mutated.
 	 */
-	public static void modL(final byte[] r, final int rOffset, final double[] x) {
+	static void modL(final byte[] r, final int rOffset, final double[] x) {
 		double carry;
 		int j = 0;
 		for (int i = 63; 32 <= i; --i) {
@@ -838,7 +838,7 @@ public final class Tweetnacl {
 	}
 
 	/** Unpacks an encoded point and negates it (returns -1 on failure, 0 on success). */
-	public static int unpackneg(final double[][] r, final byte[] p) {
+	static int unpackneg(final double[][] r, final byte[] p) {
 		final double[] t = gf(), chk = gf(), num = gf();
 		final double[] den = gf(), den2 = gf(), den4 = gf();
 		final double[] den6 = gf();
@@ -929,7 +929,7 @@ public final class Tweetnacl {
 		/** Public key bytes (32). */
 		public final byte[] publicKey;
 		/** Secret key bytes (64 = seed || publicKey). */
-		public final byte[] secretKey;
+		final byte[] secretKey;
 
 		KeyPair(final byte[] publicKey, final byte[] secretKey) {
 			this.publicKey = publicKey;
@@ -944,7 +944,7 @@ public final class Tweetnacl {
 	 * @param mode Hash mode.
 	 * @return Keypair derived from the seed.
 	 */
-	public static KeyPair signKeyPairFromSeed(final byte[] seed, final HashMode mode) {
+	static KeyPair signKeyPairFromSeed(final byte[] seed, final HashMode mode) {
 		if (CRYPTO_SIGN_SEEDBYTES != seed.length)
 			throw new IllegalArgumentException("bad seed size");
 
@@ -963,7 +963,7 @@ public final class Tweetnacl {
 	 * @param mode Hash mode.
 	 * @return Detached signature (64 bytes).
 	 */
-	public static byte[] signDetached(final byte[] msg, final byte[] secretKey, final HashMode mode) {
+	static byte[] signDetached(final byte[] msg, final byte[] secretKey, final HashMode mode) {
 		if (CRYPTO_SIGN_SECRETKEYBYTES != secretKey.length)
 			throw new IllegalArgumentException("bad secret key size");
 
@@ -983,7 +983,7 @@ public final class Tweetnacl {
 	 * @param mode Hash mode.
 	 * @return {@code true} if the signature is valid.
 	 */
-	public static boolean signDetachedVerify(final byte[] msg, final byte[] sig, final byte[] publicKey, final HashMode mode) {
+	static boolean signDetachedVerify(final byte[] msg, final byte[] sig, final byte[] publicKey, final HashMode mode) {
 		if (CRYPTO_SIGN_BYTES != sig.length)
 			throw new IllegalArgumentException("bad signature size");
 

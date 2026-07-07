@@ -1,7 +1,7 @@
 package org.symbol.sdk.utils;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
@@ -641,7 +641,7 @@ final class ArrayHelpersTest {
 			assertThat(result, equalTo(new byte[]{
 					1, 2, 3
 			}));
-			assertThat(result != part, equalTo(true));
+			assertThat(result, not(sameInstance(part)));
 		}
 
 		@Test
@@ -719,7 +719,7 @@ final class ArrayHelpersTest {
 			assertThat(input, equalTo(new byte[]{
 					1, 2, 3
 			}));
-			assertThat(reversed != input, equalTo(true));
+			assertThat(reversed, not(sameInstance(input)));
 		}
 	}
 

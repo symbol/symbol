@@ -71,17 +71,6 @@ final class CipherTypesTest {
 		public void assertCanDecrypt() {
 			assertCanEncryptOrDecrypt(false);
 		}
-
-		void assertDecryptRejectsWrongIv() {
-			// Arrange: an authenticated cipher (GCM) rejects a wrong IV because the tag no longer verifies
-			final TestCase tc = testCases[0];
-			final T cipher = factory.apply(tc.sharedKey());
-			final byte[] wrongIv = tc.iv();
-			wrongIv[0] ^= (byte) 0xFF; // deterministic wrong IV (mirrors the CBC test) — never depends on RNG not colliding
-
-			// Act + Assert:
-			assertThrows(CryptoException.class, () -> cipher.decrypt(tc.cipherTextWithTag(), wrongIv));
-		}
 	}
 
 	@Nested
@@ -97,14 +86,16 @@ final class CipherTypesTest {
 						"91A17E4DFCC3166A1ADD26FF0E7C12056E8A654F28A6DE24F4BA739CEB5B5B18")
 		};
 
+		final CipherTestHelper<CipherTypes.AesCbcCipher> helper = new CipherTestHelper<>(CipherTypes.AesCbcCipher::new, testCases);
+
 		@Test
 		void canEncrypt() {
-			new CipherTestHelper<>(CipherTypes.AesCbcCipher::new, testCases).assertCanEncrypt();
+			helper.assertCanEncrypt();
 		}
 
 		@Test
 		void canDecrypt() {
-			new CipherTestHelper<>(CipherTypes.AesCbcCipher::new, testCases).assertCanDecrypt();
+			helper.assertCanDecrypt();
 		}
 
 		@Test
@@ -169,7 +160,14 @@ final class CipherTypesTest {
 
 		@Test
 		void cannotDecryptWithWrongIv() {
-			helper.assertDecryptRejectsWrongIv();
+			// Arrange: an authenticated cipher (GCM) rejects a wrong IV because the tag no longer verifies
+			final TestCase tc = testCases[0];
+			final CipherTypes.AesGcmCipher cipher = new CipherTypes.AesGcmCipher(tc.sharedKey());
+			final byte[] wrongIv = tc.iv();
+			wrongIv[0] ^= (byte) 0xFF; // deterministic wrong IV (mirrors the CBC test) — never depends on RNG not colliding
+
+			// Act + Assert:
+			assertThrows(CryptoException.class, () -> cipher.decrypt(tc.cipherTextWithTag(), wrongIv));
 		}
 
 		@Test

@@ -133,7 +133,7 @@ final class WriterTest {
 		}
 
 		@Test
-		void canWrite2ByteIntLittleEndian() {
+		void canWrite2ByteInt() {
 			// Arrange:
 			final Writer writer = new Writer(10);
 
@@ -148,7 +148,7 @@ final class WriterTest {
 		}
 
 		@Test
-		void canWrite4ByteIntLittleEndian() {
+		void canWrite4ByteInt() {
 			// Arrange:
 			final Writer writer = new Writer(10);
 

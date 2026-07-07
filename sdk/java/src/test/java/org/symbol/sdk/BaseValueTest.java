@@ -1,8 +1,7 @@
 package org.symbol.sdk;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Nested;
@@ -48,12 +47,12 @@ final class BaseValueTest {
 		assertThat(v.value(), equalTo(expected));
 	}
 
-	private static void assertOutOfRange(final Runnable r, final String bitWidth) {
+	private static void assertOutOfRange(final Runnable r, final String expected) {
 		// Act:
 		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, r::run);
 
 		// Assert:
-		assertThat(ex.getMessage(), containsString(bitWidth));
+		assertThat(ex.getMessage(), containsString(expected));
 	}
 
 	private static void assertToStringEquals(final long value, final int size, final boolean isSigned, final String expected) {
@@ -142,24 +141,28 @@ final class BaseValueTest {
 		void canCreateSignedByte() {
 			canCreateSigned(-0x80L, 1, -0x80L);
 			canCreateSigned(0x7FL, 1, 0x7FL);
+			canCreateSigned(0x07FL, 1, 0x7FL);
 		}
 
 		@Test
 		void canCreateSignedShort() {
 			canCreateSigned(-0x8000L, 2, -0x8000L);
 			canCreateSigned(0x7FFFL, 2, 0x7FFFL);
+			canCreateSigned(0x07FFFL, 2, 0x7FFFL);
 		}
 
 		@Test
 		void canCreateSignedInt() {
 			canCreateSigned(-0x80000000L, 4, -0x80000000L);
 			canCreateSigned(0x7FFFFFFFL, 4, 0x7FFFFFFFL);
+			canCreateSigned(0x07FFFFFFFL, 4, 0x7FFFFFFFL);
 		}
 
 		@Test
 		void canCreateSignedLong() {
 			canCreateSigned(Long.MIN_VALUE, 8, Long.MIN_VALUE);
 			canCreateSigned(Long.MAX_VALUE, 8, Long.MAX_VALUE);
+			canCreateSigned(0x07FFFFFFFFFL, 8, 0x7FFFFFFFFFL);
 		}
 
 		// note: there is no signed long (size 8) out-of-range case — it admits any 64-bit pattern
@@ -168,6 +171,12 @@ final class BaseValueTest {
 		void cannotCreateSignedByteOutsideRange() {
 			assertOutOfRange(() -> new Bv(-0x81L, 1, true), "8-bit");
 			assertOutOfRange(() -> new Bv(0x80L, 1, true), "8-bit");
+		}
+
+		@Test
+		void cannotCreateSignedShortOutsideRange() {
+			assertOutOfRange(() -> new Bv(-0x800001L, 2, true), "16-bit");
+			assertOutOfRange(() -> new Bv(0x800000L, 2, true), "16-bit");
 		}
 
 		@Test
@@ -484,10 +493,7 @@ final class BaseValueTest {
 
 			// Act + Assert: equal values must hash equally (the one property the hashCode contract guarantees)
 			assertThat(v1.hashCode(), equalTo(v2.hashCode()));
-
-			// a value differing only in size is a distinct object — assert that at the equals level; pinning distinct hash
-			// codes would test an accidental non-collision that the contract does not require (unequal objects may collide)
-			assertEquality(v1, v3, false);
+			assertThat(v1.hashCode(), not(equalTo(v3.hashCode())));
 		}
 
 		@Test

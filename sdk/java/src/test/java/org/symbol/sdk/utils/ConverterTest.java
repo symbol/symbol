@@ -241,26 +241,10 @@ final class ConverterTest {
 		}
 
 		@Test
-		void readsInt16Unsigned() {
-			// 0x80 high bit: 0x8000 unsigned reads back as -32768 when signed
-			assertReads(new byte[]{
-					0x00, (byte) 0x80
-			}, 2, true, -32768L);
-		}
-
-		@Test
 		void readsInt32() {
 			assertReads(new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
 			}, 4, true, -1L);
-		}
-
-		@Test
-		void readsInt32Unsigned() {
-			// 0x80 high bit: 0x80000000 unsigned reads back as -2147483648 when signed
-			assertReads(new byte[]{
-					0x00, 0x00, 0x00, (byte) 0x80
-			}, 4, true, -2147483648L);
 		}
 
 		@Test
@@ -269,6 +253,22 @@ final class ConverterTest {
 			assertReads(new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
 			}, 8, false, -1L);
+		}
+
+		@Test
+		void readsInt16Unsigned() {
+			// 0x80 high bit: 0x8000 unsigned reads back as -32768 when signed
+			assertReads(new byte[]{
+					0x00, (byte) 0x80
+			}, 2, true, -32768L);
+		}
+
+		@Test
+		void readsInt32Unsigned() {
+			// 0x80 high bit: 0x80000000 unsigned reads back as -2147483648 when signed
+			assertReads(new byte[]{
+					0x00, 0x00, 0x00, (byte) 0x80
+			}, 4, true, -2147483648L);
 		}
 
 		@Test
@@ -342,62 +342,62 @@ final class ConverterTest {
 
 	@Nested
 	final class IntToBytes {
-		private static void assertWrites(final long value, final int size, final boolean signed, final byte[] expected) {
-			assertThat(Converter.intToBytes(value, size, signed), equalTo(expected));
+		private static void assertWrites(final long value, final int size, final byte[] expected) {
+			assertThat(Converter.intToBytes(value, size), equalTo(expected));
 		}
 
 		@Test
 		void writesUint8() {
-			assertWrites(0xCDL, 1, false, new byte[]{
+			assertWrites(0xCDL, 1, new byte[]{
 					(byte) 0xCD
 			});
 		}
 
 		@Test
 		void writesUint16() {
-			assertWrites(0xABCDL, 2, false, new byte[]{
+			assertWrites(0xABCDL, 2, new byte[]{
 					(byte) 0xCD, (byte) 0xAB
 			});
 		}
 
 		@Test
 		void writesUint32() {
-			assertWrites(0x78563412L, 4, false, new byte[]{
+			assertWrites(0x78563412L, 4, new byte[]{
 					0x12, 0x34, 0x56, 0x78
 			});
 		}
 
 		@Test
+		void writesUint64() {
+			assertWrites(0x0807060504030201L, 8, new byte[]{
+					0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
+			});
+		}
+
+		@Test
 		void writesInt8Negative() {
-			assertWrites(-1L, 1, true, new byte[]{
+			assertWrites(-1L, 1, new byte[]{
 					(byte) 0xFF
 			});
 		}
 
 		@Test
 		void writesInt16Negative() {
-			assertWrites(-1L, 2, true, new byte[]{
+			assertWrites(-1L, 2, new byte[]{
 					(byte) 0xFF, (byte) 0xFF
 			});
 		}
 
 		@Test
 		void writesInt32Negative() {
-			assertWrites(-1L, 4, true, new byte[]{
+			assertWrites(-1L, 4, new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
 			});
 		}
 
 		@Test
-		void writesUint64() {
-			assertWrites(0x0807060504030201L, 8, false, new byte[]{
-					0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
-			});
-		}
-
-		@Test
 		void writesInt64Negative() {
-			assertWrites(-1L, 8, true, new byte[]{
+			assertWrites(-1L, 8, new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
 			});
 		}
@@ -407,7 +407,7 @@ final class ConverterTest {
 				3, 5, 7
 		})
 		void cannotWriteUnsupportedByteSize(final int size) {
-			assertThrows(IllegalArgumentException.class, () -> Converter.intToBytes(100L, size, false));
+			assertThrows(IllegalArgumentException.class, () -> Converter.intToBytes(100L, size));
 		}
 
 		@Test

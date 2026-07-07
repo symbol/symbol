@@ -59,7 +59,7 @@ public abstract class BaseValue<T extends BaseValue<T>> implements Serializer, C
 
 	@Override
 	public final byte[] serialize() {
-		return Converter.intToBytes(value, size, isSigned);
+		return Converter.intToBytes(value, size);
 	}
 
 	@Override

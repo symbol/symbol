@@ -244,10 +244,14 @@ final class Bip32Test {
 			};
 
 			for (final String[] testCase : cases) {
+				// Arrange:
 				final String language = testCase[0];
 				final Bip32 bip32 = new Bip32("ed25519", language);
-				// fixed mnemonic -> pinned root private key (pins seed derivation per language)
+
+				// Act: fixed mnemonic -> pinned root private key (pins seed derivation per language)
 				final Bip32.Bip32Node node = bip32.fromMnemonic(testCase[1], "password");
+
+				// Assert:
 				assertThat(language, Converter.uint8ToHex(node.privateKey.bytes()), equalTo(testCase[2]));
 				// a freshly generated mnemonic in this language still round-trips to a real 32-byte root key
 				assertThat(language, bip32.fromMnemonic(bip32.random(), "password").privateKey.bytes(), not(equalTo(new byte[32])));

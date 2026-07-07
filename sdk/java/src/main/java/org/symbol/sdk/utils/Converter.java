@@ -60,7 +60,7 @@ public final class Converter {
 	}
 
 	/**
-	 * Converts little-endian bytes to a {@code long} for any size (1, 2, 4 or 8); a size-8 u64 {@code >= 2^63} reads back negative.
+	 * Converts bytes to a {@code long} for any size (1, 2, 4 or 8); a size-8 u64 {@code >= 2^63} reads back negative.
 	 *
 	 * @param input Byte array.
 	 * @param size Number of bytes (1, 2, 4 or 8).
@@ -72,7 +72,7 @@ public final class Converter {
 	}
 
 	/**
-	 * Converts little-endian bytes to a {@code long} for any size (1, 2, 4 or 8); a size-8 u64 {@code >= 2^63} reads back negative.
+	 * Converts bytes to a {@code long} for any size (1, 2, 4 or 8); a size-8 u64 {@code >= 2^63} reads back negative.
 	 *
 	 * @param input Byte array.
 	 * @param offset Offset into the array at which to start reading.
@@ -87,8 +87,8 @@ public final class Converter {
 	}
 
 	/**
-	 * Reads a little-endian integer of {@code size} bytes at {@code buffer}'s current position without advancing it, sign- or zero-extended
-	 * into a {@code long} (an 8-byte value fills it exactly). Shared by {@link #bytesToInt} and {@code BufferView.peekInt}.
+	 * Reads a integer of {@code size} bytes at {@code buffer}'s current position without advancing it, sign- or zero-extended into a
+	 * {@code long} (an 8-byte value fills it exactly). Shared by {@link #bytesToInt} and {@code BufferView.peekInt}.
 	 *
 	 * @param buffer Little-endian buffer to read from, positioned at the value to read.
 	 * @param size Byte width (1, 2, 4 or 8).
@@ -118,14 +118,13 @@ public final class Converter {
 	}
 
 	/**
-	 * Converts an integer to little-endian bytes by truncating its 64-bit two's-complement encoding to {@code byteSize}.
+	 * Converts an integer to bytes by truncating its 64-bit two's-complement encoding to {@code byteSize}.
 	 *
 	 * @param value Integer value.
 	 * @param byteSize Number of output bytes.
-	 * @param isSigned {@code true} if the value is signed (unused; kept for API symmetry).
 	 * @return Byte representation of the integer.
 	 */
-	public static byte[] intToBytes(final long value, final int byteSize, final boolean isSigned) {
+	public static byte[] intToBytes(final long value, final int byteSize) {
 		validateByteSize(byteSize);
 
 		// extract the low byteSize little-endian bytes directly
@@ -134,17 +133,6 @@ public final class Converter {
 			result[i] = (byte) (value >>> (8 * i));
 
 		return result;
-	}
-
-	/**
-	 * Converts an unsigned integer to little-endian bytes by truncating its 64-bit two's-complement encoding to {@code byteSize}.
-	 *
-	 * @param value Integer value.
-	 * @param byteSize Number of output bytes.
-	 * @return Byte representation of the integer.
-	 */
-	public static byte[] intToBytes(final long value, final int byteSize) {
-		return intToBytes(value, byteSize, false);
 	}
 
 	/**

@@ -77,7 +77,7 @@ public final class ArrayHelpers {
 	 * @param alignment Alignment.
 	 * @return Size rounded up to alignment.
 	 */
-	public static int alignUp(final int size, final int alignment) {
+	static int alignUp(final int size, final int alignment) {
 		return Math.ceilDiv(size, alignment) * alignment;
 	}
 
@@ -249,7 +249,7 @@ public final class ArrayHelpers {
 	 * @param elements Serializable elements.
 	 * @param count Number of objects to write.
 	 */
-	public static <T extends Serializer> void writeArrayCount(final Writer output, final List<T> elements, final int count) {
+	static <T extends Serializer> void writeArrayCount(final Writer output, final List<T> elements, final int count) {
 		writeArrayCount(output, elements, count, null);
 	}
 
@@ -262,7 +262,7 @@ public final class ArrayHelpers {
 	 * @param count Number of objects to write.
 	 * @param comparator Sort-key comparator enforcing element order; {@code null} skips the check.
 	 */
-	public static <T extends Serializer> void writeArrayCount(final Writer output, final List<T> elements, final int count,
+	static <T extends Serializer> void writeArrayCount(final Writer output, final List<T> elements, final int count,
 			final Comparator<? super T> comparator) {
 		writeArrayImpl(output, elements, count, comparator);
 	}

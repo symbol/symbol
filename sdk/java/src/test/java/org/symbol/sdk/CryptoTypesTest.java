@@ -1,7 +1,7 @@
 package org.symbol.sdk;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.security.SecureRandom;
@@ -26,6 +26,12 @@ final class CryptoTypesTest {
 		assertThat(fromBytes.apply(value.bytes()), equalTo(value));
 	}
 
+	private void assertZeroBytes(final ByteArray zero, final int expectedSize) {
+		assertThat(zero.bytes().length, equalTo(expectedSize));
+		for (byte b : zero.bytes())
+			assertThat(b, equalTo((byte) 0));
+	}
+
 	@Nested
 	final class Hash256Test {
 		@Test
@@ -39,9 +45,7 @@ final class CryptoTypesTest {
 			final CryptoTypes.Hash256 zero = CryptoTypes.Hash256.zero();
 
 			// Assert:
-			assertThat(zero.bytes().length, equalTo(32));
-			for (byte b : zero.bytes())
-				assertThat(b, equalTo((byte) 0));
+			assertZeroBytes(zero, 32);
 		}
 
 		@Test
@@ -111,6 +115,7 @@ final class CryptoTypesTest {
 
 			// Assert:
 			assertThat(copy.bytes(), equalTo(original.bytes()));
+			assertThat(copy, not(sameInstance(original)));
 		}
 
 		@Test
@@ -167,8 +172,7 @@ final class CryptoTypesTest {
 			final CryptoTypes.Signature zero = CryptoTypes.Signature.zero();
 
 			// Assert:
-			assertThat(zero.bytes().length, equalTo(64));
-			assertThat(zero.toString(), equalTo("0".repeat(128)));
+			assertZeroBytes(zero, 64);
 		}
 
 		@Test

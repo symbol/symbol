@@ -172,7 +172,7 @@ final class BufferViewTest {
 		void canCreateShrinkingSubview() {
 			// Arrange:
 			final BufferView view = newView();
-			view.shiftRight(3);
+			view.shiftRight(2);
 
 			// Act:
 			final BufferView window = view.window(2);
@@ -180,7 +180,7 @@ final class BufferViewTest {
 			// Assert: the window is rebased — reads start at its first byte regardless of where it sits in the backing.
 			assertThat(window.length(), equalTo(2));
 			assertThat(window.peekBytes(2), equalTo(new byte[]{
-					5, 6
+					4, 5
 			}));
 		}
 
@@ -285,7 +285,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void copiesLeadingBytesWithoutAdvancing() {
+		void canCopiesLeadingBytesWithoutAdvancing() {
 			// Arrange:
 			final BufferView view = newView();
 
@@ -363,7 +363,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void createsSubview() {
+		void canCreateSubview() {
 			assertShrinkYields(3, new byte[]{
 					2, 3, 4
 			});
@@ -447,35 +447,35 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void canPeek2ByteUnsignedLittleEndian() {
+		void canPeek2ByteUnsigned() {
 			assertPeekInt(new byte[]{
 					0x34, 0x12, 0x00
 			}, 2, false, 0x1234L);
 		}
 
 		@Test
-		void canPeek2ByteSignedLittleEndian() {
+		void canPeek2ByteSigned() {
 			assertPeekInt(new byte[]{
 					(byte) 0xFF, (byte) 0xFF, 0x00
 			}, 2, true, -1L);
 		}
 
 		@Test
-		void canPeek4ByteUnsignedLittleEndian() {
+		void canPeek4ByteUnsigned() {
 			assertPeekInt(new byte[]{
 					0x78, 0x56, 0x34, 0x12, 0x00
 			}, 4, false, 0x12345678L);
 		}
 
 		@Test
-		void canPeek4ByteSignedLittleEndian() {
+		void canPeek4ByteSigned() {
 			assertPeekInt(new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00
 			}, 4, true, -1L);
 		}
 
 		@Test
-		void canPeek8ByteLittleEndianU64ReadsBackNegative() {
+		void canPeek8ByteU64ReadsBackNegative() {
 			// Arrange: a u64 >= 2^63 (most-significant byte 0xEF) laid out little-endian.
 			final BufferView view = new BufferView(new byte[]{
 					0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF, 0x00
@@ -492,7 +492,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void peekDoesNotAdvance() {
+		void canPeekWithoutAdvance() {
 			// Arrange:
 			final BufferView view = new BufferView(new byte[]{
 					0x12, 0x34
@@ -508,7 +508,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void peekWorksAfterShift() {
+		void canPeekAfterShift() {
 			// Arrange:
 			final BufferView view = new BufferView(new byte[]{
 					(byte) 0xFF, 0x34, 0x12
@@ -554,7 +554,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void peekAtDifferentPositions() {
+		void canPeekAtDifferentPositions() {
 			// Arrange:
 			final BufferView view = new BufferView(new byte[]{
 					0x11, 0x22, 0x33, 0x44

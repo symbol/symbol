@@ -275,12 +275,14 @@ final class CatbufferTypeTest {
 		// numbers coerce; asInt also accepts a decimal string.
 		assertCoerces(CatbufferType::asInt, 300, 300);
 		assertCoerces(CatbufferType::asInt, "300", 300);
+		assertCoerces(CatbufferType::asLong, "0x12C", 300L);
 	}
 
 	@Test
 	void asLongCoercesNumberAndHexString() {
 		// numbers coerce; asLong also accepts a 0x-hex string (the canonical u64 >= 2^63 form).
 		assertCoerces(CatbufferType::asLong, 300L, 300L);
+		assertCoerces(CatbufferType::asLong, "300", 300L);
 		assertCoerces(CatbufferType::asLong, "0x12C", 300L);
 	}
 

@@ -81,17 +81,22 @@ without touching tracked files:
 
 Cryptographic primitives use native JDK APIs whenever possible:
 
-| Primitive          | Implementation                                                                  |
-| ------------------ | ------------------------------------------------------------------------------- |
-| SHA-256, SHA-512   | `java.security.MessageDigest`                                                   |
-| HMAC-SHA512        | `javax.crypto.Mac`                                                              |
-| AES-CBC, AES-GCM   | `javax.crypto.Cipher`                                                           |
-| Ed25519 (SHA-512)  | `java.security.Signature` ("Ed25519")                                           |
-| Keccak-256/-512    | Bouncy Castle (`org.bouncycastle.crypto.digests.KeccakDigest`)                  |
-| RIPEMD-160         | Bouncy Castle (`org.bouncycastle.crypto.digests.RIPEMD160Digest`)               |
-| HKDF-SHA256        | Bouncy Castle (`org.bouncycastle.crypto.generators.HKDFBytesGenerator`)         |
-| Ed25519 (Keccak)   | Bouncy Castle low-level `Ed25519` with hasher swap; small ported helpers        |
-| BIP-32 / BIP-39    | Hand-rolled (PBKDF2-SHA512 via `javax.crypto.SecretKeyFactory`) + bundled lists |
+| Primitive                | Implementation                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| SHA3-256                 | Bouncy Castle (`org.bouncycastle.crypto.digests.SHA3Digest`) — transaction / merkle hashing |
+| SHA-512                  | `java.security.MessageDigest` (the Ed25519 hash for Symbol)                     |
+| HMAC-SHA512              | `javax.crypto.Mac` (BIP-32 derivation)                                          |
+| AES-256-CBC, AES-256-GCM | `javax.crypto.Cipher`                                                           |
+| Keccak-256/-512          | Bouncy Castle (`org.bouncycastle.crypto.digests.KeccakDigest`)                  |
+| RIPEMD-160               | Bouncy Castle (`org.bouncycastle.crypto.digests.RIPEMD160Digest`)               |
+| HKDF-SHA256              | Bouncy Castle (`org.bouncycastle.crypto.generators.HKDFBytesGenerator`)         |
+| Ed25519 (Symbol + NEM)   | Ported TweetNaCl (`org.symbol.sdk.impl.Tweetnacl`, nacl-fast) with a swappable hash — SHA-512 (`java.security.MessageDigest`) for Symbol, Keccak-512 (Bouncy Castle `KeccakDigest`) for NEM |
+| BIP-39 (mnemonic)        | [`mnemonic4j`](https://github.com/lightsail-network/mnemonic4j) (`network.lightsail`, Apache-2.0) |
+| BIP-32 derivation        | Hand-rolled ed25519 SLIP-0010 + NEM keccak seed variant (no library implements it)               |
+
+Ed25519 is a pruned TweetNaCl port rather than the JDK's `java.security.Signature("Ed25519")`
+because NEM swaps the internal hash to Keccak-512 (which the JDK provider does not expose) and
+both networks share the same code path, including the canonical-`S` check enforced on verify.
 
 ## SDK runtime
 
