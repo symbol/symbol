@@ -13,5 +13,5 @@ mv docs-staging docs
 git add -f docs
 git commit -m "[docs] Update"
 git push
-git checkout new-docs
+git checkout dev
 cd mkdocs
