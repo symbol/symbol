@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+	<head>
+		<!-- Root static-host 404 shim. Redirects missing URLs to the matching language 404 page. -->
+		<meta charset="utf-8">
+		<script>
+			var supportedLanguages = {{ supported_languages | tojson }};
+			var defaultLanguage = supportedLanguages[0];
+			var match = location.pathname.match(/^\/([^/]+)\//);
+			var language = match && supportedLanguages.indexOf(match[1]) >= 0 ? match[1] : defaultLanguage;
+
+			if (language) {
+				var target = "/" + language + "/404/";
+				if (location.pathname !== target)
+					location.replace(target);
+			}
+		</script>
+	</head>
+</html>

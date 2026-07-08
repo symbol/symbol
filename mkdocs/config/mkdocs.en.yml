@@ -1,0 +1,181 @@
+INHERIT: ./mkdocs.base.yml
+
+site_name: Symbol Docs WIP 🚧
+site_url: https://docs.symboltest.net/en
+docs_dir: ../pages/en
+site_dir: ../../docs/en
+edit_uri: blob/dev/mkdocs/pages/en
+plugins:
+  search:
+    lang: en
+markdown_extensions:
+  toc:
+    permalink_title: Anchor link to this section for reference
+    title: On this page
+theme:
+  language: en
+  font:
+    text: Exo 2
+  palette:
+    # Palette toggle for automatic mode
+    - media: (prefers-color-scheme)
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+extra:
+  symbol:
+    code_full_intro: |
+      The following is the complete code listing for this tutorial.
+      A detailed, step-by-step explanation follows in the next section.
+    tutorial_level: Tutorial level
+    tutorial_level_labels:
+      beginner: BEGINNER
+      intermediate: INTERMEDIATE
+      advanced: ADVANCED
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+  social:
+    - icon: fontawesome/solid/house
+      link: https://docs.symboltest.net
+      name: Go to the home page
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/SymbolSyndicate
+      name: Follow us on X
+    - icon: fontawesome/brands/github
+      link: https://github.com/symbol
+      name: Explore our repos
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/J38KwW5ZuG
+      name: Join our Discord server
+    - icon: fontawesome/solid/handshake-simple
+      link: https://docs.symbol.dev
+      name: Visit the legacy documentation site
+nav:
+  - index.md
+  - User Manual:
+      - userbook/intro.md
+      - Symbol Desktop Wallet:
+          - userbook/wallet/install.md
+          - Profiles:
+              - userbook/wallet/create-profile.md
+              - userbook/wallet/import-profile.md
+              - userbook/wallet/export-profile.md
+              - userbook/wallet/delete-profile.md
+          - Accounts:
+              - userbook/wallet/create-account.md
+              - userbook/wallet/import-account.md
+              - userbook/wallet/delete-account.md
+      - Shoestring Node Operation:
+          - userbook/shoestring/overview.md
+          - userbook/shoestring/install.md
+          - userbook/shoestring/quickstart.md
+          - userbook/shoestring/maintain.md
+      - userbook/security.md
+  - Developer Manual:
+      - devbook/intro.md
+      - Getting Started:
+          - devbook/start/setup.md
+          - devbook/start/hello-world.md
+      - Tutorials:
+          - Accounts:
+              - devbook/accounts/create-from-private-key.md
+              - devbook/accounts/create-from-mnemonic.md
+              - devbook/accounts/testnet-faucet.md
+              - devbook/accounts/query-balance.md
+              - devbook/accounts/account-metadata.md
+              - devbook/accounts/account-restrictions.md
+              - devbook/accounts/configure-multisig.md
+          - Transactions:
+              - devbook/transactions/transfer.md
+              - devbook/transactions/messages.md
+              - devbook/transactions/monitoring-status.md
+              - devbook/transactions/typed-descriptors.md
+              - devbook/transactions/complete-aggregate.md
+              - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/sign-multisig.md
+              - devbook/transactions/transaction-batching.md
+              - devbook/transactions/fee-sponsorship.md
+              - devbook/transactions/atomic-swap.md
+              - devbook/transactions/cross-chain-swap.md
+          - Namespaces:
+              - devbook/namespaces/register-root-namespace.md
+              - devbook/namespaces/register-subnamespace.md
+              - devbook/namespaces/extend-root-namespace.md
+              - devbook/namespaces/get-namespace-info.md
+              - devbook/namespaces/link-namespace-to-address.md
+              - devbook/namespaces/link-namespace-to-mosaic.md
+              - devbook/namespaces/namespace-metadata.md
+              - devbook/namespaces/resolve-namespace-from-receipt.md
+          - Mosaics:
+              - devbook/mosaics/create-mosaic.md
+              - devbook/mosaics/get-mosaic-info.md
+              - devbook/mosaics/change-mosaic-supply.md
+              - devbook/mosaics/modify-mosaic-definition.md
+              - devbook/mosaics/mosaic-metadata.md
+              - devbook/mosaics/mosaic-restrictions.md
+              - devbook/mosaics/revoke-mosaic.md
+          - Network Currency:
+              - devbook/network-currency/query-currency-supply.md
+              - devbook/network-currency/query-block-rewards.md
+          - Chain State:
+              - devbook/chain/chain-heights.md
+              - devbook/chain/network-time.md
+              - devbook/chain/prove-transaction.md
+              - devbook/chain/prove-mosaic-definition.md
+          - WebSockets:
+              - devbook/websockets/listen-new-blocks.md
+              - devbook/websockets/listen-transaction-flow.md
+              - devbook/websockets/listen-transaction-error.md
+              - devbook/websockets/listen-bonded-transaction-flow.md
+      - Reference Guides:
+          - Python SDK: devbook/reference/py/
+          - TypeScript SDK: devbook/reference/ts/
+          - Symbol REST API: devbook/reference/rest/symbol.md
+          - Serialization: devbook/reference/serialization/index.md
+          - WebSockets: devbook/reference/websockets/index.md
+          - Configuration Properties:
+              - Network: devbook/reference/config/network-properties.md
+              - Node: devbook/reference/config/node-properties.md
+  - Textbook:
+      - textbook/intro.md
+      - textbook/glossary.md
+      # Foundations
+      - textbook/cryptography.md
+      - textbook/accounts.md
+      - textbook/transactions.md
+      - textbook/transfer_transactions.md
+      # State and Assets
+      - textbook/mosaics.md
+      - textbook/namespaces.md
+      - textbook/metadata.md
+      - textbook/restrictions.md
+      # Blockchain Structure
+      - textbook/blocks.md
+      - textbook/consensus.md
+      # Network and Operation
+      - textbook/nodes.md
+      - textbook/harvesting.md
+      # Advanced Topics
+      - textbook/cross-chain-swaps.md
+      # Implementation
+      - textbook/catapult.md
+      - textbook/cats.md

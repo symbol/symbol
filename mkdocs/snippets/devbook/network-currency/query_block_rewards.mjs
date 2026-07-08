@@ -1,0 +1,73 @@
+import { PublicKey } from 'symbol-sdk';
+import { Address, Network } from 'symbol-sdk/symbol';
+
+const fmt = v => (v / 1e6).toLocaleString(
+	'en-US', { minimumFractionDigits: 6 });
+
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
+console.log(`Using node ${NODE_URL}`);
+
+const BLOCK_HEIGHT = process.env.BLOCK_HEIGHT || '3222290';
+
+// Get the block header [>step-1]
+const blockUrl = `${NODE_URL}/blocks/${BLOCK_HEIGHT}`;
+const block = await (await fetch(blockUrl)).json();
+const signer = Network.TESTNET.publicKeyToAddress(
+	new PublicKey(block.block.signerPublicKey));
+const beneficiary = block.block.beneficiaryAddress;
+console.log(`Block height: ${BLOCK_HEIGHT}`);
+console.log(`Signer: ${signer}`);
+const beneficiaryB32 = Address.fromDecodedAddressHexString(
+	beneficiary);
+console.log(`Beneficiary: ${beneficiaryB32}`);
+// [<step-1]
+// Get the network sink address [>step-2]
+const propertiesUrl = `${NODE_URL}/network/properties`;
+const properties = await (await fetch(propertiesUrl)).json();
+const sinkB32 = properties.chain.harvestNetworkFeeSinkAddress;
+const sink = Array.from(new Address(sinkB32).bytes)
+	.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+console.log(`Network sink: ${sinkB32}`);
+// [<step-2]
+// Get the inflation reward at this height [>step-3]
+const inflationUrl = `${NODE_URL}/network/inflation/at/${BLOCK_HEIGHT}`;
+const inflation = await (await fetch(inflationUrl)).json();
+const reward = parseInt(inflation.rewardAmount, 10);
+console.log(`Inflation reward: ${fmt(reward)} XYM`);
+// [<step-3]
+// Get harvest fee receipts for this block [>step-4]
+const receiptsUrl = `${NODE_URL}/statements/transaction` +
+	`?height=${BLOCK_HEIGHT}&receiptType=8515`;
+const receipts = await (await fetch(receiptsUrl)).json();
+
+// Label and display the reward distribution
+let total = 0;
+console.log('\nReward distribution:');
+for (const item of receipts.data) {
+	for (const r of item.statement.receipts) {
+		if (8515 === r.type) {
+			const amount = parseInt(r.amount, 10);
+			total += amount;
+			let label;
+			if (r.targetAddress === sink) {
+				label = 'Network sink (5%)';
+			} else if (r.targetAddress === beneficiary) {
+				label = 'Beneficiary (25%)';
+			} else {
+				label = 'Harvester';
+				const harvesterAddress =
+					Address.fromDecodedAddressHexString(r.targetAddress);
+				console.log(`  Harvester address: ${harvesterAddress}`);
+			}
+			console.log(`  ${label}: ${fmt(amount)} XYM`);
+		}
+	}
+}
+// [<step-4]
+// Summary [>step-5]
+const fees = total - reward;
+console.log('\nSummary:');
+console.log(`  Total block reward: ${fmt(total)} XYM`);
+console.log(`  Inflation: ${fmt(reward)} XYM`);
+console.log(`  Transaction fees: ${fmt(fees)} XYM`); // [<step-5]

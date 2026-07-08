@@ -1,0 +1,128 @@
+import { PrivateKey } from 'symbol-sdk';
+import {
+	NetworkTimestamp,
+	SymbolFacade,
+	generateMosaicId,
+	models
+} from 'symbol-sdk/symbol';
+
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
+console.log('Using node', NODE_URL);
+// [>step-1]
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
+const signerKeyPair = new SymbolFacade.KeyPair(
+	new PrivateKey(SIGNER_PRIVATE_KEY));
+
+const facade = new SymbolFacade('testnet');
+const signerAddress =
+	facade.network.publicKeyToAddress(signerKeyPair.publicKey);
+console.log('Signer address:', signerAddress.toString());
+// [<step-1]
+try {
+	// Fetch current network time [>step-2]
+	const timePath = '/node/time';
+	console.log('Fetching current network time from', timePath);
+	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
+	const timeJSON = await timeResponse.json();
+	const timestamp = new NetworkTimestamp(
+		timeJSON.communicationTimestamps.receiveTimestamp);
+	console.log(
+		'  Network time:', timestamp.timestamp, 'ms since nemesis');
+
+	// Fetch recommended fees
+	const feePath = '/network/fees/transaction';
+	console.log('Fetching recommended fees from', feePath);
+	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
+	const feeJSON = await feeResponse.json();
+	const medianMultiplier = feeJSON.medianFeeMultiplier;
+	const minimumMultiplier = feeJSON.minFeeMultiplier;
+	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
+	console.log('  Fee multiplier:', feeMultiplier);
+	// [<step-2]
+	// Build the modification transaction [>step-3]
+	const MOSAIC_NONCE = parseInt(process.env.MOSAIC_NONCE || '0', 10);
+	console.log('Mosaic nonce:', MOSAIC_NONCE);
+
+	const mosaicId = generateMosaicId(signerAddress, MOSAIC_NONCE);
+	console.log(
+		`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
+
+	const modifyTx = facade.transactionFactory.create({
+		type: 'mosaic_definition_transaction_v1',
+		signerPublicKey: signerKeyPair.publicKey.toString(),
+		deadline: timestamp.addHours(2).timestamp,
+		duration: 0n,
+		divisibility: 0,
+		nonce: MOSAIC_NONCE,
+		flags: 'revokable'
+	});
+	modifyTx.fee = new models.Amount(feeMultiplier * modifyTx.size);
+	// [<step-3]
+	// Sign and generate final payload [>step-4]
+	const signature = facade.signTransaction(
+		signerKeyPair, modifyTx);
+	const jsonPayload = facade.transactionFactory.static.attachSignature(
+		modifyTx, signature);
+	console.log('Built mosaic modification transaction:');
+	console.dir(modifyTx.toJson(), { colors: true });
+
+	const modifyHash = facade.hashTransaction(modifyTx).toString();
+	console.log('Transaction hash:', modifyHash);
+
+	// Announce transaction
+	console.log(
+		'Announcing mosaic modification to /transactions');
+	const announceResponse = await fetch(
+		`${NODE_URL}/transactions`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: jsonPayload
+		});
+	console.log('  Response:', await announceResponse.text());
+	// [<step-4]
+	// Wait for confirmation [>step-5]
+	console.log('Waiting for mosaic modification confirmation...');
+	const statusPath = `/transactionStatus/${modifyHash}`;
+	for (let attempt = 1; 60 >= attempt; ++attempt) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(`${NODE_URL}${statusPath}`);
+
+		if (response.ok) {
+			const status = await response.json();
+			console.log('  Transaction status:', status.group);
+			if ('confirmed' === status.group) {
+				console.log('Transaction confirmed in', attempt,
+					'seconds');
+				break;
+			}
+			if ('failed' === status.group) {
+				console.log('Transaction failed:', status.code);
+				break;
+			}
+		} else {
+			console.log('  Transaction status: unknown | Cause:',
+				response.status
+			);
+		}
+		if (60 === attempt)
+			console.warn('Confirmation took too long.');
+	}
+	// [<step-5]
+	// Retrieve the mosaic [>step-6]
+	const mosaicIdHex = mosaicId.toString(16);
+	const mosaicPath = `/mosaics/${mosaicIdHex}`;
+	console.log('Fetching mosaic information from', mosaicPath);
+	const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);
+	const mosaicJSON = await mosaicResponse.json();
+	const mosaicInfo = mosaicJSON.mosaic;
+	console.log('Mosaic information:');
+	console.log('  Mosaic ID:', mosaicInfo.id);
+	console.log('  Supply:', mosaicInfo.supply);
+	console.log('  Divisibility:', mosaicInfo.divisibility);
+	console.log('  Flags:', mosaicInfo.flags);
+	console.log('  Duration:', mosaicInfo.duration); // [<step-6]
+} catch (e) {
+	console.error(e.message);
+}

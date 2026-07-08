@@ -1,0 +1,23 @@
+Using node https://reference.symboltest.net:3001
+Transaction hash: BA0C65DB752A3BF1B25285540642537ECE8C2CA716577EDF8BF0F8597A85ADC4
+Fetching transaction from /transactions/confirmed/BA0C65DB752A3BF1B25285540642537ECE8C2CA716577EDF8BF0F8597A85ADC4
+  Block height: 3125903
+  Transaction index: 0 (primaryId: 1)
+  Recipient: 99EC0888813BE133E6000000000000000000000000000000
+  Is address alias: True
+  Mosaic: E74B99BA41F4AFEE
+  Is mosaic alias: True
+
+Fetching address resolutions from /statements/resolutions/address?height=3125903
+  Found 1 resolution statement(s)
+
+Address resolution:
+  Unresolved: 99EC0888813BE133E6000000000000000000000000000000
+  Resolved:   TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
+
+Fetching mosaic resolutions from /statements/resolutions/mosaic?height=3125903
+  Found 1 resolution statement(s)
+
+Mosaic resolution:
+  Unresolved: E74B99BA41F4AFEE
+  Resolved:   72C0212E67A08BCE

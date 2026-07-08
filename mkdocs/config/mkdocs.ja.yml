@@ -1,0 +1,180 @@
+INHERIT: ./mkdocs.base.yml
+
+site_name: Symbolドキュメント WIP ⚠
+site_url: https://docs.symboltest.net/ja
+docs_dir: ../pages/ja
+site_dir: ../../docs/ja
+edit_uri: blob/dev/mkdocs/pages/ja
+plugins:
+  search:
+    lang: ja
+markdown_extensions:
+  toc:
+    permalink_title: 参照用にこのセクションへのアンカーリンク
+    title: このページに
+theme:
+  language: ja
+  font:
+    text: Noto Sans JP, Yu Gothic, Hiragino Sans, Meiryo, sans-serif
+  palette:
+    # Palette toggle for automatic mode
+    - media: (prefers-color-scheme)
+      toggle:
+        icon: material/brightness-auto
+        name: ライトモードに切り替える
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: ダークモードに切り替える
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: システム設定に切り替える
+extra:
+  symbol:
+    code_full_intro: |
+      このチュートリアルの完全なコード一覧を以下に示します。
+      詳細な手順ごとの説明は次のセクションで行います。
+    tutorial_level: 難易度
+    tutorial_level_labels:
+      beginner: 初級
+      intermediate: 中級
+      advanced: 上級
+  consent:
+    title: クッキーの同意
+    description: >-
+      当社では、お客様の再訪や好みを認識するため、
+      また、ドキュメントの有効性やユーザーが探しているものを見つけられるかどうかを測定するために Cookie を使用しています。
+      同意いただく事で、ドキュメントの改善にご協力頂くことになります。
+  social:
+    - icon: fontawesome/solid/house
+      link: https://docs.symboltest.net
+      name: ホームページ
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/SymbolSyndicate
+      name: X (旧Twitter)
+    - icon: fontawesome/brands/github
+      link: https://github.com/symbol
+      name: リポジトリ
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/J38KwW5ZuG
+      name: Discordサーバー
+    - icon: fontawesome/solid/handshake-simple
+      link: https://docs.symbol.dev
+      name: 旧ドキュメントサイト
+nav:
+  - index.md
+  - ユーザーマニュアル:
+      - userbook/intro.md
+      - Symbol デスクトップウォレット:
+          - userbook/wallet/install.md
+          - プロファイル:
+              - userbook/wallet/create-profile.md
+              - userbook/wallet/import-profile.md
+              - userbook/wallet/export-profile.md
+              - userbook/wallet/delete-profile.md
+          - アカウント:
+              - userbook/wallet/create-account.md
+              - userbook/wallet/import-account.md
+              - userbook/wallet/delete-account.md
+      - Shoestringを使用したノード運用:
+          - userbook/shoestring/overview.md
+          - userbook/shoestring/install.md
+          - userbook/shoestring/quickstart.md
+          - userbook/shoestring/maintain.md
+      - userbook/security.md
+  - 開発者マニュアル:
+      - devbook/intro.md
+      - はじめに:
+          - devbook/start/setup.md
+          - devbook/start/hello-world.md
+      - チュートリアル:
+          - アカウント:
+              - devbook/accounts/create-from-private-key.md
+              - devbook/accounts/create-from-mnemonic.md
+              - devbook/accounts/testnet-faucet.md
+              - devbook/accounts/query-balance.md
+              - devbook/accounts/account-metadata.md
+              - devbook/accounts/account-restrictions.md
+              - devbook/accounts/configure-multisig.md
+          - トランザクション:
+              - devbook/transactions/transfer.md
+              - devbook/transactions/messages.md
+              - devbook/transactions/monitoring-status.md
+              - devbook/transactions/typed-descriptors.md
+              - devbook/transactions/complete-aggregate.md
+              - devbook/transactions/bonded-aggregate.md
+              - devbook/transactions/sign-multisig.md
+              - devbook/transactions/transaction-batching.md
+              - devbook/transactions/fee-sponsorship.md
+              - devbook/transactions/atomic-swap.md
+              - devbook/transactions/cross-chain-swap.md
+          - ネームスペース:
+              - devbook/namespaces/register-root-namespace.md
+              - devbook/namespaces/register-subnamespace.md
+              - devbook/namespaces/extend-root-namespace.md
+              - devbook/namespaces/get-namespace-info.md
+              - devbook/namespaces/link-namespace-to-address.md
+              - devbook/namespaces/link-namespace-to-mosaic.md
+              - devbook/namespaces/namespace-metadata.md
+              - devbook/namespaces/resolve-namespace-from-receipt.md
+          - モザイク:
+              - devbook/mosaics/create-mosaic.md
+              - devbook/mosaics/get-mosaic-info.md
+              - devbook/mosaics/change-mosaic-supply.md
+              - devbook/mosaics/modify-mosaic-definition.md
+              - devbook/mosaics/mosaic-metadata.md
+              - devbook/mosaics/mosaic-restrictions.md
+              - devbook/mosaics/revoke-mosaic.md
+          - ネットワーク通貨:
+              - devbook/network-currency/query-currency-supply.md
+              - devbook/network-currency/query-block-rewards.md
+          - チェーンの状態:
+              - devbook/chain/chain-heights.md
+              - devbook/chain/network-time.md
+              - devbook/chain/prove-transaction.md
+              - devbook/chain/prove-mosaic-definition.md
+          - Webソケット:
+              - devbook/websockets/listen-new-blocks.md
+              - devbook/websockets/listen-transaction-flow.md
+              - devbook/websockets/listen-transaction-error.md
+              - devbook/websockets/listen-bonded-transaction-flow.md
+      - リファレンスガイド:
+          - Python SDK: devbook/reference/py/
+          - TypeScript SDK: devbook/reference/ts/
+          - Symbol REST API: devbook/reference/rest/symbol.md
+          - Serialization: devbook/reference/serialization/index.md
+          - WebSockets: devbook/reference/websockets/index.md
+          - 構成プロパティ:
+              - ネットワーク: devbook/reference/config/network-properties.md
+              - ノード: devbook/reference/config/node-properties.md
+  - テキストブック:
+      - textbook/intro.md
+      - textbook/glossary.md
+      # Foundations
+      - textbook/cryptography.md
+      - textbook/accounts.md
+      - textbook/transactions.md
+      - textbook/transfer_transactions.md
+      # State and Assets
+      - textbook/mosaics.md
+      - textbook/namespaces.md
+      - textbook/metadata.md
+      - textbook/restrictions.md
+      # Blockchain Structure
+      - textbook/blocks.md
+      - textbook/consensus.md
+      # Network and Operation
+      - textbook/nodes.md
+      - textbook/harvesting.md
+      # Advanced Topics
+      - textbook/cross-chain-swaps.md
+      # Implementation
+      - textbook/catapult.md
+      - textbook/cats.md

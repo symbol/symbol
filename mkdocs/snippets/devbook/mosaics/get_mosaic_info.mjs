@@ -1,0 +1,60 @@
+import { models } from 'symbol-sdk/symbol';
+
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
+console.log('Using node', NODE_URL);
+
+const MOSAIC_ID = process.env.MOSAIC_ID || '72C0212E67A08BCE';
+console.log('Mosaic ID:', MOSAIC_ID);
+
+try {
+	// Fetch mosaic information [>step-1]
+	const mosaicPath = `/mosaics/${MOSAIC_ID}`;
+	console.log('Fetching mosaic information from', mosaicPath);
+	const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);
+	if (!mosaicResponse.ok) {
+		throw new Error(
+			`HTTP error! status: ${mosaicResponse.status}`);
+	}
+	const mosaicJSON = await mosaicResponse.json();
+	const mosaic = mosaicJSON.mosaic;
+	console.log('Mosaic information:');
+	console.log('  Mosaic ID:', mosaic.id);
+	console.log('  Supply:', mosaic.supply);
+	const divisibility = mosaic.divisibility;
+	console.log('  Divisibility:', divisibility);
+	const flags = new models.MosaicFlags(mosaic.flags);
+	const flagNames = flags.toString()
+		.replace(/MosaicFlags\./g, '').toLowerCase();
+	console.log(`  Flags: ${mosaic.flags} (${flagNames})`);
+	console.log('  Duration:', mosaic.duration);
+	console.log('  Start height:', mosaic.startHeight);
+	console.log('  Revision:', mosaic.revision);
+	// [<step-1]
+	// Display formatted supply [>step-2]
+	const supply = BigInt(mosaic.supply);
+	const divisor = 10n ** BigInt(divisibility);
+	const whole = supply / divisor;
+	const fractional = supply % divisor;
+	const fractionalStr = fractional.toString()
+		.padStart(divisibility, '0');
+	console.log(`\nSupply in whole units: ${whole}.${fractionalStr}`);
+	// [<step-2]
+	// Fetch namespace names linked to the mosaic [>step-3]
+	console.log(`\nFetching namespace names for mosaic ${MOSAIC_ID}`);
+	const namesResponse = await fetch(
+		`${NODE_URL}/namespaces/mosaic/names`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ mosaicIds: [MOSAIC_ID] })
+		});
+	const namesInfo = await namesResponse.json();
+	for (const entry of namesInfo.mosaicNames) {
+		if (0 < entry.names.length)
+			console.log('  Namespace aliases:', entry.names.join(', '));
+		else
+			console.log('  No namespace aliases linked');
+	} // [<step-3]
+} catch (e) {
+	console.error(e.message);
+}
