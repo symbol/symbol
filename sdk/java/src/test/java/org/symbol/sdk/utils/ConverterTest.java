@@ -518,7 +518,7 @@ final class ConverterTest {
 		}
 
 		@Test
-		void toIntRejectsMagnitudesAboveUnsignedRange() {
+		void toIntParseRejectsMagnitudesStringsAboveUnsignedRange() {
 			// values beyond the unsigned 32-bit range are rejected, not truncated to a valid-looking int
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("18446744073709551615")); // 2^64 - 1
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0xFFFFFFFFFFFFFFFF"));

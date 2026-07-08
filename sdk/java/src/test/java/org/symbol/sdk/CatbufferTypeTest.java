@@ -275,7 +275,7 @@ final class CatbufferTypeTest {
 		// numbers coerce; asInt also accepts a decimal string.
 		assertCoerces(CatbufferType::asInt, 300, 300);
 		assertCoerces(CatbufferType::asInt, "300", 300);
-		assertCoerces(CatbufferType::asLong, "0x12C", 300L);
+		assertCoerces(CatbufferType::asInt, "0x12C", 300);
 	}
 
 	@Test

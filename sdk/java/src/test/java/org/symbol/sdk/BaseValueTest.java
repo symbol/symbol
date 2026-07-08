@@ -140,6 +140,9 @@ final class BaseValueTest {
 		@Test
 		void canCreateSignedByte() {
 			canCreateSigned(-0x80L, 1, -0x80L);
+			canCreateSigned(-0x07L, 1, -0x7L);
+			canCreateSigned(0x0L, 1, 0x0L);
+			canCreateSigned(0x0FL, 1, 0xFL);
 			canCreateSigned(0x7FL, 1, 0x7FL);
 			canCreateSigned(0x07FL, 1, 0x7FL);
 		}
@@ -147,14 +150,22 @@ final class BaseValueTest {
 		@Test
 		void canCreateSignedShort() {
 			canCreateSigned(-0x8000L, 2, -0x8000L);
-			canCreateSigned(0x7FFFL, 2, 0x7FFFL);
+			canCreateSigned(-0x0700L, 2, -0x700L);
+			canCreateSigned(0x0L, 2, 0x0L);
+			canCreateSigned(0x0F00L, 2, 0xF00L);
+			canCreateSigned(0x7F00L, 2, 0x7F00L);
+			canCreateSigned(0x7FF0L, 2, 0x7FF0L);
 			canCreateSigned(0x07FFFL, 2, 0x7FFFL);
 		}
 
 		@Test
 		void canCreateSignedInt() {
 			canCreateSigned(-0x80000000L, 4, -0x80000000L);
-			canCreateSigned(0x7FFFFFFFL, 4, 0x7FFFFFFFL);
+			canCreateSigned(-0x07000000L, 4, -0x7000000L);
+			canCreateSigned(0x0L, 4, 0x0L);
+			canCreateSigned(0x0F000000L, 4, 0xF000000L);
+			canCreateSigned(0x7F000000L, 4, 0x7F000000L);
+			canCreateSigned(0x7FFFFFF0L, 4, 0x7FFFFFF0L);
 			canCreateSigned(0x07FFFFFFFL, 4, 0x7FFFFFFFL);
 		}
 
@@ -162,6 +173,10 @@ final class BaseValueTest {
 		void canCreateSignedLong() {
 			canCreateSigned(Long.MIN_VALUE, 8, Long.MIN_VALUE);
 			canCreateSigned(Long.MAX_VALUE, 8, Long.MAX_VALUE);
+			canCreateSigned(-0x07L, 8, -0x7L);
+			canCreateSigned(0x0L, 8, 0x0L);
+			canCreateSigned(0x0FL, 8, 0xFL);
+			canCreateSigned(0x7FL, 8, 0x7FL);
 			canCreateSigned(0x07FFFFFFFFFL, 8, 0x7FFFFFFFFFL);
 		}
 
@@ -171,18 +186,24 @@ final class BaseValueTest {
 		void cannotCreateSignedByteOutsideRange() {
 			assertOutOfRange(() -> new Bv(-0x81L, 1, true), "8-bit");
 			assertOutOfRange(() -> new Bv(0x80L, 1, true), "8-bit");
+			assertOutOfRange(() -> new Bv(-0xF7L, 1, true), "8-bit");
+			assertOutOfRange(() -> new Bv(0xFFL, 1, true), "8-bit");
 		}
 
 		@Test
 		void cannotCreateSignedShortOutsideRange() {
-			assertOutOfRange(() -> new Bv(-0x800001L, 2, true), "16-bit");
-			assertOutOfRange(() -> new Bv(0x800000L, 2, true), "16-bit");
+			assertOutOfRange(() -> new Bv(-0x8001L, 2, true), "16-bit");
+			assertOutOfRange(() -> new Bv(0x8000L, 2, true), "16-bit");
+			assertOutOfRange(() -> new Bv(-0xF700L, 2, true), "16-bit");
+			assertOutOfRange(() -> new Bv(0xFFFFL, 2, true), "16-bit");
 		}
 
 		@Test
 		void cannotCreateSignedIntOutsideRange() {
 			assertOutOfRange(() -> new Bv(-0x80000001L, 4, true), "32-bit");
 			assertOutOfRange(() -> new Bv(0x80000000L, 4, true), "32-bit");
+			assertOutOfRange(() -> new Bv(-0xF7000000L, 4, true), "32-bit");
+			assertOutOfRange(() -> new Bv(0xFFFFFFFFL, 4, true), "32-bit");
 		}
 	}
 

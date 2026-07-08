@@ -285,7 +285,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void canCopiesLeadingBytesWithoutAdvancing() {
+		void canCopyLeadingBytesWithoutAdvancing() {
 			// Arrange:
 			final BufferView view = newView();
 
@@ -474,21 +474,28 @@ final class BufferViewTest {
 			}, 4, true, -1L);
 		}
 
-		@Test
-		void canPeek8ByteU64ReadsBackNegative() {
+		void assertCanPeek8ByteU64ReadsBackNegative(final boolean isSigned) {
 			// Arrange: a u64 >= 2^63 (most-significant byte 0xEF) laid out little-endian.
 			final BufferView view = new BufferView(new byte[]{
 					0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF, 0x00
 			});
 
 			// Act:
-			final long unsignedView = view.peekInt(8, false);
-			final long signedView = view.peekInt(8, true);
+			final long signedView = view.peekInt(8, isSigned);
 
-			// Assert: the full 64-bit pattern is returned; isSigned is a no-op at size 8, and a u64 >= 2^63 reads back negative.
-			assertThat(unsignedView, equalTo(0xEFCDAB8967452301L));
-			assertThat(signedView, equalTo(unsignedView));
-			assertThat(unsignedView < 0L, equalTo(true));
+			// Assert: the full 64-bit pattern is returned.
+			assertThat(signedView, equalTo(0xEFCDAB8967452301L));
+			assertThat(signedView < 0L, equalTo(true));
+		}
+
+		@Test
+		void canPeek8ByteU64ReadsBackNegativeSigned() {
+			assertCanPeek8ByteU64ReadsBackNegative(true);
+		}
+
+		@Test
+		void canPeek8ByteU64ReadsBackNegativeUnsigned() {
+			assertCanPeek8ByteU64ReadsBackNegative(false);
 		}
 
 		@Test
