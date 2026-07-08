@@ -91,7 +91,7 @@ final class ConverterTest {
 	@Nested
 	final class HexToUint8 {
 		@Test
-		void canParseValidHexString() {
+		void canParseValidHexStringIntoArray() {
 			// Act:
 			final byte[] result = Converter.hexToUint8("026ee415fc15");
 
@@ -102,17 +102,17 @@ final class ConverterTest {
 		}
 
 		@Test
-		void cannotParseHexStringWithOddLength() {
+		void cannotParseHexStringWithInvalidSizeIntoArray() {
 			assertThrows(IllegalArgumentException.class, () -> Converter.hexToUint8("026ee415fc1"));
 		}
 
 		@Test
-		void cannotParseHexStringWithInvalidChar() {
+		void cannotParseHexStringWithInvalidCharactersIntoArray() {
 			assertThrows(IllegalArgumentException.class, () -> Converter.hexToUint8("026Ge415fc15"));
 		}
 
 		@Test
-		void canParseEmptyString() {
+		void canParseEmptyHexStringIntoArray() {
 			// Act:
 			final byte[] result = Converter.hexToUint8("");
 
@@ -146,7 +146,7 @@ final class ConverterTest {
 	@Nested
 	final class Uint8ToHex {
 		@Test
-		void canEncodeArbitraryBytes() {
+		void canFormatMultiValueArrayIntoHexString() {
 			// Act:
 			final String result = Converter.uint8ToHex(new byte[]{
 					0x02, 0x6e, (byte) 0xe4, 0x15, (byte) 0xfc, 0x15
@@ -157,7 +157,7 @@ final class ConverterTest {
 		}
 
 		@Test
-		void canEncodeEmptyArray() {
+		void canFormatEmptyArrayIntoHexString() {
 			// Act:
 			final String actual = Converter.uint8ToHex(new byte[0]);
 
@@ -166,7 +166,7 @@ final class ConverterTest {
 		}
 
 		@Test
-		void canEncodeSingleByte() {
+		void canFormatSingleValueArrayIntoHexString() {
 			// Act:
 			final String actual = Converter.uint8ToHex(new byte[]{
 					(byte) 0xFF
@@ -227,6 +227,14 @@ final class ConverterTest {
 		}
 
 		@Test
+		void readsUint64() {
+			// size 8 returns the raw little-endian 64-bit pattern (u64 max reads back as -1L)
+			assertReads(new byte[]{
+					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+			}, 8, false, -1L);
+		}
+
+		@Test
 		void readsInt8() {
 			assertReads(new byte[]{
 					(byte) 0xCD
@@ -245,14 +253,6 @@ final class ConverterTest {
 			assertReads(new byte[]{
 					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
 			}, 4, true, -1L);
-		}
-
-		@Test
-		void readsUint64() {
-			// size 8 returns the raw little-endian 64-bit pattern (u64 max reads back as -1L)
-			assertReads(new byte[]{
-					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
-			}, 8, false, -1L);
 		}
 
 		@Test
@@ -434,47 +434,17 @@ final class ConverterTest {
 		}
 	}
 
+	// region descriptor coercion (toLong / toInt)
+
 	@Nested
-	final class DescriptorCoercion {
+	final class ToLong {
+		// --- Number inputs ---
+
 		@Test
-		void toLongReturnsPrimitiveValueUnchanged() {
-			// Act + Assert: the long overload is an identity pass-through documenting the 64-bit-pattern contract.
+		void convertsFixedWidthIntegralWrappers() {
+			// Byte/Short/Integer/Long always fit 64 bits and are taken directly (incl. the -1L two's-complement pattern).
 			assertThat(Converter.toLong(42L), equalTo(42L));
 			assertThat(Converter.toLong(0L), equalTo(0L));
-			assertThat(Converter.toLong(-1L), equalTo(-1L));
-		}
-
-		@Test
-		void toLongParsesDecimalAndHexStringsAcrossFullU64() {
-			assertThat(Converter.toLong("255"), equalTo(255L));
-			assertThat(Converter.toLong("0xFF"), equalTo(255L));
-			assertThat(Converter.toLong("0X1a"), equalTo(26L));
-			assertThat(Converter.toLong("0x7FFFFFFFFFFFFFFF"), equalTo(Long.MAX_VALUE));
-			// the upper unsigned half (>= 2^63) parses to the negative two's-complement pattern; u64 max -> -1L
-			assertThat(Converter.toLong("18446744073709551615"), equalTo(-1L));
-			assertThat(Converter.toLong("0xFFFFFFFFFFFFFFFF"), equalTo(-1L));
-		}
-
-		@Test
-		void toLongStringAcceptsNegativeDecimalsLikeNumber() {
-			// a leading '-' is parsed signed, so toLong(String) accepts negatives like toLong(Number)
-			assertThat(Converter.toLong("-5"), equalTo(Converter.toLong(Long.valueOf(-5))));
-			assertThat(Converter.toLong(String.valueOf(Long.MIN_VALUE)), equalTo(Long.MIN_VALUE));
-			// a negative and its unsigned-u64 twin (2^64 - 5) are the same 64-bit pattern
-			assertThat(Converter.toLong("-5"), equalTo(Converter.toLong("18446744073709551611")));
-		}
-
-		@Test
-		void toLongRejectsUnparseableOrOversizedStrings() {
-			// Act + Assert: non-numeric text and values wider than 64 bits are rejected as invalid descriptors.
-			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("not-a-number"));
-			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("99999999999999999999999"));
-			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("-99999999999999999999999"));
-		}
-
-		@Test
-		void toLongConvertsFixedWidthIntegralWrappers() {
-			// Act + Assert: Integer/Long/Short/Byte always fit 64 bits and are taken directly.
 			assertThat(Converter.toLong(Integer.valueOf(42)), equalTo(42L));
 			assertThat(Converter.toLong(Short.valueOf((short) 7)), equalTo(7L));
 			assertThat(Converter.toLong(Byte.valueOf((byte) 8)), equalTo(8L));
@@ -482,70 +452,129 @@ final class ConverterTest {
 		}
 
 		@Test
-		void toLongRejectsUnsupportedNumberType() {
-			// Act + Assert: only the fixed-width integral wrappers are accepted; any other Number (e.g. a non-integral Double) is rejected.
+		void rejectsUnsupportedNumberType() {
+			// only the fixed-width integral wrappers are accepted; any other Number (e.g. a non-integral Double) is rejected.
 			assertThrows(IllegalArgumentException.class, () -> Converter.toLong(Double.valueOf(1.5)));
 		}
 
 		@Test
-		void toLongRejectsNull() {
-			// a null Number is rejected with the same IllegalArgumentException as any other non-integral type, not an NPE
+		void rejectsNull() {
+			// a null Number is rejected with the same IllegalArgumentException as any other non-integral type, not an NPE.
 			assertThrows(IllegalArgumentException.class, () -> Converter.toLong((Number) null));
 		}
 
+		// --- String inputs ---
+
 		@Test
-		void toIntConvertsValuesWithinIntRange() {
-			assertThat(Converter.toInt(Integer.valueOf(42)), equalTo(42));
-			assertThat(Converter.toInt(Short.valueOf((short) 255)), equalTo(255));
+		void decimalAcceptsFullUnsignedRange() {
+			// non-negative decimal reads the full unsigned u64 range; the upper half (>= 2^63) returns the two's-complement long.
+			assertThat(Converter.toLong("0"), equalTo(0L));
+			assertThat(Converter.toLong("255"), equalTo(255L));
+			assertThat(Converter.toLong("9223372036854775807"), equalTo(Long.MAX_VALUE)); // 2^63 - 1
+			assertThat(Converter.toLong("18446744073709551615"), equalTo(-1L)); // 2^64 - 1 -> -1L
 		}
 
 		@Test
-		void toIntNumberAcceptsUnsignedU32AndRejectsBeyond() {
-			// the signed int range and the full unsigned u32 range are accepted (the upper half returns the two's-complement int)
+		void hexAcceptsFullUnsignedRange() {
+			// hex reads the full unsigned u64 range; a set bit 63 returns the negative two's-complement long.
+			assertThat(Converter.toLong("0xFF"), equalTo(255L));
+			assertThat(Converter.toLong("0X1a"), equalTo(26L));
+			assertThat(Converter.toLong("0x7FFFFFFFFFFFFFFF"), equalTo(Long.MAX_VALUE));
+			assertThat(Converter.toLong("0xFFFFFFFFFFFFFFFF"), equalTo(-1L));
+		}
+
+		@Test
+		void stringAcceptsNegativeDecimalsLikeNumber() {
+			// a leading '-' is parsed signed, so toLong(String) accepts negatives like toLong(Number).
+			assertThat(Converter.toLong("-5"), equalTo(Converter.toLong(Long.valueOf(-5))));
+			assertThat(Converter.toLong(String.valueOf(Long.MIN_VALUE)), equalTo(Long.MIN_VALUE));
+			// a negative and its unsigned-u64 twin (2^64 - 5) are the same 64-bit pattern.
+			assertThat(Converter.toLong("-5"), equalTo(Converter.toLong("18446744073709551611")));
+		}
+
+		@Test
+		void rejectsUnparseableOrOversizedStrings() {
+			// non-numeric text and values wider than 64 bits are rejected as invalid descriptors.
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("not-a-number"));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("99999999999999999999999"));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong("-99999999999999999999999"));
+		}
+	}
+
+	@Nested
+	final class ToInt {
+		// --- Number inputs ---
+
+		@Test
+		void convertsFixedWidthIntegralWrappers() {
+			// Byte/Short/Integer within range are taken directly.
+			assertThat(Converter.toInt(Integer.valueOf(42)), equalTo(42));
+			assertThat(Converter.toInt(Short.valueOf((short) 255)), equalTo(255));
+			assertThat(Converter.toInt(Byte.valueOf((byte) 8)), equalTo(8));
+		}
+
+		@Test
+		void numberAcceptsUnsignedU32AndRejectsBeyond() {
+			// the signed int range and the full unsigned u32 range are accepted (the upper half returns the two's-complement int).
 			assertThat(Converter.toInt(Long.valueOf(0xFFFFFFFFL)), equalTo(-1));
 			assertThat(Converter.toInt(Long.valueOf(0x80000000L)), equalTo(Integer.MIN_VALUE));
-			// beyond 2^32-1, or below the signed int minimum, is rejected rather than truncated
+			// unlike toLong there is a width ceiling: beyond 2^32-1, or below the signed int minimum, is rejected not truncated.
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt(Long.valueOf(0x1_0000_0000L))); // 2^32
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt(Long.valueOf(Long.MAX_VALUE)));
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt(Long.valueOf(-3_000_000_000L)));
 		}
 
 		@Test
-		void toIntParsesAndRangeChecksStrings() {
-			assertThat(Converter.toInt("255"), equalTo(255));
-			assertThat(Converter.toInt("0xFF"), equalTo(255));
-			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("4294967296")); // beyond the unsigned 32-bit range
+		void rejectsUnsupportedNumberType() {
+			// only the fixed-width integral wrappers are accepted; any other Number (e.g. a non-integral Double) is rejected.
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt(Double.valueOf(1.5)));
 		}
 
 		@Test
-		void toIntParseRejectsMagnitudesStringsAboveUnsignedRange() {
-			// values beyond the unsigned 32-bit range are rejected, not truncated to a valid-looking int
+		void rejectsNull() {
+			// a null Number is rejected with the same IllegalArgumentException as any other non-integral type, not an NPE.
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt((Number) null));
+		}
+
+		// --- String inputs ---
+
+		@Test
+		void decimalAcceptsFullUnsignedRange() {
+			// non-negative decimal reads the full unsigned u32 range; the upper half returns the two's-complement int.
+			assertThat(Converter.toInt("0"), equalTo(0));
+			assertThat(Converter.toInt("255"), equalTo(255));
+			assertThat(Converter.toInt("2147483647"), equalTo(Integer.MAX_VALUE)); // 2^31 - 1
+			assertThat(Converter.toInt("2147483648"), equalTo(Integer.MIN_VALUE)); // 2^31 as unsigned decimal
+			assertThat(Converter.toInt("4294967295"), equalTo(-1)); // 2^32 - 1 as unsigned decimal
+		}
+
+		@Test
+		void hexAcceptsFullUnsignedRange() {
+			// hex reads the full unsigned u32 range; a set bit 31 returns the negative two's-complement int.
+			assertThat(Converter.toInt("0xFF"), equalTo(255));
+			assertThat(Converter.toInt("0x7FFFFFFF"), equalTo(Integer.MAX_VALUE));
+			assertThat(Converter.toInt("0x80000000"), equalTo(Integer.MIN_VALUE));
+			assertThat(Converter.toInt("0xFFFFFFFF"), equalTo(-1));
+		}
+
+		@Test
+		void stringAcceptsNegativeDecimalsLikeNumber() {
+			// a leading '-' is parsed signed, so toInt(String) accepts negatives like toInt(Number).
+			assertThat(Converter.toInt("-5"), equalTo(-5));
+			assertThat(Converter.toInt(String.valueOf(Integer.MIN_VALUE)), equalTo(Integer.MIN_VALUE));
+		}
+
+		@Test
+		void rejectsUnparseableOrOversizedStrings() {
+			// non-numeric text and values beyond the unsigned 32-bit range are rejected, not truncated to a valid-looking int.
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("not-a-number"));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("4294967296")); // 2^32
+			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0x100000000")); // 2^32
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("18446744073709551615")); // 2^64 - 1
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0xFFFFFFFFFFFFFFFF"));
 			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0xFFFFFFFF80000000"));
 		}
-
-		@Test
-		void toIntStringAcceptsFullUnsignedAndSignedRange() {
-			// mirrors toLong: a leading '-' parses signed; hex and non-negative decimal read the full unsigned u32 range, the
-			// upper half returning the two's-complement int
-			assertThat(Converter.toInt("-5"), equalTo(-5));
-			assertThat(Converter.toInt(String.valueOf(Integer.MIN_VALUE)), equalTo(Integer.MIN_VALUE));
-			assertThat(Converter.toInt(String.valueOf(Integer.MAX_VALUE)), equalTo(Integer.MAX_VALUE));
-			assertThat(Converter.toInt("2147483648"), equalTo(Integer.MIN_VALUE)); // 2^31 as unsigned decimal
-			assertThat(Converter.toInt("4294967295"), equalTo(-1)); // 2^32 - 1 as unsigned decimal
-			// beyond 2^32-1 is rejected
-			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("4294967296"));
-		}
-
-		@Test
-		void toIntHexAcceptsFullUnsignedRange() {
-			// hex reads the full unsigned u32 range; a set bit 31 returns the negative two's-complement int
-			assertThat(Converter.toInt("0x7FFFFFFF"), equalTo(Integer.MAX_VALUE));
-			assertThat(Converter.toInt("0x80000000"), equalTo(Integer.MIN_VALUE));
-			assertThat(Converter.toInt("0xFFFFFFFF"), equalTo(-1));
-			// beyond the unsigned 32-bit range is rejected
-			assertThrows(IllegalArgumentException.class, () -> Converter.toInt("0x100000000"));
-		}
 	}
+
+	// endregion
 }

@@ -306,7 +306,7 @@ final class ArrayHelpersTest {
 		}
 
 		@Test
-		void traitBasedReaderTests() {
+		void readsAllAvailableElements() {
 			runReadTraits(new int[]{
 					10, 11, 12, 13, 6
 			}, 52, List.of(new TaggedElement(10, 15), new TaggedElement(11, 25), new TaggedElement(12, 36), new TaggedElement(13, 48),
@@ -339,7 +339,7 @@ final class ArrayHelpersTest {
 		}
 
 		@Test
-		void traitBasedReaderTests() {
+		void readsAllAvailableElements() {
 			runReadTraits(new int[]{
 					10, 11, 12, 43, 79
 			}, 52, List.of(new TaggedElement(10, 15), new TaggedElement(11, 25), new TaggedElement(12, 36)),
@@ -488,7 +488,7 @@ final class ArrayHelpersTest {
 	@Nested
 	final class WriteArray {
 		@Test
-		void traitBasedWriterTests() {
+		void writesAllElements() {
 			// Arrange:
 			final byte[] expected = expectedSerializedSlice(makeDefaultElements(), 5);
 
@@ -541,7 +541,7 @@ final class ArrayHelpersTest {
 	@Nested
 	final class WriteArrayCount {
 		@Test
-		void traitBasedWriterTests() {
+		void writesAllElements() {
 			// Arrange:
 			final byte[] expected = expectedSerializedSlice(makeDefaultElements(), 3);
 

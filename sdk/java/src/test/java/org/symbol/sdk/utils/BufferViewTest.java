@@ -56,21 +56,21 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void canShiftBy0() {
+		void canShiftSubviewBy0() {
 			assertShiftRightYields(0, new byte[]{
 					2, 3, 4, 5, 6
 			});
 		}
 
 		@Test
-		void canShiftBy1() {
+		void canShiftSubviewBy1() {
 			assertShiftRightYields(1, new byte[]{
 					3, 4, 5, 6
 			});
 		}
 
 		@Test
-		void canShiftByMoreThan1() {
+		void canShiftSubviewByMoreThan1() {
 			assertShiftRightYields(3, new byte[]{
 					5, 6
 			});
@@ -97,7 +97,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void cannotShiftPastBuffer() {
+		void cannotShiftOutsideSubviewSingleShift() {
 			assertShiftRightThrows(6);
 		}
 

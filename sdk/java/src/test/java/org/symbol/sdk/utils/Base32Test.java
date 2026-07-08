@@ -112,12 +112,41 @@ final class Base32Test {
 		}
 
 		@Test
-		void throwsIfInputContainsIllegalChar() {
+		void throwsIfInputContainsInvalidCharacter() {
 			// Act:
 			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Base32.decode("AAA1AAAA"));
 
 			// Assert:
 			assertThat(ex.getMessage(), containsString("illegal base32 character"));
+		}
+	}
+
+	@Nested
+	final class Roundtrip {
+		@Test
+		void decodeToEncode() {
+			for (final String input : new String[]{
+					"BDS73DQ5NC33MKYI3K6GXLJ53C2HJ35A", "46FNYP7T4DD3SWAO6C4NX62FJI5CBA26"
+			}) {
+				// Act:
+				final String value = Base32.encode(Base32.decode(input));
+
+				// Assert:
+				assertThat("input " + input, value, equalTo(input));
+			}
+		}
+
+		@Test
+		void encodeToDecode() {
+			for (final String input : new String[]{
+					"8A4E7DF5B61CC0F97ED572A95F6ACA", "2D96E4ABB65F0AD3C29FEA48C132CE"
+			}) {
+				// Act:
+				final String value = Converter.uint8ToHex(Base32.decode(Base32.encode(Converter.hexToUint8(input))));
+
+				// Assert:
+				assertThat("input " + input, value, equalTo(input));
+			}
 		}
 	}
 
