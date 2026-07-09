@@ -2,10 +2,10 @@
 
 ## Modules
 
-- [index](index/README.md)
-- [Bip32](Bip32/README.md)
-- [Network](Network/README.md)
-- [NetworkTimestamp](NetworkTimestamp/README.md)
-- [symbol](symbol/README.md)
-- [symbol/merkle](symbol/merkle/README.md)
-- [symbol/MessageEncoder](symbol/MessageEncoder/README.md)
+- [index](README-1.md)
+- [Bip32](Bip32.md)
+- [Network](Network.md)
+- [NetworkTimestamp](NetworkTimestamp.md)
+- [symbol](symbol.md)
+- [symbol/merkle](symbol/merkle.md)
+- [symbol/MessageEncoder](symbol/MessageEncoder.md)

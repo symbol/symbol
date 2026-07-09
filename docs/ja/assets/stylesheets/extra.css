@@ -23,6 +23,16 @@
 	--textbook-color--transparent: #7000DF20;
 	--example-admonition-color: #4CAF50;
 	--example-admonition-color--transparent: #4CAF5020;
+
+	/* Scalar REST API reference */
+	--scalar-font-size: 0.8rem;
+	--scalar-small-font-size: 0.7rem;
+	--scalar-font: var(--scalar-font-size);
+	--scalar-font-size-3: var(--scalar-small-font-size);
+	--scalar-font-size-4: var(--scalar-small-font-size);
+	--scalar-small: var(--scalar-small-font-size);
+	--scalar-micro: var(--scalar-small-font-size);
+	--scalar-mini: var(--scalar-small-font-size);
 }
 
 [data-md-color-scheme=slate][data-md-color-primary=indigo] {
@@ -275,6 +285,19 @@ aside.md-source-file {
 	margin-right: 36px;
 }
 
+/* Colors for zoomed-in images */
+.gslide-desc a {
+	color: var(--md-typeset-a-color);
+}
+
+.gslide-desc a:hover {
+	color: var(--md-accent-fg-color);
+}
+
+.gslide-desc code {
+	background: var(--md-code-bg-color);
+}
+
 /* Links to other sections use the color of that section */
 .md-content a[href*="userbook"][href^='..'],
 .gslide-desc a[href*="userbook"][href^='..'] {
@@ -502,6 +525,21 @@ code.doc-symbol-interface::after {
 	margin-left: 1em;
 }
 
+.md-typeset .tutorial.tutorial-portrait img {
+	width: 25%;
+	outline: 1px solid var(--md-default-bg-color--light);
+}
+
+.md-typeset img.tutorial-result {
+	width: 50%;
+	outline: 1px solid var(--md-default-bg-color--light);
+}
+
+.md-typeset a.glightbox:has(img.tutorial-result) {
+	display: block;
+	text-align: center;
+}
+
 .md-typeset .tutorial td {
 	padding: 1em;
 	border-top: 1px solid var(--md-default-bg-color--light);
@@ -675,6 +713,13 @@ code.doc-symbol-interface::after {
 	padding: 0 10px;
 }
 
+.md-typeset h1:has(+ .tutorial_level-container) {
+	margin-bottom: 0.5rem;
+}
+.md-typeset .tutorial_level-container {
+	margin: 0 0 1.2em;
+}
+
 [data-md-color-scheme=slate] .md-typeset .tutorial_level-beginner {
 	background-color: #1F7A3E;
 	color: #B6F2C8;
@@ -711,4 +756,18 @@ code.doc-symbol-interface::after {
 .md-typeset .language-cats .nt {
 	font-style: italic;
 	color: var(--md-code-hl-generic-color);
+}
+
+/* Scalar REST API reference */
+.scalar-app {
+	font-size: 0.8rem;
+}
+
+.light-mode:has(.scalar-app) {
+	--scalar-color-accent: var(--devbook-color--dark);
+}
+
+.dark-mode:has(.scalar-app) {
+	--scalar-background-1: var(--md-default-bg-color);
+	--scalar-color-accent: var(--devbook-color);
 }
