@@ -259,7 +259,7 @@ digraph RewardDistribution {
         すべての高額アカウントの指定回数に対する割合として示します。
 
     これらのスコアがどのように組み合わされてインポータンススコアになるかの詳細は、
-    [Symbol ホワイトペーパー](site:/assets/pdfs/SymbolWhitepaper.pdf) のセクション14.1を参照してください。
+    [Symbol ホワイトペーパー](site:assets/pdfs/SymbolWhitepaper.pdf) のセクション14.1を参照してください。
 
 !!! note "メモ"
 

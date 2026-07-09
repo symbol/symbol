@@ -2,7 +2,7 @@
 
 !!! image inline end ""
 
-    ![Catapult](site:/assets/images/catapult.png){.off-glb .invertible}
+    ![Catapult](site:assets/images/catapult.png){.off-glb .invertible}
 
 Catapult
 :   Symbol の各 [ノード](default:ノード) の中核を担うソフトウェアクライアントのリファレンス実装です。

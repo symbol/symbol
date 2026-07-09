@@ -180,7 +180,7 @@ digraph "M-of-N Multisignature" {
         そのアカウントがハーベスティング受取アカウントとして指定された回数の割合です。
 
     これらのスコアをどのように組み合わせてインポータンススコアを生成するかの詳細は、
-    [Symbol ホワイトペーパー](site:/assets/pdfs/SymbolWhitepaper.pdf) の 14.1 節を参照してください。
+    [Symbol ホワイトペーパー](site:assets/pdfs/SymbolWhitepaper.pdf) の 14.1 節を参照してください。
 
 !!! note "メモ"
 
