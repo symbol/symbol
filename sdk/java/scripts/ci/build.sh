@@ -2,4 +2,4 @@
 
 set -ex
 
-./gradlew build -x test
+./gradlew --no-daemon assemble
