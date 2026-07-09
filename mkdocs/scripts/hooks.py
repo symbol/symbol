@@ -467,7 +467,7 @@ def page_markdown_rest(content, page, config, in_files):
 		summary = spec['summary']
 		result = (
 			f'[`{path}`&nbsp;`{method.upper()}`{{.rest-method .rest-method-{method}}}]'
-			f'(site:/devbook/reference/rest/symbol#tag/{spec['tags'][0].replace(' ', '_')}/{spec['operationId']} "{summary}")'
+			f'(site:devbook/reference/rest/symbol#tag/{spec['tags'][0].replace(' ', '_')}/{spec['operationId']} "{summary}")'
 		)
 		return result
 
