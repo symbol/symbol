@@ -4,259 +4,579 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.function.Function;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-public class BufferViewTest {
-	// region constructor
-
-	@Test
-	public void canCreateBufferViewFromByteArray() {
-		// Arrange:
-		final byte[] byteArray = {
-				0, 1, 2, 3, 4, 5, 6
-		};
-
-		// Act:
-		final BufferView view = BufferView.wrap(byteArray);
-
-		// Assert:
-		assertThat(view.getBufferContent(), equalTo(new byte[]{
-				0, 1, 2, 3, 4, 5, 6
-		}));
-	}
-
-	@Test
-	public void canCreateBufferViewFromEmptyByteArray() {
-		// Arrange:
-		final byte[] byteArray = {};
-
-		// Act:
-		final BufferView view = BufferView.wrap(byteArray);
-
-		// Assert:
-		assertThat(view.getBufferContent(), equalTo(new byte[]{}));
-	}
-
-	@Test
-	public void canCreateBufferViewFromBuffer() {
-		// Arrange:
-		final byte[] byteArray = {
-				0, 1, 2, 3, 4, 5, 6
-		};
-		final ByteBuffer buffer = ByteBuffer.wrap(byteArray);
-
-		// Act:
-		final BufferView view = BufferView.wrap(buffer);
-
-		// Assert:
-		assertThat(view.getBufferContent(), equalTo(new byte[]{
-				0, 1, 2, 3, 4, 5, 6
-		}));
-	}
-
-	// endregion
-
-	// region shiftRight
-
-	static class TestContext {
-		final byte[] byteArray = {
-				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
-		};
-		final ByteBuffer subView = ByteBuffer.wrap(byteArray, 2, 5);
-		final BufferView view = BufferView.wrap(subView);
-		final ByteBuffer slice = subView.slice();
-		final byte[] sliceArray = slice.array();
-		final ByteBuffer duplicate = subView.duplicate();
-	}
-
-	void assertShift(final int shiftCount, final byte[] expectedBuffer) {
-		// Arrange:
-		final TestContext context = new TestContext();
-
-		// Act:
-		context.view.shiftRight(shiftCount);
-		final byte[] result = context.view.getBufferContent();
-
-		// Assert:
-		assertThat(result, equalTo(expectedBuffer));
-
-		// - underlying buffer is the same
-		assertThat(context.view.getBuffer().array(), equalTo(context.byteArray));
-		byte[] newArray = Arrays.copyOfRange(context.byteArray, 2 + shiftCount, 2 + 5);
-		assertThat(newArray, equalTo(result));
-	};
-
-	@Test
-	public void canShiftZero() {
-		assertShift(0, new byte[]{
+final class BufferViewTest {
+	// a fresh view over the five bytes {2, 3, 4, 5, 6} (offset 0, length 5)
+	private static BufferView newView() {
+		return new BufferView(new byte[]{
 				2, 3, 4, 5, 6
 		});
 	}
 
 	@Test
-	public void canShiftOne() {
-		assertShift(1, new byte[]{
-				3, 4, 5, 6
-		});
-	}
-
-	@Test
-	public void canShiftByMoreThanOne() {
-		assertShift(3, new byte[]{
-				5, 6
-		});
-	}
-
-	@Test
-	public void canShiftToEnd() {
-		assertShift(5, new byte[0]);
-	}
-
-	@Test
-	public void canDoMultipleShifts() {
+	void canCreateAroundWholeBuffer() {
 		// Arrange:
-		final TestContext context = new TestContext();
+		final byte[] bytes = {
+				0, 1, 2, 3, 4, 5, 6
+		};
 
 		// Act:
-		context.view.shiftRight(2);
-		context.view.shiftRight(2);
-		final byte[] result = context.view.getBufferContent();
+		final BufferView view = new BufferView(bytes);
 
 		// Assert:
-		assertThat(result, equalTo(new byte[]{
-				6
-		}));
-
-		// - underlying buffer is the same
-		assertThat(context.view.getBuffer().array(), equalTo(context.byteArray));
-		byte[] newArray = Arrays.copyOfRange(context.byteArray, 2 + 4, 2 + 5);
-		assertThat(newArray, equalTo(result));
+		assertThat(view.peekBytes(view.length()), equalTo(bytes));
+		assertThat(view.length(), equalTo(7));
 	}
 
-	@Test
-	public void cannotShiftOutSideView() {
-		// Arrange:
-		final TestContext context = new TestContext();
+	// region ShiftRight
 
-		// Act + Assert:
-		final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> context.view.shiftRight(6));
-		assertThat(exception.getMessage(), equalTo("size cannot be greater than the remaining bytes"));
-	}
+	@Nested
+	final class ShiftRight {
+		private static void assertShiftRightYields(final int shift, final byte[] expected) {
+			// Arrange:
+			final BufferView view = newView();
+			final int originalLength = view.length();
 
-	@Test
-	public void cannotShiftOutSideViewWithMultipleShifts() {
-		// Arrange:
-		final TestContext context = new TestContext();
-		context.view.shiftRight(4);
+			// Act:
+			view.shiftRight(shift);
 
-		// Act + Assert:
-		final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> context.view.shiftRight(2));
-		assertThat(exception.getMessage(), equalTo("size cannot be greater than the remaining bytes"));
+			// Assert:
+			assertThat(view.peekBytes(view.length()), equalTo(expected));
+			assertThat(originalLength - shift, equalTo(view.length()));
+		}
+
+		private static void assertShiftRightThrows(final int shift) {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act + Assert:
+			assertThrows(IndexOutOfBoundsException.class, () -> view.shiftRight(shift));
+		}
+
+		@Test
+		void canShiftSubviewBy0() {
+			assertShiftRightYields(0, new byte[]{
+					2, 3, 4, 5, 6
+			});
+		}
+
+		@Test
+		void canShiftSubviewBy1() {
+			assertShiftRightYields(1, new byte[]{
+					3, 4, 5, 6
+			});
+		}
+
+		@Test
+		void canShiftSubviewByMoreThan1() {
+			assertShiftRightYields(3, new byte[]{
+					5, 6
+			});
+		}
+
+		@Test
+		void canShiftByWholeSubview() {
+			assertShiftRightYields(5, new byte[0]);
+		}
+
+		@Test
+		void canDoMultipleShifts() {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act:
+			view.shiftRight(2);
+			view.shiftRight(2);
+
+			// Assert:
+			assertThat(view.peekBytes(view.length()), equalTo(new byte[]{
+					6
+			}));
+		}
+
+		@Test
+		void cannotShiftOutsideSubviewSingleShift() {
+			assertShiftRightThrows(6);
+		}
+
+		@Test
+		void cannotShiftNegative() {
+			assertShiftRightThrows(-1);
+		}
 	}
 
 	// endregion
 
-	// region window
+	// region Window
 
-	void assertModifyTest(final Function<BufferView, BufferView> mutator, final byte[] expected, final int newSize) {
-		// Arrange:
-		final TestContext context = new TestContext();
+	@Nested
+	final class Window {
+		private static void assertWindowThrows(final int size) {
+			// Arrange:
+			final BufferView view = newView();
 
-		// Act:
-		final byte[] result = mutator.apply(context.view).getBufferContent();
+			// Act + Assert:
+			assertThrows(IndexOutOfBoundsException.class, () -> view.window(size));
+		}
 
-		// Assert:
-		assertThat(result, equalTo(expected));
+		@Test
+		void createsSubview() {
+			// Arrange:
+			final BufferView view = newView();
 
-		// - underlying buffer is the same
-		byte[] newArray = Arrays.copyOfRange(context.byteArray, 2, 2 + newSize);
-		assertThat(newArray, equalTo(result));
-	};
+			// Act:
+			final BufferView window = view.window(3);
 
-	void assertWindowedBuffer(final int newSize, final byte[] expectedBuffer) {
-		assertModifyTest(view -> view.window(newSize), expectedBuffer, newSize);
-	};
+			// Assert: zero-copy and rebased — the window exposes the first 3 bytes starting at its own first byte.
+			assertThat(window.length(), equalTo(3));
+			assertThat(window.peekBytes(window.length()), equalTo(new byte[]{
+					2, 3, 4
+			}));
+		}
 
-	@Test
-	public void canCreateSubview() {
-		assertWindowedBuffer(3, new byte[]{
-				2, 3, 4
-		});
-	}
+		@Test
+		void sharesBackingWithoutCopying() {
+			// Arrange:
+			final byte[] backing = {
+					2, 3, 4, 5, 6
+			};
+			final BufferView view = new BufferView(backing);
+			final BufferView window = view.window(3);
 
-	@Test
-	public void canCreateNonShrinkingSubview() {
-		assertWindowedBuffer(5, new byte[]{
-				2, 3, 4, 5, 6
-		});
-	}
+			// Act: mutate the source array after the window exists.
+			backing[0] = 99;
 
-	@Test
-	public void cannotCreateGrowingSubview() {
-		// Arrange:
-		final TestContext context = new TestContext();
+			// Assert: the window observes the mutation, proving it reads the same storage rather than a copy.
+			assertThat(window.peekBytes(1), equalTo(new byte[]{
+					99
+			}));
+		}
 
-		// Act + Assert:
-		final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> context.view.window(6));
-		assertThat(exception.getMessage(), equalTo("size cannot be greater than the remaining bytes"));
-	}
+		@Test
+		void canCreateNonShrinkingSubview() {
+			// Arrange:
+			final BufferView view = newView();
 
-	@Test
-	public void cannotCreateNegativeSubview() {
-		// Arrange:
-		final TestContext context = new TestContext();
+			// Act:
+			final BufferView window = view.window(5);
 
-		// Act + Assert:
-		final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> context.view.window(-1));
-		assertThat(exception.getMessage(), equalTo("size cannot be negative"));
+			// Assert:
+			assertThat(window.peekBytes(5), equalTo(new byte[]{
+					2, 3, 4, 5, 6
+			}));
+		}
+
+		@Test
+		void canCreateShrinkingSubview() {
+			// Arrange:
+			final BufferView view = newView();
+			view.shiftRight(2);
+
+			// Act:
+			final BufferView window = view.window(2);
+
+			// Assert: the window is rebased — reads start at its first byte regardless of where it sits in the backing.
+			assertThat(window.length(), equalTo(2));
+			assertThat(window.peekBytes(2), equalTo(new byte[]{
+					4, 5
+			}));
+		}
+
+		@Test
+		void canCreateZeroSizeWindow() {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act:
+			final BufferView window = view.window(0);
+
+			// Assert:
+			assertThat(window.peekBytes(0), equalTo(new byte[]{}));
+		}
+
+		@Test
+		void cannotCreateGrowingSubview() {
+			assertWindowThrows(6);
+		}
+
+		@Test
+		void cannotCreateNegativeSizeWindow() {
+			assertWindowThrows(-1);
+		}
 	}
 
 	// endregion
 
-	// region shrink
+	// region Snapshot
 
-	void assertShrink(final int newSize, final byte[] expectedBuffer) {
-		assertModifyTest(view -> {
-			view.shrink(newSize);
-			return view;
-		}, expectedBuffer, newSize);
+	@Nested
+	final class Snapshot {
+		@Test
+		void copiesCurrentWindow() {
+			// Arrange:
+			final BufferView view = newView();
+			view.shiftRight(1);
+
+			// Act:
+			final BufferView snapshot = view.snapshot();
+
+			// Assert: rebased copy of the source's current window — same length and bytes.
+			assertThat(snapshot.length(), equalTo(view.length()));
+			assertThat(snapshot.peekBytes(snapshot.length()), equalTo(new byte[]{
+					3, 4, 5, 6
+			}));
+			assertThat(view.peekBytes(snapshot.length()), equalTo(new byte[]{
+					3, 4, 5, 6
+			}));
+		}
+
+		@Test
+		void sharesBackingWithoutCopying() {
+			// Arrange:
+			final byte[] backing = {
+					2, 3, 4, 5, 6
+			};
+			final BufferView view = new BufferView(backing);
+			final BufferView snapshot = view.snapshot();
+
+			// Act: mutate the source array after the window exists.
+			backing[0] = 99;
+
+			// Assert: the window observes the mutation, proving it reads the same storage rather than a copy.
+			assertThat(snapshot.peekBytes(1), equalTo(new byte[]{
+					99
+			}));
+		}
+
+		@Test
+		void isIndependentOfTheSource() {
+			// Arrange:
+			final BufferView view = newView();
+			final BufferView snapshot = view.snapshot();
+
+			// Act: advancing the snapshot must not move the source.
+			snapshot.shiftRight(2);
+
+			// Assert: the source still sees all five bytes; only the snapshot advanced.
+			assertThat(view.length(), equalTo(5));
+			assertThat(view.peekBytes(view.length()), equalTo(new byte[]{
+					2, 3, 4, 5, 6
+			}));
+			assertThat(snapshot.peekBytes(snapshot.length()), equalTo(new byte[]{
+					4, 5, 6
+			}));
+		}
 	}
 
-	@Test
-	public void canShrinkSubview() {
-		assertShrink(3, new byte[]{
-				2, 3, 4
-		});
+	// endregion
+
+	// region PeekBytes
+
+	@Nested
+	final class PeekBytes {
+		private static void assertPeekBytesThrows(final int size) {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act + Assert:
+			assertThrows(IndexOutOfBoundsException.class, () -> view.peekBytes(size));
+		}
+
+		@Test
+		void canCopyLeadingBytesWithoutAdvancing() {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act:
+			final byte[] bytes = view.peekBytes(3);
+
+			// Assert: the first 3 bytes are copied and the position is unchanged
+			assertThat(bytes, equalTo(new byte[]{
+					2, 3, 4
+			}));
+			assertThat(view.length(), equalTo(5));
+		}
+
+		@Test
+		void canPeekZeroBytes() {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act:
+			final byte[] actual = view.peekBytes(0);
+
+			// Assert:
+			assertThat(actual, equalTo(new byte[]{}));
+		}
+
+		@Test
+		void canPeekWholeWindow() {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act:
+			final byte[] actual = view.peekBytes(5);
+
+			// Assert:
+			assertThat(actual, equalTo(new byte[]{
+					2, 3, 4, 5, 6
+			}));
+		}
+
+		@Test
+		void cannotPeekPastRemaining() {
+			assertPeekBytesThrows(6);
+		}
+
+		@Test
+		void cannotPeekNegativeSize() {
+			assertPeekBytesThrows(-1);
+		}
 	}
 
-	@Test
-	public void canShrinkNonShrinkingSubview() {
-		assertShrink(5, new byte[]{
-				2, 3, 4, 5, 6
-		});
+	// endregion
+
+	// region Shrink
+
+	@Nested
+	final class Shrink {
+		private static void assertShrinkYields(final int size, final byte[] expected) {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act:
+			view.shrink(size);
+
+			// Assert:
+			assertThat(view.peekBytes(view.length()), equalTo(expected));
+			assertThat(view.length(), equalTo(size));
+		}
+
+		private static void assertShrinkThrows(final int size) {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act + Assert:
+			assertThrows(IndexOutOfBoundsException.class, () -> view.shrink(size));
+		}
+
+		@Test
+		void canCreateSubview() {
+			assertShrinkYields(3, new byte[]{
+					2, 3, 4
+			});
+		}
+
+		@Test
+		void canCreateNonShrinkingSubview() {
+			assertShrinkYields(5, new byte[]{
+					2, 3, 4, 5, 6
+			});
+		}
+
+		@Test
+		void canShrinkToZero() {
+			assertShrinkYields(0, new byte[]{});
+		}
+
+		@Test
+		void canShrinkAfterShift() {
+			// Arrange:
+			final BufferView view = newView();
+			view.shiftRight(3);
+
+			// Act:
+			view.shrink(2);
+
+			// Assert: shrink rebases and bounds the window to the two bytes at the shifted position.
+			assertThat(view.length(), equalTo(2));
+			assertThat(view.peekBytes(view.length()), equalTo(new byte[]{
+					5, 6
+			}));
+		}
+
+		@Test
+		void cannotCreateGrowingSubview() {
+			assertShrinkThrows(6);
+		}
+
+		@Test
+		void cannotShrinkNegative() {
+			assertShrinkThrows(-1);
+		}
 	}
 
-	@Test
-	public void cannotShrinkSubview() {
-		// Arrange:
-		final TestContext context = new TestContext();
+	// endregion
 
-		// Act + Assert:
-		final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> context.view.window(6));
-		assertThat(exception.getMessage(), equalTo("size cannot be greater than the remaining bytes"));
-	}
+	// region PeekInt
 
-	@Test
-	public void cannotShrinkNegativeSubview() {
-		// Arrange:
-		final TestContext context = new TestContext();
+	@Nested
+	final class PeekInt {
+		private void assertPeekInt(final byte[] bytes, final int size, final boolean signed, final long expected) {
+			// Act:
+			final long value = new BufferView(bytes).peekInt(size, signed);
 
-		// Act + Assert:
-		final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> context.view.window(-1));
-		assertThat(exception.getMessage(), equalTo("size cannot be negative"));
+			// Assert:
+			assertThat(value, equalTo(expected));
+		}
+
+		private void assertCannotPeekByteInt(final int size) {
+			// Arrange:
+			final BufferView view = new BufferView(new byte[]{
+					0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09
+			});
+
+			// Act + Assert:
+			assertThrows(IllegalArgumentException.class, () -> view.peekInt(size, false));
+		}
+
+		@Test
+		void canPeek1ByteUnsigned() {
+			assertPeekInt(new byte[]{
+					(byte) 0xFF, 0x01, 0x02
+			}, 1, false, 255L);
+		}
+
+		@Test
+		void canPeek1ByteSigned() {
+			assertPeekInt(new byte[]{
+					(byte) 0xFF, 0x01, 0x02
+			}, 1, true, -1L);
+		}
+
+		@Test
+		void canPeek2ByteUnsigned() {
+			assertPeekInt(new byte[]{
+					0x34, 0x12, 0x00
+			}, 2, false, 0x1234L);
+		}
+
+		@Test
+		void canPeek2ByteSigned() {
+			assertPeekInt(new byte[]{
+					(byte) 0xFF, (byte) 0xFF, 0x00
+			}, 2, true, -1L);
+		}
+
+		@Test
+		void canPeek4ByteUnsigned() {
+			assertPeekInt(new byte[]{
+					0x78, 0x56, 0x34, 0x12, 0x00
+			}, 4, false, 0x12345678L);
+		}
+
+		@Test
+		void canPeek4ByteSigned() {
+			assertPeekInt(new byte[]{
+					(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00
+			}, 4, true, -1L);
+		}
+
+		void assertCanPeek8ByteU64ReadsBackNegative(final boolean isSigned) {
+			// Arrange: a u64 >= 2^63 (most-significant byte 0xEF) laid out little-endian.
+			final BufferView view = new BufferView(new byte[]{
+					0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF, 0x00
+			});
+
+			// Act:
+			final long signedView = view.peekInt(8, isSigned);
+
+			// Assert: the full 64-bit pattern is returned.
+			assertThat(signedView, equalTo(0xEFCDAB8967452301L));
+			assertThat(signedView < 0L, equalTo(true));
+		}
+
+		@Test
+		void canPeek8ByteU64ReadsBackNegativeSigned() {
+			assertCanPeek8ByteU64ReadsBackNegative(true);
+		}
+
+		@Test
+		void canPeek8ByteU64ReadsBackNegativeUnsigned() {
+			assertCanPeek8ByteU64ReadsBackNegative(false);
+		}
+
+		@Test
+		void canPeekWithoutAdvance() {
+			// Arrange:
+			final BufferView view = new BufferView(new byte[]{
+					0x12, 0x34
+			});
+
+			// Act:
+			final long value1 = view.peekInt(1, false);
+			final long value2 = view.peekInt(1, false);
+
+			// Assert:
+			assertThat(value1, equalTo(value2));
+			assertThat(view.length(), equalTo(2));
+		}
+
+		@Test
+		void canPeekAfterShift() {
+			// Arrange:
+			final BufferView view = new BufferView(new byte[]{
+					(byte) 0xFF, 0x34, 0x12
+			});
+			view.shiftRight(1);
+
+			// Act:
+			final long value = view.peekInt(2, false);
+
+			// Assert:
+			assertThat(value, equalTo(0x1234L));
+		}
+
+		@Test
+		void cannotPeek3ByteInt() {
+			assertCannotPeekByteInt(3);
+		}
+
+		@Test
+		void cannotPeek5ByteInt() {
+			assertCannotPeekByteInt(5);
+		}
+
+		@Test
+		void cannotPeek9ByteInt() {
+			assertCannotPeekByteInt(9);
+		}
+
+		@Test
+		void cannotPeekZeroSizeInt() {
+			assertCannotPeekByteInt(0);
+		}
+
+		@Test
+		void cannotPeekIntPastRemaining() {
+			// Arrange: a valid width (8) larger than the available bytes.
+			final BufferView view = new BufferView(new byte[]{
+					0x01, 0x02, 0x03, 0x04
+			});
+
+			// Act + Assert: the window bounds check fires before the read (clear message, not a raw ByteBuffer error).
+			assertThrows(IndexOutOfBoundsException.class, () -> view.peekInt(8, false));
+		}
+
+		@Test
+		void canPeekAtDifferentPositions() {
+			// Arrange:
+			final BufferView view = new BufferView(new byte[]{
+					0x11, 0x22, 0x33, 0x44
+			});
+			view.shiftRight(1);
+
+			// Act:
+			final long value1 = view.peekInt(1, false);
+			view.shiftRight(1);
+			final long value2 = view.peekInt(1, false);
+
+			// Assert:
+			assertThat(value1, equalTo(0x22L));
+			assertThat(value2, equalTo(0x33L));
+		}
 	}
 
 	// endregion

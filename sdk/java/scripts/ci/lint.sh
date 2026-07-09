@@ -2,4 +2,4 @@
 
 set -ex
 
-./gradlew spotlessCheck
+./gradlew --no-daemon spotlessCheck
