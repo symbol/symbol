@@ -26,7 +26,7 @@ The rest of the process, including signing and announcing the transaction, remai
     --8<-- "devbook/transactions/transfer.typed.mjs:41:55"
     ```
 
-    [Download the full tutorial code.]({{ config.repo_url }}/raw/refs/heads/{{config.extra.symbol.branch}}/mkdocs/overrides/devbook/transactions/transfer.typed.mjs){ .source-link }
+    [Download the full tutorial code.]({{ config.repo_url }}/raw/refs/heads/{{config.extra.symbol.branch}}/mkdocs/snippets/devbook/transactions/transfer.typed.mjs){ .source-link }
 
 ## Creation Process
 

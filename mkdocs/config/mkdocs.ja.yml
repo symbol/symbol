@@ -4,7 +4,7 @@ site_name: Symbolドキュメント WIP ⚠
 site_url: https://docs.symboltest.net/ja
 docs_dir: ../pages/ja
 site_dir: ../../docs/ja
-edit_uri: blob/new-docs/mkdocs/pages/ja
+edit_uri: blob/dev/mkdocs/pages/ja
 plugins:
   search:
     lang: ja

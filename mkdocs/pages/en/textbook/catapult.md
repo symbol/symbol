@@ -2,7 +2,7 @@
 
 !!! image inline end ""
 
-    ![Catapult](site:/assets/images/catapult.png){.off-glb .invertible}
+    ![Catapult](site:assets/images/catapult.png){.off-glb .invertible}
 
 Catapult
 :   The reference implementation for the software client at the core of every Symbol <node:>.

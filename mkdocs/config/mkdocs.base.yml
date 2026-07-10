@@ -122,7 +122,7 @@ extra:
       link: /ja/
       lang: ja
   symbol:
-    branch: new-docs
+    branch: dev
     java-sdk:
       include-prefixes: [classorg, interfaceorg]
     ts-sdk:
