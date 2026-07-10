@@ -1520,6 +1520,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mobile-wallet/check-transaction-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checking Transaction History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -12922,11 +12950,11 @@ In summary:</p>
 <li><code>API</code>: The node exposes an API for client applications.</li>
 <li><code>HARVESTER</code>: The node participates in block creation and is eligible for <a class="mkdocs-ezglossary-link" id="6106df97454b75dbd6b78797d22ab9e7" title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS." name="_:Harvesting" href="../../../textbook/harvesting/#4da2a5a68444f540bbf5e10a08b085e4">harvesting</a> rewards.
-    A minimum of 10'000 <a class="mkdocs-ezglossary-link" id="3d3075d49013b8de349a1a51e2245ffd" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> is required.
+    A minimum of 10'000 <a class="mkdocs-ezglossary-link" id="fa488930b10bd9c0b47a7dc51c343341" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> is required.
     See <a href="#configure-harvesting-optional">Configure Harvesting</a> below.</li>
 <li><code>VOTER</code>: The node participates in <a class="mkdocs-ezglossary-link" id="82def6892907ff1ece591e044f2bad4d" title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
 rollbacks." name="_:Finalization" href="../../../textbook/consensus/#8fe31d7fd591e1fd0d06f55c2ea53850">finalization</a>.
-    A minimum of 3'000'000 <a class="mkdocs-ezglossary-link" id="fa488930b10bd9c0b47a7dc51c343341" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> is required.
+    A minimum of 3'000'000 <a class="mkdocs-ezglossary-link" id="838e4a85d05dd26ad75f336f141d32fc" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> is required.
     See <a href="#configure-voting-optional">Configure Voting</a> below.</li>
 </ul>
 </li>
@@ -12980,7 +13008,7 @@ then define the desired properties below it.</p>
 <p><code>config.ini</code> configures Shoestring itself, while <code>overrides.ini</code> customizes the generated node software.</p>
 <h3 id="5-create-the-node-identity">5. Create the Node Identity<a class="headerlink" href="#5-create-the-node-identity" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Each node requires a cryptographic identity for secure communication with other nodes.
-At the heart of this identity is a <a class="mkdocs-ezglossary-link" id="99865007d899a7bebfd0dec8efb0b841" title="A very long, secret number.
+At the heart of this identity is a <a class="mkdocs-ezglossary-link" id="4196713f5aba1ba922b5d976a0cb9749" title="A very long, secret number.
 The actual value of the private key is meaningless, and it is meant to be kept secret.
 It should be impossible to guess by unauthorized parties, and, although it is commonly randomly-generated,
 it is extremely unlikely that the same number is generated twice by chance." name="_:Private Key" href="../../../textbook/cryptography/#890b9584bd9860118fc3d58c24a6dbd9">private key</a>, which corresponds to the node's <a class="mkdocs-ezglossary-link" id="b298d2029a6750b3a673abff797e4082" title="Key pair associated with every account.
@@ -13102,10 +13130,10 @@ the linked main account, which can remain stored offline.</p>
 <code>linking_transaction.dat</code>.
 The following subsections explain how to sign the transactions in this file and announce them to the network.</p>
 <h3 id="7-fund-the-main-account">7. Fund the Main Account<a class="headerlink" href="#7-fund-the-main-account" title="Anchor link to this section for reference">⚓︎</a></h3>
-<p>First, the node's main account needs to hold some <a class="mkdocs-ezglossary-link" id="838e4a85d05dd26ad75f336f141d32fc" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to pay the fees required to announce these transactions.</p>
+<p>First, the node's main account needs to hold some <a class="mkdocs-ezglossary-link" id="1bae095a68e3ff49b10e9113c3a3fce1" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to pay the fees required to announce these transactions.</p>
 <p>Obtain the account's address as shown in <a href="#5-create-the-node-identity">step 5 above</a> and transfer funds to it
 from another account.
-1 <a class="mkdocs-ezglossary-link" id="1bae095a68e3ff49b10e9113c3a3fce1" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> is typically enough.</p>
+1 <a class="mkdocs-ezglossary-link" id="6f007b207f8033c55a1bb0aef1632f1b" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> is typically enough.</p>
 <h3 id="8-sign-the-transactions">8. Sign the Transactions<a class="headerlink" href="#8-sign-the-transactions" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>Shoestring's <code>signer</code> tool reads <code>linking_transaction.dat</code> and signs the transactions in it with the key stored in
 <code>ca.key.pem</code> (the node's main account):</p>
@@ -13256,7 +13284,7 @@ as opposed to transactions on the mainnet." name="_:testnet" href="../../../text
 <p>To create a <a class="mkdocs-ezglossary-link" id="66cfb11f01884c61019b02329dc1f700" title="Voting nodes contribute to the finalization process, which makes blocks immutable." name="_:Voting Node" href="../../../textbook/nodes/#bca21766fb7e31db1e4e938bb9762d65">voting node</a>, the following requirements must be met:</p>
 <ul>
 <li>Set the <code>VOTER</code> role when <a href="#3-configure-shoestring">configuring Shoestring</a>.</li>
-<li>The node's main account must hold 3'000'000 <a class="mkdocs-ezglossary-link" id="6f007b207f8033c55a1bb0aef1632f1b" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>.</li>
+<li>The node's main account must hold 3'000'000 <a class="mkdocs-ezglossary-link" id="8b9518a4fc699c047f6113c4f7f908ad" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>.</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Voting Keys Maintenance</p>
@@ -13367,7 +13395,7 @@ However, it preserves the node's configuration and keys.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 9, 2026 14:42:21 UTC">July 9, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 10, 2026 07:04:55 UTC">July 10, 2026</span>
   </span>
 
     
