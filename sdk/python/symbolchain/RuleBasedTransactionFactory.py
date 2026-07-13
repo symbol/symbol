@@ -165,7 +165,7 @@ class RuleBasedTransactionFactory:
 			return
 
 		for key, value in vars(entity).items():
-			if '_' == key[0] and '_' == key[-1]:  # skip system properties
+			if '_' == key[0] and '_' == key[-1] and key[1:-1] not in ('property'):  # skip system properties
 				continue
 
 			if isinstance(value, str):
