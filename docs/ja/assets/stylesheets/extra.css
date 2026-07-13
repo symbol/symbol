@@ -543,6 +543,13 @@ code.doc-symbol-interface::after {
 	outline: 1px solid var(--md-default-bg-color--light);
 }
 
+.md-typeset .tutorial .tutorial-alt-grid img {
+	float: none;
+	width: 75%;
+	margin: 0;
+	outline: 1px solid var(--md-default-bg-color--light);
+}
+
 .md-typeset img.tutorial-result {
 	width: 50%;
 	outline: 1px solid var(--md-default-bg-color--light);
