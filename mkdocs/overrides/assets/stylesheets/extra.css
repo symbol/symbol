@@ -153,6 +153,27 @@
 	color: var(--md-default-fg-color--light);
 }
 
+/* Force three equal-width cards per row, stacking on small screens */
+.md-typeset .grid.cards.cols-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media screen and (max-width: 44.9375em) {
+	.md-typeset .grid.cards.cols-3 {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Pin the "learn more" link to the bottom of each card so links align */
+.md-typeset .grid.cards > ul > li {
+	display: flex;
+	flex-direction: column;
+}
+
+.md-typeset .grid.cards > ul > li > :last-child {
+	margin-top: auto;
+}
+
 /* Top navigation tab style: centered, with icons and custom font*/
 .md-tabs .md-tabs__item:first-child {
 	display: none;

@@ -14,6 +14,30 @@ for background information when needed.
 
 The manual is organized into the following sections:
 
-* [The Symbol Desktop Wallet](wallet/install.md): Manage your accounts and handle transactions.
-* [Shoestring](shoestring/overview.md): Deploy and maintain Symbol nodes.
-* [Security](./security.md): Learn how to keep your funds and accounts secure.
+<div class="grid cards" markdown>
+
+- :material-monitor:{ .lg .middle } **Symbol Desktop Wallet**
+
+    ---
+
+    Manage your accounts and handle transactions from your desktop PC.
+
+    [:octicons-arrow-right-24: Install the desktop wallet](wallet/install.md)
+
+- :material-server-network:{ .lg .middle } **Shoestring Node Operation**
+
+    ---
+
+    Deploy and maintain Symbol nodes.
+
+    [:octicons-arrow-right-24: Set up a node](shoestring/overview.md)
+
+- :material-shield-lock:{ .lg .middle } **Security**
+
+    ---
+
+    Learn how to keep your funds and accounts secure.
+
+    [:octicons-arrow-right-24: Stay secure](security.md)
+
+</div>
