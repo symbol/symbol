@@ -30,6 +30,7 @@ Root namespace
 
 Subnamespace
 :   A namespace that belongs to a parent namespace, either the root or another subnamespace.
+    It is also called a _child namespace_.
     Subnamespaces expire when the root namespace expires (see [Duration](#duration)).
 
 ## Properties
@@ -41,6 +42,8 @@ Each namespace has a unique name that identifies it on the network, and must fol
 * Names can only contain lowercase letters, numbers, hyphens `-`, and underscores `_`.
 * They must start with a letter or number.
 * They can be at most 64 characters long.
+* The root names `symbol`, `symbl`, `xym`, `xem`, `nem`, `user`, `account`, `org`, `com`, `biz`, `net`, `edu`, `mil`,
+    `gov`, and `info` are reserved by the protocol and cannot be registered.
 
 Once registered, a name cannot be changed.
 
@@ -86,9 +89,14 @@ The following operations are permitted depending on the state of the namespace r
 | Send a transaction using an alias   |  :material-close:   |  :white_check_mark:  |  :material-close:  |
 | Renew a namespace                   |  :material-close:   |  :white_check_mark:  | :white_check_mark: |
 
-!!! note
+!!! note "Namespaces can be renewed before expiration"
+
     Unlike <mosaics:>, namespaces **can** be renewed before expiration.
     This allows them to remain active indefinitely, as long as the owner continues to renew them.
+
+!!! note "The `symbol` namespace never expires"
+
+    The `symbol` namespace, which holds <XYM:>, is permanently active and is exempt from the lease and renewal cycle.
 
 ## Lease Fee
 
@@ -104,18 +112,13 @@ The cost of the lease can be determined beforehand by querying the network,
 and applications like the [Symbol Wallet](../userbook/wallet/install.md) typically display this information.
 
 The fee must be paid at the time of registration or renewal, and is non-refundable.
+It is paid to a _sink account_, an account managed by the Symbol team, that collects namespace rental fees for protocol
+and network maintenance.
 
-!!! note
+!!! note "Transaction fee vs. lease fee"
+
     Registering or renewing any kind of namespace requires announcing a transaction, which also has an associated fee.
     However, this transaction fee is typically negligible compared to the lease fee.
-
-## Reserved Names
-
-The following root names are reserved by the protocol and cannot be claimed by users:
-
-* `symbol`, `symbl`, `xym`, `xem`, `nem`, `user`, `account`, `org`, `com`, `biz`, `net`, `edu`, `mil`, `gov`, `info`.
-
-The `symbol` namespace, in particular, hosts the native currency `symbol.xym` and is permanently active.
 
 ## Linking
 
@@ -142,7 +145,8 @@ However, the same object can be linked by multiple namespaces.
 Linking is optional, and a namespace can exist without pointing to any object,
 but it is of limited practical use unless linked.
 
-!!! warning
+!!! warning "Aliases can change at any time"
+
     Links can be changed or removed at any time by the namespace owner.
 
     This feature offers flexibility, but should be used sparingly, as it can be confusing to users, especially when

@@ -226,4 +226,4 @@ digraph "Multisignature Tree" {
 | [現在のマルチシグ設定の取得](#detecting-the-multisig) | <get:/account/{address}/multisig>              |
 | [マルチシグアカウントの有効化](#enabling-the-multisig)    | <ser:MultisigAccountModificationTransactionV1> |
 | [マルチシグアカウントの無効化](#disabling-the-multisig)   | <ser:MultisigAccountModificationTransactionV1> |
-| 設定を埋め込みトランザクションにラップする                      | <dy:SymbolTransactionFactory.createEmbedded>   |
+| 設定を埋め込みトランザクションにラップする                      | <dy:SymbolTransactionFactory.createEmbedded>, <ser:MultisigAccountModificationTransactionV1>   |

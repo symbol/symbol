@@ -45,24 +45,37 @@ tutorial_level: intermediate
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### トランザクションの構築 {: #building-the-transaction }
+### ネームスペース名の選択 {: #choosing-the-namespace-name }
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
+ネームスペースは名前によって識別され、トランザクションがその名前をネットワーク上に登録します。
+命名規則については、テキストブックの [名前](../../textbook/namespaces.md#name) を参照してください。
+
+チュートリアルを複数回実行してもネームスペース名が重複しないように、名前にタイムスタンプが付加されています。
+実用的なプログラムでは、ネームスペースに固定の名前を使用します。
+`ROOT_NAMESPACE` 環境変数を使って、固定の名前を強制的に使用させることもできます。
+
+### トランザクションの構築 {: #building-the-transaction }
+
+{{ tutorial.code_snippet_tagged('step-4') }}
+
 ネームスペース登録トランザクションでは以下を指定します。
 
-* **Type:** ネームスペース登録トランザクションにはタイプ <ser:NamespaceRegistrationTransactionV1> を使用します。
+* {{ tutorial.var('type') }}: ネームスペース登録トランザクションにはタイプ <ser:NamespaceRegistrationTransactionV1> を使用します。
 
-* **登録タイプ:** `root` という値は、ルートネームスペースが作成されることを示します。
+* {{ tutorial.var('signer_public_key') }}: トランザクションに署名し、手数料を支払うアカウント。
+    登録されたネームスペースの所有者になります。
+
+* {{ tutorial.var('deadline') }}: ネットワーク時間のステップで計算された値。
+
+* {{ tutorial.var('registration_type') }}: `root` という値は、ルートネームスペースが作成されることを示します。
     代わりに [サブネームスペースを登録](./register-subnamespace.md) するには `child` を使用してください。
 
-* **有効期間:** ネームスペースがレンタルされるブロック数。
+* {{ tutorial.var('duration') }}: ネームスペースがレンタルされるブロック数。
     最小期間は 86,400 ブロック（約30日）、最大期間は 5,256,000 ブロック（約5年）です。
 
-* **名前:** ルートネームスペースの名前。
-    名前には、英小文字、数字、ハイフン、アンダースコアのみを使用でき、数字または文字で始まる必要があり、最大64文字までです。
-
-    チュートリアルを複数回実行してもネームスペース名が重複しないように、名前にタイムスタンプが付加されています。実用的なプログラムでは、ネームスペースに固定の名前を使用します。
+* {{ tutorial.var('name') }}: ルートネームスペースの名前。
 
 !!! note "ネームスペースレンタル手数料"
 
@@ -75,17 +88,17 @@ tutorial_level: intermediate
 
 ### トランザクションの送信 {: #submitting-the-transaction }
 
-{{ tutorial.code_snippet_tagged('step-4') }}
-
-トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
-
 {{ tutorial.code_snippet_tagged('step-5') }}
+
+トランザクションは、[転送トランザクション](../transactions/transfer.md#announcing-the-transaction) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
+
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
 ### ネームスペースの取得 {: #retrieving-the-namespace }
 
-{{ tutorial.code_snippet_tagged('step-6') }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 ネームスペースが登録されたことを確認するために、コードは <get:/namespaces/{namespaceId}> エンドポイントを使用してネットワークからネームスペースを取得し、そのプロパティを表示します。
 
@@ -133,8 +146,8 @@ tutorial_level: intermediate
 
 | ステップ                                                    | 関連ドキュメント                           |
 |---------------------------------------------------------|--------------------------------------|
-| [ネームスペース ID を生成する](#building-the-transaction)         | <dy:IdGenerator.generateNamespaceId> |
-| [ネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
+| [ネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create>, <ser:NamespaceRegistrationTransactionV1> |
+| [ネームスペース ID を生成する](#retrieving-the-namespace)         | <dy:IdGenerator.generateNamespaceId> |
 | [ネームスペースを取得する](#retrieving-the-namespace)             | <get:/namespaces/{namespaceId}>      |
 
 ## 次のステップ {: #next-steps }

@@ -11,14 +11,20 @@ The fees from the <transactions:> included in the block, along with a portion of
 are distributed to the harvester account and to other accounts designated by the node operator,
 which may or may not include the node's main account.
 
+## Eligibility
+
 Unlike mining in <PoW:>, harvesting does not require specialized hardware.
-Participation is open to any account holding at least 10,000 <XYM:> and connected to a node,
-either directly or through delegation.
+
+Participation is open to any <account:> that:
+
+* Holds at least 10,000 <XYM:>.
+* Is connected to a <node:>, either directly or through delegation.
+
 This balance contributes to the account's <importance:> score, which determines how often it can harvest a block.
 
 ## Harvesting Process
 
-Symbol does not use an explicit selection process to determine which node will harvest the next block.
+Symbol has no central coordinator to determine which node will harvest the next block.
 Instead, every node independently attempts to produce a new block.
 
 First, a random number called the _hit_ is computed from the hash of the previous block.
@@ -45,6 +51,7 @@ If the block is valid, it is accepted by other nodes that include it in their co
 This process is repeated at the next block height.
 
 !!! info "Simultaneous Block Creation"
+
     Note that no special measures are in place to prevent multiple nodes from generating blocks at the same height.
     When this occurs, the network may temporarily <fork:> as different nodes adopt different blocks for the same
     position in the chain.
@@ -84,7 +91,8 @@ Local Harvesting
 :   A type of <harvesting:> where the rewards are sent directly to the harvester account.
     The node signs produced blocks using the operator's <main key:>, which must be stored on the machine.
 
-!!! warning
+!!! warning "Local harvesting exposes the private key"
+
     The harvester account must hold a significant balance to maintain a high <importance:> score.
     Storing its <private key:> on a machine that is permanently online puts the entire balance at risk
     in case of unauthorized access.
@@ -95,16 +103,19 @@ Most operators instead prefer remote harvesting.
 ### Remote Harvesting
 
 Remote Harvesting
-:   A type of <harvesting:> that delegates block signing to a separate _proxy_ account,
+:   A type of <harvesting:> that delegates block signing to a separate _remote_ account,
     while the node's <importance:> score and rewards remain tied to the operator's <main key:>.
 
-The proxy account holds no funds and exists only to sign blocks on behalf of the harvester's main account.
+The remote account holds no funds and exists only to sign blocks on behalf of the harvester's main account.
 Because its <private key:> is stored in the node's configuration files, hosted on a permanently-online machine,
 it is designed to be expendable.
 
+The remote account is designated by signing an _Account Key Link_ transaction, which links it to the main account so it
+can sign blocks using the account's <importance:>.
+
 The main account still determines the node's importance and receives all block rewards.
 However, its key remains offline, safe from compromise.
-For simplicity, the main account is still called the harvester account, even though blocks are signed by the proxy.
+For simplicity, the main account is still called the harvester account, even though blocks are signed by the remote account.
 
 This separation of duties offers strong protection for the harvester's funds
 and makes remote harvesting the preferred option for most operators.
@@ -128,7 +139,7 @@ Although the node performs the work, the delegator is still considered the harve
 This arrangement benefits both parties: the account earns rewards without running a node,
 and the node increases its block production (and collected fees) without relying solely on its own importance.
 
-Delegated harvesting uses the same proxy-based setup as remote harvesting.
+Delegated harvesting uses the same remote-account setup as remote harvesting.
 In addition, the delegator signs a <transfer transaction:> with an encrypted message that requests the node to
 harvest on its behalf.
 
@@ -136,6 +147,12 @@ Whether the node grants the request depends on its policy and any competing requ
 
 As with remote harvesting, block signing is performed by an account other than the delegator,
 so its <private key:> never needs to leave secure storage.
+
+!!! info "Remote vs. Delegated Harvesting"
+
+    Both methods use the same remote account setup.
+    They differ only in who runs the node: in remote harvesting the operator harvests through their own node, while in
+    delegated harvesting the account harvests through a third party's node.
 
 ## Reward Distribution
 
@@ -193,6 +210,7 @@ digraph RewardDistribution {
     It can be the node's <remote harvesting:> account, or any of its <delegators:>.
 
 !!! example
+
     For example, assuming 100 XYM of block rewards (fees + inflation) and that a beneficiary account is configured:
 
     <div class="centered" markdown>

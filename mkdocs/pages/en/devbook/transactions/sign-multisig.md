@@ -6,7 +6,7 @@ tutorial_level: intermediate
 # Signing a Transaction from a Multisignature Account
 
 This tutorial transfers 1 <XYM:> from an <account:> to itself, mirroring the
-[Creating a Transfer Transaction](../transactions/transfer.md) tutorial.
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 However, in this case, the source account is a <multisignature account:>, also called _multisig_,
 and therefore it cannot initiate or sign transactions on its own.
@@ -172,7 +172,7 @@ but using a <multisignature account:> as the source account.
 
 In particular, the tutorial showed how to:
 
-| Step                                                                  | Related documentation                        |
-|-----------------------------------------------------------------------|----------------------------------------------|
-| [Wrap transfer in an embedded transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [Attach signatures in the right place](#building-the-transaction)     | <dy:SymbolFacade.signTransaction>            |
+| Step                                                                  | Related documentation                                                     |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [Wrap transfer in an embedded transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:TransferTransactionV1> |
+| [Attach signatures in the right place](#building-the-transaction)     | <dy:SymbolFacade.signTransaction>                                         |

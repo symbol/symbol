@@ -97,7 +97,7 @@ tutorial_level: intermediate
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
+トランザクションは、[転送トランザクション](../transactions/transfer.md#announcing-the-transaction) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
 
 ### エイリアスの検証 {: #verifying-the-alias }
 
@@ -159,7 +159,7 @@ tutorial_level: intermediate
 | ステップ                                                             | 関連ドキュメント                             |
 |------------------------------------------------------------------|----------------------------------------|
 | [ネームスペース ID を生成する](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath> |
-| [アドレスエイリアストランザクションを構築する](#building-the-transaction)            | <dy:SymbolTransactionFactory.create>   |
+| [アドレスエイリアストランザクションを構築する](#building-the-transaction)            | <dy:SymbolTransactionFactory.create>, <ser:AddressAliasTransactionV1>   |
 | [エイリアスを検証する](#verifying-the-alias)                             | <get:/namespaces/{namespaceId}>        |
 | [エイリアスを使用する](#using-the-alias)                                 | <dy:Address.fromNamespaceId>           |
 | [アドレス解決レシートを照会する](#using-the-alias)                          | <get:/statements/resolutions/address>  |

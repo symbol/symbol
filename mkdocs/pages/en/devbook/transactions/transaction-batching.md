@@ -178,11 +178,11 @@ The transaction hash printed in the output (line 54) can be used to search for t
 
 This tutorial showed how to:
 
-| Step                                                            | Related documentation                                                                |
-|-----------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| [Create embedded transactions](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                         |
-| [Build the aggregate](#building-the-aggregate-transaction)      | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions>  |
-| [Sign and announce](#signing-and-announcing)                    | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature>  |
+| Step                                                            | Related documentation                                                                                                        |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [Create embedded transactions](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                                                                 |
+| [Build the aggregate](#building-the-aggregate-transaction)      | <dy:SymbolTransactionFactory.create><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [Sign and announce](#signing-and-announcing)                    | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature>                                          |
 
 ## Next Steps
 

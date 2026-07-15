@@ -56,11 +56,18 @@ The recipient can be specified as an <address:> or a <namespace:> alias.
 
 ### List of Transferred Mosaics
 
-This list includes the <mosaic ID:> (or <namespace:> alias) and number of units for each transferred mosaic.
+A transfer transaction can include up to **255 mosaics**.
+The list can also be empty, which lets the sender attach a message without moving any assets.
 
-Naturally, the sender must own enough units of each mosaic, or the transaction will be rejected.
+Each entry specifies a <mosaic ID:> (or <namespace:> alias) and a quantity.
+Quantities are integers counted in the mosaic's _atomic units_.
 
-The list may also be empty, allowing messages to be sent without transferring any assets.
+A mosaic's <divisibility:> property, set when the mosaic is created and ranging from `0` to `6`, defines how many atomic
+units make one whole unit.
+<XYM:>, for example, has divisibility `6`, so `1'000'000` atomic units equal one whole XYM.
+Learn more about converting between atomic and whole units on the [Mosaics](./mosaics.md#divisibility) page.
+
+The network rejects the transaction if the sender does not hold enough units of any listed mosaic.
 
 ### Optional Message
 

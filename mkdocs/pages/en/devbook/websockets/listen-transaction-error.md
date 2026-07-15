@@ -38,6 +38,8 @@ Additionally, install the language-specific WebSocket library:
     This tutorial uses the native `WebSocket` API available in Node.js 22 or later.
     No additional packages are required.
 
+See the [WebSocket reference](../reference/websockets/index.md) for details on the connection protocol.
+
 ## Full Code
 
 {% import 'tutorial.jinja2' as tutorial with context %}
@@ -73,8 +75,6 @@ account.
 The code opens a WebSocket connection to the node's `/ws` endpoint.
 Upon connecting, the server sends a message containing a unique identifier (`uid`) that must be included in all
 subsequent subscription requests.
-
-See the [WebSocket reference](../reference/websockets/index.md) for details on the connection protocol.
 
 ### Subscribing to the Status Channel
 

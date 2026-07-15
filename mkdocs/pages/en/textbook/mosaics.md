@@ -53,6 +53,9 @@ These changes affect only the creator's balance:
 * When _burning_ (decreasing the supply), existing units are removed from the creator's account.
     If the account does not have enough balance, the operation fails.
 
+Regardless of divisibility, a mosaic's total supply can never exceed **8'999'999'999'000'000** atomic units
+(about 9 × 10^15^).
+
 ### Duration
 
 Mosaics can be created with a specific duration or as eternal:
@@ -66,7 +69,8 @@ Mosaics can be created with a specific duration or as eternal:
     Balances remain in accounts but are effectively frozen, and no new mosaics can be created with the same
     <Mosaic ID:>.
 
-!!! warning
+!!! warning "Duration can only be extended while supply is zero"
+
     Mosaic duration can only be extended while the total supply is `0`.
     Once supply has been minted and distributed, the duration cannot be extended.
     Eternal mosaics cannot have their duration modified at all.
@@ -116,8 +120,11 @@ The cost of the lease fee can be determined beforehand by querying the network,
 and applications like the [Symbol Wallet](../userbook/wallet/install.md) typically display this information.
 
 The fee must be paid at the time of creation and is non-refundable.
+It is paid to a _sink account_, an account managed by the Symbol team, that collects mosaic rental fees for protocol and
+network maintenance.
 
-!!! note
+!!! note "Transaction fee vs. lease fee"
+
     Creating a mosaic requires announcing a transaction, which also has an associated fee.
     However, this transaction fee is typically negligible compared to the lease fee.
 
@@ -141,6 +148,16 @@ users can refer to the mosaic by name, such as `symbol.xym`.
 
 Namespaces are optional and can be reassigned or expire independently of the mosaic itself.
 See the documentation about <namespaces:> for more information.
+
+## Modifying a Mosaic
+
+After creation, the creator can still change a mosaic's **definition**, but only while its total supply is `0`.
+
+It can update the mosaic's [properties](#properties) (supply mutability, transferability, restrictability, and
+revocability), its [divisibility](#divisibility), and its [duration](#duration).
+
+The total supply itself is separate and can still be adjusted through minting and burning whenever
+[supply mutability](#supply-mutability) is enabled.
 
 ## Summary
 

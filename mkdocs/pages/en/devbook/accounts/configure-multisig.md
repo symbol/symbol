@@ -272,9 +272,9 @@ The transaction hashes shown in the output can be used to look up the transactio
 
 This tutorial showed how to:
 
-| Step                                                                   | Related documentation                          |
-|------------------------------------------------------------------------|------------------------------------------------|
-| [Retrieve the current multisig configuration](#detecting-the-multisig) | <get:/account/{address}/multisig>              |
-| [Enable a multisig account](#enabling-the-multisig)                    | <ser:MultisigAccountModificationTransactionV1> |
-| [Disable a multisig account](#disabling-the-multisig)                  | <ser:MultisigAccountModificationTransactionV1> |
-| Wrap configuration in an embedded transaction                          | <dy:SymbolTransactionFactory.createEmbedded>   |
+| Step                                                                   | Related documentation                                                                        |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [Retrieve the current multisig configuration](#detecting-the-multisig) | <get:/account/{address}/multisig>                                                            |
+| [Enable a multisig account](#enabling-the-multisig)                    | <ser:MultisigAccountModificationTransactionV1>                                               |
+| [Disable a multisig account](#disabling-the-multisig)                  | <ser:MultisigAccountModificationTransactionV1>                                               |
+| Wrap configuration in an embedded transaction                          | <dy:SymbolTransactionFactory.createEmbedded>, <ser:MultisigAccountModificationTransactionV1> |

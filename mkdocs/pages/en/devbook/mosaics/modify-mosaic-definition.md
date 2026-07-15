@@ -124,8 +124,8 @@ duration.
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-The modification transaction is signed and announced following the same process as in
-[Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
+The modification transaction is signed and announced following the same process as in the
+[Transfer Transaction](../transactions/transfer.md#announcing-the-transaction) tutorial.
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
@@ -171,8 +171,8 @@ The transaction hash printed in the output can be used to search for the transac
 
 This tutorial showed how to:
 
-| Step                                                                        | Related documentation                |
-| --------------------------------------------------------------------------- | ------------------------------------ |
-| [Generate mosaic ID](#building-the-modification-transaction)                | <dy:IdGenerator.generateMosaicId>    |
-| [Modify mosaic flags](#building-the-modification-transaction)               | <dy:SymbolTransactionFactory.create> |
-| [Verify the updated mosaic](#retrieving-the-mosaic)                         | <get:/mosaics/{mosaicId}>            |
+| Step                                                          | Related documentation                                                     |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [Generate mosaic ID](#building-the-modification-transaction)  | <dy:IdGenerator.generateMosaicId>                                         |
+| [Modify mosaic flags](#building-the-modification-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1> |
+| [Verify the updated mosaic](#retrieving-the-mosaic)           | <get:/mosaics/{mosaicId}>                                                 |

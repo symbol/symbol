@@ -88,7 +88,7 @@ For example, a wallet can consider a transaction to be irreversible only when it
 Votes are weighted by account balance to prevent <Sybil attacks:>,
 and only accounts holding at least 3'000'000 <XYM:> are eligible to participate.
 
-!!! note
+!!! note "Voting rewards"
 
     There is currently no reward scheme for voting nodes, as a suitable mechanism has not yet been agreed upon.
     Community contributions and proposals in this area are encouraged.

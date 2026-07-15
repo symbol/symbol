@@ -12,7 +12,7 @@ repeated API calls.
 
 This tutorial shows how to subscribe to both channels and display each update as it arrives.
 
-!!! note
+!!! note "Alternative: Polling"
 
     For a polling-based approach, see the
     [Querying Chain and Finalization Height](../chain/chain-heights.md) tutorial.
@@ -31,6 +31,8 @@ This tutorial shows how to subscribe to both channels and display each update as
 
     This tutorial uses the native `WebSocket` API available in Node.js 22 or later.
     No additional packages are required.
+
+See the [WebSocket reference](../reference/websockets/index.md) for details on the connection protocol.
 
 ## Full Code
 
@@ -54,8 +56,6 @@ The program runs until interrupted with `Ctrl+C`, which triggers the unsubscribe
 The first step is to open a WebSocket connection to the node's `/ws` endpoint.
 Upon connecting, the server sends a message containing a unique identifier (`uid`) that must be included in all subsequent
 subscription requests.
-
-See the [WebSocket reference](../reference/websockets/index.md) for details on the connection protocol.
 
 ### Subscribing to Channels
 

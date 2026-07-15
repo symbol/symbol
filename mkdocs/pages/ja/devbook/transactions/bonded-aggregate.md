@@ -210,7 +210,7 @@ digraph {
 
 {{ tutorial.code_snippet_tagged('step-10') }}
 
-アカウント B は、トランザクションハッシュと `detached` パラメータを `true` に設定した <dy:SymbolFacade.cosignTransactionHash> を使用して、トランザクションに連署します。
+アカウント B は、トランザクションハッシュと `detached` パラメータを {{ tutorial.lit('True') }} に設定した <dy:SymbolFacade.cosignTransactionHash> を使用して、トランザクションに連署します。
 
 デタッチド署名は、ネットワークに単独で送信できるスタンドアロンのオブジェクトです。連署者はノードに直接送信するため、ボンデッドアグリゲートではこれが必要です。
 
@@ -264,9 +264,9 @@ digraph {
 | ステップ                                                      | 関連ドキュメント                                                                          |
 |-----------------------------------------------------------|-------------------------------------------------------------------------------------|
 | [埋め込みトランザクションの作成](#creating-embedded-transactions)    | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [アグリゲートの構築](#building-the-aggregate-transaction)        | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [アグリゲートの構築](#building-the-aggregate-transaction)        | <dy:SymbolTransactionFactory.create><br/><ser:AggregateBondedTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
 | [ボンデッドトランザクションの署名](#signing-the-bonded-transaction)     | <dy:SymbolFacade.signTransaction>                                                   |
-| [ハッシュロックの作成](#creating-the-hash-lock)                   | <dy:SymbolTransactionFactory.create><br/><put:/transactions>                        |
+| [ハッシュロックの作成](#creating-the-hash-lock)                   | <dy:SymbolTransactionFactory.create><br/><ser:HashLockTransactionV1><br/><put:/transactions>                        |
 | [ボンデッドトランザクションのアナウンス](#announcing-the-bonded-transaction) | <put:/transactions/partial>                                                         |
 | [トランザクションの復元](#recovering-the-transaction)              | <get:/transactions/partial>                                                         |
 | [トランザクションの検証](#verifying-the-transaction)               | <get:/transactions/partial/{transactionId}>                                         |

@@ -106,8 +106,8 @@ The address alias transaction specifies:
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-The transaction is signed and announced following the same process as in
-[Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
+The transaction is signed and announced following the same process as in the
+[Transfer Transaction](../transactions/transfer.md#announcing-the-transaction) tutorial.
 
 ### Verifying the Alias
 
@@ -178,10 +178,10 @@ Some highlights from the output:
 
 This tutorial showed how to:
 
-| Step                                                                | Related documentation                         |
-| ------------------------------------------------------------------- | --------------------------------------------- |
-| [Generate namespace ID](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath>        |
-| [Build an address alias transaction](#building-the-transaction)     | <dy:SymbolTransactionFactory.create>          |
-| [Verify the alias](#verifying-the-alias)                            | <get:/namespaces/{namespaceId}>               |
-| [Use the alias in a transfer](#using-the-alias)                     | <dy:Address.fromNamespaceId>                  |
-| [Query address resolution receipts](#using-the-alias)               | <get:/statements/resolutions/address>         |
+| Step                                                                | Related documentation                                                 |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [Generate namespace ID](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath>                                |
+| [Build an address alias transaction](#building-the-transaction)     | <dy:SymbolTransactionFactory.create>, <ser:AddressAliasTransactionV1> |
+| [Verify the alias](#verifying-the-alias)                            | <get:/namespaces/{namespaceId}>                                       |
+| [Use the alias in a transfer](#using-the-alias)                     | <dy:Address.fromNamespaceId>                                          |
+| [Query address resolution receipts](#using-the-alias)               | <get:/statements/resolutions/address>                                 |

@@ -127,7 +127,7 @@ transaction's size in bytes, which is only known once the descriptor has been co
 Once the transaction is created, it must be signed with the signing account's private key.
 Signing ensures the transaction is authentic and authorized by the sender.
 
-<dy:SymbolFacade.signTransaction> returns a <signature:> encoded as a hexadecimal string.
+<dy:SymbolFacade.signTransaction> returns a <signature:>.
 
 <dy:SymbolTransactionFactory.attachSignature> adds the signature to the transaction and serializes it into a
 JSON payload ready to be submitted directly to a node for announcement.
@@ -175,9 +175,31 @@ In any other case, the code waits one second and tries again, up to a maximum of
 
 The output shown below corresponds to a typical run of the program.
 
-```text
+```text linenums="1" hl_lines="5 9 13 15 16 20 27"
 --8<-- 'devbook/transactions/transfer.log'
 ```
+
+Some highlights from the output:
+
+* **Fee multiplier** (line 5): The recommended multiplier fetched from the network, used together with the
+    transaction size to compute the fee.
+
+* **Signer public key** (line 9): The account that signs the transaction and sends the mosaics.
+
+* **Transaction fee** (line 13): `17600` atomic units (0.0176 XYM), derived from the fee multiplier and the
+    transaction's size in bytes.
+
+* **Recipient address** (line 15): The account that receives the mosaics.
+    It looks different from the address used in the code because the transaction format encodes it in its raw
+    hexadecimal form rather than the Base32 text.
+
+* **Mosaics** (line 16): The assets transferred.
+    Here, `1000000` atomic units of the mosaic aliased by `symbol.xym` (<XYM:>), equal to 1 XYM.
+
+* **Announcement response** (line 20): The node accepted the payload.
+    This does not yet mean the transaction is valid or included in a block.
+
+* **Confirmed status** (line 27): The transaction has been accepted and included in a block.
 
 The number of status checks before confirmation can vary based on network conditions,
 and the initial `unknown` status may or may not appear,
@@ -194,13 +216,13 @@ Alternatively, you can search for the `signerPublicKey` to view the transaction 
 
 This tutorial showed how to:
 
-| Step                                                     | Related documentation                                                               |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [Obtain deadline information](#fetching-network-time)    | <get:/node/time>                                                                    |
-| [Obtain fee information](#fetching-recommended-fees)     | <get:/network/fees/transaction>                                                     |
-| [Build a transaction](#building-the-transaction)         | <dy:SymbolTransactionFactory.create>                                                |
-| [Sign the transaction](#signing-and-serializing)         | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
-| [Announce the transaction](#announcing-the-transaction)  | <put:/transactions>                                                                 |
-| [Wait for confirmation](#waiting-for-confirmation)       | <get:/transactionStatus/{hash}>                                                     |
+| Step                                                    | Related documentation                                                               |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [Obtain deadline information](#fetching-network-time)   | <get:/node/time>                                                                    |
+| [Obtain fee information](#fetching-recommended-fees)    | <get:/network/fees/transaction>                                                     |
+| [Build a transaction](#building-the-transaction)        | <dy:SymbolTransactionFactory.create>, <ser:TransferTransactionV1>                   |
+| [Sign the transaction](#signing-and-serializing)        | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
+| [Announce the transaction](#announcing-the-transaction) | <put:/transactions>                                                                 |
+| [Wait for confirmation](#waiting-for-confirmation)      | <get:/transactionStatus/{hash}>                                                     |
 
 Other transaction types follow the same general process.

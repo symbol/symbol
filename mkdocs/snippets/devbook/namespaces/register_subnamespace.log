@@ -4,7 +4,7 @@ Fetching current network time from /node/time
   Network time: 99282637399 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
-Creating child namespace: ns_root.sub_1766533103
+Creating subnamespace: ns_root.sub_1766533103
 Parent namespace ID: 0xb0786316d5c1d9dd
 Built transaction:
 {

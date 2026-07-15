@@ -43,10 +43,12 @@ try:
 		fee_multiplier = max(median_multiplier, minimum_multiplier)
 		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
-	# Build the transaction [>step-3]
-	namespace_name = f'ns_{int(time.time())}'
+	# Build the namespace name [>step-3]
+	namespace_name = os.getenv(
+		'ROOT_NAMESPACE', f'ns_{int(time.time())}')
 	print(f'Creating root namespace: {namespace_name}')
-
+	# [<step-3]
+	# Build the transaction [>step-4]
 	transaction = facade.transaction_factory.create({
 		'type': 'namespace_registration_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -56,8 +58,8 @@ try:
 		'name': namespace_name
 	})
 	transaction.fee = Amount(fee_multiplier * transaction.size)
-	# [<step-3]
-	# Sign transaction and generate final payload [>step-4]
+	# [<step-4]
+	# Sign transaction and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction, signature)
@@ -77,8 +79,8 @@ try:
 	)
 	with urllib.request.urlopen(request) as response:
 		print(f'  Response: {response.read().decode()}')
-	# [<step-4]
-	# Wait for confirmation [>step-5]
+	# [<step-5]
+	# Wait for confirmation [>step-6]
 	print('Waiting for namespace registration confirmation...')
 	for attempt in range(60):
 		time.sleep(1)
@@ -97,14 +99,16 @@ try:
 					status['code'])
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
-	# [<step-5]
-	# Retrieve the namespace [>step-6]
+	# [<step-6]
+	# Retrieve the namespace [>step-7]
 	namespace_id = generate_namespace_id(namespace_name)
 	print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
 
 	namespace_path = f'/namespaces/{namespace_id:x}'
 	print(f'Fetching namespace information from {namespace_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{namespace_path}') as response:
+	with urllib.request.urlopen(
+		f'{NODE_URL}{namespace_path}'
+	) as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Namespace information:')
@@ -113,7 +117,7 @@ try:
 		owner_address = Address.from_decoded_address_hex_string(
 			namespace_info['ownerAddress'])
 		print(f'  Owner address: {owner_address}')
-		print(f"  Start height: {namespace_info['startHeight']}")  # [<step-6]
+		print(f"  Start height: {namespace_info['startHeight']}")  # [<step-7]
 		print(f"  End height: {namespace_info['endHeight']}")
 
 except Exception as e:

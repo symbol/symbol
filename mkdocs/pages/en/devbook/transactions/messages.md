@@ -65,8 +65,8 @@ The recipient's public key and address are derived from their private key.
 You can combine mosaic transfers with messages by including both the `mosaics` and `message` fields in the transaction
 descriptor.
 
-The transaction is then signed and announced following the same process as in
-[Creating a Transfer Transaction](./transfer.md).
+The transaction is then signed and announced following the same process as in the
+[Transfer Transaction](./transfer.md) tutorial.
 
 **Message constraints:**
 
@@ -107,8 +107,8 @@ The <dy:MessageEncoder> class handles message encryption:
 2. The message is encoded using the recipient's public key and the message bytes with <dy:MessageEncoder.encode>.
 3. The encrypted payload is attached to the transaction's `message` field.
 
-The transaction is then signed and announced following the same process as in
-[Creating a Transfer Transaction](./transfer.md).
+The transaction is then signed and announced following the same process as in the
+[Transfer Transaction](./transfer.md) tutorial.
 
 !!! note "Message encryption is a convention"
 
@@ -150,9 +150,26 @@ If decryption fails, possible causes include:
 
 The output shown below corresponds to a typical run of the program.
 
-```text
+```text linenums="1" hl_lines="11 18 21 22 29"
 --8<-- 'devbook/transactions/messages.log'
 ```
+
+Some highlights from the output:
+
+* **Plain message** (line 11): The message attached to the first transaction.
+    Because it is not encrypted, anyone inspecting the blockchain can read it.
+
+* **Received plain message** (line 18): The same message, recovered from the confirmed transaction by converting the
+    hexadecimal payload back to UTF-8.
+
+* **Original message** (line 21): The secret message before encryption.
+
+* **Encrypted payload** (line 22): The result of encrypting the previous message with <dy:MessageEncoder.encode>,
+    shown as a hexadecimal string.
+    This is what gets stored on the blockchain.
+
+* **Recipient decrypted message** (line 29): The original message, retrieved from the confirmed transaction and
+    decrypted by <dy:MessageEncoder.tryDecode> using the recipient's private key and the sender's public key.
 
 You can view the transactions on the [Symbol Testnet Explorer](https://testnet.symbol.fyi/) by searching for the
 transaction hashes printed in the output.
@@ -163,8 +180,9 @@ The explorer cannot decrypt encrypted messages because it does not have access t
 
 This tutorial showed how to:
 
-| Step                                                           | Related documentation                       |
-| -------------------------------------------------------------- | ------------------------------------------- |
-| [Convert text into UTF-8 bytes](#sending-a-plain-text-message) | `TextEncoder` (JS) and `str.encode`/`bytes.decode` (Python) <br> System methods, not part of the Symbol SDK |
-| [Encrypt and decrypt a message](#sending-an-encrypted-message) | <dy:MessageEncoder>                         |
-| [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory> |
+| Step                                                                         | Related documentation                                                                                       |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [Convert text into UTF-8 bytes](#sending-a-plain-text-message)               | `TextEncoder` (JS) and `str.encode`/`bytes.decode` (Python) <br> System methods, not part of the Symbol SDK |
+| [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory.create>, <ser:TransferTransactionV1>                                           |
+| [Encrypt a message](#sending-an-encrypted-message)                           | <dy:MessageEncoder.encode>                                                                                  |
+| [Decrypt a message](#receiving-an-encrypted-message)                         | <dy:MessageEncoder.tryDecode>                                                                               |

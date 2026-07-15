@@ -104,7 +104,7 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 アカウント B は受信メッセージをリスニングし、チャネルごとに振り分けます。
 メッセージのスキーマは、 `cosignature` メッセージを除き、 [通常のトランザクションフロー](./listen-transaction-flow.md) チュートリアルと同じです。 `cosignature` メッセージは [CosignatureDTO](../reference/rest/symbol.md#model/CosignatureDTO) スキーマに従い、他のチャネルで使用される `meta.hash` フィールドは含まれません。
 
-重要なアクションは `partialAdded` で発生します。ハッシュが期待されるアグリゲートと一致した場合、アカウント B は `detached` パラメータを `true` に設定した <dy:SymbolFacade.cosignTransactionHash> を使用してトランザクションに連署し、 <put:/transactions/cosignature> に連署をアナウンスします。
+重要なアクションは `partialAdded` で発生します。ハッシュが期待されるアグリゲートと一致した場合、アカウント B は `detached` パラメータを {{ tutorial.lit('True') }} に設定した <dy:SymbolFacade.cosignTransactionHash> を使用してトランザクションに連署し、 <put:/transactions/cosignature> に連署をアナウンスします。
 より深い検証を行うために、アカウント B は <get:/transactions/partial/{transactionId}> から完全なトランザクションを取得し、内容を検査してから連署するかどうかを決定することができます。
 
 成功したボンデッドアグリゲートの期待されるメッセージシーケンスは、テキストブックの [トランザクションのライフサイクル](../../textbook/transactions.md#transaction-lifecycle) セクションで説明されています。

@@ -257,7 +257,7 @@ recipients, and mosaics to ensure the swap terms are correct.
 {{ tutorial.code_snippet_tagged('step-10') }}
 
 Account B cosigns the transaction using <dy:SymbolFacade.cosignTransactionHash> with the transaction hash and the
-`detached` parameter set to `true`.
+`detached` parameter set to {{ tutorial.lit('True') }}.
 
 A detached cosignature is a standalone object that can be submitted independently to the network.
 This is required for bonded aggregates because the cosigner submits directly to the node.
@@ -321,17 +321,17 @@ or the entire transaction fails and no assets are transferred.
 
 This tutorial showed how to:
 
-| Step                                                                        | Related documentation                                                               |
-| ----------------------------------------------------------------------------| ------------------------------------------------------------------------------------|
-| [Create embedded transactions](#creating-embedded-transactions)             | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [Build the aggregate](#building-the-aggregate-transaction)                  | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [Sign the bonded transaction](#signing-the-bonded-transaction)              | <dy:SymbolFacade.signTransaction>                                                   |
-| [Create hash lock](#creating-the-hash-lock)                                 | <dy:SymbolTransactionFactory.create><br/><put:/transactions>                        |
-| [Announce bonded transaction](#announcing-the-bonded-transaction)           | <put:/transactions/partial>                                                         |
-| [Recover the transaction](#recovering-the-transaction)                      | <get:/transactions/partial>                                                         |
-| [Verify the transaction](#verifying-the-transaction)                        | <get:/transactions/partial/{transactionId}>                                         |
-| [Cosign the transaction](#cosigning-the-transaction)                        | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature>         |
-| [Wait for confirmation](#waiting-for-confirmation)                          | <get:/transactionStatus/{hash}>                                                     |
+| Step                                                              | Related documentation                                                                                                      |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [Create embedded transactions](#creating-embedded-transactions)   | <dy:SymbolTransactionFactory.createEmbedded>                                                                               |
+| [Build the aggregate](#building-the-aggregate-transaction)        | <dy:SymbolTransactionFactory.create><br/><ser:AggregateBondedTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [Sign the bonded transaction](#signing-the-bonded-transaction)    | <dy:SymbolFacade.signTransaction>                                                                                          |
+| [Create hash lock](#creating-the-hash-lock)                       | <dy:SymbolTransactionFactory.create><br/><ser:HashLockTransactionV1><br/><put:/transactions>                               |
+| [Announce bonded transaction](#announcing-the-bonded-transaction) | <put:/transactions/partial>                                                                                                |
+| [Recover the transaction](#recovering-the-transaction)            | <get:/transactions/partial>                                                                                                |
+| [Verify the transaction](#verifying-the-transaction)              | <get:/transactions/partial/{transactionId}>                                                                                |
+| [Cosign the transaction](#cosigning-the-transaction)              | <dy:SymbolFacade.cosignTransactionHash><br/><put:/transactions/cosignature>                                                |
+| [Wait for confirmation](#waiting-for-confirmation)                | <get:/transactionStatus/{hash}>                                                                                            |
 
 ## Next Steps
 
