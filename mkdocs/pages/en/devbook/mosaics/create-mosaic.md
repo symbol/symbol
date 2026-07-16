@@ -68,8 +68,8 @@ The <mosaic ID:> is derived deterministically from the owner's address and the n
 
 !!! note "Nonce choice in this tutorial"
 
-    This tutorial uses the current timestamp as the nonce to ensure each run creates a unique mosaic.
-    The `& 0xFFFFFFFF` bitmask truncates the value to fit in 32 bits.
+    This tutorial uses the current timestamp (truncated to 32 bits) as the nonce to ensure
+    each run creates a unique mosaic.
     In practice, any value works as long as the same account has not already used that nonce.
 
 ### Building the Mosaic Definition Transaction

@@ -80,7 +80,7 @@ try {
 	// --- CREATING MOSAIC DEFINITION ---
 	console.log('\n--- Creating mosaic definition ---');
 	// [>step-3]
-	const nonce = Math.floor(Date.now() / 1000) & 0x7FFFFFFF;
+	const nonce = Math.floor(Date.now() / 1000) % 0x100000000;
 	console.log('Mosaic nonce:', nonce);
 	// [<step-3]
 	// Build the mosaic definition transaction [>step-4]
