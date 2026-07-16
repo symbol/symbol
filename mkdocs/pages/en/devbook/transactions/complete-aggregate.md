@@ -277,13 +277,13 @@ or the entire transaction fails and no assets are transferred.
 
 This tutorial showed how to:
 
-| Step                                                            | Related documentation                                                               |
-|-----------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [Create embedded transactions](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [Build the aggregate](#building-the-aggregate-transaction)      | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
-| [Sign the transaction](#signing-the-transaction)                | <dy:SymbolFacade.signTransaction>                                                   |
-| [Verify and cosign](#verifying-and-cosigning)                   | <dy:SymbolFacade.cosignTransaction>                                                 |
-| [Collect the cosignature](#collecting-the-cosignature)          | <dy:SymbolTransactionFactory.attachSignature>                                       |
+| Step                                                            | Related documentation                                                                                                        |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [Create embedded transactions](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                                                                 |
+| [Build the aggregate](#building-the-aggregate-transaction)      | <dy:SymbolTransactionFactory.create><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [Sign the transaction](#signing-the-transaction)                | <dy:SymbolFacade.signTransaction>                                                                                            |
+| [Verify and cosign](#verifying-and-cosigning)                   | <dy:SymbolFacade.cosignTransaction>                                                                                          |
+| [Collect the cosignature](#collecting-the-cosignature)          | <dy:SymbolTransactionFactory.attachSignature>                                                                                |
 
 ## Next Steps
 

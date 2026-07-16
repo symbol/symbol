@@ -10,7 +10,7 @@ tutorial_level: beginner
 
 このチュートリアルでは、両方のチャネルをサブスクライブし、到着した各更新を表示する方法を説明します。
 
-!!! note "メモ"
+!!! note "代替手段: ポーリング"
 
     ポーリングベースのアプローチについては、[チェーンとファイナライズの最新高の照会](../chain/chain-heights.md) チュートリアルを参照してください。
 
@@ -28,6 +28,8 @@ tutorial_level: beginner
 
     このチュートリアルでは、Node.js 22 以降で利用可能なネイティブの `WebSocket` API を使用します。
     追加のパッケージは必要ありません。
+
+接続プロトコルの詳細については、[WebSocket リファレンス](../reference/websockets/index.md) を参照してください。
 
 ## 完全なコード {: #full-code }
 
@@ -49,8 +51,6 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 最初のステップは、ノードの `/ws` エンドポイントへの WebSocket 接続を開くことです。
 接続すると、サーバーは以降のすべてのサブスクリプションリクエストに含める必要がある一意の識別子（ `uid` ）を含むメッセージを送信します。
-
-接続プロトコルの詳細については、[WebSocket リファレンス](../reference/websockets/index.md) を参照してください。
 
 ### チャネルのサブスクライブ {: #subscribing-to-channels }
 

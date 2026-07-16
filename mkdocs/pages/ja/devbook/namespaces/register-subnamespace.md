@@ -40,32 +40,44 @@ tutorial_level: intermediate
 コードは [ルートネームスペースの登録](./register-root-namespace.md) チュートリアルと同じパターンに従います。
 このセクションでは、主な相違点のみに焦点を当てます。
 
-共通のステップ（アカウントの設定、ネットワーク時間と手数料の取得、およびアナウンス）の詳細な説明については、 [ルートネームスペースの登録](./register-root-namespace.md) を参照してください。
+共通のステップ（アカウントの設定、ネットワーク時間と手数料の取得、およびアナウンス）と、ルートネームスペースと共通のトランザクション記述子フィールドの詳細な説明については、 [ルートネームスペースの登録](./register-root-namespace.md) を参照してください。
 
-### トランザクションの構築 {: #building-the-transaction }
+### サブネームスペース名の選択 {: #choosing-the-subnamespace-name }
 
 {{ tutorial.code_snippet_tagged('step-1') }}
 
+サブネームスペースは、親ネームスペース名と子の名前をドットで結合したフルネームによって識別されます（例: `company.product` ）。
+命名規則については、テキストブックの [名前](../../textbook/namespaces.md#name) を参照してください。
+
+チュートリアルを複数回実行しても名前が重複しないように、子の名前にタイムスタンプが付加されています。
+ただし、実用的なプログラムでは、サブネームスペースに固定の名前を使用します。
+`ROOT_NAMESPACE` および `SUBNAMESPACE` 環境変数を使って、チュートリアルに固定の名前を強制的に使用させることができます。
+
+親ネームスペース ID は、親名から <dy:IdGenerator.generateNamespaceId> を使用して導出されます。
+親ネームスペースは、名前ではなくこの ID によって参照されます。
+
+!!! warning "署名者が所有する親ネームスペースを使用してください"
+
+    デフォルトでは、コードは `SIGNER_PRIVATE_KEY` で参照されるテストアカウントと、 `ns_root` という名前の親ネームスペースを使用します。
+
+    [ルートネームスペースの登録](./register-root-namespace.md) チュートリアルから来た場合は、 `SIGNER_PRIVATE_KEY` および `ROOT_NAMESPACE` 環境変数を、そこで作成したアカウントとネームスペース、または署名者が所有する他の任意のネームスペースに一致するように設定してください。
+
+### トランザクションの構築 {: #building-the-transaction }
+
+{{ tutorial.code_snippet_tagged('step-2') }}
+
 サブネームスペースを登録する際の主な違いは、トランザクション記述子にあります：
 
-* **登録タイプ:** `child` という値は、サブネームスペース（子ネームスペース）が作成されることを示します。
+* {{ tutorial.var('registration_type') }}: `child` という値は、サブネームスペースが作成されることを示します。
     代わりに [ルートネームスペースを登録](./register-root-namespace.md) するには `root` を使用してください。
 
-* **親 ID (Parent ID)**: 有効期間を指定する代わりに、親ネームスペースの ID を提供します。
-    親は、ルートネームスペースまたは（第3レベルのネームスペースを作成する場合は）別の小ネームスペースである必要があります。
+* {{ tutorial.var('parent_id') }}: 有効期間を指定する代わりに、前のステップで導出した親ネームスペースの ID を提供します。
+    親は、ルートネームスペースまたは別のサブネームスペースのいずれかです。
 
-    親ネームスペース ID は、その名前から <dy:IdGenerator.generateNamespaceId> を使用して計算されます。
-
-* **名前:** サブネームスペースの名前。
-    この名前はルートネームスペースの名前と同じルールに従います：英小文字、数字、ハイフン、アンダースコアを使用でき、数字または文字で始まり、最大64文字までです。
+* {{ tutorial.var('name') }}: サブネームスペースの名前。前のステップで選択したものです。
 
     これはフルパスではなく、サブネームスペース自体の名前であることに注意してください。
-    例えば、 `company` がルートである場合に `company.product` を作成するには、 `name: 'product'` および `parent_id: generateNamespaceId('company')` と設定します。
-
-    チュートリアルを複数回実行してもサブネームスペース名が重複しないように、名前にタイムスタンプが付加されています。実用的なプログラムでは、ネームスペースに固定の名前を使用します。
-
-サブネームスペースは、そのルートネームスペースの有効期限を自動的に継承します。
-ルートが期限切れになると、すべてのサブネームスペースも同時に期限切れになります。
+    例えば、 `company` がルートである場合に `company.product` を作成するには、 `name: 'product'` および {{ tutorial.var("`parent_id: generate_namespace_id('company')`") }} と設定します。
 
 !!! note "サブネームスペースのレンタル手数料"
 
@@ -80,12 +92,12 @@ tutorial_level: intermediate
 
 ### サブネームスペースの取得 {: #retrieving-the-subnamespace }
 
-{{ tutorial.code_snippet_tagged('step-2') }}
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 サブネームスペースが登録されたことを確認するために、コードは <get:/namespaces/{namespaceId}> エンドポイントを使用してネットワークから情報を取得し、そのプロパティを表示します。
 
 サブネームスペース ID は <dy:IdGenerator.generateNamespaceId> を使用して計算されます。
-この関数はサブネームスペース名と親 ID の両方を受け取り、決定論的なハッシュアルゴリズムを適用して子ネームスペース ID を生成します。
+この関数はサブネームスペース名と親 ID の両方を受け取り、決定論的なハッシュアルゴリズムを適用してサブネームスペース ID を生成します。
 
 レスポンスが成功すれば、サブネームスペースが登録され、ネットワーク上でアクティブであることが確認されます。
 
@@ -104,7 +116,7 @@ tutorial_level: intermediate
 
 出力の主なポイント：
 
-* **ネームスペースのフルパス** (7行目): サブネームスペース `ns_root.sub_1766533103` は、完全な階層名を示しています。
+* **ネームスペースのフルパス** (7行目): サブネームスペース `ns_root.sub_1766533103` は、完全な名前を示しています。
 
 * **親ネームスペース ID** (8, 33行目): 親 ID `0xb0786316d5c1d9dd` は、このサブネームスペースをそのルートにリンクします。
 
@@ -112,7 +124,7 @@ tutorial_level: intermediate
 
 * **ID と名前** (19, 21行目): `id` フィールドにはサブネームスペース ID が10進数で表示され、 `name` には16進数としてエンコードされた子要素の部分のみが含まれます（例えば、 `7375625f...` は `sub_1...` にデコードされます）。
 
-* **子ネームスペース ID** (30行目): 19行目の `id` フィールドと一致するように、10進数と16進数の両方の表現が表示されます。
+* **サブネームスペース ID** (30行目): 19行目の `id` フィールドと一致するように、10進数と16進数の両方の表現が表示されます。
 
 * **登録タイプ** (34行目): 値 `1` はサブネームスペースであることを示します（ルートネームスペースの場合は `0` ）。
 
@@ -132,8 +144,8 @@ tutorial_level: intermediate
 
 | ステップ                                                      | 関連ドキュメント                           |
 |-----------------------------------------------------------|--------------------------------------|
-| [ネームスペース ID を生成する](#building-the-transaction)           | <dy:IdGenerator.generateNamespaceId> |
-| [サブネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
+| [ネームスペース ID を生成する](#choosing-the-subnamespace-name)           | <dy:IdGenerator.generateNamespaceId> |
+| [サブネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create>, <ser:NamespaceRegistrationTransactionV1> |
 | [サブネームスペースを取得する](#retrieving-the-subnamespace)          | <get:/namespaces/{namespaceId}>      |
 
 ## 次のステップ {: #next-steps }

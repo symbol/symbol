@@ -107,7 +107,7 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-変更トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
+変更トランザクションは、[転送トランザクション](../transactions/transfer.md#announcing-the-transaction) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
@@ -150,5 +150,5 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 | ステップ | 関連ドキュメント |
 | --------------------------------------------------------------------------- | ------------------------------------ |
 | [モザイクIDを生成する](#building-the-modification-transaction) | <dy:IdGenerator.generateMosaicId> |
-| [モザイクフラグを変更する](#building-the-modification-transaction) | <dy:SymbolTransactionFactory.create> |
+| [モザイクフラグを変更する](#building-the-modification-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1> |
 | [更新されたモザイクを検証する](#retrieving-the-mosaic) | <get:/mosaics/{mosaicId}> |

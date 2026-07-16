@@ -50,15 +50,33 @@ tutorial_level: advanced
 
 [転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
 
-### モザイク定義トランザクションの構築 {: #building-the-mosaic-definition-transaction }
+### モザイクノンスの生成 {: #generating-the-mosaic-nonce }
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
+各モザイクは [ノンス](default:ノンス) によって識別されます。ノンスは、同じアカウントによって作成されたモザイクの、ローカルで一意な識別子として機能する任意の32ビット無符号整数（0 から 4,294,967,295）です。
+[モザイクID](default:モザイクID) は、 <dy:IdGenerator.generateMosaicId> を使用して所有者のアドレスとノンスから決定論的に派生するため、一意のノンスごとに異なるモザイクが生成されます。
+
+!!! note "このチュートリアルでのノンスの選択"
+
+    このチュートリアルでは、実行ごとに一意のモザイクが作成されるように、現在のタイムスタンプをノンスとして使用しています。
+    `& 0xFFFFFFFF` ビットマスクは、値を32ビットに収まるように切り詰めます。
+    実際には、同じアカウントがそのノンスをまだ使用していない限り、どのような値でも機能します。
+
+### モザイク定義トランザクションの構築 {: #building-the-mosaic-definition-transaction }
+
+{{ tutorial.code_snippet_tagged('step-4') }}
+
 モザイク定義トランザクションは、以下のプロパティを使用してネットワークに新しいモザイクを登録します。
 
-* **Type:** モザイク定義トランザクションにはタイプ <ser:MosaicDefinitionTransactionV1> を使用します。
+* {{ tutorial.var('type') }}: モザイク定義トランザクションにはタイプ <ser:MosaicDefinitionTransactionV1> を使用します。
 
-* **Duration (有効期間):** モザイクがアクティブな状態を維持するブロック数。値が `0` の場合、モザイクは期限切れになりません。
+* {{ tutorial.var('signer_public_key') }}: トランザクションに署名し、手数料を支払うアカウント。
+    作成されたモザイクの所有者になります。
+
+* {{ tutorial.var('deadline') }}: ネットワーク時間のステップで計算された値。
+
+* {{ tutorial.var('duration') }}: モザイクがアクティブな状態を維持するブロック数。値が `0` の場合、モザイクは期限切れになりません。
     有効期間を指定する場合、最大許容値は [約10年](../../textbook/mosaics.md#duration) です（デフォルトの30秒ブロックターゲットで、3,650日、または約10,512,000ブロック）。
 
     !!! warning "期限切れのモザイクは使用できなくなります"
@@ -67,20 +85,13 @@ tutorial_level: advanced
         残高はアカウントに残りますが、事実上凍結された状態になります。
         期間を設定する前に、ユースケースで本当にそれが必要かどうかを検討してください。
 
-* **Divisibility (可分性):** モザイクがサポートする小数点以下の桁数。
+* {{ tutorial.var('divisibility') }}: モザイクがサポートする小数点以下の桁数。
     例えば、値が `2` の場合、各全体単位は 100 ($10^2$) の絶対単位に分割できます。
     詳細については、テキストブックの [可分性](../../textbook/mosaics.md#divisibility) を参照してください。
 
-* **Nonce (ノンス):** 同じアカウントによって作成されたモザイクの、ローカルで一意な識別子として機能する任意の32ビット無符号整数（0 から 4,294,967,295）です。
-    [モザイクID](default:モザイクID) は、 <dy:IdGenerator.generateMosaicId> を使用して所有者のアドレスと [ノンス](default:ノンス) から決定論的に派生するため、一意のノンスごとに異なるモザイクが生成されます。
+* {{ tutorial.var('nonce') }}: 前のステップで選択された識別子。
 
-    !!! note "このチュートリアルでのノンスの選択"
-
-        このチュートリアルでは、実行ごとに一意のモザイクが作成されるように、現在のタイムスタンプをノンスとして使用しています。
-        `& 0xFFFFFFFF` ビットマスクは、値を32ビットに収まるように切り詰めます。
-        実際には、同じアカウントがそのノンスをまだ使用していない限り、どのような値でも機能します。
-
-* **Flags (フラグ):** モザイクの動作制限を指定するフラグのセット。
+* {{ tutorial.var('flags') }}: モザイクの動作制限を指定するフラグのセット。
     `'transferable restrictable'` のように、複数のフラグを一つの文字列で組み合わせることができます。
 
     利用可能なフラグは以下の通りです。
@@ -103,30 +114,35 @@ tutorial_level: advanced
 
 ### モザイク定義の送信 {: #submitting-the-mosaic-definition }
 
-{{ tutorial.code_snippet_tagged('step-4') }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
-モザイク定義トランザクションは、 [転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます。
+モザイク定義トランザクションは、 [転送トランザクション](../transactions/transfer.md#announcing-the-transaction) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
 
 コードはその後、ステータスが `confirmed` に変わるまで <get:/transactionStatus/{hash}> エンドポイントをポーリングして、トランザクションが承認されるのを待ちます。
 
 ### モザイク供給量変更トランザクションの構築 {: #building-the-mosaic-supply-change-transaction }
 
-{{ tutorial.code_snippet_tagged('step-5') }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 モザイク定義が承認されると、2番目のトランザクションでモザイクの供給量を増加させます。
 
-* **Type:** モザイク供給量変更トランザクションにはタイプ <ser:MosaicSupplyChangeTransactionV1> を使用します。
+* {{ tutorial.var('type') }}: モザイク供給量変更トランザクションにはタイプ <ser:MosaicSupplyChangeTransactionV1> を使用します。
 
-* **Mosaic ID:** 署名者のアドレスとノンスから <dy:IdGenerator.generateMosaicId> を使用して計算されたモザイクの識別子。
+* {{ tutorial.var('signer_public_key') }}: トランザクションに署名し、手数料を支払うアカウント。
+    モザイクの作成者である必要があります。
 
-* **Action:** `increase`（増加）という値は、署名者のアカウントに直接新しいユニットをミントします。
+* {{ tutorial.var('deadline') }}: ネットワーク時間のステップで計算された値。
 
-* **Delta (差分):** 追加する絶対単位の数。
+* {{ tutorial.var('mosaic_id') }}: 署名者のアドレスとノンスから <dy:IdGenerator.generateMosaicId> を使用して計算されたモザイクの識別子。
+
+* {{ tutorial.var('action') }}: `increase`（増加）という値は、署名者のアカウントに直接新しいユニットをミントします。
+
+* {{ tutorial.var('delta') }}: 追加する絶対単位の数。
     モザイクの [可分性](../../textbook/mosaics.md#divisibility) が `2` であるため、デルタを `10000` にすると、全体単位では `100.00` になります ($10000 / 10^2$)。
 
 ### 供給量変更の送信 {: #submitting-the-supply-change }
 
-{{ tutorial.code_snippet_tagged('step-6') }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 モザイク供給量変更トランザクションは、モザイク定義トランザクションと同じプロセスに従って署名され、アナウンスされます。
 
@@ -140,7 +156,7 @@ tutorial_level: advanced
 
 ### モザイクの取得 {: #retrieving-the-mosaic }
 
-{{ tutorial.code_snippet_tagged('step-7') }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 モザイクが正常に作成されたことを確認するために、コードは <get:/mosaics/{mosaicId}> エンドポイントを使用してネットワークからモザイクを取得し、そのプロパティを表示します。
 
@@ -177,9 +193,9 @@ tutorial_level: advanced
 
 | ステップ                                                               | 関連ドキュメント                           |
 |--------------------------------------------------------------------|--------------------------------------|
-| [モザイクIDを生成する](#building-the-mosaic-definition-transaction)       | <dy:IdGenerator.generateMosaicId>    |
-| [モザイクを定義する](#building-the-mosaic-definition-transaction)         | <dy:SymbolTransactionFactory.create> |
-| [モザイク供給量をミントする](#building-the-mosaic-supply-change-transaction) | <dy:SymbolTransactionFactory.create> |
+| [モザイクIDを生成する](#generating-the-mosaic-nonce)       | <dy:IdGenerator.generateMosaicId>    |
+| [モザイクを定義する](#building-the-mosaic-definition-transaction)         | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1> |
+| [モザイク供給量をミントする](#building-the-mosaic-supply-change-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyChangeTransactionV1> |
 | [モザイクを取得する](#retrieving-the-mosaic)                              | <get:/mosaics/{mosaicId}>            |
 
 ## 次のステップ {: #next-steps }

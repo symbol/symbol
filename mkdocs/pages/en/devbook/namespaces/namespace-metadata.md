@@ -168,8 +168,8 @@ Since the signer is the namespace owner, no <cosignatures:> are required and the
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
-The aggregate transaction is signed and announced following the same process as in
-[Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction).
+The aggregate transaction is signed and announced following the same process as in the
+[Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction) tutorial.
 
 ### Retrieving Metadata
 
@@ -246,9 +246,9 @@ The transaction hashes can be used to search for the transactions in the
 
 This tutorial showed how to:
 
-| Step                                                                                             | Related documentation                        |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------|
-| [Define metadata key and value](#defining-the-metadata)                                          | <dy:Metadata.metadataGenerateKey>            |
-| [Create a namespace metadata transaction](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [Retrieve metadata](#retrieving-metadata)                                                        | <get:/metadata>                              |
-| [Modify existing metadata](#modifying-existing-metadata)                                         | <dy:Metadata.metadataUpdateValue>            |
+| Step                                                                                             | Related documentation                                                              |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| [Define metadata key and value](#defining-the-metadata)                                          | <dy:Metadata.metadataGenerateKey>                                                  |
+| [Create a namespace metadata transaction](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:NamespaceMetadataTransactionV1> |
+| [Retrieve metadata](#retrieving-metadata)                                                        | <get:/metadata>                                                                    |
+| [Modify existing metadata](#modifying-existing-metadata)                                         | <dy:Metadata.metadataUpdateValue>                                                  |

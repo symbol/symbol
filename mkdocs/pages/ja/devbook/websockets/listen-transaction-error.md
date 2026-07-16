@@ -36,6 +36,8 @@ tutorial_level: beginner
     このチュートリアルでは、Node.js 22 以降で利用可能なネイティブの `WebSocket` API を使用します。
     追加のパッケージは必要ありません。
 
+接続プロトコルの詳細については、[WebSocket リファレンス](../reference/websockets/index.md) を参照してください。
+
 ## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
@@ -65,8 +67,6 @@ WebSocket URL は、HTTP プロトコルを WebSocket プロトコルに置き�
 
 コードは、ノードの `/ws` エンドポイントへの WebSocket 接続を開きます。
 接続すると、サーバーは以降のすべてのサブスクリプションリクエストに含める必要がある一意の識別子（ `uid` ）を含むメッセージを送信します。
-
-接続プロトコルの詳細については、 [WebSocket リファレンス](../reference/websockets/index.md) を参照してください。
 
 ### Status チャネルのサブスクライブ {: #subscribing-to-the-status-channel }
 

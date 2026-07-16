@@ -638,6 +638,13 @@ code.doc-symbol-interface::after {
 	margin: 0 auto;
 }
 
+/* Two-column request/response frame tables */
+.md-typeset .frame-table table:not([class]) {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
 /* Tables with subsections */
 .md-typeset .subsections table td:not(:has(strong)):first-child {
 	padding-left: 2rem;

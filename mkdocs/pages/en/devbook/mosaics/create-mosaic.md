@@ -56,15 +56,37 @@ This account will own the created mosaic.
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
-### Building the Mosaic Definition Transaction
+### Generating the Mosaic Nonce
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
+Each mosaic is identified by a <nonce:>, an arbitrary 32-bit unsigned integer (0 to 4,294,967,295) that acts as a
+locally unique identifier for mosaics created by the same account.
+
+The <mosaic ID:> is derived deterministically from the owner's address and the nonce using
+<dy:IdGenerator.generateMosaicId>, so each unique nonce produces a different mosaic.
+
+!!! note "Nonce choice in this tutorial"
+
+    This tutorial uses the current timestamp as the nonce to ensure each run creates a unique mosaic.
+    The `& 0xFFFFFFFF` bitmask truncates the value to fit in 32 bits.
+    In practice, any value works as long as the same account has not already used that nonce.
+
+### Building the Mosaic Definition Transaction
+
+{{ tutorial.code_snippet_tagged('step-4') }}
+
 The mosaic definition transaction registers a new mosaic on the network with the following properties:
 
-* **Type:** Mosaic definition transactions use the type <ser:MosaicDefinitionTransactionV1>.
+* {{ tutorial.var('type') }}: Mosaic definition transactions use the type <ser:MosaicDefinitionTransactionV1>.
 
-* **Duration:** The number of blocks the mosaic will remain active. A value of `0` means the mosaic never expires.
+* {{ tutorial.var('signer_public_key') }}: The account that signs the transaction and pays the fees.
+    It becomes the owner of the created mosaic.
+
+* {{ tutorial.var('deadline') }}: The value computed in the network time step.
+
+* {{ tutorial.var('duration') }}: The number of blocks the mosaic will remain active.
+    A value of `0` means the mosaic never expires.
     If a duration is provided, the maximum allowed value is
     approximately [10 years](../../textbook/mosaics.md#duration) (3,650 days or approximately 10,512,000 blocks
     with the default 30-second block target).
@@ -75,22 +97,13 @@ The mosaic definition transaction registers a new mosaic on the network with the
         Balances remain in accounts but are effectively frozen.
         Before setting a duration, consider whether your use case truly requires it.
 
-* **Divisibility:** The number of decimal places the mosaic supports.
+* {{ tutorial.var('divisibility') }}: The number of decimal places the mosaic supports.
     For example, a value of `2` means each whole unit can be divided into 100 (10^2^) atomic units.
     For more details, see [Divisibility](../../textbook/mosaics.md#divisibility) in the Textbook.
 
-* **Nonce:** An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) that acts as a locally unique identifier
-    for mosaics created by the same account.
-    The <mosaic ID:> is derived deterministically from the owner's address and the <nonce:> using
-    <dy:IdGenerator.generateMosaicId>, so each unique nonce produces a different mosaic.
+* {{ tutorial.var('nonce') }}: The identifier chosen in the previous step.
 
-    !!! note "Nonce choice in this tutorial"
-
-        This tutorial uses the current timestamp as the nonce to ensure each run creates a unique mosaic.
-        The `& 0xFFFFFFFF` bitmask truncates the value to fit in 32 bits.
-        In practice, any value works as long as the same account has not already used that nonce.
-
-* **Flags:** A space-separated set of behavior restrictions for the mosaic.
+* {{ tutorial.var('flags') }}: A space-separated set of behavior restrictions for the mosaic.
     Multiple flags can be combined in a single string, for example `'transferable restrictable'`.
 
     The available flags are:
@@ -118,34 +131,39 @@ The mosaic definition transaction registers a new mosaic on the network with the
 
 ### Submitting the Mosaic Definition
 
-{{ tutorial.code_snippet_tagged('step-4') }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 The mosaic definition transaction is signed and announced following the same process as in
-[Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
+the [Transfer Transaction](../transactions/transfer.md#announcing-the-transaction) tutorial.
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Building the Mosaic Supply Change Transaction
 
-{{ tutorial.code_snippet_tagged('step-5') }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 Once the mosaic definition is confirmed, a second transaction increases the mosaic's supply:
 
-* **Type:** Mosaic supply change transactions use the type <ser:MosaicSupplyChangeTransactionV1>.
+* {{ tutorial.var('type') }}: Mosaic supply change transactions use the type <ser:MosaicSupplyChangeTransactionV1>.
 
-* **Mosaic ID:** The identifier of the mosaic, computed from the signer's address and nonce using
+* {{ tutorial.var('signer_public_key') }}: The account that signs the transaction and pays the fees.
+    It must be the creator of the mosaic.
+
+* {{ tutorial.var('deadline') }}: The value computed in the network time step.
+
+* {{ tutorial.var('mosaic_id') }}: The identifier of the mosaic, computed from the signer's address and nonce using
     <dy:IdGenerator.generateMosaicId>.
 
-* **Action:** The value `increase` mints new units directly into the signer's account.
+* {{ tutorial.var('action') }}: The value `increase` mints new units directly into the signer's account.
 
-* **Delta:** The number of atomic units to add.
+* {{ tutorial.var('delta') }}: The number of atomic units to add.
     Since the mosaic has a [divisibility](../../textbook/mosaics.md#divisibility) of `2`, a delta of `10000`
     results in `100.00` whole units (10000 / 10^2^).
 
 ### Submitting the Supply Change
 
-{{ tutorial.code_snippet_tagged('step-6') }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 The mosaic supply change transaction is signed and announced following the same process as the mosaic definition
 transaction.
@@ -162,7 +180,7 @@ Once any units are distributed to other accounts, the supply becomes permanently
 
 ### Retrieving the Mosaic
 
-{{ tutorial.code_snippet_tagged('step-7') }}
+{{ tutorial.code_snippet_tagged('step-8') }}
 
 To verify the mosaic was created successfully, the code retrieves it from the network
 using the <get:/mosaics/{mosaicId}> endpoint and displays its properties.
@@ -207,12 +225,12 @@ in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 This tutorial showed how to:
 
-| Step                                                                     | Related documentation                |
-| ------------------------------------------------------------------------ | ------------------------------------ |
-| [Generate mosaic ID](#building-the-mosaic-definition-transaction)        | <dy:IdGenerator.generateMosaicId>    |
-| [Define the mosaic](#building-the-mosaic-definition-transaction)         | <dy:SymbolTransactionFactory.create> |
-| [Mint mosaic supply](#building-the-mosaic-supply-change-transaction)     | <dy:SymbolTransactionFactory.create> |
-| [Retrieve the mosaic](#retrieving-the-mosaic)                            | <get:/mosaics/{mosaicId}>            |
+| Step                                                                 | Related documentation                                                       |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [Generate mosaic ID](#generating-the-mosaic-nonce)                   | <dy:IdGenerator.generateMosaicId>                                           |
+| [Define the mosaic](#building-the-mosaic-definition-transaction)     | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1>   |
+| [Mint mosaic supply](#building-the-mosaic-supply-change-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyChangeTransactionV1> |
+| [Retrieve the mosaic](#retrieving-the-mosaic)                        | <get:/mosaics/{mosaicId}>                                                   |
 
 ## Next Steps
 

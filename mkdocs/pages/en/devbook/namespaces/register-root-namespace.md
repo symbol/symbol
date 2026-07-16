@@ -53,27 +53,38 @@ This account will own the registered namespace.
 Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
-### Building the Transaction
+### Choosing the Namespace Name
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
+A namespace is identified by its name, which the transaction registers on the network.
+See [Name](../../textbook/namespaces.md#name) in the Textbook for the naming rules.
+
+To ensure the namespace name is unique across multiple runs of the tutorial, a timestamp is added to the name.
+In practice, programs would use a fixed name for their namespaces.
+You can force the tutorial to use a fixed name through the `ROOT_NAMESPACE` environment variable.
+
+### Building the Transaction
+
+{{ tutorial.code_snippet_tagged('step-4') }}
+
 The namespace registration transaction specifies:
 
-* **Type:** Namespace registration transactions use the type <ser:NamespaceRegistrationTransactionV1>.
+* {{ tutorial.var('type') }}: Namespace registration transactions use the type <ser:NamespaceRegistrationTransactionV1>.
 
-* **Registration type:** The value `root` indicates a root namespace is being created.
+* {{ tutorial.var('signer_public_key') }}: The account that signs the transaction and pays the fees.
+    It becomes the owner of the registered namespace.
+
+* {{ tutorial.var('deadline') }}: The value computed in the network time step.
+
+* {{ tutorial.var('registration_type') }}: The value `root` indicates a root namespace is being created.
     Use `child` to [register a subnamespace](./register-subnamespace.md) instead.
 
-* **Duration:** The number of blocks for which the namespace will be leased.
+* {{ tutorial.var('duration') }}: The number of blocks for which the namespace will be leased.
     The minimum duration is 86,400 blocks (approximately 30 days), and the maximum is
     5,256,000 blocks (approximately 5 years).
 
-* **Name:** The name of the root namespace.
-    Names can only contain lowercase letters, numbers, hyphens, and underscores, must start with a letter or number,
-    and can be at most 64 characters long.
-
-    To ensure the namespace name is unique across multiple runs of the tutorial, a timestamp is added to the name.
-    In practice, programs would use a fixed name for their namespaces.
+* {{ tutorial.var('name') }}: The name of the root namespace.
 
 !!! note "Namespace lease fees"
 
@@ -89,19 +100,19 @@ The namespace registration transaction specifies:
 
 ### Submitting the Transaction
 
-{{ tutorial.code_snippet_tagged('step-4') }}
-
-The transaction is signed and announced following the same process as in
-[Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
-
 {{ tutorial.code_snippet_tagged('step-5') }}
+
+The transaction is signed and announced following the same process as in the
+[Transfer Transaction](../transactions/transfer.md#announcing-the-transaction) tutorial.
+
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 The code then waits for the transaction to be confirmed by polling the
 <get:/transactionStatus/{hash}> endpoint until the status changes to `confirmed`.
 
 ### Retrieving the Namespace
 
-{{ tutorial.code_snippet_tagged('step-6') }}
+{{ tutorial.code_snippet_tagged('step-7') }}
 
 To verify the namespace was registered, the code retrieves it from the network
 using the <get:/namespaces/{namespaceId}> endpoint and displays its properties.
@@ -155,11 +166,11 @@ in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 This tutorial showed how to:
 
-| Step                                                                    | Related documentation                |
-|-------------------------------------------------------------------------|--------------------------------------|
-| [Generate namespace ID](#building-the-transaction)                      | <dy:IdGenerator.generateNamespaceId> |
-| [Build a namespace registration transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.create> |
-| [Retrieve the namespace](#retrieving-the-namespace)                     | <get:/namespaces/{namespaceId}>      |
+| Step                                                                    | Related documentation                                                          |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [Build a namespace registration transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.create>, <ser:NamespaceRegistrationTransactionV1> |
+| [Generate namespace ID](#retrieving-the-namespace)                      | <dy:IdGenerator.generateNamespaceId>                                           |
+| [Retrieve the namespace](#retrieving-the-namespace)                     | <get:/namespaces/{namespaceId}>                                                |
 
 ## Next Steps
 

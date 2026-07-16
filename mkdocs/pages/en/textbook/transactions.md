@@ -121,7 +121,8 @@ Once the network receives all required cosignatures, the aggregate transaction c
 
 To prevent spam which could exhaust network resources, initiating a bonded aggregate transaction requires a
 small deposit or _bond_.
-If all cosignatures are collected before the transaction expires, the bond is returned, otherwise, it is forfeited.
+If all cosignatures are collected before the transaction expires, which can be up to 48 hours after announcement, the
+bond is returned, otherwise, it is forfeited.
 
 ### Embedded Transactions
 
@@ -143,7 +144,8 @@ Embedded transactions behave exactly like basic transactions, except for:
 * Not all transaction types are allowed as embedded transactions.
     As an important example, aggregate transactions cannot be embedded within other aggregate transactions.
 
-!!! info
+!!! info "Aggregate limits"
+
     The Symbol main and test networks currently enforce the following limits:
 
     * A maximum of **100 embedded transactions** per aggregate.
@@ -284,27 +286,26 @@ by <rollbacks:>.
 
 All transaction types in Symbol share a set of common attributes:
 
-| Attribute             | Description                                                                           |
-|-----------------------|---------------------------------------------------------------------------------------|
-| **Signer public key** | Public key of the account that created and signed the transaction.                    |
-| **Signature**         | Cryptographic proof that the signer authorized the transaction and its content.       |
-| **Deadline**          | Timestamp indicating when the transaction expires if not confirmed.                   |
-| **Max fee**           | Maximum fee the signer is willing to pay to have the transaction included in a block. |
-| **Type**              | Transaction type, which determines which additional attributes, if any, are present.  |
+| Attribute             | Description                                                                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Signer public key** | Public key of the account that created and signed the transaction.                                                                              |
+| **Signature**         | Cryptographic proof that the signer authorized the transaction and its content.                                                                 |
+| **Deadline**          | Timestamp indicating when the transaction expires if not confirmed, at most 6 hours in the future (48 hours for bonded aggregate transactions). |
+| **Max fee**           | Maximum fee the signer is willing to pay to have the transaction included in a block.                                                           |
+| **Type**              | Transaction type, which determines which additional attributes, if any, are present.                                                            |
 
 ## Validation Details
 
 Before a transaction is included in a block, each node independently checks its validity.
 Here are some of the validators used:
 
-| **Validator**        | **Description**                                                                                          |
-|----------------------|----------------------------------------------------------------------------------------------------------|
-| **Signature check**  | Verifies the signature is valid and matches the signer's public key and the transaction's contents.      |
-| **Fee check**        | Confirms the max fee meets the node's minimum threshold and that the signer has sufficient balance.      |
-| **Deadline check**   | Discards the transaction if its deadline has already passed.                                             |
-| **Timestamp check**  | Rejects transactions whose timestamp lies too far in the future, protecting against clock manipulation.  |
-| **Network check**    | Rejects transactions that target a different network, for example a testnet transaction sent to mainnet. |
-| **Uniqueness check** | Rejects transactions whose hash already appears in the recent chain history, preventing replay.          |
+| **Validator**        | **Description**                                                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Signature check**  | Verifies the signature is valid and matches the signer's public key and the transaction's contents.                                                |
+| **Fee check**        | Confirms the max fee meets the node's minimum threshold and that the signer has sufficient balance.                                                |
+| **Deadline check**   | Discards the transaction if its deadline has already passed or lies too far in the future.                                                         |
+| **Network check**    | Rejects transactions that target a different network, for example a testnet transaction sent to mainnet.                                           |
+| **Uniqueness check** | Rejects transactions whose hash already appears in the recent chain history, preventing replay.                                                    |
 | **Semantic checks**  | Validates that the transaction is logically correct based on its type. Example: a transfer transaction fails if the sender lacks sufficient funds. |
 
 Transactions that fail any of these checks will be rejected and not propagated further.

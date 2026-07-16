@@ -105,8 +105,8 @@ The mosaic alias transaction specifies:
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-The transaction is signed and announced following the same process as in
-[Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
+The transaction is signed and announced following the same process as in the
+[Transfer Transaction](../transactions/transfer.md#announcing-the-transaction) tutorial.
 
 ### Verifying the Alias
 
@@ -177,10 +177,10 @@ Some highlights from the output:
 
 This tutorial showed how to:
 
-| Step                                                              | Related documentation                         |
-| ----------------------------------------------------------------- | --------------------------------------------- |
-| [Generate namespace ID](#defining-the-namespace-and-target-mosaic)| <dy:IdGenerator.generateNamespacePath>        |
-| [Build a mosaic alias transaction](#building-the-transaction)     | <dy:SymbolTransactionFactory.create>          |
-| [Verify the alias](#verifying-the-alias)                          | <get:/namespaces/{namespaceId}>               |
-| [Use the alias in a transfer](#using-the-alias)                   | <dy:IdGenerator.generateMosaicAliasId>        |
-| [Query mosaic resolution receipts](#using-the-alias)              | <get:/statements/resolutions/mosaic>          |
+| Step                                                               | Related documentation                                                |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| [Generate namespace ID](#defining-the-namespace-and-target-mosaic) | <dy:IdGenerator.generateNamespacePath>                               |
+| [Build a mosaic alias transaction](#building-the-transaction)      | <dy:SymbolTransactionFactory.create>, <ser:MosaicAliasTransactionV1> |
+| [Verify the alias](#verifying-the-alias)                           | <get:/namespaces/{namespaceId}>                                      |
+| [Use the alias in a transfer](#using-the-alias)                    | <dy:IdGenerator.generateMosaicAliasId>                               |
+| [Query mosaic resolution receipts](#using-the-alias)               | <get:/statements/resolutions/mosaic>                                 |

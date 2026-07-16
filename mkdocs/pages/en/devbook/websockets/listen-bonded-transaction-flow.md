@@ -134,7 +134,7 @@ and do not include the `meta.hash` field used by other channels.
 
 The key action happens on `partialAdded`: when the hash matches the expected aggregate,
 Account B cosigns the transaction using <dy:SymbolFacade.cosignTransactionHash> with the `detached`
-parameter set to `true`, and announces the cosignature to <put:/transactions/cosignature>.
+parameter set to {{ tutorial.lit('True') }}, and announces the cosignature to <put:/transactions/cosignature>.
 For deeper verification, Account B can fetch the full transaction from
 <get:/transactions/partial/{transactionId}> and inspect its contents before deciding whether to cosign.
 

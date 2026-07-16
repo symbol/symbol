@@ -144,7 +144,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 トランザクションが作成されたら、署名するアカウントの秘密鍵を使用して署名する必要があります。
 署名により、トランザクションが本物であり、送信者によって承認されていることが保証されます。
 
-<dy:SymbolFacade.signTransaction> は、16 進数文字列としてエンコードされた[署名](default:署名) を返します。
+<dy:SymbolFacade.signTransaction> は[署名](default:署名)を返します。
 
 <dy:SymbolTransactionFactory.attachSignature> は、署名をトランザクションに追加し、アナウンスのためにノードに直接送信できる状態の JSON ペイロードにシリアライズします。
 
@@ -192,9 +192,28 @@ Symbol の トランザクションは、ノードにトランザクションを
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text
+```text linenums="1" hl_lines="5 9 13 15 16 20 27"
 --8<-- 'devbook/transactions/transfer.log'
 ```
+
+出力のハイライトをいくつか紹介します。
+
+* **手数料乗数**（5 行目）: ネットワークから取得した推奨乗数で、トランザクションサイズと組み合わせて手数料を計算するために使用されます。
+
+* **署名者公開鍵**（9 行目）: トランザクションに署名し、モザイクを送信するアカウントです。
+
+* **トランザクション手数料**（13 行目）: `17600` 絶対単位（0.0176 XYM）で、手数料乗数とトランザクションのバイトサイズから算出されます。
+
+* **受信者アドレス**（15 行目）: モザイクを受け取るアカウントです。
+    コードで使用したアドレスと異なって見えるのは、トランザクション形式が Base32 テキストではなく生の 16 進数形式でエンコードするためです。
+
+* **モザイク**（16 行目）: 転送される資産です。
+    ここでは、`symbol.xym`（<XYM:>）のエイリアスを持つモザイクの `1000000` 絶対単位で、1 XYM に相当します。
+
+* **アナウンス応答**（20 行目）: ノードがペイロードを受理したことを示します。
+    ただし、この時点ではトランザクションが有効である、またはブロックに取り込まれたことを意味するわけではありません。
+
+* **承認済みステータス**（27 行目）: トランザクションが受理され、ブロックに取り込まれたことを示します。
 
 承認までのステータス確認の回数はネットワークの状況によって変化し、ノードがトランザクションの処理を開始する速度によっては、最初の `unknown` ステータスが表示されたりされなかったりします。
 
@@ -212,7 +231,7 @@ Symbol の トランザクションは、ノードにトランザクションを
 |-----------------------------------------------|-------------------------------------------------------------------------------------|
 | [有効期限情報の取得](#fetching-network-time)   | <get:/node/time>                                                                    |
 | [手数料情報の取得](#fetching-recommended-fees) | <get:/network/fees/transaction>                                                     |
-| [トランザクションの作成](#building-the-transaction)    | <dy:SymbolTransactionFactory.create>                                                |
+| [トランザクションの作成](#building-the-transaction)    | <dy:SymbolTransactionFactory.create>, <ser:TransferTransactionV1>                                                |
 | [トランザクションの署名](#signing-and-serializing)     | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
 | [トランザクションのアナウンス](#announcing-the-transaction) | <put:/transactions>                                                                 |
 | [承認の待機](#waiting-for-confirmation)        | <get:/transactionStatus/{hash}>                                                     |

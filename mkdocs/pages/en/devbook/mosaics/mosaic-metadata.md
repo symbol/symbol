@@ -244,9 +244,9 @@ The transaction hashes can be used to search for the transactions in the
 
 This tutorial showed how to:
 
-| Step                                                                                       | Related documentation                              |
-| ------------------------------------------------------------------------------------------ | -------------------------------------------------- |
-| [Define metadata key and value](#defining-the-metadata)                                    | <dy:Metadata.metadataGenerateKey>                  |
-| [Create a mosaic metadata transaction](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>       |
-| [Retrieve metadata](#retrieving-metadata)                                                  | <get:/metadata>                                    |
-| [Modify existing metadata](#modifying-existing-metadata)                                   | <dy:Metadata.metadataUpdateValue>                  |
+| Step                                                                                       | Related documentation                                                           |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [Define metadata key and value](#defining-the-metadata)                                    | <dy:Metadata.metadataGenerateKey>                                               |
+| [Create a mosaic metadata transaction](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:MosaicMetadataTransactionV1> |
+| [Retrieve metadata](#retrieving-metadata)                                                  | <get:/metadata>                                                                 |
+| [Modify existing metadata](#modifying-existing-metadata)                                   | <dy:Metadata.metadataUpdateValue>                                               |

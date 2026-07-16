@@ -43,27 +43,29 @@ try:
 		fee_multiplier = max(median_multiplier, minimum_multiplier)
 		print(f'  Fee multiplier: {fee_multiplier}')
 
-	# Build the transaction [>step-1]
-	root_namespace_name = 'ns_root'
-	child_namespace_name = f'sub_{int(time.time())}'
+	# Build the subnamespace name [>step-1]
+	root_namespace_name = os.getenv('ROOT_NAMESPACE', 'ns_root')
+	subnamespace_name = os.getenv(
+		'SUBNAMESPACE', f'sub_{int(time.time())}')
 	full_namespace_name = (
-		f'{root_namespace_name}.{child_namespace_name}')
-	print(f'Creating child namespace: {full_namespace_name}')
+		f'{root_namespace_name}.{subnamespace_name}')
+	print(f'Creating subnamespace: {full_namespace_name}')
 
 	# Generate the parent namespace ID from the root namespace name
 	parent_id = generate_namespace_id(root_namespace_name)
 	print(f'  Parent namespace ID: {hex(parent_id)}')
-
+	# [<step-1]
+	# Build the transaction [>step-2]
 	transaction = facade.transaction_factory.create({
 		'type': 'namespace_registration_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
 		'registration_type': 'child',
 		'parent_id': parent_id,
-		'name': child_namespace_name
+		'name': subnamespace_name
 	})
 	transaction.fee = Amount(fee_multiplier * transaction.size)
-	# [<step-1]
+	# [<step-2]
 	# Sign transaction and generate final payload
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = facade.transaction_factory.attach_signature(
@@ -105,14 +107,16 @@ try:
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 
-	# Retrieve the namespace [>step-2]
+	# Retrieve the namespace [>step-3]
 	namespace_id = generate_namespace_id(
-		child_namespace_name, parent_id)
+		subnamespace_name, parent_id)
 	print(f'Child namespace ID: {namespace_id} ({hex(namespace_id)})')
 
 	namespace_path = f'/namespaces/{namespace_id:x}'
 	print(f'Fetching namespace information from {namespace_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{namespace_path}') as response:
+	with urllib.request.urlopen(
+		f'{NODE_URL}{namespace_path}'
+	) as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Namespace information:')
@@ -129,7 +133,7 @@ try:
 		if int(namespace_info['depth']) >= 2:
 			if 'level2' in namespace_info:
 				print(f"  Level 2: {namespace_info['level2']}")
-		print(f"  Start height: {namespace_info['startHeight']}")  # [<step-2]
+		print(f"  Start height: {namespace_info['startHeight']}")  # [<step-3]
 		print(f"  End height: {namespace_info['endHeight']}")
 
 except Exception as e:

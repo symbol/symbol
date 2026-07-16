@@ -139,11 +139,9 @@ On Symbol, addresses are obtained from public keys by:
 
     Example: `TCHBDE-NCLKEB-ILBPWP-3JPB2X-NY64OE-7PYHHE-32I`
 
-!!! note "Address generation is an offline process"
+!!! note "Addresses are tracked only once used"
 
-    Note that address generation does not require interaction with the blockchain.
-
-    In fact, Symbol only tracks addresses and associated public keys when they first appear in a transaction.
+    Symbol only starts tracking an address and its associated public key when they first appear in a transaction.
 
 ## Vanity addresses
 

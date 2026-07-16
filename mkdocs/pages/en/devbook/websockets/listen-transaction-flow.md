@@ -13,7 +13,7 @@ overhead of repeated API calls.
 This tutorial shows how to subscribe to transaction channels, announce a minimal
 [Transfer Transaction](../transactions/transfer.md), and wait for its confirmation using WebSockets.
 
-!!! note
+!!! note "Alternative: Polling"
 
     For a polling-based approach, see the
     [Monitoring Transaction Status](../transactions/monitoring-status.md) tutorial.
@@ -43,6 +43,8 @@ Additionally, install the language-specific WebSocket library:
 
     This tutorial uses the native `WebSocket` API available in Node.js 22 or later.
     No additional packages are required.
+
+See the [WebSocket reference](../reference/websockets/index.md) for details on the connection protocol.
 
 ## Full Code
 
@@ -81,8 +83,6 @@ The code opens a WebSocket connection to the node's `/ws` endpoint.
 Upon connecting, the server sends a message containing a unique identifier (`uid`) that must be included in all
 subsequent subscription requests.
 
-See the [WebSocket reference](../reference/websockets/index.md) for details on the connection protocol.
-
 ### Subscribing to Channels
 
 {{ tutorial.code_snippet_tagged('step-3') }}
@@ -108,7 +108,11 @@ A transfer is used for simplicity, but any transaction type triggers the same We
 
 The transaction is built as usual: fetching the network time and fee multiplier, creating the transaction descriptor,
 and signing it.
-The hash is computed locally so it can be matched against incoming WebSocket messages later.
+
+Signing the transaction produces its hash, which uniquely identifies it.
+The code stores this hash because transaction channel notifications include the transaction hash.
+The message handler, defined later, compares each received hash with the stored value to identify notifications for
+this transaction.
 
 ### Announcing and Waiting for Confirmation
 

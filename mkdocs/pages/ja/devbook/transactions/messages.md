@@ -58,7 +58,7 @@ tutorial_level: intermediate
 
 トランザクション記述子に `mosaics` フィールドと `message` フィールドの両方を含めることで、モザイクの転送とメッセージを組み合わせることができます。
 
-その後、トランザクションは [転送トランザクションの作成](./transfer.md) と同じプロセスに従って署名され、アナウンスされます。
+その後、トランザクションは [転送トランザクション](./transfer.md) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
 
 **メッセージの制約:**
 
@@ -97,7 +97,7 @@ tutorial_level: intermediate
 2. 受信者の公開鍵とメッセージバイトを使用し、 <dy:MessageEncoder.encode> によってメッセージがエンコードされます。
 3. 暗号化されたペイロードがトランザクションの `message` フィールドに添付されます。
 
-その後、トランザクションは [転送トランザクションの作成](./transfer.md) と同じプロセスに従って署名され、アナウンスされます。
+その後、トランザクションは [転送トランザクション](./transfer.md) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
 
 !!! note "メッセージの暗号化は慣習です"
 
@@ -133,9 +133,21 @@ tutorial_level: intermediate
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text
+```text linenums="1" hl_lines="11 18 21 22 29"
 --8<-- 'devbook/transactions/messages.log'
 ```
+
+出力のハイライトをいくつか紹介します。
+
+* **平文メッセージ**（11 行目）: 最初のトランザクションに添付されたメッセージ。暗号化されていないため、ブロックチェーンを閲覧できる誰もが読むことができます。
+
+* **受信した平文メッセージ**（18 行目）: 承認されたトランザクションから、16 進数のペイロードを UTF-8 に変換して復元された同じメッセージ。
+
+* **元のメッセージ**（21 行目）: 暗号化前の秘密のメッセージ。
+
+* **暗号化されたペイロード**（22 行目）: 前のメッセージを <dy:MessageEncoder.encode> で暗号化した結果で、16 進数文字列として表示されます。これがブロックチェーンに保存されます。
+
+* **受信者が復号したメッセージ**（29 行目）: 承認されたトランザクションから取得し、受信者の秘密鍵と送信者の公開鍵を使って <dy:MessageEncoder.tryDecode> で復号した元のメッセージ。
 
 出力に表示されたトランザクションハッシュを検索することで、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを確認できます。
 
@@ -145,8 +157,9 @@ tutorial_level: intermediate
 
 このチュートリアルでは、以下の方法を説明しました。
 
-| ステップ                                                     | 関連ドキュメント                                                                                          |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| [テキストをUTF-8バイトに変換する](#sending-a-plain-text-message)    | `TextEncoder` (JS) および `str.encode`/`bytes.decode` (Python) <br> システムメソッドであり、Symbol SDKの一部ではありません |
-| [メッセージの暗号化と復号](#sending-an-encrypted-message)       | <dy:MessageEncoder>                                                                                 |
-| [転送トランザクションにメッセージを含める](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory>                                                                       |
+| ステップ | 関連ドキュメント |
+| --- | --- |
+| [テキストをUTF-8バイトに変換する](#sending-a-plain-text-message) | `TextEncoder` (JS) および `str.encode`/`bytes.decode` (Python) <br> システムメソッドであり、Symbol SDKの一部ではありません |
+| [転送トランザクションにメッセージを含める](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory.create>, <ser:TransferTransactionV1> |
+| [メッセージの暗号化](#sending-an-encrypted-message) | <dy:MessageEncoder.encode> |
+| [メッセージの復号](#receiving-an-encrypted-message) | <dy:MessageEncoder.tryDecode> |

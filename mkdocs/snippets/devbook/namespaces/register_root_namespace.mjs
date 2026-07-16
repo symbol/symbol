@@ -43,10 +43,12 @@ try {
 	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
 	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
-	// Build the transaction [>step-3]
-	const namespaceName = `ns_${Date.now()}`;
+	// Build the namespace name [>step-3]
+	const namespaceName =
+		process.env.ROOT_NAMESPACE || `ns_${Date.now()}`;
 	console.log('Creating root namespace:', namespaceName);
-
+	// [<step-3]
+	// Build the transaction [>step-4]
 	const transaction = facade.transactionFactory.create({
 		type: 'namespace_registration_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -55,9 +57,10 @@ try {
 		duration: 86400n, // approximately 30 days
 		name: namespaceName
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
-	// [<step-3]
-	// Sign transaction and generate final payload [>step-4]
+	transaction.fee = new models.Amount(
+		feeMultiplier * transaction.size);
+	// [<step-4]
+	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
@@ -65,7 +68,8 @@ try {
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce transaction
@@ -76,8 +80,8 @@ try {
 		body: jsonPayload
 	});
 	console.log('  Response:', await announceResponse.text());
-	// [<step-4]
-	// Wait for confirmation [>step-5]
+	// [<step-5]
+	// Wait for confirmation [>step-6]
 	console.log('Waiting for namespace registration confirmation...');
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	for (let attempt = 1; 60 >= attempt; ++attempt) {
@@ -104,8 +108,8 @@ try {
 		if (60 === attempt)
 			console.warn('Confirmation took too long.');
 	}
-	// [<step-5]
-	// Retrieve the namespace [>step-6]
+	// [<step-6]
+	// Retrieve the namespace [>step-7]
 	const namespaceId = generateNamespaceId(namespaceName);
 	console.log(
 		'Namespace ID:',
@@ -122,7 +126,7 @@ try {
 		namespaceInfo.ownerAddress);
 	console.log('  Owner address:', ownerAddress.toString());
 	console.log('  Start height:', namespaceInfo.startHeight);
-	console.log('  End height:', namespaceInfo.endHeight); // [<step-6]
+	console.log('  End height:', namespaceInfo.endHeight); // [<step-7]
 } catch (e) {
 	console.error(e.message);
 }

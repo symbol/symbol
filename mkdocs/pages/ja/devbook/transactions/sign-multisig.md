@@ -5,7 +5,7 @@ tutorial_level: intermediate
 
 # マルチシグアカウントからのトランザクション署名
 
-このチュートリアルでは、[転送トランザクションの作成](../transactions/transfer.md) チュートリアルと同様に、[アカウント](default: アカウント) から自身へ 1 [XYM](default: XYM) を転送します。
+このチュートリアルでは、[転送トランザクション](../transactions/transfer.md) チュートリアルと同様に、[アカウント](default: アカウント) から自身へ 1 [XYM](default: XYM) を転送します。
 
 ただし、このケースでは送信元が [マルチシグアカウント](default: マルチシグアカウント)（「マルチシグ」とも呼ばれます）であるため、アカウント単体でトランザクションを開始したり署名したりすることはできません。代わりに、連署者アカウントのいずれかがトランザクションを作成し、代理で署名を行います。
 
@@ -144,5 +144,5 @@ digraph "Multisignature Tree" {
 
 | ステップ                                                           | 関連ドキュメント                                   |
 |----------------------------------------------------------------|----------------------------------------------|
-| [転送トランザクションを埋め込みトランザクションにラップする](#building-the-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [転送トランザクションを埋め込みトランザクションにラップする](#building-the-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:TransferTransactionV1> |
 | [適切な場所に署名を付加する](#building-the-transaction)             | <dy:SymbolFacade.signTransaction>            |

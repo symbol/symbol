@@ -219,7 +219,7 @@ digraph {
 | ステップ                                                   | 関連ドキュメント                                                                          |
 |--------------------------------------------------------|-------------------------------------------------------------------------------------|
 | [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolTransactionFactory.create><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolTransactionFactory.create><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
 | [トランザクションの署名](#signing-the-transaction)              | <dy:SymbolFacade.signTransaction>                                                   |
 | [検証と連署](#verifying-and-cosigning)                  | <dy:SymbolFacade.cosignTransaction>                                                 |
 | [連署の収集](#collecting-the-cosignature)               | <dy:SymbolTransactionFactory.attachSignature>                                       |

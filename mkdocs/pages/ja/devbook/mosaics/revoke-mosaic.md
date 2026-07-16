@@ -86,7 +86,7 @@ tutorial_level: beginner
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-回収トランザクションは、[転送トランザクションの作成](../transactions/transfer.md#announcing-the-transaction) と同じプロセスに従って署名され、アナウンスされます 。
+回収トランザクションは、[転送トランザクション](../transactions/transfer.md#announcing-the-transaction) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
@@ -130,5 +130,5 @@ tutorial_level: beginner
 | ステップ                                                    | 関連ドキュメント                           |
 |---------------------------------------------------------|--------------------------------------|
 | [アカウント残高を確認する](#checking-initial-balance)           | <get:/accounts/{accountId}>          |
-| [モザイクユニットを回収する](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create> |
+| [モザイクユニットを回収する](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyRevocationTransactionV1> |
 | [回収を検証する](#verifying-the-revocation)                | <get:/accounts/{accountId}>          |

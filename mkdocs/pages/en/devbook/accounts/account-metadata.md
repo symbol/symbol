@@ -158,8 +158,8 @@ Since the signer is modifying their own account, no <cosignatures:> are required
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
-The aggregate transaction is signed and announced following the same process as in
-[Creating a Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction).
+The aggregate transaction is signed and announced following the same process as in the
+[Complete Aggregate Transaction](../transactions/complete-aggregate.md#building-the-aggregate-transaction) tutorial.
 
 ### Retrieving Metadata
 
@@ -234,9 +234,9 @@ The transaction hashes can be used to search for the transactions in the
 
 This tutorial showed how to:
 
-| Step                                                                                          | Related documentation                        |
-|-----------------------------------------------------------------------------------------------|----------------------------------------------|
-| [Define metadata key and value](#defining-the-metadata)                                       | <dy:Metadata.metadataGenerateKey>            |
-| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
-| [Retrieve metadata](#retrieving-metadata)                                                     | <get:/metadata>                              |
-| [Modify existing metadata](#modifying-existing-metadata)                                      | <dy:Metadata.metadataUpdateValue>            |
+| Step                                                                                          | Related documentation                                                            |
+| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [Define metadata key and value](#defining-the-metadata)                                       | <dy:Metadata.metadataGenerateKey>                                                |
+| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:AccountMetadataTransactionV1> |
+| [Retrieve metadata](#retrieving-metadata)                                                     | <get:/metadata>                                                                  |
+| [Modify existing metadata](#modifying-existing-metadata)                                      | <dy:Metadata.metadataUpdateValue>                                                |

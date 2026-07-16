@@ -82,7 +82,8 @@ try:
 	# [>step-3]
 	nonce = int(time.time()) & 0xFFFFFFFF
 	print(f'Mosaic nonce: {nonce}')
-
+	# [<step-3]
+	# Build the mosaic definition transaction [>step-4]
 	definition_tx = facade.transaction_factory.create({
 		'type': 'mosaic_definition_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -96,8 +97,8 @@ try:
 
 	mosaic_id = generate_mosaic_id(signer_address, nonce)
 	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
-	# [<step-3]
-	# Sign and generate final payload [>step-4]
+	# [<step-4]
+	# Sign and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, definition_tx)
 	json_payload = facade.transaction_factory.attach_signature(
 		definition_tx, signature)
@@ -109,10 +110,10 @@ try:
 	print(f'Transaction hash: {definition_hash}')
 	announce_transaction(json_payload, 'mosaic definition')
 	wait_for_confirmation(definition_hash, 'mosaic definition')
-	# [<step-4]
+	# [<step-5]
 	# --- INCREASING MOSAIC SUPPLY ---
 	print('\n--- Increasing mosaic supply ---')
-	# [>step-5]
+	# [>step-6]
 	supply_tx = facade.transaction_factory.create({
 		'type': 'mosaic_supply_change_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
@@ -122,8 +123,8 @@ try:
 		'delta': 100_00
 	})
 	supply_tx.fee = Amount(fee_multiplier * supply_tx.size)
-	# [<step-5]
-	# Sign and generate final payload [>step-6]
+	# [<step-6]
+	# Sign and generate final payload [>step-7]
 	signature = facade.sign_transaction(signer_key_pair, supply_tx)
 	json_payload = facade.transaction_factory.attach_signature(
 		supply_tx, signature)
@@ -136,10 +137,10 @@ try:
 	print(f'Transaction hash: {supply_hash}')
 	announce_transaction(json_payload, 'mosaic supply change')
 	wait_for_confirmation(supply_hash, 'mosaic supply change')
-	# [<step-6]
+	# [<step-7]
 	# --- VERIFYING MOSAIC ---
 	print('\n--- Verifying mosaic ---')
-	# [>step-7]
+	# [>step-8]
 	mosaic_id_hex = f'{mosaic_id:016x}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
@@ -152,6 +153,6 @@ try:
 		print(f'  Flags: {mosaic_info["flags"]}')
 		print(f'  Divisibility: {mosaic_info["divisibility"]}')
 		print(f'  Duration: {mosaic_info["duration"]}')
-	# [<step-7]
+	# [<step-8]
 except Exception as e:
 	print(e)

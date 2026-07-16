@@ -40,18 +40,23 @@ ws:block
 :   **新しいブロックが作成される**たびに、サブスクライブしているクライアントに通知します。
     返される各メッセージには、1つのブロックに関する情報が含まれます。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid": "{uid}",
-        "subscribe": "block"
-    }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "block"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    [BlockInfoDTO](../rest/symbol.md#model/BlockInfoDTO)
+[BlockInfoDTO](../rest/symbol.md#model/BlockInfoDTO)
+
+</td></tr></table></div>
 
 ### `finalizedBlock` {: #finalizedblock }
 
@@ -60,18 +65,23 @@ ws:finalizedBlock
     返される各メッセージには、ファイナライゼーションラウンドで**最も高いブロック（最新のブロック）**に関する情報が含まれます。
     それより低いブロック高を持つすべてのブロックは、ファイナライズされたと見なされます。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-        {
-            "uid": "{uid}",
-            "subscribe": "finalizedBlock"
-        }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "finalizedBlock"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    [FinalizedBlockDTO](../rest/symbol.md#model/FinalizedBlockDTO)
+[FinalizedBlockDTO](../rest/symbol.md#model/FinalizedBlockDTO)
+
+</td></tr></table></div>
 
 ### `confirmedAdded` {: #confirmedadded }
 
@@ -79,18 +89,23 @@ ws:confirmedAdded&#47;{address}
 :   指定されたアドレスに関連するトランザクションがブロックに含まれたときに、サブスクライブしているクライアントに通知します。
     返される各メッセージには、1つの承認済みトランザクションに関する情報が含まれます。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid": "{uid}",
-        "subscribe": "confirmedAdded/{address}"
-    }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "confirmedAdded/{address}"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
+[TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
+
+</td></tr></table></div>
 
 ### `unconfirmedAdded` {: #unconfirmedadded }
 
@@ -101,18 +116,23 @@ ws:unconfirmedAdded&#47;{address}
 このメッセージを受信する考えられるシナリオは次のとおりです。
 トランザクションが <put:/transactions> HTTP エンドポイントを介してネットワークにアナウンスされた場合、または [ボンデッドアグリゲートトランザクション](default:ボンデッドアグリゲートトランザクション) が必要なすべての連署者を集め、状態が `partial` から `unconfirmed` に変更された場合です。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid": "{uid}",
-        "subscribe": "unconfirmedAdded/{address}"
-    }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "unconfirmedAdded/{address}"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
+[TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
+
+</td></tr></table></div>
 
 ### `unconfirmedRemoved` {: #unconfirmedremoved }
 
@@ -123,18 +143,23 @@ ws:unconfirmedRemoved&#47;{address}
 このメッセージを受信する考えられるシナリオは次のとおりです。
 トランザクションが承認された場合、またはデッドラインに達してトランザクションがブロックに含まれなかった場合です。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid":"{uid}",
-        "subscribe":"unconfirmedRemoved/{address}"
-    }
-    ```
+```json
+{
+    "uid":"{uid}",
+    "subscribe":"unconfirmedRemoved/{address}"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    トランザクションのハッシュ。
+トランザクションのハッシュ。
+
+</td></tr></table></div>
 
 ### `partialAdded` {: #partialadded }
 
@@ -142,18 +167,23 @@ ws:partialAdded&#47;{address}
 :   指定されたアドレスに関連する [ボンデッドアグリゲートトランザクション](default:ボンデッドアグリゲートトランザクション) が、必要なすべての連署が完了するのを待つ `partial` 状態になったときに、サブスクライブしているクライアントに通知します。
     返される各メッセージには、追加された1つのパーシャルトランザクションに関する情報が含まれます。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid": "{uid}",
-        "subscribe": "partialAdded/{address}"
-    }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "partialAdded/{address}"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    [TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
+[TransactionInfoDTO](../rest/symbol.md#model/TransactionInfoDTO)
+
+</td></tr></table></div>
 
 ### `partialRemoved` {: #partialremoved }
 
@@ -164,18 +194,23 @@ ws:partialRemoved&#47;{address}
 このメッセージが発行される考えられるシナリオは次のとおりです。
 必要なすべての [連署](default:連署) を受信してトランザクションが `unconfirmed` になった場合、またはデッドラインに達してトランザクションがブロックに含まれなかった場合です。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid": "{uid}",
-        "subscribe": "partialRemoved/{address}"
-    }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "partialRemoved/{address}"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    トランザクションのハッシュ。
+トランザクションのハッシュ。
+
+</td></tr></table></div>
 
 ### `cosignature` {: #cosignature }
 
@@ -183,18 +218,23 @@ ws:cosignature&#47;{address}
 :   指定されたアドレスに関連する [連署](default:連署) が、 `partial` 状態の [ボンデッドアグリゲートトランザクション](default:ボンデッドアグリゲートトランザクション) に追加されたときに、サブスクライブしているクライアントに通知します。
     返される各メッセージには、連署付きトランザクションが1つ含まれます。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid": "{uid}",
-        "subscribe": "cosignature/{address}"
-    }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "cosignature/{address}"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    [CosignatureDTO](../rest/symbol.md#model/CosignatureDTO)
+[CosignatureDTO](../rest/symbol.md#model/CosignatureDTO)
+
+</td></tr></table></div>
 
 ### `status` {: #status }
 
@@ -202,15 +242,20 @@ ws:status&#47;{address}
 :   指定されたアドレスに関連するトランザクションがエラーを通知したときに、サブスクライブしているクライアントに通知します。
     返される各メッセージには、1つのエラーメッセージとトランザクションのハッシュが含まれます。
 
-=== "リクエストボディ"
+<div class="frame-table" markdown>
+<table markdown>
+<tr markdown><th markdown>:material-arrow-up-bold: リクエストボディ</th><th markdown>:material-arrow-down-bold: レスポンスボディ</th></tr>
+<tr markdown><td markdown>
 
-    ```json
-    {
-        "uid": "{uid}",
-        "subscribe": "status/{address}"
-    }
-    ```
+```json
+{
+    "uid": "{uid}",
+    "subscribe": "status/{address}"
+}
+```
 
-=== "レスポンスボディ"
+</td><td markdown>
 
-    [TransactionStatusDTO](../rest/symbol.md#model/TransactionStatusDTO)
+[TransactionStatusDTO](../rest/symbol.md#model/TransactionStatusDTO)
+
+</td></tr></table></div>

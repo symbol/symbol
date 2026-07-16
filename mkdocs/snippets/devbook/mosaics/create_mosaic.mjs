@@ -82,7 +82,8 @@ try {
 	// [>step-3]
 	const nonce = Math.floor(Date.now() / 1000) & 0x7FFFFFFF;
 	console.log('Mosaic nonce:', nonce);
-
+	// [<step-3]
+	// Build the mosaic definition transaction [>step-4]
 	const definitionTx = facade.transactionFactory.create({
 		type: 'mosaic_definition_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -97,8 +98,8 @@ try {
 
 	const mosaicId = generateMosaicId(signerAddress, nonce);
 	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
-	// [<step-3]
-	// Sign and generate final payload [>step-4]
+	// [<step-4]
+	// Sign and generate final payload [>step-5]
 	const defSignature = facade.signTransaction(
 		signerKeyPair, definitionTx);
 	const defPayload = facade.transactionFactory.static.attachSignature(
@@ -111,10 +112,10 @@ try {
 	console.log('Transaction hash:', definitionHash);
 	await announceTransaction(defPayload, 'mosaic definition');
 	await waitForConfirmation(definitionHash, 'mosaic definition');
-	// [<step-4]
+	// [<step-5]
 	// --- INCREASING MOSAIC SUPPLY ---
 	console.log('\n--- Increasing mosaic supply ---');
-	// [>step-5]
+	// [>step-6]
 	const supplyTx = facade.transactionFactory.create({
 		type: 'mosaic_supply_change_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -124,8 +125,8 @@ try {
 		delta: 100_00n
 	});
 	supplyTx.fee = new models.Amount(feeMultiplier * supplyTx.size);
-	// [<step-5]
-	// Sign and generate final payload [>step-6]
+	// [<step-6]
+	// Sign and generate final payload [>step-7]
 	const supSignature = facade.signTransaction(
 		signerKeyPair, supplyTx);
 	const supPayload = facade.transactionFactory.static.attachSignature(
@@ -138,10 +139,10 @@ try {
 	console.log('Transaction hash:', supplyHash);
 	await announceTransaction(supPayload, 'mosaic supply change');
 	await waitForConfirmation(supplyHash, 'mosaic supply change');
-	// [<step-6]
+	// [<step-7]
 	// --- VERIFYING MOSAIC ---
 	console.log('\n--- Verifying mosaic ---');
-	// [>step-7]
+	// [>step-8]
 	const mosaicIdHex = mosaicId.toString(16).padStart(16, '0');
 	const mosaicPath = `/mosaics/${mosaicIdHex}`;
 	console.log('Fetching mosaic information from', mosaicPath);
@@ -153,7 +154,7 @@ try {
 	console.log('  Supply:', mosaicInfo.supply);
 	console.log('  Flags:', mosaicInfo.flags);
 	console.log('  Divisibility:', mosaicInfo.divisibility);
-	console.log('  Duration:', mosaicInfo.duration); // [<step-7]
+	console.log('  Duration:', mosaicInfo.duration); // [<step-8]
 } catch (e) {
 	console.error(e.message);
 }

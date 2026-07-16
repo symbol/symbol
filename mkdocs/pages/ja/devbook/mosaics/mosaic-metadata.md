@@ -216,6 +216,6 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 | ステップ                                                                         | 関連ドキュメント                                   |
 |------------------------------------------------------------------------------|----------------------------------------------|
 | [メタデータのキーと値の定義](#defining-the-metadata)                                   | <dy:Metadata.metadataGenerateKey>            |
-| [モザイクメタデータトランザクションの作成](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [モザイクメタデータトランザクションの作成](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:MosaicMetadataTransactionV1> |
 | [メタデータの取得](#retrieving-metadata)                                           | <get:/metadata>                              |
 | [既存のメタデータの変更](#modifying-existing-metadata)                              | <dy:Metadata.metadataUpdateValue>            |

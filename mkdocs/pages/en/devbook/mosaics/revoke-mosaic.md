@@ -93,8 +93,8 @@ The revocation transaction reclaims mosaic units from the source account and ret
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-The revocation transaction is signed and announced following the same process as in
-[Creating a Transfer Transaction](../transactions/transfer.md#announcing-the-transaction).
+The revocation transaction is signed and announced following the same process as in the
+[Transfer Transaction](../transactions/transfer.md#announcing-the-transaction) tutorial.
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
@@ -139,8 +139,8 @@ The transaction hash printed in the output can be used to search for the transac
 
 This tutorial showed how to:
 
-| Step                                                                       | Related documentation                |
-| -------------------------------------------------------------------------- | ------------------------------------ |
-| [Check account balance](#checking-initial-balance)                         | <get:/accounts/{accountId}>          |
-| [Revoke mosaic units](#building-the-revocation-transaction)                | <dy:SymbolTransactionFactory.create> |
-| [Verify the revocation](#verifying-the-revocation)                         | <get:/accounts/{accountId}>          |
+| Step                                                        | Related documentation                                                           |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [Check account balance](#checking-initial-balance)          | <get:/accounts/{accountId}>                                                     |
+| [Revoke mosaic units](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyRevocationTransactionV1> |
+| [Verify the revocation](#verifying-the-revocation)          | <get:/accounts/{accountId}>                                                     |

@@ -141,7 +141,7 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
-アグリゲートトランザクションは、[コンプリートアグリゲートトランザクションの作成](../transactions/complete-aggregate.md#building-the-aggregate-transaction) と同じプロセスに従って署名され、アナウンスされます。
+アグリゲートトランザクションは、[コンプリートアグリゲートトランザクション](../transactions/complete-aggregate.md#building-the-aggregate-transaction) チュートリアルと同じプロセスに従って署名され、アナウンスされます。
 
 ### メタデータの取得 {: #retrieving-metadata }
 
@@ -207,6 +207,6 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 | ステップ | 関連ドキュメント |
 |-----------------------------------------------------------------------------------------------|----------------------------------------------|
 | [メタデータのキーと値の定義](#defining-the-metadata) | <dy:Metadata.metadataGenerateKey> |
-| [アカウントメタデータトランザクションの作成](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded> |
+| [アカウントメタデータトランザクションの作成](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:AccountMetadataTransactionV1> |
 | [メタデータの取得](#retrieving-metadata) | <get:/metadata> |
 | [既存のメタデータの変更](#modifying-existing-metadata) | <dy:Metadata.metadataUpdateValue> |

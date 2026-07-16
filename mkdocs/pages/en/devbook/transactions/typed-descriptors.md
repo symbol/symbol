@@ -15,7 +15,7 @@ However, this method is not type-safe: it accepts a generic object and depends o
 This page shows how to use <js:SymbolFacade.createTransactionFromTypedDescriptor> instead.
 This alternative accepts well-defined parameters, offering better type safety and improved IDE support.
 
-The code presented here is the same as in the [Creating a Transfer Transaction](./transfer.md) tutorial,
+The code presented here is the same as in the [Transfer Transaction](./transfer.md) tutorial,
 with the only difference being the transaction creation step.
 For brevity, only that section is shown here.
 The rest of the process, including signing and announcing the transaction, remains unchanged.
@@ -57,7 +57,7 @@ See for example the <js:TransferTransactionV1Descriptor> used in the code.
 Once the descriptor is ready, creating the transaction is straightforward: it simply involves passing the descriptor to
 the <js:SymbolFacade.createTransactionFromTypedDescriptor> method and provide the desired fees and deadline.
 
-Note that, as in the [Creating a Transfer Transaction](./transfer.md#building-the-transaction) tutorial,
+Note that, as in the [Transfer Transaction](./transfer.md#building-the-transaction) tutorial,
 the transaction's fee must be calculated after construction because it depends on the transaction's size.
 
 !!! warning "Deadlines are provided differently in the typed and untyped versions"

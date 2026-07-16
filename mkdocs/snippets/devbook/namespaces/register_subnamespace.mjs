@@ -43,27 +43,30 @@ try {
 	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
 	console.log('  Fee multiplier:', feeMultiplier);
 
-	// Build the transaction [>step-1]
-	const rootNamespaceName = 'ns_root';
-	const childNamespaceName = `sub_${Date.now()}`;
-	const fullNamespaceName = `${rootNamespaceName}.${childNamespaceName}`;
-	console.log('Creating child namespace:', fullNamespaceName);
+	// Build the subnamespace name [>step-1]
+	const rootNamespaceName = process.env.ROOT_NAMESPACE || 'ns_root';
+	const subnamespaceName =
+		process.env.SUBNAMESPACE || `sub_${Date.now()}`;
+	const fullNamespaceName =
+		`${rootNamespaceName}.${subnamespaceName}`;
+	console.log('Creating subnamespace:', fullNamespaceName);
 
 	// Generate the parent namespace ID from the root name
 	const parentId = generateNamespaceId(rootNamespaceName);
 	console.log(
 		'Parent namespace ID:', `0x${parentId.toString(16)}`);
-
+	// [<step-1]
+	// Build the transaction [>step-2]
 	const transaction = facade.transactionFactory.create({
 		type: 'namespace_registration_transaction_v1',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
 		registrationType: 'child',
 		parentId,
-		name: childNamespaceName
+		name: subnamespaceName
 	});
 	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
-	// [<step-1]
+	// [<step-2]
 	// Sign transaction and generate final payload
 	const signature = facade.signTransaction(
 		signerKeyPair, transaction);
@@ -72,7 +75,8 @@ try {
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce transaction
@@ -112,9 +116,9 @@ try {
 			console.warn('Confirmation took too long.');
 	}
 
-	// Retrieve the namespace [>step-2]
+	// Retrieve the namespace [>step-3]
 	const namespaceId = generateNamespaceId(
-		childNamespaceName, parentId);
+		subnamespaceName, parentId);
 	console.log(
 		'Child namespace ID:',
 		`${namespaceId} (0x${namespaceId.toString(16)})`);
@@ -139,7 +143,7 @@ try {
 	if (2 <= namespaceInfo.depth && namespaceInfo.level2)
 		console.log('  Level 2:', namespaceInfo.level2);
 	console.log('  Start height:', namespaceInfo.startHeight);
-	console.log('  End height:', namespaceInfo.endHeight); // [<step-2]
+	console.log('  End height:', namespaceInfo.endHeight); // [<step-3]
 } catch (e) {
 	console.error(e.message);
 }
