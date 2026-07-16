@@ -607,7 +607,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void canhonorsSourcePositionAndLimit() {
+		void canHonorsSourcePositionAndLimit() {
 			// Arrange: a ByteBuffer windowed to [1, 4) — remaining {1, 2, 3}.
 			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
 					0, 1, 2, 3, 4
