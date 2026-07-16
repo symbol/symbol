@@ -7,9 +7,6 @@ from .AbstractTypeFormatter import MethodDescriptor
 
 
 class EnumTypeFormatter(AbstractEnumFormatter):
-	def get_fields(self):
-		return []
-
 	def get_static_block_lines(self):
 		"""Emit a private static ``VALUE_MAP`` and initializer block for ``fromValue`` lookup."""
 		boxed = self._boxed_value_type()
@@ -43,7 +40,7 @@ class EnumTypeFormatter(AbstractEnumFormatter):
 		return descriptor
 
 	def _deserialize_body(self):
-		body = f'final {self.value_type} value = {self.int_printer.load()};\n'
+		body = f'final {self.value_type} value = {self.int_printer.load(self._wrapped_cursor())};\n'
 		body += 'return fromValue(value);'
 		return body
 
@@ -65,7 +62,7 @@ class EnumTypeFormatter(AbstractEnumFormatter):
 		# fromValue(int/long) — O(1) lookup against the static VALUE_MAP.
 		body = (
 			f'final {self.typename} result = VALUE_MAP.get(value);\n'
-			f'if (result == null)\n'
+			f'if (null == result)\n'
 			f'\tthrow new IllegalArgumentException("invalid enum value " + value);\n'
 			f'return result;'
 		)

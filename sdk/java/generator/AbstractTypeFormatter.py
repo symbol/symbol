@@ -4,7 +4,8 @@
 from abc import ABC, abstractmethod
 
 
-class MethodDescriptor:  # pylint: disable=too-many-instance-attributes
+class MethodDescriptor:
+	# pylint: disable=too-many-instance-attributes
 	def __init__(self, method_name=None, arguments=None, body='// no body'):
 		self.method_name = method_name
 		self.arguments = arguments or []
@@ -14,6 +15,7 @@ class MethodDescriptor:  # pylint: disable=too-many-instance-attributes
 		self.result = None
 		self.visibility = 'public'
 		self.is_static = False
+		self.is_constructor = False
 
 
 class AbstractTypeFormatter(ABC):
@@ -31,8 +33,8 @@ class AbstractTypeFormatter(ABC):
 		# pylint: disable=no-self-use
 		return ''
 
-	def get_implements_clause(self):
-		"""Java ``implements X, Y`` clause; return empty string for none."""
+	def get_implemented_interfaces(self):
+		"""Comma-separated interface list for the Java ``implements`` clause (e.g. ``X, Y``); empty string for none."""
 		# pylint: disable=no-self-use
 		return ''
 
@@ -50,10 +52,12 @@ class AbstractTypeFormatter(ABC):
 	def get_ctor_descriptor(self) -> MethodDescriptor:
 		pass
 
-	def get_compare_to_descriptor(self) -> MethodDescriptor:  # pylint: disable=no-self-use
+	def get_compare_to_descriptor(self) -> MethodDescriptor:
+		# pylint: disable=no-self-use
 		return None
 
-	def get_sort_descriptor(self) -> MethodDescriptor:  # pylint: disable=no-self-use
+	def get_sort_descriptor(self) -> MethodDescriptor:
+		# pylint: disable=no-self-use
 		return None
 
 	@abstractmethod

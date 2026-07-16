@@ -15,4 +15,5 @@ find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pycodesty
 SEPARATOR="$([ "$(uname -o)" = "Msys" ] && echo ";" || echo ":")"
 find . -type f -name "*.py" -print0 | \
 	PYTHONPATH=".${SEPARATOR}$(git rev-parse --show-toplevel)/catbuffer/parser" xargs -0 python3 -m pylint \
-	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc"
+	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc" \
+	--enable=useless-suppression

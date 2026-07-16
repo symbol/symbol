@@ -26,22 +26,10 @@ def _statement_end(lines, index):
 	return index - 1
 
 
-def _condition_end(lines, index):
+def _delimiter_end(lines, index, opener, closer):
 	depth = 0
 	while index < len(lines):
-		depth += lines[index].count('(') - lines[index].count(')')
-		if 0 >= depth:
-			return index
-
-		index += 1
-
-	return index - 1
-
-
-def _block_end(lines, index):
-	depth = 0
-	while index < len(lines):
-		depth += lines[index].count('{') - lines[index].count('}')
+		depth += lines[index].count(opener) - lines[index].count(closer)
 		if 0 >= depth:
 			return index
 
@@ -52,9 +40,9 @@ def _block_end(lines, index):
 
 def _if_construct_end(lines, index):
 	while True:
-		header_end = _condition_end(lines, index)
+		header_end = _delimiter_end(lines, index, '(', ')')
 		if lines[header_end].rstrip().endswith('{'):
-			end = _block_end(lines, header_end)
+			end = _delimiter_end(lines, header_end, '{', '}')
 		else:
 			end = _statement_end(lines, header_end + 1)
 
@@ -77,7 +65,7 @@ def separate_if_blocks(source):
 	insert_after = set()
 	for index, line in enumerate(lines):
 		stripped = line.strip()
-		if not (stripped.startswith('if (') or stripped.startswith('if(')):
+		if not stripped.startswith('if ('):
 			continue
 
 		end = _if_construct_end(lines, index)

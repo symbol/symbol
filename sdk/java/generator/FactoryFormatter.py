@@ -54,10 +54,11 @@ class FactoryFormatter(AbstractTypeFormatter):
 
 	def get_deserialize_descriptor(self):
 		body = (
+			f'final org.symbol.sdk.utils.BufferView view = new org.symbol.sdk.utils.BufferView(buffer);\n'
 			f'final org.symbol.sdk.utils.BufferView discriminatorView = view.snapshot();\n'
 			f'final {self.abstract.name} parent = new {self.abstract.name}();\n'
 			f'{self.abstract.name}.deserializeInto(discriminatorView, parent);\n\n'
-			f'final java.util.Map<Long, java.util.function.Function<org.symbol.sdk.utils.BufferView, ? extends {self.abstract.name}>>'
+			f'final java.util.Map<Long, java.util.function.Function<java.nio.ByteBuffer, ? extends {self.abstract.name}>>'
 			f' mapping = new java.util.HashMap<>();\n'
 		)
 
@@ -76,6 +77,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		# the emitted toKey overloads (see _to_key_descriptors) pack at most two discriminators into a long.
 		if not 1 <= len(discriminators) <= 2:
 			raise RuntimeError(f'{self.abstract.name} has {len(discriminators)} discriminators but toKey supports only 1 or 2')
+
 		# read each discriminator off the deserialized parent via its getter
 		value_exprs = []
 		for name, field_type in zip(discriminators, discriminator_types):
@@ -85,13 +87,13 @@ class FactoryFormatter(AbstractTypeFormatter):
 		values = ', '.join(value_exprs)
 		body += (
 			f'final long discriminator = toKey({values});\n'
-			f'final java.util.function.Function<org.symbol.sdk.utils.BufferView, ? extends {self.abstract.name}> factoryFn'
+			f'final java.util.function.Function<java.nio.ByteBuffer, ? extends {self.abstract.name}> factoryFn'
 			f' = mapping.get(discriminator);\n'
-			f'if (factoryFn == null)\n'
+			f'if (null == factoryFn)\n'
 			f'\tthrow new IllegalArgumentException("unknown {self.abstract.name} discriminator " + discriminator);\n'
-			f'return factoryFn.apply(view);'
+			f'return factoryFn.apply(view.buffer());'
 		)
-		descriptor = MethodDescriptor(body=body, arguments=['org.symbol.sdk.utils.BufferView view'])
+		descriptor = MethodDescriptor(body=body, arguments=['java.nio.ByteBuffer buffer'])
 		descriptor.result = self.abstract.name
 		descriptor.is_static = True
 		return descriptor
@@ -105,7 +107,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 
 		body += (
 			f'final java.util.function.Supplier<{self.abstract.name}> supplier = mapping.get(entityName);\n'
-			f'if (supplier == null)\n'
+			f'if (null == supplier)\n'
 			f'\tthrow new IllegalArgumentException("unknown {self.abstract.name} type " + entityName);\n'
 			f'return supplier.get();'
 		)
@@ -114,20 +116,26 @@ class FactoryFormatter(AbstractTypeFormatter):
 		descriptor.is_static = True
 		return descriptor
 
-	def _to_key_descriptors(self):  # pylint: disable=no-self-use
-		single = MethodDescriptor(method_name='toKey', body='return value;', arguments=['long value'])
-		single.result = 'long'
-		single.is_static = True
-		single.visibility = 'private'
+	def _discriminator_count(self):
+		return len(self.factory_descriptor.discriminator_names) if self.factory_descriptor else 0
 
-		pair = MethodDescriptor(
-			method_name='toKey',
-			body='return (a << 32) | (b & 0xFFFFFFFFL);',
-			arguments=['long a', 'long b'])
-		pair.result = 'long'
-		pair.is_static = True
-		pair.visibility = 'private'
-		return [single, pair]
+	def _to_key_descriptors(self):
+		count = self._discriminator_count()
+		if 1 == count:
+			single = MethodDescriptor(method_name='toKey', body='return value;', arguments=['long value'])
+			single.result = 'long'
+			single.is_static = True
+			single.visibility = 'private'
+			return [single]
+
+		if 2 == count:
+			pair = MethodDescriptor(method_name='toKey', body='return (a << 32) | (b & 0xFFFFFFFFL);', arguments=['long a', 'long b'])
+			pair.result = 'long'
+			pair.is_static = True
+			pair.visibility = 'private'
+			return [pair]
+
+		return []
 
 	def get_getter_setter_descriptors(self):
 		# Expose the createByName + toKey static helpers via the standard descriptor pipeline.

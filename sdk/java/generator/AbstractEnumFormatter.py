@@ -1,5 +1,7 @@
 """Shared base for the enum and bitwise-flags formatters."""
 
+from abc import abstractmethod
+
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
 from .printers import IntPrinter
 
@@ -26,14 +28,20 @@ class AbstractEnumFormatter(AbstractTypeFormatter):
 
 		return str(value)
 
+	@abstractmethod
 	def _deserialize_body(self):
 		raise NotImplementedError('subclasses emit their own deserialize body')
 
 	def get_deserialize_descriptor(self):
-		descriptor = MethodDescriptor(body=self._deserialize_body(), arguments=['org.symbol.sdk.utils.BufferView view'])
+		descriptor = MethodDescriptor(body=self._deserialize_body(), arguments=['java.nio.ByteBuffer buffer'])
 		descriptor.result = self.typename
 		descriptor.is_static = True
 		return descriptor
+
+	@staticmethod
+	def _wrapped_cursor():
+		"""BufferView over the incoming ByteBuffer ``buffer`` param — the cursor enum/flags read their value from."""
+		return 'new org.symbol.sdk.utils.BufferView(buffer)'
 
 	def _get_value_descriptor(self):
 		"""``getValue()`` accessor exposing the underlying integer value."""
@@ -50,7 +58,13 @@ class AbstractEnumFormatter(AbstractTypeFormatter):
 		return descriptor
 
 	def get_json_descriptor(self):
-		# JSON projection is the underlying numeric value.
+		# JSON projection is the underlying numeric value
+		if 8 == self.enum_type.size:
+			render = 'toUnsignedString' if self.enum_type.is_unsigned else 'toString'
+			descriptor = MethodDescriptor(body=f'return Long.{render}(this.value);')
+			descriptor.result = 'String'
+			return descriptor
+
 		descriptor = MethodDescriptor(body='return this.value;')
 		descriptor.result = self.value_type
 		return descriptor

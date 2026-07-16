@@ -8,7 +8,7 @@ from catparser.DisplayType import DisplayType
 
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
 from .field_filters import descriptor_candidate_fields, is_bound_size, is_computed, is_const, is_inherited_field, is_reserved
-from .format import _javadoc, _method, indent
+from .format import indent
 from .name_formatting import capitalize, lang_field_name
 from .printers import ArrayPrinter, BuiltinPrinter, IntPrinter, TypedArrayPrinter
 
@@ -92,7 +92,7 @@ class StructFormatter(AbstractTypeFormatter):
 	def is_type_abstract(self):
 		return self.struct.is_abstract
 
-	def get_implements_clause(self):
+	def get_implemented_interfaces(self):
 		# Root structs extend CatbufferType (which itself implements Serializer); subclasses inherit the Serializer contract
 		# through the base.
 		if self.struct.comparer:
@@ -117,8 +117,9 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return [child.name for child in factory_descriptor.children]
 
-	def field_name(self, field, object_name='this'):  # pylint: disable=no-self-use
+	def field_name(self, field, object_name='this'):
 		"""Java accessor for a struct field."""
+		# pylint: disable=no-self-use
 		printer_name = field.extensions.printer.name
 		if is_computed(field):
 			return f'{object_name}.get{capitalize(printer_name)}Computed()'
@@ -128,11 +129,7 @@ class StructFormatter(AbstractTypeFormatter):
 	def get_paired_const_field(self, field):
 		# A const field whose name ends with the field name is the "auto-set" pair (e.g.
 		# `transactionType` field paired with `TRANSACTION_TYPE` const on a concrete tx)
-		for const_field in self.const_fields():
-			if const_field.name.lower().endswith(field.name):
-				return const_field
-
-		return None
+		return next((const_field for const_field in self.const_fields() if const_field.name.lower().endswith(field.name)), None)
 
 	def get_fields(self):
 		"""Emit ``public static final`` constants and instance fields."""
@@ -201,7 +198,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return MethodDescriptor(body='\n'.join(body_lines), arguments=[])
 
-	def generate_condition(self, field, prefix_field=False):  # pylint: disable=too-many-locals
+	def generate_condition(self, field, prefix_field=False):
 		if not field.is_conditional:
 			return ''
 
@@ -225,7 +222,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		# HACK: nullable conditional fields use a null check
 		if prefix_field and DisplayType.UNSET != field.display_type:
-			return f'if ({field_prefix}{field.extensions.printer.name} != null)'
+			return f'if (null != {field_prefix}{field.extensions.printer.name})'
 
 		display_field = lang_field_name(condition_field_name)
 		if conditional.operation in ['not in', 'in']:
@@ -357,13 +354,12 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return _indent_if_conditional(condition, deserialize_field)
 
-	def _deserialize_body(self):  # pylint: disable=too-many-locals
-		# pylint: disable=too-many-locals,too-many-branches
+	def _deserialize_body(self):
 		body = ''
 		if not self.is_type_abstract:
 			# snapshot the caller's view into a private cursor: we read without advancing the passed view, so the
 			# caller advances it by this object's size() (see ArrayHelpers / nested-struct loads)
-			body = 'final org.symbol.sdk.utils.BufferView cursor = view.snapshot();\n'
+			body = 'final org.symbol.sdk.utils.BufferView cursor = new org.symbol.sdk.utils.BufferView(buffer);\n'
 			body += f'final {self.typename} instance = new {self.typename}();\n\n'
 
 		if self.base_struct:
@@ -409,12 +405,12 @@ class StructFormatter(AbstractTypeFormatter):
 	def get_deserialize_descriptor(self):
 		descriptor = MethodDescriptor(
 			body=self._deserialize_body(),
-			arguments=['org.symbol.sdk.utils.BufferView view'] if not self.is_type_abstract
+			arguments=['java.nio.ByteBuffer buffer'] if not self.is_type_abstract
 			else ['org.symbol.sdk.utils.BufferView cursor', f'{self.typename} instance'])
 		descriptor.result = self.typename if not self.is_type_abstract else 'void'
 		descriptor.is_static = True
-		# abstract types expose `deserializeInto` to disambiguate from concrete `deserialize(byte[])`; it is an internal
-		# mechanism (every caller is a concrete subclass / factory in the same package), so keep it package-private
+		# abstract types expose `deserializeInto` (a BufferView-cursor field reader) to disambiguate from the concrete
+		# `deserialize(ByteBuffer)`
 		if self.is_type_abstract:
 			descriptor.method_name = 'deserializeInto'
 			descriptor.visibility = None
@@ -439,7 +435,7 @@ class StructFormatter(AbstractTypeFormatter):
 				if bound_condition:
 					# the size field's Java type drives the sentinel literal's int/long form
 					condition_value = _java_int_literal(bound_field.value.value, field.extensions.printer.is_long())
-					field_value = f'({bound_field_name} != null ? {field_value} : {condition_value})'
+					field_value = f'(null != {bound_field_name} ? {field_value} : {condition_value})'
 			else:
 				field_value = bound_field.extensions.printer.get_size()
 		elif field.is_size_reference:
@@ -550,7 +546,7 @@ class StructFormatter(AbstractTypeFormatter):
 			# byte[] fields: defensive clone so callers can't mutate the internal buffer.
 			# Null-aware because conditional/union byte[] fields default to null.
 			body = (
-				f'return {self.field_name(field)} == null'
+				f'return null == {self.field_name(field)}'
 				f' ? null'
 				f' : {self.field_name(field)}.clone();')
 			result = java_type
@@ -573,7 +569,7 @@ class StructFormatter(AbstractTypeFormatter):
 		method_name = f'set{capitalize(printer_name)}'
 		# byte[] fields: defensive clone so subsequent caller mutations don't bleed into the model.
 		if isinstance(field.extensions.printer, ArrayPrinter):
-			body = f'{self.field_name(field)} = value == null ? null : value.clone();'
+			body = f'{self.field_name(field)} = null == value ? null : value.clone();'
 		else:
 			body = f'{self.field_name(field)} = value;'
 		descriptor = MethodDescriptor(
@@ -604,6 +600,8 @@ class StructFormatter(AbstractTypeFormatter):
 
 		methods.append(self._render_set_field_method())
 		methods.append(self._render_get_field_method())
+
+		# each NEM class is converting to non verifable form so no reflection is needed
 		to_non_verifiable = self._render_to_non_verifiable_method()
 		if to_non_verifiable is not None:
 			methods.append(to_non_verifiable)
@@ -612,18 +610,12 @@ class StructFormatter(AbstractTypeFormatter):
 
 	def _find_non_verifiable_sibling(self):
 		"""Return the AST model for the {@code NonVerifiable<Self>} sibling, or {@code None}."""
-		if not self._ast_models:
+		# Only the verifiable side carries a NonVerifiable sibling — skip the NonVerifiable
+		# types themselves so we don't emit toNonVerifiable on those.
+		if not self._ast_models or self.struct.name.startswith('NonVerifiable'):
 			return None
-
-		if self.struct.name.startswith('NonVerifiable'):
-			return None
-
 		target_name = f'NonVerifiable{self.struct.name}'
-		for candidate in self._ast_models:
-			if candidate.name == target_name:
-				return candidate
-
-		return None
+		return next((candidate for candidate in self._ast_models if candidate.name == target_name), None)
 
 	def _render_to_non_verifiable_method(self):
 		"""Emit the typed {@code toNonVerifiable()} on NEM Transaction + its concrete subclasses."""
@@ -633,13 +625,16 @@ class StructFormatter(AbstractTypeFormatter):
 
 		if self.is_type_abstract:
 			# Abstract Transaction → emit a concrete default that throws.
-			return _method(
-				['Returns the non-verifiable form of this transaction (omits the {@code signature}',
-					'field). Used by the NEM facade for JSON payload preparation. Concrete subclasses',
-					'override; calling this on the abstract base directly is a programmer error.',
-					'', '@return Non-verifiable transaction.'],
-				f'\tpublic {sibling.name} toNonVerifiable()',
-				'\t\tthrow new IllegalStateException("toNonVerifiable() not implemented on " + getClass().getName());\n')
+			descriptor = MethodDescriptor(
+				method_name='toNonVerifiable',
+				body='throw new IllegalStateException("toNonVerifiable() not implemented on " + getClass().getName());')
+			descriptor.result = sibling.name
+			descriptor.documentation = [
+				'Returns the non-verifiable form of this transaction (omits the {@code signature}',
+				'field). Used by the NEM facade for JSON payload preparation. Concrete subclasses',
+				'override; calling this on the abstract base directly is a programmer error.',
+				'', '@return Non-verifiable transaction.']
+			return descriptor
 
 		source_field_names = {field.extensions.printer.name for field in self.non_reserved_fields(include_inherited=True)}
 		sibling_formatter = self._sibling_formatter(sibling)
@@ -647,13 +642,16 @@ class StructFormatter(AbstractTypeFormatter):
 		for field in sibling_formatter.non_reserved_fields(include_inherited=True):
 			name = field.extensions.printer.name
 			if name in source_field_names:
-				copy_lines.append(f'\t\tresult.setField("{name}", this.{name});')
+				copy_lines.append(f'result.set{capitalize(name)}(this.{name});')
 
 		copy_block = '\n'.join(copy_lines) + '\n' if copy_lines else ''
-		return _method(
-			['Returns the non-verifiable form of this transaction.', '', '@return Non-verifiable transaction.'],
-			f'\t@Override\n\tpublic {sibling.name} toNonVerifiable()',
-			f'\t\tfinal {sibling.name} result = new {sibling.name}();\n{copy_block}\t\treturn result;\n')
+		descriptor = MethodDescriptor(
+			method_name='toNonVerifiable',
+			body=f'final {sibling.name} result = new {sibling.name}();\n{copy_block}return result;')
+		descriptor.result = sibling.name
+		descriptor.annotations = ['@Override']
+		descriptor.documentation = ['Returns the non-verifiable form of this transaction.', '', '@return Non-verifiable transaction.']
+		return descriptor
 
 	def _sibling_formatter(self, sibling):
 		factory_ast_model = None
@@ -664,37 +662,40 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return StructFormatter(sibling, factory_ast_model, factory_map=self.factory_map, ast_models=self._ast_models)
 
-	def _render_type_hints_method(self):  # pylint: disable=no-self-use
-		return _method(
-			['Returns the type-hint map driving the rule-based descriptor pipeline.', '', '@return Field-name → rule-key map.'],
-			'\t@Override\n\tpublic java.util.Map<String, String> typeHints()',
-			'\t\treturn TYPE_HINTS;\n')
+	def _render_type_hints_method(self):
+		# pylint: disable=no-self-use
+		descriptor = MethodDescriptor(method_name='typeHints', body='return TYPE_HINTS;')
+		descriptor.result = 'java.util.Map<String, String>'
+		descriptor.annotations = ['@Override']
+		descriptor.documentation = [
+			'Returns the type-hint map driving the rule-based descriptor pipeline.', '', '@return Field-name → rule-key map.']
+		return descriptor
 
-	def _render_field_switch(self, doc_lines, signature, case_rhs, default_line, *, is_expression):
+	def _render_field_switch(self, doc_lines, case_rhs, default_line, *, method_name, arguments, result, is_expression):
+		"""Render a setField/getField descriptor — a name switch with one case per non-inherited field, always
+		chaining to ``super`` so inherited fields land on the parent and unknown names ultimately throw."""
+		# pylint: disable=too-many-arguments
 		cases = [
-			f'\t\t\tcase "{field.extensions.printer.name}" -> {case_rhs(field)};'
+			f'\tcase "{field.extensions.printer.name}" -> {case_rhs(field)};'
 			for field in self.non_reserved_fields(include_inherited=False)]
 		body_inner = '\n'.join(cases) + '\n' if cases else ''
-		switch_open = '\t\treturn switch (name) {\n' if is_expression else '\t\tswitch (name) {\n'
-		switch_close = '\t\t};\n' if is_expression else '\t\t}\n'
-		return (
-			f'{_javadoc(doc_lines)}'
-			'\t@Override\n'
-			f'\t{signature} {{\n'
-			f'{switch_open}'
-			f'{body_inner}'
-			f'\t\t\t{default_line}\n'
-			f'{switch_close}'
-			'\t}\n')
+		switch_open = 'return switch (name) {\n' if is_expression else 'switch (name) {\n'
+		switch_close = '};' if is_expression else '}'
+		descriptor = MethodDescriptor(
+			method_name=method_name, arguments=arguments, body=f'{switch_open}{body_inner}\t{default_line}\n{switch_close}')
+		descriptor.result = result
+		descriptor.annotations = ['@Override']
+		descriptor.documentation = doc_lines
+		return descriptor
 
 	def _render_set_field_method(self):
 		"""Emit ``public void setField(String name, Object value)`` with a switch on field name."""
 		return self._render_field_switch(
 			['Sets a named field. Used by the rule-based descriptor pipeline.', '',
 				'@param name  Field name (descriptor key).', '@param value Value to assign.'],
-			'public void setField(final String name, final Object value)',
 			lambda field: f'{self.field_name(field)} = {self._set_field_rhs(field)}',
 			'default -> super.setField(name, value);',
+			method_name='setField', arguments=['String name', 'Object value'], result=None,
 			is_expression=False)
 
 	def _render_get_field_method(self):
@@ -702,13 +703,14 @@ class StructFormatter(AbstractTypeFormatter):
 		return self._render_field_switch(
 			['Reads a named field. Used by the facade-level entity inspection helpers.', '',
 				'@param name Field name.', '@return Field value.'],
-			'public Object getField(final String name)',
 			self.field_name,
 			'default -> super.getField(name);',
+			method_name='getField', arguments=['String name'], result='Object',
 			is_expression=True)
 
-	def _set_field_rhs(self, field):  # pylint: disable=no-self-use, too-many-return-statements
+	def _set_field_rhs(self, field):
 		"""Pick the right convert helper / cast for a field's destination type."""
+		# pylint: disable=no-self-use, too-many-return-statements
 		printer = field.extensions.printer
 		if isinstance(printer, ArrayPrinter):
 			return 'asBytes(value)'

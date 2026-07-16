@@ -7,7 +7,7 @@ from .AbstractTypeFormatter import MethodDescriptor
 
 
 class FlagsTypeFormatter(AbstractEnumFormatter):
-	def get_implements_clause(self):
+	def get_implemented_interfaces(self):
 		return 'org.symbol.sdk.Serializer'
 
 	def get_fields(self):
@@ -37,7 +37,7 @@ class FlagsTypeFormatter(AbstractEnumFormatter):
 		return descriptor
 
 	def _deserialize_body(self):
-		body = f'final {self.value_type} value = {self.int_printer.load()};\n'
+		body = f'final {self.value_type} value = {self.int_printer.load(self._wrapped_cursor())};\n'
 		body += f'return new {self.typename}(value);'
 		return body
 
@@ -65,8 +65,12 @@ class FlagsTypeFormatter(AbstractEnumFormatter):
 			method_name='equals',
 			arguments=['Object other'],
 			body=(
-				f'if (this == other) return true;\n'
-				f'if (!(other instanceof {self.typename})) return false;\n'
+				f'if (this == other)\n'
+				f'\treturn true;\n'
+				f'\n'
+				f'if (!(other instanceof {self.typename}))\n'
+				f'\treturn false;\n'
+				f'\n'
 				f'return this.value == (({self.typename}) other).value;'
 			))
 		descriptor.annotations = ['@Override']
@@ -88,6 +92,7 @@ class FlagsTypeFormatter(AbstractEnumFormatter):
 			f'\t{self.value_type} combined = {zero};\n'
 			f'\tfor (final String name : names.split(" "))\n'
 			f'\t\tcombined |= fromName(name).value;\n'
+			f'\n'
 			f'\treturn new {self.typename}(combined);\n'
 			f'}}'
 		)
@@ -115,20 +120,19 @@ class FlagsTypeFormatter(AbstractEnumFormatter):
 		return 'return Integer.hashCode(this.value);'
 
 	def get_str_descriptor(self):
-		named_constants = ', '.join(f'{self.typename}.{entry.name}' for entry in self.enum_type.values)
-		named_names = ', '.join(f'"{self.typename}.{entry.name}"' for entry in self.enum_type.values)
+		values = ', '.join(self._value_literal(entry.value) for entry in self.enum_type.values)
+		names = ', '.join(f'"{self.typename}.{entry.name}"' for entry in self.enum_type.values)
 		body = (
-			f'final {self.typename}[] candidates = {{ {named_constants} }};\n'
-			f'final String[] names = {{ {named_names} }};\n'
-			f'for (int i = 0; i < candidates.length; ++i) {{\n'
-			f'\tif (candidates[i].value == this.value)\n'
-			f'\t\treturn names[i];\n'
-			f'}}\n'
+			f'final {self.value_type}[] values = {{ {values} }};\n'
+			f'final String[] names = {{ {names} }};\n'
 			f'final java.util.List<String> parts = new java.util.ArrayList<>();\n'
-			f'for (int i = 0; i < candidates.length; ++i) {{\n'
-			f'\tif (this.has(candidates[i].value))\n'
+			f'for (int i = 0; i < values.length; ++i) {{\n'
+			f'\tif (values[i] == this.value)\n'
+			f'\t\treturn names[i];\n'
+			f'\tif (this.has(values[i]))\n'
 			f'\t\tparts.add(names[i]);\n'
 			f'}}\n'
+			f'\n'
 			f'return String.join("|", parts);'
 		)
 		return AbstractEnumFormatter.make_to_string_descriptor(body)

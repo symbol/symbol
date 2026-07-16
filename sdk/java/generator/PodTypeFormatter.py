@@ -28,7 +28,7 @@ class PodTypeFormatter(AbstractTypeFormatter):
 
 		return f'org.symbol.sdk.BaseValue<{self.typename}>'
 
-	def get_implements_clause(self):
+	def get_implemented_interfaces(self):
 		# PODs reach Serializer through their base class; there is nothing extra to implement.
 		return None
 
@@ -49,55 +49,52 @@ class PodTypeFormatter(AbstractTypeFormatter):
 	def get_extra_methods(self):
 		"""No-arg ctor + descriptor parse factory; equals/hashCode/toString are inherited from the base class."""
 		typename = self.typename
-		methods = []
 
 		# Integer PODs take a long; the canonical long ctor already covers the natural-type case (no extra ctor needed).
 		default = self.printer.get_default_value() if self._is_array else '0L'
-		body = f'\t\tthis({default});'
-		javadoc = f'\t/**\n\t * Creates a {typename}.\n\t */\n'
-		methods.append(f'{javadoc}\tpublic {typename}() {{\n{body}\n\t}}\n')
+		ctor = MethodDescriptor(body=f'this({default});')
+		ctor.is_constructor = True
 
 		# Raw-value factory — the non-reflective coercion used by the rule-based factory (registered via
 		# Models.FACTORIES), but also a general-purpose constructor callable directly. Each pod knows its own input shapes.
 		typed_branch = (
-			f'\t\tif (rawValue instanceof {typename} typed)\n'
-			f'\t\t\treturn typed;\n')
+			f'if (rawValue instanceof {typename} typed)\n'
+			f'\treturn typed;\n')
 		if self._is_array:
 			# the hex-string / byte[] / ByteArray coercion is centralized in ByteArray.toBytes (the byte-array
 			# counterpart of Converter.toLong); a String is read there as hex (this type's canonical form).
 			parse_doc = f'Parses a raw value ({typename}, hex string, byte array, or SDK ByteArray) into a {typename}.'
 			parse_body = (
 				f'{typed_branch}'
-				f'\t\treturn new {typename}(org.symbol.sdk.ByteArray.toBytes(rawValue));\n')
+				f'return new {typename}(org.symbol.sdk.ByteArray.toBytes(rawValue));')
 		else:
 			parse_doc = f'Parses a raw value ({typename}, number, or decimal/0x-hex string) into a {typename}.'
 			parse_body = (
 				f'{typed_branch}'
-				'\t\tif (rawValue instanceof String string)\n'
-				f'\t\t\treturn new {typename}(org.symbol.sdk.utils.Converter.toLong(string));\n'
-				'\t\tif (rawValue instanceof Number number)\n'
-				f'\t\t\treturn new {typename}(org.symbol.sdk.utils.Converter.toLong(number));\n'
-				'\t\tthrow new IllegalArgumentException(\n'
-				'\t\t\t\t"cannot convert " + (null == rawValue ? "null" : rawValue.getClass().getName())'
-				' + " to an integer value");\n')
+				'if (rawValue instanceof String string)\n'
+				f'\treturn new {typename}(org.symbol.sdk.utils.Converter.toLong(string));\n'
+				'if (rawValue instanceof Number number)\n'
+				f'\treturn new {typename}(org.symbol.sdk.utils.Converter.toLong(number));\n'
+				'throw new IllegalArgumentException(\n'
+				'\t\t"cannot convert " + (null == rawValue ? "null" : rawValue.getClass().getName())'
+				' + " to an integer value");')
 
-		methods.append(
-			f'\t/**\n\t * {parse_doc}\n'
-			f'\t *\n\t * @param rawValue Raw value.\n\t * @return Parsed value.\n\t */\n'
-			f'\tpublic static {typename} parse(final Object rawValue) {{\n'
-			f'{parse_body}'
-			f'\t}}\n')
+		parse = MethodDescriptor(method_name='parse', arguments=['Object rawValue'], body=parse_body)
+		parse.is_static = True
+		parse.result = typename
+		parse.documentation = [parse_doc, '', '@param rawValue Raw value.', '@return Parsed value.']
 
 		# equals/hashCode/toString/serialize/size are all inherited from the POD's base class.
-		return methods
+		return [ctor, parse]
 
 	def get_deserialize_descriptor(self):
+		view = 'new org.symbol.sdk.utils.BufferView(buffer)'
 		if self._is_array:
-			body = f'return new {self.typename}(view.peekBytes(SIZE));'
+			body = f'return new {self.typename}({view}.peekBytes(SIZE));'
 		else:
-			body = f'return new {self.typename}(view.peekInt(SIZE, IS_SIGNED));'
+			body = f'return new {self.typename}({view}.peekInt(SIZE, IS_SIGNED));'
 
-		descriptor = MethodDescriptor(body=body, arguments=['org.symbol.sdk.utils.BufferView view'])
+		descriptor = MethodDescriptor(body=body, arguments=['java.nio.ByteBuffer buffer'])
 		descriptor.result = self.typename
 		descriptor.is_static = True
 		return descriptor

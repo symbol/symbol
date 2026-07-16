@@ -19,12 +19,26 @@ public final class BufferView {
 		this(ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN));
 	}
 
-	private BufferView(final ByteBuffer buffer) {
-		this.buffer = buffer;
+	/**
+	 * Creates a buffer view over a {@link ByteBuffer}'s remaining bytes.
+	 *
+	 * @param buffer Backing buffer; read from its current position, left unmodified.
+	 */
+	public BufferView(final ByteBuffer buffer) {
+		this.buffer = rebasedSlice(buffer);
 	}
 
 	private static ByteBuffer rebasedSlice(final ByteBuffer source) {
 		return source.slice().order(ByteOrder.LITTLE_ENDIAN);
+	}
+
+	/**
+	 * Returns a {@link ByteBuffer} over the visible window (this view is not advanced).
+	 *
+	 * @return ByteBuffer over the current window.
+	 */
+	public ByteBuffer buffer() {
+		return rebasedSlice(buffer);
 	}
 
 	/**

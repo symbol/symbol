@@ -119,7 +119,8 @@ class ModelsSweepTestFormatter:
 		self.entries = entries
 		self.type_info = _ModelTypeInfo(ast_models)
 
-	def _field_value(self, field, index, *, second=False):  # pylint: disable=too-many-return-statements
+	def _field_value(self, field, index, *, second=False):
+		# pylint: disable=too-many-return-statements
 		printer = field.extensions.printer
 		type_name = str(field.field_type)
 		suffix = '-2' if second else ''
@@ -155,7 +156,8 @@ class ModelsSweepTestFormatter:
 
 		raise RuntimeError(f'no sweep sample strategy for field "{printer.name}" of type {type_name} ({java_type})')
 
-	def _render_struct_test(self, ast_model, formatter):  # pylint: disable=too-many-locals
+	def _render_struct_test(self, ast_model, formatter):
+		# pylint: disable=too-many-locals
 		typename = ast_model.name
 		lines = [
 			'\t\t// Arrange:',
@@ -199,7 +201,7 @@ class ModelsSweepTestFormatter:
 			lines.append('\t\ttry {')
 			lines.append('\t\t\tfinal byte[] payload = instance.serialize();')
 			lines.append('\t\t\tassertThat(payload.length, equalTo(instance.size()));')
-			lines.append(f'\t\t\tassertThat({typename}.deserialize(payload).serialize(), equalTo(payload));')
+			lines.append(f'\t\t\tassertThat({typename}.deserialize(java.nio.ByteBuffer.wrap(payload)).serialize(), equalTo(payload));')
 			lines.append('\t\t} catch (RuntimeException ignored) {')
 			lines.append('\t\t\t// conditional-null default rejected; vectors cover valid payloads')
 			lines.append('\t\t}')
@@ -207,7 +209,7 @@ class ModelsSweepTestFormatter:
 			lines.append('\t\tfinal byte[] payload = instance.serialize();')
 			lines.append('\t\tassertThat(payload.length, equalTo(instance.size()));')
 			lines.append('\t\ttry {')
-			lines.append(f'\t\t\tassertThat({typename}.deserialize(payload).serialize(), equalTo(payload));')
+			lines.append(f'\t\t\tassertThat({typename}.deserialize(java.nio.ByteBuffer.wrap(payload)).serialize(), equalTo(payload));')
 			lines.append('\t\t} catch (RuntimeException ignored) {')
 			lines.append('\t\t\t// synthetic sample rejected on the read path; vectors cover valid payloads')
 			lines.append('\t\t}')
@@ -223,7 +225,7 @@ class ModelsSweepTestFormatter:
 		if not ast_model.is_unsigned and 1 == size:
 			sample = _SIGNED_POD_SAMPLE
 		to_string = f'0x{sample:0{2 * size}X}'
-		to_json = f'"{sample}"' if 8 <= size else f'{sample}L'
+		to_json = f'"{sample}"' if 8 == size else f'{sample}L'
 		lines = [
 			'\t\t// Arrange + Act:',
 			f'\t\tfinal {typename} value = new {typename}({sample}L);',
@@ -273,9 +275,10 @@ class ModelsSweepTestFormatter:
 		for entry in ast_model.values:
 			constant = f'{typename}.{entry.name}'
 			value_literal = _int_literal(entry.value, size, ast_model.is_unsigned)
+			to_json_literal = f'"{entry.value}"' if 8 == size else value_literal
 			lines.append(f'\t\tassertThat({constant}.getValue(), equalTo({value_literal}));')
 			lines.append(f'\t\tassertThat({constant}.toString(), equalTo("{typename}.{entry.name}"));')
-			lines.append(f'\t\tassertThat({constant}.toJson(), equalTo({value_literal}));')
+			lines.append(f'\t\tassertThat({constant}.toJson(), equalTo({to_json_literal}));')
 			lines.append(f'\t\tassertThat({constant}.serialize(), equalTo({_le_bytes_literal(entry.value, size)}));')
 
 		lines.append('')
@@ -296,10 +299,11 @@ class ModelsSweepTestFormatter:
 		for entry in ast_model.values:
 			constant = f'{typename}.{entry.name}'
 			value_literal = _int_literal(entry.value, size, ast_model.is_unsigned)
+			to_json_literal = f'"{entry.value}"' if 8 == size else value_literal
 			lines.append(f'\t\tassertThat({constant}.getValue(), equalTo({value_literal}));')
 			lines.append(f'\t\tassertThat({constant}.size(), equalTo({size}));')
 			lines.append(f'\t\tassertThat({constant}.toString(), equalTo("{typename}.{entry.name}"));')
-			lines.append(f'\t\tassertThat({constant}.toJson(), equalTo({value_literal}));')
+			lines.append(f'\t\tassertThat({constant}.toJson(), equalTo({to_json_literal}));')
 			lines.append(f'\t\tassertThat({constant}.serialize(), equalTo({_le_bytes_literal(entry.value, size)}));')
 			lines.append(f'\t\tassertThat({typename}.parse({constant}), sameInstance({constant}));')
 			lines.append(f'\t\tassertThat({typename}.parse("{entry.name.lower()}"), equalTo({constant}));')

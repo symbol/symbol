@@ -210,11 +210,11 @@ tasks.javadoc {
 
 // When a regeneration is in play, narrow Spotless to just the generated subtrees so that
 // `gradle generateModels` / `generateDescriptors` (and the standalone scripts, which pass
-// -PspotlessGenerated) format only freshly generated files and never reformat unrelated,
+// -PspotlessGeneratedOnly) format only freshly generated files and never reformat unrelated,
 // possibly in-progress, working-tree files. Any other invocation (check, apply, CI) keeps the
 // full src target. Caveat: requesting a generate task and `check` in the same invocation narrows
 // that check to the generated tree.
-val scopeSpotlessToGenerated = project.hasProperty("spotlessGenerated") ||
+val scopeSpotlessToGenerated = project.hasProperty("spotlessGeneratedOnly") ||
 	gradle.startParameter.taskNames.any { it.substringAfterLast(':') in setOf("generateModels", "generateDescriptors") }
 
 spotless {

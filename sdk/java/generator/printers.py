@@ -22,11 +22,13 @@ class Printer:
 		# printer.name is the 'fixed' field name (camelCase, post Java keyword-collision rewrite)
 		self.name = lang_field_name(name or underline_name(self.descriptor.name))
 
-	def sort(self, _field_name):  # pylint: disable=no-self-use
+	def sort(self, _field_name):
+		# pylint: disable=no-self-use
 		return None
 
-	def serialize_into(self, _buffer_name, _field_name):  # pylint: disable=no-self-use
+	def serialize_into(self, _buffer_name, _field_name):
 		"""Direct-write hook used by struct serializers."""
+		# pylint: disable=no-self-use
 		return None
 
 
@@ -308,7 +310,7 @@ class BuiltinPrinter(Printer):
 			DisplayType.BYTE_ARRAY: 'pod:',
 			DisplayType.TYPED_ARRAY: 'pod:',
 			DisplayType.ENUM: 'enum:',
-			DisplayType.STRUCT: 'struct:',
+			DisplayType.STRUCT: 'struct:'
 		}[self.descriptor.display_type]
 		self.type_hint += self.descriptor.name
 
@@ -331,9 +333,9 @@ class BuiltinPrinter(Printer):
 		# Factory class itself, so we leave that detail to FactoryFormatter.
 		if DisplayType.STRUCT == display_type and self.descriptor.is_abstract:
 			if 'parent' != self.name:
-				return f'{self.get_type()}Factory.deserialize({cursor})'
+				return f'{self.get_type()}Factory.deserialize({cursor}.buffer())'
 
-		return f'{self.get_type()}.deserialize({cursor})'
+		return f'{self.get_type()}.deserialize({cursor}.buffer())'
 
 	def advancement_size(self):
 		return f'{self.name}.size()'

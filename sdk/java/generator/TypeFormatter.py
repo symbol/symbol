@@ -31,14 +31,15 @@ _METHOD_SUMMARIES = {
 	'deserialize': 'Deserializes an instance of this object from a byte payload.',
 	'deserializeInto': 'Deserializes this object into an existing instance from a buffer view.',
 	'sort': 'Sorts the collections of this object so that it can be serialized canonically.',
+	'compareTo': 'Compares this object with another for ordering.',
 	'createByName': 'Creates an instance of the concrete type by its name.',
 	'fromValue': 'Creates an instance from its underlying numeric value.',
+	'parse': 'Parses a raw value into an instance.',
 	'has': 'Checks whether a flag is set.',
 	'toJson': 'Converts this object to a JSON-serializable representation.',
 	'toString': 'Returns a string representation of this object.',
 	'equals': 'Compares this object with another for equality.',
 	'hashCode': 'Computes the hash code of this object.',
-	'comparer': 'Builds the comparison key for this object.',
 }
 
 _METHOD_RETURNS = {
@@ -47,13 +48,13 @@ _METHOD_RETURNS = {
 	'deserialize': 'Deserialized object.',
 	'has': 'true if the flag is set, false otherwise.',
 	'fromValue': 'Instance corresponding to the numeric value.',
+	'parse': 'Parsed instance.',
+	'compareTo': 'Negative, zero, or positive as this is less than, equal to, or greater than the other.',
 	'toJson': 'JSON-serializable representation of this object.',
 	'toString': 'String representation of this object.',
 	'equals': 'true if the objects are equal, false otherwise.',
 	'hashCode': 'Hash code of this object.',
-	'comparer': 'Comparison key for this object.',
 	'createByName': 'New instance of the named type.',
-	'getValue': 'Underlying numeric value.',
 }
 
 _ARGUMENT_DESCRIPTIONS = {
@@ -65,12 +66,21 @@ _ARGUMENT_DESCRIPTIONS = {
 	'instance': 'Destination instance to populate.',
 	'other': 'Object to compare against.',
 	'entityName': 'Entity (transaction) name.',
-	'values': 'Discriminator values.',
+	'rawValue': 'Raw value to parse.',
 }
 
 
 def _argument_description(name):
+	# argument names are open-ended (every field name); a capitalized fallback is a fine default
 	return _ARGUMENT_DESCRIPTIONS.get(name, f'{capitalize(name)}.')
+
+
+def _require_doc(mapping, mapping_name, method_name):
+	"""Look up a generated method's javadoc text, failing since there is no default"""
+	if method_name not in mapping:
+		raise RuntimeError(f'no javadoc registered for method {method_name!r} in {mapping_name}; add an entry')
+
+	return mapping[method_name]
 
 
 def _accessor_property(method_name):
@@ -85,8 +95,9 @@ def _accessor_property(method_name):
 	return None
 
 
-def _default_documentation(method_descriptor, is_constructor, owner_typename):  # pylint: disable=too-many-locals
+def _default_documentation(method_descriptor, is_constructor, owner_typename):
 	"""Build a generic Javadoc for a generated method when the formatter supplied none."""
+	# pylint: disable=too-many-locals
 	method_name = method_descriptor.method_name
 	arguments = method_descriptor.arguments
 	result = method_descriptor.result
@@ -94,12 +105,12 @@ def _default_documentation(method_descriptor, is_constructor, owner_typename):  
 	accessor = None if is_constructor else _accessor_property(method_name)
 
 	if is_constructor:
-		lines = [f'Creates a {owner_typename}.']
+		lines = [f'Creates a new {owner_typename}.']
 	elif accessor:
 		prefix, property_name = accessor
 		lines = [f'{"Gets" if "get" == prefix else "Sets"} the {property_name} field.']
 	else:
-		lines = [_METHOD_SUMMARIES.get(method_name, f'Invokes {method_name}.')]
+		lines = [_require_doc(_METHOD_SUMMARIES, '_METHOD_SUMMARIES', method_name)]
 
 	setter_property = accessor[1] if accessor and 'set' == accessor[0] else None
 
@@ -114,7 +125,7 @@ def _default_documentation(method_descriptor, is_constructor, owner_typename):  
 		if accessor and 'get' == accessor[0]:
 			return_line = f'@return The {accessor[1]} field.'
 		else:
-			return_line = f'@return {_METHOD_RETURNS.get(method_name, "Result of the operation.")}'
+			return_line = f'@return {_require_doc(_METHOD_RETURNS, "_METHOD_RETURNS", method_name)}'
 
 	if param_lines or return_line:
 		lines.append('')
@@ -131,7 +142,7 @@ def _default_documentation(method_descriptor, is_constructor, owner_typename):  
 	return lines
 
 
-def _generate_method(method_descriptor, *, is_constructor=False, owner_typename=None):  # pylint: disable=too-many-locals
+def _generate_method(method_descriptor, *, is_constructor=False, owner_typename=None):
 	"""Render a single method to a Java source fragment."""
 	parts = []
 
@@ -175,30 +186,9 @@ def _generate_method(method_descriptor, *, is_constructor=False, owner_typename=
 	return ''.join(parts)
 
 
-def _maybe_deserialize_overload(method_descriptor):
-	"""Render a public ``deserialize(byte[])`` delegate that wraps the payload in a BufferView for the view-based deserializer."""
-	method_name = method_descriptor.method_name
-	if 'deserialize' != method_name:
-		return None
-
-	stripped = [_split_argument(argument) for argument in method_descriptor.arguments]
-	if list(stripped) != [('org.symbol.sdk.utils.BufferView', 'view')]:
-		return None
-
-	delegate = type(method_descriptor)(
-		method_name=method_name,
-		arguments=['byte[] payload'],
-		body=f'return {method_name}(new org.symbol.sdk.utils.BufferView(payload));')
-	delegate.result = method_descriptor.result
-	delegate.visibility = method_descriptor.visibility
-	delegate.is_static = method_descriptor.is_static
-	# documentation (incl. the shared @throws parse-error contract) is filled in by _default_documentation
-	return _generate_method(delegate)
-
-
 HEADER = (
 	'// Auto-generated by sdk/java/generator. Do not edit directly.\n'
-	'// Run scripts/run_catbuffer_generator.sh to regenerate.\n'
+	'// Run sdk/java/scripts/run_catbuffer_generator.sh to regenerate.\n'
 )
 
 
@@ -208,7 +198,7 @@ def _append_if_not_none(methods, descriptor):
 
 
 def _build_method(name, descriptor, *, result_default=None):
-	"""Render a named method descriptor (defaulting its name/result) plus any ``deserialize(byte[])`` overload."""
+	"""Render a named method descriptor (defaulting its name/result)."""
 	if descriptor is None:
 		return None
 
@@ -218,12 +208,42 @@ def _build_method(name, descriptor, *, result_default=None):
 	if descriptor.result is None and result_default is not None:
 		descriptor.result = result_default
 
-	rendered = _generate_method(descriptor)
-	overload = _maybe_deserialize_overload(descriptor)
-	if overload:
-		rendered = f'{rendered}\n{overload}'
+	return _generate_method(descriptor)
 
-	return rendered
+
+def _build_getters_setters(provider):
+	return [_generate_method(descriptor) for descriptor in provider.get_getter_setter_descriptors()]
+
+
+def _build_protected_serializer(provider):
+	descriptor = provider.get_serialize_protected_descriptor()
+	if descriptor is None:
+		return None
+	return _generate_method(descriptor)
+
+
+def _build_core_methods(provider):
+	"""Assemble the ordered core-method fragments shared by the class and enum render paths — the single
+	source of truth for method ordering. Slots the provider leaves empty (``None``) drop out, so enums
+	naturally omit compareTo / sort / the protected serializer while structs and pods include them."""
+	methods = []
+	_append_if_not_none(methods, _build_method('compareTo', provider.get_compare_to_descriptor(), result_default='int'))
+	_append_if_not_none(methods, _build_method('sort', provider.get_sort_descriptor(), result_default='void'))
+	methods.extend(_build_getters_setters(provider))
+	_append_if_not_none(methods, _build_method('size', provider.get_size_descriptor(), result_default='int'))
+	_append_if_not_none(methods, _build_method('deserialize', provider.get_deserialize_descriptor()))
+	_append_if_not_none(methods, _build_method('serialize', provider.get_serialize_descriptor(), result_default='byte[]'))
+	_append_if_not_none(methods, _build_protected_serializer(provider))
+	_append_if_not_none(methods, _build_method('toString', provider.get_str_descriptor(), result_default='String'))
+	_append_if_not_none(
+		methods,
+		_build_method('toJson', provider.get_json_descriptor(), result_default='java.util.Map<String, Object>'))
+	return methods
+
+
+def _file_preamble(package_name):
+	"""The shared auto-generated header + package declaration that opens every generated source file."""
+	return f'{HEADER}\npackage {package_name};\n\n'
 
 
 class TypeFormatter:
@@ -236,18 +256,15 @@ class TypeFormatter:
 	def __str__(self):
 		return self._render()
 
-	# -- public API ---------------------------------------------------------------------------
-
-	def _render(self):  # pylint: disable=too-many-locals, too-many-statements
+	def _render(self):
+		# pylint: disable=too-many-locals
 		typename = self.provider.typename
-		modifiers = 'public final '
-		if self.provider.is_type_abstract:
-			modifiers = 'public '
+		modifiers = 'public ' if self.provider.is_type_abstract else 'public final '
 
 		base = self.provider.get_base_class()
-		impls = self.provider.get_implements_clause()
+		interfaces = self.provider.get_implemented_interfaces()
 		extends = f' extends {base}' if base else ''
-		implements = f' implements {impls}' if impls else ''
+		implements = f' implements {interfaces}' if interfaces else ''
 
 		# Sealed hierarchies: abstract bases declare their concrete subclasses via `permits` so downstream callers can
 		# exhaustive-switch over the closed set.
@@ -269,48 +286,18 @@ class TypeFormatter:
 			ctor_method = _generate_method(ctor_descriptor, is_constructor=True, owner_typename=typename)
 			body += indent(ctor_method) + '\n'
 
-		extra = self.provider.get_extra_methods()
-		for raw in extra:
-			body += raw + '\n'
-
-		methods = []
-		_append_if_not_none(methods, _build_method('compareTo', self.provider.get_compare_to_descriptor(), result_default='int'))
-		_append_if_not_none(methods, _build_method('sort', self.provider.get_sort_descriptor(), result_default='void'))
-		methods.extend(self._build_getters_setters())
-		_append_if_not_none(methods, _build_method('size', self.provider.get_size_descriptor(), result_default='int'))
-		_append_if_not_none(methods, _build_method('deserialize', self.provider.get_deserialize_descriptor()))
-		_append_if_not_none(methods, _build_method('serialize', self.provider.get_serialize_descriptor(), result_default='byte[]'))
-		_append_if_not_none(methods, self._build_protected_serializer())
-		_append_if_not_none(methods, _build_method('toString', self.provider.get_str_descriptor(), result_default='String'))
-		_append_if_not_none(
-			methods,
-			_build_method('toJson', self.provider.get_json_descriptor(), result_default='java.util.Map<String, Object>'))
-
-		for method in methods:
+		for descriptor in self.provider.get_extra_methods():
+			method = _generate_method(descriptor, is_constructor=descriptor.is_constructor, owner_typename=typename)
 			body += indent(method) + '\n'
 
-		header = f'{HEADER}\npackage {self.package_name};\n\n'
+		body += '\n'.join(indent(method) for method in _build_core_methods(self.provider))
+
+		header = _file_preamble(self.package_name)
 		class_doc = ''
 		if self.provider.get_class_documentation():
 			class_doc = _generate_javadoc(self.provider.get_class_documentation().splitlines())
 
 		return f'{header}{class_doc}{modifiers}class {typename}{extends}{implements}{permits_clause} {{\n{body}}}\n'
-
-	# -- helpers ------------------------------------------------------------------------------
-
-	def _build_getters_setters(self):
-		out = []
-		for descriptor in self.provider.get_getter_setter_descriptors():
-			out.append(_generate_method(descriptor))
-
-		return out
-
-	def _build_protected_serializer(self):
-		descriptor = self.provider.get_serialize_protected_descriptor()
-		if descriptor is None:
-			return None
-
-		return _generate_method(descriptor)
 
 
 class EnumFormatter:
@@ -320,7 +307,7 @@ class EnumFormatter:
 		self.provider = provider
 		self.package_name = package_name
 
-	def __str__(self):  # pylint: disable=too-many-locals
+	def __str__(self):
 		typename = self.provider.typename
 		value_type = self.provider.value_type
 
@@ -329,29 +316,15 @@ class EnumFormatter:
 
 		fields = f'\tprivate final {value_type} value;\n'
 
-		static_block_lines = []
-		if hasattr(self.provider, 'get_static_block_lines'):
-			static_block_lines = self.provider.get_static_block_lines()
-
+		static_block_lines = self.provider.get_static_block_lines()
 		static_block = ('\n' + indent('\n'.join(static_block_lines)) + '\n') if static_block_lines else ''
 
 		ctor_descriptor = self.provider.get_ctor_descriptor()
 		ctor = _generate_method(ctor_descriptor, is_constructor=True, owner_typename=typename)
 
-		methods = []
-		_append_if_not_none(methods, _build_method('size', self.provider.get_size_descriptor()))
-		_append_if_not_none(methods, _build_method('serialize', self.provider.get_serialize_descriptor()))
-		_append_if_not_none(methods, _build_method('deserialize', self.provider.get_deserialize_descriptor()))
-
-		for descriptor in self.provider.get_getter_setter_descriptors():
-			methods.append(_generate_method(descriptor))
-
-		_append_if_not_none(methods, _build_method('toString', self.provider.get_str_descriptor()))
-		_append_if_not_none(methods, _build_method('toJson', self.provider.get_json_descriptor()))
-
 		body = f'\t{const_lines}\n\n{fields}{static_block}\n{indent(ctor)}\n'
-		for method in methods:
-			body += indent(method) + '\n'
+		# _build_core_methods is the shared source of method ordering
+		body += '\n'.join(indent(method) for method in _build_core_methods(self.provider))
 
-		header = f'{HEADER}\npackage {self.package_name};\n\n'
+		header = _file_preamble(self.package_name)
 		return f'{header}public enum {typename} implements org.symbol.sdk.Serializer {{\n{body}}}\n'

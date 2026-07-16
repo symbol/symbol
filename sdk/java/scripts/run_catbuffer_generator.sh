@@ -12,6 +12,7 @@ set -ex
 function generate_code() {
 	# $1 blockchain (nem|symbol)
 	# $2 destination subdirectory under sdk/java/src/main/java/org/symbol/sdk
+	# $3 catparser generator class (default generator.Generator; the sweep test uses a separate one)
 
 	local git_root
 	git_root="$(git rev-parse --show-toplevel)"
@@ -21,7 +22,7 @@ function generate_code() {
 		--include "${git_root}/catbuffer/schemas/$1" \
 		--output "${git_root}/sdk/java/src/main/java/org/symbol/sdk/$2" \
 		--quiet \
-		--generator generator.Generator
+		--generator "${3:-generator.Generator}"
 }
 
 if [[ $# -eq 0 ]]; then
@@ -32,20 +33,27 @@ if [[ $# -eq 0 ]]; then
 		# up in the parent package and are untouched.
 		rm -rf "${models_dir}"
 		generate_code "${name}" "${name}/models"
+		generate_code "${name}" "${name}/models" generator.ModelsSweepTestGenerator
 	done
 	# The Python templates emit canonical-but-unwrapped Java; Spotless (eclipse formatter) owns
 	# line-wrapping/whitespace, so format the freshly generated tree to match the committed style.
 	# SKIP_SPOTLESS is set by the `gradle generateModels` task, which finalizes with spotlessApply
 	# itself — running gradlew here too would nest one Gradle build inside another and deadlock.
 	if [[ -z "${SKIP_SPOTLESS:-}" ]]; then
-		# -PspotlessGenerated scopes the formatter to the generated subtrees only (see build.gradle.kts).
-		(cd "$(git rev-parse --show-toplevel)/sdk/java" && ./gradlew --no-daemon spotlessApply -PspotlessGenerated)
+		# -PspotlessGeneratedOnly scopes the formatter to the generated subtrees only (see build.gradle.kts).
+		(cd "$(git rev-parse --show-toplevel)/sdk/java" && ./gradlew --no-daemon spotlessApply -PspotlessGeneratedOnly)
 	fi
 elif [[ "$1" = "dryrun" ]]; then
-	echo "running dryrun"
+	echo "running dryrun diff"
+	git_root="$(git rev-parse --show-toplevel)"
+	base="${git_root}/sdk/java/src/main/java/org/symbol/sdk"
 	for name in "nem" "symbol"; do
 		generate_code "${name}" "${name}_dryrun/models"
-		rm -rf "$(git rev-parse --show-toplevel)/sdk/java/src/main/java/org/symbol/sdk/${name}_dryrun"
+		generate_code "${name}" "${name}_dryrun/models" generator.ModelsSweepTestGenerator
+		(cd "${git_root}/sdk/java" && ./gradlew --no-daemon spotlessApply -PspotlessGeneratedOnly)
+		diff --strip-trailing-cr -r -I "package org.symbol.sdk.${name}" \
+			"${base}/${name}/models" "${base}/${name}_dryrun/models"
+		rm -rf "${base}/${name}_dryrun"
 	done
 else
 	echo "unknown options"
