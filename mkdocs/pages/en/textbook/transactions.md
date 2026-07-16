@@ -68,14 +68,6 @@ between multiple accounts, without requiring trust between them.
         subgraph clusterAggregate {
             label = "Aggregate Transaction";
             tooltip = "Aggregate Transaction";
-            subgraph clusterT1 {
-                label = "Embedded Transaction 1";
-                tooltip = "Embedded Transaction 1";
-                style = dashed;
-                A1 [label="A" tooltip="A"];
-                B1 [label="B" tooltip="B"];
-                A1 -> B1;
-            }
             subgraph clusterT2 {
                 label = "Embedded Transaction 2";
                 tooltip = "Embedded Transaction 2";
@@ -83,6 +75,14 @@ between multiple accounts, without requiring trust between them.
                 A2 [label="A" tooltip="A"];
                 B2 [label="B" tooltip="B"];
                 A2 -> B2 [dir=back];
+            }
+            subgraph clusterT1 {
+                label = "Embedded Transaction 1";
+                tooltip = "Embedded Transaction 1";
+                style = dashed;
+                A1 [label="A" tooltip="A"];
+                B1 [label="B" tooltip="B"];
+                A1 -> B1;
             }
         }
     }

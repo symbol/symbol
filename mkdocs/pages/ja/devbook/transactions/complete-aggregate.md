@@ -16,14 +16,6 @@ digraph {
     subgraph clusterAggregate {
         label = "コンプリートアグリゲートトランザクション";
         tooltip = "コンプリートアグリゲートトランザクション";
-        subgraph clusterT1 {
-            label = "埋め込み転送 1";
-            tooltip = "埋め込み転送 1";
-            style = dashed;
-            A2 [label="アカウント A" tooltip="アカウント A"];
-            B2 [label="アカウント B" tooltip="アカウント B"];
-            A2 -> B2 [label="10 XYM"];
-        }
         subgraph clusterT2 {
             label = "埋め込み転送 2";
             tooltip = "埋め込み転送 2";
@@ -31,6 +23,14 @@ digraph {
             A1 [label="アカウント A" tooltip="アカウント A"];
             B1 [label="アカウント B" tooltip="アカウント B"];
             A1 -> B1 [label="1 カスタムモザイク" dir=back];
+        }
+        subgraph clusterT1 {
+            label = "埋め込み転送 1";
+            tooltip = "埋め込み転送 1";
+            style = dashed;
+            A2 [label="アカウント A" tooltip="アカウント A"];
+            B2 [label="アカウント B" tooltip="アカウント B"];
+            A2 -> B2 [label="10 XYM"];
         }
     }
 }

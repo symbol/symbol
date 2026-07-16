@@ -18,14 +18,6 @@ digraph {
     subgraph clusterAggregate {
         label = "コンプリートアグリゲートトランザクション";
         tooltip = "コンプリートアグリゲートトランザクション";
-        subgraph clusterT1 {
-            label = "埋め込み転送 1";
-            tooltip = "埋め込み転送 1";
-            style = dashed;
-            S1 [label="署名者" tooltip="署名者"];
-            R1 [label="受信者 1" tooltip="受信者 1"];
-            S1 -> R1 [label="5 XYM"];
-        }
         subgraph clusterT2 {
             label = "埋め込み転送 2";
             tooltip = "埋め込み転送 2";
@@ -33,6 +25,14 @@ digraph {
             S2 [label="署名者" tooltip="署名者"];
             R2 [label="受信者 2" tooltip="受信者 2"];
             S2 -> R2 [label="3 XYM"];
+        }
+        subgraph clusterT1 {
+            label = "埋め込み転送 1";
+            tooltip = "埋め込み転送 1";
+            style = dashed;
+            S1 [label="署名者" tooltip="署名者"];
+            R1 [label="受信者 1" tooltip="受信者 1"];
+            S1 -> R1 [label="5 XYM"];
         }
     }
 }

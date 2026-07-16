@@ -19,14 +19,6 @@ digraph {
     subgraph clusterAggregate {
         label = "Aggregate Complete Transaction";
         tooltip = "Aggregate Complete Transaction";
-        subgraph clusterT1 {
-            label = "Embedded Transfer 1";
-            tooltip = "Embedded Transfer 1";
-            style = dashed;
-            S1 [label="Signer" tooltip="Signer"];
-            R1 [label="Recipient 1" tooltip="Recipient 1"];
-            S1 -> R1 [label="5 XYM"];
-        }
         subgraph clusterT2 {
             label = "Embedded Transfer 2";
             tooltip = "Embedded Transfer 2";
@@ -34,6 +26,14 @@ digraph {
             S2 [label="Signer" tooltip="Signer"];
             R2 [label="Recipient 2" tooltip="Recipient 2"];
             S2 -> R2 [label="3 XYM"];
+        }
+        subgraph clusterT1 {
+            label = "Embedded Transfer 1";
+            tooltip = "Embedded Transfer 1";
+            style = dashed;
+            S1 [label="Signer" tooltip="Signer"];
+            R1 [label="Recipient 1" tooltip="Recipient 1"];
+            S1 -> R1 [label="5 XYM"];
         }
     }
 }
