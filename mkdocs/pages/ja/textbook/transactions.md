@@ -69,14 +69,6 @@ Symbol に大きな柔軟性をもたらします。
         subgraph clusterAggregate {
             label = "アグリゲートトランザクション";
             tooltip = "アグリゲートトランザクション";
-            subgraph clusterT1 {
-                label = "埋め込みトランザクション 1";
-                tooltip = "埋め込みトランザクション 1";
-                style = dashed;
-                A1 [label="A" tooltip="A"];
-                B1 [label="B" tooltip="B"];
-                A1 -> B1;
-            }
             subgraph clusterT2 {
                 label = "埋め込みトランザクション 2";
                 tooltip = "埋め込みトランザクション 2";
@@ -84,6 +76,14 @@ Symbol に大きな柔軟性をもたらします。
                 A2 [label="A" tooltip="A"];
                 B2 [label="B" tooltip="B"];
                 A2 -> B2 [dir=back];
+            }
+            subgraph clusterT1 {
+                label = "埋め込みトランザクション 1";
+                tooltip = "埋め込みトランザクション 1";
+                style = dashed;
+                A1 [label="A" tooltip="A"];
+                B1 [label="B" tooltip="B"];
+                A1 -> B1;
             }
         }
     }

@@ -17,14 +17,6 @@ digraph {
     subgraph clusterAggregate {
         label = "Complete Aggregate Transaction";
         tooltip = "Complete Aggregate Transaction";
-        subgraph clusterT1 {
-            label = "Embedded Transfer 1";
-            tooltip = "Embedded Transfer 1";
-            style = dashed;
-            A2 [label="Account A" tooltip="Account A"];
-            B2 [label="Account B" tooltip="Account B"];
-            A2 -> B2 [label="10 XYM"];
-        }
         subgraph clusterT2 {
             label = "Embedded Transfer 2";
             tooltip = "Embedded Transfer 2";
@@ -32,6 +24,14 @@ digraph {
             A1 [label="Account A" tooltip="Account A"];
             B1 [label="Account B" tooltip="Account B"];
             A1 -> B1 [label="1 Custom Mosaic" dir=back];
+        }
+        subgraph clusterT1 {
+            label = "Embedded Transfer 1";
+            tooltip = "Embedded Transfer 1";
+            style = dashed;
+            A2 [label="Account A" tooltip="Account A"];
+            B2 [label="Account B" tooltip="Account B"];
+            A2 -> B2 [label="10 XYM"];
         }
     }
 }
