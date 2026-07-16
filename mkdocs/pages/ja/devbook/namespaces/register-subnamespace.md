@@ -79,11 +79,6 @@ tutorial_level: intermediate
     これはフルパスではなく、サブネームスペース自体の名前であることに注意してください。
     例えば、 `company` がルートである場合に `company.product` を作成するには、 `name: 'product'` および {{ tutorial.var("`parent_id: generate_namespace_id('company')`") }} と設定します。
 
-!!! note "サブネームスペースの有効期間"
-
-    サブネームスペースは、そのルートネームスペースの有効期限が切れると期限切れになり、単独では更新できません。
-    [ルートネームスペースを延長する](./extend-root-namespace.md) と、サブネームスペースも延長されます。
-
 !!! note "サブネームスペースのレンタル手数料"
 
     標準のトランザクション手数料に加えて、サブネームスペースの登録には [レンタル手数料](../../textbook/namespaces.md#lease-fee) が必要です。

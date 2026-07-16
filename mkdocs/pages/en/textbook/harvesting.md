@@ -91,7 +91,7 @@ Local Harvesting
 :   A type of <harvesting:> where the rewards are sent directly to the harvester account.
     The node signs produced blocks using the operator's <main key:>, which must be stored on the machine.
 
-!!! warning "Local harvesting exposes the private key"
+!!! warning "Local harvesting stores the private key on the node"
 
     The harvester account must hold a significant balance to maintain a high <importance:> score.
     Storing its <private key:> on a machine that is permanently online puts the entire balance at risk

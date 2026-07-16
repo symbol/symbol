@@ -71,7 +71,6 @@ Mosaics can be created with a specific duration or as eternal:
 
 !!! warning "Duration can only be extended while supply is zero"
 
-    Mosaic duration can only be extended while the total supply is `0`.
     Once supply has been minted and distributed, the duration cannot be extended.
     Eternal mosaics cannot have their duration modified at all.
 
@@ -153,11 +152,11 @@ See the documentation about <namespaces:> for more information.
 
 After creation, the creator can still change a mosaic's **definition**, but only while its total supply is `0`.
 
-It can update the mosaic's [properties](#properties) (supply mutability, transferability, restrictability, and
-revocability), its [divisibility](#divisibility), and its [duration](#duration).
+Any of the mosaic's [properties](#mosaic-properties) can be modified:
+supply mutability, transferability, restrictability, revocability, divisibility, and duration.
 
-The total supply itself is separate and can still be adjusted through minting and burning whenever
-[supply mutability](#supply-mutability) is enabled.
+The total supply itself is separate and can still be adjusted through minting and burning according to the mosaic's
+[supply mutability](#supply-mutability) rules.
 
 ## Summary
 

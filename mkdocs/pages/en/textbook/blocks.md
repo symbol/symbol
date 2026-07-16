@@ -81,22 +81,22 @@ For other networks, it can be retrieved from the network properties.
 
 Each block in the Symbol blockchain contains a combination of metadata and transaction data, including:
 
-| **Field**                 | **Description**                                                                                                                                                 |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Signature**             | The harvester's <signature:> over the block, letting any node verify its integrity and authenticity.                                                            |
-| **Signer public key**     | Public key of the account that harvested and signed the block, also called the harvester.                                                                       |
-| **Version**               | The block format version.                                                                                                                                       |
-| **Network**               | The network the block belongs to, such as mainnet or testnet.                                                                                                   |
-| **Type**                  | `Nemesis`, `Normal`, or `Importance`, identifying the kind of block.                                                                                            |
-| **Height**                | The block's position in the chain, starting from 1 for the <nemesis block:>. Each new block has a height one greater than its predecessor.                      |
-| **Timestamp**             | Milliseconds elapsed since the <nemesis block:>, strictly increasing for each block. Average time between blocks is kept close to 30s.                          |
-| **Difficulty**            | A network-wide measure of how hard the block was to harvest, recalculated from recent block history to keep the average block time near 30s.                    |
-| **Generation hash proof** | A verifiable random function (VRF) proof from which the block's generation hash is derived. The generation hash sets which accounts may harvest the next block. |
-| **Previous block hash**   | <Hash:> of the previous block. If its contents were tampered with, this hash would change, breaking the chain and invalidating all subsequent blocks.           |
-| **Block hashes**          | [Hashes](default:Hash) summarizing the block's transaction list, generated receipts, and the resulting state after processing.                                  |
-| **Beneficiary address**   | An account designated by the harvester to receive a configured share of the block's rewards.                                                                    |
-| **Fee multiplier**        | A multiplier set by the block harvester that determines how fees are calculated for each transaction in the block, based on their size in bytes.                |
-| **Transactions**          | A list of valid transactions included in the block. Each transaction is independently verified before being accepted into the block.                            |
+| **Field**                 | **Description**                                                                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Signature**             | The harvester's <signature:> over the block, letting any node verify its integrity and authenticity.                                                  |
+| **Signer public key**     | Public key of the account that harvested and signed the block, also called the harvester.                                                             |
+| **Version**               | The block format version.                                                                                                                             |
+| **Network**               | The network the block belongs to, such as mainnet or testnet.                                                                                         |
+| **Type**                  | `Nemesis`, `Normal`, or `Importance`, identifying the kind of block.                                                                                  |
+| **Height**                | The block's position in the chain, starting from 1 for the <nemesis block:>. Each new block has a height one greater than its predecessor.            |
+| **Timestamp**             | Milliseconds elapsed since the <nemesis block:>, strictly increasing for each block. Average time between blocks is kept close to 30s.                |
+| **Difficulty**            | A network-wide measure of how hard the block was to harvest, recalculated from recent block history to keep the average block time near 30s.          |
+| **Generation hash proof** | A [VRF](default:VRF key) proof from which the block's generation hash is derived. The generation hash sets which accounts may harvest the next block. |
+| **Previous block hash**   | <Hash:> of the previous block. If its contents were tampered with, this hash would change, breaking the chain and invalidating all subsequent blocks. |
+| **Block hashes**          | [Hashes](default:Hash) summarizing the block's transaction list, generated receipts, and the resulting state after processing.                        |
+| **Beneficiary address**   | An account designated by the harvester to receive a configured share of the block's rewards.                                                          |
+| **Fee multiplier**        | A multiplier set by the block harvester that determines how fees are calculated for each transaction in the block, based on their size in bytes.      |
+| **Transactions**          | A list of valid transactions included in the block. Each transaction is independently verified before being accepted into the block.                  |
 
 ## Block Score
 

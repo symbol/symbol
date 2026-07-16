@@ -292,7 +292,7 @@ All transaction types in Symbol share a set of common attributes:
 | **Signature**         | Cryptographic proof that the signer authorized the transaction and its content.                                                                 |
 | **Deadline**          | Timestamp indicating when the transaction expires if not confirmed, at most 6 hours in the future (48 hours for bonded aggregate transactions). |
 | **Max fee**           | Maximum fee the signer is willing to pay to have the transaction included in a block.                                                           |
-| **Type**              | Transaction type, which determines which additional attributes, if any, are present.                                                           |
+| **Type**              | Transaction type, which determines which additional attributes, if any, are present.                                                            |
 
 ## Validation Details
 
