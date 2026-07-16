@@ -536,19 +536,15 @@ class StructFormatter(AbstractTypeFormatter):
 			method_name = f'get{capitalize(printer_name)}Computed'
 			sizeref = field.field_type.sizeref
 			java_field = lang_field_name(sizeref.property_name)
-			body = f'return this.{java_field} != null ? this.{java_field}.size() + {sizeref.delta} : 0;'
+			body = f'return null != this.{java_field} ? this.{java_field}.size() + {sizeref.delta} : 0;'
 			descriptor = MethodDescriptor(method_name=method_name, body=body)
 			descriptor.result = java_type
 			return descriptor
 
 		method_name = f'get{capitalize(printer_name)}'
 		if isinstance(field.extensions.printer, ArrayPrinter):
-			# byte[] fields: defensive clone so callers can't mutate the internal buffer.
-			# Null-aware because conditional/union byte[] fields default to null.
-			body = (
-				f'return null == {self.field_name(field)}'
-				f' ? null'
-				f' : {self.field_name(field)}.clone();')
+			# byte[] fields return the stored reference directly
+			body = f'return {self.field_name(field)};'
 			result = java_type
 		elif field.is_conditional:
 			# Conditional/union fields are genuinely nullable — return Optional<T> so the API
@@ -567,16 +563,10 @@ class StructFormatter(AbstractTypeFormatter):
 		java_type = field.extensions.printer.get_type()
 		printer_name = field.extensions.printer.name
 		method_name = f'set{capitalize(printer_name)}'
-		# byte[] fields: defensive clone so subsequent caller mutations don't bleed into the model.
-		if isinstance(field.extensions.printer, ArrayPrinter):
-			body = f'{self.field_name(field)} = null == value ? null : value.clone();'
-		else:
-			body = f'{self.field_name(field)} = value;'
 		descriptor = MethodDescriptor(
 			method_name=method_name,
 			arguments=[f'{java_type} value'],
-			body=body)
-
+			body=f'{self.field_name(field)} = value;')
 		descriptor.result = 'void'
 		return descriptor
 

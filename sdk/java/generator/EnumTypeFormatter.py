@@ -44,18 +44,6 @@ class EnumTypeFormatter(AbstractEnumFormatter):
 		body += 'return fromValue(value);'
 		return body
 
-	def get_serialize_descriptor(self):
-		descriptor = MethodDescriptor(body=f'return {self.int_printer.store("this.value")};')
-		descriptor.result = 'byte[]'
-		descriptor.annotations = ['@Override']  # overrides Serializer.serialize()
-		return descriptor
-
-	def get_size_descriptor(self):
-		descriptor = MethodDescriptor(body=f'return {self.enum_type.size};')
-		descriptor.result = 'int'
-		descriptor.annotations = ['@Override']  # overrides Serializer.size()
-		return descriptor
-
 	def get_getter_setter_descriptors(self):
 		methods = [self._get_value_descriptor()]
 

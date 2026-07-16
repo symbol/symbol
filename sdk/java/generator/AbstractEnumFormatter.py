@@ -38,6 +38,18 @@ class AbstractEnumFormatter(AbstractTypeFormatter):
 		descriptor.is_static = True
 		return descriptor
 
+	def get_size_descriptor(self):
+		descriptor = MethodDescriptor(body=f'return {self.enum_type.size};')
+		descriptor.result = 'int'
+		descriptor.annotations = ['@Override']  # overrides Serializer.size()
+		return descriptor
+
+	def get_serialize_descriptor(self):
+		descriptor = MethodDescriptor(body=f'return {self.int_printer.store("this.value")};')
+		descriptor.result = 'byte[]'
+		descriptor.annotations = ['@Override']  # overrides Serializer.serialize()
+		return descriptor
+
 	@staticmethod
 	def _wrapped_cursor():
 		"""BufferView over the incoming ByteBuffer ``buffer`` param — the cursor enum/flags read their value from."""

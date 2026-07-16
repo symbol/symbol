@@ -4,7 +4,7 @@ generator.DescriptorSweepTestGenerator)."""
 from pathlib import Path
 
 from .format import separate_if_blocks
-from .Generator import _finalize_imports
+from .Generator import finalize_imports
 
 
 def mirror_test_directory(output_directory: Path) -> Path:
@@ -19,12 +19,12 @@ def mirror_test_directory(output_directory: Path) -> Path:
 	raise RuntimeError(f'cannot mirror test directory for {output_directory}: no src/main/java segment in path')
 
 
-def write_sweep_test_file(output_directory, package_name, *, header, imports, filename, body):
+def write_sweep_test_file(output_directory, package_name, header, imports, filename, body):
 	"""Finalize and write a generated sweep test into the mirrored test-tree package (shared by the
 	model and descriptor generators)."""
-	# pylint: disable=too-many-arguments
+	# pylint: disable=too-many-arguments,too-many-positional-arguments
 	source = f'{header}\npackage {package_name};\n\n{body}'
-	source = separate_if_blocks(_finalize_imports(source, package_name))
+	source = separate_if_blocks(finalize_imports(source, package_name))
 	source = source.replace(f'package {package_name};\n', f'package {package_name};\n\n{imports}', 1)
 	test_directory = mirror_test_directory(output_directory)
 	test_directory.mkdir(parents=True, exist_ok=True)

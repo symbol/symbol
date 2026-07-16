@@ -59,6 +59,10 @@ def _int_literal(value, size, is_unsigned):
 	return f'{value}L' if is_long else f'{value}'
 
 
+def _to_json_literal(size, quoted, numeric):
+	return quoted if 8 == size else numeric
+
+
 def _pattern_hex(size, seed):
 	return ''.join(f'{(seed + i) & 0xFF:02X}' for i in range(size))
 
@@ -119,7 +123,7 @@ class ModelsSweepTestFormatter:
 		self.entries = entries
 		self.type_info = _ModelTypeInfo(ast_models)
 
-	def _field_value(self, field, index, *, second=False):
+	def _field_value(self, field, index, second=False):
 		# pylint: disable=too-many-return-statements
 		printer = field.extensions.printer
 		type_name = str(field.field_type)
@@ -174,17 +178,16 @@ class ModelsSweepTestFormatter:
 			name = field.extensions.printer.name
 			accessor = capitalize(name)
 			var = f'value{index}'
-			# conditional non-byte[] getters wrap in Optional; byte[] getters return a defensive clone
+			# conditional non-byte[] getters wrap in Optional; byte[] getters return the stored byte[] directly
 			unwrap = field.is_conditional and 'bytes' != kind
 			getter = f'instance.get{accessor}().get()' if unwrap else f'instance.get{accessor}()'
-			same_matcher = 'reference' == kind
+			same_matcher = kind in ('reference', 'bytes')
 			lines.append(f'\t\tfinal {local_type} {var} = {value_expr};')
 			lines.append(f'\t\tinstance.set{accessor}({var});')
 			lines.append(f'\t\tassertThat({getter}, {"sameInstance" if same_matcher else "equalTo"}({var}));')
-			# the descriptor-pipeline getField must agree with the typed getter: same reference for stored
-			# kinds (primitive samples stay inside the JLS-mandated box cache), content equality for byte[]
-			# whose getter clones on every call
-			lines.append(f'\t\tassertThat(instance.getField("{name}"), {"equalTo" if "bytes" == kind else "sameInstance"}({getter}));')
+			# the descriptor-pipeline getField must agree with the typed getter: same reference for every stored
+			# kind (primitive samples stay inside the JLS-mandated box cache; byte[] is stored by reference)
+			lines.append(f'\t\tassertThat(instance.getField("{name}"), sameInstance({getter}));')
 			lines.append(f'\t\tfinal {local_type} {var}b = {second_expr};')
 			lines.append(f'\t\tinstance.setField("{name}", {var}b);')
 			lines.append(f'\t\tassertThat({getter}, {"sameInstance" if same_matcher else "equalTo"}({var}b));')
@@ -225,7 +228,7 @@ class ModelsSweepTestFormatter:
 		if not ast_model.is_unsigned and 1 == size:
 			sample = _SIGNED_POD_SAMPLE
 		to_string = f'0x{sample:0{2 * size}X}'
-		to_json = f'"{sample}"' if 8 == size else f'{sample}L'
+		to_json = _to_json_literal(size, f'"{sample}"', f'{sample}L')
 		lines = [
 			'\t\t// Arrange + Act:',
 			f'\t\tfinal {typename} value = new {typename}({sample}L);',
@@ -275,7 +278,7 @@ class ModelsSweepTestFormatter:
 		for entry in ast_model.values:
 			constant = f'{typename}.{entry.name}'
 			value_literal = _int_literal(entry.value, size, ast_model.is_unsigned)
-			to_json_literal = f'"{entry.value}"' if 8 == size else value_literal
+			to_json_literal = _to_json_literal(size, f'"{entry.value}"', value_literal)
 			lines.append(f'\t\tassertThat({constant}.getValue(), equalTo({value_literal}));')
 			lines.append(f'\t\tassertThat({constant}.toString(), equalTo("{typename}.{entry.name}"));')
 			lines.append(f'\t\tassertThat({constant}.toJson(), equalTo({to_json_literal}));')
@@ -299,7 +302,7 @@ class ModelsSweepTestFormatter:
 		for entry in ast_model.values:
 			constant = f'{typename}.{entry.name}'
 			value_literal = _int_literal(entry.value, size, ast_model.is_unsigned)
-			to_json_literal = f'"{entry.value}"' if 8 == size else value_literal
+			to_json_literal = _to_json_literal(size, f'"{entry.value}"', value_literal)
 			lines.append(f'\t\tassertThat({constant}.getValue(), equalTo({value_literal}));')
 			lines.append(f'\t\tassertThat({constant}.size(), equalTo({size}));')
 			lines.append(f'\t\tassertThat({constant}.toString(), equalTo("{typename}.{entry.name}"));')

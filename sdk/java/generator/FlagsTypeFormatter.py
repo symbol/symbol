@@ -24,18 +24,6 @@ class FlagsTypeFormatter(AbstractEnumFormatter):
 	def get_ctor_descriptor(self):
 		return MethodDescriptor(body='this.value = value;', arguments=[f'{self.value_type} value'])
 
-	def get_size_descriptor(self):
-		descriptor = MethodDescriptor(body=f'return {self.enum_type.size};')
-		descriptor.result = 'int'
-		descriptor.annotations = ['@Override']  # overrides Serializer.size()
-		return descriptor
-
-	def get_serialize_descriptor(self):
-		descriptor = MethodDescriptor(body=f'return {self.int_printer.store("this.value")};')
-		descriptor.result = 'byte[]'
-		descriptor.annotations = ['@Override']  # overrides Serializer.serialize()
-		return descriptor
-
 	def _deserialize_body(self):
 		body = f'final {self.value_type} value = {self.int_printer.load(self._wrapped_cursor())};\n'
 		body += f'return new {self.typename}(value);'
