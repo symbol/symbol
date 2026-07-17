@@ -1,6 +1,6 @@
 type: object
 description: |
-  Terminal node of a [Patricia Merkle tree](https://docs.symbol.dev/concepts/data-validation.html)
+  Terminal node of a [Patricia Merkle tree](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
   used in state proofs. A leaf stores the final path and the associated value (entity state hash).
 required:
   - type

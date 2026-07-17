@@ -1,7 +1,7 @@
 type: integer
 format: int64
 description: |
-  Finalization point within an epoch. Each [epoch](https://docs.symbol.dev/concepts/block.html#finalization)
+  Finalization point within an epoch. Each [epoch](https://docs.symboltest.net/en/textbook/consensus/#finalization)
   is divided into multiple points; blocks are finalized at specific points.
 examples:
   - 0

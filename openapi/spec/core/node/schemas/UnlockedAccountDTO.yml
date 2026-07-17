@@ -1,6 +1,6 @@
 type: object
 description: |
-  Public keys of accounts with [harvesting](https://docs.symbol.dev/concepts/harvesting.html) unlocked.
+  Public keys of accounts with [harvesting](https://docs.symboltest.net/en/textbook/harvesting/) unlocked.
   **Only accounts harvesting on the node you are querying** are returned. The scope is limited to this node, not the entire network.
 required:
   - unlockedAccount

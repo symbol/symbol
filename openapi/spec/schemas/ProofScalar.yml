@@ -4,7 +4,7 @@ minLength: 64
 maxLength: 64
 description: |
   32-byte (64 hex characters) VRF proof scalar. Part of the block's
-  [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof).
+  [generation hash proof](https://docs.symboltest.net/en/textbook/blocks/#block-structure) (VrfProof).
   The scalar proves that the gamma value was correctly derived from the VRF input
   without revealing the harvester's private key.
 examples:

@@ -2,8 +2,8 @@ tags:
   - Block routes
 summary: Get the Merkle path for a given receipt statement hash and block
 description: |
-  Returns the [Merkle path](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
-  for a [receipt statement or resolution](https://docs.symbol.dev/concepts/receipt.html) linked to a block.
+  Returns the [Merkle path](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
+  for a [receipt statement or resolution](https://docs.symboltest.net/en/textbook/blocks/#receipts) linked to a block.
   The `hash` parameter is the receipt statement hash, not the transaction hash.
   The Merkle path is the minimum number of nodes needed to calculate the Merkle root.
 
@@ -14,7 +14,7 @@ description: |
   - `right`: the item hash is concatenated after the proofHash (proofHash = sha_256(proofHash + item.hash)).
   3. Repeat 2. for every item in the merklePath list.
   4. Compare if the calculated proofHash equals the one recorded in the
-  [block header](https://docs.symbol.dev/concepts/block.html)
+  [block header](https://docs.symboltest.net/en/textbook/blocks/#block-structure)
   (`block.receiptsHash`) to verify if the statement was linked with the block.
 operationId: getMerkleReceipts
 parameters:
