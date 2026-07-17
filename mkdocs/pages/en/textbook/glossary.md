@@ -100,7 +100,7 @@ Hardware wallet
 ICO
 :   Initial Coin Offering.
 
-Inflation
+Inflation <a id="inflation"></a>
 :   A small amount of <XYM:> that is freshly minted with each new <block:> to reward the <node:> that creates it.
     Inflation began 48 hours after network launch in March 2021, starting at approximately 200 XYM per block.
     The reward decreases gradually over time following a slow curve, reaching 1 XYM per block after 30 years,

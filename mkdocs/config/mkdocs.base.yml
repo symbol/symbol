@@ -156,6 +156,48 @@ extra:
     redirections:
       - from: guides/account/scams-and-security.html
         to: /en/userbook/security/
+      - from: concepts/account.html
+        to: /en/textbook/accounts/
+      - from: concepts/account-restriction.html
+        to: /en/textbook/restrictions/#account-based-restrictions
+      - from: concepts/aggregate-transaction.html
+        to: /en/textbook/transactions/#aggregate-transactions
+      - from: concepts/block.html
+        to: /en/textbook/blocks/
+      - from: concepts/consensus-algorithm.html
+        to: /en/textbook/consensus/
+      - from: concepts/cryptography.html
+        to: /en/textbook/cryptography/
+      - from: concepts/data-validation.html
+        to: /en/textbook/blocks/#block-hashes
+      - from: concepts/fees.html
+        to: /en/devbook/transactions/transfer/#fetching-recommended-fees
+      - from: concepts/harvesting.html
+        to: /en/textbook/harvesting/
+      - from: concepts/inflation.html
+        to: /en/textbook/glossary/#inflation
+      - from: concepts/metadata.html
+        to: /en/textbook/metadata/
+      - from: concepts/mosaic.html
+        to: /en/textbook/mosaics/
+      - from: concepts/mosaic-restriction.html
+        to: /en/textbook/restrictions/#mosaic-based-restrictions
+      - from: concepts/multisig-account.html
+        to: /en/textbook/accounts/#multisignature-accounts
+      - from: concepts/namespace.html
+        to: /en/textbook/namespaces/
+      - from: concepts/namespaces.html
+        to: /en/textbook/namespaces/
+      - from: concepts/receipt.html
+        to: /en/textbook/blocks/#receipts
+      - from: concepts/transaction.html
+        to: /en/textbook/transactions/
+      - from: guides/secretlock/index.html
+        to: /en/textbook/cross-chain-swaps/
+      - from: sdk.html
+        to: /en/devbook/start/setup/
+      - from: serialization/index.html
+        to: /en/devbook/reference/serialization/
 copyright: >
   Copyright &copy; 2025-2026 The Symbol Syndicate
 extra_css:
