@@ -97,9 +97,9 @@ final class ArrayHelpersTest {
 		}
 
 		@Override
-		public TaggedElement deserialize(final BufferView view) {
-			// the view is positioned at the element start but not advanced
-			final int tag = startTag + Byte.toUnsignedInt(view.peekBytes(1)[0]);
+		public TaggedElement deserialize(final java.nio.ByteBuffer buffer) {
+			// the buffer is a fresh 0-based slice at the element start
+			final int tag = startTag + Byte.toUnsignedInt(buffer.get(0));
 			return new TaggedElement(sizes[index++], tag);
 		}
 	}

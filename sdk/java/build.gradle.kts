@@ -208,9 +208,25 @@ tasks.javadoc {
 	(options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
 }
 
+// When a regeneration is in play, narrow Spotless to just the generated subtrees so that
+// `gradle generateModels` / `generateDescriptors` (and the standalone scripts, which pass
+// -PspotlessGeneratedOnly) format only freshly generated files and never reformat unrelated,
+// possibly in-progress, working-tree files. Any other invocation (check, apply, CI) keeps the
+// full src target. Caveat: requesting a generate task and `check` in the same invocation narrows
+// that check to the generated tree.
+val scopeSpotlessToGenerated = project.hasProperty("spotlessGeneratedOnly") ||
+	gradle.startParameter.taskNames.any { it.substringAfterLast(':') in setOf("generateModels", "generateDescriptors") }
+
 spotless {
 	java {
-		target("src/**/*.java")
+		if (scopeSpotlessToGenerated)
+			target(
+				"src/main/java/org/symbol/sdk/*/models/**/*.java",
+				"src/main/java/org/symbol/sdk/*/descriptors/**/*.java",
+				"src/test/java/org/symbol/sdk/*/models/**/*.java",
+				"src/test/java/org/symbol/sdk/*/descriptors/**/*.java")
+		else
+			target("src/**/*.java")
 
 		val gitRoot = rootProject.layout.projectDirectory.asFile.parentFile.parentFile
 		eclipse().configFile("$gitRoot/linters/java/eclipse-formatter.xml")
