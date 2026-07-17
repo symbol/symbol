@@ -357,8 +357,6 @@ class StructFormatter(AbstractTypeFormatter):
 	def _deserialize_body(self):
 		body = ''
 		if not self.is_type_abstract:
-			# snapshot the caller's view into a private cursor: we read without advancing the passed view, so the
-			# caller advances it by this object's size() (see ArrayHelpers / nested-struct loads)
 			body = 'final org.symbol.sdk.utils.BufferView cursor = new org.symbol.sdk.utils.BufferView(buffer);\n'
 			body += f'final {self.typename} instance = new {self.typename}();\n\n'
 
@@ -661,10 +659,10 @@ class StructFormatter(AbstractTypeFormatter):
 			'Returns the type-hint map driving the rule-based descriptor pipeline.', '', '@return Field-name → rule-key map.']
 		return descriptor
 
-	def _render_field_switch(self, doc_lines, case_rhs, default_line, *, method_name, arguments, result, is_expression):
+	def _render_field_switch(self, doc_lines, case_rhs, default_line, method_name, arguments, result, is_expression):
 		"""Render a setField/getField descriptor — a name switch with one case per non-inherited field, always
 		chaining to ``super`` so inherited fields land on the parent and unknown names ultimately throw."""
-		# pylint: disable=too-many-arguments
+		# pylint: disable=too-many-arguments,too-many-positional-arguments
 		cases = [
 			f'\tcase "{field.extensions.printer.name}" -> {case_rhs(field)};'
 			for field in self.non_reserved_fields(include_inherited=False)]
