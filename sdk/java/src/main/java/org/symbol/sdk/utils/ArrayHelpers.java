@@ -21,13 +21,13 @@ public final class ArrayHelpers {
 	@FunctionalInterface
 	public interface Factory<T extends Serializer> {
 		/**
-		 * Deserializes a single element from the current position of the given view. The view is not advanced — the caller moves the cursor
-		 * by the returned element's {@code size()}.
+		 * Deserializes a single element from the start of the given buffer. The buffer is not advanced — the caller moves the cursor by the
+		 * returned element's {@code size()}.
 		 *
-		 * @param view Buffer view positioned at the element.
+		 * @param buffer Buffer positioned at the element (0-based).
 		 * @return Deserialized element.
 		 */
-		T deserialize(BufferView view);
+		T deserialize(java.nio.ByteBuffer buffer);
 	}
 
 	private interface ContinuationPredicate {
@@ -41,7 +41,7 @@ public final class ArrayHelpers {
 		T previousElement = null;
 		int i = 0;
 		while (shouldContinue.shouldContinue(i, cursor)) {
-			final T element = factoryClass.deserialize(cursor);
+			final T element = factoryClass.deserialize(cursor.buffer());
 			final int elementSize = element.size();
 
 			if (0 >= elementSize)
@@ -197,7 +197,7 @@ public final class ArrayHelpers {
 		final BufferView cursor = view.snapshot();
 		final List<T> elements = new ArrayList<>();
 		while (0 < cursor.length()) {
-			final T element = factoryClass.deserialize(cursor);
+			final T element = factoryClass.deserialize(cursor.buffer());
 			final int elementSize = element.size();
 
 			if (0 >= elementSize)

@@ -4,6 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -576,6 +579,156 @@ final class BufferViewTest {
 			// Assert:
 			assertThat(value1, equalTo(0x22L));
 			assertThat(value2, equalTo(0x33L));
+		}
+	}
+
+	// endregion
+
+	// region FromByteBuffer
+
+	@Nested
+	final class FromByteBuffer {
+		@Test
+		void canReadsRemainingBytesRebased() {
+			// Arrange: a ByteBuffer positioned partway through its content.
+			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
+					0, 1, 2, 3, 4, 5, 6
+			});
+			source.position(2);
+
+			// Act:
+			final BufferView view = new BufferView(source);
+
+			// Assert: the view exposes the remaining bytes, rebased to start at its own first byte.
+			assertThat(view.length(), equalTo(5));
+			assertThat(view.peekBytes(view.length()), equalTo(new byte[]{
+					2, 3, 4, 5, 6
+			}));
+		}
+
+		@Test
+		void canHonorsSourcePositionAndLimit() {
+			// Arrange: a ByteBuffer windowed to [1, 4) — remaining {1, 2, 3}.
+			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
+					0, 1, 2, 3, 4
+			});
+			source.position(1);
+			source.limit(4);
+
+			// Act:
+			final BufferView view = new BufferView(source);
+
+			// Assert:
+			assertThat(view.peekBytes(view.length()), equalTo(new byte[]{
+					1, 2, 3
+			}));
+		}
+
+		@Test
+		void canCreateWithoutMutatingSource() {
+			// Arrange:
+			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
+					0, 1, 2, 3, 4
+			});
+			source.position(1);
+			source.limit(4);
+
+			// Act: constructing a view and reading from it must not move the source's position/limit.
+			final BufferView view = new BufferView(source);
+			view.shiftRight(3);
+
+			// Assert: the source is untouched.
+			assertThat(source.position(), equalTo(1));
+			assertThat(source.limit(), equalTo(4));
+		}
+
+		@Test
+		void canReadsLittleEndianRegardlessOfSourceOrder() {
+			// Arrange: a big-endian source; the view must still decode little-endian.
+			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
+					0x34, 0x12
+			}).order(ByteOrder.BIG_ENDIAN);
+
+			// Act:
+			final long value = new BufferView(source).peekInt(2, false);
+
+			// Assert: {0x34, 0x12} read little-endian is 0x1234, so the source's BIG_ENDIAN order was overridden.
+			assertThat(value, equalTo(0x1234L));
+		}
+	}
+
+	// endregion
+
+	// region Buffer
+
+	@Nested
+	final class Buffer {
+		// remaining bytes of a ByteBuffer without advancing it (absolute get, matching BufferView.peekBytes)
+		private static byte[] remaining(final ByteBuffer buffer) {
+			final byte[] copy = new byte[buffer.remaining()];
+			buffer.get(buffer.position(), copy);
+			return copy;
+		}
+
+		@Test
+		void canExposesCurrentWindow() {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act:
+			final ByteBuffer buffer = view.buffer();
+
+			// Assert:
+			assertThat(remaining(buffer), equalTo(new byte[]{
+					2, 3, 4, 5, 6
+			}));
+		}
+
+		@Test
+		void canCreateBufferAfterShift() {
+			// Arrange:
+			final BufferView view = newView();
+			view.shiftRight(2);
+
+			// Act:
+			final ByteBuffer buffer = view.buffer();
+
+			// Assert: the returned buffer is 0-based over the current window, not the original backing.
+			assertThat(buffer.position(), equalTo(0));
+			assertThat(remaining(buffer), equalTo(new byte[]{
+					4, 5, 6
+			}));
+		}
+
+		@Test
+		void canCreateWithoutAdvanceView() {
+			// Arrange:
+			final BufferView view = newView();
+
+			// Act: draining the returned buffer must not move the source view (buffer() hands back a fresh slice).
+			view.buffer().get(new byte[view.length()]);
+
+			// Assert: the view still sees its whole window.
+			assertThat(view.length(), equalTo(5));
+			assertThat(view.peekBytes(view.length()), equalTo(new byte[]{
+					2, 3, 4, 5, 6
+			}));
+		}
+
+		@Test
+		void canCreateNestedBufferView() {
+			// Arrange: the real use — buffer() is passed to a nested deserialize(ByteBuffer).
+			final BufferView view = newView();
+			view.shiftRight(1);
+
+			// Act:
+			final BufferView nested = new BufferView(view.buffer());
+
+			// Assert: the nested view sees the current window, and buffer() left the source unadvanced.
+			assertThat(nested.peekBytes(nested.length()), equalTo(new byte[]{
+					3, 4, 5, 6
+			}));
+			assertThat(view.length(), equalTo(4));
 		}
 	}
 
