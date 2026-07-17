@@ -80,7 +80,7 @@ try:
 	# --- CREATING MOSAIC DEFINITION ---
 	print('\n--- Creating mosaic definition ---')
 	# [>step-3]
-	nonce = int(time.time()) & 0xFFFFFFFF
+	nonce = int(time.time()) % 0x100000000
 	print(f'Mosaic nonce: {nonce}')
 	# [<step-3]
 	# Build the mosaic definition transaction [>step-4]
