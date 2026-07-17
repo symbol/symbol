@@ -5,7 +5,7 @@ description: |
   Broadcasts a signed transaction to the network through this node.
 
   The request must contain the serialized transaction payload in hexadecimal form. Transactions are
-  normally created and signed client-side with a [Symbol SDK](https://docs.symbol.dev/sdk.html) and
+  normally created and signed client-side with a [Symbol SDK](https://docs.symboltest.net/en/devbook/start/setup/) and
   then announced with this endpoint.
 
   The [catbuffer library](https://github.com/symbol/symbol/tree/main/catbuffer) defines the binary

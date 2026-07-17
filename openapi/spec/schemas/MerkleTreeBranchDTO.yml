@@ -1,6 +1,6 @@
 type: object
 description: |
-  Internal node of a [Patricia Merkle tree](https://docs.symbol.dev/concepts/data-validation.html)
+  Internal node of a [Patricia Merkle tree](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
   used in state proofs. A branch has up to 16 child links (one per nibble 0 to F) and a path prefix.
 required:
   - type

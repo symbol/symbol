@@ -5,7 +5,7 @@ enum:
   - 2
 description: |
   Finalization message stage
-  ([docs](https://docs.symbol.dev/concepts/block.html#finalization)):
+  ([docs](https://docs.symboltest.net/en/textbook/consensus/#finalization)):
   - `0`: Prevote: voters indicate which block hash they support.
   - `1`: Precommit: voters commit to the block after supermajority prevote.
   - `2`: Count: tally of votes (internal use).

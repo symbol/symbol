@@ -2,7 +2,7 @@ tags:
   - Multisig routes
 summary: Get multisig account Merkle information
 description: |
-  Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
+  Returns the [Merkle proof](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
   for the multisig state entry associated with the requested account.
 
   If the requested account is a cosignatory, the endpoint returns the Merkle proof for that

@@ -2,12 +2,12 @@ tags:
   - Namespace routes
 summary: Get namespace Merkle information
 description: |
-  Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof) for a namespace.
+  Returns the [Merkle proof](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) for a namespace.
 
   Clients can use this information to verify that the namespace state is included in the node's state Merkle tree.
   If the supplied namespace ID does not exist, the endpoint still returns a Merkle proof response,
   but it is a negative proof showing that no namespace state entry exists for the requested namespace ID.
-  See [Data Validation](https://docs.symbol.dev/concepts/data-validation.html) for an overview of Patricia Merkle
+  See [Data Validation](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) for an overview of Patricia Merkle
   trees and state proofs on Symbol.
 operationId: getNamespaceMerkle
 parameters:
