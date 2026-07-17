@@ -193,7 +193,7 @@ the higher the value, the greater the chance to harvest a block and earn rewards
         the total number of high value account beneficiaries in the same period.
 
     The details about how these scores are combined to produce the importance score can be found in
-    [the Symbol whitepaper](site:assets/pdfs/SymbolWhitepaper.pdf), section 14.1.
+    [the Symbol whitepaper](../devbook/reference/whitepaper/index.md), section 14.1.
 
 !!! note
 

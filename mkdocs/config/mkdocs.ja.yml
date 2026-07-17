@@ -154,6 +154,7 @@ nav:
           - 構成プロパティ:
               - ネットワーク: devbook/reference/config/network-properties.md
               - ノード: devbook/reference/config/node-properties.md
+          - devbook/reference/whitepaper/index.md
   - テキストブック:
       - textbook/intro.md
       - textbook/glossary.md
