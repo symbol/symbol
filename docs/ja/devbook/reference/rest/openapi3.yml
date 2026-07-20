@@ -15,23 +15,23 @@ tags:
   - name: Account routes
     description: |
       Accounts are the central entities on the Symbol blockchain. An
-      [account](https://docs.symbol.dev/concepts/account.html) is a key pair (private and public key)
+      [account](https://docs.symboltest.net/en/textbook/accounts/) is a key pair (private and public key)
       associated with a mutable state stored on-chain. Each account is uniquely identified by an
-      [**address**](https://docs.symbol.dev/concepts/cryptography.html#address) derived from its public key,
+      [**address**](https://docs.symboltest.net/en/textbook/cryptography/#addresses) derived from its public key,
       encoded in Base32 format (39 characters). The **public key** is recorded on-chain with the first issued transaction
       and remains empty until then.
 
       An account's on-chain state includes its **balance** (the set of
-      [mosaic](https://docs.symbol.dev/concepts/mosaic.html) units it owns) and an
-      [**importance score**](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-calculation)
+      [mosaic](https://docs.symboltest.net/en/textbook/mosaics/) units it owns) and an
+      [**importance score**](https://docs.symboltest.net/en/textbook/accounts/#importance)
       that determines the probability of being selected to harvest the next block. Importance is recalculated
       periodically using **activity buckets**, which are rolling data that tracks fees paid, beneficiary counts, and raw
       scores over a sliding window of recalculation periods.
 
       Accounts participate in block creation through
-      [harvesting](https://docs.symbol.dev/concepts/harvesting.html). An eligible account (one that meets the
+      [harvesting](https://docs.symboltest.net/en/textbook/harvesting/). An eligible account (one that meets the
       minimum balance threshold) can harvest directly, or it can
-      [delegate harvesting](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) to a
+      [delegate harvesting](https://docs.symboltest.net/en/textbook/harvesting/#delegated-harvesting) to a
       **remote account** (proxy) that signs blocks on its behalf. The **account type** field reflects this
       relationship:
       - `0`: Unlinked account, not participating in harvesting delegation.
@@ -39,53 +39,53 @@ tags:
       - `2`: Remote proxy account that signs blocks on behalf of a linked balance-holding account.
       - `3`: Remote-harvester-eligible account that is currently unlinked.
 
-      To enable [remote](https://docs.symbol.dev/concepts/harvesting.html#remote-harvesting) or
-      [delegated](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) harvesting, the main
+      To enable [remote](https://docs.symboltest.net/en/textbook/harvesting/#remote-harvesting) or
+      [delegated](https://docs.symboltest.net/en/textbook/harvesting/#delegated-harvesting) harvesting, the main
       account links a set of **supplemental public keys**:
       - `Linked key`: public key of the remote proxy account
-        ([AccountKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#accountkeylinktransaction)).
+        ([AccountKeyLinkTransaction](https://docs.symboltest.net/en/devbook/reference/serialization/#accountkeylinktransactionv1)).
       - `Node key`: public key used for TLS sessions with the node
-        ([NodeKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#nodekeylinktransaction));
+        ([NodeKeyLinkTransaction](https://docs.symboltest.net/en/devbook/reference/serialization/#nodekeylinktransactionv1));
         required only for delegated harvesting.
       - `VRF key`: key used to randomize harvester selection
-        ([VrfKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#vrfkeylinktransaction));
+        ([VrfKeyLinkTransaction](https://docs.symboltest.net/en/devbook/reference/serialization/#vrfkeylinktransactionv1));
         required for all harvesting types.
       - `Voting keys`: keys used for block
-        [finalization](https://docs.symbol.dev/concepts/block.html#finalization) voting
-        ([VotingKeyLinkTransaction](https://docs.symbol.dev/serialization/index.html#votingkeylinktransaction));
+        [finalization](https://docs.symboltest.net/en/textbook/consensus/#finalization) voting
+        ([VotingKeyLinkTransaction](https://docs.symboltest.net/en/devbook/reference/serialization/#votingkeylinktransactionv1));
         each key is valid for a defined range of finalization epochs.
   - name: Block routes
     description: |
-      [Blocks](https://docs.symbol.dev/concepts/block.html) are the units of the Symbol blockchain. Each block
-      contains a list of confirmed [transactions](https://docs.symbol.dev/concepts/transaction.html) and is signed
-      by a [harvester](https://docs.symbol.dev/concepts/harvesting.html) account selected by the
-      [consensus algorithm](https://docs.symbol.dev/concepts/consensus-algorithm.html).
+      [Blocks](https://docs.symboltest.net/en/textbook/blocks/) are the units of the Symbol blockchain. Each block
+      contains a list of confirmed [transactions](https://docs.symboltest.net/en/textbook/transactions/) and is signed
+      by a [harvester](https://docs.symboltest.net/en/textbook/harvesting/) account selected by the
+      [consensus algorithm](https://docs.symboltest.net/en/textbook/consensus/).
 
       - `Height`: unique, sequential position of the block in the chain. Subsequent blocks differ in height by 1.
       - `Timestamp`: number of milliseconds elapsed since the creation of the first block.
       - `Difficulty`: block difficulty (initial 1e14); adjusted in range 1e13 to 1e15 to maintain target block time.
-      - `Harvester`: [account](https://docs.symbol.dev/concepts/account.html) that created the block; receives
-        transaction [fees](https://docs.symbol.dev/concepts/fees.html) and
-        [inflation](https://docs.symbol.dev/concepts/inflation.html) rewards.
+      - `Harvester`: [account](https://docs.symboltest.net/en/textbook/accounts/) that created the block; receives
+        transaction [fees](https://docs.symboltest.net/en/devbook/transactions/transfer/#fetching-recommended-fees) and
+        [inflation](https://docs.symboltest.net/en/textbook/glossary/#inflation) rewards.
       - `Beneficiary address`: optional account designated by the harvester to receive
-        [the block reward](https://docs.symbol.dev/concepts/harvesting.html#rewards).
+        [the block reward](https://docs.symboltest.net/en/textbook/harvesting/#reward-distribution).
       - `Fee multiplier`: multiplier applied to transaction size to calculate the
-        [effective fee](https://docs.symbol.dev/concepts/fees.html).
+        [effective fee](https://docs.symboltest.net/en/devbook/transactions/transfer/#fetching-recommended-fees).
       - `Importance block`: a special block type that additionally records voting-eligible account count,
         harvesting-eligible account count, total voting balance, and the previous importance block hash.
-      - `Finalization` ([docs](https://docs.symbol.dev/concepts/block.html#finalization)): the process that makes blocks
+      - `Finalization` ([docs](https://docs.symboltest.net/en/textbook/consensus/#finalization)): the process that makes blocks
         permanent. Once a block is finalized, its transactions become immutable. Clients that rely on immutability
         should only trust finalized blocks.
   - name: Chain routes
     description: |
       Chain endpoints provide aggregate information about the blockchain state.
-      The [chain score](https://docs.symbol.dev/concepts/block.html) is used during synchronization:
+      The [chain score](https://docs.symboltest.net/en/textbook/blocks/#block-score) is used during synchronization:
       nodes select the chain with the highest score as the canonical one (higher = better chain).
-      The [latest finalized block](https://docs.symbol.dev/concepts/block.html#finalization) is the most recent
+      The [latest finalized block](https://docs.symboltest.net/en/textbook/blocks/) is the most recent
       block that has been made permanent and will never be rolled back.
   - name: Finalization routes
     description: |
-      [Finalization](https://docs.symbol.dev/concepts/block.html#finalization) is the process that makes
+      [Finalization](https://docs.symboltest.net/en/textbook/consensus/#finalization) is the process that makes
       blocks permanent on the Symbol blockchain. Once a block is finalized, its transactions become
       immutable and will never be rolled back.
 
@@ -99,7 +99,7 @@ tags:
       signatures from the voter set.
   - name: Metadata routes
     description: |
-      [Metadata](https://docs.symbol.dev/concepts/metadata.html) lets accounts attach arbitrary key-value
+      [Metadata](https://docs.symboltest.net/en/textbook/metadata/) lets accounts attach arbitrary key-value
       data to three kinds of on-chain resources on Symbol: **accounts**, **mosaics**, and **namespaces**.
       Each metadata entry is uniquely identified by its source address, target address, metadata type,
       scoped metadata key, and, for mosaic and namespace metadata, the target artifact id. The derived
@@ -118,7 +118,7 @@ tags:
       convention.
   - name: Mosaic routes
     description: |
-      [Mosaics](https://docs.symbol.dev/concepts/mosaic.html) are customizable blockchain assets on Symbol.
+      [Mosaics](https://docs.symboltest.net/en/textbook/mosaics/) are customizable blockchain assets on Symbol.
       A mosaic definition specifies its unique identifier, total supply, divisibility, owner, duration, and behavior flags.
 
       - `Mosaic ID`: unique identifier of a mosaic on Symbol.
@@ -135,7 +135,7 @@ tags:
       Mosaic endpoints return mosaic definitions, paginated mosaic collections, and Merkle proofs for mosaic state.
   - name: Multisig routes
     description: |
-      [Multisig accounts](https://docs.symbol.dev/concepts/multisig-account.html) require approvals
+      [Multisig accounts](https://docs.symboltest.net/en/textbook/accounts/#multisignature-accounts) require approvals
       from one or more cosignatories before they can act. Symbol uses an **M-of-N** model, where
       `N` is the number of cosignatories attached to the multisig account and `M` is the minimum
       number of approvals required for a given action.
@@ -152,7 +152,7 @@ tags:
       across multiple levels, and the Merkle proof for the stored multisig state.
   - name: Namespace routes
     description: |
-      [Namespaces](https://docs.symbol.dev/concepts/namespace.html) are human-readable names that can represent accounts,
+      [Namespaces](https://docs.symboltest.net/en/textbook/namespaces/) are human-readable names that can represent accounts,
       mosaics, or hierarchical naming paths on Symbol. A namespace can be either a **root namespace** or a
       **subnamespace**, and each level is identified by its own namespace ID.
 
@@ -188,7 +188,7 @@ tags:
       **connected peers**, and **node metadata** (deployment tool, version).
   - name: Restriction Mosaic routes
     description: |
-      [Mosaic restrictions](https://docs.symbol.dev/concepts/mosaic-restriction.html) define rule
+      [Mosaic restrictions](https://docs.symboltest.net/en/textbook/restrictions/#mosaic-based-restrictions) define rule
       sets that control how a mosaic can be transferred on Symbol. They are commonly used with
       restrictable mosaics to enforce compliance or access rules.
       Mosaic restrictions are stored as two entry types: global restrictions and address restrictions.
@@ -209,7 +209,7 @@ tags:
       paginated search results, and Merkle proofs for mosaic restriction state.
   - name: Restriction Account routes
     description: |
-      [Account restrictions](https://docs.symbol.dev/concepts/account-restriction.html) define
+      [Account restrictions](https://docs.symboltest.net/en/textbook/restrictions/#account-based-restrictions) define
       rule sets that limit which transactions an account can send to or receive from other accounts
       on Symbol. Depending on the applied restriction flags, these rules can allow or block incoming
       transactions from specific addresses, incoming transactions containing specific mosaic IDs,
@@ -220,7 +220,7 @@ tags:
       results, paginated search results, and Merkle proofs for account restriction state.
   - name: Receipt routes
     description: |
-      [Receipts](https://docs.symbol.dev/concepts/receipt.html) are records produced while confirmed
+      [Receipts](https://docs.symboltest.net/en/textbook/blocks/#receipts) are records produced while confirmed
       transactions change blockchain state. They are grouped into **transaction statements** and
       **resolution statements**.
 
@@ -233,11 +233,11 @@ tags:
         the receipt or resolution entry.
 
       Receipt endpoints return paginated statement collections that can be filtered by height and other
-      receipt-specific criteria. [Merkle proofs](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
+      receipt-specific criteria. [Merkle proofs](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
       for receipt statements are available under Block routes.
   - name: Transaction routes
     description: |
-      Transaction announcement, lookup, and search. [Transactions](https://docs.symbol.dev/concepts/transaction.html)
+      Transaction announcement, lookup, and search. [Transactions](https://docs.symboltest.net/en/textbook/transactions/)
       are signed payloads announced to the network and, after validation, may become part of the chain.
 
       - **Transaction hash**: 64-character hexadecimal identifier used for status lookup and as one way
@@ -258,7 +258,7 @@ tags:
       These endpoints support single-hash lookup and batch lookup by transaction hashes.
   - name: Hash Lock routes
     description: |
-      [Hash locks](https://docs.symbol.dev/concepts/aggregate-transaction.html#aggregate-bonded) are temporary
+      [Hash locks](https://docs.symboltest.net/en/textbook/cross-chain-swaps/#how-it-works) are temporary
       deposits locked before announcing an aggregate bonded transaction. They act as an anti-spam mechanism:
       the lock must be confirmed before the aggregate bonded transaction can be announced, and the locked funds
       are returned when the aggregate bonded transaction completes.
@@ -267,7 +267,7 @@ tags:
       and Merkle proofs for hash lock state.
   - name: Secret Lock routes
     description: |
-      [Secret locks](https://docs.symbol.dev/guides/secretlock/index.html) temporarily lock
+      [Secret locks](https://docs.symboltest.net/en/textbook/cross-chain-swaps/#how-it-works) temporarily lock
       mosaics for a recipient until either a matching proof is announced or the lock expires.
       They are used for hash-time-locked workflows such as cross-chain swaps and other conditional
       transfers.
@@ -279,7 +279,7 @@ tags:
       results, and Merkle proofs for secret lock state.
 externalDocs:
   description: Symbol Technical Documentation
-  url: https://docs.symbol.dev/
+  url: https://docs.symboltest.net/
 paths:
   /accounts:
     get:
@@ -604,8 +604,8 @@ paths:
         - Block routes
       summary: Get the Merkle path for a given transaction and block
       description: |
-        Returns the [Merkle path](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
-        for a [transaction](https://docs.symbol.dev/concepts/transaction.html) included in a block.
+        Returns the [Merkle path](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
+        for a [transaction](https://docs.symboltest.net/en/textbook/transactions/) included in a block.
         The Merkle path is the minimum number of nodes needed to calculate the Merkle root.
 
         Steps to calculate the Merkle root:
@@ -615,7 +615,7 @@ paths:
         - `right`: the item hash is concatenated after the proofHash (proofHash = sha_256(proofHash + item.hash)).
         3. Repeat 2. for every item in the merklePath list.
         4. Compare if the calculated proofHash equals the one recorded in the
-        [block header](https://docs.symbol.dev/concepts/block.html)
+        [block header](https://docs.symboltest.net/en/textbook/blocks/#block-structure)
         (`block.transactionsHash`) to verify if the transaction was included in the block.
       operationId: getMerkleTransaction
       parameters:
@@ -646,8 +646,8 @@ paths:
         - Block routes
       summary: Get the Merkle path for a given receipt statement hash and block
       description: |
-        Returns the [Merkle path](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
-        for a [receipt statement or resolution](https://docs.symbol.dev/concepts/receipt.html) linked to a block.
+        Returns the [Merkle path](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
+        for a [receipt statement or resolution](https://docs.symboltest.net/en/textbook/blocks/#receipts) linked to a block.
         The `hash` parameter is the receipt statement hash, not the transaction hash.
         The Merkle path is the minimum number of nodes needed to calculate the Merkle root.
 
@@ -658,7 +658,7 @@ paths:
         - `right`: the item hash is concatenated after the proofHash (proofHash = sha_256(proofHash + item.hash)).
         3. Repeat 2. for every item in the merklePath list.
         4. Compare if the calculated proofHash equals the one recorded in the
-        [block header](https://docs.symbol.dev/concepts/block.html)
+        [block header](https://docs.symboltest.net/en/textbook/blocks/#block-structure)
         (`block.receiptsHash`) to verify if the statement was linked with the block.
       operationId: getMerkleReceipts
       parameters:
@@ -1392,7 +1392,7 @@ paths:
         Broadcasts a signed transaction to the network through this node.
 
         The request must contain the serialized transaction payload in hexadecimal form. Transactions are
-        normally created and signed client-side with a [Symbol SDK](https://docs.symbol.dev/sdk.html) and
+        normally created and signed client-side with a [Symbol SDK](https://docs.symboltest.net/en/devbook/start/setup/) and
         then announced with this endpoint.
 
         The [catbuffer library](https://github.com/symbol/symbol/tree/main/catbuffer) defines the binary
@@ -2046,7 +2046,7 @@ paths:
         Broadcasts a signed aggregate bonded transaction to the network through this node.
 
         The request must contain the serialized aggregate bonded transaction payload in hexadecimal form.
-        Transactions are normally created and signed client-side with a [Symbol SDK](https://docs.symbol.dev/sdk.html)
+        Transactions are normally created and signed client-side with a [Symbol SDK](https://docs.symboltest.net/en/devbook/start/setup/)
         and then announced with this endpoint.
 
         Acceptance by this node does not mean the transaction is already part of the blockchain. The
@@ -2222,7 +2222,7 @@ paths:
 
         The request must contain the detached cosignature fields: cosignature version, signer public key,
         cosignature signature, and the parent aggregate transaction hash.
-        Detached cosignatures are normally created client-side with a [Symbol SDK](https://docs.symbol.dev/sdk.html)
+        Detached cosignatures are normally created client-side with a [Symbol SDK](https://docs.symboltest.net/en/devbook/start/setup/)
         and then announced with this endpoint.
 
         Acceptance by this node does not mean the parent aggregate bonded transaction is already confirmed
@@ -2927,12 +2927,12 @@ paths:
         - Mosaic routes
       summary: Get mosaic Merkle information
       description: |
-        Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof) for a mosaic.
+        Returns the [Merkle proof](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) for a mosaic.
 
         Clients can use this information to verify that the mosaic state is included in the node's state Merkle tree.
         If the supplied mosaic ID does not exist, the endpoint still returns a Merkle proof response,
         but it is a negative proof showing that no mosaic state entry exists for the requested mosaic ID.
-        See [Data Validation](https://docs.symbol.dev/concepts/data-validation.html) for an overview of Patricia Merkle
+        See [Data Validation](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) for an overview of Patricia Merkle
         trees and state proofs on Symbol.
       operationId: getMosaicMerkle
       parameters:
@@ -3104,7 +3104,7 @@ paths:
         - Multisig routes
       summary: Get multisig account Merkle information
       description: |
-        Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
+        Returns the [Merkle proof](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
         for the multisig state entry associated with the requested account.
 
         If the requested account is a cosignatory, the endpoint returns the Merkle proof for that
@@ -3340,12 +3340,12 @@ paths:
         - Namespace routes
       summary: Get namespace Merkle information
       description: |
-        Returns the [Merkle proof](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof) for a namespace.
+        Returns the [Merkle proof](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) for a namespace.
 
         Clients can use this information to verify that the namespace state is included in the node's state Merkle tree.
         If the supplied namespace ID does not exist, the endpoint still returns a Merkle proof response,
         but it is a negative proof showing that no namespace state entry exists for the requested namespace ID.
-        See [Data Validation](https://docs.symbol.dev/concepts/data-validation.html) for an overview of Patricia Merkle
+        See [Data Validation](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) for an overview of Patricia Merkle
         trees and state proofs on Symbol.
       operationId: getNamespaceMerkle
       parameters:
@@ -4028,7 +4028,7 @@ components:
     MosaicId:
       type: string
       description: |
-        Unique [mosaic](https://docs.symbol.dev/concepts/mosaic.html) identifier.
+        Unique [mosaic](https://docs.symboltest.net/en/textbook/mosaics/) identifier.
         A 64-bit unsigned integer derived from the creator's address and a registration nonce,
         encoded as a 16-character hexadecimal string.
       pattern: ^[0-9a-fA-F]+$
@@ -4090,10 +4090,10 @@ components:
         - 2
         - 3
       description: |
-        Indicates the [harvesting](https://docs.symbol.dev/concepts/harvesting.html) delegation role
+        Indicates the [harvesting](https://docs.symboltest.net/en/textbook/harvesting/) delegation role
         of the account. When an account enables
-        [remote](https://docs.symbol.dev/concepts/harvesting.html#remote-harvesting) or
-        [delegated](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) harvesting,
+        [remote](https://docs.symboltest.net/en/textbook/harvesting/#remote-harvesting) or
+        [delegated](https://docs.symboltest.net/en/textbook/harvesting/#delegated-harvesting) harvesting,
         it links to a remote proxy account that signs blocks on its behalf. This field reflects which
         side of that relationship the account is on:
         - `0`: **Unlinked.** The account has no harvesting delegation relationship.
@@ -4117,7 +4117,7 @@ components:
       type: integer
       format: int64
       description: |
-        [Finalization epoch](https://docs.symbol.dev/concepts/block.html#finalization) is a sequential
+        [Finalization epoch](https://docs.symboltest.net/en/textbook/consensus/#finalization) is a sequential
         integer. Each epoch groups a set of blocks for finalization voting; the interval is defined
         by the `votingSetGrouping` network property (e.g. 1440 blocks, ~12h on mainnet).
       minimum: 1
@@ -4186,9 +4186,9 @@ components:
     Importance:
       type: string
       description: |
-        [Importance score](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-score)
+        [Importance score](https://docs.symboltest.net/en/textbook/accounts/#importance)
         of an account, representing the probability of being selected to harvest the next block under
-        the [PoS+](https://docs.symbol.dev/concepts/consensus-algorithm.html) consensus algorithm.
+        the [PoS+](https://docs.symboltest.net/en/textbook/consensus/) consensus algorithm.
         The score is derived from three factors: stake, transaction activity, and node operation.
         Only accounts holding at least the minimum harvesting balance (`minHarvesterBalance` network
         property) receive a non-zero score. Decimal value between 0 and 1 (inclusive).
@@ -4205,7 +4205,7 @@ components:
         - beneficiaryCount
         - rawScore
       description: |
-        Supplementary data stored for [importance](https://docs.symbol.dev/concepts/consensus-algorithm.html#importance-calculation)
+        Supplementary data stored for [importance](https://docs.symboltest.net/en/textbook/accounts/#importance)
         recalculation under the PoS+ consensus algorithm. At the end of each importance period
         (defined by the `importanceGrouping` network property) the working bucket is finalized, existing buckets are shifted,
         and a new working bucket is created. Each bucket influences at most five importance recalculations.
@@ -4218,14 +4218,14 @@ components:
           description: |
             Total transaction fees (in smallest/atomic units) paid by the account during this bucket's period.
             Used to compute the
-            [Transaction Score (T)](https://docs.symbol.dev/concepts/consensus-algorithm.html#partial-scores)
+            [Transaction Score (T)](https://docs.symboltest.net/en/textbook/accounts/#importance)
             component of the PoS+ importance calculation.
         beneficiaryCount:
           $ref: '#/components/schemas/UInt32'
           description: |
             Number of times the account was designated as a node fee beneficiary during this bucket's
             period. Used to compute the
-            [Node Score (N)](https://docs.symbol.dev/concepts/consensus-algorithm.html#partial-scores)
+            [Node Score (N)](https://docs.symboltest.net/en/textbook/accounts/#importance)
             component. Accounts that operate nodes accumulate a higher count, increasing their importance.
         rawScore:
           $ref: '#/components/schemas/Importance'
@@ -4236,7 +4236,7 @@ components:
     Mosaic:
       type: object
       description: |
-        An instance of a [mosaic](https://docs.symbol.dev/concepts/mosaic.html) held by an account
+        An instance of a [mosaic](https://docs.symboltest.net/en/textbook/mosaics/) held by an account
         or transferred in a transaction. The amount is always expressed in the mosaic's smallest
         (atomic) unit. For example, if the mosaic has a divisibility of 6, an amount of `1000000`
         represents `1.000000` whole units.
@@ -4390,7 +4390,7 @@ components:
       pattern: ^[0-9a-fA-F]+$
       description: |
         Serialized Patricia Merkle tree in compact hex format, as returned by the server.
-        Used for [state proofs](https://docs.symbol.dev/concepts/data-validation.html) to verify
+        Used for [state proofs](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) to verify
         entity state (account, mosaic, metadata, etc.) without downloading the full ledger.
         See [Symbol Technical Reference](https://symbol.github.io/symbol-technicalref/main.pdf)
         chapter 4.3 for the tree structure specification.
@@ -4402,7 +4402,7 @@ components:
         - 0
         - 255
       description: |
-        Type of [Merkle tree](https://docs.symbol.dev/concepts/data-validation.html) node used in
+        Type of [Merkle tree](https://docs.symboltest.net/en/textbook/blocks/#block-hashes) node used in
         state proofs:
         - `0`: Branch node (internal node with child links).
         - `255`: Leaf node (terminal node with value).
@@ -4420,7 +4420,7 @@ components:
     MerkleTreeBranchLinkDTO:
       type: object
       description: |
-        Child link in a [Merkle tree branch](https://docs.symbol.dev/concepts/data-validation.html)
+        Child link in a [Merkle tree branch](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
         node. Each link points to a child node (branch or leaf) via its hash.
       required:
         - bit
@@ -4435,7 +4435,7 @@ components:
     MerkleTreeBranchDTO:
       type: object
       description: |
-        Internal node of a [Patricia Merkle tree](https://docs.symbol.dev/concepts/data-validation.html)
+        Internal node of a [Patricia Merkle tree](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
         used in state proofs. A branch has up to 16 child links (one per nibble 0 to F) and a path prefix.
       required:
         - type
@@ -4472,7 +4472,7 @@ components:
     MerkleTreeLeafDTO:
       type: object
       description: |
-        Terminal node of a [Patricia Merkle tree](https://docs.symbol.dev/concepts/data-validation.html)
+        Terminal node of a [Patricia Merkle tree](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
         used in state proofs. A leaf stores the final path and the associated value (entity state hash).
       required:
         - type
@@ -4568,7 +4568,7 @@ components:
         totalTransactionsCount:
           type: integer
           description: |
-            Total number of [transactions](https://docs.symbol.dev/concepts/transaction.html)
+            Total number of [transactions](https://docs.symboltest.net/en/textbook/transactions/)
             confirmed in this block, including *embedded* transactions
             (i.e. transactions contained within aggregate transactions).
           examples:
@@ -4576,7 +4576,7 @@ components:
         transactionsCount:
           type: integer
           description: |
-            Number of [transactions](https://docs.symbol.dev/concepts/transaction.html)
+            Number of [transactions](https://docs.symboltest.net/en/textbook/transactions/)
             confirmed in this block. This does not count *embedded* transactions
             (i.e. transactions contained within aggregate transactions).
           examples:
@@ -4586,9 +4586,9 @@ components:
           description: |
             Number of statements (of any kind) present in this block.
             Bear in mind that some of them (like
-            [resolution statements](https://docs.symbol.dev/concepts/receipt.html#resolution-statement))
+            [resolution statements](https://docs.symboltest.net/en/textbook/blocks/#resolution-statements))
             are triggered by transactions present in the block, but in general,
-            [transaction statements](https://docs.symbol.dev/concepts/receipt.html#transaction-statement)
+            [transaction statements](https://docs.symboltest.net/en/textbook/blocks/#transaction-statements)
             are not.
           examples:
             - 1
@@ -4684,7 +4684,7 @@ components:
       maxLength: 64
       description: |
         32-byte (64 hex characters) VRF proof gamma. Part of the block's
-        [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof).
+        [generation hash proof](https://docs.symboltest.net/en/textbook/blocks/#block-structure) (VrfProof).
         The gamma value is the first component of the VRF output; it is combined with
         `proofScalar` and `proofVerificationHash` to form the complete verifiable proof.
       examples:
@@ -4696,7 +4696,7 @@ components:
       maxLength: 32
       description: |
         16-byte (32 hex characters) VRF proof verification hash. Part of the block's
-        [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof),
+        [generation hash proof](https://docs.symboltest.net/en/textbook/blocks/#block-structure) (VrfProof),
         together with `proofGamma` and `proofScalar`.
         The harvester generates this proof using its VRF private key; the verification hash
         allows anyone with the VRF public key to verify that the proof was correctly computed
@@ -4710,7 +4710,7 @@ components:
       maxLength: 64
       description: |
         32-byte (64 hex characters) VRF proof scalar. Part of the block's
-        [generation hash proof](https://docs.symbol.dev/concepts/block.html#header) (VrfProof).
+        [generation hash proof](https://docs.symboltest.net/en/textbook/blocks/#block-structure) (VrfProof).
         The scalar proves that the gamma value was correctly derived from the VRF input
         without revealing the harvester's private key.
       examples:
@@ -4721,7 +4721,7 @@ components:
       maximum: 4294967295
       description: |
         Fee multiplier applied to the size of a transaction to obtain its fee, in
-        [absolute units](https://docs.symbol.dev/concepts/mosaic.html#divisibility).
+        [absolute units](https://docs.symboltest.net/en/textbook/mosaics/#divisibility).
         Set by the harvester when creating a block; stored in the block header.
 
         The effective fee for a transaction is:
@@ -4731,7 +4731,7 @@ components:
         Node owners can configure the fee multiplier to any non-negative value (including zero).
         For transaction senders, the median fee multiplier over recent blocks is available
         via `/network/fees/transaction`; using `medianFeeMultiplier` or higher
-        improves chances of inclusion. See the [fees documentation](https://docs.symbol.dev/concepts/fees.html).
+        improves chances of inclusion. See the [fees documentation](https://docs.symboltest.net/en/devbook/transactions/transfer/#fetching-recommended-fees).
       examples:
         - 0
         - 100
@@ -4894,7 +4894,7 @@ components:
       type: integer
       format: int64
       description: |
-        Finalization point within an epoch. Each [epoch](https://docs.symbol.dev/concepts/block.html#finalization)
+        Finalization point within an epoch. Each [epoch](https://docs.symboltest.net/en/textbook/consensus/#finalization)
         is divided into multiple points; blocks are finalized at specific points.
       examples:
         - 0
@@ -4945,7 +4945,7 @@ components:
         latestFinalizedBlock:
           description: |
             The most recent block that has been made permanent and will never be rolled back.
-            See [finalization](https://docs.symbol.dev/concepts/block.html#finalization).
+            See [finalization](https://docs.symboltest.net/en/textbook/consensus/#finalization).
           $ref: '#/components/schemas/FinalizedBlockDTO'
     StageEnum:
       type: integer
@@ -4955,7 +4955,7 @@ components:
         - 2
       description: |
         Finalization message stage
-        ([docs](https://docs.symbol.dev/concepts/block.html#finalization)):
+        ([docs](https://docs.symboltest.net/en/textbook/consensus/#finalization)):
         - `0`: Prevote: voters indicate which block hash they support.
         - `1`: Precommit: voters commit to the block after supermajority prevote.
         - `2`: Count: tally of votes (internal use).
@@ -5966,7 +5966,7 @@ components:
     UnlockedAccountDTO:
       type: object
       description: |
-        Public keys of accounts with [harvesting](https://docs.symbol.dev/concepts/harvesting.html) unlocked.
+        Public keys of accounts with [harvesting](https://docs.symboltest.net/en/textbook/harvesting/) unlocked.
         **Only accounts harvesting on the node you are querying** are returned. The scope is limited to this node, not the entire network.
       required:
         - unlockedAccount
@@ -6586,7 +6586,7 @@ components:
       type: string
       pattern: ^[0-9a-fA-F]+$
       description: |
-        Unique [namespace](https://docs.symbol.dev/concepts/namespaces.html) identifier.
+        Unique [namespace](https://docs.symboltest.net/en/textbook/namespaces/) identifier.
         A 64-bit unsigned integer derived from the namespace name and its parent namespace ID,
         encoded as a 16-character hexadecimal string.
       minLength: 16
