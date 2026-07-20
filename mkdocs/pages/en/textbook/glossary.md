@@ -75,10 +75,13 @@ EMEA
 :   Europe, Middle-East and Africa.
 
 ERC
-:   Ethereum Request for Comment. Commonly utilized to refer to a token standard on the EVM (such as ERC-20, ERC-721, or ERC-1155).
+:   Ethereum Request for Comment. Commonly utilized to refer to a token standard on the <EVM:>
+    (such as [ERC-20](https://ethereum.org/developers/docs/standards/tokens/erc-20/),
+    [ERC-721](https://ethereum.org/developers/docs/standards/tokens/erc-721/),
+    or [ERC-1155](https://ethereum.org/developers/docs/standards/tokens/erc-1155/)).
 
 ETH
-:   Ethereum.
+:   The native token of the [Ethereum](https://ethereum.org) blockchain.
 
 EVM
 :   Ethereum Virtual Machine.

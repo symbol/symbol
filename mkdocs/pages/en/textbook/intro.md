@@ -11,11 +11,11 @@ to the appropriate textbook pages when needed, so there is typically no need to 
 
 The Textbook is organized into the following sections:
 
-| Section               | Pages |
-| --------------------- | ----- |
+| Section               | Pages                                                                                                                                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Foundations           | [Basic Cryptography](./cryptography.md), [Accounts](./accounts.md), [Transactions](./transactions.md), [Transfer Transactions](./transfer_transactions.md) |
-| State and Assets      | [Mosaics](./mosaics.md), [Namespaces](./namespaces.md), [Metadata](./metadata.md), [Restrictions](./restrictions.md) |
-| Blockchain Structure  | [Blocks](./blocks.md), [Consensus](./consensus.md) |
-| Network and Operation | [Nodes](./nodes.md), [Harvesting](./harvesting.md) |
-| Advanced Topics       | [Cross-Chain Swaps](./cross-chain-swaps.md)        |
-| Implementation        | [Catapult](./catapult.md), [CATS DSL](./cats.md)   |
+| State and Assets      | [Mosaics](./mosaics.md), [Namespaces](./namespaces.md), [Metadata](./metadata.md), [Restrictions](./restrictions.md)                                       |
+| Blockchain Structure  | [Blocks](./blocks.md), [Consensus](./consensus.md)                                                                                                         |
+| Network and Operation | [Nodes](./nodes.md), [Harvesting](./harvesting.md)                                                                                                         |
+| Advanced Topics       | [Cross-Chain Swaps](./cross-chain-swaps.md), [Bridging Tokens to Other Networks](./bridge.md)                                                              |
+| Implementation        | [Catapult](./catapult.md), [CATS DSL](./cats.md)                                                                                                           |
