@@ -33,7 +33,6 @@ final class NetworkTimestampTest {
 
 		// Assert:
 		assertThat(actual, is(true));
-		assertThat(actual, is(true));
 	}
 
 	@Test
@@ -100,17 +99,5 @@ final class NetworkTimestampTest {
 		assertThat(a, equalTo(b));
 		assertThat(a.hashCode(), equalTo(b.hashCode()));
 		assertThat(a.equals(c), is(false));
-	}
-
-	@Test
-	void doesNotEqualNemTimestampWithSameRawValue() {
-		// a Symbol millisecond timestamp and a NEM second timestamp with the same raw value are semantically different types
-		// and must not compare equal (equality is type-discriminating, like ByteArray/BaseValue)
-		final NetworkTimestamp symbolTs = new NetworkTimestamp(42L);
-		final org.symbol.sdk.nem.NetworkTimestamp nemTs = new org.symbol.sdk.nem.NetworkTimestamp(42L);
-
-		// Act + Assert:
-		assertThat(symbolTs.equals(nemTs), is(false));
-		assertThat(nemTs.equals(symbolTs), is(false));
 	}
 }

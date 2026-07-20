@@ -219,7 +219,7 @@ final class TransactionDescriptorProcessorTest {
 	class LookupValue {
 		@Test
 		void cannotLookupValueWhenDescriptorDoesNotContainKey() {
-			assertCannotLookupValueWhenDescriptorDoesNotContainKey(() -> createProcessor());
+			assertCannotLookupValueWhenDescriptorDoesNotContainKey(TransactionDescriptorProcessorTest::createProcessor);
 		}
 
 		@Test

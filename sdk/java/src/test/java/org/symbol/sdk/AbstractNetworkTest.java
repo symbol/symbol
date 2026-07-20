@@ -49,31 +49,30 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 	 */
 	protected abstract TAddress addressFromBytes(byte[] addressBytes);
 
-	@Nested
-	class PublicKeyToAddress {
-		private void assertDerivesExpectedAddress(final Network<TAddress, TNetworkTimestamp> network,
-				final Function<AddressVector, String> expectedAddress) {
-			for (final AddressVector v : addressVectors()) {
-				// Arrange:
-				final CryptoTypes.PublicKey publicKey = new CryptoTypes.PublicKey(v.publicKey());
+	// region publicKeyToAddress
 
-				// Act:
-				final String address = network.publicKeyToAddress(publicKey).toString();
+	private void assertCanConvertPublicKeyToAddress(final Network<TAddress, TNetworkTimestamp> network,
+			final Function<AddressVector, String> expectedAddress) {
+		for (final AddressVector v : addressVectors()) {
+			// Arrange:
+			final CryptoTypes.PublicKey publicKey = new CryptoTypes.PublicKey(v.publicKey());
 
-				// Assert:
-				assertThat(address, equalTo(expectedAddress.apply(v)));
-			}
+			// Act:
+			final String address = network.publicKeyToAddress(publicKey).toString();
+
+			// Assert:
+			assertThat(address, equalTo(expectedAddress.apply(v)));
 		}
+	}
 
-		@Test
-		void derivesMainnetAddress() {
-			assertDerivesExpectedAddress(mainnet(), AddressVector::mainnet);
-		}
+	@Test
+	void canConvertMainnetPublicKeyToAddress() {
+		assertCanConvertPublicKeyToAddress(mainnet(), AddressVector::mainnet);
+	}
 
-		@Test
-		void derivesTestnetAddress() {
-			assertDerivesExpectedAddress(testnet(), AddressVector::testnet);
-		}
+	@Test
+	void canConvertTestnetPublicKeyToAddress() {
+		assertCanConvertPublicKeyToAddress(testnet(), AddressVector::testnet);
 	}
 
 	@Test
@@ -89,105 +88,127 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 		}
 	}
 
-	@Nested
-	class IsValidAddressString {
-		private void assertIsValidAddressString(final Network<TAddress, TNetworkTimestamp> network, final String addressString,
-				final boolean expected) {
-			// Act:
-			final boolean isValid = network.isValidAddressString(addressString);
+	// endregion
 
-			// Assert:
-			assertThat(isValid, is(expected));
-		}
+	// region isValidAddress[String]
 
-		@Test
-		void mainnetAcceptsMainnetAddress() {
-			assertIsValidAddressString(mainnet(), addressVectors()[0].mainnet(), true);
-		}
-
-		@Test
-		void testnetAcceptsTestnetAddress() {
-			assertIsValidAddressString(testnet(), addressVectors()[0].testnet(), true);
-		}
-
-		@Test
-		void mainnetRejectsTestnetAddress() {
-			assertIsValidAddressString(mainnet(), addressVectors()[0].testnet(), false);
-		}
-
-		@Test
-		void testnetRejectsMainnetAddress() {
-			assertIsValidAddressString(testnet(), addressVectors()[0].mainnet(), false);
-		}
-
-		@Test
-		void rejectsBadLength() {
-			// Arrange:
-			final String valid = addressVectors()[0].mainnet();
-
-			// Act + Assert: shorter, empty, and longer (JS appends a well-formed base32 char) must all be rejected
-			assertIsValidAddressString(mainnet(), valid.substring(0, valid.length() - 1), false);
-			assertIsValidAddressString(mainnet(), "", false);
-			assertIsValidAddressString(mainnet(), valid + "A", false);
-		}
-
-		@Test
-		void rejectsInvalidBase32() {
-			// Arrange: '!' is not a valid base32 char (length kept valid by replacing the last char)
-			final String valid = addressVectors()[0].mainnet();
-			final String tampered = valid.substring(0, valid.length() - 1) + "!";
-
-			// Act + Assert:
-			assertIsValidAddressString(mainnet(), tampered, false);
-		}
-
-		@Test
-		void rejectsTamperedChecksum() {
-			// Arrange: flip a bit in the last (checksum) byte and re-encode. Tampering the encoded string's last character is NOT
-			// equivalent for symbol addresses: a 39-char string carries 195 bits for 24 bytes, so the last character's low bits fall
-			// into the dropped padding byte and a flip within 'A'..'H' can leave the decoded address (and checksum) unchanged.
-			final TAddress valid = addressFromString(addressVectors()[0].mainnet());
-			final byte[] tamperedBytes = valid.bytes().clone();
-			tamperedBytes[tamperedBytes.length - 1] ^= 0x01;
-			final String tampered = addressFromBytes(tamperedBytes).toString();
-
-			// Act + Assert:
-			assertIsValidAddressString(mainnet(), tampered, false);
-		}
+	private TAddress deterministicAddress(final Network<TAddress, TNetworkTimestamp> network) {
+		return network.publicKeyToAddress(new CryptoTypes.PublicKey(addressVectors()[0].publicKey()));
 	}
 
-	@Nested
-	class IsValidAddress {
-		private void assertAcceptsValidAndRejectsTamperedBytes(final Network<TAddress, TNetworkTimestamp> network,
-				final String addressString) {
-			// Arrange:
-			final TAddress valid = addressFromString(addressString);
-			final byte[] beginTampered = valid.bytes().clone();
-			beginTampered[1] ^= 0xFF;
-			final byte[] endTampered = valid.bytes().clone();
-			endTampered[endTampered.length - 1] ^= 0xFF;
+	private void assertCanValidateValidAddress(final Network<TAddress, TNetworkTimestamp> network) {
+		// Arrange:
+		final TAddress address = deterministicAddress(network);
 
-			// Act:
-			final boolean isValidAccepted = network.isValidAddress(valid);
-			final boolean isBeginTamperedAccepted = network.isValidAddress(addressFromBytes(beginTampered));
-			final boolean isEndTamperedAccepted = network.isValidAddress(addressFromBytes(endTampered));
+		// Act:
+		final boolean isValidAddress = network.isValidAddress(address);
+		final boolean isValidAddressString = network.isValidAddressString(address.toString());
 
-			// Assert: a valid address passes; tampering the first hash byte or the last checksum byte fails
-			assertThat(isValidAccepted, is(true));
-			assertThat(isBeginTamperedAccepted, is(false));
-			assertThat(isEndTamperedAccepted, is(false));
-		}
-
-		@Test
-		void mainnetAcceptsValidAndRejectsTamperedBytes() {
-			assertAcceptsValidAndRejectsTamperedBytes(mainnet(), addressVectors()[0].mainnet());
-		}
-
-		@Test
-		void testnetAcceptsValidAndRejectsTamperedBytes() {
-			assertAcceptsValidAndRejectsTamperedBytes(testnet(), addressVectors()[0].testnet());
-		}
+		// Assert:
+		assertThat(isValidAddress, is(true));
+		assertThat(isValidAddressString, is(true));
 	}
+
+	private void assertCannotValidateInvalidAddress(final Network<TAddress, TNetworkTimestamp> network, final int signedPosition) {
+		// Arrange:
+		final byte[] tamperedBytes = deterministicAddress(network).bytes().clone();
+		final int position = 0 > signedPosition ? tamperedBytes.length + signedPosition : signedPosition;
+		tamperedBytes[position] ^= (byte) 0xFF;
+		final TAddress tampered = addressFromBytes(tamperedBytes);
+
+		// Act:
+		final boolean isValidAddress = network.isValidAddress(tampered);
+		final boolean isValidAddressString = network.isValidAddressString(tampered.toString());
+
+		// Assert:
+		assertThat(isValidAddress, is(false));
+		assertThat(isValidAddressString, is(false));
+	}
+
+	private void assertCannotValidateInvalidAddressString(final Network<TAddress, TNetworkTimestamp> network,
+			final Function<String, String> mutator) {
+		// Arrange:
+		final String addressString = mutator.apply(deterministicAddress(network).toString());
+
+		// Act:
+		final boolean isValid = network.isValidAddressString(addressString);
+
+		// Assert:
+		assertThat(isValid, is(false));
+	}
+
+	@Test
+	void canValidateValidMainnetAddress() {
+		assertCanValidateValidAddress(mainnet());
+	}
+
+	@Test
+	void canValidateValidTestnetAddress() {
+		assertCanValidateValidAddress(testnet());
+	}
+
+	@Test
+	void cannotValidateInvalidMainnetAddressBegin() {
+		assertCannotValidateInvalidAddress(mainnet(), 1);
+	}
+
+	@Test
+	void cannotValidateInvalidMainnetAddressEnd() {
+		assertCannotValidateInvalidAddress(mainnet(), -1);
+	}
+
+	@Test
+	void cannotValidateInvalidTestnetAddressBegin() {
+		assertCannotValidateInvalidAddress(testnet(), 1);
+	}
+
+	@Test
+	void cannotValidateInvalidTestnetAddressEnd() {
+		assertCannotValidateInvalidAddress(testnet(), -1);
+	}
+
+	@Test
+	void cannotValidateInvalidMainnetAddressStringInvalidSize() {
+		assertCannotValidateInvalidAddressString(mainnet(), addressString -> addressString + "A");
+		assertCannotValidateInvalidAddressString(mainnet(), addressString -> addressString.substring(0, addressString.length() - 1));
+		// (Java-only) empty string
+		assertCannotValidateInvalidAddressString(mainnet(), addressString -> "");
+	}
+
+	@Test
+	void cannotValidateInvalidTestnetAddressStringInvalidSize() {
+		assertCannotValidateInvalidAddressString(testnet(), addressString -> addressString + "A");
+		assertCannotValidateInvalidAddressString(testnet(), addressString -> addressString.substring(0, addressString.length() - 1));
+	}
+
+	@Test
+	void cannotValidateInvalidMainnetAddressStringInvalidChar() {
+		assertCannotValidateInvalidAddressString(mainnet(),
+				addressString -> addressString.substring(0, 10) + "@" + addressString.substring(11));
+		// (Java-only) invalid base32 char at the end (length kept valid)
+		assertCannotValidateInvalidAddressString(mainnet(), addressString -> addressString.substring(0, addressString.length() - 1) + "!");
+	}
+
+	@Test
+	void cannotValidateInvalidTestnetAddressStringInvalidChar() {
+		assertCannotValidateInvalidAddressString(testnet(),
+				addressString -> addressString.substring(0, 10) + "@" + addressString.substring(11));
+	}
+
+	// (Java-only) cross-network validation: an address is only valid on the network that derived it
+	@Test
+	void mainnetRejectsTestnetAddress() {
+		assertThat(mainnet().isValidAddressString(addressVectors()[0].testnet()), is(false));
+	}
+
+	@Test
+	void testnetRejectsMainnetAddress() {
+		assertThat(testnet().isValidAddressString(addressVectors()[0].mainnet()), is(false));
+	}
+
+	// endregion
+
+	// region NetworkLocatorC
 
 	@Nested
 	class NetworkLocatorTest {
@@ -227,4 +248,6 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 			assertFindsByIdentifier((byte) 0x98, testnet());
 		}
 	}
+
+	// endregion
 }

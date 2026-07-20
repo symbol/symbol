@@ -29,7 +29,6 @@ final class NetworkTimestampTest {
 	@Test
 	void canCreateEpochalTimestamp() {
 		assertThat(new NetworkTimestamp(0L).isEpochal(), is(true));
-		assertThat(new NetworkTimestamp(0L).isEpochal(), is(true));
 	}
 
 	@Test

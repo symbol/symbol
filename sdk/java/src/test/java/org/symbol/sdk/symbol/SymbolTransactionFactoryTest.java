@@ -2,9 +2,9 @@ package org.symbol.sdk.symbol;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import org.symbol.sdk.CatbufferType;
 import org.symbol.sdk.CryptoTypes;
+import org.symbol.sdk.InvalidDescriptorException;
 import org.symbol.sdk.symbol.models.*;
 
 /**
@@ -68,7 +69,7 @@ final class SymbolTransactionFactoryTest {
 		final Set<String> ruleNames = factory.getRuleNames();
 
 		// Assert:
-		// every generated pod/enum/flags (Models.FACTORIES) ...
+		// every generated pod/enum/flags (Models.POD_FACTORIES) ...
 		final String[] expected = {
 				"Amount", "BlockDuration", "BlockFeeMultiplier", "Difficulty", "FinalizationEpoch", "FinalizationPoint", "Height",
 				"Importance", "ImportanceHeight", "MosaicId", "MosaicNonce", "MosaicRestrictionKey", "NamespaceId", "Timestamp",
@@ -179,9 +180,28 @@ final class SymbolTransactionFactoryTest {
 			final Map<String, Object> descriptor = transferDescriptor();
 			descriptor.put("type", "xtransfer_transaction_v1");
 
-			// Act + Assert:
+			// Act:
 			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> create(factory, descriptor));
+
+			// Assert:
 			assertThat(ex.getMessage(), is(equalTo("unknown " + modelName() + " type xtransfer_transaction_v1")));
+		}
+
+		// (Java-only) pins that the bulk POD_FACTORIES registration cannot leak: a stray key naming a non-transaction
+		// type (e.g. "BlockType") is still rejected by setField like any unknown field — surplus rules only ever fire
+		// via TYPE_HINTS, which transaction models never point at block/receipt types
+		@Test
+		void cannotCreateTransactionWithUnknownDescriptorField() {
+			// Arrange:
+			final SymbolTransactionFactory factory = new SymbolTransactionFactory(Network.TESTNET);
+			final Map<String, Object> descriptor = transferDescriptor();
+			descriptor.put("BlockType", 1);
+
+			// Act:
+			final InvalidDescriptorException ex = assertThrows(InvalidDescriptorException.class, () -> create(factory, descriptor));
+
+			// Assert:
+			assertThat(ex.getMessage(), containsString("no field \"BlockType\""));
 		}
 
 		@Test
@@ -472,7 +492,6 @@ final class SymbolTransactionFactoryTest {
 			final String json = SymbolTransactionFactory.attachSignature(transaction, signature);
 
 			// Assert:
-			assertThat(json, startsWith("{\"payload\": \""));
 			assertThat(json, is(equalTo("{\"payload\": \"" + org.symbol.sdk.utils.Converter.uint8ToHex(transaction.serialize()) + "\"}")));
 		}
 
@@ -487,7 +506,7 @@ final class SymbolTransactionFactoryTest {
 			// Act:
 			final String json = SymbolTransactionFactory.toJson(transaction);
 
-			// Assert: the payload embeds the serialized transaction, including the attached signature
+			// Assert: the payload embeds the serialized transaction
 			assertThat(json, is(equalTo("{\"payload\": \"" + org.symbol.sdk.utils.Converter.uint8ToHex(transaction.serialize()) + "\"}")));
 			assertThat(json, is(equalTo(attached)));
 		}

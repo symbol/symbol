@@ -56,7 +56,7 @@ class PodTypeFormatter(AbstractTypeFormatter):
 		ctor.is_constructor = True
 
 		# Raw-value factory — the non-reflective coercion used by the rule-based factory (registered via
-		# Models.FACTORIES), but also a general-purpose constructor callable directly. Each pod knows its own input shapes.
+		# Models.POD_FACTORIES), but also a general-purpose constructor callable directly. Each pod knows its own input shapes.
 		typed_branch = (
 			f'if (rawValue instanceof {typename} typed)\n'
 			f'\treturn typed;\n')

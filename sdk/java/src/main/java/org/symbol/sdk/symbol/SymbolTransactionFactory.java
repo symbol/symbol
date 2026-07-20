@@ -209,7 +209,7 @@ public final class SymbolTransactionFactory {
 	 * @return JSON transaction payload.
 	 */
 	public static String attachSignature(final Transaction transaction, final Signature signature) {
-		transaction.setField("signature", new org.symbol.sdk.symbol.models.Signature(signature.bytes()));
+		transaction.setSignature(new org.symbol.sdk.symbol.models.Signature(signature.bytes()));
 		return toJson(transaction);
 	}
 
@@ -227,7 +227,7 @@ public final class SymbolTransactionFactory {
 	private static RuleBasedTransactionFactory buildRules(final Map<String, Function<Object, Object>> typeRuleOverrides) {
 		final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory(SymbolTransactionFactory::symbolTypeConverter,
 				typeRuleOverrides);
-		factory.registerParsers(Models.FACTORIES);
+		factory.addPodParsers(Models.POD_FACTORIES);
 
 		factory.addStructParser("UnresolvedMosaic", UnresolvedMosaic::new);
 
@@ -254,5 +254,4 @@ public final class SymbolTransactionFactory {
 
 		return null;
 	}
-
 }

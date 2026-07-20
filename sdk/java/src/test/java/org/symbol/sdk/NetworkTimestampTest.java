@@ -19,44 +19,56 @@ final class NetworkTimestampTest {
 
 		@Override
 		public NetworkTimestamp.Base addSeconds(final long count) {
-			return new FakeTimestamp(timestamp + count);
+			return new FakeTimestamp(timestamp + 5 * count);
 		}
 	}
 
 	@Nested
 	final class TimestampBase {
 		@Test
-		void epochalTimestampIsRecognized() {
-			// Act + Assert:
-			assertThat(new FakeTimestamp(0).isEpochal(), is(true));
-			assertThat(new FakeTimestamp(1).isEpochal(), is(false));
+		void canCreateEpochalTimestamp() {
+			// Act:
+			final FakeTimestamp timestamp = new FakeTimestamp(0);
+
+			// Assert:
+			assertThat(timestamp.isEpochal(), is(true));
+			assertThat(timestamp.timestamp, equalTo(0L));
 		}
 
 		@Test
-		void addSecondsAdvancesByCorrectAmount() {
-			// Arrange:
-			final FakeTimestamp t = new FakeTimestamp(100);
+		void canCreateNonEpochalTimestamp() {
+			// Act:
+			final FakeTimestamp timestamp = new FakeTimestamp(123);
 
-			// Act + Assert:
-			assertThat(((FakeTimestamp) t.addSeconds(50)).timestamp, equalTo((long) (150)));
+			// Assert:
+			assertThat(timestamp.isEpochal(), is(false));
+			assertThat(timestamp.timestamp, equalTo(123L));
 		}
 
 		@Test
 		void canAddMinutes() {
 			// Arrange:
-			final FakeTimestamp t = new FakeTimestamp(100);
+			final FakeTimestamp timestamp = new FakeTimestamp(100);
 
-			// Act + Assert:
-			assertThat(((FakeTimestamp) t.addMinutes(2)).timestamp, equalTo((long) (100 + 2 * 60)));
+			// Act:
+			final NetworkTimestamp.Base newTimestamp = timestamp.addMinutes(50);
+
+			// Assert: the original is unchanged; the new value went through the subclass addSeconds (x5)
+			assertThat(timestamp.timestamp, equalTo(100L));
+			assertThat(newTimestamp.timestamp, equalTo(100 + 60L * 5 * 50));
 		}
 
 		@Test
 		void canAddHours() {
 			// Arrange:
-			final FakeTimestamp t = new FakeTimestamp(0);
+			final FakeTimestamp timestamp = new FakeTimestamp(100);
 
-			// Act + Assert:
-			assertThat(((FakeTimestamp) t.addHours(3)).timestamp, equalTo((long) (3L * 60 * 60)));
+			// Act:
+			final NetworkTimestamp.Base newTimestamp = timestamp.addHours(50);
+
+			// Assert: the original is unchanged; the new value went through the subclass addSeconds (x5)
+			assertThat(timestamp.timestamp, equalTo(100L));
+			assertThat(newTimestamp.timestamp, equalTo(100 + 60L * 60 * 5 * 50));
 		}
 
 		@Test
@@ -127,47 +139,74 @@ final class NetworkTimestampTest {
 
 	@Nested
 	final class DatetimeConverter {
-		@Test
-		void canConvertNetworkTimestampToDatetimeInSeconds() {
-			// Arrange:
-			final Instant epoch = Instant.parse("2020-01-01T00:00:00Z");
-			final NetworkTimestamp.NetworkTimestampDatetimeConverter conv = new NetworkTimestamp.NetworkTimestampDatetimeConverter(epoch,
-					NetworkTimestamp.NetworkTimestampDatetimeConverter.TimeUnit.SECONDS);
+		// the JS spec's Date.UTC(2020, 1, 2, 3) — an hours-resolution converter epoch of 2020-02-02T03:00Z
+		private static final Instant EPOCH = Instant.parse("2020-02-02T03:00:00Z");
 
-			// Act:
-			final Instant result = conv.toDatetime(120);
-
-			// Assert:
-			assertThat(result, equalTo(epoch.plusSeconds(120)));
+		private NetworkTimestamp.NetworkTimestampDatetimeConverter createConverter() {
+			return new NetworkTimestamp.NetworkTimestampDatetimeConverter(EPOCH,
+					NetworkTimestamp.NetworkTimestampDatetimeConverter.TimeUnit.HOURS);
 		}
 
 		@Test
-		void canConvertDatetimeToDifferenceInSeconds() {
-			// Arrange:
-			final Instant epoch = Instant.parse("2020-01-01T00:00:00Z");
-			final NetworkTimestamp.NetworkTimestampDatetimeConverter conv = new NetworkTimestamp.NetworkTimestampDatetimeConverter(epoch,
-					NetworkTimestamp.NetworkTimestampDatetimeConverter.TimeUnit.SECONDS);
-
+		void canConvertEpochalTimestampToDatetime() {
 			// Act:
-			final long diff = conv.toDifference(epoch.plusSeconds(120));
+			final Instant result = createConverter().toDatetime(0);
 
 			// Assert:
-			assertThat(diff, equalTo(120L));
+			assertThat(result, equalTo(EPOCH));
+		}
+
+		@Test
+		void canConvertNonEpochalTimestampToDatetime() {
+			// Act:
+			final Instant result = createConverter().toDatetime(5);
+
+			// Assert:
+			assertThat(result, equalTo(EPOCH.plus(5, java.time.temporal.ChronoUnit.HOURS)));
 		}
 
 		@Test
 		void cannotConvertDatetimeBeforeEpochalTimestamp() {
-			// Arrange:
-			final Instant epoch = Instant.parse("2020-01-01T00:00:00Z");
-			final NetworkTimestamp.NetworkTimestampDatetimeConverter conv = new NetworkTimestamp.NetworkTimestampDatetimeConverter(epoch,
-					NetworkTimestamp.NetworkTimestampDatetimeConverter.TimeUnit.SECONDS);
-
 			// Act:
 			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-					() -> conv.toDifference(epoch.minusSeconds(1)));
+					() -> createConverter().toDifference(EPOCH.minus(1, java.time.temporal.ChronoUnit.HOURS)));
 
 			// Assert:
 			assertThat(ex.getMessage(), containsString("before epoch"));
+		}
+
+		@Test
+		void canConvertDatetimeToEpochalTimestamp() {
+			// Act: four minutes past the epoch truncates to zero whole hours
+			final long rawTimestamp = createConverter().toDifference(EPOCH.plus(4, java.time.temporal.ChronoUnit.MINUTES));
+
+			// Assert:
+			assertThat(rawTimestamp, equalTo(0L));
+		}
+
+		@Test
+		void canConvertDatetimeToNonEpochalTimestamp() {
+			// Act: five hours and four minutes past the epoch truncates to five whole hours
+			final long rawTimestamp = createConverter()
+					.toDifference(EPOCH.plus(5, java.time.temporal.ChronoUnit.HOURS).plus(4, java.time.temporal.ChronoUnit.MINUTES));
+
+			// Assert:
+			assertThat(rawTimestamp, equalTo(5L));
+		}
+
+		@Test
+		void canConvertDatetimeToNonEpochalTimestampLarge() {
+			// Arrange: a milliseconds-resolution difference spanning five years ((5 * 365) + 2 leap days), which
+			// exceeds 2^31 — guarding against any int-width arithmetic in the conversion
+			final NetworkTimestamp.NetworkTimestampDatetimeConverter converter = new NetworkTimestamp.NetworkTimestampDatetimeConverter(
+					EPOCH, NetworkTimestamp.NetworkTimestampDatetimeConverter.TimeUnit.MILLISECONDS);
+
+			// Act:
+			final long rawTimestamp = converter.toDifference(Instant.parse("2025-02-02T03:00:00Z"));
+
+			// Assert:
+			assertThat(rawTimestamp, equalTo(((5L * 365) + 2) * 24 * 60 * 60 * 1000));
+			assertThat(rawTimestamp > (1L << 31), is(true));
 		}
 	}
 }

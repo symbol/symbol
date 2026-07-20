@@ -1,11 +1,11 @@
 package org.symbol.sdk;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
@@ -153,10 +153,18 @@ final class RuleBasedTransactionFactoryTest {
 			if (descriptorValue instanceof NetworkType typed)
 				return typed;
 
-			if (descriptorValue instanceof String name)
-				return valueOf(name.toUpperCase(java.util.Locale.ROOT));
+			if (descriptorValue instanceof String name) {
+				try {
+					return valueOf(name.toUpperCase(java.util.Locale.ROOT));
+				} catch (final IllegalArgumentException ex) {
+					throw new IllegalArgumentException("unknown value " + name + " for type NetworkType", ex);
+				}
+			}
 
-			return fromValue(((Number) descriptorValue).intValue());
+			if (descriptorValue instanceof Number number)
+				return fromValue(org.symbol.sdk.utils.Converter.toInt(number));
+
+			throw new IllegalArgumentException("cannot parse " + descriptorValue.getClass().getName() + " into NetworkType");
 		}
 
 		@Override
@@ -169,6 +177,68 @@ final class RuleBasedTransactionFactoryTest {
 			return new byte[]{
 					(byte) value
 			};
+		}
+	}
+
+	public static final class MosaicFlags {
+		public static final MosaicFlags NONE = new MosaicFlags(0);
+		public static final MosaicFlags SUPPLY_MUTABLE = new MosaicFlags(1);
+		public static final MosaicFlags TRANSFERABLE = new MosaicFlags(2);
+		public static final MosaicFlags RESTRICTABLE = new MosaicFlags(4);
+		public static final MosaicFlags REVOKABLE = new MosaicFlags(8);
+
+		public final int value;
+
+		public MosaicFlags(final int value) {
+			this.value = value;
+		}
+
+		public static MosaicFlags or(final MosaicFlags... flagsArray) {
+			int combined = 0;
+			for (final MosaicFlags flags : flagsArray)
+				combined |= flags.value;
+
+			return new MosaicFlags(combined);
+		}
+
+		// mirrors the generated flags parse arms: instance / space-separated names / number, with the generated error messages
+		public static MosaicFlags parse(final Object rawValue) {
+			if (rawValue instanceof MosaicFlags typed)
+				return typed;
+
+			if (rawValue instanceof String names) {
+				int combined = 0;
+				for (final String name : names.split(" "))
+					combined |= fromName(name).value;
+
+				return new MosaicFlags(combined);
+			}
+
+			if (rawValue instanceof Number number)
+				return new MosaicFlags(org.symbol.sdk.utils.Converter.toInt(number));
+
+			throw new IllegalArgumentException("cannot parse " + rawValue.getClass().getName() + " into MosaicFlags");
+		}
+
+		private static MosaicFlags fromName(final String name) {
+			return switch (name.toLowerCase(java.util.Locale.ROOT)) {
+				case "none" -> NONE;
+				case "supply_mutable" -> SUPPLY_MUTABLE;
+				case "transferable" -> TRANSFERABLE;
+				case "restrictable" -> RESTRICTABLE;
+				case "revokable" -> REVOKABLE;
+				default -> throw new IllegalArgumentException("unknown value " + name + " for type MosaicFlags");
+			};
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			return other instanceof MosaicFlags flags && this.value == flags.value;
+		}
+
+		@Override
+		public int hashCode() {
+			return Integer.hashCode(this.value);
 		}
 	}
 
@@ -413,10 +483,124 @@ final class RuleBasedTransactionFactoryTest {
 
 	// endregion
 
+	// region flags parser
+
+	@Nested
+	class FlagsParser {
+		private Function<Object, Object> flagsRule() {
+			// the generated flags parse is registered as a pod parser (the Java analog of the JS addFlagsParser)
+			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
+			factory.addPodParsers(Map.of("MosaicFlags", MosaicFlags::parse));
+			return requireRule(factory, "MosaicFlags");
+		}
+
+		private void assertFlagsParser(final Object inputValue, final MosaicFlags expectedValue) {
+			// Act:
+			final Object parsed = flagsRule().apply(inputValue);
+
+			// Assert:
+			assertThat(parsed, equalTo(expectedValue));
+		}
+
+		@Test
+		void canHandleSingleStringFlag() {
+			assertFlagsParser("restrictable", MosaicFlags.RESTRICTABLE);
+		}
+
+		@Test
+		void canHandleMultipleStringFlags() {
+			assertFlagsParser("supply_mutable restrictable revokable",
+					MosaicFlags.or(MosaicFlags.SUPPLY_MUTABLE, MosaicFlags.RESTRICTABLE, MosaicFlags.REVOKABLE));
+		}
+
+		@Test
+		void failsIfAnyStringIsUnknown() {
+			// Act:
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+					() -> flagsRule().apply("supply_mutable foo revokable"));
+
+			// Assert:
+			assertThat(ex.getMessage(), containsString("unknown value foo for type MosaicFlags"));
+		}
+
+		@Test
+		void canHandleInts() {
+			assertFlagsParser(9, MosaicFlags.or(MosaicFlags.SUPPLY_MUTABLE, MosaicFlags.REVOKABLE));
+		}
+
+		@Test
+		void passesNonParsedValuesAsIs() {
+			// Arrange:
+			final MosaicFlags value = MosaicFlags.or(MosaicFlags.SUPPLY_MUTABLE, MosaicFlags.RESTRICTABLE, MosaicFlags.REVOKABLE);
+
+			// Act:
+			final Object parsed = flagsRule().apply(value);
+
+			// Assert: a typed instance passes through unchanged
+			assertThat(parsed, sameInstance(value));
+
+			// deliberate divergence: the JS reflective parser passes unrecognized shapes (fractional numbers, lists)
+			// through as-is; the generated Java parse is strict and rejects them instead
+			assertThrows(IllegalArgumentException.class, () -> flagsRule().apply(1.2));
+			assertThrows(IllegalArgumentException.class, () -> flagsRule().apply(List.of(1, 2, 3, 4)));
+		}
+	}
+
+	// endregion
+
+	// region enum parser
+
+	@Nested
+	class EnumParser {
+		private Function<Object, Object> enumRule() {
+			// the generated enum parse is registered as a pod parser (the Java analog of the JS addEnumParser)
+			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
+			factory.addPodParsers(Map.of("NetworkType", NetworkType::parse));
+			return requireRule(factory, "NetworkType");
+		}
+
+		@Test
+		void canHandleString() {
+			assertThat(enumRule().apply("testnet"), equalTo(NetworkType.TESTNET));
+		}
+
+		@Test
+		void failsIfStringIsUnknown() {
+			// Act:
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> enumRule().apply("Bitcoin"));
+
+			// Assert:
+			assertThat(ex.getMessage(), containsString("unknown value Bitcoin for type NetworkType"));
+		}
+
+		@Test
+		void canHandleInts() {
+			assertThat(enumRule().apply(152), equalTo(NetworkType.TESTNET));
+		}
+
+		@Test
+		void passesNonParsedValuesAsIs() {
+			// Act:
+			final Object parsed = enumRule().apply(NetworkType.TESTNET);
+
+			// Assert: a typed instance passes through unchanged
+			assertThat(parsed, sameInstance(NetworkType.TESTNET));
+
+			// deliberate divergence: the JS reflective parser passes unrecognized shapes (fractional numbers, lists)
+			// through as-is; the generated Java parse is strict and rejects them instead
+			assertThrows(IllegalArgumentException.class, () -> enumRule().apply(1.2));
+			assertThrows(IllegalArgumentException.class, () -> enumRule().apply(List.of(1, 2, 3, 4)));
+		}
+	}
+
+	// endregion
+
 	// region struct parser
 
 	@Nested
 	class StructParser {
+		private static final String HASH_HEX = "E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C";
+
 		@Test
 		void canParsePlainFields() {
 			// Arrange:
@@ -437,7 +621,7 @@ final class RuleBasedTransactionFactoryTest {
 		void canParsePodFields() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
-			factory.registerParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
 			factory.addStructParser("UnresolvedMosaic", UnresolvedMosaic::new);
 
 			final Map<String, Object> descriptor = mosaicDescriptor();
@@ -456,7 +640,7 @@ final class RuleBasedTransactionFactoryTest {
 		void canParseArrayFields() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
-			factory.registerParsers(Map.of("MosaicId", MosaicId::parse));
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse));
 			factory.addArrayParser("MosaicId");
 			factory.addStructParser("StructArrayMember", StructArrayMember::new);
 
@@ -467,14 +651,14 @@ final class RuleBasedTransactionFactoryTest {
 			final StructArrayMember parsed = (StructArrayMember) requireRule(factory, "struct:StructArrayMember").apply(descriptor);
 
 			// Assert:
-			assertThat(parsed.mosaicIds, contains(new MosaicId(0x0123456789ABCDEFL), new MosaicId(0x3456789123456789L)));
+			assertThat(parsed.mosaicIds, equalTo(Arrays.asList(new MosaicId(0x0123456789ABCDEFL), new MosaicId(0x3456789123456789L))));
 		}
 
 		@Test
 		void canParseEnumFields() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
-			factory.registerParsers(Map.of("NetworkType", NetworkType::parse));
+			factory.addPodParsers(Map.of("NetworkType", NetworkType::parse));
 			factory.addStructParser("StructEnumMember", StructEnumMember::new);
 
 			final Map<String, Object> descriptor = new LinkedHashMap<>();
@@ -491,7 +675,7 @@ final class RuleBasedTransactionFactoryTest {
 		void canParseStructFields() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
-			factory.registerParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
 			factory.addStructParser("UnresolvedMosaic", UnresolvedMosaic::new);
 			factory.addStructParser("StructStructMember", StructStructMember::new);
 
@@ -526,23 +710,31 @@ final class RuleBasedTransactionFactoryTest {
 			assertThat(parsed.amount, equalTo(100L));
 		}
 
-		@Test
-		void coercesSdkByteArraysViaSetField() {
+		private void assertCanParseWithTypeConverterAndAutodetectByteArrays(final Object hashValue) {
 			// Arrange:
-			// a hand-written SDK Hash256 on a rule-less field is bridged to its same-named model twin by setField's asByteArray coercion
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
 			factory.addStructParser("StructHashMember", StructHashMember::new);
 
-			final CryptoTypes.Hash256 publicHash = new CryptoTypes.Hash256(
-					"E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C");
-			final Map<String, Object> descriptor = Map.of("hash", publicHash);
+			final Map<String, Object> descriptor = Map.of("hash", hashValue);
 
 			// Act:
 			final StructHashMember parsed = (StructHashMember) requireRule(factory, "struct:StructHashMember").apply(descriptor);
 
 			// Assert:
-			assertThat(parsed.hash, equalTo(new Hash256("E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C")));
+			assertThat(parsed.hash, equalTo(new Hash256(HASH_HEX)));
 			assertThat(parsed.hash, instanceOf(Hash256.class));
+		}
+
+		@Test
+		void canParseWithTypeConverterAndAutodetectByteArraysFromPublicType() {
+			// a hand-written SDK Hash256 on a rule-less field is bridged to its same-named model twin by setField's asByteArray coercion
+			assertCanParseWithTypeConverterAndAutodetectByteArrays(new CryptoTypes.Hash256(HASH_HEX));
+		}
+
+		@Test
+		void canParseWithTypeConverterAndAutodetectByteArraysFromModelType() {
+			// an already-model Hash256 passes through the same asByteArray coercion untouched
+			assertCanParseWithTypeConverterAndAutodetectByteArrays(new Hash256(HASH_HEX));
 		}
 	}
 
@@ -568,7 +760,7 @@ final class RuleBasedTransactionFactoryTest {
 		void canParseEnumArray() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
-			factory.registerParsers(Map.of("NetworkType", NetworkType::parse));
+			factory.addPodParsers(Map.of("NetworkType", NetworkType::parse));
 			factory.addArrayParser("NetworkType");
 
 			// Act:
@@ -582,7 +774,7 @@ final class RuleBasedTransactionFactoryTest {
 		void canParseStructArray() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
-			factory.registerParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
 			factory.addStructParser("UnresolvedMosaic", UnresolvedMosaic::new);
 			factory.addArrayParser("struct:UnresolvedMosaic");
 
@@ -606,37 +798,44 @@ final class RuleBasedTransactionFactoryTest {
 
 	// endregion
 
-	// region autodetect (registerParsers is the Java analog)
+	// region autodetect (addPodParsers)
 
 	@Nested
 	class Autodetect {
 		@Test
-		void registerParsersAddsAllNamedRules() {
+		void addPodParsersAddsAllNamedRules() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
 
 			// Act:
-			factory.registerParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+
+			final Object mosaicId = requireRule(factory, "MosaicId").apply(123L);
+			final Object amount = requireRule(factory, "Amount").apply(987L);
 
 			// Assert:
 			assertThat(factory.rules.containsKey("MosaicId"), is(true));
 			assertThat(factory.rules.containsKey("Amount"), is(true));
-			assertThat(requireRule(factory, "MosaicId").apply(123L), equalTo(new MosaicId(123)));
-			assertThat(requireRule(factory, "Amount").apply(987L), equalTo(new Amount(987)));
+			assertThat(mosaicId, equalTo(new MosaicId(123)));
+			assertThat(amount, equalTo(new Amount(987)));
 		}
 
 		@Test
-		void registerParsersHonorsTypeRuleOverrides() {
+		void addPodParsersHonorsTypeRuleOverrides() {
 			// Arrange:
 			final Map<String, Function<Object, Object>> overrides = new HashMap<>();
 			overrides.put("Amount", value -> new Amount(10L));
 
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory(null, overrides);
-			factory.registerParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
 
-			// Act + Assert:
-			assertThat(requireRule(factory, "Amount").apply(1L), equalTo(new Amount(10L)));
-			assertThat(requireRule(factory, "MosaicId").apply(1L), equalTo(new MosaicId(1L)));
+			// Act:
+			final Object amount = requireRule(factory, "Amount").apply(1L);
+			final Object mosaicId = requireRule(factory, "MosaicId").apply(1L);
+
+			// Assert: the override replaced the generated Amount rule; MosaicId keeps the generated rule
+			assertThat(amount, equalTo(new Amount(10L)));
+			assertThat(mosaicId, equalTo(new MosaicId(1L)));
 		}
 
 		@Test
@@ -645,7 +844,7 @@ final class RuleBasedTransactionFactoryTest {
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
 
 			// Act:
-			factory.registerParsers(org.symbol.sdk.symbol.models.Models.FACTORIES);
+			factory.addPodParsers(org.symbol.sdk.symbol.models.Models.POD_FACTORIES);
 
 			// Assert:
 			assertThat(factory.rules.containsKey("Amount"), is(true)); // pod
@@ -690,7 +889,7 @@ final class RuleBasedTransactionFactoryTest {
 		void canCreateStructWithNestedRules() {
 			// Arrange:
 			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
-			factory.registerParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
 			factory.addStructParser("UnresolvedMosaic", UnresolvedMosaic::new);
 
 			final Function<Object, Object> entityFactory = entityType -> {
@@ -709,6 +908,32 @@ final class RuleBasedTransactionFactoryTest {
 			// Assert:
 			assertThat(parsed.mosaicId, equalTo(new MosaicId(0x0123456789ABCDEFL)));
 			assertThat(parsed.amount, equalTo(new Amount(123456789123456789L)));
+		}
+
+		@Test
+		void canCreateStructWithTypeConverter() {
+			// Arrange: the converter runs after the pod rules
+			final Function<Object, Object> typeConverter = value -> value instanceof Amount amount ? new Amount(2 * amount.value()) : null;
+			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory(typeConverter, null);
+			factory.addPodParsers(Map.of("MosaicId", MosaicId::parse, "Amount", Amount::parse));
+			factory.addStructParser("UnresolvedMosaic", UnresolvedMosaic::new);
+
+			final Function<Object, Object> entityFactory = entityType -> {
+				if (Integer.valueOf(123).equals(entityType))
+					return new UnresolvedMosaic();
+
+				throw new AssertionError("unexpected type " + entityType);
+			};
+
+			final Map<String, Object> descriptor = mosaicDescriptor();
+			descriptor.put("type", 123);
+
+			// Act:
+			final UnresolvedMosaic parsed = (UnresolvedMosaic) factory.createFromFactory(entityFactory, descriptor);
+
+			// Assert: mosaicId was not handled by the converter (kept as rule output); amount was rule-parsed then converted
+			assertThat(parsed.mosaicId, equalTo(new MosaicId(0x0123456789ABCDEFL)));
+			assertThat(parsed.amount, equalTo(new Amount(2 * 123456789123456789L)));
 		}
 
 		@Test

@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
@@ -56,7 +55,7 @@ final class NemTransactionFactoryTest {
 		final Set<String> ruleNames = factory.getRuleNames();
 
 		// Assert:
-		// every generated pod/enum (Models.FACTORIES) ...
+		// every generated pod/enum (Models.POD_FACTORIES) ...
 		final String[] expected = {
 				"Amount", "Height", "Timestamp", "Signature",
 
@@ -98,11 +97,15 @@ final class NemTransactionFactoryTest {
 
 	@Test
 	void canLookupKnownTransaction() {
-		// Act + Assert:
-		assertThat(NemTransactionFactory.lookupTransactionName(TransactionType.TRANSFER, 1), is(equalTo("transfer_transaction_v1")));
-		assertThat(NemTransactionFactory.lookupTransactionName(TransactionType.TRANSFER, 2), is(equalTo("transfer_transaction_v2")));
-		assertThat(NemTransactionFactory.lookupTransactionName(TransactionType.MOSAIC_DEFINITION, 1),
-				is(equalTo("mosaic_definition_transaction_v1")));
+		// Act:
+		final String transferV1Name = NemTransactionFactory.lookupTransactionName(TransactionType.TRANSFER, 1);
+		final String transferV2Name = NemTransactionFactory.lookupTransactionName(TransactionType.TRANSFER, 2);
+		final String mosaicDefinitionName = NemTransactionFactory.lookupTransactionName(TransactionType.MOSAIC_DEFINITION, 1);
+
+		// Assert:
+		assertThat(transferV1Name, is(equalTo("transfer_transaction_v1")));
+		assertThat(transferV2Name, is(equalTo("transfer_transaction_v2")));
+		assertThat(mosaicDefinitionName, is(equalTo("mosaic_definition_transaction_v1")));
 	}
 
 	@Test
@@ -137,8 +140,10 @@ final class NemTransactionFactoryTest {
 		final Map<String, Object> descriptor = transferDescriptor();
 		descriptor.put("type", "xtransfer_transaction_v1");
 
-		// Act + Assert:
+		// Act:
 		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> factory.create(descriptor));
+
+		// Assert:
 		assertThat(ex.getMessage(), is(equalTo("unknown Transaction type xtransfer_transaction_v1")));
 	}
 
@@ -342,7 +347,6 @@ final class NemTransactionFactoryTest {
 		final String json = NemTransactionFactory.attachSignature(transaction, signature);
 
 		// Assert:
-		assertThat(json, startsWith("{\"data\":\""));
 		final String expectedData = org.symbol.sdk.utils.Converter
 				.uint8ToHex(NemTransactionFactory.toNonVerifiableTransaction(transaction).serialize());
 		final String expectedSignature = org.symbol.sdk.utils.Converter.uint8ToHex(new byte[CryptoTypes.Signature.SIZE]);

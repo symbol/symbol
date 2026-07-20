@@ -178,12 +178,8 @@ public class Network<TAddress extends ByteArray, TNetworkTimestamp extends Netwo
 		 * @return First network with a name in the supplied list.
 		 */
 		public static <TNetwork extends Network<?, ?>> TNetwork findByName(final List<TNetwork> networks, final List<String> names) {
-			for (TNetwork network : networks) {
-				if (names.contains(network.name))
-					return network;
-			}
-
-			throw new IllegalArgumentException(String.format("no network found with name '%s'", String.join(", ", names)));
+			return networks.stream().filter(network -> names.contains(network.name)).findFirst().orElseThrow(
+					() -> new IllegalArgumentException(String.format("no network found with name '%s'", String.join(", ", names))));
 		}
 
 		/**

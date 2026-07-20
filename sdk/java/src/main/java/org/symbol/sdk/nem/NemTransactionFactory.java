@@ -137,7 +137,7 @@ public final class NemTransactionFactory {
 	 * @return JSON transaction payload.
 	 */
 	public static String attachSignature(final Transaction transaction, final Signature signature) {
-		transaction.setField("signature", new org.symbol.sdk.nem.models.Signature(signature.bytes()));
+		transaction.setSignature(new org.symbol.sdk.nem.models.Signature(signature.bytes()));
 		return toJson(transaction);
 	}
 
@@ -149,7 +149,7 @@ public final class NemTransactionFactory {
 	 */
 	public static String toJson(final Transaction transaction) {
 		final String transactionHex = Converter.uint8ToHex(toNonVerifiableTransaction(transaction).serialize());
-		final org.symbol.sdk.nem.models.Signature signature = (org.symbol.sdk.nem.models.Signature) transaction.getField("signature");
+		final org.symbol.sdk.nem.models.Signature signature = transaction.getSignature();
 		final String signatureHex = Converter.uint8ToHex(signature.bytes());
 		return "{\"data\":\"" + transactionHex + "\", \"signature\":\"" + signatureHex + "\"}";
 	}
@@ -166,7 +166,7 @@ public final class NemTransactionFactory {
 			return null;
 		};
 		final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory(nemTypeConverter, typeRuleOverrides);
-		factory.registerParsers(Models.FACTORIES);
+		factory.addPodParsers(Models.POD_FACTORIES);
 
 		factory.addStructParser("Message", Message::new);
 		factory.addStructParser("NamespaceId", NamespaceId::new);

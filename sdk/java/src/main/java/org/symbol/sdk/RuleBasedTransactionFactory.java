@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 /**
  * Rule-based transaction factory: registers named parsing rules (POD / enum / flags / struct / array) and applies them via
- * {@link TransactionDescriptorProcessor}. Rules come from the generated {@code Models.FACTORIES} registry and typed struct suppliers.
+ * {@link TransactionDescriptorProcessor}. Rules come from the generated {@code Models.POD_FACTORIES} registry and typed struct suppliers.
  */
 public final class RuleBasedTransactionFactory {
 
@@ -49,11 +49,11 @@ public final class RuleBasedTransactionFactory {
 	}
 
 	/**
-	 * Registers a batch of named value-parse rules — typically a generated {@code Models.FACTORIES} registry.
+	 * Registers a batch of named value-parse rules — typically a generated {@code Models.POD_FACTORIES} registry.
 	 *
 	 * @param parsers Rule name → parse function.
 	 */
-	public void registerParsers(final Map<String, Function<Object, Object>> parsers) {
+	public void addPodParsers(final Map<String, Function<Object, Object>> parsers) {
 		parsers.forEach(this::addPodParser);
 	}
 

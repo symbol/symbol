@@ -69,8 +69,11 @@ final class NetworkTest {
 			// Arrange:
 			final Network<FakeAddress, FakeTimestamp> network = createNetwork("foo", (byte) 0x55);
 
-			// Act + Assert:
-			assertThat(network.toString(), equalTo("foo"));
+			// Act:
+			final String actual = network.toString();
+
+			// Assert:
+			assertThat(actual, equalTo("foo"));
 		}
 	}
 

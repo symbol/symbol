@@ -16,7 +16,7 @@ set -ex
 function generate_code() {
 	# $1 blockchain (nem|symbol)
 	# $2 destination subdirectory under sdk/java/src/main/java/org/symbol/sdk
-	# $3 catparser generator class (default ${CATBUFFER_GENERATOR}; the sweep test passes its own)
+	# $3 catparser generator class
 
 	local git_root
 	git_root="$(git rev-parse --show-toplevel)"
@@ -26,7 +26,7 @@ function generate_code() {
 		--include "${git_root}/catbuffer/schemas/$1" \
 		--output "${git_root}/sdk/java/src/main/java/org/symbol/sdk/$2" \
 		--quiet \
-		--generator "${3:-${CATBUFFER_GENERATOR}}"
+		--generator "$3"
 }
 
 function _cleanup_dryrun() {
@@ -57,7 +57,7 @@ function run_catbuffer() {
 			# Remove the entire generated subdirectory; hand-written files live one level up in the parent
 			# package and are untouched.
 			rm -rf "${target_dir}"
-			generate_code "${name}" "${name}/${CATBUFFER_ARTIFACT}"
+			generate_code "${name}" "${name}/${CATBUFFER_ARTIFACT}" "${CATBUFFER_GENERATOR}"
 
 			# emit the per-type sweep test (into the mirrored test tree) via its own generator
 			generate_code "${name}" "${name}/${CATBUFFER_ARTIFACT}" "${CATBUFFER_SWEEP_GENERATOR}"
@@ -79,7 +79,7 @@ function run_catbuffer() {
 		# clean up the dryrun trees on any exit (success, diff mismatch, or a mid-run generate/format failure)
 		trap _cleanup_dryrun EXIT
 		for name in "nem" "symbol"; do
-			generate_code "${name}" "${name}${CATBUFFER_DRYRUN_SUFFIX}/${CATBUFFER_ARTIFACT}"
+			generate_code "${name}" "${name}${CATBUFFER_DRYRUN_SUFFIX}/${CATBUFFER_ARTIFACT}" "${CATBUFFER_GENERATOR}"
 
 			generate_code "${name}" "${name}${CATBUFFER_DRYRUN_SUFFIX}/${CATBUFFER_ARTIFACT}" "${CATBUFFER_SWEEP_GENERATOR}"
 		done
