@@ -7,18 +7,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.symbol.sdk.CatbufferType;
+import org.symbol.sdk.symbol.BaseTransaction;
 import org.symbol.sdk.utils.BufferView;
 import org.symbol.sdk.utils.Writer;
 
-public sealed class EmbeddedTransaction extends CatbufferType permits EmbeddedAccountAddressRestrictionTransactionV1,
-		EmbeddedAccountKeyLinkTransactionV1, EmbeddedAccountMetadataTransactionV1, EmbeddedAccountMosaicRestrictionTransactionV1,
-		EmbeddedAccountOperationRestrictionTransactionV1, EmbeddedAddressAliasTransactionV1, EmbeddedHashLockTransactionV1,
-		EmbeddedMosaicAddressRestrictionTransactionV1, EmbeddedMosaicAliasTransactionV1, EmbeddedMosaicDefinitionTransactionV1,
-		EmbeddedMosaicGlobalRestrictionTransactionV1, EmbeddedMosaicMetadataTransactionV1, EmbeddedMosaicSupplyChangeTransactionV1,
-		EmbeddedMosaicSupplyRevocationTransactionV1, EmbeddedMultisigAccountModificationTransactionV1,
-		EmbeddedNamespaceMetadataTransactionV1, EmbeddedNamespaceRegistrationTransactionV1, EmbeddedNodeKeyLinkTransactionV1,
-		EmbeddedSecretLockTransactionV1, EmbeddedSecretProofTransactionV1, EmbeddedTransferTransactionV1,
-		EmbeddedVotingKeyLinkTransactionV1, EmbeddedVrfKeyLinkTransactionV1 {
+public sealed class EmbeddedTransaction extends CatbufferType implements BaseTransaction
+		permits EmbeddedAccountAddressRestrictionTransactionV1, EmbeddedAccountKeyLinkTransactionV1, EmbeddedAccountMetadataTransactionV1,
+		EmbeddedAccountMosaicRestrictionTransactionV1, EmbeddedAccountOperationRestrictionTransactionV1, EmbeddedAddressAliasTransactionV1,
+		EmbeddedHashLockTransactionV1, EmbeddedMosaicAddressRestrictionTransactionV1, EmbeddedMosaicAliasTransactionV1,
+		EmbeddedMosaicDefinitionTransactionV1, EmbeddedMosaicGlobalRestrictionTransactionV1, EmbeddedMosaicMetadataTransactionV1,
+		EmbeddedMosaicSupplyChangeTransactionV1, EmbeddedMosaicSupplyRevocationTransactionV1,
+		EmbeddedMultisigAccountModificationTransactionV1, EmbeddedNamespaceMetadataTransactionV1,
+		EmbeddedNamespaceRegistrationTransactionV1, EmbeddedNodeKeyLinkTransactionV1, EmbeddedSecretLockTransactionV1,
+		EmbeddedSecretProofTransactionV1, EmbeddedTransferTransactionV1, EmbeddedVotingKeyLinkTransactionV1,
+		EmbeddedVrfKeyLinkTransactionV1 {
 	protected PublicKey signerPublicKey;
 	protected int version;
 	protected NetworkType network;

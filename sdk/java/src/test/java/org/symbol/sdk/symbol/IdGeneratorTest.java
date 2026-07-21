@@ -55,8 +55,10 @@ final class IdGeneratorTest {
 
 	private static void assertAllRejected(final String[] names, final Consumer<String> generate) {
 		for (final String name : names) {
-			// Act + Assert: the JS reference pins the reason via .to.throw('invalid part name')
+			// Act:
 			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> generate.accept(name), "name: " + name);
+
+			// Assert:
 			assertThat("name: " + name, ex.getMessage(), containsString("invalid part name"));
 		}
 	}
@@ -180,9 +182,11 @@ final class IdGeneratorTest {
 
 		@Test
 		void failsIfNameContainsNamespaceSeparator() {
-			// Act + Assert:
+			// Act:
 			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
 					() -> IdGenerator.generateNamespaceId("symbol.xym"));
+
+			// Assert:
 			assertThat(ex.getMessage(),
 					equalTo("'name' cannot contain '.'; if symbol.xym is a namespace path, consider using generateNamespacePath"));
 		}
@@ -248,14 +252,19 @@ final class IdGeneratorTest {
 	class IsMosaicAlias {
 		@Test
 		void onlyReturnsTrueWhenMosaicIdIsAlias() {
-			// Act + Assert: high-bit unset => false
-			assertThat(IdGenerator.isMosaicAlias(0x7FFFFFFFFFFFFFFFL), is(false));
-			assertThat(IdGenerator.isMosaicAlias(0x0FFFFFFFFFFFFFFFL), is(false));
+			// Act:
+			final boolean highBitUnsetIsAlias = IdGenerator.isMosaicAlias(0x7FFFFFFFFFFFFFFFL);
+			final boolean midValueIsAlias = IdGenerator.isMosaicAlias(0x0FFFFFFFFFFFFFFFL);
+			final boolean highBitSetIsAlias = IdGenerator.isMosaicAlias(0x8FFFFFFFFFFFFFFFL);
+			final boolean maxValueIsAlias = IdGenerator.isMosaicAlias(0xFFFFFFFFFFFFFFFFL);
+			final boolean generatedAliasIsAlias = IdGenerator.isMosaicAlias(IdGenerator.generateMosaicAliasId("cat.token"));
 
-			// - high-bit set => true
-			assertThat(IdGenerator.isMosaicAlias(0x8FFFFFFFFFFFFFFFL), is(true));
-			assertThat(IdGenerator.isMosaicAlias(0xFFFFFFFFFFFFFFFFL), is(true));
-			assertThat(IdGenerator.isMosaicAlias(IdGenerator.generateMosaicAliasId("cat.token")), is(true));
+			// Assert: high-bit unset => false, high-bit set => true
+			assertThat(highBitUnsetIsAlias, is(false));
+			assertThat(midValueIsAlias, is(false));
+			assertThat(highBitSetIsAlias, is(true));
+			assertThat(maxValueIsAlias, is(true));
+			assertThat(generatedAliasIsAlias, is(true));
 		}
 	}
 
@@ -301,9 +310,13 @@ final class IdGeneratorTest {
 
 		@Test
 		void returnsFalseForNullAndEmpty() {
-			// Act + Assert: Java-only null-safety (the JS reference cannot pass null)
-			assertThat(IdGenerator.isValidNamespaceName(null), is(false));
-			assertThat(IdGenerator.isValidNamespaceName(""), is(false));
+			// Act:
+			final boolean nullIsValid = IdGenerator.isValidNamespaceName(null);
+			final boolean emptyIsValid = IdGenerator.isValidNamespaceName("");
+
+			// Assert: Java-only null-safety (the JS reference cannot pass null)
+			assertThat(nullIsValid, is(false));
+			assertThat(emptyIsValid, is(false));
 		}
 	}
 

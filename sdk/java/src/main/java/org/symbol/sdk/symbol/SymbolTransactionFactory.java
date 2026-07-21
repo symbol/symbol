@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import org.symbol.sdk.CatbufferType;
 import org.symbol.sdk.CryptoTypes.PublicKey;
 import org.symbol.sdk.CryptoTypes.Signature;
 import org.symbol.sdk.InvalidDescriptorException;
@@ -108,19 +107,19 @@ public final class SymbolTransactionFactory {
 		return (EmbeddedTransaction) createAndExtend(transactionDescriptor, autosort, EmbeddedTransactionFactory::createByName);
 	}
 
-	private CatbufferType createAndExtend(final Map<String, Object> transactionDescriptor, final boolean autosort,
+	private BaseTransaction createAndExtend(final Map<String, Object> transactionDescriptor, final boolean autosort,
 			final Function<String, ?> entityFactory) {
 		final Map<String, Object> descriptorWithNetwork = new LinkedHashMap<>(transactionDescriptor);
 		descriptorWithNetwork.put("network", Byte.toUnsignedInt(network.identifier));
 
-		final CatbufferType target = (CatbufferType) factory.createFromFactory(entityType -> entityFactory.apply((String) entityType),
+		final BaseTransaction target = (BaseTransaction) factory.createFromFactory(entityType -> entityFactory.apply((String) entityType),
 				descriptorWithNetwork);
 
 		if (autosort)
 			target.sort();
 
 		// compute the transaction's artifact id, if its type needs one (data-driven, see ID_ASSIGNERS)
-		final BiConsumer<Network, CatbufferType> idAssigner = ID_ASSIGNERS.get((TransactionType) target.getField("type"));
+		final BiConsumer<Network, BaseTransaction> idAssigner = ID_ASSIGNERS.get(target.getType());
 		if (null != idAssigner)
 			idAssigner.accept(network, target);
 
@@ -129,11 +128,11 @@ public final class SymbolTransactionFactory {
 
 	// post-processors that derive a transaction's artifact id after it is built, keyed by transaction type so a new
 	// artifact-bearing type is a data addition here rather than another branch in createAndExtend
-	private static final Map<TransactionType, BiConsumer<Network, CatbufferType>> ID_ASSIGNERS = Map.of(
+	private static final Map<TransactionType, BiConsumer<Network, BaseTransaction>> ID_ASSIGNERS = Map.of(
 			TransactionType.NAMESPACE_REGISTRATION, SymbolTransactionFactory::assignNamespaceId, TransactionType.MOSAIC_DEFINITION,
 			SymbolTransactionFactory::assignMosaicId);
 
-	private static void assignNamespaceId(final Network network, final CatbufferType target) {
+	private static void assignNamespaceId(final Network network, final BaseTransaction target) {
 		final NamespaceRegistrationType registrationType = (NamespaceRegistrationType) target.getField("registrationType");
 		final long parentValue;
 		if (NamespaceRegistrationType.CHILD == registrationType) {
@@ -154,8 +153,8 @@ public final class SymbolTransactionFactory {
 		target.setField("id", new NamespaceId(rawNamespaceId));
 	}
 
-	private static void assignMosaicId(final Network network, final CatbufferType target) {
-		final byte[] signerBytes = ((org.symbol.sdk.symbol.models.PublicKey) target.getField("signerPublicKey")).bytes();
+	private static void assignMosaicId(final Network network, final BaseTransaction target) {
+		final byte[] signerBytes = target.getSignerPublicKey().bytes();
 		final Address address = network.publicKeyToAddress(new PublicKey(signerBytes));
 		final MosaicNonce nonce = (MosaicNonce) target.getField("nonce");
 		target.setField("id", new MosaicId(IdGenerator.generateMosaicId(address, nonce.value())));

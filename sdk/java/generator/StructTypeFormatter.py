@@ -98,6 +98,12 @@ class StructFormatter(AbstractTypeFormatter):
 		if self.struct.comparer:
 			return f'Comparable<{self.struct.name}>'
 
+		# The Transaction/EmbeddedTransaction roots implement the hand-written transaction-only layer
+		# (org.symbol.sdk.symbol.BaseTransaction). The EmbeddedTransaction presence check identifies the symbol
+		# schema — NEM's root is also named Transaction but has no embedded hierarchy and stays untouched.
+		if self.struct.name in ('Transaction', 'EmbeddedTransaction') and any('EmbeddedTransaction' == model.name for model in self._ast_models):
+			return 'org.symbol.sdk.symbol.BaseTransaction'
+
 		return None
 
 	def get_base_class(self):

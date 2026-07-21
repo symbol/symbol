@@ -97,7 +97,7 @@ final class NetworkTimestampTest {
 			// Arrange:
 			final FakeTimestamp a = new FakeTimestamp(100);
 
-			// Act + Assert:
+			// Assert:
 			assertEquality(a, a, true);
 		}
 
@@ -126,6 +126,16 @@ final class NetworkTimestampTest {
 
 			// Act + Assert:
 			assertEquality(a, new FakeTimestamp(101), false);
+		}
+
+		@Test
+		void hashCodeMatchesUnderlyingTimestamp() {
+			// Act:
+			final int hashA = new FakeTimestamp(100).hashCode();
+			final int hashB = new FakeTimestamp(100).hashCode();
+
+			// Assert:
+			assertThat(hashA, equalTo(hashB));
 		}
 	}
 

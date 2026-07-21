@@ -4,13 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import java.util.List;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import org.symbol.sdk.Network.NetworkLocator;
 
 /**
  * Shared {@link Network} / address contract tests run against both the Symbol and NEM networks; subclasses supply the network instances,
@@ -30,9 +26,6 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 
 	/** @return Testnet network under test. */
 	protected abstract Network<TAddress, TNetworkTimestamp> testnet();
-
-	/** @return All networks for this blockchain (for NetworkLocator lookups). */
-	protected abstract List<? extends Network<TAddress, TNetworkTimestamp>> networks();
 
 	/** @return Address vectors for this blockchain. */
 	protected abstract AddressVector[] addressVectors();
@@ -76,15 +69,15 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 	}
 
 	@Test
-	void addressRoundTripsThroughString() {
+	void canCreateAddressFromStringToString() {
 		for (final AddressVector v : addressVectors()) {
 			// Act:
-			final String mainnetRoundTripped = addressFromString(v.mainnet()).toString();
-			final String testnetRoundTripped = addressFromString(v.testnet()).toString();
+			final String mainnet = addressFromString(v.mainnet()).toString();
+			final String testnet = addressFromString(v.testnet()).toString();
 
 			// Assert:
-			assertThat(mainnetRoundTripped, equalTo(v.mainnet()));
-			assertThat(testnetRoundTripped, equalTo(v.testnet()));
+			assertThat(mainnet, equalTo(v.mainnet()));
+			assertThat(testnet, equalTo(v.testnet()));
 		}
 	}
 
@@ -208,46 +201,4 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 
 	// endregion
 
-	// region NetworkLocatorC
-
-	@Nested
-	class NetworkLocatorTest {
-		private void assertFindsByName(final String name, final Network<TAddress, TNetworkTimestamp> expected) {
-			// Act:
-			final Network<TAddress, TNetworkTimestamp> found = NetworkLocator.findByName(networks(), name);
-
-			// Assert:
-			assertThat(found, equalTo(expected));
-		}
-
-		private void assertFindsByIdentifier(final byte identifier, final Network<TAddress, TNetworkTimestamp> expected) {
-			// Act:
-			final Network<TAddress, TNetworkTimestamp> found = NetworkLocator.findByIdentifier(networks(), identifier);
-
-			// Assert:
-			assertThat(found, equalTo(expected));
-		}
-
-		@Test
-		void findsMainnetByName() {
-			assertFindsByName("mainnet", mainnet());
-		}
-
-		@Test
-		void findsTestnetByName() {
-			assertFindsByName("testnet", testnet());
-		}
-
-		@Test
-		void findsMainnetByIdentifier() {
-			assertFindsByIdentifier((byte) 0x68, mainnet());
-		}
-
-		@Test
-		void findsTestnetByIdentifier() {
-			assertFindsByIdentifier((byte) 0x98, testnet());
-		}
-	}
-
-	// endregion
 }

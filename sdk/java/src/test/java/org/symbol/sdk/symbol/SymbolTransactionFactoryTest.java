@@ -17,7 +17,6 @@ import java.util.function.Function;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import org.symbol.sdk.CatbufferType;
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.InvalidDescriptorException;
 import org.symbol.sdk.symbol.models.*;
@@ -145,14 +144,14 @@ final class SymbolTransactionFactoryTest {
 	 * asserted through {@code getField}.
 	 */
 	abstract class BasicFactoryTest {
-		abstract CatbufferType create(SymbolTransactionFactory factory, Map<String, Object> descriptor, boolean autosort);
+		abstract BaseTransaction create(SymbolTransactionFactory factory, Map<String, Object> descriptor, boolean autosort);
 
-		abstract CatbufferType deserialize(byte[] payload);
+		abstract BaseTransaction deserialize(byte[] payload);
 
 		/** @return Model base-class name used in factory error messages. */
 		abstract String modelName();
 
-		final CatbufferType create(final SymbolTransactionFactory factory, final Map<String, Object> descriptor) {
+		final BaseTransaction create(final SymbolTransactionFactory factory, final Map<String, Object> descriptor) {
 			return create(factory, descriptor, true);
 		}
 
@@ -164,7 +163,7 @@ final class SymbolTransactionFactoryTest {
 			final SymbolTransactionFactory factory = new SymbolTransactionFactory(Network.TESTNET);
 
 			// Act:
-			final CatbufferType transaction = create(factory, transferDescriptor());
+			final BaseTransaction transaction = create(factory, transferDescriptor());
 
 			// Assert:
 			assertThat(transaction.getField("type"), is(TransactionType.TRANSFER));
@@ -204,6 +203,22 @@ final class SymbolTransactionFactoryTest {
 			assertThat(ex.getMessage(), containsString("no field \"BlockType\""));
 		}
 
+		// message is a plain byte[] auto-encoded from a String by setField's asBytes
+		@Test
+		void canCreateTransferWithStringMessage() {
+			// Arrange:
+			final SymbolTransactionFactory factory = new SymbolTransactionFactory(Network.TESTNET);
+			final String messageText = "You miss 100%% of the shots you don't take";
+			final Map<String, Object> descriptor = transferDescriptor();
+			descriptor.put("message", messageText);
+
+			// Act:
+			final BaseTransaction transaction = create(factory, descriptor);
+
+			// Assert:
+			assertThat(transaction.getField("message"), is(equalTo(messageText.getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+		}
+
 		@Test
 		void canCreateKnownTransactionWithMultipleOverrides() {
 			// Arrange: overrides are keyed by rule name and must produce model-typed values (unlike JS, which keys by class)
@@ -223,7 +238,7 @@ final class SymbolTransactionFactoryTest {
 			descriptor.put("mosaic", Map.of("mosaicId", 0x12345678ABCDEFL, "amount", 12345L));
 
 			// Act:
-			final CatbufferType transaction = create(factory, descriptor);
+			final BaseTransaction transaction = create(factory, descriptor);
 
 			// Assert: the overridden rules produced the fake values; the mosaic struct went through the normal rules
 			assertThat(transaction.getField("type"), is(TransactionType.HASH_LOCK));
@@ -253,7 +268,7 @@ final class SymbolTransactionFactoryTest {
 			descriptor.put("restrictionAdditions", List.of(a1, a2));
 
 			// Act:
-			final CatbufferType transaction = create(factory, descriptor);
+			final BaseTransaction transaction = create(factory, descriptor);
 
 			// Assert:
 			assertThat(transaction.getField("restrictionAdditions"),
@@ -270,7 +285,7 @@ final class SymbolTransactionFactoryTest {
 			final SymbolTransactionFactory factory = new SymbolTransactionFactory(Network.TESTNET);
 
 			// Act:
-			final CatbufferType transaction = create(factory, unorderedMosaicsDescriptor());
+			final BaseTransaction transaction = create(factory, unorderedMosaicsDescriptor());
 
 			// Assert: mosaics were reordered (ascending by mosaicId)
 			final List<?> mosaics = (List<?>) transaction.getField("mosaics");
@@ -284,7 +299,7 @@ final class SymbolTransactionFactoryTest {
 			final SymbolTransactionFactory factory = new SymbolTransactionFactory(Network.TESTNET);
 
 			// Act: create without sorting.
-			final CatbufferType transaction = create(factory, unorderedMosaicsDescriptor(), false);
+			final BaseTransaction transaction = create(factory, unorderedMosaicsDescriptor(), false);
 
 			// Assert: mosaics were NOT reordered, and serialization rejects the unsorted array.
 			final List<?> mosaics = (List<?>) transaction.getField("mosaics");
@@ -309,7 +324,7 @@ final class SymbolTransactionFactoryTest {
 			descriptor.put("name", "roger");
 
 			// Act:
-			final CatbufferType transaction = create(factory, descriptor);
+			final BaseTransaction transaction = create(factory, descriptor);
 
 			// Assert:
 			final long expectedId = IdGenerator.generateNamespaceId("roger");
@@ -329,7 +344,7 @@ final class SymbolTransactionFactoryTest {
 			descriptor.put("name", "charlie");
 
 			// Act:
-			final CatbufferType transaction = create(factory, descriptor);
+			final BaseTransaction transaction = create(factory, descriptor);
 
 			// Assert:
 			final long expectedId = IdGenerator.generateNamespaceId("charlie", parentId);
@@ -346,7 +361,7 @@ final class SymbolTransactionFactoryTest {
 			descriptor.put("nonce", 123L);
 
 			// Act:
-			final CatbufferType transaction = create(factory, descriptor);
+			final BaseTransaction transaction = create(factory, descriptor);
 
 			// Assert:
 			final long expectedId = IdGenerator.generateMosaicId(Network.TESTNET.publicKeyToAddress(TEST_SIGNER_PUBLIC_KEY), 123L);
@@ -361,11 +376,11 @@ final class SymbolTransactionFactoryTest {
 		void canDeserializeTransactionFromBuffer() {
 			// Arrange:
 			final SymbolTransactionFactory factory = new SymbolTransactionFactory(Network.TESTNET);
-			final CatbufferType original = create(factory, transferDescriptor());
+			final BaseTransaction original = create(factory, transferDescriptor());
 			final byte[] payload = original.serialize();
 
 			// Act:
-			final CatbufferType deserialized = deserialize(payload);
+			final BaseTransaction deserialized = deserialize(payload);
 
 			// Assert:
 			assertThat(deserialized.getField("type"), is(TransactionType.TRANSFER));
@@ -383,12 +398,12 @@ final class SymbolTransactionFactoryTest {
 	class TransactionTest extends BasicFactoryTest {
 
 		@Override
-		CatbufferType create(final SymbolTransactionFactory factory, final Map<String, Object> descriptor, final boolean autosort) {
+		BaseTransaction create(final SymbolTransactionFactory factory, final Map<String, Object> descriptor, final boolean autosort) {
 			return factory.create(descriptor, autosort);
 		}
 
 		@Override
-		CatbufferType deserialize(final byte[] payload) {
+		BaseTransaction deserialize(final byte[] payload) {
 			return SymbolTransactionFactory.deserialize(payload);
 		}
 
@@ -473,8 +488,11 @@ final class SymbolTransactionFactoryTest {
 			descriptor.put("address", new Address(aliasBytes));
 			descriptor.put("aliasAction", "link");
 
-			// Act + Assert:
-			assertThrows(IllegalArgumentException.class, () -> factory.create(descriptor));
+			// Act:
+			final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> factory.create(descriptor));
+
+			// Assert:
+			assertThat(ex.getMessage(), containsString("cannot be a namespace alias"));
 		}
 
 		// endregion
@@ -522,12 +540,12 @@ final class SymbolTransactionFactoryTest {
 	class EmbeddedTransactionTest extends BasicFactoryTest {
 
 		@Override
-		CatbufferType create(final SymbolTransactionFactory factory, final Map<String, Object> descriptor, final boolean autosort) {
+		BaseTransaction create(final SymbolTransactionFactory factory, final Map<String, Object> descriptor, final boolean autosort) {
 			return factory.createEmbedded(descriptor, autosort);
 		}
 
 		@Override
-		CatbufferType deserialize(final byte[] payload) {
+		BaseTransaction deserialize(final byte[] payload) {
 			return SymbolTransactionFactory.deserializeEmbedded(payload);
 		}
 

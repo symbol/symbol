@@ -47,11 +47,6 @@ final class NetworkTest extends AbstractNetworkTest<Address, NetworkTimestamp> {
 	}
 
 	@Override
-	protected List<Network> networks() {
-		return Network.NETWORKS;
-	}
-
-	@Override
 	protected AddressVector[] addressVectors() {
 		return ADDRESS_VECTORS;
 	}

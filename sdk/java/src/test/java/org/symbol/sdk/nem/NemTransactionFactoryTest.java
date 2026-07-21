@@ -251,7 +251,7 @@ final class NemTransactionFactoryTest {
 
 	// endregion
 
-	// region message encoding
+	// region string coercion
 
 	@Test
 	void canCreateTransferWithStringMessage() {
@@ -268,6 +268,46 @@ final class NemTransactionFactoryTest {
 
 		// Assert:
 		assertThat(transaction.getMessage().get().getMessage(), is(equalTo(messageText.getBytes())));
+	}
+
+	@Test
+	void canCreateTransferWithStringMosaicId() {
+		// Arrange: the nested mosaic id name parts are auto-encoded from Strings to their UTF-8 bytes.
+		final NemTransactionFactory factory = new NemTransactionFactory(Network.TESTNET);
+		final Map<String, Object> descriptor = new LinkedHashMap<>();
+		descriptor.put("type", "transfer_transaction_v2");
+		descriptor.put("signerPublicKey", TEST_SIGNER_PUBLIC_KEY);
+		descriptor.put("mosaics",
+				List.of(Map.of("mosaic", Map.of("mosaicId", Map.of("namespaceId", Map.of("name", "foo"), "name", "bar"), "amount", 1))));
+
+		// Act:
+		final TransferTransactionV2 transaction = (TransferTransactionV2) factory.create(descriptor);
+
+		// Assert:
+		assertThat(transaction.getMosaics().size(), is(equalTo(1)));
+		final MosaicId mosaicId = transaction.getMosaics().get(0).getMosaic().getMosaicId();
+		assertThat(mosaicId.getNamespaceId().getName(), is(equalTo("foo".getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+		assertThat(mosaicId.getName(), is(equalTo("bar".getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+	}
+
+	@Test
+	void canCreateMosaicDefinitionWithStringProperties() {
+		// Arrange: the property name/value pairs are auto-encoded from Strings to their UTF-8 bytes.
+		final NemTransactionFactory factory = new NemTransactionFactory(Network.TESTNET);
+		final Map<String, Object> descriptor = new LinkedHashMap<>();
+		descriptor.put("type", "mosaic_definition_transaction_v1");
+		descriptor.put("signerPublicKey", TEST_SIGNER_PUBLIC_KEY);
+		descriptor.put("mosaicDefinition", Map.of("properties", List.of(Map.of("property", Map.of("name", "divisibility", "value", "2")))));
+
+		// Act:
+		final MosaicDefinitionTransactionV1 transaction = (MosaicDefinitionTransactionV1) factory.create(descriptor);
+
+		// Assert:
+		final List<SizePrefixedMosaicProperty> properties = transaction.getMosaicDefinition().getProperties();
+		assertThat(properties.size(), is(equalTo(1)));
+		assertThat(properties.get(0).getProperty().getName(),
+				is(equalTo("divisibility".getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+		assertThat(properties.get(0).getProperty().getValue(), is(equalTo("2".getBytes(java.nio.charset.StandardCharsets.UTF_8))));
 	}
 
 	// endregion

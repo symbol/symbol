@@ -332,6 +332,53 @@ final class RuleBasedTransactionFactoryTest {
 		}
 	}
 
+	// The nested-auto-encode doubles wrap StructWithBytes rather than the JS StructPlain: JS auto-encodes strings via a
+	// factory-level recursive walk, while Java coerces inside each byte[] setField arm (CatbufferType.asBytes), so the
+	// byte[]-typed inner struct is where the equivalent nested coercion is observable.
+	public static final class StructWrapped extends TestStruct {
+		public StructWithBytes inner = new StructWithBytes();
+
+		@Override
+		public Map<String, String> typeHints() {
+			return Map.of("inner", "struct:StructWithBytes");
+		}
+
+		@Override
+		public void setField(final String name, final Object value) {
+			if ("inner".equals(name))
+				this.inner = (StructWithBytes) value;
+			else
+				super.setField(name, value);
+		}
+
+		@Override
+		public Object getField(final String name) {
+			return "inner".equals(name) ? this.inner : super.getField(name);
+		}
+	}
+
+	public static final class StructAggregate extends TestStruct {
+		public List<StructWithBytes> components = new ArrayList<>();
+
+		@Override
+		public Map<String, String> typeHints() {
+			return Map.of("components", "array[StructWithBytes]");
+		}
+
+		@Override
+		public void setField(final String name, final Object value) {
+			if ("components".equals(name))
+				this.components = asList(value, StructWithBytes.class);
+			else
+				super.setField(name, value);
+		}
+
+		@Override
+		public Object getField(final String name) {
+			return "components".equals(name) ? this.components : super.getField(name);
+		}
+	}
+
 	public static final class StructArrayMember extends TestStruct {
 		public List<MosaicId> mosaicIds = new ArrayList<>();
 
@@ -956,6 +1003,51 @@ final class RuleBasedTransactionFactoryTest {
 			// Assert:
 			assertThat(parsed.mosaicId, equalTo("01234567_89ABCDEF".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 			assertThat(parsed.amount, equalTo("123_456_789_123_456_789".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+		}
+
+		@Test
+		void canCreateStructAndAutoEncodeNestedStrings() {
+			// Arrange: use a wrapped struct but set string values in the inner struct
+			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
+			factory.addStructParser("StructWithBytes", StructWithBytes::new);
+			factory.addStructParser("StructWrapped", StructWrapped::new);
+
+			final Function<Object, Object> entityFactory = entityType -> new StructWrapped();
+
+			final Map<String, Object> descriptor = new LinkedHashMap<>();
+			descriptor.put("type", 123);
+			descriptor.put("inner", Map.of("mosaicId", "01234567_89ABCDEF", "amount", "123_456_789_123_456_789"));
+
+			// Act:
+			final StructWrapped parsed = (StructWrapped) factory.createFromFactory(entityFactory, descriptor);
+
+			// Assert: string values were encoded into utf8
+			assertThat(parsed.inner.mosaicId, equalTo("01234567_89ABCDEF".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+			assertThat(parsed.inner.amount, equalTo("123_456_789_123_456_789".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+		}
+
+		@Test
+		void canCreateStructAndAutoEncodeNestedStringsInArray() {
+			// Arrange: use an aggregate struct but set string values in the inner struct
+			final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory();
+			factory.addStructParser("StructWithBytes", StructWithBytes::new);
+			factory.addArrayParser("struct:StructWithBytes");
+			factory.addStructParser("StructAggregate", StructAggregate::new);
+
+			final Function<Object, Object> entityFactory = entityType -> new StructAggregate();
+
+			final Map<String, Object> descriptor = new LinkedHashMap<>();
+			descriptor.put("type", 123);
+			descriptor.put("components", List.of(Map.of("mosaicId", "01234567_89ABCDEF", "amount", "123_456_789_123_456_789")));
+
+			// Act:
+			final StructAggregate parsed = (StructAggregate) factory.createFromFactory(entityFactory, descriptor);
+
+			// Assert: string values were encoded into utf8
+			assertThat(parsed.components.size(), equalTo(1));
+			assertThat(parsed.components.get(0).mosaicId, equalTo("01234567_89ABCDEF".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+			assertThat(parsed.components.get(0).amount,
+					equalTo("123_456_789_123_456_789".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 		}
 
 		@Test
