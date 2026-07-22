@@ -14,5 +14,7 @@ fi
 		--type-not=markdown \
 		--type-not=rst \
 		--type-not=yaml \
+		--type-not=jinja \
+		--type-not=log \
 		'^  ' "$(git rev-parse --show-toplevel)" \
 	| grep -vE '\.eslintrc|testnet/summary\.txt|.git/hooks/.*\.sample'

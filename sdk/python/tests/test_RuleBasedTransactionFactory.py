@@ -56,6 +56,12 @@ class Module:
 			self.mosaic_id = 0
 			self.amount = 0
 
+	class StructWithKeywords:
+		TYPE_HINTS = {}
+
+		def __init__(self):
+			self._property_ = ''
+
 	class StructWrapped:
 		TYPE_HINTS = {
 			'inner': 'struct:StructPlain'
@@ -491,6 +497,24 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 		# Assert: string values were encoded into utf8
 		self.assertEqual(b'01234567_89ABCDEF', parsed.mosaic_id)
 		self.assertEqual(b'123_456_789_123_456_789', parsed.amount)
+		self.assertFalse(hasattr(parsed, 'type'))
+
+	def test_can_create_struct_from_factory_and_auto_encode_strings_reserved_keywords(self):
+		# Arrange: use a struct but set string values
+		factory = RuleBasedTransactionFactory(Module)
+		factory.add_struct_parser('StructWithKeywords')
+
+		def entity_factory(entity_type):
+			return None if 123 != entity_type else Module.StructWithKeywords()
+
+		# Act:
+		parsed = factory.create_from_factory(entity_factory, {
+			'type': 123,
+			'_property_': 'alpha'
+		})
+
+		# Assert: string values were encoded into utf8
+		self.assertEqual(b'alpha', parsed._property_)  # pylint: disable=protected-access
 		self.assertFalse(hasattr(parsed, 'type'))
 
 	def test_can_create_struct_from_factory_and_auto_encode_nested_strings(self):

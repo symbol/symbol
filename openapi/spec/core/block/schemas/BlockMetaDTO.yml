@@ -24,7 +24,7 @@ properties:
   totalTransactionsCount:
     type: integer
     description: |
-      Total number of [transactions](https://docs.symbol.dev/concepts/transaction.html)
+      Total number of [transactions](https://docs.symboltest.net/en/textbook/transactions/)
       confirmed in this block, including *embedded* transactions
       (i.e. transactions contained within aggregate transactions).
     examples:
@@ -32,7 +32,7 @@ properties:
   transactionsCount:
     type: integer
     description: |
-      Number of [transactions](https://docs.symbol.dev/concepts/transaction.html)
+      Number of [transactions](https://docs.symboltest.net/en/textbook/transactions/)
       confirmed in this block. This does not count *embedded* transactions
       (i.e. transactions contained within aggregate transactions).
     examples:
@@ -42,9 +42,9 @@ properties:
     description: |
       Number of statements (of any kind) present in this block.
       Bear in mind that some of them (like
-      [resolution statements](https://docs.symbol.dev/concepts/receipt.html#resolution-statement))
+      [resolution statements](https://docs.symboltest.net/en/textbook/blocks/#resolution-statements))
       are triggered by transactions present in the block, but in general,
-      [transaction statements](https://docs.symbol.dev/concepts/receipt.html#transaction-statement)
+      [transaction statements](https://docs.symboltest.net/en/textbook/blocks/#transaction-statements)
       are not.
     examples:
       - 1

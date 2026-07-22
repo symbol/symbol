@@ -55,6 +55,7 @@ updates:
     directories:
       - /client/rest
       - /sdk/javascript
+      - /mkdocs
 
   - package-ecosystem: pip
     schedule:
@@ -80,3 +81,4 @@ updates:
       - /linters/python
       - /sdk/javascript/generator
       - /sdk/python
+      - /mkdocs

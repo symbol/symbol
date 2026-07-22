@@ -1,0 +1,44 @@
+Using node https://reference.symboltest.net:3001
+Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+Authorized address: TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA
+Fetching current network time from /node/time
+  Network time: 104098759668 ms since nemesis
+Fetching recommended fees from /network/fees/transaction
+  Fee multiplier: 100
+Getting restrictions from /restrictions/account/TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
+  Response: [{'restrictionFlags': 16385, 'values': ['987D075454716222F609929E883174AD8C996D5828C938BC']}]
+
+--- Disabling restriction ---
+Disabling the restriction with transaction:
+{
+  "signature": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "signer_public_key": "3B6A27BCCEB6A42D62A3A8D02A6F0D73653215771DE243A63AC048A18B59DA29",
+  "version": 1,
+  "network": 152,
+  "type": 16720,
+  "fee": "16000",
+  "deadline": "104105959668",
+  "restriction_flags": 16385,
+  "restriction_additions": [],
+  "restriction_deletions": [
+    "987D075454716222F609929E883174AD8C996D5828C938BC"
+  ]
+}
+Announcing restriction transaction to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for restriction transaction confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  ...
+  Transaction status: confirmed
+restriction transaction confirmed in 2 seconds
+
+--- Attempting transfer to unauthorized address ---
+Announcing test transfer to /transactions
+  Response: {"message":"packet 9 was pushed to the network via /transactions"}
+Waiting for test transfer confirmation...
+  Transaction status: unconfirmed
+  Transaction status: unconfirmed
+  ...
+  Transaction status: confirmed
+test transfer confirmed in 23 seconds

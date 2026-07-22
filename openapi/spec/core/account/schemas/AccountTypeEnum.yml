@@ -5,10 +5,10 @@ enum:
   - 2
   - 3
 description: |
-  Indicates the [harvesting](https://docs.symbol.dev/concepts/harvesting.html) delegation role
+  Indicates the [harvesting](https://docs.symboltest.net/en/textbook/harvesting/) delegation role
   of the account. When an account enables
-  [remote](https://docs.symbol.dev/concepts/harvesting.html#remote-harvesting) or
-  [delegated](https://docs.symbol.dev/concepts/harvesting.html#delegated-harvesting) harvesting,
+  [remote](https://docs.symboltest.net/en/textbook/harvesting/#remote-harvesting) or
+  [delegated](https://docs.symboltest.net/en/textbook/harvesting/#delegated-harvesting) harvesting,
   it links to a remote proxy account that signs blocks on its behalf. This field reflects which
   side of that relationship the account is on:
   - `0`: **Unlinked.** The account has no harvesting delegation relationship.

@@ -10,7 +10,7 @@ security:
   - {}
 externalDocs:
   description: Symbol Technical Documentation
-  url: https://docs.symbol.dev/
+  url: https://docs.symboltest.net/
 servers:
   - url: https://reference.symboltest.net:3001
     description: Testnet node

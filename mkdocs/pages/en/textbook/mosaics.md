@@ -1,0 +1,170 @@
+# Mosaics
+
+Mosaic
+:   A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
+    For example: currencies, licenses, collectibles, access rights, or voting power.
+
+Unlike smart contract-based tokens on other platforms, Symbol mosaics are supported directly at the protocol level,
+and require no additional coding to use.
+
+Each mosaic defines a new type of asset, and the individual tokens that belong to this type are called _mosaic units_.
+
+Mosaics can represent fungible assets, such as coins, where each unit is interchangeable,
+and non-fungible assets, such as paintings or <NFTs:>, where each unit is unique.
+
+New mosaics can be created as needed.
+Each is assigned a unique identifier and optionally a human-readable name for easier use
+[as explained below](#mosaic-ids-and-namespaces).
+
+Additional arbitrary data can be attached to mosaics using <metadata:>.
+
+## Mosaic Properties
+
+Symbol mosaics support several configurable properties that define their behavior.
+
+### Divisibility
+
+Divisibility
+:   This property defines how many decimal places a mosaic quantity can have.
+    A mosaic with divisibility `0` is indivisible: it can only be transferred in whole units.
+    Higher values allow fractional units.
+
+For example, a divisibility of `2` means each _whole unit_ can be divided into 100 _fractional units_ (10^2^),
+allowing the mosaic to be handled in increments of `0.01`.
+
+Fractional units are also called _atomic units_, so in this example, 1 unit consists of 100 atomic units.
+
+In many other protocols, this value is hardcoded.
+For example, Bitcoin uses 8 decimal places, and Ethereum uses 18.
+Symbol allows each mosaic to define its own divisibility, depending on the needs of the asset it represents.
+
+The maximum allowed divisibility in Symbol is `6`.
+
+### Supply Mutability
+
+This property indicates whether the mosaic's total supply can be increased or decreased after units of the mosaic
+have been distributed to other accounts.
+As long as the creator still holds the entire supply, they can always issue or remove mosaic units.
+
+Only the account that originally created the mosaic can modify its total supply.
+These changes affect only the creator's balance:
+
+* When _minting_ (increasing the supply), new units are created and added to the creator's account.
+* When _burning_ (decreasing the supply), existing units are removed from the creator's account.
+    If the account does not have enough balance, the operation fails.
+
+Regardless of divisibility, a mosaic's total supply can never exceed **8'999'999'999'000'000** atomic units
+(about 9 × 10^15^).
+
+### Duration
+
+Mosaics can be created with a specific duration or as eternal:
+
+* **Eternal mosaics** never expire. This is the recommended choice for most use cases,
+    such as currencies or permanent access rights.
+
+* **Expiring mosaics** have a duration expressed in blocks.
+    If a duration is provided, the maximum allowed value in Symbol is 10 years (3650 days).
+    Once this period ends, the mosaic expires and can no longer be transferred or used in transactions.
+    Balances remain in accounts but are effectively frozen, and no new mosaics can be created with the same
+    <Mosaic ID:>.
+
+!!! warning "Duration can only be extended while supply is zero"
+
+    Once supply has been minted and distributed, the duration cannot be extended.
+    Eternal mosaics cannot have their duration modified at all.
+
+    This behavior is different from that of <namespaces:>, which can always be renewed.
+
+### Transferability
+
+Specifies whether the mosaic can be freely transferred between accounts.
+If disabled, only the creator can send or receive the mosaic.
+
+```dot
+digraph "Transferability" {
+    rankdir="LR";
+    node [fontsize=12];
+    "Mosaic Creator";
+    "Account A";
+    "Account B";
+
+    "Mosaic Creator" -> "Account A" [dir=both];
+    "Mosaic Creator" -> "Account B" [dir=both];
+    "Account A" -> "Account B" [dir=both style=dashed labeldistance=7 labelangle=-60
+    minlen=4 headlabel="Only if mosaic\nis transferable"];
+
+    { rank = same; "Account A"; "Account B"; }
+}
+```
+
+### Restrictability
+
+Allows the creator to define rules that limit what accounts can hold or transfer the mosaic.
+This is useful for compliance, whitelisting, or access control scenarios.
+
+See the documentation about <mosaic restrictions:> for more information.
+
+### Revocability
+
+Grants the creator the ability to forcibly remove mosaic units from another account,
+returning them to the creator’s own account.
+This feature can be used to reclaim tokens or enforce contractual terms.
+
+## Lease Fee
+
+Creating a mosaic requires paying a one-time lease fee in the network currency (<XYM:>).
+
+The cost of the lease fee can be determined beforehand by querying the network,
+and applications like the [Symbol Wallet](../userbook/wallet/install.md) typically display this information.
+
+The fee must be paid at the time of creation and is non-refundable.
+It is paid to a _sink account_, an account managed by the Symbol team, that collects mosaic rental fees for protocol and
+network maintenance.
+
+!!! note "Transaction fee vs. lease fee"
+
+    Creating a mosaic requires announcing a transaction, which also has an associated fee.
+    However, this transaction fee is typically negligible compared to the lease fee.
+
+## Mosaic IDs and Namespaces
+
+Mosaic ID
+:   A 64-bit number that uniquely identifies a mosaic on the network.
+    The mosaic ID is derived deterministically from the creator's <address:> and a <nonce:>.
+
+Nonce
+:   An arbitrary 32-bit unsigned integer (0 to 4,294,967,295) chosen by the creator when defining a mosaic.
+    Each unique nonce produces a different <mosaic ID:> for the same account.
+    The same account cannot reuse a nonce that already identifies a mosaic, active or not.
+
+For example, **XYM**, the native network currency on Symbol, has the mosaic ID `0x6BED913FA20223F8` on <mainnet:>.
+
+To make mosaics easier to reference, especially in user interfaces,
+a human-readable <namespace:> can be linked to the mosaic.
+This works like an internet domain name: instead of referencing the raw mosaic ID,
+users can refer to the mosaic by name, such as `symbol.xym`.
+
+Namespaces are optional and can be reassigned or expire independently of the mosaic itself.
+See the documentation about <namespaces:> for more information.
+
+## Modifying a Mosaic
+
+After creation, the creator can still change a mosaic's **definition**, but only while its total supply is `0`.
+
+Any of the mosaic's [properties](#mosaic-properties) can be modified:
+supply mutability, transferability, restrictability, revocability, divisibility, and duration.
+
+The total supply itself is separate and can still be adjusted through minting and burning according to the mosaic's
+[supply mutability](#supply-mutability) rules.
+
+## Summary
+
+The following table summarizes the main numerical limits related to mosaics.
+
+| Limit                                             |                 Value |
+| ------------------------------------------------- | --------------------- |
+| Maximum number of mosaics that an account can own |                 1'000 |
+| Maximum mosaic duration (if not eternal)          |             3650 days |
+| Maximum mosaic divisibility                       |                     6 |
+| Maximum atomic units per mosaic                   | 8'999'999'999'000'000 |

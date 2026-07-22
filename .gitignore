@@ -27,3 +27,7 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Docs output
+docs
+docs-staging

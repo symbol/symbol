@@ -2,8 +2,8 @@ tags:
   - Block routes
 summary: Get the Merkle path for a given transaction and block
 description: |
-  Returns the [Merkle path](https://docs.symbol.dev/concepts/data-validation.html#merkle-proof)
-  for a [transaction](https://docs.symbol.dev/concepts/transaction.html) included in a block.
+  Returns the [Merkle path](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
+  for a [transaction](https://docs.symboltest.net/en/textbook/transactions/) included in a block.
   The Merkle path is the minimum number of nodes needed to calculate the Merkle root.
 
   Steps to calculate the Merkle root:
@@ -13,7 +13,7 @@ description: |
   - `right`: the item hash is concatenated after the proofHash (proofHash = sha_256(proofHash + item.hash)).
   3. Repeat 2. for every item in the merklePath list.
   4. Compare if the calculated proofHash equals the one recorded in the
-  [block header](https://docs.symbol.dev/concepts/block.html)
+  [block header](https://docs.symboltest.net/en/textbook/blocks/#block-structure)
   (`block.transactionsHash`) to verify if the transaction was included in the block.
 operationId: getMerkleTransaction
 parameters:

@@ -1,0 +1,216 @@
+# Accounts
+
+Account
+:   A secure place where digital assets like cryptocurrencies or <NFTs:> can be stored.
+    It functions similarly to a safe deposit box in traditional banking.
+
+In the case of blockchain, accounts are secured by a <key pair:>: assets can only be **transferred out** of an account
+by using its private key, but the public key can be shared freely in order to **receive** assets.
+
+Public keys are commonly shared as <addresses:> for convenience, so the terms "account" and "address" are used as synonyms.
+
+Besides managing digital assets, accounts also represent the ownership of a private key, and act as a form of digital identity.
+On a blockchain, accounts can authorize transactions, configure permissions, and participate in <consensus:> mechanisms.
+
+!!! note "Account Lifecycle"
+
+    Accounts become active the first time they interact with the blockchain, for example, by receiving assets.
+    Prior to activation, no information about them is recorded on-chain and they do not appear in block explorers.
+
+    Once activated, an account can be emptied of assets, but it cannot be deleted from the blockchain.
+
+An account's security can be enhanced by using <account restrictions:>, which limit the addresses it can interact with,
+the mosaics it can receive, or the operations it can perform.
+
+## Mnemonics
+
+Mnemonic Phrase
+:   A human-readable representation of a <private key:>, typically shown as a list of 12 or 24 random words.
+
+It is also called just mnemonic, and often used when creating or restoring accounts in <HD Wallets:>.
+
+Symbol uses the [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) standard that requires
+24 English words.
+
+!!! warning "Treat mnemonics as if they were private keys"
+
+    Access to a mnemonic phrase provides full access to all accounts generated from it.
+    Never share it, and avoid storing it unencrypted in digital form.
+
+## Wallets
+
+Wallet
+:   An application used to manage Symbol accounts, initiate transactions and sign them.
+
+It stores <private keys:> or <mnemonic phrases:>, and uses them to sign transactions.
+More broadly, wallets provide tools for exploring and interacting with the blockchain.
+
+Wallets can be:
+
+* :material-application-outline: **Software wallets**
+
+    Applications installed on desktop or mobile devices.
+
+    These typically offer the full range of functionality, at an increased security risk:
+    the software wallet must be online in order to interact with the blockchain, exposing the stored private keys to
+    potential compromise, even if protected by a password.
+
+* :material-integrated-circuit-chip: **Hardware wallets**
+
+    External physical devices that store keys offline.
+
+    These are designed primarily for secure transaction signing and must be connected to a software wallet to operate.
+
+    The private keys they contain never leave the device except when explicitly backed up, making hardware wallets
+    significantly more secure.
+
+Most wallets allow managing multiple accounts, QR code scanning (for signing and requesting transaction signatures),
+<metadata:> entry, and <multisignature account:|multisig> configuration.
+Accounts can be also imported or exported using either <private keys:> or <mnemonic phrases:>.
+
+## HD Wallets
+
+HD Wallet
+:   A Hierarchical Deterministic (HD) <wallet:> derives a series of <accounts:> from a single seed,
+    which is more convenient than having to manage multiple <key pairs:>.
+
+This greatly simplifies the management of multiple accounts, but extra caution must be taken to keep the seed safe
+because compromising the seed compromises all the accounts derived from it.
+The seed is typically a <mnemonic phrase:>.
+
+Most wallets are HD wallets.
+
+Symbol uses the [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) standard to generate accounts from the seed.
+
+## Multisignature Accounts
+
+Multisignature Account
+:   An <account:> (called **multisig**) requiring signature from multiple parties (called **cosignatories**) to
+    approve transactions.
+
+Multisig accounts are configured by:
+
+* Defining the list of cosignatories.
+* Setting approval thresholds, i.e., how many signatures (**M**) out of the total number of cosignatories (**N**)
+    are required to authorize an operation.
+
+    This is known as an **M-of-N** multisig, and can be configured differently depending on the type of operation to authorize:
+
+    * **Approval threshold**: Number of required signatures to approve a regular transaction.
+    * **Removal threshold**: Number of required signatures to remove cosignatories from the multisig.
+
+For example, a **2-of-3** multisig has three cosignatories, any two of which must sign to authorize a transaction:
+
+```dot
+digraph "M-of-N Multisignature" {
+    rankdir="BT";
+    node [fontsize=12];
+    "Multisig Account" [label="Multisig Account\n2 of 3"];
+
+    "Cosignatory 1" [penwidth=2];
+    "Cosignatory 2" [penwidth=2];
+
+    "Cosignatory 1" -> "Multisig Account" [penwidth=2 minlen=2];
+    "Cosignatory 2" -> "Multisig Account" [penwidth=2 minlen=2];
+    "Cosignatory 3" -> "Multisig Account" [style=dashed minlen=2];
+}
+```
+
+In the previous diagram, Cosignatories 1 and 2 sign, which meets the minimum of `M=2`, so the transaction is valid
+without Cosignatory 3.
+
+Example use cases:
+
+* **Shared control over funds or functionality**.
+
+    No action can be performed on the account without approval from the configured cosignatories.
+
+    This also mitigates the risk of one of the accounts being compromised.
+
+* **Multifactor authorization**.
+
+    As a security measure, users can create a multisig so that they need to approve transactions from multiple devices.
+
+* **Account ownership transfer**.
+
+    Transferring private keys is not a viable mechanism to change ownership of an account,
+    because the receiver can never be sure that the sender has deleted their copy of the keys.
+
+    To solve this issue, the sender can configure the transferred account as a 1-of-1 multisig,
+    and set the receiver account as the only cosignatory.
+
+    The account can be transferred again by changing the single cosignatory as many times as needed.
+
+!!! info "Multilevel Multisignature"
+
+    Cosignatories can also be other multisig accounts, enabling flexible, multi-layered authorization models,
+    up to three layers deep.
+    For example:
+
+    ```dot
+    digraph "Multilevel Multisignature Tree" {
+        rankdir="BT";
+        node [fontsize=12];
+        "Multisig Account" [label="Multisig Account\n2 of 2"];
+        "Multisig Cosignatory" [label="Multisig Cosignatory\n1 of 3"];
+
+        "Cosignatory 0" -> "Multisig Account";
+        "Multisig Cosignatory" -> "Multisig Account";
+        "Cosignatory 1" -> "Multisig Cosignatory";
+        "Cosignatory 2" -> "Multisig Cosignatory";
+        "Cosignatory 3" -> "Multisig Cosignatory";
+    }
+    ```
+
+    In the above configuration, operations on the `Multisig Account` always require the signature of `Cosignatory 0` and
+    at least one of the other three cosignatories `1` to `3`.
+
+## Importance
+
+Importance
+:   A measure of an account's contribution to the network, based on its balance, the transaction fees it has paid,
+    and its participation in <harvesting:> new blocks.
+    This score determines the chance to harvest new blocks and vote weight in consensus.
+
+Importance serves a role similar to hashrate in <PoW:> systems or stake in <PoS:> systems:
+the higher the value, the greater the chance to harvest a block and earn rewards.
+
+??? info "Importance Calculation"
+
+    All accounts that have a balance of at least 10'000 XYM are called _high value accounts_ and participate in the
+    importance calculation.
+
+    The importance score $I_A$ for a high value account $A$ is based on its _stake score_, its _transaction score_,
+    and its _node score_.
+
+    * The stake score $S_A$ is the percentage of currency it owns relative to the total currency owned by
+        all high value accounts.
+
+    * The transaction score $T_A$ is the percentage of fees paid by the account relative to the total amount
+        of fees paid by all high value accounts.
+
+    * The node score $N_A$ is the percentage of times it has been specified as a harvesting beneficiary relative to
+        the total number of high value account beneficiaries in the same period.
+
+    The details about how these scores are combined to produce the importance score can be found in
+    [the Symbol whitepaper](../devbook/reference/whitepaper/index.md), section 14.1.
+
+!!! note
+
+    Importance scores on <mainnet:> are calculated every 720 blocks (roughly 6 hours) and the smaller of the previous
+    two scores is used when calculating harvesting probabilities.
+    Therefore, when you first fund an account, it will require 12 hours to have a probability greater than zero to
+    start harvesting.
+
+    On <testnet:> scores are recalculated every 180 blocks (roughly 1.5 hours), so testing is easier.
+
+## Summary
+
+The following table summarizes the main numerical limits related to accounts.
+
+| Limit                                             | Value |
+| ------------------------------------------------- | ----: |
+| Maximum number of mosaics that an account can own | 1'000 |
+| Maximum number of cosignatories for an account    |    25 |
+| Maximum number of accounts one account can cosign |    25 |
+| Maximum multisig layers                           |     3 |

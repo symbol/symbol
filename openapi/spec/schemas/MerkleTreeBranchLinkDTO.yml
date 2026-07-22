@@ -1,6 +1,6 @@
 type: object
 description: |
-  Child link in a [Merkle tree branch](https://docs.symbol.dev/concepts/data-validation.html)
+  Child link in a [Merkle tree branch](https://docs.symboltest.net/en/textbook/blocks/#block-hashes)
   node. Each link points to a child node (branch or leaf) via its hash.
 required:
   - bit

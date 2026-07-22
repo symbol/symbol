@@ -1,6 +1,6 @@
 type: string
 description: |
-  Unique [mosaic](https://docs.symbol.dev/concepts/mosaic.html) identifier.
+  Unique [mosaic](https://docs.symboltest.net/en/textbook/mosaics/) identifier.
   A 64-bit unsigned integer derived from the creator's address and a registration nonce,
   encoded as a 16-character hexadecimal string.
 pattern: ^[0-9a-fA-F]+$

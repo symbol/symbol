@@ -25,5 +25,5 @@ properties:
   latestFinalizedBlock:
     description: |
       The most recent block that has been made permanent and will never be rolled back.
-      See [finalization](https://docs.symbol.dev/concepts/block.html#finalization).
+      See [finalization](https://docs.symboltest.net/en/textbook/consensus/#finalization).
     $ref: ../schemas/FinalizedBlockDTO.yml

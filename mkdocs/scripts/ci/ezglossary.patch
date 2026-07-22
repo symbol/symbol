@@ -1,0 +1,30 @@
+--- a/src/mkdocs_ezglossary_plugin/plugin.py
++++ b/src/mkdocs_ezglossary_plugin/plugin.py
+@@ -175,7 +175,7 @@
+			 text = text if text else "__None__"
+			 log.debug(f"glossary: found link: {section}/{term}/{text}")
+			 id =self._glossary.add(section, term, 'refs', page)
+-            return f"{self._uuid}:{id}:<{text}>"
++            return f"{self._uuid}:{id}:&lt;{text}&gt;"
+ 
+		 def _replace(mo):
+			 return _add_link(mo.group(1), mo.group(2), mo.group(4))
+@@ -239,6 +239,9 @@
+				 sec = f"{td.section}:" if td.section != "_" else ""
+				 return f'<a href="{sec}{term}">{text}</a>'
+ 
++            entry.definition = re.sub(r'<([^:<]*):>', r'\1', entry.definition)
++            entry.definition = re.sub(r'<[^:<]*:\|([^>]*)>', r'\1', entry.definition)
++
+			 # Preserve visible text from nested glossary links/anchors before html2text
+			 entry.definition = _preserve_visible_text_for_tooltip(entry.definition)
+			 entry.definition = _html2text(entry.definition)
+@@ -252,7 +255,7 @@
+				 
+		 # Try both regex patterns to handle both HTML entity encoded and raw formats
+		 # Check for HTML entity encoded format first
+-        regex_entities = fr"{self._uuid}:([a-f0-9]{{32}}):&lt;([^&]*)&gt;"
++        regex_entities = fr"{self._uuid}:([a-f0-9]{{32}}):&lt;(.*?)&gt;"
+		 regex_original = fr"{self._uuid}:([a-f0-9]{{32}}):<([^>]*)>"
+			 
+		 # Test which pattern has matches
