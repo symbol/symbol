@@ -602,6 +602,16 @@ code.doc-symbol-interface::after {
 	fill: var(--md-primary-fg-color--light);
 }
 
+.graphviz .edge.disabled path {
+	stroke: var(--md-default-fg-color--lighter);
+}
+
+.graphviz .edge.disabled polygon,
+.graphviz .edge.disabled text {
+	fill: var(--md-default-fg-color--lighter);
+	stroke: none;
+}
+
 .graphviz .node path:not([fill="transparent"]),
 .graphviz .node polygon:not([fill="transparent"]),
 .graphviz .node ellipse:not([fill="transparent"]) {
