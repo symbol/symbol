@@ -225,14 +225,14 @@ HEADER = auto_generated_header('run_catbuffer_generator.sh')
 
 
 def _write_models_manifest(output_directory, package_name, module_entries, factory_entries):
-	"""Write ``Models.java``: the name→Class MODULE map and the name→parse FACTORIES map."""
+	"""Write ``Models.java``: the name→Class MODULE map and the name→parse POD_FACTORIES map."""
 	lines = [
 		f'{HEADER}',
 		'',
 		f'package {package_name};',
 		'',
 		'/**',
-		' * Module manifest: every top-level type generated for this blockchain. {@code FACTORIES} maps',
+		' * Module manifest: every top-level type generated for this blockchain. {@code POD_FACTORIES} maps',
 		' * each pod/enum/flags type name to its generated {@code parse} factory.',
 		' */',
 		'public final class Models {',
@@ -243,7 +243,7 @@ def _write_models_manifest(output_directory, package_name, module_entries, facto
 		'\tpublic static final java.util.Map<String, Class<?>> MODULE;',
 		'',
 		'\t/** Maps every generated pod/enum/flags type name to its {@code parse} descriptor-value factory. */',
-		'\tpublic static final java.util.Map<String, java.util.function.Function<Object, Object>> FACTORIES;',
+		'\tpublic static final java.util.Map<String, java.util.function.Function<Object, Object>> POD_FACTORIES;',
 		'',
 		'\tstatic {',
 		'\t\tfinal java.util.Map<String, Class<?>> module = new java.util.LinkedHashMap<>();',
@@ -252,7 +252,7 @@ def _write_models_manifest(output_directory, package_name, module_entries, facto
 		'',
 		'\t\tfinal java.util.Map<String, java.util.function.Function<Object, Object>> factories = new java.util.LinkedHashMap<>();',
 		*(f'\t\tfactories.put("{typename}", {typename}::parse);' for typename in factory_entries),
-		'\t\tFACTORIES = java.util.Collections.unmodifiableMap(factories);',
+		'\t\tPOD_FACTORIES = java.util.Collections.unmodifiableMap(factories);',
 		'\t}',
 		'}',
 		'',

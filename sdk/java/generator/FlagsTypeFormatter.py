@@ -73,7 +73,7 @@ class FlagsTypeFormatter(AbstractEnumFormatter):
 
 	def _parse_descriptors(self):
 		"""``parse(Object)`` + ``fromName(String)`` — non-reflective descriptor coercion (instance /
-		space-separated flag names / number), registered via ``Models.FACTORIES``."""
+		space-separated flag names / number), registered via ``Models.POD_FACTORIES``."""
 		zero = '0L' if 'long' == self.value_type else '0'
 		string_branch = (
 			f'if (rawValue instanceof String names) {{\n'

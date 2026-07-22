@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Module manifest: every top-level type generated for this blockchain. {@code FACTORIES} maps each pod/enum/flags type name to its
+ * Module manifest: every top-level type generated for this blockchain. {@code POD_FACTORIES} maps each pod/enum/flags type name to its
  * generated {@code parse} factory.
  */
 public final class Models {
@@ -20,7 +20,7 @@ public final class Models {
 	public static final Map<String, Class<?>> MODULE;
 
 	/** Maps every generated pod/enum/flags type name to its {@code parse} descriptor-value factory. */
-	public static final Map<String, Function<Object, Object>> FACTORIES;
+	public static final Map<String, Function<Object, Object>> POD_FACTORIES;
 
 	static {
 		final Map<String, Class<?>> module = new LinkedHashMap<>();
@@ -191,6 +191,6 @@ public final class Models {
 		factories.put("UnresolvedAddress", UnresolvedAddress::parse);
 		factories.put("UnresolvedMosaicId", UnresolvedMosaicId::parse);
 		factories.put("VotingPublicKey", VotingPublicKey::parse);
-		FACTORIES = Collections.unmodifiableMap(factories);
+		POD_FACTORIES = Collections.unmodifiableMap(factories);
 	}
 }

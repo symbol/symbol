@@ -7,10 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.symbol.sdk.CatbufferType;
+import org.symbol.sdk.symbol.BaseTransaction;
 import org.symbol.sdk.utils.BufferView;
 import org.symbol.sdk.utils.Writer;
 
-public sealed class Transaction extends CatbufferType
+public sealed class Transaction extends CatbufferType implements BaseTransaction
 		permits AccountAddressRestrictionTransactionV1, AccountKeyLinkTransactionV1, AccountMetadataTransactionV1,
 		AccountMosaicRestrictionTransactionV1, AccountOperationRestrictionTransactionV1, AddressAliasTransactionV1,
 		AggregateBondedTransactionV1, AggregateBondedTransactionV2, AggregateBondedTransactionV3, AggregateCompleteTransactionV1,
