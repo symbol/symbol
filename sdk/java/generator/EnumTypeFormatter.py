@@ -60,7 +60,7 @@ class EnumTypeFormatter(AbstractEnumFormatter):
 		methods.append(descriptor)
 
 		# parse(Object) — non-reflective coercion (instance / constant name / number), registered via
-		# Models.FACTORIES for the rule-based factory but also callable directly as a general constructor.
+		# Models.POD_FACTORIES for the rule-based factory but also callable directly as a general constructor.
 		string_branch = (
 			f'if (rawValue instanceof String name) {{\n'
 			f'\ttry {{\n'
