@@ -589,7 +589,7 @@ final class BufferViewTest {
 	@Nested
 	final class FromByteBuffer {
 		@Test
-		void canReadsRemainingBytesRebased() {
+		void canReadRemainingBytesRebased() {
 			// Arrange: a ByteBuffer positioned partway through its content.
 			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
 					0, 1, 2, 3, 4, 5, 6
@@ -607,7 +607,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void canHonorsSourcePositionAndLimit() {
+		void canHonorSourcePositionAndLimit() {
 			// Arrange: a ByteBuffer windowed to [1, 4) — remaining {1, 2, 3}.
 			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
 					0, 1, 2, 3, 4
@@ -643,7 +643,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void canReadsLittleEndianRegardlessOfSourceOrder() {
+		void canReadLittleEndianRegardlessOfSourceOrder() {
 			// Arrange: a big-endian source; the view must still decode little-endian.
 			final ByteBuffer source = ByteBuffer.wrap(new byte[]{
 					0x34, 0x12
@@ -671,7 +671,7 @@ final class BufferViewTest {
 		}
 
 		@Test
-		void canExposesCurrentWindow() {
+		void canExposeCurrentWindow() {
 			// Arrange:
 			final BufferView view = newView();
 

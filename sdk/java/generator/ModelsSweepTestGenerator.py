@@ -30,17 +30,14 @@ def generate_files(ast_models, output_directory: Path):
 	factory_map = build_factory_map(ast_models)
 	sweep_entries = [(model, to_type_formatter_instance(model, ast_models, factory_map=factory_map)) for model in ast_models]
 
+	# Always write (dryrun included) into the mirrored test tree — a dryrun run writes to the …_dryrun/models
+	# mirror, so scripts/run_catbuffer_generator.sh can diff the sweep test against the committed one and catch
+	# content drift, not just emission crashes.
 	formatter = ModelsSweepTestFormatter(sweep_entries, ast_models)
-	# dryrun output dirs (…_dryrun/models) do not match the real layout, so render without writing — a
-	# schema change that breaks sweep emission still fails loudly in CI.
-	if 'models' == output_directory.name and output_directory.parent.name in ('nem', 'symbol'):
-		write_sweep_test_file(
-			output_directory, derive_package_name(output_directory), header=_HEADER, imports=_SWEEP_TEST_IMPORTS,
-			filename='ModelsSweepTest.java', body=formatter.render())
-		return 1
-
-	formatter.render()
-	return 0
+	write_sweep_test_file(
+		output_directory, derive_package_name(output_directory), header=_HEADER, imports=_SWEEP_TEST_IMPORTS,
+		filename='ModelsSweepTest.java', body=formatter.render())
+	return 1
 
 
 class ModelsSweepTestGenerator:
