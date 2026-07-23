@@ -11785,10 +11785,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#staked-xym" class="md-nav__link">
+  <a href="#bridged-xym" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Staked XYM
+        Bridged XYM
       
     </span>
   </a>
@@ -11819,10 +11819,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#staking-xym-to-sxym" class="md-nav__link">
+  <a href="#bridging-xym-to-bxym" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Staking XYM to sXYM
+        Bridging XYM to bXYM
       
     </span>
   </a>
@@ -11830,10 +11830,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#unstaking-sxym-to-xym" class="md-nav__link">
+  <a href="#redeeming-bxym-to-xym" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unstaking sXYM to XYM
+        Redeeming bXYM to XYM
       
     </span>
   </a>
@@ -12034,10 +12034,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#staked-xym" class="md-nav__link">
+  <a href="#bridged-xym" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Staked XYM
+        Bridged XYM
       
     </span>
   </a>
@@ -12068,10 +12068,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#staking-xym-to-sxym" class="md-nav__link">
+  <a href="#bridging-xym-to-bxym" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Staking XYM to sXYM
+        Bridging XYM to bXYM
       
     </span>
   </a>
@@ -12079,10 +12079,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#unstaking-sxym-to-xym" class="md-nav__link">
+  <a href="#redeeming-bxym-to-xym" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unstaking sXYM to XYM
+        Redeeming bXYM to XYM
       
     </span>
   </a>
@@ -12196,22 +12196,22 @@
 <h1 id="bridging-symbol-to-ethereum">Bridging Symbol to Ethereum<a class="headerlink" href="#bridging-symbol-to-ethereum" title="Anchor link to this section for reference">⚓︎</a></h1>
 <p>This page explains the concepts behind a Symbol bridge for moving <a class="mkdocs-ezglossary-link" id="1d82a398353c98837f71445658a7f636" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> to and from the
 <a href="https://ethereum.org">Ethereum blockchain</a> as an
-<a href="https://ethereum.org/developers/docs/standards/tokens/erc-20/">ERC-20</a> token called <em>Staked XYM</em> (<code>sXYM</code>),
+<a href="https://ethereum.org/developers/docs/standards/tokens/erc-20/">ERC-20</a> token called <em>Bridged XYM</em> (<code>bXYM</code>),
 or converting <code>XYM</code> into Ethereum's native <a class="mkdocs-ezglossary-link" id="0f8d6bac5f343b52c2c70e56b98adf16" title="The native token of the Ethereum blockchain." name="_:ETH" href="../../textbook/glossary/#317ca67a6741106178866f1a41ac969a">ETH</a>.</p>
 <p>Unlike <a href="../cross-chain-swaps/">cross-chain swaps</a>, which coordinate trustless exchanges between users, the Symbol
 Bridge is a centralized service operated by The Symbol Syndicate.
-It watches one blockchain for deposits and sends corresponding payouts on another blockchain.</p>
+It watches one blockchain for deposits and sends corresponding payouts on the other blockchain.</p>
 <p>The bridge implementation is available as <a href="https://github.com/symbol/product/blob/dev/bridge">open source</a>.</p>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="363pt" height="204pt" viewBox="0.00 0.00 363.00 204.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 199.5)"><title>BridgeTokens</title><polygon fill="none" stroke="none" points="-4,4 -4,-199.5 359,-199.5 359,4 -4,4"></polygon><g id="clust1" class="cluster"><title>clusterSymbol</title><g id="a_clust1"><a xlink:title="Symbol Blockchain"><polygon fill="none" stroke="#789abc" points="8,-8 8,-187.5 140,-187.5 140,-8 8,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="74" y="-172.1" font-family="Times,serif" font-size="12.00" fill="#789abc">Symbol Blockchain</text></a></g></g><g id="clust2" class="cluster"><title>clusterSymbolInner</title><g id="a_clust2"><a xlink:title="Symbol Blockchain"></a></g></g><g id="clust3" class="cluster"><title>clusterEthereum</title><g id="a_clust3"><a xlink:title="Ethereum Blockchain"><polygon fill="none" stroke="#789abc" points="200,-8 200,-187.5 347,-187.5 347,-8 200,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="273.5" y="-172.1" font-family="Times,serif" font-size="12.00" fill="#789abc">Ethereum Blockchain</text></a></g></g><g id="clust4" class="cluster"><title>clusterEthereumInner</title><g id="a_clust4"><a xlink:title="Ethereum Blockchain"></a></g></g><!-- xym --><g id="node1" class="node"><title>xym</title><g id="a_node1"><a xlink:title="XYM"><polygon fill="none" stroke="#789abc" points="101,-149.25 47,-149.25 47,-113.25 101,-113.25 101,-149.25"></polygon><text xml:space="preserve" text-anchor="middle" x="74" y="-126.58" font-family="Times,serif" font-size="14.00" fill="#789abc">XYM</text></a></g></g><!-- dummy1 --><!-- xym&#45;&gt;dummy1 --><!-- eth --><g id="node3" class="node"><title>eth</title><g id="a_node3"><a xlink:title="ETH"><polygon fill="none" stroke="#789abc" points="299,-60 245,-60 245,-24 299,-24 299,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="272" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">ETH</text></a></g></g><!-- xym&#45;&gt;eth --><g id="edge3" class="edge"><title>xym-&gt;eth</title><path fill="none" stroke="#789abc" stroke-width="2" d="M101.12,-118.3C135.14,-103.31 193.74,-77.49 232.68,-60.33"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="234.07,-63.54 241.81,-56.31 231.24,-57.13 234.07,-63.54"></polygon></g><!-- sxym --><g id="node4" class="node"><title>sxym</title><g id="a_node4"><a xlink:title="Staked XYM"><polygon fill="none" stroke="#789abc" points="301.25,-149.25 244.75,-149.25 244.75,-113.25 301.25,-113.25 301.25,-149.25"></polygon><text xml:space="preserve" text-anchor="middle" x="273" y="-126.58" font-family="Times,serif" font-size="14.00" fill="#789abc">sXYM</text></a></g></g><!-- xym&#45;&gt;sxym --><g id="edge4" class="edge"><title>xym-&gt;sxym</title><path fill="none" stroke="#789abc" stroke-width="2" d="M114.08,-131.25C153.22,-131.25 192.35,-131.25 231.49,-131.25"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="114.23,-127.75 104.23,-131.25 114.23,-134.75 114.23,-127.75"></polygon><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="231.45,-134.75 241.45,-131.25 231.45,-127.75 231.45,-134.75"></polygon></g><!-- sxym&#45;&gt;eth --><g id="edge2" class="edge disabled"><title>sxym-&gt;eth</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M272.67,-101.71C272.56,-92.07 272.44,-81.31 272.33,-71.66"></path><polygon fill="#789abc" stroke="#789abc" points="269.17,-101.54 272.79,-111.5 276.17,-101.46 269.17,-101.54"></polygon><polygon fill="#789abc" stroke="#789abc" points="275.83,-71.67 272.21,-61.72 268.83,-71.75 275.83,-71.67"></polygon><g id="a_edge2-label"><a xlink:title="Decentralized Exchange"><text xml:space="preserve" text-anchor="middle" x="288.34" y="-81.95" font-family="Times,serif" font-size="14.00" fill="#789abc">DEX</text></a></g></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="364pt" height="204pt" viewBox="0.00 0.00 364.00 204.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 199.5)"><title>BridgeTokens</title><polygon fill="none" stroke="none" points="-4,4 -4,-199.5 360,-199.5 360,4 -4,4"></polygon><g id="clust1" class="cluster"><title>clusterSymbol</title><g id="a_clust1"><a xlink:title="Symbol Blockchain"><polygon fill="none" stroke="#789abc" points="8,-8 8,-187.5 140,-187.5 140,-8 8,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="74" y="-172.1" font-family="Times,serif" font-size="12.00" fill="#789abc">Symbol Blockchain</text></a></g></g><g id="clust2" class="cluster"><title>clusterSymbolInner</title><g id="a_clust2"><a xlink:title="Symbol Blockchain"></a></g></g><g id="clust3" class="cluster"><title>clusterEthereum</title><g id="a_clust3"><a xlink:title="Ethereum Blockchain"><polygon fill="none" stroke="#789abc" points="201,-8 201,-187.5 348,-187.5 348,-8 201,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="274.5" y="-172.1" font-family="Times,serif" font-size="12.00" fill="#789abc">Ethereum Blockchain</text></a></g></g><g id="clust4" class="cluster"><title>clusterEthereumInner</title><g id="a_clust4"><a xlink:title="Ethereum Blockchain"></a></g></g><!-- XYM --><g id="node1" class="node"><title>XYM</title><g id="a_node1"><a xlink:title="XYM"><polygon fill="none" stroke="#789abc" points="101,-149.25 47,-149.25 47,-113.25 101,-113.25 101,-149.25"></polygon><text xml:space="preserve" text-anchor="middle" x="74" y="-126.58" font-family="Times,serif" font-size="14.00" fill="#789abc">XYM</text></a></g></g><!-- dummy1 --><!-- XYM&#45;&gt;dummy1 --><!-- ETH --><g id="node3" class="node"><title>ETH</title><g id="a_node3"><a xlink:title="ETH"><polygon fill="none" stroke="#789abc" points="299,-60 245,-60 245,-24 299,-24 299,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="272" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">ETH</text></a></g></g><!-- XYM&#45;&gt;ETH --><g id="edge3" class="edge"><title>XYM-&gt;ETH</title><path fill="none" stroke="#789abc" stroke-width="2" d="M101.12,-118.3C135.14,-103.31 193.74,-77.49 232.68,-60.33"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="234.07,-63.54 241.81,-56.31 231.24,-57.13 234.07,-63.54"></polygon></g><!-- bXYM --><g id="node4" class="node"><title>bXYM</title><g id="a_node4"><a xlink:title="Bridged XYM"><polygon fill="none" stroke="#789abc" points="303,-149.25 245,-149.25 245,-113.25 303,-113.25 303,-149.25"></polygon><text xml:space="preserve" text-anchor="middle" x="274" y="-126.58" font-family="Times,serif" font-size="14.00" fill="#789abc">bXYM</text></a></g></g><!-- XYM&#45;&gt;bXYM --><g id="edge4" class="edge"><title>XYM-&gt;bXYM</title><path fill="none" stroke="#789abc" stroke-width="2" d="M114.22,-131.25C153.37,-131.25 192.52,-131.25 231.67,-131.25"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="114.37,-127.75 104.37,-131.25 114.37,-134.75 114.37,-127.75"></polygon><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="231.63,-134.75 241.63,-131.25 231.63,-127.75 231.63,-134.75"></polygon></g><!-- bXYM&#45;&gt;ETH --><g id="edge2" class="edge disabled"><title>bXYM-&gt;ETH</title><path fill="none" stroke="#789abc" stroke-dasharray="5,2" d="M273.35,-101.71C273.12,-92.07 272.88,-81.31 272.66,-71.66"></path><polygon fill="#789abc" stroke="#789abc" points="269.84,-101.58 273.57,-111.5 276.84,-101.42 269.84,-101.58"></polygon><polygon fill="#789abc" stroke="#789abc" points="276.16,-71.63 272.43,-61.72 269.16,-71.79 276.16,-71.63"></polygon><g id="a_edge2-label"><a xlink:title="Decentralized Exchange"><text xml:space="preserve" text-anchor="middle" x="288.93" y="-81.95" font-family="Times,serif" font-size="14.00" fill="#789abc">DEX</text></a></g></g></g></svg></p>
 <p>The workflows directly supported by the bridge are:</p>
 <ul>
-<li><strong>Staking</strong>: <code>XYM</code> → <code>sXYM</code></li>
-<li><strong>Unstaking</strong>: <code>sXYM</code> → <code>XYM</code></li>
+<li><strong>Bridging</strong>: <code>XYM</code> → <code>bXYM</code></li>
+<li><strong>Redeeming</strong>: <code>bXYM</code> → <code>XYM</code></li>
 <li><strong>Swapping</strong>: <code>XYM</code> → <code>ETH</code></li>
 </ul>
-<p>Since both <code>sXYM</code> and <code>ETH</code> exist on the Ethereum network, they can be exchanged through a conventional
+<p>Since both <code>bXYM</code> and <code>ETH</code> exist on the Ethereum network, they can be exchanged through a conventional
 <a class="mkdocs-ezglossary-link" id="1dd2cd1ed569d7eba5d07aca73e25c99" title="Decentralized Exchange, as opposed to traditional Centralized Exchanges (CEX)." name="_:DEX" href="../../textbook/glossary/#85e04a44246043e31c7b4db81d2eaedf">DEX</a> like <a href="https://uniswap.org">Uniswap</a>, without requiring a bridge.
-<code>ETH</code> can thus be converted to <code>XYM</code> via <code>sXYM</code>.</p>
+<code>ETH</code> can thus be converted to <code>XYM</code> via <code>bXYM</code>.</p>
 <h2 id="why-bridges-are-needed">Why Bridges Are Needed<a class="headerlink" href="#why-bridges-are-needed" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Tokens belong to the blockchain where they are created.
 <a class="mkdocs-ezglossary-link" id="9ebd3402f72d7489abc12004760f3308" title="The native currency of the Symbol blockchain." name="_:XYM" href="../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a>, for example, exists on Symbol and can be transferred by Symbol <a class="mkdocs-ezglossary-link" id="a3a915c2025fc15264c843f746953ac4" title="A transaction represents an action or group of actions to perform on the Symbol blockchain,
@@ -12220,58 +12220,69 @@ It cannot be sent directly to an Ethereum account because Ethereum nodes do not 
 and Symbol nodes do not process Ethereum transactions.</p>
 <p>A bridge coordinates activity on both networks.
 It receives tokens on one blockchain, verifies the request, and sends corresponding tokens on another blockchain.
-This does not make the two blockchains share a single ledger.
-Instead, it creates a controlled relationship between balances held by bridge accounts and tokens issued or paid out
-on the other network.</p>
+This does not make the two blockchains share a single ledger.</p>
 <h2 id="bridge-accounts">Bridge Accounts<a class="headerlink" href="#bridge-accounts" title="Anchor link to this section for reference">⚓︎</a></h2>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="376pt" height="186pt" viewBox="0.00 0.00 376.00 186.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 182.25)"><title>BridgeTokens</title><polygon fill="none" stroke="none" points="-4,4 -4,-182.25 372,-182.25 372,4 -4,4"></polygon><g id="clust1" class="cluster"><title>clusterSymbol</title><g id="a_clust1"><a xlink:title="Symbol Blockchain"><polygon fill="none" stroke="#789abc" points="8,-8 8,-170.25 164,-170.25 164,-8 8,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="86" y="-154.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Symbol Blockchain</text></a></g></g><g id="clust2" class="cluster"><title>clusterSymbolInner</title><g id="a_clust2"><a xlink:title="Symbol Blockchain"></a></g></g><g id="clust3" class="cluster"><title>clusterEthereum</title><g id="a_clust3"><a xlink:title="Ethereum Blockchain"><polygon fill="none" stroke="#789abc" points="204,-8 204,-170.25 360,-170.25 360,-8 204,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="282" y="-154.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Ethereum Blockchain</text></a></g></g><g id="clust4" class="cluster"><title>clusterEthereumInner</title><g id="a_clust4"><a xlink:title="Ethereum Blockchain"></a></g></g><!-- xym_bridge --><g id="node1" class="node"><title>xym_bridge</title><g id="a_node1"><a xlink:title="Bridge account on Symbol"><polygon fill="none" stroke="#789abc" points="148,-60 24,-60 24,-24 148,-24 148,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="86" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account</text></a></g></g><!-- eth_bridge --><g id="node3" class="node"><title>eth_bridge</title><g id="a_node3"><a xlink:title="Bridge account on Ethereum"><polygon fill="none" stroke="#789abc" points="344,-60 220,-60 220,-24 344,-24 344,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="282" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account</text></a></g></g><!-- xym_bridge&#45;&gt;eth_bridge --><g id="edge3" class="edge"><title>xym_bridge-&gt;eth_bridge</title><path fill="none" stroke="#789abc" stroke-width="2" d="M148.4,-42C167.88,-42 187.36,-42 206.83,-42"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="206.61,-45.5 216.61,-42 206.61,-38.5 206.61,-45.5"></polygon></g><!-- xym_user --><g id="node2" class="node"><title>xym_user</title><g id="a_node2"><a xlink:title="User account on Symbol"><polygon fill="none" stroke="#789abc" points="141.25,-132 30.75,-132 30.75,-96 141.25,-96 141.25,-132"></polygon><text xml:space="preserve" text-anchor="middle" x="86" y="-109.33" font-family="Times,serif" font-size="14.00" fill="#789abc">User account</text></a></g></g><!-- xym_user&#45;&gt;xym_bridge --><g id="edge1" class="edge"><title>xym_user-&gt;xym_bridge</title><path fill="none" stroke="#789abc" d="M86,-95.7C86,-88.41 86,-79.73 86,-71.54"></path><polygon fill="#789abc" stroke="#789abc" points="89.5,-71.62 86,-61.62 82.5,-71.62 89.5,-71.62"></polygon></g><!-- eth_user --><g id="node4" class="node"><title>eth_user</title><g id="a_node4"><a xlink:title="User account on Ethereum"><polygon fill="none" stroke="#789abc" points="337.25,-132 226.75,-132 226.75,-96 337.25,-96 337.25,-132"></polygon><text xml:space="preserve" text-anchor="middle" x="282" y="-109.33" font-family="Times,serif" font-size="14.00" fill="#789abc">User account</text></a></g></g><!-- eth_bridge&#45;&gt;eth_user --><g id="edge2" class="edge"><title>eth_bridge-&gt;eth_user</title><path fill="none" stroke="#789abc" d="M282,-60.1C282,-67.37 282,-76.04 282,-84.24"></path><polygon fill="#789abc" stroke="#789abc" points="278.5,-84.18 282,-94.18 285.5,-84.18 278.5,-84.18"></polygon></g></g></svg></p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="448pt" height="187pt" viewBox="0.00 0.00 448.00 187.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 183.25)"><title>BridgeTokens</title><polygon fill="none" stroke="none" points="-4,4 -4,-183.25 444,-183.25 444,4 -4,4"></polygon><g id="clust1" class="cluster"><title>clusterSrc</title><g id="a_clust1"><a xlink:title="Source Blockchain"><polygon fill="none" stroke="#789abc" points="8,-8 8,-171.25 164,-171.25 164,-8 8,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="86" y="-155.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Source Blockchain</text></a></g></g><g id="clust2" class="cluster"><title>clusterSrcInner</title><g id="a_clust2"><a xlink:title="Source Blockchain"></a></g></g><g id="clust3" class="cluster"><title>clusterTgt</title><g id="a_clust3"><a xlink:title="Target Blockchain"><polygon fill="none" stroke="#789abc" points="276,-8 276,-171.25 432,-171.25 432,-8 276,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="354" y="-155.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Target Blockchain</text></a></g></g><g id="clust4" class="cluster"><title>clusterTgtInner</title><g id="a_clust4"><a xlink:title="Target Blockchain"></a></g></g><!-- src_bridge --><g id="node1" class="node"><title>src_bridge</title><g id="a_node1"><a xlink:title="Bridge account on the source blockchain"><polygon fill="none" stroke="#789abc" points="148,-60 24,-60 24,-24 148,-24 148,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="86" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account</text></a></g></g><!-- tgt_bridge --><g id="node3" class="node"><title>tgt_bridge</title><g id="a_node3"><a xlink:title="Bridge account on the target blockchain"><polygon fill="none" stroke="#789abc" points="416,-60 292,-60 292,-24 416,-24 416,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="354" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account</text></a></g></g><!-- src_bridge&#45;&gt;tgt_bridge --><g id="edge3" class="edge"><title>src_bridge-&gt;tgt_bridge</title><path fill="none" stroke="#789abc" stroke-width="2" d="M148.29,-42C191.81,-42 235.32,-42 278.84,-42"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="278.7,-45.5 288.7,-42 278.7,-38.5 278.7,-45.5"></polygon></g><!-- src_user --><g id="node2" class="node"><title>src_user</title><g id="a_node2"><a xlink:title="User account on the source blockchain"><polygon fill="none" stroke="#789abc" points="141.25,-133 30.75,-133 30.75,-97 141.25,-97 141.25,-133"></polygon><text xml:space="preserve" text-anchor="middle" x="86" y="-110.33" font-family="Times,serif" font-size="14.00" fill="#789abc">User account</text></a></g></g><!-- src_user&#45;&gt;src_bridge --><g id="edge1" class="edge"><title>src_user-&gt;src_bridge</title><path fill="none" stroke="#789abc" d="M86,-96.81C86,-89.23 86,-80.1 86,-71.54"></path><polygon fill="#789abc" stroke="#789abc" points="89.5,-71.54 86,-61.54 82.5,-71.54 89.5,-71.54"></polygon><g id="a_edge1-label"><a xlink:title="Trigger transaction"><text xml:space="preserve" text-anchor="middle" x="122" y="-73.83" font-family="Times,serif" font-size="14.00" fill="#789abc">Trigger tx</text></a></g></g><!-- tgt_user --><g id="node4" class="node"><title>tgt_user</title><g id="a_node4"><a xlink:title="User account on the target blockchain"><polygon fill="none" stroke="#789abc" points="409.25,-133 298.75,-133 298.75,-97 409.25,-97 409.25,-133"></polygon><text xml:space="preserve" text-anchor="middle" x="354" y="-110.33" font-family="Times,serif" font-size="14.00" fill="#789abc">User account</text></a></g></g><!-- tgt_bridge&#45;&gt;tgt_user --><g id="edge2" class="edge"><title>tgt_bridge-&gt;tgt_user</title><path fill="none" stroke="#789abc" d="M354,-60.03C354,-67.68 354,-76.92 354,-85.58"></path><polygon fill="#789abc" stroke="#789abc" points="350.5,-85.3 354,-95.3 357.5,-85.3 350.5,-85.3"></polygon><g id="a_edge2-label"><a xlink:title="Payout transaction"><text xml:space="preserve" text-anchor="middle" x="387.75" y="-73.83" font-family="Times,serif" font-size="14.00" fill="#789abc">Payout tx</text></a></g></g></g></svg></p>
 <p>The bridge has accounts on both networks it connects.
 Users do not send tokens directly across networks.
 Instead, they send tokens to the bridge account on the source network and include the destination address where the
 payout should be delivered on the target network.</p>
 <p>The bridge watches its accounts for incoming requests.
-When it finds a valid request, it sends the corresponding payout from its account on the other network.
+When it finds a valid request (see <a href="#invalid-requests-and-limits">Invalid Requests</a> below),
+it sends the corresponding payout from its account on the other network.
 For this to work, the payout-side account must have enough tokens to satisfy requests and enough native currency to pay
 network fees.</p>
 <p>Because the bridge operates through ordinary blockchain accounts and transactions, it is neither part of the Symbol
 nor the Ethereum consensus protocols.
 It is an off-chain service that observes one chain and submits transactions to another.</p>
-<p>For each possible workflow, the bridge uses a different pair of accounts, so it uses six accounts in total:</p>
-<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="575pt" height="258pt" viewBox="0.00 0.00 575.00 258.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 254.25)"><title>BridgeTokens</title><polygon fill="none" stroke="none" points="-4,4 -4,-254.25 571,-254.25 571,4 -4,4"></polygon><g id="clust1" class="cluster"><title>clusterSymbol</title><g id="a_clust1"><a xlink:title="Symbol Blockchain"><polygon fill="none" stroke="#789abc" points="8,-8 8,-242.25 264,-242.25 264,-8 8,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="136" y="-226.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Symbol Blockchain</text></a></g></g><g id="clust2" class="cluster"><title>clusterSymbolInner</title><g id="a_clust2"><a xlink:title="Symbol Blockchain"></a></g></g><g id="clust3" class="cluster"><title>clusterEthereum</title><g id="a_clust3"><a xlink:title="Ethereum Blockchain"><polygon fill="none" stroke="#789abc" points="303,-8 303,-242.25 559,-242.25 559,-8 303,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="431" y="-226.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Ethereum Blockchain</text></a></g></g><g id="clust4" class="cluster"><title>clusterEthereumInner</title><g id="a_clust4"><a xlink:title="Ethereum Blockchain"></a></g></g><!-- xym_bridge1 --><g id="node1" class="node"><title>xym_bridge1</title><g id="a_node1"><a xlink:title="Bridge account for staking on Symbol"><polygon fill="none" stroke="#789abc" points="242.88,-204 37.12,-204 37.12,-168 242.88,-168 242.88,-204"></polygon><text xml:space="preserve" text-anchor="middle" x="140" y="-181.32" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account for staking</text></a></g></g><!-- xym_bridge2 --><g id="node2" class="node"><title>xym_bridge2</title><g id="a_node2"><a xlink:title="Bridge account for unstaking on Symbol"><polygon fill="none" stroke="#789abc" points="247.88,-132 24.12,-132 24.12,-96 247.88,-96 247.88,-132"></polygon><text xml:space="preserve" text-anchor="middle" x="136" y="-109.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account for unstaking</text></a></g></g><!-- xym_bridge1&#45;&gt;xym_bridge2 --><!-- eth_bridge1 --><g id="node4" class="node"><title>eth_bridge1</title><g id="a_node4"><a xlink:title="Bridge account for staking on Ethereum"><polygon fill="none" stroke="#789abc" points="528.88,-204 323.12,-204 323.12,-168 528.88,-168 528.88,-204"></polygon><text xml:space="preserve" text-anchor="middle" x="426" y="-181.32" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account for staking</text></a></g></g><!-- xym_bridge1&#45;&gt;eth_bridge1 --><g id="edge5" class="edge"><title>xym_bridge1-&gt;eth_bridge1</title><path fill="none" stroke="#789abc" stroke-width="2" d="M243.34,-186C265.61,-186 287.88,-186 310.16,-186"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="309.87,-189.5 319.87,-186 309.87,-182.5 309.87,-189.5"></polygon></g><!-- xym_bridge3 --><g id="node3" class="node"><title>xym_bridge3</title><g id="a_node3"><a xlink:title="Bridge account for swapping on Symbol"><polygon fill="none" stroke="#789abc" points="246.75,-60 25.25,-60 25.25,-24 246.75,-24 246.75,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="136" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account for swapping</text></a></g></g><!-- xym_bridge2&#45;&gt;xym_bridge3 --><!-- eth_bridge2 --><g id="node5" class="node"><title>eth_bridge2</title><g id="a_node5"><a xlink:title="Bridge account for unstaking on Ethereum"><polygon fill="none" stroke="#789abc" points="542.88,-132 319.12,-132 319.12,-96 542.88,-96 542.88,-132"></polygon><text xml:space="preserve" text-anchor="middle" x="431" y="-109.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account for unstaking</text></a></g></g><!-- xym_bridge2&#45;&gt;eth_bridge2 --><g id="edge6" class="edge"><title>xym_bridge2-&gt;eth_bridge2</title><path fill="none" stroke="#789abc" stroke-width="2" d="M261.26,-114C280.38,-114 299.5,-114 318.63,-114"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="261.38,-110.5 251.38,-114 261.38,-117.5 261.38,-110.5"></polygon></g><!-- eth_bridge3 --><g id="node6" class="node"><title>eth_bridge3</title><g id="a_node6"><a xlink:title="Bridge account for swapping on Ethereum"><polygon fill="none" stroke="#789abc" points="540.75,-60 319.25,-60 319.25,-24 540.75,-24 540.75,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="430" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridge account for swapping</text></a></g></g><!-- xym_bridge3&#45;&gt;eth_bridge3 --><g id="edge7" class="edge"><title>xym_bridge3-&gt;eth_bridge3</title><path fill="none" stroke="#789abc" stroke-width="2" d="M247.11,-42C266.74,-42 286.38,-42 306.01,-42"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="305.88,-45.5 315.88,-42 305.88,-38.5 305.88,-45.5"></polygon></g><!-- eth_bridge1&#45;&gt;eth_bridge2 --><!-- eth_bridge2&#45;&gt;eth_bridge3 --></g></svg></p>
-<h2 id="staked-xym">Staked XYM<a class="headerlink" href="#staked-xym" title="Anchor link to this section for reference">⚓︎</a></h2>
-<p>Staked XYM (<code>sXYM</code>) is an <a href="https://ethereum.org/developers/docs/standards/tokens/erc-20/">ERC-20</a> token on Ethereum
+<p>The bridge uses four different accounts to handle all possible workflows:</p>
+<p><span class="graphviz-light-dark" data-library-default="#789abc" data-default="#789abc" data-light="#000000" data-dark="#ffffff"></span><svg width="442pt" height="186pt" viewBox="0.00 0.00 442.00 186.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graphviz dot"><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 182.25)"><title>BridgeTokens</title><polygon fill="none" stroke="none" points="-4,4 -4,-182.25 438,-182.25 438,4 -4,4"></polygon><g id="clust1" class="cluster"><title>clusterSymbol</title><g id="a_clust1"><a xlink:title="Symbol Blockchain"><polygon fill="none" stroke="#789abc" points="8,-8 8,-170.25 186,-170.25 186,-8 8,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="97" y="-154.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Symbol Blockchain</text></a></g></g><g id="clust2" class="cluster"><title>clusterSymbolInner</title><g id="a_clust2"><a xlink:title="Symbol Blockchain"></a></g></g><g id="clust3" class="cluster"><title>clusterEthereum</title><g id="a_clust3"><a xlink:title="Ethereum Blockchain"><polygon fill="none" stroke="#789abc" points="226,-8 226,-170.25 426,-170.25 426,-8 226,-8"></polygon><text xml:space="preserve" text-anchor="middle" x="326" y="-154.85" font-family="Times,serif" font-size="12.00" fill="#789abc">Ethereum Blockchain</text></a></g></g><g id="clust4" class="cluster"><title>clusterEthereumInner</title><g id="a_clust4"><a xlink:title="Ethereum Blockchain"></a></g></g><!-- xym_bridge1 --><g id="node1" class="node"><title>xym_bridge1</title><g id="a_node1"><a xlink:title="Bridging account (on Symbol)"><polygon fill="none" stroke="#789abc" points="168.12,-132 29.88,-132 29.88,-96 168.12,-96 168.12,-132"></polygon><text xml:space="preserve" text-anchor="middle" x="99" y="-109.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Bridging account</text></a></g></g><!-- xym_bridge2 --><g id="node2" class="node"><title>xym_bridge2</title><g id="a_node2"><a xlink:title="Swapping account (on Symbol)"><polygon fill="none" stroke="#789abc" points="170.25,-60 23.75,-60 23.75,-24 170.25,-24 170.25,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="97" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Swapping account</text></a></g></g><!-- xym_bridge1&#45;&gt;xym_bridge2 --><!-- eth_bridge1 --><g id="node3" class="node"><title>eth_bridge1</title><g id="a_node3"><a xlink:title="Redeeming account (on Ethereum)"><polygon fill="none" stroke="#789abc" points="401.12,-132 244.88,-132 244.88,-96 401.12,-96 401.12,-132"></polygon><text xml:space="preserve" text-anchor="middle" x="323" y="-109.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Redeeming account</text></a></g></g><!-- xym_bridge1&#45;&gt;eth_bridge1 --><g id="edge3" class="edge"><title>xym_bridge1-&gt;eth_bridge1</title><path fill="none" stroke="#789abc" stroke-width="2" d="M181.33,-114C198.13,-114 214.93,-114 231.73,-114"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="181.59,-110.5 171.59,-114 181.59,-117.5 181.59,-110.5"></polygon><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="231.55,-117.5 241.55,-114 231.55,-110.5 231.55,-117.5"></polygon></g><!-- eth_bridge2 --><g id="node4" class="node"><title>eth_bridge2</title><g id="a_node4"><a xlink:title="Swap payout account (on Ethereum)"><polygon fill="none" stroke="#789abc" stroke-dasharray="5,2" points="410.12,-60 241.88,-60 241.88,-24 410.12,-24 410.12,-60"></polygon><text xml:space="preserve" text-anchor="middle" x="326" y="-37.33" font-family="Times,serif" font-size="14.00" fill="#789abc">Swap payout account</text></a></g></g><!-- xym_bridge2&#45;&gt;eth_bridge2 --><g id="edge4" class="edge"><title>xym_bridge2-&gt;eth_bridge2</title><path fill="none" stroke="#789abc" stroke-width="2" d="M170.35,-42C189.8,-42 209.25,-42 228.71,-42"></path><polygon fill="#789abc" stroke="#789abc" stroke-width="2" points="228.46,-45.5 238.46,-42 228.46,-38.5 228.46,-45.5"></polygon></g><!-- eth_bridge1&#45;&gt;eth_bridge2 --></g></svg></p>
+<p>Making a transfer to any of these accounts except the swap payout account initiates the workflows described below.</p>
+<div class="admonition warning">
+<p class="admonition-title">Do not transfer any funds to the swap payout account</p>
+<p>This account exists only to pay users on the Ethereum network after performing a swap.
+Funds transferred <strong>into</strong> it will not be recoverable.</p>
+</div>
+<h2 id="bridged-xym">Bridged XYM<a class="headerlink" href="#bridged-xym" title="Anchor link to this section for reference">⚓︎</a></h2>
+<p>Bridged XYM (<code>bXYM</code>) is an <a href="https://ethereum.org/developers/docs/standards/tokens/erc-20/">ERC-20</a> token on Ethereum
 that represents a share of the <code>XYM</code> held by the bridge on Symbol.
 It is similar to a wrapped token because it represents <code>XYM</code> on another network, but it is not fixed at a permanent
 1:1 rate.</p>
-<p>In other words, <code>sXYM</code> represents proportional ownership of native tokens held by the bridge, including any rewards
+<p>In other words, <code>bXYM</code> represents proportional ownership of native tokens held by the bridge, including any rewards
 that accrue while those native tokens are held.</p>
-<p>When users stake <code>XYM</code>, they send it to the bridge account on Symbol and receive <code>sXYM</code> on Ethereum.
-When users unstake, they send <code>sXYM</code> to the bridge account on Ethereum and receive <code>XYM</code> on Symbol.</p>
+<p>When users bridge <code>XYM</code>, they send it to the bridging account on Symbol and receive <code>bXYM</code> on Ethereum.
+When users redeem <code>bXYM</code> (or "unbridge" it), they send it to the redeeming account on Ethereum and receive <code>XYM</code>
+on Symbol.</p>
 <p>The bridge's Symbol account can earn additional <code>XYM</code>, for example through <a class="mkdocs-ezglossary-link" id="a35dcdc87705014090f45bfaa85a43b2" title="The process by which Symbol adds new blocks to the chain and distributes rewards to participating accounts.
 It plays a similar role to mining in PoW or staking in PoS." name="_:Harvesting" href="../../textbook/harvesting/#4da2a5a68444f540bbf5e10a08b085e4">harvesting</a>.
-When that happens, the total amount of <code>XYM</code> held by the bridge increases while the amount of existing <code>sXYM</code> stays the
+When that happens, the total amount of <code>XYM</code> held by the bridge increases while the amount of existing <code>bXYM</code> stays the
 same.
-As a result, each <code>sXYM</code> represents a claim on a slightly larger amount of <code>XYM</code>.</p>
-<p>For example, with 1'000 outstanding <code>sXYM</code> and 1'000 <code>XYM</code> in the bridge account, both tokens are effectively at a
+As a result, each <code>bXYM</code> represents a claim on a slightly larger amount of <code>XYM</code>.</p>
+<p>For example, with 1'000 outstanding <code>bXYM</code> and 1'000 <code>XYM</code> in the bridge account, both tokens are effectively at a
 1:1 rate.
-If the bridge account later earns 500 additional <code>XYM</code>, the same outstanding <code>sXYM</code> now represents a claim on
+If the bridge account later earns 500 additional <code>XYM</code>, the same outstanding <code>bXYM</code> now represents a claim on
 1'500 <code>XYM</code>.
-Unstaking after that point returns more <code>XYM</code> per <code>sXYM</code> than before.</p>
-<p>This also means that new staking requests receive fewer <code>sXYM</code> per <code>XYM</code> after rewards have accrued.
-The user's share is still proportional: staking adds <code>XYM</code> to the pool and mints the corresponding share of <code>sXYM</code>,
-while unstaking returns the <code>XYM</code> represented by the redeemed <code>sXYM</code>.</p>
+Redeeming after that point returns more <code>XYM</code> per <code>bXYM</code> than before.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Besides bridging and redeeming, the only operations that modify the amount of <code>XYM</code> held by the bridge are
+harvesting and <a href="#invalid-requests-and-limits">donations</a>.</p>
+<p>Since these operations only <em>increase</em> the bridge's balance, <code>bXYM</code> will usually be worth more than <code>XYM</code> and
+bridging one <code>XYM</code> will result in receiving less than one <code>bXYM</code>.</p>
+</div>
 <h2 id="process">Process<a class="headerlink" href="#process" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>A bridge request has five conceptual stages.
-The user only needs to initiate the first one and the rest follow.</p>
+The user only needs to initiate the first one and the rest follow automatically.</p>
 <ol>
 <li>
 <p><strong>Deposit</strong></p>
-<p>The user sends tokens to the bridge account on the source network for the operation they wish to perform.
+<p>The user sends tokens to the bridge account on the source network that handles the operation they wish to perform
+(bridging, redeeming, or swapping).
 The transaction includes the destination address on the target network.</p>
 </li>
 <li>
 <p><strong>Detection</strong></p>
-<p>The bridge watches the source network and detects the incoming transaction.
+<p>The bridge monitors the source network and detects the incoming transaction.
 It checks that the request is valid, for example, that it transfers the expected token and contains a valid
 destination address.</p>
 </li>
@@ -12279,12 +12290,14 @@ destination address.</p>
 <p><strong>Finality</strong></p>
 <p>The bridge waits until the source transaction is considered sufficiently <a class="mkdocs-ezglossary-link" id="6218ef6d600350ebf02d3f2929842323" title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
 rollbacks." name="_:Finalization" href="../../textbook/consensus/#8fe31d7fd591e1fd0d06f55c2ea53850">final</a>.
-Different blockchains have different finality rules, so the waiting time depends on the network involved.</p>
+See <a href="#finality-and-processing-time">Finality and Processing Time</a> below.</p>
 </li>
 <li>
 <p><strong>Conversion</strong></p>
-<p>The bridge calculates the payout amount according to its configuration.
-It also accounts for network fees and any bridge fee configured by the operator.</p>
+<p>The bridge calculates the payout amount according to the selected operation and an external price provider if
+needed.
+The bridge also accounts for network fees and any bridge fee configured by the operator.
+See <a href="#fees-and-payout-amounts">Fees and Payout Amounts</a> below.</p>
 </li>
 <li>
 <p><strong>Payout</strong></p>
@@ -12296,49 +12309,79 @@ It then tracks that outgoing transaction until it is finalized.</p>
 <h2 id="workflows">Workflows<a class="headerlink" href="#workflows" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>An application like the Symbol Mobile Wallet takes care of the steps described above and offers a streamlined user
 interface for the following workflows.</p>
-<h3 id="staking-xym-to-sxym">Staking <code>XYM</code> to <code>sXYM</code><a class="headerlink" href="#staking-xym-to-sxym" title="Anchor link to this section for reference">⚓︎</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Invalid requests are not refunded</p>
+<p>It is strongly recommended to operate the bridge through an application rather than interacting directly with its
+accounts because <a href="#invalid-requests-and-limits">invalid transactions</a> are not refunded.</p>
+</div>
+<h3 id="bridging-xym-to-bxym">Bridging <code>XYM</code> to <code>bXYM</code><a class="headerlink" href="#bridging-xym-to-bxym" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>The user starts the process by announcing a standard <a class="mkdocs-ezglossary-link" id="c7a36d17434ffca0788bd2b7eb898f6b" title="A transaction that allows sending mosaics and optional messages from one account to another." name="_:Transfer Transaction" href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transaction</a> on Symbol, setting:</p>
 <ul>
-<li><strong>Transaction recipient</strong>: The address of the bridge account for staking on Symbol.</li>
+<li><strong>Transaction recipient</strong>: The address of the bridging account on Symbol.</li>
+<li><strong>Transferred</strong> <a class="mkdocs-ezglossary-link" id="133e4ff5c3b222df278c3e8e2c1f35b3" title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
+For example: currencies, licenses, collectibles, access rights, or voting power." name="_:Mosaic" href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">Mosaic</a>: <code>XYM</code>.</li>
 <li><strong>Transaction</strong> <a href="../transfer_transactions/#optional-message">Message</a>:
-    The address of the account <strong>on Ethereum</strong> that should receive the <code>sXYM</code>.</li>
+    The unencrypted address of the account <strong>on Ethereum</strong> that should receive the <code>bXYM</code>.</li>
 </ul>
 <p>The bridge service detects the transfer and starts the process described above.</p>
-<h3 id="unstaking-sxym-to-xym">Unstaking <code>sXYM</code> to <code>XYM</code><a class="headerlink" href="#unstaking-sxym-to-xym" title="Anchor link to this section for reference">⚓︎</a></h3>
+<h3 id="redeeming-bxym-to-xym">Redeeming <code>bXYM</code> to <code>XYM</code><a class="headerlink" href="#redeeming-bxym-to-xym" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>The user starts the process by submitting a transaction on Ethereum, setting:</p>
 <ul>
-<li><strong>Transaction recipient</strong>: The address of the bridge account for unstaking on Ethereum.</li>
+<li><strong>Transaction recipient</strong>: The address of the redeeming account on Ethereum.</li>
+<li><strong>Transferred token</strong>: <code>bXYM</code>.</li>
 <li><strong>Additional transaction data</strong>: The address of the account <strong>on Symbol</strong> that should receive the <code>XYM</code>.</li>
 </ul>
 <p>The bridge service detects the transfer and starts the process described above.</p>
 <h3 id="swapping-xym-to-eth">Swapping <code>XYM</code> to <code>ETH</code><a class="headerlink" href="#swapping-xym-to-eth" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>The user starts the process by announcing a standard <a class="mkdocs-ezglossary-link" id="bb045dc032599e022fab15f0276e052b" title="A transaction that allows sending mosaics and optional messages from one account to another." name="_:Transfer Transaction" href="../../textbook/transfer_transactions/#a47f82e755a85fdf1032ffa5d9a5ba5b">transfer transaction</a> on Symbol, setting:</p>
 <ul>
-<li><strong>Transaction recipient</strong>: The address of the bridge account for swapping on Symbol.</li>
+<li><strong>Transaction recipient</strong>: The address of the swapping account on Symbol.</li>
+<li><strong>Transferred</strong> <a class="mkdocs-ezglossary-link" id="012a11006f14348f14aa11dbebd3cf69" title="A representation of an asset on the Symbol blockchain, commonly called tokens on other protocols.
+For example: currencies, licenses, collectibles, access rights, or voting power." name="_:Mosaic" href="../../textbook/mosaics/#1ce1007d637826ac3e2531934a09da3f">Mosaic</a>: <code>XYM</code>.</li>
 <li><strong>Transaction</strong> <a href="../transfer_transactions/#optional-message">Message</a>:
-    The address of the account <strong>on Ethereum</strong> that should receive the <code>ETH</code>.</li>
+    The unencrypted address of the account <strong>on Ethereum</strong> that should receive the <code>ETH</code>.</li>
 </ul>
+<p>The bridge service detects the transfer and starts the process described above.</p>
 <h3 id="swapping-back-eth-to-xym">Swapping back <code>ETH</code> to <code>XYM</code><a class="headerlink" href="#swapping-back-eth-to-xym" title="Anchor link to this section for reference">⚓︎</a></h3>
 <p>This workflow is not directly supported by the bridge but can be performed in two steps:</p>
 <ol>
 <li>
-<p>Swap <code>ETH</code> for <code>sXYM</code> using a <a class="mkdocs-ezglossary-link" id="52d8cab58213468c116e16bf3eceb790" title="Decentralized Exchange, as opposed to traditional Centralized Exchanges (CEX)." name="_:DEX" href="../../textbook/glossary/#85e04a44246043e31c7b4db81d2eaedf">DEX</a>.</p>
+<p>Swap <code>ETH</code> for <code>bXYM</code> using a <a class="mkdocs-ezglossary-link" id="52d8cab58213468c116e16bf3eceb790" title="Decentralized Exchange, as opposed to traditional Centralized Exchanges (CEX)." name="_:DEX" href="../../textbook/glossary/#85e04a44246043e31c7b4db81d2eaedf">DEX</a>.</p>
 <p>The Symbol Syndicate maintains a <a href="https://uniswap.org">Uniswap</a> pool for this purpose.</p>
 </li>
 <li>
-<p>Unstake the <code>sXYM</code> to <code>XYM</code> using the unstaking workflow above.</p>
+<p>Redeem the <code>bXYM</code> to <code>XYM</code> using the redeeming workflow above.</p>
 </li>
 </ol>
 <h2 id="fees-and-payout-amounts">Fees and Payout Amounts<a class="headerlink" href="#fees-and-payout-amounts" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>Bridge requests involve more than the amount deposited.
 The user pays the source-network transaction fee when submitting the request, and the bridge pays the target-network
 transaction fee when sending the payout.
-The bridge deducts that target-network fee from the payout amount.</p>
+The bridge deducts that target-network fee from the payout amount in the following way:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Fees involved</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bridging</td>
+<td>The bridge pays the payout transaction fee in <code>ETH</code>, uses a price provider to estimate its value in <code>XYM</code>, and deducts it from the payout amount.</td>
+</tr>
+<tr>
+<td>Redeeming</td>
+<td>The bridge pays the payout transaction fee in <code>XYM</code> and deducts it directly from the payout amount.</td>
+</tr>
+<tr>
+<td>Swapping</td>
+<td>The bridge pays the payout transaction fee in <code>ETH</code> and deducts it directly from the payout amount.</td>
+</tr>
+</tbody>
+</table>
 <p>Depending on configuration, the bridge can also charge a conversion fee.
 This fee is separate from blockchain transaction fees.</p>
-<p>When the target network is Ethereum, the bridge pays gas in <code>ETH</code>.
-If the payout token is not <code>ETH</code>, the bridge uses a price source to estimate the equivalent value and deduct it
-from the bridged token amount.</p>
 <h2 id="finality-and-processing-time">Finality and Processing Time<a class="headerlink" href="#finality-and-processing-time" title="Anchor link to this section for reference">⚓︎</a></h2>
 <p>The bridge does not act on a transaction the moment it first appears.
 Instead, it waits until the transaction is considered sufficiently <a class="mkdocs-ezglossary-link" id="dc18f3da16dfc535eaadceeae6db7ea1" title="The process that makes blocks, and the transactions they contain, irreversible, eliminating the risk of
@@ -12351,28 +12394,39 @@ This protects the bridge from acting on transactions that could still be rolled 
 <li>Network congestion and transaction fees on the payout network.</li>
 </ul>
 <p>For this reason, bridge requests are not instant even when both blockchains are healthy.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The bridge does not provide <a class="mkdocs-ezglossary-link" id="d655ef1b3086beb45bbaa0e8c1ce4247" title="Difference between the expected price of a trade and the actual executed price.
+This discrepancy occurs because prices can fluctuate rapidly between the moment an order is placed and when it is
+confirmed on the blockchain." name="_:Slippage" href="../../textbook/glossary/#33b828f57716b7085f838f92c15e0f5c">slippage</a> protection, so the received amount can vary.</p>
+</div>
 <h2 id="invalid-requests-and-limits">Invalid Requests and Limits<a class="headerlink" href="#invalid-requests-and-limits" title="Anchor link to this section for reference">⚓︎</a></h2>
-<p>A bridge can only process requests that match the rules of the selected workflow.
+<p>The bridge can only process requests that match the rules of the selected workflow.
 Requests generally need to send the expected token to the correct bridge account and include a valid destination
 address for the target network.</p>
-<p>Transfers that send unsupported tokens, omit the destination address, encrypt the message when a plain address is
-required, or exceed configured limits are not processed.
-Depending on the bridge and the error, these transfers might not be recoverable automatically.</p>
-<p>If operating the bridge manually, users should always check the bridge's supported token, direction,
-destination-address format, fees, and limits before submitting a request.</p>
+<div class="admonition warning">
+<p class="admonition-title">Invalid requests are not refunded</p>
+<p>Transfers to the wrong bridge account, or transfers that send unsupported tokens, omit the destination address,
+encrypt the message, or exceed configured limits are not processed and the funds remain in the bridge account
+as <em>donations</em>.</p>
+</div>
+<p>Applications like the Symbol Mobile Wallet perform routine checks before submitting a request to minimize this risk.</p>
+<p>When operating the bridge manually by sending a transaction to any of its accounts, users should always check the
+bridge's supported token, direction, destination-address format, fees, and limits before submitting a request.</p>
 <h2 id="trust-model-and-responsibilities">Trust Model and Responsibilities<a class="headerlink" href="#trust-model-and-responsibilities" title="Anchor link to this section for reference">⚓︎</a></h2>
-<p>A bridge is a service operated outside the blockchain protocol.
+<p>The bridge is a service operated outside the blockchain protocol.
 It controls accounts, observes transactions, calculates payouts, and signs outgoing transactions.
 Users therefore trust the bridge operator to run the service correctly, maintain enough liquidity, protect signing
 keys, and handle invalid or delayed requests responsibly.</p>
 <p>The bridge also depends on the following external services:</p>
 <ul>
-<li>Price providers to calculate swaps or fee deductions.</li>
-<li>Network API nodes to read blockchain state.</li>
+<li>Price providers to calculate exchange rates.</li>
+<li>Network <a class="mkdocs-ezglossary-link" id="2ca93a34f11d2fdfd7be80fd0144ed97" title="An API node exposes a public REST interface that allows external clients
+such as wallets, explorers, and applications to interact with the network." name="_:API Node" href="../../textbook/nodes/#52919a63c48ac18339a08eaf4dc703a9">API nodes</a> to read blockchain state.</li>
 <li>Block explorers and status APIs to report progress.</li>
 </ul>
 <p>Problems in any of these dependencies can delay or interrupt bridge operation.</p>
-<p>This means a bridge should be evaluated separately from Symbol itself.
+<p>This means the bridge should be evaluated separately from Symbol itself.
 Symbol can finalize the user's deposit correctly while the bridge operator is still responsible for detecting that
 deposit and completing the payout on the other network.</p>
 
@@ -12397,7 +12451,7 @@ deposit and completing the payout on the other network.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 22, 2026 17:54:14 UTC">July 22, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 23, 2026 10:39:57 UTC">July 23, 2026</span>
   </span>
 
     
