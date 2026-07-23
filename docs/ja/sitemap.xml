@@ -1309,6 +1309,42 @@
          <lastmod>2026-07-23</lastmod>
     </url>
     <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/create-account/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/create-profile/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/delete-account/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/delete-profile/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/export-profile/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/import-account/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/import-profile/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/install/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/intro/</loc>
+         <lastmod>2026-07-23</lastmod>
+    </url>
+    <url>
          <loc>https://docs.symboltest.net/ja/userbook/shoestring/install/</loc>
          <lastmod>2026-07-23</lastmod>
     </url>
@@ -1322,38 +1358,6 @@
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/userbook/shoestring/quickstart/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/create-account/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/create-profile/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/delete-account/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/delete-profile/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/export-profile/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/import-account/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/import-profile/</loc>
-         <lastmod>2026-07-23</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/wallet/install/</loc>
          <lastmod>2026-07-23</lastmod>
     </url>
 </urlset>
