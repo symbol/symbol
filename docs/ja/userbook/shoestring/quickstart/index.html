@@ -11951,6 +11951,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../textbook/bridge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Symbol Bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../textbook/catapult/" class="md-nav__link">
         
   
@@ -12316,14 +12344,14 @@
 <ul>
 <li><code>PEER</code>: ノードはコンセンサスに参加します。</li>
 <li><code>API</code>: ノードはクライアントアプリケーション用のAPIを公開します。</li>
-<li><code>HARVESTER</code>: ノードはブロック生成に参加し、 <a class="mkdocs-ezglossary-link" id="9e4eb7a5cc8e91916e6d9e68b6bb6701" title="Symbol が新しい ブロック をチェーンに追加し、参加する
+<li><code>HARVESTER</code>: ノードはブロック生成に参加し、 <a class="mkdocs-ezglossary-link" id="8f9624c25906d63dcf032c7df9f3dda9" title="Symbol が新しい ブロック をチェーンに追加し、参加する
 アカウント に報酬を分配するプロセスです。
 PoW におけるマイニング、または PoS におけるステーキングに相当する役割を持ちます。" name="_:ハーベスティング" href="../../../textbook/harvesting/#ff18d4dd87ad820305edbe133d434f4d">ハーベスティング</a> 報酬を得る資格があります。
-    最低10,000 <a class="mkdocs-ezglossary-link" id="1bae095a68e3ff49b10e9113c3a3fce1" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> が必要です。
+    最低10,000 <a class="mkdocs-ezglossary-link" id="8b9518a4fc699c047f6113c4f7f908ad" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> が必要です。
     以下の<a href="#configure-harvesting-optional">ハーベスティングの設定（オプション）</a>を参照してください。</li>
-<li><code>VOTER</code>: ノードは <a class="mkdocs-ezglossary-link" id="6c632a765053aa95fa0d7da4c24bdc79" title="ロールバック のリスクを取り除き、
+<li><code>VOTER</code>: ノードは <a class="mkdocs-ezglossary-link" id="051876a5a75794b2b971d0430e29b304" title="ロールバック のリスクを取り除き、
 ブロックおよびその中のトランザクションを不可逆にするプロセスです。" name="_:ファイナライズ" href="../../../textbook/consensus/#1dbe2b6d0705a0c83c92093e71bec62f">ファイナライズ</a> に参加します。
-    最低3,000,000 <a class="mkdocs-ezglossary-link" id="6f007b207f8033c55a1bb0aef1632f1b" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> が必要です。
+    最低3,000,000 <a class="mkdocs-ezglossary-link" id="d78241f39b3035c6c19b363c086eb11f" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> が必要です。
     以下の<a href="#configure-voting-optional">投票の設定（オプション）</a>を参照してください。</li>
 </ul>
 </li>
@@ -12467,9 +12495,9 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <p>しかし、リモートアカウント自体は資金を保持しません。すべてのハーベスティング報酬は、リンクされたメインアカウント（オフラインで保存したままにできる）に送られるためです。</p>
 <p>Shoestringの <code>setup</code> コマンドは、すでにこれら両方のトランザクションを作成し、 <code>linking_transaction.dat</code> という名前のファイルで保存しています。以下のサブセクションでは、このファイル内のトランザクションに署名し、ネットワークにアナウンスする方法を説明します。</p>
 <h3 id="7-fund-the-main-account">7. メインアカウントへの資金提供<a class="headerlink" href="#7-fund-the-main-account" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
-<p>まず、これらのトランザクションをアナウンスするために必要な手数料を支払うため、ノードのメインアカウントはいくらかの <a class="mkdocs-ezglossary-link" id="8b9518a4fc699c047f6113c4f7f908ad" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> を保持する必要があります。</p>
+<p>まず、これらのトランザクションをアナウンスするために必要な手数料を支払うため、ノードのメインアカウントはいくらかの <a class="mkdocs-ezglossary-link" id="e88ee6e52c31d183d1b8fc7971ca1271" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> を保持する必要があります。</p>
 <p>上記の<a href="#5-create-the-node-identity">ステップ5</a>で示されているようにアカウントのアドレスを取得し、別のアカウントからそこに資金を送ります。
-通常は 1 <a class="mkdocs-ezglossary-link" id="d78241f39b3035c6c19b363c086eb11f" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> で十分です。</p>
+通常は 1 <a class="mkdocs-ezglossary-link" id="953211cf86cbe6f3821a6454164fb304" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> で十分です。</p>
 <h3 id="8-sign-the-transactions">8. トランザクションへの署名<a class="headerlink" href="#8-sign-the-transactions" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h3>
 <p>Shoestringの <code>signer</code> ツールは <code>linking_transaction.dat</code> を読み取り、 <code>ca.key.pem</code> （ノードのメインアカウント）に保存されている鍵でその中のトランザクションに署名します：</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>shoestring<span class="w"> </span>signer<span class="w"> </span><span class="se">\</span>
@@ -12606,7 +12634,7 @@ PoW におけるマイニング、または PoS におけるステーキング�
 <h2 id="configure-voting-optional">投票の設定（オプション）<a class="headerlink" href="#configure-voting-optional" title="参照用にこのセクションへのアンカーリンク">⚓︎</a></h2>
 <p><a class="mkdocs-ezglossary-link" id="cc27b12c7e4f9e5e8954e39b54fb5258" title="投票ノードは ファイナライズ プロセスに参加し、ブロックを不変にする。" name="_:投票ノード" href="../../../textbook/nodes/#ddd18e1f8c69b7e04689c08f3e4bd57b">投票ノード</a> を作成するには、以下の要件を満たす必要があります。</p>
 <p><a href="#3-configure-shoestring">Shoestringの設定時</a>に <code>VOTER</code> ロールを設定する。
-ノードのメインアカウントに 3,000,000 <a class="mkdocs-ezglossary-link" id="e88ee6e52c31d183d1b8fc7971ca1271" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> 以上を保有している。</p>
+ノードのメインアカウントに 3,000,000 <a class="mkdocs-ezglossary-link" id="fc9be3da325708ec54e507027d5580b3" title="Symbol ブロックチェーンのネイティブ通貨。" name="_:XYM" href="../../../textbook/glossary/#0945181c0458b61c2ec0b189933e972e">XYM</a> 以上を保有している。</p>
 <div class="admonition info">
 <p class="admonition-title">投票キーの保守</p>
 <p>セットアップ中、Shoestringはノード用の <a class="mkdocs-ezglossary-link" id="0069b522a734d86cd6ce3908896a55e1" title="ファイナライズ プロセスに参加するノードが必要とする キーペア。" name="_:投票キー" href="../../../textbook/cryptography/#797365cbdc42fd9918de0ac28f769b1d">投票キー</a> を作成します。
