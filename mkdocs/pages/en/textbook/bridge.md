@@ -197,8 +197,7 @@ Making a transfer to any of these accounts except the swap payout account initia
 
 Bridged XYM (`bXYM`) is an [ERC-20](https://ethereum.org/developers/docs/standards/tokens/erc-20/) token on Ethereum
 that represents a share of the `XYM` held by the bridge on Symbol.
-It is similar to a wrapped token because it represents `XYM` on another network, but it is not fixed at a permanent
-1:1 rate.
+It is similar to a wrapped token because it represents `XYM` on another network, but the conversion rate is not fixed.
 
 In other words, `bXYM` represents proportional ownership of native tokens held by the bridge, including any rewards
 that accrue while those native tokens are held.
@@ -218,13 +217,22 @@ If the bridge account later earns 500 additional `XYM`, the same outstanding `bX
 1'500 `XYM`.
 Redeeming after that point returns more `XYM` per `bXYM` than before.
 
-!!! note
+This conversion rate is applied before fees are deducted, so it does not exactly match what the user finally receives.
+See [Fees and Payout Amounts](#fees-and-payout-amounts) below.
 
-    Besides bridging and redeeming, the only operations that modify the amount of `XYM` held by the bridge are
-    harvesting and [donations](#invalid-requests-and-limits).
+!!! note "Notes"
 
-    Since these operations only _increase_ the bridge's balance, `bXYM` will usually be worth more than `XYM` and
-    bridging one `XYM` will result in receiving less than one `bXYM`.
+    * Besides bridging and redeeming, the only operations that modify the amount of `XYM` held by the bridge are
+        harvesting and [donations](#invalid-requests-and-limits).
+
+        Since these operations only _increase_ the bridge's balance, `bXYM` will usually be worth more than `XYM` and
+        bridging one `XYM` will result in receiving less than one `bXYM`.
+
+    * The conversion rate between `XYM` and `bXYM` is separate from the market price of `bXYM` on a DEX,
+        which depends on liquidity and trading activity.
+
+        <Arbitrage:|Arbitrage> can help the DEX price track the redemption value, but the bridge does not control or guarantee that
+        market price.
 
 ## Process
 
@@ -315,16 +323,16 @@ This workflow is not directly supported by the bridge but can be performed in tw
 
 ## Fees and Payout Amounts
 
-Bridge requests involve more than the amount deposited.
+Bridge requests cost more than the amount deposited.
 The user pays the source-network transaction fee when submitting the request, and the bridge pays the target-network
 transaction fee when sending the payout.
 The bridge deducts that target-network fee from the payout amount in the following way:
 
-| Operation | Fees involved |
-| --- | --- |
-| Bridging | The bridge pays the payout transaction fee in `ETH`, uses a price provider to estimate its value in `XYM`, and deducts it from the payout amount. |
-| Redeeming | The bridge pays the payout transaction fee in `XYM` and deducts it directly from the payout amount. |
-| Swapping | The bridge pays the payout transaction fee in `ETH` and deducts it directly from the payout amount. |
+| Operation | Fees involved                                                                                                                                      |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bridging  | The bridge pays the payout transaction fee in `ETH`, uses a price provider to estimate its value in `bXYM`, and deducts it from the payout amount. |
+| Redeeming | The bridge pays the payout transaction fee in `XYM` and deducts it directly from the payout amount.                                                |
+| Swapping  | The bridge pays the payout transaction fee in `ETH` and deducts it directly from the payout amount.                                                |
 
 Depending on configuration, the bridge can also charge a conversion fee.
 This fee is separate from blockchain transaction fees.
@@ -361,7 +369,7 @@ address for the target network.
 
 Applications like the Symbol Mobile Wallet perform routine checks before submitting a request to minimize this risk.
 
-When operating the bridge manually by sending a transaction to any of its accounts, users should always check the
+When using the bridge manually by sending a transaction to any of its accounts, users should always check the
 bridge's supported token, direction, destination-address format, fees, and limits before submitting a request.
 
 ## Trust Model and Responsibilities
@@ -380,5 +388,5 @@ The bridge also depends on the following external services:
 Problems in any of these dependencies can delay or interrupt bridge operation.
 
 This means the bridge should be evaluated separately from Symbol itself.
-Symbol can finalize the user's deposit correctly while the bridge operator is still responsible for detecting that
+Symbol can finalize the user's deposit correctly, but the bridge operator is still responsible for detecting that
 deposit and completing the payout on the other network.
