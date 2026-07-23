@@ -75,10 +75,13 @@ EMEA
 :   Europe, Middle-East and Africa.
 
 ERC
-:   Ethereum Request for Comment. Commonly utilized to refer to a token standard on the EVM (such as ERC-20, ERC-721, or ERC-1155).
+:   Ethereum Request for Comment. Commonly utilized to refer to a token standard on the <EVM:>
+    (such as [ERC-20](https://ethereum.org/developers/docs/standards/tokens/erc-20/),
+    [ERC-721](https://ethereum.org/developers/docs/standards/tokens/erc-721/),
+    or [ERC-1155](https://ethereum.org/developers/docs/standards/tokens/erc-1155/)).
 
 ETH
-:   Ethereum.
+:   The native token of the [Ethereum](https://ethereum.org) blockchain.
 
 EVM
 :   Ethereum Virtual Machine.
@@ -169,6 +172,11 @@ SDK
 
 Sharding
 :   An Ethereum [scaling solution](https://ethereum.org/en/developers/docs/scaling/#sharding).
+
+Slippage
+:   Difference between the expected price of a trade and the actual executed price.
+    This discrepancy occurs because prices can fluctuate rapidly between the moment an order is placed and when it is
+    confirmed on the blockchain.
 
 SXDH
 :   Symmetric External [Diffie-Hellman](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
