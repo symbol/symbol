@@ -176,6 +176,7 @@ nav:
       - textbook/harvesting.md
       # Advanced Topics
       - textbook/cross-chain-swaps.md
+      - textbook/bridge.md
       # Implementation
       - textbook/catapult.md
       - textbook/cats.md

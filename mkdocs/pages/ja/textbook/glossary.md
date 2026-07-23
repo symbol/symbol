@@ -189,6 +189,10 @@ SDK
 シャーディング
 :   （Sharding）イーサリアムの[スケーリングソリューション](https://ethereum.org/en/developers/docs/scaling/#sharding)。
 
+スリッページ
+:   （Slippage）取引の予想価格と実際に約定した価格の差。
+    注文を出してからブロックチェーン上で確定するまでの間に価格が変動することで発生します。
+
 SXDH
 :   （Symmetric External Diffie–Hellman）対称外部 [Diffie–Hellman](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) 仮定。
 
