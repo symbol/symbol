@@ -68,6 +68,12 @@ public abstract class AbstractMessageEncoderDecodeFailureTest<TKeyPair extends K
 	 */
 	protected abstract byte[] encodedToBytes(TEncoded encoded);
 
+	/**
+	 * @param message Message carried by a failed decode result.
+	 * @return Message as the encoded representation.
+	 */
+	protected abstract TEncoded toEncoded(Object message);
+
 	private void runDecodeFailureTest(final byte[] message) {
 		// Arrange:
 		final TKeyPair keyPair = createKeyPair(CryptoTypes.PrivateKey.random());
@@ -82,10 +88,7 @@ public abstract class AbstractMessageEncoderDecodeFailureTest<TKeyPair extends K
 
 		// Assert: the failed decode falls back to the malformed input
 		assertThat(result.isDecoded(), is(false));
-
-		@SuppressWarnings("unchecked")
-		final TEncoded fallback = (TEncoded) result.message();
-		assertThat(encodedToBytes(fallback), is(equalTo(encodedToBytes(encoded))));
+		assertThat(encodedToBytes(toEncoded(result.message())), is(equalTo(encodedToBytes(encoded))));
 	}
 
 	@Test

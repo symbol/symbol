@@ -36,7 +36,11 @@ public abstract class AbstractKeyPairTest<TKeyPair extends KeyPair> {
 	protected abstract String expectedPublicKey();
 
 	static byte[] randomMessage() {
-		final byte[] bytes = new byte[21];
+		return randomMessage(21);
+	}
+
+	static byte[] randomMessage(final int length) {
+		final byte[] bytes = new byte[length];
 		RANDOM.nextBytes(bytes);
 		return bytes;
 	}

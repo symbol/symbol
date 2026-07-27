@@ -2,6 +2,8 @@ package org.symbol.sdk.symbol;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +43,7 @@ final class KeyPairTest extends AbstractKeyPairTest<KeyPair> {
 		final String reaccessedHex = Converter.uint8ToHex(kp.getPrivateKey().bytes());
 
 		// Assert: mutating the returned bytes must not affect the keypair's internal state
+		assertThat(accessed, not(sameInstance(original)));
 		assertThat(accessedHex, equalTo(PRIVATE_KEY_HEX));
 		assertThat(reaccessedHex, equalTo(PRIVATE_KEY_HEX));
 	}

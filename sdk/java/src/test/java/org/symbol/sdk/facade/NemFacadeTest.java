@@ -439,8 +439,9 @@ final class NemFacadeTest {
 					"TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C", "50000").name("roger").parentName((String) null);
 
 			// Assert: name converted, parentName omitted (not NPE, not a null entry).
-			assertThat(descriptor.toMap().get("name"), is(equalTo("roger".getBytes(java.nio.charset.StandardCharsets.UTF_8))));
-			assertThat(descriptor.toMap().containsKey("parentName"), is(false));
+			final Map<String, Object> rawDescriptor = descriptor.toMap();
+			assertThat(rawDescriptor.get("name"), is(equalTo("roger".getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+			assertThat(rawDescriptor.containsKey("parentName"), is(false));
 		}
 
 		@Test

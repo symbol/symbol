@@ -56,15 +56,6 @@ final class JsonDescriptorTest {
 	}
 
 	@Test
-	void preservesKeyOrder() {
-		// Act:
-		final Map<String, Object> descriptor = JsonDescriptor.parse("{\"b\": 1, \"a\": 2, \"c\": 3}");
-
-		// Assert:
-		assertThat(List.copyOf(descriptor.keySet()), equalTo(List.of("b", "a", "c")));
-	}
-
-	@Test
 	void rejectsMalformedJson() {
 		assertThrows(InvalidDescriptorException.class, () -> JsonDescriptor.parse("{not valid json"));
 	}

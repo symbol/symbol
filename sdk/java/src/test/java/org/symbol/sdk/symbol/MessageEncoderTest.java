@@ -57,6 +57,11 @@ final class MessageEncoderTest {
 		}
 
 		@Override
+		protected byte[] toEncoded(final Object message) {
+			return (byte[]) message;
+		}
+
+		@Override
 		protected void malformEncoded(final byte[] encoded) {
 			malformLastByte(encoded);
 		}
@@ -81,7 +86,7 @@ final class MessageEncoderTest {
 		void decodeFallsBackToInputWhenMessageHasUnknownType() {
 			// Arrange:
 			final MessageEncoder encoder = new MessageEncoder(new KeyPair(CryptoTypes.PrivateKey.random()));
-			final byte[] invalidEncoded = new byte[]{
+			final byte[] invalidEncoded = {
 					0x02, 0x4A, 0x4A, 0x4A
 			};
 
@@ -151,6 +156,11 @@ final class MessageEncoderTest {
 		@Override
 		protected byte[] encodedToBytes(final byte[] encoded) {
 			return encoded;
+		}
+
+		@Override
+		protected byte[] toEncoded(final Object message) {
+			return (byte[]) message;
 		}
 
 		@Override

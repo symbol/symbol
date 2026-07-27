@@ -46,7 +46,8 @@ public final class MessageEncoder {
 	 * @param recipientPublicKey Recipient public key.
 	 * @param encodedMessage Encoded message.
 	 * @return Decoded result; falls back to the original message when both GCM and CBC fail.
-	 * @throws IllegalArgumentException When {@code encodedMessage.messageType} is not {@link MessageType#ENCRYPTED}.
+	 * @throws IllegalArgumentException When {@code encodedMessage.messageType} is not {@link MessageType#ENCRYPTED}, or when a non-GCM
+	 *             payload is shorter than the CBC salt.
 	 */
 	public MessageEncoderResult tryDecode(final CryptoTypes.PublicKey recipientPublicKey, final Message encodedMessage) {
 		if (MessageType.ENCRYPTED != encodedMessage.getMessageType())
@@ -112,9 +113,8 @@ public final class MessageEncoder {
 	}
 
 	private byte[] tryDecodeCbc(final CryptoTypes.PublicKey otherPublicKey, final byte[] payload) {
-		// deliberately retrun graceful where JS throws for payloads < 32
 		if (payload.length < SALT_SIZE)
-			return null;
+			throw new IllegalArgumentException("invalid salt");
 
 		// the salt participates in the deprecated key derivation, so it is split off here rather than in the helper
 		final byte[] salt = Arrays.copyOfRange(payload, 0, SALT_SIZE);

@@ -95,7 +95,7 @@ public abstract class AbstractVerifierTest<TKeyPair extends KeyPair, TVerifier> 
 		// Act:
 		final boolean isVerified = verify(createVerifier(keyPair.getPublicKey()), new byte[]{
 				1, 2, 3
-		}, new CryptoTypes.Signature(new byte[CryptoTypes.Signature.SIZE]));
+		}, new CryptoTypes.Signature(AbstractKeyPairTest.randomMessage(CryptoTypes.Signature.SIZE)));
 
 		// Assert:
 		assertThat(isVerified, is(false));
@@ -169,7 +169,7 @@ public abstract class AbstractVerifierTest<TKeyPair extends KeyPair, TVerifier> 
 		for (int i = 0; i < GROUP_ORDER_L.length; ++i) {
 			final int byteSum = (scalar[i] & 0xFF) + (GROUP_ORDER_L[i] & 0xFF) + remainder;
 			scalar[i] = (byte) byteSum;
-			remainder = (byteSum >>> 8) & 0xFF;
+			remainder = byteSum >>> 8;
 		}
 
 		return scalar;
