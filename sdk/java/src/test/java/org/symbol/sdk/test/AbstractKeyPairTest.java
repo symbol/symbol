@@ -13,7 +13,7 @@ import org.symbol.sdk.KeyPair;
 import org.symbol.sdk.utils.Converter;
 
 /**
- * Shared key pair contract tests run against both the Symbol and NEM key pairs 
+ * Shared key pair contract tests run against both the Symbol and NEM key pairs
  *
  * @param <TKeyPair> Concrete key pair type.
  */
