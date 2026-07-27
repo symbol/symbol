@@ -93,9 +93,8 @@ public abstract class AbstractVerifierTest<TKeyPair extends KeyPair, TVerifier> 
 		final TKeyPair keyPair = createKeyPair(CryptoTypes.PrivateKey.random());
 
 		// Act:
-		final boolean isVerified = verify(createVerifier(keyPair.getPublicKey()), new byte[]{
-				1, 2, 3
-		}, new CryptoTypes.Signature(AbstractKeyPairTest.randomMessage(CryptoTypes.Signature.SIZE)));
+		final boolean isVerified = verify(createVerifier(keyPair.getPublicKey()), AbstractKeyPairTest.randomMessage(10),
+				CryptoTypes.Signature.zero());
 
 		// Assert:
 		assertThat(isVerified, is(false));

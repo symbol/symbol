@@ -33,7 +33,7 @@ final class KeyPairTest extends AbstractKeyPairTest<KeyPair> {
 	@Test
 	void privateKeyAccessorReturnsCopy() {
 		// Arrange:
-		final CryptoTypes.PrivateKey original = new CryptoTypes.PrivateKey(PRIVATE_KEY_HEX);
+		final CryptoTypes.PrivateKey original = CryptoTypes.PrivateKey.random();
 		final KeyPair kp = new KeyPair(original);
 
 		// Act: access the private key, mutate the returned bytes, then access again
@@ -44,7 +44,7 @@ final class KeyPairTest extends AbstractKeyPairTest<KeyPair> {
 
 		// Assert: mutating the returned bytes must not affect the keypair's internal state
 		assertThat(accessed, not(sameInstance(original)));
-		assertThat(accessedHex, equalTo(PRIVATE_KEY_HEX));
-		assertThat(reaccessedHex, equalTo(PRIVATE_KEY_HEX));
+		assertThat(accessedHex, equalTo(Converter.uint8ToHex(original.bytes())));
+		assertThat(reaccessedHex, equalTo(Converter.uint8ToHex(original.bytes())));
 	}
 }

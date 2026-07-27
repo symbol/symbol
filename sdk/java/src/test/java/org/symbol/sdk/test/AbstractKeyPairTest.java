@@ -18,9 +18,6 @@ import org.symbol.sdk.utils.Converter;
  * @param <TKeyPair> Concrete key pair type.
  */
 public abstract class AbstractKeyPairTest<TKeyPair extends KeyPair> {
-	/** Deterministic fixture key shared by the chain subclasses */
-	protected static final String PRIVATE_KEY_HEX = "575DBB3062267EFF57C970A336EBBC8FBCFE12C5BD3ED7BC11EB0481D7704CED";
-
 	private static final SecureRandom RANDOM = new SecureRandom();
 
 	/**

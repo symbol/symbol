@@ -33,12 +33,13 @@ final class KeyPairTest extends AbstractKeyPairTest<KeyPair> {
 		// Arrange:
 		// NEM reverses the private-key bytes before passing to the underlying ed25519 impl;
 		// ensure the original PrivateKey object is left untouched.
-		final CryptoTypes.PrivateKey original = new CryptoTypes.PrivateKey(PRIVATE_KEY_HEX);
+		final String privateKey = Converter.uint8ToHex(CryptoTypes.PrivateKey.random().bytes());
+		final CryptoTypes.PrivateKey original = new CryptoTypes.PrivateKey(privateKey);
 
 		// Act:
 		new KeyPair(original);
 
 		// Assert:
-		assertThat(Converter.uint8ToHex(original.bytes()), equalTo(PRIVATE_KEY_HEX));
+		assertThat(Converter.uint8ToHex(original.bytes()), equalTo(privateKey));
 	}
 }
