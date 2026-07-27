@@ -49,10 +49,10 @@ final class VotingKeysGeneratorTest {
 			final VotingKeysGenerator generator = new VotingKeysGenerator(root, fibPrivateKeyGenerator());
 
 			// Act:
-			final byte[] file = generator.generate(1L, 1L);
+			final byte[] votingKeysBuffer = generator.generate(1L, 1L);
 
 			// Assert:
-			assertThat(file.length, is(80 + 96));
+			assertThat(votingKeysBuffer.length, is(80 + 96));
 		}
 
 		@Test

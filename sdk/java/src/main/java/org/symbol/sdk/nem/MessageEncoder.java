@@ -112,6 +112,7 @@ public final class MessageEncoder {
 	}
 
 	private byte[] tryDecodeCbc(final CryptoTypes.PublicKey otherPublicKey, final byte[] payload) {
+		// deliberately retrun graceful where JS throws for payloads < 32
 		if (payload.length < SALT_SIZE)
 			return null;
 

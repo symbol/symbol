@@ -9,7 +9,7 @@ import org.symbol.sdk.utils.ArrayHelpers;
  * Represents an Ed25519 private and public key for the NEM network. NEM uses Keccak-512 as the Ed25519 hash function and reverses the
  * private key bytes before passing them to the underlying Ed25519 implementation.
  */
-public final class KeyPair {
+public final class KeyPair implements org.symbol.sdk.KeyPair {
 	private static final Tweetnacl.HashMode HASH_MODE = Tweetnacl.HashMode.KECCAK_512;
 
 	private final CryptoTypes.PrivateKey privateKey;

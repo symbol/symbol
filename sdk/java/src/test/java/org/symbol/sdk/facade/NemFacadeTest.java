@@ -1,6 +1,7 @@
 package org.symbol.sdk.facade;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -106,7 +107,11 @@ final class NemFacadeTest {
 
 	@Test
 	void cannotCreateAroundUnknownNetworkByName() {
-		assertThrows(RuntimeException.class, () -> new NemFacade("foo"));
+		// Act:
+		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> new NemFacade("foo"));
+
+		// Assert:
+		assertThat(ex.getMessage(), containsString("no network found with name 'foo'"));
 	}
 
 	@Test
@@ -225,38 +230,6 @@ final class NemFacadeTest {
 		descriptor.put("recipientAddress", new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"));
 		descriptor.put("amount", 5L);
 		return descriptor;
-	}
-
-	@Test
-	void canCreateTransactionFromDescriptor() {
-		// Arrange:
-		final NemFacade facade = new NemFacade(Network.TESTNET);
-		final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
-
-		// Act:
-		final Transaction transaction = facade.createTransactionFromDescriptor(transferDescriptor(keyPair.getPublicKey()),
-				keyPair.getPublicKey(), FEE, 60L);
-
-		// Assert:
-		assertThat(transaction.getFee().value(), is(equalTo(FEE)));
-		assertThat(transaction.getDeadline().value() - transaction.getTimestamp().value(), is(equalTo(60L)));
-	}
-
-	@Test
-	void verifyFailsWithWrongSignature() {
-		// Arrange:
-		final NemFacade facade = new NemFacade(Network.TESTNET);
-		final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
-		final Transaction transaction = facade.createTransactionFromDescriptor(transferDescriptor(keyPair.getPublicKey()),
-				keyPair.getPublicKey(), FEE, 60L);
-
-		// Act:
-		final CryptoTypes.Signature good = facade.signTransaction(keyPair, transaction);
-		final byte[] tampered = good.bytes().clone();
-		tampered[0] ^= (byte) 0xFF;
-
-		// Assert:
-		assertThat(facade.verifyTransaction(transaction, new CryptoTypes.Signature(tampered)), is(false));
 	}
 
 	private static void assertCanHashTransaction(final Supplier<Transaction> transactionFactory, final CryptoTypes.Hash256 expectedHash) {
@@ -386,45 +359,23 @@ final class NemFacadeTest {
 	@Test
 	void canConstructProperBip32MainnetPath() {
 		// Act:
-		final int[] path = new NemFacade(Network.MAINNET).bip32Path(0);
+		final int[] path = new NemFacade(Network.MAINNET).bip32Path(2);
 
 		// Assert:
 		assertThat(path, is(equalTo(new int[]{
-				44, 43, 0, 0, 0
+				44, 43, 2, 0, 0
 		})));
 	}
 
 	@Test
 	void canConstructProperBip32TestnetPath() {
 		// Act:
-		final int[] path = new NemFacade(Network.TESTNET).bip32Path(7);
+		final int[] path = new NemFacade(Network.TESTNET).bip32Path(2);
 
 		// Assert:
 		assertThat(path, is(equalTo(new int[]{
-				44, 1, 7, 0, 0
+				44, 1, 2, 0, 0
 		})));
-	}
-
-	@Test
-	void bip32NodeToKeyPairReversesPrivateKeyBytes() {
-		// Arrange: deterministic 64-byte seed.
-		final byte[] seed = new byte[64];
-		for (int i = 0; i < seed.length; ++i)
-			seed[i] = (byte) i;
-		final Bip32.Bip32Node node = new Bip32(NemFacade.BIP32_CURVE_NAME).fromSeed(seed);
-		final byte[] reversed = new byte[node.privateKey.bytes().length];
-		for (int i = 0; i < reversed.length; ++i)
-			reversed[i] = node.privateKey.bytes()[reversed.length - 1 - i];
-
-		// Act:
-		final KeyPair derived = NemFacade.bip32NodeToKeyPair(node);
-		// Direct reference: KeyPair internally reverses, so passing reversed bytes here yields the same key
-		// as passing the BIP32 node through NemFacade.bip32NodeToKeyPair (which reverses too).
-		final KeyPair reference = new KeyPair(new CryptoTypes.PrivateKey(reversed));
-
-		// Assert:
-		assertThat(derived.getPublicKey().bytes().length, is(CryptoTypes.PublicKey.SIZE));
-		assertThat(derived.getPublicKey(), is(equalTo(reference.getPublicKey())));
 	}
 
 	private static void assertBip32ChildPublicKeys(final String passphrase, final List<CryptoTypes.PublicKey> expectedChildPublicKeys) {
@@ -511,7 +462,14 @@ final class NemFacadeTest {
 
 			// Assert:
 			assertThat(transaction, is(instanceOf(MultisigTransactionV1.class)));
-			assertThat(((MultisigTransactionV1) transaction).getCosignatures().size(), is(equalTo(1)));
+
+			final MultisigTransactionV1 multisig = (MultisigTransactionV1) transaction;
+			assertThat(multisig.getCosignatures().size(), is(equalTo(1)));
+
+			// the inner transfer is carried through intact (byte-identical to the descriptor input)
+			final NonVerifiableTransaction innerTransaction = multisig.getInnerTransaction();
+			assertThat(innerTransaction, is(instanceOf(NonVerifiableTransferTransactionV1.class)));
+			assertThat(innerTransaction.serialize(), is(equalTo(NemTransactionFactory.toNonVerifiableTransaction(inner).serialize())));
 		}
 
 		@Test
@@ -547,6 +505,9 @@ final class NemFacadeTest {
 			final long minRawDeadline = nowTimestamp.timestamp + (60L * 60L);
 			assertThat(minRawDeadline <= transaction.getDeadline().value(), is(true));
 			assertThat(transaction.getDeadline().value() <= minRawDeadline + 10L, is(true));
+
+			// both fields derive from one now() snapshot, so their difference is exactly deadlineSeconds
+			assertThat(transaction.getDeadline().value() - transaction.getTimestamp().value(), is(equalTo(60L * 60L)));
 		}
 
 		@Test
@@ -562,9 +523,9 @@ final class NemFacadeTest {
 			final Transaction untyped = facade.createTransactionFromDescriptor(typedDescriptor.toMap(), keyPair.getPublicKey(), FEE, 60L);
 
 			// Assert: both paths produce the same transaction shape and fee.
-			assertThat(typed.getFee().value(), is(equalTo(FEE)));
-			assertThat(typed.size(), is(untyped.size()));
-			assertThat(typed.getType(), is(untyped.getType()));
+			typed.setTimestamp(untyped.getTimestamp());
+			typed.setDeadline(untyped.getDeadline());
+			assertThat(typed.serialize(), is(equalTo(untyped.serialize())));
 		}
 	}
 

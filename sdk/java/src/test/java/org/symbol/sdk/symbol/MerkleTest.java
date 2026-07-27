@@ -429,80 +429,80 @@ final class MerkleTest {
 		void canDeserializeLeafWithEvenPath() {
 			// Act:
 			final List<TreeNode> n = nodes("FF" + ENCODED_EVEN_PATH + "3A50C5BF83CBA3370CF4E4AC0FC5A6FFB0E29501F66DA12DE25FFB13A419BA77");
-			final LeafNode leaf = (LeafNode) n.get(0);
-			final CryptoTypes.Hash256 hash = leaf.calculateHash();
 
 			// Assert:
 			assertThat(n.size(), is(1));
+
+			final LeafNode leaf = (LeafNode) n.get(0);
 			assertArrayEquals(Converter.hexToUint8("FD50029F6E1DEFD128D221EEACC5E1796E1AAA9C247204019CEFE3CA050E"), leaf.path.path());
 			assertThat(leaf.path.size(), is(60));
 			assertThat(leaf.hexPath(), equalTo("FD50029F6E1DEFD128D221EEACC5E1796E1AAA9C247204019CEFE3CA050E"));
 			assertThat(leaf.value, equalTo(h("3A50C5BF83CBA3370CF4E4AC0FC5A6FFB0E29501F66DA12DE25FFB13A419BA77")));
-			assertThat(hash, equalTo(h("9DE0488DD979C15D1150FB5B2C87E64DC6E07A935EEDBC1850D21EBBE59DE0C8")));
+			assertThat(leaf.calculateHash(), equalTo(h("9DE0488DD979C15D1150FB5B2C87E64DC6E07A935EEDBC1850D21EBBE59DE0C8")));
 		}
 
 		@Test
 		void canDeserializeLeafWithOddPath() {
 			// Act:
 			final List<TreeNode> n = nodes("FF" + ENCODED_ODD_PATH + "F48F12376B7C72F97E1533DE6DDB6F957DAB4F9031F959261AA2C5B655C864AA");
-			final LeafNode leaf = (LeafNode) n.get(0);
-			final CryptoTypes.Hash256 hash = leaf.calculateHash();
 
 			// Assert:
 			assertThat(n.size(), is(1));
+
+			final LeafNode leaf = (LeafNode) n.get(0);
 			assertArrayEquals(Converter.hexToUint8("93E37E8616665E4E5DA0CAF388172AB754CEE17FE702019228A996084F6E70"), leaf.path.path());
 			assertThat(leaf.path.size(), is(61));
 			assertThat(leaf.hexPath(), equalTo("93E37E8616665E4E5DA0CAF388172AB754CEE17FE702019228A996084F6E7"));
 			assertThat(leaf.value, equalTo(h("F48F12376B7C72F97E1533DE6DDB6F957DAB4F9031F959261AA2C5B655C864AA")));
-			assertThat(hash, equalTo(h("89C46989937A631F9D5DE7936EAC12CA5924E37DE3336F2B158CFAC7AC377F60")));
+			assertThat(leaf.calculateHash(), equalTo(h("89C46989937A631F9D5DE7936EAC12CA5924E37DE3336F2B158CFAC7AC377F60")));
 		}
 
 		@Test
 		void canDeserializeBranchWithNoPath() {
 			// Act:
 			final List<TreeNode> n = nodes("0000" + ENCODED_BRANCH_LINKS);
-			final BranchNode branch = (BranchNode) n.get(0);
-			final CryptoTypes.Hash256 hash = branch.calculateHash();
 
 			// Assert:
 			assertThat(n.size(), is(1));
+
+			final BranchNode branch = (BranchNode) n.get(0);
 			assertThat(branch.path.path().length, is(0));
 			assertThat(branch.path.size(), is(0));
 			assertThat(branch.hexPath(), equalTo(""));
 			assertDefaultBranchLinks(branch.links);
-			assertThat(hash, equalTo(h("57E684CC77BECEF30EAD8C81EC812374AB3FF6DB82E0842DFA6DA2AC7C897DEF")));
+			assertThat(branch.calculateHash(), equalTo(h("57E684CC77BECEF30EAD8C81EC812374AB3FF6DB82E0842DFA6DA2AC7C897DEF")));
 		}
 
 		@Test
 		void canDeserializeBranchWithEvenPath() {
 			// Act:
 			final List<TreeNode> n = nodes("00" + ENCODED_EVEN_PATH + ENCODED_BRANCH_LINKS);
-			final BranchNode branch = (BranchNode) n.get(0);
-			final CryptoTypes.Hash256 hash = branch.calculateHash();
 
 			// Assert:
 			assertThat(n.size(), is(1));
+
+			final BranchNode branch = (BranchNode) n.get(0);
 			assertArrayEquals(Converter.hexToUint8("FD50029F6E1DEFD128D221EEACC5E1796E1AAA9C247204019CEFE3CA050E"), branch.path.path());
 			assertThat(branch.path.size(), is(60));
 			assertThat(branch.hexPath(), equalTo("FD50029F6E1DEFD128D221EEACC5E1796E1AAA9C247204019CEFE3CA050E"));
 			assertDefaultBranchLinks(branch.links);
-			assertThat(hash, equalTo(h("DD7BE080F4DEBC3ECA2CEEE49121CC2E8C159CF224E9FF6363AB5282E596697F")));
+			assertThat(branch.calculateHash(), equalTo(h("DD7BE080F4DEBC3ECA2CEEE49121CC2E8C159CF224E9FF6363AB5282E596697F")));
 		}
 
 		@Test
 		void canDeserializeBranchWithOddPath() {
 			// Act:
 			final List<TreeNode> n = nodes("00" + ENCODED_ODD_PATH + ENCODED_BRANCH_LINKS);
-			final BranchNode branch = (BranchNode) n.get(0);
-			final CryptoTypes.Hash256 hash = branch.calculateHash();
 
 			// Assert:
 			assertThat(n.size(), is(1));
+
+			final BranchNode branch = (BranchNode) n.get(0);
 			assertArrayEquals(Converter.hexToUint8("93E37E8616665E4E5DA0CAF388172AB754CEE17FE702019228A996084F6E70"), branch.path.path());
 			assertThat(branch.path.size(), is(61));
 			assertThat(branch.hexPath(), equalTo("93E37E8616665E4E5DA0CAF388172AB754CEE17FE702019228A996084F6E7"));
 			assertDefaultBranchLinks(branch.links);
-			assertThat(hash, equalTo(h("78FAD74CE33005103D4948D94D3B648EFE702F6A507315327D4925D79D7B384E")));
+			assertThat(branch.calculateHash(), equalTo(h("78FAD74CE33005103D4948D94D3B648EFE702F6A507315327D4925D79D7B384E")));
 		}
 
 		@Test
@@ -526,10 +526,10 @@ final class MerkleTest {
 		void canDeserializeMultipleNodesIncludingNodeWithEvenPath() {
 			// Act:
 			final List<TreeNode> n = nodes(POSITIVE_PROOF_SERIALIZED_PATH);
-			final List<CryptoTypes.Hash256> hashes = n.stream().map(TreeNode::calculateHash).toList();
 
 			// Assert:
 			assertThat(n.size(), is(5));
+			final List<CryptoTypes.Hash256> hashes = n.stream().map(TreeNode::calculateHash).toList();
 			assertThat(hashes.get(0), equalTo(h("7AA6503C54F63578FC4301E7EA785760FA7F6677A1DE322A9DE3BFA639BBF070")));
 			assertThat(hashes.get(1), equalTo(h("B3FC1F206624E25A33A71B1E9F646D7FAD46B43DA110C3A144AF8E6A1ACE853D")));
 			assertThat(hashes.get(2), equalTo(h("46A229B981BD2624101CC1C1E57BF1E78D806C3C7D7CE3550705733E53FA59BF")));
@@ -541,10 +541,10 @@ final class MerkleTest {
 		void canDeserializeMultipleNodesIncludingNodeWithOddPath() {
 			// Act:
 			final List<TreeNode> n = nodes(POSITIVE_PROOF_SERIALIZED_PATH_ODD);
-			final List<CryptoTypes.Hash256> hashes = n.stream().map(TreeNode::calculateHash).toList();
 
 			// Assert:
 			assertThat(n.size(), is(4));
+			final List<CryptoTypes.Hash256> hashes = n.stream().map(TreeNode::calculateHash).toList();
 			assertThat(hashes.get(0), equalTo(h("F4ACC6BAECD9CC5984591F34008F08EB5B50B14CE84BDD6EDC73F26F4C68C071")));
 			assertThat(hashes.get(1), equalTo(h("997FAC2CC412C4A359241955390E02DF648D39EE8121578AC192F465C9EC1D41")));
 			assertThat(hashes.get(2), equalTo(h("61F7C1393209E53D38189D28CD3A9C6D4325647F7D1D810994EE9CF1DB90718F")));
@@ -568,10 +568,10 @@ final class MerkleTest {
 				h("DCD00D170CBF0D5D52392F1637BDAE6C9C1502B4723ABEFD6DDCC950070BDCA5"),
 				h("D7B2C9D66D6D364F75EB856C0C6A8431574408368A8BB82B0B3CECE11B00C6C2"));
 
-		private static final CryptoTypes.Hash256 ODD_KEY = h("3A4C540D7E6C7DF3E924E9F1B7D468FF771301AF00B0476E2B7E511379BB559E");
-		private static final CryptoTypes.Hash256 ODD_VALUE = h("DDB3F0E64DA7BC2263C992D6FF7D12A4D4B8728F637777A70029EB5DB41B26D8");
-		private static final CryptoTypes.Hash256 ODD_STATE = h("19AFC8B5D1FB399A397000D002CFC68C699BABD0E9479D6882CF923F0034383C");
-		private static final List<CryptoTypes.Hash256> ODD_ROOTS = List.of(
+		private static final CryptoTypes.Hash256 POS_ODD_KEY = h("3A4C540D7E6C7DF3E924E9F1B7D468FF771301AF00B0476E2B7E511379BB559E");
+		private static final CryptoTypes.Hash256 POS_ODD_VALUE = h("DDB3F0E64DA7BC2263C992D6FF7D12A4D4B8728F637777A70029EB5DB41B26D8");
+		private static final CryptoTypes.Hash256 POS_ODD_STATE = h("19AFC8B5D1FB399A397000D002CFC68C699BABD0E9479D6882CF923F0034383C");
+		private static final List<CryptoTypes.Hash256> POS_ODD_ROOTS = List.of(
 				h("431247E082949DD7042E7616CFD07CB8A6DC76BE9CA5E34F25CB30A38E329733"),
 				h("D183727515EB37D503BF733AF98A064296EB74F3E9455D96E1C72E8D696BAEC2"),
 				h("F4ACC6BAECD9CC5984591F34008F08EB5B50B14CE84BDD6EDC73F26F4C68C071"),
@@ -596,37 +596,9 @@ final class MerkleTest {
 		}
 
 		@Test
-		void canValidateValidProofPositiveIncludingNodeWithEvenPath() {
-			// Arrange + Act + Assert:
-			assertProofResult(POS_KEY, POS_VALUE, nodes(POSITIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
-					PatriciaMerkleProofResult.VALID_POSITIVE);
-		}
-
-		@Test
-		void canValidateValidProofPositiveIncludingNodeWithOddPath() {
-			// Arrange + Act + Assert:
-			assertProofResult(ODD_KEY, ODD_VALUE, nodes(POSITIVE_PROOF_SERIALIZED_PATH_ODD), ODD_STATE, ODD_ROOTS,
-					PatriciaMerkleProofResult.VALID_POSITIVE);
-		}
-
-		@Test
-		void canValidateValidProofNegative() {
-			// Arrange + Act + Assert:
-			assertProofResult(NEG_KEY, null, nodes(NEGATIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
-					PatriciaMerkleProofResult.VALID_NEGATIVE);
-		}
-
-		@Test
 		void cannotValidateProofWhenStateHashDoesNotMatchRoots() {
-			// Arrange + Act + Assert:
 			assertProofResult(POS_KEY, POS_VALUE, nodes(POSITIVE_PROOF_SERIALIZED_PATH), BAD_HASH, POS_ROOTS,
 					PatriciaMerkleProofResult.STATE_HASH_DOES_NOT_MATCH_ROOTS);
-		}
-
-		@Test
-		void emptyPathReturnsUnanchoredInsteadOfCrashing() {
-			// a malformed/adversarial proof with no nodes must return a result code, not throw on merklePath.get(0)
-			assertProofResult(POS_KEY, POS_VALUE, List.of(), POS_STATE, POS_ROOTS, PatriciaMerkleProofResult.UNANCHORED_PATH_TREE);
 		}
 
 		@Test
@@ -641,9 +613,14 @@ final class MerkleTest {
 			assertThat(actual, is(PatriciaMerkleProofResult.UNANCHORED_PATH_TREE));
 		}
 
+		// a malformed/adversarial proof with no nodes must return a result code, not throw on merklePath.get(0)
+		@Test
+		void emptyPathReturnsUnanchoredInsteadOfCrashing() {
+			assertProofResult(POS_KEY, POS_VALUE, List.of(), POS_STATE, POS_ROOTS, PatriciaMerkleProofResult.UNANCHORED_PATH_TREE);
+		}
+
 		@Test
 		void cannotValidateProofWhenLeafValueMismatch() {
-			// Arrange + Act + Assert:
 			assertProofResult(POS_KEY, BAD_HASH, nodes(POSITIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
 					PatriciaMerkleProofResult.LEAF_VALUE_MISMATCH);
 		}
@@ -663,14 +640,12 @@ final class MerkleTest {
 
 		@Test
 		void cannotValidateProofPositiveWhenPathMismatch() {
-			// Arrange + Act + Assert:
 			assertProofResult(BAD_HASH, POS_VALUE, nodes(POSITIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
 					PatriciaMerkleProofResult.PATH_MISMATCH);
 		}
 
 		@Test
 		void cannotValidateProofNegativeWhenPathMismatch() {
-			// Arrange + Act + Assert:
 			assertProofResult(BAD_HASH, null, nodes(NEGATIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
 					PatriciaMerkleProofResult.PATH_MISMATCH);
 		}
@@ -683,6 +658,24 @@ final class MerkleTest {
 			// Act + Assert:
 			assertProofResult(branchKey, null, nodes(NEGATIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
 					PatriciaMerkleProofResult.INCONCLUSIVE);
+		}
+
+		@Test
+		void canValidateValidProofPositiveIncludingNodeWithEvenPath() {
+			assertProofResult(POS_KEY, POS_VALUE, nodes(POSITIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
+					PatriciaMerkleProofResult.VALID_POSITIVE);
+		}
+
+		@Test
+		void canValidateValidProofPositiveIncludingNodeWithOddPath() {
+			assertProofResult(POS_ODD_KEY, POS_ODD_VALUE, nodes(POSITIVE_PROOF_SERIALIZED_PATH_ODD), POS_ODD_STATE, POS_ODD_ROOTS,
+					PatriciaMerkleProofResult.VALID_POSITIVE);
+		}
+
+		@Test
+		void canValidateValidProofNegative() {
+			assertProofResult(NEG_KEY, null, nodes(NEGATIVE_PROOF_SERIALIZED_PATH), POS_STATE, POS_ROOTS,
+					PatriciaMerkleProofResult.VALID_NEGATIVE);
 		}
 	}
 

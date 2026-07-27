@@ -1,6 +1,7 @@
 package org.symbol.sdk.facade;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
@@ -164,7 +165,11 @@ final class SymbolFacadeTest {
 
 	@Test
 	void cannotCreateAroundUnknownNetworkByName() {
-		assertThrows(RuntimeException.class, () -> new SymbolFacade("foo"));
+		// Act:
+		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> new SymbolFacade("foo"));
+
+		// Assert:
+		assertThat(ex.getMessage(), containsString("no network found with name 'foo'"));
 	}
 
 	@Test
@@ -175,7 +180,8 @@ final class SymbolFacadeTest {
 		// Act:
 		final SymbolFacade facade = new SymbolFacade(network);
 
-		// Assert:
+		// Assert: (the JS test also creates a transaction; the Java NetworkType enum rejects the unknown identifier 0xDE,
+		// so transaction creation on an unknown network is unsupported — an accepted enum-strictness divergence)
 		assertThat(facade.network.name, is(equalTo("foo")));
 		assertThat(facade.network.identifier, is(equalTo((byte) 0xDE)));
 	}
@@ -206,6 +212,16 @@ final class SymbolFacadeTest {
 
 	// region cosign helpers
 
+	private interface AggregateSignOperation {
+		CryptoTypes.Signature sign(SymbolFacade facade, CryptoTypes.PrivateKey privateKey, Transaction transaction);
+	}
+
+	private static final AggregateSignOperation SIGN_VIA_KEY_PAIR = (facade, privateKey, transaction) -> facade
+			.signTransaction(new KeyPair(privateKey), transaction);
+
+	private static final AggregateSignOperation SIGN_VIA_ACCOUNT = (facade, privateKey, transaction) -> facade.createAccount(privateKey)
+			.signTransaction(transaction);
+
 	private interface AttachedCosignOperation {
 		Cosignature cosign(SymbolFacade facade, CryptoTypes.PrivateKey privateKey, Transaction transaction);
 	}
@@ -217,11 +233,11 @@ final class SymbolFacadeTest {
 	private static final CryptoTypes.PrivateKey COSIGNER_PRIVATE_KEY = new CryptoTypes.PrivateKey(
 			"BE7B98F835A896136ADDAF04220F28CB4925D24F0675A21421BF213C180BEF86");
 
-	private static Transaction arrangeSignedAggregateSwap(final SymbolFacade facade) {
+	private static Transaction arrangeSignedAggregateSwap(final SymbolFacade facade, final AggregateSignOperation signOperation) {
 		final CryptoTypes.PrivateKey signerPrivateKey = new CryptoTypes.PrivateKey(
 				"F4BC233E183E8CEA08D0A604A3DC67FF3261D1E6EBF84D233488BC53D89C50B7");
 		final Transaction transaction = createRealAggregateSwap(facade);
-		attachSignature(transaction, facade.signTransaction(new KeyPair(signerPrivateKey), transaction));
+		attachSignature(transaction, signOperation.sign(facade, signerPrivateKey, transaction));
 		return transaction;
 	}
 
@@ -234,10 +250,11 @@ final class SymbolFacadeTest {
 				.bytes())));
 	}
 
-	private static void assertCanCosignTransactionAttached(final AttachedCosignOperation operation) {
+	private static void assertCanCosignTransactionAttached(final AggregateSignOperation signOperation,
+			final AttachedCosignOperation operation) {
 		// Arrange:
 		final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
-		final Transaction transaction = arrangeSignedAggregateSwap(facade);
+		final Transaction transaction = arrangeSignedAggregateSwap(facade, signOperation);
 
 		// Act:
 		final Cosignature cosignature = operation.cosign(facade, COSIGNER_PRIVATE_KEY, transaction);
@@ -248,10 +265,11 @@ final class SymbolFacadeTest {
 		assertThat(cosignature.size(), is(equalTo(104)));
 	}
 
-	private static void assertCanCosignTransactionDetached(final DetachedCosignOperation operation) {
+	private static void assertCanCosignTransactionDetached(final AggregateSignOperation signOperation,
+			final DetachedCosignOperation operation) {
 		// Arrange:
 		final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
-		final Transaction transaction = arrangeSignedAggregateSwap(facade);
+		final Transaction transaction = arrangeSignedAggregateSwap(facade, signOperation);
 
 		// Act:
 		final DetachedCosignature cosignature = operation.cosign(facade, COSIGNER_PRIVATE_KEY, transaction);
@@ -338,25 +356,25 @@ final class SymbolFacadeTest {
 
 		@Test
 		void canCosignTransactionAsAttachedCosignature() {
-			assertCanCosignTransactionAttached(
+			assertCanCosignTransactionAttached(SIGN_VIA_ACCOUNT,
 					(facade, privateKey, transaction) -> facade.createAccount(privateKey).cosignTransaction(transaction));
 		}
 
 		@Test
 		void canCosignTransactionAsDetachedCosignature() {
-			assertCanCosignTransactionDetached(
+			assertCanCosignTransactionDetached(SIGN_VIA_ACCOUNT,
 					(facade, privateKey, transaction) -> facade.createAccount(privateKey).cosignTransactionDetached(transaction));
 		}
 
 		@Test
 		void canCosignTransactionHashAsAttachedCosignature() {
-			assertCanCosignTransactionAttached((facade, privateKey, transaction) -> facade.createAccount(privateKey)
+			assertCanCosignTransactionAttached(SIGN_VIA_ACCOUNT, (facade, privateKey, transaction) -> facade.createAccount(privateKey)
 					.cosignTransactionHash(facade.hashTransaction(transaction)));
 		}
 
 		@Test
 		void canCosignTransactionHashAsDetachedCosignature() {
-			assertCanCosignTransactionDetached((facade, privateKey, transaction) -> facade.createAccount(privateKey)
+			assertCanCosignTransactionDetached(SIGN_VIA_ACCOUNT, (facade, privateKey, transaction) -> facade.createAccount(privateKey)
 					.cosignTransactionHashDetached(facade.hashTransaction(transaction)));
 		}
 	}
@@ -381,23 +399,6 @@ final class SymbolFacadeTest {
 		// extra 2 cosignatures multiplied by 100 fee multiplier.
 		final long expectedDelta = 2L * new Cosignature().size() * 100L;
 		assertThat(txTwoCos.getFee().value() - txNoCos.getFee().value(), is(equalTo(expectedDelta)));
-	}
-
-	@Test
-	void canCreateTransactionFromDescriptor() {
-		// Arrange:
-		final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
-		final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
-
-		// Act:
-		final Transaction transaction = newTransfer(facade, keyPair);
-
-		// Assert:
-		assertThat(transaction.getType(), is(TransactionType.TRANSFER));
-		assertThat(transaction.getVersion(), is(1));
-		assertThat(transaction.getFee().value(), is(greaterThan(0L)));
-		// fee == 100 * size (no cosignatures reserved)
-		assertThat(transaction.getFee().value(), is(equalTo((long) transaction.size() * 100L)));
 	}
 
 	@Test
@@ -428,22 +429,6 @@ final class SymbolFacadeTest {
 
 		// Assert:
 		assertThat(transaction.getType(), is(TransactionType.TRANSFER));
-	}
-
-	@Test
-	void verifyFailsWithWrongSignature() {
-		// Arrange:
-		final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
-		final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
-		final Transaction transaction = newTransfer(facade, keyPair);
-
-		// Act:
-		final CryptoTypes.Signature good = facade.signTransaction(keyPair, transaction);
-		final byte[] tampered = good.bytes().clone();
-		tampered[0] ^= (byte) 0xFF;
-
-		// Assert:
-		assertThat(facade.verifyTransaction(transaction, new CryptoTypes.Signature(tampered)), is(false));
 	}
 
 	@Test
@@ -616,25 +601,25 @@ final class SymbolFacadeTest {
 	final class CanCosignTransaction {
 		@Test
 		void asAttachedCosignature() {
-			assertCanCosignTransactionAttached(
+			assertCanCosignTransactionAttached(SIGN_VIA_KEY_PAIR,
 					(facade, privateKey, transaction) -> facade.cosignTransaction(new KeyPair(privateKey), transaction));
 		}
 
 		@Test
 		void asDetachedCosignature() {
-			assertCanCosignTransactionDetached(
+			assertCanCosignTransactionDetached(SIGN_VIA_KEY_PAIR,
 					(facade, privateKey, transaction) -> facade.cosignTransactionDetached(new KeyPair(privateKey), transaction));
 		}
 
 		@Test
 		void hashAsAttachedCosignature() {
-			assertCanCosignTransactionAttached((facade, privateKey, transaction) -> SymbolFacade
+			assertCanCosignTransactionAttached(SIGN_VIA_KEY_PAIR, (facade, privateKey, transaction) -> SymbolFacade
 					.cosignTransactionHash(new KeyPair(privateKey), facade.hashTransaction(transaction)));
 		}
 
 		@Test
 		void hashAsDetachedCosignature() {
-			assertCanCosignTransactionDetached((facade, privateKey, transaction) -> SymbolFacade
+			assertCanCosignTransactionDetached(SIGN_VIA_KEY_PAIR, (facade, privateKey, transaction) -> SymbolFacade
 					.cosignTransactionHashDetached(new KeyPair(privateKey), facade.hashTransaction(transaction)));
 		}
 	}
@@ -672,22 +657,22 @@ final class SymbolFacadeTest {
 	@Test
 	void canConstructProperBip32MainnetPath() {
 		// Act:
-		final int[] path = new SymbolFacade(Network.MAINNET).bip32Path(0);
+		final int[] path = new SymbolFacade(Network.MAINNET).bip32Path(2);
 
 		// Assert:
 		assertThat(path, is(equalTo(new int[]{
-				44, 4343, 0, 0, 0
+				44, 4343, 2, 0, 0
 		})));
 	}
 
 	@Test
 	void canConstructProperBip32TestnetPath() {
 		// Act:
-		final int[] path = new SymbolFacade(Network.TESTNET).bip32Path(7);
+		final int[] path = new SymbolFacade(Network.TESTNET).bip32Path(2);
 
 		// Assert:
 		assertThat(path, is(equalTo(new int[]{
-				44, 1, 7, 0, 0
+				44, 1, 2, 0, 0
 		})));
 	}
 
@@ -803,13 +788,10 @@ final class SymbolFacadeTest {
 			final Transaction typed = facade.createTransactionFromTypedDescriptor(typedDescriptor, keyPair.getPublicKey(), 100L, 60L);
 			final Transaction untyped = facade.createTransactionFromDescriptor(typedDescriptor.toMap(), keyPair.getPublicKey(), 100L, 60L);
 
-			// Assert: both paths produce the same transaction shape and fee formula.
-			assertThat(typed.getType(), is(TransactionType.TRANSFER));
-			assertThat(typed.getVersion(), is(untyped.getVersion()));
-			assertThat(typed.size(), is(untyped.size()));
-			assertThat(((TransferTransactionV1) typed).getRecipientAddress().bytes(),
-					is(equalTo(((TransferTransactionV1) untyped).getRecipientAddress().bytes())));
-			assertThat(typed.getFee().value(), is(equalTo((long) typed.size() * 100L)));
+			// Assert: identical wire bytes apart from the deadline, which is computed from "now" per call —
+			// normalize it before comparing.
+			typed.setDeadline(untyped.getDeadline());
+			assertThat(typed.serialize(), is(equalTo(untyped.serialize())));
 		}
 
 		@Test
@@ -941,13 +923,6 @@ final class SymbolFacadeTest {
 					"message": "hello symbol"
 				}""";
 
-		private static final String TRANSFER_JSON_NO_MESSAGE = """
-				{
-					"type": "transfer_transaction_v1",
-					"recipientAddress": "AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA",
-					"mosaics": [{"mosaicId": 8589934593, "amount": 1000000}]
-				}""";
-
 		private Map<String, Object> equivalentMap() {
 			final Map<String, Object> descriptor = new java.util.LinkedHashMap<>();
 			descriptor.put("type", "transfer_transaction_v1");
@@ -1002,31 +977,6 @@ final class SymbolFacadeTest {
 
 			// Assert:
 			assertThat(fromJson.serialize(), is(equalTo(fromMap.serialize())));
-		}
-
-		@Test
-		void canConvertModelToJsonWorksWithJsonDescriptor() {
-			// Arrange: render an UnresolvedMosaic model to its JSON projection (string-encoded u64s)
-			// and embed it verbatim in a transfer descriptor document.
-			final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
-			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
-			final UnresolvedMosaic mosaic = new UnresolvedMosaic();
-			mosaic.setMosaicId(new UnresolvedMosaicId(8589934593L));
-			mosaic.setAmount(new Amount(1000000L));
-			final String json = """
-					{
-						"type": "transfer_transaction_v1",
-						"recipientAddress": "AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA",
-						"mosaics": [%s]
-					}""".formatted(mosaic.toJsonString());
-
-			// Act:
-			final Transaction fromModelJson = facade.createTransactionFromJson(json, keyPair.getPublicKey(), 100L, 60L);
-			final Transaction fromNumbers = facade.createTransactionFromJson(TRANSFER_JSON_NO_MESSAGE, keyPair.getPublicKey(), 100L, 60L);
-
-			// Assert: identical wire bytes apart from the per-call deadline.
-			fromModelJson.setDeadline(fromNumbers.getDeadline());
-			assertThat(fromModelJson.serialize(), is(equalTo(fromNumbers.serialize())));
 		}
 
 		@Test

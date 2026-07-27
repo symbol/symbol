@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Nested;
@@ -13,37 +12,22 @@ import org.junit.jupiter.api.Test;
 
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.MessageEncoderResult;
+import org.symbol.sdk.test.AbstractMessageEncoderDecodeFailureTest;
+import org.symbol.sdk.test.AbstractMessageEncoderTest;
 
 /**
- * Tests {@link MessageEncoder}: recommended encode/decode round-trips plus the delegation and deprecated wallet flows.
+ * Tests {@link MessageEncoder}: the shared encoder contract runs via {@link AbstractMessageEncoderTest} per variant plus the delegation and
+ * deprecated wallet flows.
  */
 final class MessageEncoderTest {
 
-	private static final byte[] HELLO_WORLD = "hello world".getBytes(StandardCharsets.UTF_8);
-
-	private static final byte[] LONG_MESSAGE = "bit longer message that should span upon multiple encryption blocks"
-			.getBytes(StandardCharsets.UTF_8);
-
-	// region shared test bodies (mirror of JS test/test/messageEncoderTests.js)
-
-	@FunctionalInterface
-	private interface EncodeFunction {
-		byte[] encode(MessageEncoder encoder, CryptoTypes.PublicKey recipientPublicKey, byte[] message);
-	}
-
-	@FunctionalInterface
-	private interface TryDecodeFunction {
-		MessageEncoderResult tryDecode(MessageEncoder decoder, CryptoTypes.PublicKey publicKey, byte[] encoded);
-	}
-
-	private static void malformEncoded(final byte[] encoded) {
+	private static void malformLastByte(final byte[] encoded) {
 		encoded[encoded.length - 1] ^= (byte) 0xFF;
 	}
 
 	// simulates a delegation message where node and ephemeral key pairs are used; for the delegation failure tests to work properly,
 	// the encoder key pair is used as the node key pair (the recipient public key and message arguments are ignored, like in JS)
-	private static byte[] encodeDelegation(final MessageEncoder encoder, final CryptoTypes.PublicKey recipientPublicKey,
-			final byte[] message) {
+	private static byte[] encodeDelegation(final MessageEncoder encoder) {
 		final KeyPair remoteKeyPair = new KeyPair(
 				new CryptoTypes.PrivateKey("11223344556677889900AABBCCDDEEFF11223344556677889900AABBCCDDEEFF"));
 		final KeyPair vrfKeyPair = new KeyPair(
@@ -51,100 +35,46 @@ final class MessageEncoderTest {
 		return encoder.encodePersistentHarvestingDelegation(encoder.getPublicKey(), remoteKeyPair, vrfKeyPair);
 	}
 
-	private static void assertCanCreateEncoder() {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
+	private abstract class BasicMessageEncoderTest extends AbstractMessageEncoderTest<KeyPair, MessageEncoder, byte[]> {
+		@Override
+		protected KeyPair createKeyPair(final CryptoTypes.PrivateKey privateKey) {
+			return new KeyPair(privateKey);
+		}
 
-		// Act:
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
+		@Override
+		protected MessageEncoder createEncoder(final KeyPair keyPair) {
+			return new MessageEncoder(keyPair);
+		}
 
-		// Assert:
-		assertThat(encoder.getPublicKey(), is(equalTo(keyPair.getPublicKey())));
+		@Override
+		protected CryptoTypes.PublicKey publicKeyOf(final MessageEncoder encoder) {
+			return encoder.getPublicKey();
+		}
+
+		@Override
+		protected byte[] encodedToBytes(final byte[] encoded) {
+			return encoded;
+		}
+
+		@Override
+		protected void malformEncoded(final byte[] encoded) {
+			malformLastByte(encoded);
+		}
 	}
-
-	private static void assertSenderCanDecodeEncodedMessage(final EncodeFunction encode, final TryDecodeFunction tryDecode) {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final CryptoTypes.PublicKey recipientPublicKey = new KeyPair(CryptoTypes.PrivateKey.random()).getPublicKey();
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final byte[] encoded = encode.encode(encoder, recipientPublicKey, HELLO_WORLD);
-
-		// Act:
-		final MessageEncoderResult result = tryDecode.tryDecode(encoder, recipientPublicKey, encoded);
-
-		// Assert:
-		assertThat(result.isDecoded(), is(true));
-		assertThat((byte[]) result.message(), is(equalTo(HELLO_WORLD)));
-	}
-
-	private static void assertRecipientCanDecodeEncodedMessage(final EncodeFunction encode, final TryDecodeFunction tryDecode) {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final KeyPair recipientKeyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final byte[] encoded = encode.encode(encoder, recipientKeyPair.getPublicKey(), HELLO_WORLD);
-
-		// Act:
-		final MessageEncoder decoder = new MessageEncoder(recipientKeyPair);
-		final MessageEncoderResult result = tryDecode.tryDecode(decoder, keyPair.getPublicKey(), encoded);
-
-		// Assert:
-		assertThat(result.isDecoded(), is(true));
-		assertThat((byte[]) result.message(), is(equalTo(HELLO_WORLD)));
-	}
-
-	private static void assertDecodeFallsBackToInputWhenDecodingFailed(final byte[] message, final EncodeFunction encode,
-			final TryDecodeFunction tryDecode) {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final CryptoTypes.PublicKey recipientPublicKey = new KeyPair(CryptoTypes.PrivateKey.random()).getPublicKey();
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final byte[] encoded = encode.encode(encoder, recipientPublicKey, message);
-
-		malformEncoded(encoded);
-
-		// Act:
-		final MessageEncoderResult result = tryDecode.tryDecode(encoder, recipientPublicKey, encoded);
-
-		// Assert:
-		assertThat(result.isDecoded(), is(false));
-		assertThat((byte[]) result.message(), is(equalTo(encoded)));
-	}
-
-	// endregion
 
 	// region recommended
 
 	@Nested
-	final class Recommended {
-		@Test
-		void canCreateEncoder() {
-			// Arrange + Act + Assert:
-			assertCanCreateEncoder();
+	final class Recommended extends BasicMessageEncoderTest {
+		@Override
+		protected byte[] encode(final MessageEncoder encoder, final CryptoTypes.PublicKey recipientPublicKey, final byte[] message) {
+			return encoder.encode(recipientPublicKey, message);
 		}
 
-		@Test
-		void senderCanDecodeEncodedMessage() {
-			// Arrange + Act + Assert:
-			assertSenderCanDecodeEncodedMessage(MessageEncoder::encode, MessageEncoder::tryDecode);
-		}
-
-		@Test
-		void recipientCanDecodeEncodedMessage() {
-			// Arrange + Act + Assert:
-			assertRecipientCanDecodeEncodedMessage(MessageEncoder::encode, MessageEncoder::tryDecode);
-		}
-
-		@Test
-		void decodeFallsBackToInputWhenDecodingFailedShort() {
-			// Arrange + Act + Assert:
-			assertDecodeFallsBackToInputWhenDecodingFailed(HELLO_WORLD, MessageEncoder::encode, MessageEncoder::tryDecode);
-		}
-
-		@Test
-		void decodeFallsBackToInputWhenDecodingFailedLong() {
-			// Arrange + Act + Assert:
-			assertDecodeFallsBackToInputWhenDecodingFailed(LONG_MESSAGE, MessageEncoder::encode, MessageEncoder::tryDecode);
+		@Override
+		protected MessageEncoderResult tryDecode(final MessageEncoder encoder, final CryptoTypes.PublicKey publicKey,
+				final byte[] encoded) {
+			return encoder.tryDecode(publicKey, encoded);
 		}
 
 		@Test
@@ -196,17 +126,36 @@ final class MessageEncoderTest {
 	// region delegation
 
 	@Nested
-	final class Delegation {
-		@Test
-		void decodeFallsBackToInputWhenDecodingFailedShort() {
-			// Arrange + Act + Assert:
-			assertDecodeFallsBackToInputWhenDecodingFailed(HELLO_WORLD, MessageEncoderTest::encodeDelegation, MessageEncoder::tryDecode);
+	final class Delegation extends AbstractMessageEncoderDecodeFailureTest<KeyPair, MessageEncoder, byte[]> {
+		@Override
+		protected KeyPair createKeyPair(final CryptoTypes.PrivateKey privateKey) {
+			return new KeyPair(privateKey);
 		}
 
-		@Test
-		void decodeFallsBackToInputWhenDecodingFailedLong() {
-			// Arrange + Act + Assert:
-			assertDecodeFallsBackToInputWhenDecodingFailed(LONG_MESSAGE, MessageEncoderTest::encodeDelegation, MessageEncoder::tryDecode);
+		@Override
+		protected MessageEncoder createEncoder(final KeyPair keyPair) {
+			return new MessageEncoder(keyPair);
+		}
+
+		@Override
+		protected byte[] encode(final MessageEncoder encoder, final CryptoTypes.PublicKey recipientPublicKey, final byte[] message) {
+			return encodeDelegation(encoder);
+		}
+
+		@Override
+		protected MessageEncoderResult tryDecode(final MessageEncoder encoder, final CryptoTypes.PublicKey publicKey,
+				final byte[] encoded) {
+			return encoder.tryDecode(publicKey, encoded);
+		}
+
+		@Override
+		protected byte[] encodedToBytes(final byte[] encoded) {
+			return encoded;
+		}
+
+		@Override
+		protected void malformEncoded(final byte[] encoded) {
+			malformLastByte(encoded);
 		}
 
 		// note: there's no sender decode test for persistent harvesting delegation, cause sender does not have ephemeral key pair
@@ -263,37 +212,16 @@ final class MessageEncoderTest {
 	// region deprecated
 
 	@Nested
-	final class Deprecated {
-		@Test
-		void canCreateEncoder() {
-			// Arrange + Act + Assert:
-			assertCanCreateEncoder();
+	final class Deprecated extends BasicMessageEncoderTest {
+		@Override
+		protected byte[] encode(final MessageEncoder encoder, final CryptoTypes.PublicKey recipientPublicKey, final byte[] message) {
+			return encoder.encodeDeprecated(recipientPublicKey, message);
 		}
 
-		@Test
-		void senderCanDecodeEncodedMessage() {
-			// Arrange + Act + Assert:
-			assertSenderCanDecodeEncodedMessage(MessageEncoder::encodeDeprecated, MessageEncoder::tryDecodeDeprecated);
-		}
-
-		@Test
-		void recipientCanDecodeEncodedMessage() {
-			// Arrange + Act + Assert:
-			assertRecipientCanDecodeEncodedMessage(MessageEncoder::encodeDeprecated, MessageEncoder::tryDecodeDeprecated);
-		}
-
-		@Test
-		void decodeFallsBackToInputWhenDecodingFailedShort() {
-			// Arrange + Act + Assert:
-			assertDecodeFallsBackToInputWhenDecodingFailed(HELLO_WORLD, MessageEncoder::encodeDeprecated,
-					MessageEncoder::tryDecodeDeprecated);
-		}
-
-		@Test
-		void decodeFallsBackToInputWhenDecodingFailedLong() {
-			// Arrange + Act + Assert:
-			assertDecodeFallsBackToInputWhenDecodingFailed(LONG_MESSAGE, MessageEncoder::encodeDeprecated,
-					MessageEncoder::tryDecodeDeprecated);
+		@Override
+		protected MessageEncoderResult tryDecode(final MessageEncoder encoder, final CryptoTypes.PublicKey publicKey,
+				final byte[] encoded) {
+			return encoder.tryDecodeDeprecated(publicKey, encoded);
 		}
 
 		@Test

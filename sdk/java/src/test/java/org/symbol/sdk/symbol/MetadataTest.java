@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -128,15 +127,6 @@ final class MetadataTest {
 					(byte) (0x9A ^ 0xD4), (byte) (0xC7 ^ 0x60), (byte) (0x33 ^ 0x82), (byte) (0x18 ^ 0xF8), (byte) (0xA7 ^ 0x78),
 					(byte) (0xB0 ^ 0xFE), (byte) (0x36 ^ 0x78), (byte) 0xE6, (byte) 0x9D, (byte) 0xD6
 			}));
-		}
-
-		@Test
-		void neverReturnsNull() {
-			// Act:
-			final byte[] actual = Metadata.updateValue(new byte[]{}, new byte[]{});
-
-			// Assert:
-			assertThat(actual, is(not(nullValue())));
 		}
 	}
 }

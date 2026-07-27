@@ -7,7 +7,7 @@ import org.symbol.sdk.impl.Tweetnacl;
 /**
  * Represents an Ed25519 private and public key for the Symbol network; uses the SHA-512 hash mode.
  */
-public final class KeyPair {
+public final class KeyPair implements org.symbol.sdk.KeyPair {
 	private static final Tweetnacl.HashMode HASH_MODE = Tweetnacl.HashMode.SHA2_512;
 
 	private final CryptoTypes.PrivateKey privateKey;

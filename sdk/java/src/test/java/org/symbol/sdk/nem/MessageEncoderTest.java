@@ -5,134 +5,84 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.nio.charset.StandardCharsets;
-
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.MessageEncoderResult;
 import org.symbol.sdk.nem.models.*;
+import org.symbol.sdk.test.AbstractMessageEncoderTest;
 
 /**
- * Tests {@link MessageEncoder} encode/decode round-trips for AES-GCM and the deprecated AES-CBC formats. Mirrors
- * {@code test/nem/MessageEncoder_spec.js}, which runs the shared {@code messageEncoderTests.js} suite twice (recommended + deprecated); the
- * "(deprecated)" suffixed tests below correspond to the second run.
+ * Tests {@link MessageEncoder} encode/decode round-trips for AES-GCM and the deprecated AES-CBC formats: the shared encoder contract runs
+ * via {@link AbstractMessageEncoderTest} per variant, plus the NEM-specific edge cases.
  */
 final class MessageEncoderTest {
 
-	private static final byte[] HELLO_WORLD = "hello world".getBytes(StandardCharsets.UTF_8);
-
-	private static final byte[] LONG_MESSAGE = "bit longer message that should span upon multiple encryption blocks"
-			.getBytes(StandardCharsets.UTF_8);
-
-	@FunctionalInterface
-	private interface EncodeAccessor {
-		Message encode(MessageEncoder encoder, CryptoTypes.PublicKey recipientPublicKey, byte[] message);
+	private static void malformEncodedAt(final Message encoded, final int offsetFromEnd) {
+		final byte[] payload = encoded.getMessage();
+		payload[payload.length - offsetFromEnd] ^= (byte) 0xFF;
+		encoded.setMessage(payload);
 	}
 
-	// region shared suite - recommended (AES-GCM)
+	private abstract class BasicMessageEncoderTest extends AbstractMessageEncoderTest<KeyPair, MessageEncoder, Message> {
+		@Override
+		protected KeyPair createKeyPair(final CryptoTypes.PrivateKey privateKey) {
+			return new KeyPair(privateKey);
+		}
 
-	@Test
-	void canCreateEncoder() {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
+		@Override
+		protected MessageEncoder createEncoder(final KeyPair keyPair) {
+			return new MessageEncoder(keyPair);
+		}
 
-		// Act:
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
+		@Override
+		protected CryptoTypes.PublicKey publicKeyOf(final MessageEncoder encoder) {
+			return encoder.getPublicKey();
+		}
 
-		// Assert:
-		assertThat(encoder.getPublicKey(), is(equalTo(keyPair.getPublicKey())));
+		@Override
+		protected MessageEncoderResult tryDecode(final MessageEncoder encoder, final CryptoTypes.PublicKey publicKey,
+				final Message encoded) {
+			return encoder.tryDecode(publicKey, encoded);
+		}
+
+		@Override
+		protected byte[] encodedToBytes(final Message encoded) {
+			return encoded.serialize();
+		}
 	}
 
-	@Test
-	void senderCanDecodeEncodedMessage() {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final CryptoTypes.PublicKey recipientPublicKey = new KeyPair(CryptoTypes.PrivateKey.random()).getPublicKey();
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final Message encoded = encoder.encode(recipientPublicKey, HELLO_WORLD);
+	// region recommended (AES-GCM)
 
-		// Act:
-		final MessageEncoderResult result = encoder.tryDecode(recipientPublicKey, encoded);
+	@Nested
+	final class Recommended extends BasicMessageEncoderTest {
+		@Override
+		protected Message encode(final MessageEncoder encoder, final CryptoTypes.PublicKey recipientPublicKey, final byte[] message) {
+			return encoder.encode(recipientPublicKey, message);
+		}
 
-		// Assert:
-		assertThat(result.isDecoded(), is(true));
-		assertThat((byte[]) result.message(), is(equalTo(HELLO_WORLD)));
-	}
-
-	@Test
-	void recipientCanDecodeEncodedMessage() {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final KeyPair recipientKeyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final Message encoded = encoder.encode(recipientKeyPair.getPublicKey(), HELLO_WORLD);
-
-		// Act:
-		final MessageEncoder decoder = new MessageEncoder(recipientKeyPair);
-		final MessageEncoderResult result = decoder.tryDecode(keyPair.getPublicKey(), encoded);
-
-		// Assert:
-		assertThat(result.isDecoded(), is(true));
-		assertThat((byte[]) result.message(), is(equalTo(HELLO_WORLD)));
-	}
-
-	@Test
-	void decodeFallsBackToInputWhenDecodingFailedShort() {
-		assertDecodeFallsBackToInput(HELLO_WORLD, MessageEncoder::encode, 20);
-	}
-
-	@Test
-	void decodeFallsBackToInputWhenDecodingFailedLong() {
-		assertDecodeFallsBackToInput(LONG_MESSAGE, MessageEncoder::encode, 20);
+		@Override
+		protected void malformEncoded(final Message encoded) {
+			malformEncodedAt(encoded, 20);
+		}
 	}
 
 	// endregion
 
-	// region shared suite - deprecated (AES-CBC)
+	// region deprecated (AES-CBC)
 
-	@Test
-	void senderCanDecodeEncodedMessageDeprecated() {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final CryptoTypes.PublicKey recipientPublicKey = new KeyPair(CryptoTypes.PrivateKey.random()).getPublicKey();
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final Message encoded = encoder.encodeDeprecated(recipientPublicKey, HELLO_WORLD);
+	@Nested
+	final class Deprecated extends BasicMessageEncoderTest {
+		@Override
+		protected Message encode(final MessageEncoder encoder, final CryptoTypes.PublicKey recipientPublicKey, final byte[] message) {
+			return encoder.encodeDeprecated(recipientPublicKey, message);
+		}
 
-		// Act:
-		final MessageEncoderResult result = encoder.tryDecode(recipientPublicKey, encoded);
-
-		// Assert:
-		assertThat(result.isDecoded(), is(true));
-		assertThat((byte[]) result.message(), is(equalTo(HELLO_WORLD)));
-	}
-
-	@Test
-	void recipientCanDecodeEncodedMessageDeprecated() {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final KeyPair recipientKeyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final Message encoded = encoder.encodeDeprecated(recipientKeyPair.getPublicKey(), HELLO_WORLD);
-
-		// Act:
-		final MessageEncoder decoder = new MessageEncoder(recipientKeyPair);
-		final MessageEncoderResult result = decoder.tryDecode(keyPair.getPublicKey(), encoded);
-
-		// Assert:
-		assertThat(result.isDecoded(), is(true));
-		assertThat((byte[]) result.message(), is(equalTo(HELLO_WORLD)));
-	}
-
-	@Test
-	void decodeFallsBackToInputWhenDecodingFailedShortDeprecated() {
-		assertDecodeFallsBackToInput(HELLO_WORLD, MessageEncoder::encodeDeprecated, 1);
-	}
-
-	@Test
-	void decodeFallsBackToInputWhenDecodingFailedLongDeprecated() {
-		// Arrange + Act + Assert:
-		assertDecodeFallsBackToInput(LONG_MESSAGE, MessageEncoder::encodeDeprecated, 1);
+		@Override
+		protected void malformEncoded(final Message encoded) {
+			malformEncodedAt(encoded, 1);
+		}
 	}
 
 	// endregion
@@ -154,7 +104,7 @@ final class MessageEncoderTest {
 
 		// Assert:
 		assertThat(result.isDecoded(), is(false));
-		assertThat(result.message() == encoded, is(true));
+		assertThat(((Message) result.message()).serialize(), is(equalTo(encoded.serialize())));
 	}
 
 	@Test
@@ -170,30 +120,6 @@ final class MessageEncoderTest {
 
 		// Assert:
 		assertThat(ex.getMessage(), is(equalTo("invalid message format")));
-	}
-
-	// endregion
-
-	// region helpers
-
-	private static void assertDecodeFallsBackToInput(final byte[] message, final EncodeAccessor encodeAccessor,
-			final int malformOffsetFromEnd) {
-		// Arrange:
-		final KeyPair keyPair = new KeyPair(CryptoTypes.PrivateKey.random());
-		final CryptoTypes.PublicKey recipientPublicKey = new KeyPair(CryptoTypes.PrivateKey.random()).getPublicKey();
-		final MessageEncoder encoder = new MessageEncoder(keyPair);
-		final Message encoded = encodeAccessor.encode(encoder, recipientPublicKey, message);
-
-		final byte[] payload = encoded.getMessage();
-		payload[payload.length - malformOffsetFromEnd] ^= (byte) 0xFF;
-		encoded.setMessage(payload);
-
-		// Act:
-		final MessageEncoderResult result = encoder.tryDecode(recipientPublicKey, encoded);
-
-		// Assert:
-		assertThat(result.isDecoded(), is(false));
-		assertThat(result.message() == encoded, is(true));
 	}
 
 	// endregion
