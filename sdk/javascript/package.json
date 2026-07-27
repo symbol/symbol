@@ -67,7 +67,7 @@
     "rimraf": "~6.1.0",
     "stream-browserify": "~3.0.0",
     "typedoc": "^0.28.18",
-    "typescript": "~6.0.2",
+    "typescript": "~7.0.2",
     "typescript-eslint": "^8.60.1",
     "url": "~0.11.3",
     "webpack": "~5.108.4",
