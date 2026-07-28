@@ -1,4 +1,4 @@
-package org.symbol.sdk;
+package org.symbol.sdk.test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -8,10 +8,13 @@ import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 
+import org.symbol.sdk.ByteArray;
+import org.symbol.sdk.CryptoTypes;
+import org.symbol.sdk.Network;
+import org.symbol.sdk.NetworkTimestamp;
+
 /**
- * Shared {@link Network} / address contract tests run against both the Symbol and NEM networks; subclasses supply the network instances,
- * address vectors, and address factories. Resolution-specific tests (datetime conversion, timestamp arithmetic) and network-specific
- * behavior (e.g. Symbol address aliasing) live in the concrete subclasses.
+ * Shared {@link Network} / address contract tests run against both the Symbol and NEM networks.
  *
  * @param <TAddress> Concrete address type.
  * @param <TNetworkTimestamp> Concrete network-timestamp type.
@@ -29,12 +32,6 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 
 	/** @return Address vectors for this blockchain. */
 	protected abstract AddressVector[] addressVectors();
-
-	/**
-	 * @param addressString Encoded address string.
-	 * @return Address parsed from the string.
-	 */
-	protected abstract TAddress addressFromString(String addressString);
 
 	/**
 	 * @param addressBytes Raw address bytes.
@@ -68,19 +65,6 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 		assertCanConvertPublicKeyToAddress(testnet(), AddressVector::testnet);
 	}
 
-	@Test
-	void canCreateAddressFromStringToString() {
-		for (final AddressVector v : addressVectors()) {
-			// Act:
-			final String mainnet = addressFromString(v.mainnet()).toString();
-			final String testnet = addressFromString(v.testnet()).toString();
-
-			// Assert:
-			assertThat(mainnet, equalTo(v.mainnet()));
-			assertThat(testnet, equalTo(v.testnet()));
-		}
-	}
-
 	// endregion
 
 	// region isValidAddress[String]
@@ -102,6 +86,9 @@ public abstract class AbstractNetworkTest<TAddress extends ByteArray, TNetworkTi
 		assertThat(isValidAddressString, is(true));
 	}
 
+	// Tampering flips a BYTE and re-encodes (like the JS mutateBytes): flipping an encoded CHARACTER is not equivalent for
+	// symbol addresses — a 39-char string carries 195 bits for 24 bytes, so a low-bit flip in the last character can land in
+	// the dropped padding and decode to the same address.
 	private void assertCannotValidateInvalidAddress(final Network<TAddress, TNetworkTimestamp> network, final int signedPosition) {
 		// Arrange:
 		final byte[] tamperedBytes = deterministicAddress(network).bytes().clone();

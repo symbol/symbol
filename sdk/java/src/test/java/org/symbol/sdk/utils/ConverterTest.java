@@ -15,10 +15,13 @@ final class ConverterTest {
 	final class IsHexString {
 		@Test
 		void rejectsNonAsciiUnicodeDigits() {
-			// fullwidth and Arabic-Indic digits are Unicode digits but not hex
-			// Act + Assert:
-			assertThat(Converter.isHexString("\uFF15\uFF15"), is(false));
-			assertThat(Converter.isHexString("\u0665\u0665"), is(false));
+			// Act: fullwidth and Arabic-Indic digits are Unicode digits but not hex
+			final boolean fullwidthIsHex = Converter.isHexString("\uFF15\uFF15");
+			final boolean arabicIndicIsHex = Converter.isHexString("\u0665\u0665");
+
+			// Assert:
+			assertThat(fullwidthIsHex, is(false));
+			assertThat(arabicIndicIsHex, is(false));
 		}
 
 		@Test
@@ -202,7 +205,11 @@ final class ConverterTest {
 	@Nested
 	final class BytesToInt {
 		private static void assertReads(final byte[] bytes, final int size, final boolean signed, final long expected) {
-			assertThat(Converter.bytesToInt(bytes, size, signed), equalTo(expected));
+			// Act:
+			final long value = Converter.bytesToInt(bytes, size, signed);
+
+			// Assert:
+			assertThat(value, equalTo(expected));
 		}
 
 		@Test
@@ -455,6 +462,21 @@ final class ConverterTest {
 		void rejectsUnsupportedNumberType() {
 			// only the fixed-width integral wrappers are accepted; any other Number (e.g. a non-integral Double) is rejected.
 			assertThrows(IllegalArgumentException.class, () -> Converter.toLong(Double.valueOf(1.5)));
+		}
+
+		@Test
+		void bigIntegerAcceptsFullUnsignedRange() {
+			// JSON integers >= 2^63 deserialize to BigInteger; the unsigned 64-bit range is accepted as its bit pattern.
+			assertThat(Converter.toLong(java.math.BigInteger.ZERO), equalTo(0L));
+			assertThat(Converter.toLong(new java.math.BigInteger("9223372036854775808")), equalTo(Long.MIN_VALUE)); // 2^63
+			assertThat(Converter.toLong(new java.math.BigInteger("18446744073709551615")), equalTo(-1L)); // 2^64 - 1
+		}
+
+		@Test
+		void bigIntegerRejectsValuesOutsideUnsignedRange() {
+			// negative values and values >= 2^64 do not fit a u64 bit pattern and are rejected rather than truncated.
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong(java.math.BigInteger.valueOf(-1L)));
+			assertThrows(IllegalArgumentException.class, () -> Converter.toLong(new java.math.BigInteger("18446744073709551616"))); // 2^64
 		}
 
 		@Test

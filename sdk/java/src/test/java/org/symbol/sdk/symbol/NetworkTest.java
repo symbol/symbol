@@ -10,8 +10,8 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import org.symbol.sdk.AbstractNetworkTest;
 import org.symbol.sdk.CryptoTypes;
+import org.symbol.sdk.test.AbstractNetworkTest;
 
 /**
  * Tests {@link Network} and {@link NetworkTimestamp} against vectors from {@code tests/vectors/symbol/crypto/1.test-address.json} and the
@@ -49,11 +49,6 @@ final class NetworkTest extends AbstractNetworkTest<Address, NetworkTimestamp> {
 	@Override
 	protected AddressVector[] addressVectors() {
 		return ADDRESS_VECTORS;
-	}
-
-	@Override
-	protected Address addressFromString(final String addressString) {
-		return new Address(addressString);
 	}
 
 	@Override

@@ -160,16 +160,21 @@ public final class Converter {
 	}
 
 	/**
-	 * Converts a fixed-width integral wrapper ({@link Integer}/{@link Long}/{@link Short}/{@link Byte}) to a 64-bit {@code long}; any other
-	 * type is rejected.
+	 * Converts a fixed-width integral wrapper ({@link Integer}/{@link Long}/{@link Short}/{@link Byte}) or an unsigned-64-bit-range
+	 * {@link java.math.BigInteger} to a 64-bit {@code long}; any other type is rejected.
 	 *
 	 * @param value Integral descriptor number.
 	 * @return Converted value as a 64-bit two's-complement bit pattern.
-	 * @throws IllegalArgumentException If the value is not one of the fixed-width integral wrappers.
+	 * @throws IllegalArgumentException If the value is not an integral number fitting a 64-bit pattern.
 	 */
 	public static long toLong(final Number value) {
 		if (value instanceof Integer || value instanceof Long || value instanceof Short || value instanceof Byte)
 			return value.longValue();
+
+		// JSON integers >= 2^63 deserialize to BigInteger (e.g. a metadata scopedMetadataKey, whose high bit is always set);
+		// accept the unsigned 64-bit range as its two's-complement bit pattern, matching the decimal/hex string forms
+		if (value instanceof java.math.BigInteger bigInteger && 0 <= bigInteger.signum() && 64 >= bigInteger.bitLength())
+			return bigInteger.longValue();
 
 		throw new IllegalArgumentException("cannot convert " + (null == value ? "null" : value.getClass().getName()) + " to a long value");
 	}
