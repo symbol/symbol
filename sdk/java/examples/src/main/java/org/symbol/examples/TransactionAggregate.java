@@ -1,0 +1,100 @@
+package org.symbol.examples;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import org.symbol.sdk.CryptoTypes;
+import org.symbol.sdk.facade.SymbolFacade;
+import org.symbol.sdk.symbol.KeyPair;
+import org.symbol.sdk.symbol.SymbolTransactionFactory;
+import org.symbol.sdk.symbol.descriptors.AggregateCompleteTransactionV3Descriptor;
+import org.symbol.sdk.symbol.descriptors.TransferTransactionV1Descriptor;
+import org.symbol.sdk.symbol.models.EmbeddedTransaction;
+import org.symbol.sdk.symbol.models.EmbeddedTransferTransactionV1;
+import org.symbol.sdk.symbol.models.Transaction;
+import org.symbol.sdk.utils.ArrayHelpers;
+
+/**
+ * Reads every {@code part*} file in the directory of the {@code --private} key file and packages them as embedded transfer
+ * transactions inside a single Symbol aggregate-complete transaction signed by that key.
+ */
+public final class TransactionAggregate {
+	private TransactionAggregate() {
+	}
+
+	private static List<EmbeddedTransaction> addEmbeddedTransfers(final SymbolFacade facade, final CryptoTypes.PublicKey publicKey, final Path resourcesDir) {
+		// obtain recipient from publicKey, so direct all transfers to 'self'
+		final var recipientAddress = facade.network.publicKeyToAddress(publicKey);
+
+		List<Path> filenames;
+		try (final Stream<Path> stream = Files.list(resourcesDir)) {
+			filenames = stream
+					.filter(p -> p.getFileName().toString().startsWith("part"))
+					.sorted(Comparator.comparing(p -> p.getFileName().toString()))
+					.toList();
+		} catch (IOException ex) {
+			throw new RuntimeException("failed to list " + resourcesDir, ex);
+		}
+
+		final List<EmbeddedTransaction> result = new ArrayList<>();
+		for (final Path filename : filenames) {
+			final String message = ExamplesUtils.readContents(filename);
+			final byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+			// note: additional 0 byte at the beginning is added for compatibility with explorer
+			// and other tools that treat messages starting with 00 byte as "plain text"
+			final byte[] prefixed = ArrayHelpers.concat(new byte[1], messageBytes);
+
+			final TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(recipientAddress).message(prefixed);
+			final EmbeddedTransferTransactionV1 embeddedTransaction = (EmbeddedTransferTransactionV1) facade
+					.createEmbeddedTransactionFromTypedDescriptor(descriptor, publicKey);
+
+			System.out.println("----> " + filename.getFileName() + " length in bytes: " + embeddedTransaction.getMessage().length);
+			result.add(embeddedTransaction);
+		}
+
+		return result;
+	}
+
+	public static void main(final String[] args) {
+		Path privatePath = null;
+		for (int i = 0; i < args.length; ++i) {
+			if ("--private".equals(args[i]) && i + 1 < args.length)
+				privatePath = Paths.get(args[++i]);
+			else if (args[i].startsWith("--private="))
+				privatePath = Paths.get(args[i].substring("--private=".length()));
+		}
+
+		if (null == privatePath)
+			throw new IllegalArgumentException("missing required --private <path-to-private-key>");
+
+		final SymbolFacade facade = new SymbolFacade("testnet");
+		final KeyPair keyPair = ExamplesUtils.readPrivateKey(privatePath);
+
+		final Path resourcesDir = privatePath.toAbsolutePath().getParent();
+		final List<EmbeddedTransaction> embeddedTransactions = addEmbeddedTransfers(facade, keyPair.getPublicKey(), resourcesDir);
+		final CryptoTypes.Hash256 merkleHash = SymbolFacade.hashEmbeddedTransactions(embeddedTransactions);
+
+		final AggregateCompleteTransactionV3Descriptor aggregateDescriptor = new AggregateCompleteTransactionV3Descriptor(merkleHash)
+				.transactions(embeddedTransactions);
+		// pin deterministic header values in the descriptor (like the JS / Python examples) so the output stays comparable
+		final Map<String, Object> aggregateMap = aggregateDescriptor.toMap();
+		aggregateMap.put("signerPublicKey", keyPair.getPublicKey());
+		aggregateMap.put("fee", 0L);
+		aggregateMap.put("deadline", 1L);
+		final Transaction aggregateTransaction = facade.transactionFactory.create(aggregateMap);
+
+		final CryptoTypes.Signature signature = facade.signTransaction(keyPair, aggregateTransaction);
+		SymbolTransactionFactory.attachSignature(aggregateTransaction, signature);
+
+		System.out.println("Hash: " + facade.hashTransaction(aggregateTransaction) + "\n");
+		System.out.println(aggregateTransaction.toString());
+	}
+}

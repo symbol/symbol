@@ -164,8 +164,8 @@ final class NemFacadeTest {
 		final NemFacade.NemPublicAccount account = facade.createPublicAccount(publicKey);
 
 		// Assert:
-		assertThat(account.address, is(equalTo(new Address("TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33"))));
-		assertThat(account.publicKey, is(equalTo(publicKey)));
+		assertThat(account.address(), is(equalTo(new Address("TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33"))));
+		assertThat(account.publicKey(), is(equalTo(publicKey)));
 	}
 
 	@Test
@@ -181,10 +181,10 @@ final class NemFacadeTest {
 		final NemFacade.NemAccount account = facade.createAccount(privateKey);
 
 		// Assert:
-		assertThat(account.address, is(equalTo(new Address("TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33"))));
-		assertThat(account.publicKey, is(equalTo(publicKey)));
-		assertThat(account.keyPair.getPublicKey(), is(equalTo(publicKey)));
-		assertThat(account.keyPair.getPrivateKey(), is(equalTo(privateKey)));
+		assertThat(account.address(), is(equalTo(new Address("TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33"))));
+		assertThat(account.publicKey(), is(equalTo(publicKey)));
+		assertThat(account.keyPair().getPublicKey(), is(equalTo(publicKey)));
+		assertThat(account.keyPair().getPrivateKey(), is(equalTo(privateKey)));
 	}
 
 	@Test
@@ -197,7 +197,7 @@ final class NemFacadeTest {
 		final MessageEncoder encoder = account.messageEncoder();
 
 		// Assert: message encoder matches the account
-		assertThat(encoder.getPublicKey(), is(equalTo(account.publicKey)));
+		assertThat(encoder.getPublicKey(), is(equalTo(account.publicKey())));
 	}
 
 	@Test
@@ -536,13 +536,7 @@ final class NemFacadeTest {
 
 	@Nested
 	final class JsonDescriptors {
-		private static final String TRANSFER_JSON = """
-				{
-					"type": "transfer_transaction_v1",
-					"recipientAddress": "TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C",
-					"amount": 5,
-					"message": {"messageType": "plain", "message": "hello nem"}
-				}""";
+		private static final String TRANSFER_JSON = FacadeTestData.NEM_TRANSFER_JSON;
 
 		@Test
 		void createTransactionFromJsonMatchesUntypedPath() {

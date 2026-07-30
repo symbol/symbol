@@ -1,3 +1,3 @@
 rootProject.name = "symbol-sdk"
 
-//include("examples")
+include("examples")

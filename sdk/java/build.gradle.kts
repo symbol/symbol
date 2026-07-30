@@ -15,9 +15,6 @@ java {
 	withSourcesJar()
 }
 
-// The codebase is free of unchecked operations (generated setField uses checked asList coercion)
-// and of deprecated-API usage; fail the build — in every project, including examples — if either
-// creeps back in.
 allprojects {
 	tasks.withType<JavaCompile>().configureEach {
 		// Pin the source charset so non-ASCII (em-dashes / arrows in comments, CJK BIP-39 mnemonics in tests) decodes
@@ -47,11 +44,25 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+// Coverage is opt-in, mirroring the JS ci scripts' "code-coverage" argument: pass -Pcoverage to
+// attach the JaCoCo agents, auto-render the merged report after `test` and enforce verification.
+val coverageEnabled = providers.gradleProperty("coverage").isPresent
+
+// JaCoCo auto-attaches its extension (isEnabled defaulting to true) to every Test task; default it to opt-in here so `test` and
+// catVectors only instrument under -Pcoverage.
+jacoco.applyTo(tasks.withType<JavaExec>())
+tasks.withType<Test>().configureEach {
+	extensions.configure<JacocoTaskExtension> {
+		isEnabled = coverageEnabled
+	}
+}
+
 tasks.test {
 	useJUnitPlatform {
 		excludeTags("catvectors")
 	}
-	finalizedBy(tasks.jacocoTestReport)
+	if (coverageEnabled)
+		finalizedBy(tasks.jacocoTestReport)
 	testLogging {
 		events("passed", "skipped", "failed")
 	}
@@ -61,8 +72,16 @@ tasks.test {
 // same merged set of .exec files (test + catVectors + examples).
 val mergedJacocoExecs = fileTree(layout.buildDirectory).include("jacoco/*.exec")
 
+tasks.register<Delete>("coverageClean") {
+	group = "verification"
+	description = "Delete accumulated JaCoCo coverage data (build/jacoco) to isolate a standalone coverage run."
+	delete(layout.buildDirectory.dir("jacoco"))
+}
+
 tasks.jacocoTestReport {
-	dependsOn(tasks.test)
+	mustRunAfter(tasks.test)
+	mustRunAfter(tasks.named("catVectors"))
+	mustRunAfter(tasks.named("vectors"))
 	executionData.setFrom(mergedJacocoExecs)
 	reports {
 		xml.required.set(true)
@@ -181,25 +200,28 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
-	dependsOn(tasks.test)
+	mustRunAfter(tasks.test)
+	mustRunAfter(tasks.named("catVectors"))
+	mustRunAfter(tasks.named("vectors"))
 	executionData.setFrom(mergedJacocoExecs)
 	violationRules {
 		rule {
 			limit {
 				counter = "INSTRUCTION"
-				minimum = "0.30".toBigDecimal()
+				minimum = "0.95".toBigDecimal()
 			}
 		}
 		rule {
 			limit {
 				counter = "CLASS"
-				minimum = "0.30".toBigDecimal()
+				minimum = "0.99".toBigDecimal()
 			}
 		}
 	}
 }
 
-// Wire coverage verification into `check` so a regression below the 90% bar fails the build.
+// Wire coverage verification into `check` so a regression below the 90% bar fails coverage
+// builds; without -Pcoverage no agents run and `check` skips the verification.
 tasks.check {
 	dependsOn(tasks.jacocoTestCoverageVerification)
 }
@@ -249,6 +271,17 @@ val vectors by tasks.registering(JavaExec::class) {
 	args = listOf("--vectors", "${gitRoot}/tests/vectors/${blockchain}/crypto", "--blockchain", blockchain)
 }
 
+// One .exec per blockchain so the nem and symbol runs both contribute to the merged report.
+vectors.configure {
+	extensions.configure<JacocoTaskExtension> {
+		isEnabled = coverageEnabled
+		val blockchain = providers.environmentVariable("BLOCKCHAIN").orElse("symbol").get()
+		destinationFile = layout.buildDirectory.file("jacoco/vectors-${blockchain}.exec").get().asFile
+	}
+	if (coverageEnabled)
+		finalizedBy(tasks.jacocoTestReport)
+}
+
 val catVectors by tasks.registering(Test::class) {
 	group = "verification"
 	description = "Run catbuffer model vectors (mirrors `npm run catvectors`)."
@@ -257,6 +290,8 @@ val catVectors by tasks.registering(Test::class) {
 	}
 	testClassesDirs = sourceSets["test"].output.classesDirs
 	classpath = sourceSets["test"].runtimeClasspath
+	if (coverageEnabled)
+		finalizedBy(tasks.jacocoTestReport)
 	// Point CatbufferVectorsHelper at <repo>/tests/vectors so the vectors resolve without
 	// the caller needing to export SCHEMAS_PATH. An explicit environment override still wins
 	// if set externally, mirroring the `npm run catvectors` behavior in the JS SDK.

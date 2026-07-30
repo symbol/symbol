@@ -299,8 +299,8 @@ final class SymbolFacadeTest {
 			final SymbolFacade.SymbolPublicAccount account = facade.createPublicAccount(publicKey);
 
 			// Assert:
-			assertThat(account.address, is(equalTo(new Address("TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI"))));
-			assertThat(account.publicKey, is(equalTo(publicKey)));
+			assertThat(account.address(), is(equalTo(new Address("TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI"))));
+			assertThat(account.publicKey(), is(equalTo(publicKey)));
 		}
 
 		@Test
@@ -316,10 +316,10 @@ final class SymbolFacadeTest {
 			final SymbolFacade.SymbolAccount account = facade.createAccount(privateKey);
 
 			// Assert:
-			assertThat(account.address, is(equalTo(new Address("TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI"))));
-			assertThat(account.publicKey, is(equalTo(publicKey)));
-			assertThat(account.keyPair.getPublicKey(), is(equalTo(publicKey)));
-			assertThat(account.keyPair.getPrivateKey(), is(equalTo(privateKey)));
+			assertThat(account.address(), is(equalTo(new Address("TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI"))));
+			assertThat(account.publicKey(), is(equalTo(publicKey)));
+			assertThat(account.keyPair().getPublicKey(), is(equalTo(publicKey)));
+			assertThat(account.keyPair().getPrivateKey(), is(equalTo(privateKey)));
 		}
 
 		@Test
@@ -332,7 +332,7 @@ final class SymbolFacadeTest {
 			final MessageEncoder encoder = account.messageEncoder();
 
 			// Assert: message encoder matches the account
-			assertThat(encoder.getPublicKey(), is(equalTo(account.publicKey)));
+			assertThat(encoder.getPublicKey(), is(equalTo(account.publicKey())));
 		}
 
 		@Test
@@ -915,13 +915,7 @@ final class SymbolFacadeTest {
 
 	@Nested
 	final class JsonDescriptors {
-		private static final String TRANSFER_JSON = """
-				{
-					"type": "transfer_transaction_v1",
-					"recipientAddress": "AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA",
-					"mosaics": [{"mosaicId": 8589934593, "amount": 1000000}],
-					"message": "hello symbol"
-				}""";
+		private static final String TRANSFER_JSON = FacadeTestData.SYMBOL_TRANSFER_JSON;
 
 		private Map<String, Object> equivalentMap() {
 			final Map<String, Object> descriptor = new java.util.LinkedHashMap<>();

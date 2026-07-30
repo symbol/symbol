@@ -205,33 +205,48 @@ public final class NemFacade {
 	/**
 	 * NEM public account — known public key plus derived address.
 	 */
-	public static class NemPublicAccount {
+	public static class NemPublicAccount implements PublicAccount {
 		/** Owning facade. */
 		protected final NemFacade facade;
 
 		/** Account public key. */
-		public final CryptoTypes.PublicKey publicKey;
+		private final CryptoTypes.PublicKey publicKey;
 
 		/** Account address. */
-		public final Address address;
+		private final Address address;
 
 		NemPublicAccount(final NemFacade facade, final CryptoTypes.PublicKey publicKey) {
 			this.facade = facade;
 			this.publicKey = publicKey;
 			this.address = facade.network.publicKeyToAddress(publicKey);
 		}
+
+		@Override
+		public CryptoTypes.PublicKey publicKey() {
+			return publicKey;
+		}
+
+		@Override
+		public Address address() {
+			return address;
+		}
 	}
 
 	/**
 	 * NEM account — adds the signing key pair to {@link NemPublicAccount}.
 	 */
-	public static final class NemAccount extends NemPublicAccount {
+	public static final class NemAccount extends NemPublicAccount implements Account<Transaction, KeyPair> {
 		/** Account key pair. */
-		public final KeyPair keyPair;
+		private final KeyPair keyPair;
 
 		NemAccount(final NemFacade facade, final KeyPair keyPair) {
 			super(facade, keyPair.getPublicKey());
 			this.keyPair = keyPair;
+		}
+
+		@Override
+		public KeyPair keyPair() {
+			return keyPair;
 		}
 
 		/**

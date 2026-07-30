@@ -2,5 +2,9 @@
 
 set -ex
 
-# jacoco coverage report is always produced as `test` is finalized by `jacocoTestReport` in build.gradle.kts
-./gradlew --no-daemon test
+GRADLE_ARGS=("--no-daemon")
+if [ "$1" = "code-coverage" ]; then
+	GRADLE_ARGS+=("-Pcoverage")
+fi
+
+./gradlew "${GRADLE_ARGS[@]}" test
