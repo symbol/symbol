@@ -33,6 +33,8 @@ final class FacadeFactoryTest {
 			1, 2, 3
 	};
 	private static final long TRANSACTION_DEADLINE_SECONDS = 3600L;
+	private static final long DEADLINE_SCHEDULING_DRIFT_SECONDS = 10L;
+	private static final long NOW_TOLERANCE_SECONDS = 5L;
 
 	// region shared helpers
 
@@ -340,9 +342,9 @@ final class FacadeFactoryTest {
 				44, 1, 2, 0, 0
 		};
 		// Symbol timestamps are milliseconds
-		private static final long NOW_TOLERANCE_MS = 5_000L;
+		private static final long NOW_TOLERANCE_MS = NOW_TOLERANCE_SECONDS * 1000L;
 		private static final long FEE_MULTIPLIER = 100L;
-		private static final long DEADLINE_SCHEDULING_DRIFT_MS = 10_000L;
+		private static final long DEADLINE_SCHEDULING_DRIFT_MS = DEADLINE_SCHEDULING_DRIFT_SECONDS * 1000L;
 
 		private final SymbolFacade facade = new SymbolFacade("testnet");
 
@@ -477,8 +479,6 @@ final class FacadeFactoryTest {
 		private static final int[] TESTNET_BIP32_PATH = {
 				44, 1, 2, 0, 0
 		};
-		// NEM timestamps are seconds
-		private static final long NOW_TOLERANCE_SECONDS = 5L;
 		private static final long ABSOLUTE_FEE = 100000L;
 
 		private final NemFacade facade = new NemFacade("testnet");
@@ -591,6 +591,7 @@ final class FacadeFactoryTest {
 			// Arrange:
 			final BlockchainFacade<?, ?, ?> adapter = createAdapter();
 			final CryptoTypes.PublicKey signerPublicKey = adapter.createKeyPair(TEST_PRIVATE_KEY).getPublicKey();
+			final NetworkTimestamp.Base now = adapter.now();
 
 			// Act:
 			final org.symbol.sdk.nem.models.Transaction transaction = asModel(
@@ -598,6 +599,10 @@ final class FacadeFactoryTest {
 
 			// Assert: deadline is deadlineSeconds past the timestamp
 			assertThat(transaction.getDeadline().value() - transaction.getTimestamp().value(), is(equalTo(TRANSACTION_DEADLINE_SECONDS)));
+
+			final long minDeadline = now.timestamp + TRANSACTION_DEADLINE_SECONDS;
+			assertThat(transaction.getDeadline().value(), is(greaterThanOrEqualTo(minDeadline)));
+			assertThat(transaction.getDeadline().value(), is(lessThanOrEqualTo(minDeadline + DEADLINE_SCHEDULING_DRIFT_SECONDS)));
 		}
 	}
 }

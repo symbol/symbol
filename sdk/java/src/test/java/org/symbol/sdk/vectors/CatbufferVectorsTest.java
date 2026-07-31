@@ -101,8 +101,8 @@ final class CatbufferVectorsTest {
 		// Assert: the deserialized type matches the vector schema
 		assertThat("deserialized type must match vector schema_name for " + item.get("test_name"), instance.getClass().getSimpleName(),
 				is(equalTo(item.get("schema_name"))));
-		CatbufferVectorsHelper.assertPayload(item, instance, "roundtrip");
 		assertThat("size mismatch for " + item.get("test_name"), instance.size(), is(equalTo(payload.length)));
+		CatbufferVectorsHelper.assertPayload(item, instance, "roundtrip");
 	}
 
 	// endregion

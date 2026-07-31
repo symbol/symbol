@@ -1,15 +1,11 @@
 package org.symbol.examples;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.facade.SymbolFacade;
@@ -23,29 +19,20 @@ import org.symbol.sdk.symbol.models.Transaction;
 import org.symbol.sdk.utils.ArrayHelpers;
 
 /**
- * Reads every {@code part*} file in the directory of the {@code --private} key file and packages them as embedded transfer
- * transactions inside a single Symbol aggregate-complete transaction signed by that key.
+ * Reads every bundled {@code part*} resource file and packages them as embedded transfer transactions inside a single Symbol
+ * aggregate-complete transaction signed by the key from the {@code --private} file.
  */
 public final class TransactionAggregate {
 	private TransactionAggregate() {
 	}
 
-	private static List<EmbeddedTransaction> addEmbeddedTransfers(final SymbolFacade facade, final CryptoTypes.PublicKey publicKey, final Path resourcesDir) {
+	private static List<EmbeddedTransaction> addEmbeddedTransfers(final SymbolFacade facade, final CryptoTypes.PublicKey publicKey,
+			final List<Path> partFiles) {
 		// obtain recipient from publicKey, so direct all transfers to 'self'
 		final var recipientAddress = facade.network.publicKeyToAddress(publicKey);
 
-		List<Path> filenames;
-		try (final Stream<Path> stream = Files.list(resourcesDir)) {
-			filenames = stream
-					.filter(p -> p.getFileName().toString().startsWith("part"))
-					.sorted(Comparator.comparing(p -> p.getFileName().toString()))
-					.toList();
-		} catch (IOException ex) {
-			throw new RuntimeException("failed to list " + resourcesDir, ex);
-		}
-
 		final List<EmbeddedTransaction> result = new ArrayList<>();
-		for (final Path filename : filenames) {
+		for (final Path filename : partFiles) {
 			final String message = ExamplesUtils.readContents(filename);
 			final byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
 			// note: additional 0 byte at the beginning is added for compatibility with explorer
@@ -73,8 +60,8 @@ public final class TransactionAggregate {
 		final SymbolFacade facade = new SymbolFacade("testnet");
 		final KeyPair keyPair = ExamplesUtils.readPrivateKey(privatePath);
 
-		final Path resourcesDir = privatePath.toAbsolutePath().getParent();
-		final List<EmbeddedTransaction> embeddedTransactions = addEmbeddedTransfers(facade, keyPair.getPublicKey(), resourcesDir);
+		final List<Path> partFiles = ExamplesUtils.findBundledFiles("part", ".txt");
+		final List<EmbeddedTransaction> embeddedTransactions = addEmbeddedTransfers(facade, keyPair.getPublicKey(), partFiles);
 		final CryptoTypes.Hash256 merkleHash = SymbolFacade.hashEmbeddedTransactions(embeddedTransactions);
 
 		final AggregateCompleteTransactionV3Descriptor aggregateDescriptor = new AggregateCompleteTransactionV3Descriptor(merkleHash)

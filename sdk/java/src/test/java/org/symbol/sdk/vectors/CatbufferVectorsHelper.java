@@ -72,7 +72,7 @@ final class CatbufferVectorsHelper {
 			throw new IllegalArgumentException("expected JSON object map but got " + (null == value ? "null" : value.getClass().getName()));
 
 		final Map<String, Object> result = new LinkedHashMap<>();
-		map.forEach((key, nestedValue) -> result.put((String) key, nestedValue));
+		map.forEach((key, nested) -> result.put((String) key, nested));
 		return result;
 	}
 
