@@ -9,7 +9,7 @@ import org.symbol.sdk.impl.Tweetnacl;
 /**
  * Verifies signatures signed by a single Symbol key pair.
  */
-public final class Verifier {
+public final class Verifier implements org.symbol.sdk.Verifier {
 	/** Public key used for signature verification. */
 	public final CryptoTypes.PublicKey publicKey;
 

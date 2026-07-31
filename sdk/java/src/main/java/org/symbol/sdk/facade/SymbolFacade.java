@@ -398,20 +398,30 @@ public final class SymbolFacade {
 	 * Symbol public account — known public key + derived address. Created via
 	 * {@link SymbolFacade#createPublicAccount(CryptoTypes.PublicKey)}.
 	 */
-	public static class SymbolPublicAccount {
+	public static class SymbolPublicAccount implements PublicAccount {
 		/** Owning facade. */
 		protected final SymbolFacade facade;
 
 		/** Account public key. */
-		public final CryptoTypes.PublicKey publicKey;
+		private final CryptoTypes.PublicKey publicKey;
 
 		/** Account address. */
-		public final Address address;
+		private final Address address;
 
 		SymbolPublicAccount(final SymbolFacade facade, final CryptoTypes.PublicKey publicKey) {
 			this.facade = facade;
 			this.publicKey = publicKey;
 			this.address = facade.network.publicKeyToAddress(publicKey);
+		}
+
+		@Override
+		public CryptoTypes.PublicKey publicKey() {
+			return publicKey;
+		}
+
+		@Override
+		public Address address() {
+			return address;
 		}
 	}
 
@@ -419,13 +429,18 @@ public final class SymbolFacade {
 	 * Symbol account — adds the private key pair to {@link SymbolPublicAccount}. Can sign and cosign transactions, and produce a
 	 * {@link MessageEncoder}.
 	 */
-	public static final class SymbolAccount extends SymbolPublicAccount {
+	public static final class SymbolAccount extends SymbolPublicAccount implements Account<Transaction, KeyPair> {
 		/** Account key pair. */
-		public final KeyPair keyPair;
+		private final KeyPair keyPair;
 
 		SymbolAccount(final SymbolFacade facade, final KeyPair keyPair) {
 			super(facade, keyPair.getPublicKey());
 			this.keyPair = keyPair;
+		}
+
+		@Override
+		public KeyPair keyPair() {
+			return keyPair;
 		}
 
 		/**

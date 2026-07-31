@@ -12,14 +12,22 @@ other Symbol SDKs is pinned by the shared cross-SDK test vectors (`tests/vectors
 ## Build
 
 ```sh
-gradle build
+./gradlew build
 ```
 
 ## Test
 
 ```sh
-gradle test
+./gradlew test
 ```
+
+## Documentation
+
+```sh
+bash scripts/generate_docs.sh
+```
+
+Generates the API javadoc into `build/docs/javadoc`.
 
 ## Lint / format
 
@@ -27,16 +35,16 @@ The project uses [Spotless](https://github.com/diffplug/spotless) configured to
 preserve the project's tabs-and-140-cols style. Run:
 
 ```sh
-gradle spotlessCheck   # verify
-gradle spotlessApply   # auto-fix
+./gradlew spotlessCheck   # verify
+./gradlew spotlessApply   # auto-fix
 ```
 
 ## Cross-language vectors
 
 ```sh
-BLOCKCHAIN=symbol gradle vectors
-BLOCKCHAIN=nem    gradle vectors
-gradle catVectors
+BLOCKCHAIN=symbol ./gradlew vectors
+BLOCKCHAIN=nem    ./gradlew vectors
+./gradlew catVectors
 ```
 
 ## Code generation
@@ -46,7 +54,7 @@ The catbuffer model classes under `org.symbol.sdk.nem.models` and
 in [`generator/`](generator), invoked through the [`catparser`](../../catbuffer/parser) tool.
 The generator emits one `.java` file per type (POD / enum / struct / factory) into a dedicated
 `models/` subpackage, keeping the hand-written runtime classes (`Address`, `KeyPair`,
-`SymbolFacade`, ...) in the parent `org.symbol.sdk.{nem,symbol}` package uncluttered. A few
+`Network`, ...) in the parent `org.symbol.sdk.{nem,symbol}` package uncluttered. A few
 hand-written runtime types share a name with a catbuffer type (currently only `Address`): these
 are the high-level facade forms and are distinct from the generated wire-format model of the same
 name (e.g. the 24-byte `models.Address` POD vs. the base32 `symbol.Address` facade), so both are
@@ -61,7 +69,7 @@ To regenerate after a schema change, either run the script directly:
 or invoke the Gradle wrapper task (which shells out to the same script):
 
 ```sh
-gradle generateModels
+./gradlew generateModels
 ```
 
 The Python templates emit canonical but unwrapped Java; line-wrapping and whitespace are owned
@@ -101,9 +109,9 @@ both networks share the same code path, including the canonical-`S` check enforc
 ## SDK runtime
 
 In addition to the generated catbuffer model classes, `sdk/java` provides a hand-written
-runtime layer. The high-level entry points
-are [`SymbolFacade`](src/main/java/org/symbol/sdk/symbol/SymbolFacade.java) and
-[`NemFacade`](src/main/java/org/symbol/sdk/nem/NemFacade.java); they compose the
+runtime layer. The high-level entry points are
+[`SymbolFacade`](src/main/java/org/symbol/sdk/facade/SymbolFacade.java) and
+[`NemFacade`](src/main/java/org/symbol/sdk/facade/NemFacade.java); they compose the
 following pieces:
 
 | Layer            | Class(es)                                                                                              |
@@ -111,8 +119,9 @@ following pieces:
 | Networks         | `org.symbol.sdk.{symbol,nem}.Network`, `NetworkTimestamp`, `Address`                                   |
 | Cryptography     | `org.symbol.sdk.{symbol,nem}.{KeyPair,Verifier,SharedKey}`, `org.symbol.sdk.Bip32`                     |
 | Messages         | `org.symbol.sdk.{symbol,nem}.MessageEncoder`, `org.symbol.sdk.MessageEncoderResult`                    |
-| Descriptors      | `org.symbol.sdk.{TransactionDescriptorProcessor,RuleBasedTransactionFactory}`                          |
+| Descriptors      | `org.symbol.sdk.{TransactionDescriptorProcessor,RuleBasedTransactionFactory,JsonDescriptor}`           |
 | Transactions     | `org.symbol.sdk.{symbol,nem}.{SymbolTransactionFactory,NemTransactionFactory}`                         |
+| Fees             | `org.symbol.sdk.{symbol,nem}.FeeCalculator`                                                            |
 | Symbol-only      | `IdGenerator`, `Merkle`, `Metadata`, `Restriction`, `VotingKeysGenerator`                              |
 
 The SDK exposes two descriptor surfaces:
@@ -128,7 +137,8 @@ The SDK exposes two descriptor surfaces:
 
 ```java
 import org.symbol.sdk.CryptoTypes;
-import org.symbol.sdk.symbol.SymbolFacade;
+import org.symbol.sdk.facade.SymbolFacade;
+import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.descriptors.TransferTransactionV1Descriptor;
 import org.symbol.sdk.symbol.descriptors.UnresolvedMosaicDescriptor;
 import org.symbol.sdk.symbol.models.Amount;
@@ -148,8 +158,8 @@ SymbolFacade.SymbolAccount account = facade.createAccount(
 TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(
         new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))
         .mosaics(new UnresolvedMosaicDescriptor(
-                new UnresolvedMosaicId(java.math.BigInteger.valueOf(0x7CDF3B117A3C40CCL)),
-                new Amount(java.math.BigInteger.valueOf(1_000_000L))))
+                new UnresolvedMosaicId(0x7CDF3B117A3C40CCL),
+                new Amount(1_000_000L)))
         .message("hello symbol".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 // 2. string form — every field accepts its canonical string form, nested descriptors included.
@@ -168,9 +178,9 @@ TransferTransactionV1Descriptor multiMosaicDescriptor = new TransferTransactionV
         .message("hello symbol");
 
 Transaction transaction = facade.createTransactionFromTypedDescriptor(
-        descriptor, account.publicKey, /* feeMultiplier */ 100L, /* deadlineSeconds */ 60L);
+        descriptor, account.publicKey(), /* feeMultiplier */ 100L, /* deadlineSeconds */ 60L);
 CryptoTypes.Signature signature = account.signTransaction(transaction);
-transaction.setSignature(new Signature(signature.bytes));
+transaction.setSignature(new Signature(signature.bytes()));
 
 CryptoTypes.Hash256 transactionHash = facade.hashTransaction(transaction);
 assert facade.verifyTransaction(transaction, signature);
@@ -190,20 +200,20 @@ String json = """
             "message": "hello symbol"
         }""";
 Transaction jsonTransaction = facade.createTransactionFromJson(
-        json, account.publicKey, /* feeMultiplier */ 100L, /* deadlineSeconds */ 60L);
+        json, account.publicKey(), /* feeMultiplier */ 100L, /* deadlineSeconds */ 60L);
 ```
 
-A `Map<String, Object>` works the same way via `facade.createTransactionFromDescriptor(map, …)` —
-identical wire format. See [`SymbolReadme.java`](examples/src/main/java/org/symbol/examples/readme/SymbolReadme.java)
+A raw `Map<String, Object>` descriptor works through `facade.transactionFactory.create(map)` — identical
+wire format for the body, but the factory path fills in no fee or deadline (put them in the map). See [`Symbol.java`](examples/src/main/java/org/symbol/examples/readme/Symbol.java)
 for the typed / JSON / map paths side by side.
 
 ### NEM
 
-NEM works the same way via `NemFacade`, except the fee is an absolute `BigInteger` rather than a
+NEM works the same way via `NemFacade`, except the fee is an absolute `long` rather than a
 fee multiplier. Descriptors and their setters share the same typed/string flavours:
 
 ```java
-import org.symbol.sdk.nem.NemFacade;
+import org.symbol.sdk.facade.NemFacade;
 import org.symbol.sdk.nem.descriptors.MessageDescriptor;
 import org.symbol.sdk.nem.descriptors.TransferTransactionV1Descriptor; // note: nem.descriptors
 
@@ -217,6 +227,24 @@ TransferTransactionV1Descriptor nemTransfer = new TransferTransactionV1Descripto
         .message(new MessageDescriptor("plain").message("hello nem"));
 
 Transaction nemTransaction = nemFacade.createTransactionFromTypedDescriptor(
-        nemTransfer, nemAccount.publicKey,
-        /* fee */ java.math.BigInteger.valueOf(100_000L), /* deadlineSeconds */ 60L);
+        nemTransfer, nemAccount.publicKey(),
+        /* fee */ 100_000L, /* deadlineSeconds */ 60L);
 ```
+
+The JSON path works for NEM too — nested descriptors are plain JSON objects, and enum fields
+(like the message type) accept their names:
+
+```java
+String nemJson = """
+        {
+            "type": "transfer_transaction_v1",
+            "recipientAddress": "TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C",
+            "amount": 5000000,
+            "message": {"messageType": "plain", "message": "hello nem"}
+        }""";
+Transaction nemJsonTransaction = nemFacade.createTransactionFromJson(
+        nemJson, nemAccount.publicKey(), /* fee */ 100_000L, /* deadlineSeconds */ 60L);
+```
+
+See [`Nem.java`](examples/src/main/java/org/symbol/examples/readme/Nem.java) for the typed /
+JSON / map paths side by side.
