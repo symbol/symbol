@@ -78,6 +78,10 @@ public final class Symbol {
 			}""";
 		final Transaction jsonTransaction = facade.createTransactionFromJson(json, signerPublicKey, FEE_MULTIPLIER, DEADLINE_SECONDS);
 		signAndPrint(facade, jsonTransaction);
+
+		System.out.println("*** EXAMPLE CONSTRUCTION FROM JSON - EMBEDDED ***");
+		final EmbeddedTransaction jsonEmbedded = facade.createEmbeddedTransactionFromJson(json, signerPublicKey);
+		printEmbedded(jsonEmbedded);
 	}
 
 	// Dynamic descriptor path — for data-driven transaction shapes; identical wire format

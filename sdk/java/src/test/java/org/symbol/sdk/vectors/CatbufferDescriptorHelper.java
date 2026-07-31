@@ -1,7 +1,6 @@
 package org.symbol.sdk.vectors;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,21 +33,13 @@ final class CatbufferDescriptorHelper {
 
 	private static Object normalizeValue(final Object value) {
 		if (value instanceof Number number)
-			// narrow every JSON integer to the model's long backing; Converter.toLong keeps the full u64 bit
-			// pattern (values >= 2^63 become the negative long) and rejects out-of-range / non-integer numbers
 			return Converter.toLong(number);
 
 		if (value instanceof Map<?, ?> map)
 			return normalizeInput(map);
 
-		if (value instanceof List<?> list) {
-			final List<Object> out = new ArrayList<>(list.size());
-			// recurse through every element so scalar Number members (e.g. an array of mosaic ids) narrow too
-			for (Object element : list)
-				out.add(normalizeValue(element));
-
-			return out;
-		}
+		if (value instanceof List<?> list)
+			return list.stream().map(CatbufferDescriptorHelper::normalizeValue).toList();
 
 		return value;
 	}
@@ -83,12 +74,7 @@ final class CatbufferDescriptorHelper {
 	 */
 	static void fixupDescriptorCommon(final Map<String, Object> descriptor) {
 		final Object type = descriptor.get("type");
-		for (Map.Entry<String, Object> entry : descriptor.entrySet()) {
-			if (isPlainTextValue(type, entry.getKey()))
-				continue;
-
-			entry.setValue(fixupValue(entry.getValue()));
-		}
+		descriptor.replaceAll((key, value) -> isPlainTextValue(type, key) ? value : fixupValue(value));
 	}
 
 	private static Object fixupValue(final Object value) {
@@ -96,23 +82,14 @@ final class CatbufferDescriptorHelper {
 			return Converter.hexToUint8(string);
 
 		if (value instanceof Map<?, ?> map) {
-			// rebuild rather than mutate so the walk stays type-checked; the tree is the fresh
-			// copy produced by normalizeInput, so identity is not load-bearing.
-			final Map<String, Object> fixed = new LinkedHashMap<>();
 			final Object type = map.get("type");
-			map.forEach((key, nested) -> {
-				final String fieldName = (String) key;
-				fixed.put(fieldName, isPlainTextValue(type, fieldName) ? nested : fixupValue(nested));
-			});
+			final Map<String, Object> fixed = new LinkedHashMap<>();
+			map.forEach((key, nested) -> fixed.put((String) key, isPlainTextValue(type, (String) key) ? nested : fixupValue(nested)));
 			return fixed;
 		}
 
-		if (value instanceof List<?> list) {
-			final List<Object> fixed = new ArrayList<>(list.size());
-			for (Object element : list)
-				fixed.add(fixupValue(element));
-			return fixed;
-		}
+		if (value instanceof List<?> list)
+			return list.stream().map(CatbufferDescriptorHelper::fixupValue).toList();
 
 		return value;
 	}

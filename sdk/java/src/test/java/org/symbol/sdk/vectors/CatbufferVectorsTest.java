@@ -7,8 +7,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -28,17 +26,17 @@ import org.symbol.sdk.symbol.models.TransactionStatement;
 import org.symbol.sdk.utils.Converter;
 
 /**
- * Vector tests without a factory home, tagged {@code catvectors} ({@code ./gradlew catVectors}; requires {@code SCHEMAS_PATH} pointing at
- * {@code tests/vectors}): deserialize/serialize round-trips for {@code tests/vectors/symbol/models/other.json} (schemas with a factory home
- * round-trip through their factories in {@link CatbufferDescriptorVectorsTest}), plus the default-construction contract for every
- * vector-observed schema — a default-constructed model must report a non-zero size and serialize successfully to exactly that many bytes
- * (the generated ModelsSweepTest serializes only populated instances, so this is the sole default-instance coverage). Factory-homed schemas
- * construct through the generated {@code createByName} entry points; only the factory-less other.json statements need explicit constructor
- * references.
+ * Payload-first vector tests, tagged {@code catvectors} ({@code ./gradlew catVectors}; requires {@code SCHEMAS_PATH} pointing at
+ * {@code tests/vectors}): every case under {@code tests/vectors/{nem,symbol}/models/*.json} deserializes from its payload and must
+ * serialize back byte-for-byte — independent of the descriptor-driven creation in {@link CatbufferDescriptorVectorsTest}. Factory-homed
+ * files dispatch through the generated umbrella-factory {@code deserialize} entry points; the factory-less other.json statements use an
+ * explicit constructor/deserializer map. The file also pins the default-construction contract for every vector-observed schema — a
+ * default-constructed model must report a non-zero size and serialize successfully to exactly that many bytes (the generated
+ * ModelsSweepTest serializes only populated instances, so this is the sole default-instance coverage).
  */
 @Tag("catvectors")
 final class CatbufferVectorsTest {
-	// region roundtrip - symbol other
+	// region roundtrip
 
 	/** Constructor and deserializer for a factory-less other.json schema, declared once so the two sweeps cannot drift. */
 	private record OtherSchema(Supplier<Serializer> constructor, Function<ByteBuffer, Serializer> deserializer) {
@@ -53,21 +51,58 @@ final class CatbufferVectorsTest {
 			new OtherSchema(TransactionStatement::new, TransactionStatement::deserialize));
 
 	@TestFactory
-	Iterable<DynamicTest> roundtripSymbolOther() {
-		return CatbufferVectorsHelper.perCaseTests("symbol", List.of("other"), CatbufferVectorsTest::assertRoundtrip);
+	Iterable<DynamicTest> roundtripNemTransactions() {
+		// CosignatureV1 is the one non-Transaction schema; it is not routed through the umbrella factory (mirrors JS)
+		return CatbufferVectorsHelper.perCaseTests("nem", List.of("transactions"),
+				item -> assertRoundtrip(item,
+						"CosignatureV1".equals(item.get("schema_name"))
+								? org.symbol.sdk.nem.models.CosignatureV1::deserialize
+								: org.symbol.sdk.nem.models.TransactionFactory::deserialize));
 	}
 
-	private static void assertRoundtrip(final Map<String, Object> item) {
-		// Arrange:
+	@TestFactory
+	Iterable<DynamicTest> roundtripSymbolTransactions() {
+		return CatbufferVectorsHelper.perCaseTests("symbol", List.of("transactions"),
+				item -> assertRoundtrip(item, org.symbol.sdk.symbol.models.TransactionFactory::deserialize));
+	}
+
+	@TestFactory
+	Iterable<DynamicTest> roundtripSymbolBlocks() {
+		return CatbufferVectorsHelper.perCaseTests("symbol", List.of("blocks"),
+				item -> assertRoundtrip(item, org.symbol.sdk.symbol.models.BlockFactory::deserialize));
+	}
+
+	@TestFactory
+	Iterable<DynamicTest> roundtripSymbolReceipts() {
+		return CatbufferVectorsHelper.perCaseTests("symbol", List.of("receipts"),
+				item -> assertRoundtrip(item, org.symbol.sdk.symbol.models.ReceiptFactory::deserialize));
+	}
+
+	@TestFactory
+	Iterable<DynamicTest> roundtripSymbolOther() {
+		return CatbufferVectorsHelper.perCaseTests("symbol", List.of("other"), item -> assertRoundtrip(item, otherDeserializer(item)));
+	}
+
+	private static Function<ByteBuffer, Serializer> otherDeserializer(final Map<String, Object> item) {
 		final String schemaName = (String) item.get("schema_name");
 		final OtherSchema schema = OTHER_SCHEMAS.get(schemaName);
 		assertThat("no schema registered for " + schemaName, schema, is(notNullValue()));
 
-		// Act:
-		final Serializer instance = schema.deserializer().apply(ByteBuffer.wrap(Converter.hexToUint8((String) item.get("payload"))));
+		return schema.deserializer();
+	}
 
-		// Assert:
+	private static void assertRoundtrip(final Map<String, Object> item, final Function<ByteBuffer, Serializer> deserializer) {
+		// Arrange:
+		final byte[] payload = Converter.hexToUint8((String) item.get("payload"));
+
+		// Act:
+		final Serializer instance = deserializer.apply(ByteBuffer.wrap(payload));
+
+		// Assert: the deserialized type matches the vector schema
+		assertThat("deserialized type must match vector schema_name for " + item.get("test_name"), instance.getClass().getSimpleName(),
+				is(equalTo(item.get("schema_name"))));
 		CatbufferVectorsHelper.assertPayload(item, instance, "roundtrip");
+		assertThat("size mismatch for " + item.get("test_name"), instance.size(), is(equalTo(payload.length)));
 	}
 
 	// endregion
@@ -114,15 +149,8 @@ final class CatbufferVectorsTest {
 
 	private static Iterable<DynamicTest> generateConstructorTests(final String blockchain, final List<String> includes,
 			final Function<String, Serializer> constructor) {
-		final LinkedHashSet<String> schemaNames = new LinkedHashSet<>();
-		for (final Map<String, Object> item : CatbufferVectorsHelper.prepareTestCases(blockchain, includes, null))
-			schemaNames.add((String) item.get("schema_name"));
-
-		final List<DynamicTest> tests = new ArrayList<>();
-		for (final String schemaName : schemaNames)
-			tests.add(DynamicTest.dynamicTest(schemaName, () -> assertCreateFromConstructor(schemaName, constructor)));
-
-		return tests;
+		return CatbufferVectorsHelper.prepareTestCases(blockchain, includes, null).stream().map(item -> (String) item.get("schema_name"))
+				.distinct().map(name -> DynamicTest.dynamicTest(name, () -> assertCreateFromConstructor(name, constructor))).toList();
 	}
 
 	private static void assertCreateFromConstructor(final String schemaName, final Function<String, Serializer> constructor) {

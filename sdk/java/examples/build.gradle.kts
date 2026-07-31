@@ -32,32 +32,23 @@ spotless {
 	}
 }
 
-// Map of Gradle task name -> (main class, default args). Tracks the set the JS / Python
-// `test_examples.sh` scripts invoke; `transaction_aggregate` mirrors the JS `--private` flag.
-val exampleSpecs: Map<String, Pair<String, List<String>>> = linkedMapOf(
-	"runBip32Keypair" to ("org.symbol.examples.Bip32Keypair" to emptyList()),
-	"runTransactionAggregate" to (
-		"org.symbol.examples.TransactionAggregate"
-			to listOf("--private", "src/main/resources/zero.sha256.txt")
-	),
-	"runTransactionMultisig" to ("org.symbol.examples.TransactionMultisig" to emptyList()),
-	"runTransactionSignNem" to (
-		"org.symbol.examples.TransactionSign" to listOf("--blockchain=nem")
-	),
-	"runTransactionSignSymbol" to (
-		"org.symbol.examples.TransactionSign" to listOf("--blockchain=symbol")
-	),
-	"runReadmeNem" to ("org.symbol.examples.readme.Nem" to emptyList()),
-	"runReadmeSymbol" to ("org.symbol.examples.readme.Symbol" to emptyList())
+// Map of Gradle task name -> main class. Example arguments come from the command line (`--args="..."`)
+// see `scripts/ci/test_examples.sh` for the flags each example expects.
+val exampleSpecs: Map<String, String> = linkedMapOf(
+	"runBip32Keypair" to "org.symbol.examples.Bip32Keypair",
+	"runTransactionAggregate" to "org.symbol.examples.TransactionAggregate",
+	"runTransactionMultisig" to "org.symbol.examples.TransactionMultisig",
+	"runTransactionSign" to "org.symbol.examples.TransactionSign",
+	"runReadmeNem" to "org.symbol.examples.readme.Nem",
+	"runReadmeSymbol" to "org.symbol.examples.readme.Symbol"
 )
 
-exampleSpecs.forEach { (taskName, spec) ->
+exampleSpecs.forEach { (taskName, mainClassName) ->
 	tasks.register<JavaExec>(taskName) {
 		group = "examples"
-		description = "Runs ${spec.first}"
+		description = "Runs $mainClassName"
 		classpath = sourceSets["main"].runtimeClasspath
-		mainClass.set(spec.first)
-		args = spec.second
+		mainClass.set(mainClassName)
 	}
 }
 

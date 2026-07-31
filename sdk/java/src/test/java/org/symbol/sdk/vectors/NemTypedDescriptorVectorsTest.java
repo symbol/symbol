@@ -161,7 +161,6 @@ final class NemTypedDescriptorVectorsTest {
 						(String) plain.get("multisigAccountAddress"));
 
 			case "multisig_transaction_v1": {
-				// nested transaction descriptors were deliberately rejected in the Java API; build the inner model first
 				final Map<String, Object> innerPlain = CatbufferVectorsHelper.toObjectMap(plain.get("innerTransaction"));
 				final Map<String, Object> innerDescriptor = new LinkedHashMap<>(
 						createTypedTransactionDescriptor(innerPlain, facade).toMap());

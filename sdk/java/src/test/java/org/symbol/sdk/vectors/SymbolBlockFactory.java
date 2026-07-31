@@ -1,17 +1,18 @@
-package org.symbol.sdk.symbol;
+package org.symbol.sdk.vectors;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.symbol.sdk.RuleBasedTransactionFactory;
+import org.symbol.sdk.symbol.Address;
+import org.symbol.sdk.symbol.Network;
 import org.symbol.sdk.symbol.models.*;
 
 /**
  * Factory for creating Symbol blocks. Wraps the catbuffer-generated {@link BlockFactory#createByName(String)} with a
  * {@link RuleBasedTransactionFactory} preconfigured with Symbol-block specific parsing rules.
  */
-public final class SymbolBlockFactory {
+final class SymbolBlockFactory {
 
 	private final RuleBasedTransactionFactory factory;
 
@@ -23,17 +24,7 @@ public final class SymbolBlockFactory {
 	 * @param network Symbol network.
 	 */
 	public SymbolBlockFactory(final Network network) {
-		this(network, null);
-	}
-
-	/**
-	 * Creates a factory for the specified network with per-type rule overrides.
-	 *
-	 * @param network Symbol network.
-	 * @param typeRuleOverrides Per-rule parser overrides keyed by rule name. May be {@code null}.
-	 */
-	public SymbolBlockFactory(final Network network, final Map<String, Function<Object, Object>> typeRuleOverrides) {
-		this.factory = buildRules(typeRuleOverrides);
+		this.factory = buildRules();
 		this.network = network;
 	}
 
@@ -51,25 +42,24 @@ public final class SymbolBlockFactory {
 		return (Block) factory.createFromFactory(entityType -> BlockFactory.createByName((String) entityType), descriptorWithNetwork);
 	}
 
-	/**
-	 * Gets rule names with registered hints.
-	 *
-	 * @return Rule names with registered hints.
-	 */
-	public java.util.Set<String> getRuleNames() {
-		// snapshot, not the live keySet view — HashMap.keySet() writes through to the backing rules map
-		return java.util.Set.copyOf(factory.rules.keySet());
-	}
-
-	private static RuleBasedTransactionFactory buildRules(final Map<String, Function<Object, Object>> typeRuleOverrides) {
+	private static RuleBasedTransactionFactory buildRules() {
 		// blocks carry only resolved Address fields (e.g. beneficiaryAddress), so no type converter is needed (mirrors
 		// SymbolReceiptFactory)
-		final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory(null, typeRuleOverrides);
+		final RuleBasedTransactionFactory factory = new RuleBasedTransactionFactory(null, null);
 		factory.addPodParsers(Models.POD_FACTORIES);
 
 		factory.addStructParser("VrfProof", VrfProof::new);
 
-		factory.addPodParser("Address", AddressRules::resolved);
+		factory.addPodParser("Address", SymbolBlockFactory::resolvedAddress);
 		return factory;
+	}
+
+	// replicates the package-private symbol AddressRules.resolved rule via public API
+	private static org.symbol.sdk.symbol.models.Address resolvedAddress(final Object value) {
+		final Address address = Address.parse(value);
+		if (address.isAlias())
+			throw new IllegalArgumentException("resolved address field cannot be a namespace alias: " + address);
+
+		return new org.symbol.sdk.symbol.models.Address(address.bytes());
 	}
 }

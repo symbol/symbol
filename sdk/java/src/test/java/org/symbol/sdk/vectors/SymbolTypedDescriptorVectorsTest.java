@@ -134,7 +134,7 @@ final class SymbolTypedDescriptorVectorsTest {
 		final String type = (String) plain.get("type");
 		final AggregateDescriptorFactory aggregateFactory = AGGREGATE_FACTORIES.get(type);
 		if (null != aggregateFactory)
-			return aggregateFactory.create(transactionsHashOf(plain), mapEmbedded(plain, facade), mapCosignatures(plain));
+			return aggregateFactory.create(getTransactionsHash(plain), mapEmbedded(plain, facade), mapCosignatures(plain));
 
 		switch (type) {
 			case "account_key_link_transaction_v1":
@@ -348,7 +348,7 @@ final class SymbolTypedDescriptorVectorsTest {
 		return list.stream().map(String.class::cast).toArray(String[]::new);
 	}
 
-	private static CryptoTypes.Hash256 transactionsHashOf(final Map<String, Object> plain) {
+	private static CryptoTypes.Hash256 getTransactionsHash(final Map<String, Object> plain) {
 		return new CryptoTypes.Hash256((String) plain.get("transactionsHash"));
 	}
 

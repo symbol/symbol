@@ -64,16 +64,11 @@ public final class TransactionAggregate {
 	}
 
 	public static void main(final String[] args) {
-		Path privatePath = null;
-		for (int i = 0; i < args.length; ++i) {
-			if ("--private".equals(args[i]) && i + 1 < args.length)
-				privatePath = Paths.get(args[++i]);
-			else if (args[i].startsWith("--private="))
-				privatePath = Paths.get(args[i].substring("--private=".length()));
-		}
-
-		if (null == privatePath)
+		final String privateArg = ExamplesUtils.parseFlag(args, "--private");
+		if (null == privateArg)
 			throw new IllegalArgumentException("missing required --private <path-to-private-key>");
+
+		final Path privatePath = Paths.get(privateArg);
 
 		final SymbolFacade facade = new SymbolFacade("testnet");
 		final KeyPair keyPair = ExamplesUtils.readPrivateKey(privatePath);

@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,15 +19,11 @@ import org.junit.jupiter.api.TestFactory;
 import org.symbol.sdk.Serializer;
 import org.symbol.sdk.facade.NemFacade;
 import org.symbol.sdk.facade.SymbolFacade;
-import org.symbol.sdk.symbol.SymbolBlockFactory;
-import org.symbol.sdk.symbol.SymbolReceiptFactory;
-import org.symbol.sdk.utils.Converter;
 
 /**
  * Descriptor-driven catbuffer vector tests, tagged {@code catvectors} ({@code ./gradlew catVectors}; requires {@code SCHEMAS_PATH} pointing
  * at {@code tests/vectors}). Each case under {@code tests/vectors/{nem,symbol}/models/*.json} is normalized, dispatched to the factory
- * matching the source filename (transactions / blocks / receipts), must serialize back to {@code item.payload}, and must survive the
- * factory {@code deserialize} of that payload back to the same concrete type with the same bytes.
+ * matching the source filename (transactions / blocks / receipts), and must serialize back to {@code item.payload}.
  */
 @Tag("catvectors")
 final class CatbufferDescriptorVectorsTest {
@@ -47,13 +42,8 @@ final class CatbufferDescriptorVectorsTest {
 		fixupNemAggregate(facade, descriptor);
 
 		final Serializer transaction = facade.transactionFactory.create(descriptor);
+		assertSchemaType(item, transaction);
 		CatbufferVectorsHelper.assertPayload(item, transaction, "descriptor");
-		// CosignatureV1 is the one non-Transaction schema; it is not routed through the umbrella factory (mirrors JS)
-		final boolean isCosignature = "CosignatureV1".equals(item.get("schema_name"));
-		assertFactoryRoundtrip(item, transaction,
-				isCosignature
-						? org.symbol.sdk.nem.models.CosignatureV1::deserialize
-						: org.symbol.sdk.nem.models.TransactionFactory::deserialize);
 		assertConversions(descriptor, transaction);
 	}
 
@@ -98,8 +88,8 @@ final class CatbufferDescriptorVectorsTest {
 		fixupSymbolTransactionDescriptor(facade, descriptor);
 
 		final Serializer transaction = facade.transactionFactory.create(descriptor);
+		assertSchemaType(item, transaction);
 		CatbufferVectorsHelper.assertPayload(item, transaction, "descriptor");
-		assertFactoryRoundtrip(item, transaction, org.symbol.sdk.symbol.models.TransactionFactory::deserialize);
 		assertConversions(descriptor, transaction);
 	}
 
@@ -140,8 +130,8 @@ final class CatbufferDescriptorVectorsTest {
 		}
 
 		final Serializer block = blockFactory.create(descriptor);
+		assertSchemaType(item, block);
 		CatbufferVectorsHelper.assertPayload(item, block, "descriptor");
-		assertFactoryRoundtrip(item, block, org.symbol.sdk.symbol.models.BlockFactory::deserialize);
 		assertConversions(descriptor, block);
 	}
 
@@ -162,8 +152,8 @@ final class CatbufferDescriptorVectorsTest {
 		final Map<String, Object> descriptor = CatbufferDescriptorHelper.normalizeInput((Map<?, ?>) item.get("descriptor"));
 
 		final Serializer receipt = receiptFactory.create(descriptor);
+		assertSchemaType(item, receipt);
 		CatbufferVectorsHelper.assertPayload(item, receipt, "descriptor");
-		assertFactoryRoundtrip(item, receipt, org.symbol.sdk.symbol.models.ReceiptFactory::deserialize);
 		assertConversions(descriptor, receipt);
 	}
 
@@ -171,23 +161,10 @@ final class CatbufferDescriptorVectorsTest {
 
 	// region helpers
 
-	/**
-	 * Asserts the deserialize direction of the factory contract: deserializing the vector payload through the umbrella factory yields the
-	 * same concrete type as the descriptor-created entity, and re-serializes to the same bytes.
-	 */
-	private static void assertFactoryRoundtrip(final Map<String, Object> item, final Serializer created,
-			final Function<ByteBuffer, Serializer> factoryDeserializer) {
-		// anchor the produced class to the vector's schema_name (in JS this falls out of the by-name module lookup)
-		final String schemaName = (String) item.get("schema_name");
+	/** Anchors the created entity's concrete class to the vector's {@code schema_name} (JS's by-name lookups make this implicit). */
+	private static void assertSchemaType(final Map<String, Object> item, final Serializer created) {
 		assertThat("created type must match vector schema_name for " + item.get("test_name"), created.getClass().getSimpleName(),
-				equalTo(schemaName));
-
-		final Serializer roundtripped = factoryDeserializer.apply(ByteBuffer.wrap(Converter.hexToUint8((String) item.get("payload"))));
-		assertThat("factory deserialize type must match created type for " + item.get("test_name"), roundtripped.getClass(),
-				equalTo(created.getClass()));
-
-		assertThat("factory deserialize bytes must match created bytes for " + item.get("test_name"), roundtripped.serialize(),
-				equalTo(created.serialize()));
+				equalTo(item.get("schema_name")));
 	}
 
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();

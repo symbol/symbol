@@ -122,14 +122,7 @@ public final class TransactionSign {
 	}
 
 	public static void main(final String[] args) {
-		String blockchain = null;
-		for (int i = 0; i < args.length; ++i) {
-			if ("--blockchain".equals(args[i]) && i + 1 < args.length)
-				blockchain = args[++i];
-			else if (args[i].startsWith("--blockchain="))
-				blockchain = args[i].substring("--blockchain=".length());
-		}
-
+		final String blockchain = ExamplesUtils.parseFlag(args, "--blockchain");
 		if (null == blockchain || (!"nem".equals(blockchain) && !"symbol".equals(blockchain)))
 			throw new IllegalArgumentException("--blockchain must be one of: nem, symbol");
 

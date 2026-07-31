@@ -8,10 +8,23 @@ import org.symbol.sdk.CryptoTypes.PrivateKey;
 import org.symbol.sdk.symbol.KeyPair;
 
 /**
- * File-loading helpers shared by the runnable example mains.
+ * Argument-parsing and file-loading helpers shared by the runnable example mains.
  */
 final class ExamplesUtils {
 	private ExamplesUtils() {
+	}
+
+	/** Extracts the value of a {@code --flag value} or {@code --flag=value} argument; last occurrence wins, {@code null} when absent. */
+	static String parseFlag(final String[] args, final String flag) {
+		String value = null;
+		for (int i = 0; i < args.length; ++i) {
+			if (flag.equals(args[i]) && i + 1 < args.length)
+				value = args[++i];
+			else if (args[i].startsWith(flag + "="))
+				value = args[i].substring(flag.length() + 1);
+		}
+
+		return value;
 	}
 
 	/** Reads a UTF-8 file from disk. */
