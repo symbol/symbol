@@ -52,8 +52,8 @@ final class FeeCalculatorTest {
 		final long fee200 = FeeCalculator.calculateTransactionFee(transaction, 200, 5);
 
 		// Assert: transfer size is 160, cosignature size is 104
-		assertThat(fee100, equalTo(16000L + 312L));
-		assertThat(fee150, equalTo(24000L + 416L));
-		assertThat(fee200, equalTo(32000L + 520L));
+		assertThat(fee100, equalTo((160L + 312L) * 100L));
+		assertThat(fee150, equalTo((160L + 416L) * 150L));
+		assertThat(fee200, equalTo((160L + 520L) * 200L));
 	}
 }

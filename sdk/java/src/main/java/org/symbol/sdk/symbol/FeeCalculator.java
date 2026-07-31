@@ -32,6 +32,6 @@ public final class FeeCalculator {
 	 * @return Transaction fee.
 	 */
 	public static long calculateTransactionFee(final Transaction transaction, final long feeMultiplier, final int cosignatureCount) {
-		return (long) transaction.size() * feeMultiplier + COSIGNATURE_SIZE * cosignatureCount;
+		return (transaction.size() + COSIGNATURE_SIZE * cosignatureCount) * feeMultiplier;
 	}
 }
