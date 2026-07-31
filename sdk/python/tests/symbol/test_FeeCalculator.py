@@ -26,6 +26,6 @@ class CalculateTransactionFeeTest(unittest.TestCase):
 		})
 
 		# Act + Assert: transfer size is 160, cosignature size is 104
-		self.assertEqual(16000 + 312, calculate_transaction_fee(transaction, 100, 3))
-		self.assertEqual(24000 + 416, calculate_transaction_fee(transaction, 150, 4))
-		self.assertEqual(32000 + 520, calculate_transaction_fee(transaction, 200, 5))
+		self.assertEqual((160 + 312) * 100, calculate_transaction_fee(transaction, 100, 3))
+		self.assertEqual((160 + 416) * 150, calculate_transaction_fee(transaction, 150, 4))
+		self.assertEqual((160 + 520) * 200, calculate_transaction_fee(transaction, 200, 5))

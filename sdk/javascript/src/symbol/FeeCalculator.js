@@ -8,6 +8,6 @@ import * as sc from './models.js';
  * @returns {bigint} Transaction fee.
  */
 const calculateTransactionFee = (transaction, feeMultiplier, cosignatureCount = 0) =>
-	(BigInt(transaction.size) * BigInt(feeMultiplier)) + (BigInt(new sc.Cosignature().size) * BigInt(cosignatureCount));
+	(BigInt(transaction.size) + (BigInt(new sc.Cosignature().size) * BigInt(cosignatureCount))) * BigInt(feeMultiplier);
 
 export { calculateTransactionFee }; // eslint-disable-line import/prefer-default-export

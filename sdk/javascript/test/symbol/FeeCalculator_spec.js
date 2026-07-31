@@ -26,9 +26,9 @@ describe('FeeCalculator', () => {
 			});
 
 			// Act + Assert: transfer size is 160, cosignature size is 104
-			expect(calculateTransactionFee(transaction, 100, 3)).to.equal(16000n + 312n);
-			expect(calculateTransactionFee(transaction, 150, 4)).to.equal(24000n + 416n);
-			expect(calculateTransactionFee(transaction, 200, 5)).to.equal(32000n + 520n);
+			expect(calculateTransactionFee(transaction, 100, 3)).to.equal((160n + 312n) * 100n);
+			expect(calculateTransactionFee(transaction, 150, 4)).to.equal((160n + 416n) * 150n);
+			expect(calculateTransactionFee(transaction, 200, 5)).to.equal((160n + 520n) * 200n);
 		});
 	});
 });
