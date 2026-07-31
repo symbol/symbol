@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -59,7 +60,8 @@ try:
 		'nonce': MOSAIC_NONCE,
 		'flags': 'revokable'
 	})
-	modify_tx.fee = Amount(fee_multiplier * modify_tx.size)
+	modify_tx.fee = Amount(
+		calculate_transaction_fee(modify_tx, fee_multiplier))
 	# [<step-3]
 	# Sign and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, modify_tx)

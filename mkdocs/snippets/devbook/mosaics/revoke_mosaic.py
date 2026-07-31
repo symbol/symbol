@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
@@ -80,7 +81,8 @@ try:
 			'amount': 7_00
 		}
 	})
-	revoke_tx.fee = Amount(fee_multiplier * revoke_tx.size)
+	revoke_tx.fee = Amount(
+		calculate_transaction_fee(revoke_tx, fee_multiplier))
 	# [<step-4]
 	# Sign and generate final payload [>step-5]
 	signature = facade.sign_transaction(

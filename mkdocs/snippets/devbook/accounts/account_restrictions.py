@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import Address, SymbolFacade
 from symbolchain.sc import AccountRestrictionFlags, Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
@@ -51,7 +52,8 @@ def wait_for_confirmation(tx_hash, label):
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise RuntimeError(f'{label} failed: {status["code"]}')
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
@@ -89,7 +91,7 @@ def restriction_enable_transaction():  # [>step-5]
 		'restriction_additions': [auth_address]
 	})
 	enable_transaction.fee = Amount(
-		fee_multiplier * enable_transaction.size)
+		calculate_transaction_fee(enable_transaction, fee_multiplier))
 	print('Enabling the restriction with transaction:')
 	print(json.dumps(enable_transaction.to_json(), indent=2))
 
@@ -114,7 +116,7 @@ def restriction_disable_transaction(restriction):  # [>step-6]
 		]
 	})
 	disable_transaction.fee = Amount(
-		fee_multiplier * disable_transaction.size)
+		calculate_transaction_fee(disable_transaction, fee_multiplier))
 	print('Disabling the restriction with transaction:')
 	print(json.dumps(disable_transaction.to_json(), indent=2))
 
@@ -152,7 +154,8 @@ try:
 	else:
 		# Disable the restriction
 		print('\n--- Disabling restriction ---')
-		agg_transaction = restriction_disable_transaction(restrictions[0])
+		agg_transaction = restriction_disable_transaction(
+			restrictions[0])
 	# [<step-4]
 	# Sign, announce and wait for confirmation [>step-7]
 	json_payload = facade.transaction_factory.attach_signature(
@@ -169,7 +172,8 @@ try:
 		'deadline': timestamp.add_hours(2).timestamp,
 		'recipient_address': 'TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y'
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(signer_key_pair, transaction))

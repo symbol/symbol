@@ -1,5 +1,10 @@
 import { PrivateKey } from 'symbol-sdk';
-import { NetworkTimestamp, SymbolFacade, models } from 'symbol-sdk/symbol';
+import {
+	NetworkTimestamp,
+	SymbolFacade,
+	calculateTransactionFee,
+	models
+} from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
@@ -57,12 +62,14 @@ try {
 		deadline: timestamp.addHours(2).timestamp,
 		recipientAddress: MONITOR_ADDRESS
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction, signature);
-	const transactionHash = facade.hashTransaction(transaction).toString(); // [<step-4]
+	const transactionHash =
+		facade.hashTransaction(transaction).toString(); // [<step-4]
 	// [>step-5]
 	const confirmed = new Promise(resolve => {
 		websocket.addEventListener('message', event => {

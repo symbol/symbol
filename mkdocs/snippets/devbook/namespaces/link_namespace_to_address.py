@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount, NamespaceId
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import (
 	generate_mosaic_alias_id,
 	generate_namespace_path
@@ -43,7 +44,8 @@ def wait_for_confirmation(tx_hash, label):
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise RuntimeError(f"{label} failed: {status['code']}")
+					raise RuntimeError(
+						f"{label} failed: {status['code']}")
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
@@ -101,7 +103,8 @@ try:
 		'address': target_address,
 		'alias_action': 'link'
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	# [<step-4]
 	# Sign transaction and generate final payload [>step-5]
 	json_payload = facade.transaction_factory.attach_signature(
@@ -120,7 +123,8 @@ try:
 	# Retrieve the namespace to verify the alias [>step-6]
 	namespace_path = f'/namespaces/{namespace_id:x}'
 	print(f'Fetching namespace information from {namespace_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{namespace_path}') as response:
+	with urllib.request.urlopen(
+			f'{NODE_URL}{namespace_path}') as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Alias information:')
@@ -150,7 +154,8 @@ try:
 			'amount': 1_000_000  # 1 XYM
 		}]
 	})
-	test_transaction.fee = Amount(fee_multiplier * test_transaction.size)
+	test_transaction.fee = Amount(
+		calculate_transaction_fee(test_transaction, fee_multiplier))
 	test_json_payload = facade.transaction_factory.attach_signature(
 		test_transaction,
 		facade.sign_transaction(signer_key_pair, test_transaction))

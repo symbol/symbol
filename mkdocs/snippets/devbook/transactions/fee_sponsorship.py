@@ -3,9 +3,10 @@ import os
 import time
 import urllib.request
 
-from symbolchain import sc
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.sc import Amount, Hash256
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -61,13 +62,12 @@ def build_prefunded_message_transaction(recipient_address, message):
 		'transactions': [message_transaction, prefund_transaction]
 	})
 	# Calculate total fee, reserving space for a cosignature
-	cosignature_size = sc.Cosignature().size
-	transaction.fee = sc.Amount(
-		fee_multiplier * (transaction.size + cosignature_size))
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier, 1))
 	# Update the prefund amount to match the total fee
 	prefund_transaction.mosaics[0].amount = transaction.fee
 	# Update the embedded transaction hashes
-	transaction.transactions_hash = sc.Hash256(
+	transaction.transactions_hash = Hash256(
 		facade.hash_embedded_transactions(
 			[message_transaction, prefund_transaction]).bytes)
 	# [<step-4]
@@ -118,9 +118,8 @@ def build_sponsored_message_transaction(recipient_address, message):
 		'transactions': [message_transaction, filler_transaction]
 	})
 	# Calculate total fee, reserving space for a cosignature
-	cosignature_size = sc.Cosignature().size
-	transaction.fee = sc.Amount(
-		fee_multiplier * (transaction.size + cosignature_size))
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier, 1))
 	# [<step-9]
 	# Sign the aggregate transaction using the app's signature [>step-10]
 	facade.transaction_factory.attach_signature(
@@ -141,8 +140,9 @@ try:
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
 		response_json = json.loads(response.read().decode())
-		timestamp = NetworkTimestamp(int(
-			response_json['communicationTimestamps']['receiveTimestamp']))
+		receive_timestamp = (
+			response_json['communicationTimestamps']['receiveTimestamp'])
+		timestamp = NetworkTimestamp(int(receive_timestamp))
 		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
 
 	# Fetch recommended fees

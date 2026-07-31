@@ -2,6 +2,7 @@ import { Hash256, PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -148,10 +149,8 @@ try {
 	});
 	// Reserve space for one cosignature
 	// and calculate fee for the final transaction size
-	const cosignatureSize = new models.Cosignature().size;
 	bondedTransaction.fee = new models.Amount(
-		feeMultiplier * (bondedTransaction.size + cosignatureSize)
-	);
+		calculateTransactionFee(bondedTransaction, feeMultiplier, 1));
 	console.log('Built aggregate without signatures:');
 	console.log(JSON.stringify(bondedTransaction.toJson(), null, 2));
 	// [<step-4]
@@ -179,7 +178,8 @@ try {
 		duration: 100n, // Lock duration in blocks
 		hash: bondedHash
 	});
-	hashLock.fee = new models.Amount(feeMultiplier * hashLock.size);
+	hashLock.fee = new models.Amount(
+		calculateTransactionFee(hashLock, feeMultiplier));
 
 	// Sign hash lock
 	console.log('[Account A] Signing the hash lock...');
@@ -208,7 +208,8 @@ try {
 	// [<step-7]
 	// --- ACCOUNT B (Cosigner) --- [>step-8]
 	// Retrieves partial transactions waiting for signature
-	const partialPath =		`/transactions/partial?address=${accountBAddress}`;
+	const partialPath =
+		`/transactions/partial?address=${accountBAddress}`;
 	console.log(
 		'[Account B] Checking for partial transactions from ' +
 		'/transactions/partial'
@@ -218,7 +219,8 @@ try {
 	if (!partialTxs.data || 0 === partialTxs.data.length)
 		throw new Error('No partial transactions found');
 
-	console.log(`Found ${partialTxs.data.length} partial transaction(s)`);
+	console.log(
+		`Found ${partialTxs.data.length} partial transaction(s)`);
 
 	// Find the transaction matching the expected hash
 	const found = partialTxs.data.some(

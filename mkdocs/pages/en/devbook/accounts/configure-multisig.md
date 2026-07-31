@@ -169,6 +169,8 @@ See the tutorials on [complete](../transactions/complete-aggregate.md) and
 [bonded](../transactions/bonded-aggregate.md) aggregate transactions for more details.
 
 Care is taken when calculating the transaction fee to account for the space required by all cosignatures.
+The {{ tutorial.var('calculate_transaction_fee') }} helper reserves this space through its cosignature-count
+argument, set to the number of cosignatories.
 
 Finally, signatures are attached to the aggregate transaction:
 

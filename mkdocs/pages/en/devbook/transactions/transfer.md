@@ -112,8 +112,10 @@ The snippet includes the following fields:
     For XYM, the divisibility is 6, so 1 XYM must be expressed as `1_000_000`.
 
 Note that the `fee` field is not set in the descriptor.
-Instead, the fee is calculated after the transaction is built, using the previously obtained multiplier and the
-transaction's size in bytes, which is only known once the descriptor has been constructed.
+Instead, the fee is calculated after the transaction is built, once its size in bytes is known.
+
+The SDK's {{ tutorial.var('calculate_transaction_fee') }} helper computes the fee by multiplying the transaction size by
+the fee multiplier.
 
 !!! info "Including a message in the transaction"
 

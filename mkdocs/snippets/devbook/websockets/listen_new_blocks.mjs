@@ -33,7 +33,8 @@ try {
 			const blockMeta = message.data.meta;
 			console.log(
 				'New block:' +
-				` height=${parseInt(block.height, 10).toLocaleString()}` +
+				' height=' +
+				`${parseInt(block.height, 10).toLocaleString()}` +
 				` hash=${blockMeta.hash.substring(0, 16)}...`
 			);
 		}

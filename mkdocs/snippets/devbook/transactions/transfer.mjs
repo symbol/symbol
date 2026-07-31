@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -50,7 +51,8 @@ try {
 			amount: 1_000_000n // 1 XYM
 		}]
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
@@ -70,7 +72,8 @@ try {
 	console.log('  Response:', await announceResponse.text());
 	// [<step-6]
 	// Wait for confirmation [>step-7]
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	console.log('Waiting for confirmation from', statusPath);
 

@@ -19,7 +19,8 @@ try {
 	console.log('Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	if (!namespaceResponse.ok)
-		throw new Error(`HTTP error! status: ${namespaceResponse.status}`);
+		throw new Error(
+			`HTTP error! status: ${namespaceResponse.status}`);
 
 	const namespaceJSON = await namespaceResponse.json();
 	const ns = namespaceJSON.namespace;

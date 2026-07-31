@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	metadataGenerateKey,
 	metadataUpdateValue,
 	models
@@ -118,7 +119,8 @@ try {
 			embeddedTransactions),
 		transactions: embeddedTransactions
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-5]
 	// Sign and generate final payload [>step-6]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
@@ -126,7 +128,8 @@ try {
 		transaction, signature);
 
 	// Announce and wait for confirmation
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(jsonPayload, 'aggregate transaction');
@@ -189,7 +192,7 @@ try {
 		transactions: updateEmbedded
 	});
 	updateTransaction.fee = new models.Amount(
-		feeMultiplier * updateTransaction.size);
+		calculateTransactionFee(updateTransaction, feeMultiplier));
 
 	// Sign and announce the update
 	const updateSignature = facade.signTransaction(

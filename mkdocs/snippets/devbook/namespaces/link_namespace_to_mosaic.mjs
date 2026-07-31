@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	generateNamespacePath,
 	models
@@ -102,7 +103,8 @@ try {
 		mosaicId,
 		aliasAction: 'link'
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
@@ -111,12 +113,14 @@ try {
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce and confirm transaction
 	await announceTransaction(jsonPayload, 'mosaic alias transaction');
-	await waitForConfirmation(transactionHash, 'mosaic alias transaction');
+	await waitForConfirmation(
+		transactionHash, 'mosaic alias transaction');
 	// [<step-5]
 	// Retrieve the namespace to verify the alias [>step-6]
 	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
@@ -150,7 +154,7 @@ try {
 		}]
 	});
 	test_transaction.fee = new models.Amount(
-		feeMultiplier * test_transaction.size);
+		calculateTransactionFee(test_transaction, feeMultiplier));
 	const testJsonPayload =
 		facade.transactionFactory.static.attachSignature(
 			test_transaction,

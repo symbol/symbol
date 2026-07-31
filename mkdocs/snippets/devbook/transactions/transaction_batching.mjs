@@ -3,6 +3,7 @@ import {
 	Address,
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -88,7 +89,7 @@ try {
 		transactions: embeddedTransactions
 	});
 	transaction.fee = new models.Amount(
-		feeMultiplier * transaction.size);
+		calculateTransactionFee(transaction, feeMultiplier));
 	console.log('Built aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-4]
@@ -110,7 +111,8 @@ try {
 	console.log('  Response:', await announceResponse.text());
 	// [<step-5]
 	// Wait for confirmation [>step-6]
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	console.log('Waiting for confirmation from', statusPath);
 

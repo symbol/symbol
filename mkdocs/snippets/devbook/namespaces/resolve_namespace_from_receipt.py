@@ -68,7 +68,8 @@ try:
 					break
 				resolved = entry['resolved']
 			if resolved:
-				address = Address.from_decoded_address_hex_string(resolved)
+				address = Address.from_decoded_address_hex_string(
+					resolved)
 				print('\nAddress resolution:')
 				print(f'  Unresolved:  {statement["unresolved"]}')
 				print(f'  Resolved:   {address}')
@@ -83,7 +84,8 @@ try:
 			mosaic_data = json.loads(response.read().decode())
 
 		mosaic_statements = mosaic_data['data']
-		print(f'  Found {len(mosaic_statements)} resolution statement(s)')
+		print(
+			f'  Found {len(mosaic_statements)} resolution statement(s)')
 
 		for item in mosaic_statements:
 			statement = item['statement']

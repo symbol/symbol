@@ -126,13 +126,14 @@ try {
 
 			// Format and display the balance
 			const formattedBalance = formatAmount(balance, divisibility);
-			const mosaicIdHex =
-				`0x${mosaicId.toString(16).toUpperCase().padStart(16, '0')}`;
+			const mosaicIdHex = `0x${mosaicId.toString(16)
+				.toUpperCase().padStart(16, '0')}`;
 
 			// Display mosaic ID and names (if available)
 			const names = mosaicNames.get(mosaicId) || [];
 			if (0 < names.length)
-				console.log(`- Mosaic ${mosaicIdHex} (${names.join(', ')})`);
+				console.log(
+					`- Mosaic ${mosaicIdHex} (${names.join(', ')})`);
 			else
 				console.log(`- Mosaic ${mosaicIdHex}`);
 

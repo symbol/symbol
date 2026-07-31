@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -59,12 +60,14 @@ try {
 			amount: 1n
 		}]
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction, signature);
-	const transactionHash = facade.hashTransaction(transaction).toString(); // [<step-4]
+	const transactionHash =
+		facade.hashTransaction(transaction).toString(); // [<step-4]
 	// [>step-5]
 	const rejected = new Promise(resolve => {
 		websocket.addEventListener('message', event => {

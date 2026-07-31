@@ -10,7 +10,7 @@ const transactionHash = process.env.TRANSACTION_HASH || // [>step-1]
 console.log(`Monitoring transaction: ${transactionHash}`);
 // [>step-2]
 /**
- * Poll the transaction status endpoint until the transaction is confirmed.
+ * Poll the transaction status endpoint until it is confirmed.
  * @param {string} txHash - The hash of the transaction to monitor
  * @param {number} maxAttempts - Maximum number of polling attempts
  *   for confirmation
@@ -29,7 +29,8 @@ async function waitForTransactionConfirmation(
 	for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 		try {
 			// Query the transaction status endpoint
-			const statusResponse = await fetch(`${NODE_URL}${statusPath}`);
+			const statusResponse =
+				await fetch(`${NODE_URL}${statusPath}`);
 
 			if (!statusResponse.ok) {
 				const status = statusResponse.status;

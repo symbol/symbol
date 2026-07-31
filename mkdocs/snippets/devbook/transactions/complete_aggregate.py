@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount, Cosignature
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -91,15 +92,15 @@ try:
 	})
 	# Reserve space for one cosignature
 	# and calculate fee for the final transaction size
-	cosignature_size = Cosignature().size
 	transaction.fee = Amount(
-		fee_multiplier * (transaction.size + cosignature_size))
+		calculate_transaction_fee(transaction, fee_multiplier, 1))
 	print('Built aggregate transaction without signatures:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-4]
 	# --- ACCOUNT A (Initiator) --- [>step-5]
 	print('[Account A] Signing the aggregate...')
-	signature_a = facade.sign_transaction(account_a_key_pair, transaction)
+	signature_a = facade.sign_transaction(
+		account_a_key_pair, transaction)
 	transaction_payload = facade.transaction_factory.attach_signature(
 		transaction, signature_a)
 	payload_formatted = json.dumps(
@@ -124,7 +125,8 @@ try:
 	# --- OFF-CHAIN COORDINATION ---
 	# Account B sends the cosignature back to Account A
 	shared_cosignature = cosignature_b
-	print('[Account B] <== Cosignature sent back to Account A (offchain)')
+	print(
+		'[Account B] <== Cosignature sent back to Account A (offchain)')
 	# [<step-6]
 	# --- ACCOUNT A (Initiator) --- [>step-7]
 	# Add cosignature to the transaction and rebuild payload

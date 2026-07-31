@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_namespace_id
 from symbolchain.symbol.Network import Address, NetworkTimestamp
 
@@ -64,7 +65,8 @@ try:
 		'parent_id': parent_id,
 		'name': subnamespace_name
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	# [<step-2]
 	# Sign transaction and generate final payload
 	signature = facade.sign_transaction(signer_key_pair, transaction)
