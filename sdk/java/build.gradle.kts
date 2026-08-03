@@ -100,7 +100,7 @@ dependencies {
 	// ed25519 SLIP-0010 + keccak key derivation has no library and stays hand-rolled. Pulls kotlin-stdlib transitively.
 	implementation("network.lightsail:mnemonic4j:0.1.1")
 
-	testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+	testImplementation("org.junit.jupiter:junit-jupiter:6.1.2")
 	testImplementation("org.hamcrest:hamcrest:3.0")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
