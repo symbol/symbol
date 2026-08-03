@@ -37,9 +37,15 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
-      # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
-      # If this step fails, then you should remove it and run the build manually (see below)
-      - name: Autobuild
+      # Java: build explicitly
+      - name: Build Java
+        if: matrix.language == 'java'
+        run: |
+          ./gradlew --no-daemon clean assemble
+
+      # Keep autobuild for interpreted / non-custom cases if desired
+      - name: Autobuild (non-Java)
+        if: matrix.language != 'java'
         uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
