@@ -1,7 +1,7 @@
 plugins {
 	`java-library`
 	jacoco
-	id("com.diffplug.spotless") version "6.25.0"
+	id("com.diffplug.spotless") version "8.9.0"
 }
 
 group = "org.symbol"
