@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
     
     
 
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -12945,8 +12945,7 @@ The rest of the process, including signing and announcing the transaction, remai
 <span class="normal"><a href="#__codelineno-0-51">51</a></span>
 <span class="normal"><a href="#__codelineno-0-52">52</a></span>
 <span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">    </span><span class="c1">// Build the transaction</span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">    </span><span class="c1">// Build the transaction</span>
 </span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">typedDescriptor</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="w">        </span><span class="ow">new</span><span class="w"> </span><span class="nx">descriptors</span><span class="p">.</span><span class="nx">TransferTransactionV1Descriptor</span><span class="p">(</span>
 </span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="w">            </span><span class="nx">facade</span><span class="p">.</span><span class="nx">network</span><span class="p">.</span><span class="nx">publicKeyToAddress</span><span class="p">(</span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">),</span>
@@ -12960,7 +12959,6 @@ The rest of the process, including signing and announcing the transaction, remai
 </span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="w">        </span><span class="p">);</span>
 </span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">transaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">createTransactionFromTypedDescriptor</span><span class="p">(</span>
 </span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="w">        </span><span class="nx">typedDescriptor</span><span class="p">,</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="p">);</span>
-</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="w">    </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span><span class="nx">feeMultiplier</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 <p><a class="source-link" href="https://github.com/symbol/symbol/raw/refs/heads/dev/mkdocs/snippets/devbook/transactions/transfer.typed.mjs">Download the full tutorial code.</a></p>
 </div>
@@ -12983,8 +12981,7 @@ transaction itself.</p>
 <span class="normal"><a href="#__codelineno-1-48">48</a></span>
 <span class="normal"><a href="#__codelineno-1-49">49</a></span>
 <span class="normal"><a href="#__codelineno-1-50">50</a></span>
-<span class="normal"><a href="#__codelineno-1-51">51</a></span>
-<span class="normal"><a href="#__codelineno-1-52">52</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41"></a><span class="w">    </span><span class="c1">// Build the transaction</span>
+<span class="normal"><a href="#__codelineno-1-51">51</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41"></a><span class="w">    </span><span class="c1">// Build the transaction</span>
 </span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">typedDescriptor</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43"></a><span class="w">        </span><span class="ow">new</span><span class="w"> </span><span class="nx">descriptors</span><span class="p">.</span><span class="nx">TransferTransactionV1Descriptor</span><span class="p">(</span>
 </span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44"></a><span class="w">            </span><span class="nx">facade</span><span class="p">.</span><span class="nx">network</span><span class="p">.</span><span class="nx">publicKeyToAddress</span><span class="p">(</span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">),</span>
@@ -12995,7 +12992,6 @@ transaction itself.</p>
 </span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49"></a><span class="w">                    </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span><span class="mf">1</span><span class="nx">_000_000n</span><span class="p">)</span><span class="w"> </span><span class="c1">// 1 XYM</span>
 </span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50"></a><span class="w">                </span><span class="p">)</span>
 </span><span id="__span-1-51"><a id="__codelineno-1-51" name="__codelineno-1-51"></a><span class="w">            </span><span class="p">]</span>
-</span><span id="__span-1-52"><a id="__codelineno-1-52" name="__codelineno-1-52"></a><span class="w">        </span><span class="p">);</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 </div>
 </div>
@@ -13009,9 +13005,9 @@ because of their constructors with structured parameters.</p>
 <div class="tabbed-block">
 <div class="language-js highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-53">53</a></span>
 <span class="normal"><a href="#__codelineno-2-54">54</a></span>
-<span class="normal"><a href="#__codelineno-2-55">55</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-53"><a id="__codelineno-2-53" name="__codelineno-2-53"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">transaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">createTransactionFromTypedDescriptor</span><span class="p">(</span>
-</span><span id="__span-2-54"><a id="__codelineno-2-54" name="__codelineno-2-54"></a><span class="w">        </span><span class="nx">typedDescriptor</span><span class="p">,</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="p">);</span>
-</span><span id="__span-2-55"><a id="__codelineno-2-55" name="__codelineno-2-55"></a><span class="w">    </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">fee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">Amount</span><span class="p">(</span><span class="nx">feeMultiplier</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">size</span><span class="p">);</span>
+<span class="normal"><a href="#__codelineno-2-55">55</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-53"><a id="__codelineno-2-53" name="__codelineno-2-53"></a><span class="w">        </span><span class="p">);</span>
+</span><span id="__span-2-54"><a id="__codelineno-2-54" name="__codelineno-2-54"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">transaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">facade</span><span class="p">.</span><span class="nx">createTransactionFromTypedDescriptor</span><span class="p">(</span>
+</span><span id="__span-2-55"><a id="__codelineno-2-55" name="__codelineno-2-55"></a><span class="w">        </span><span class="nx">typedDescriptor</span><span class="p">,</span><span class="w"> </span><span class="nx">signerKeyPair</span><span class="p">.</span><span class="nx">publicKey</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="p">);</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 </div>
 </div>
@@ -13321,7 +13317,7 @@ There is no difference between transactions created using the typed and untyped 
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../assets/javascripts/katex.js"></script>
       

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
     
     
 
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -13222,7 +13222,8 @@ section.</p>
 <span class="normal"><a href="#__codelineno-0-108">108</a></span>
 <span class="normal"><a href="#__codelineno-0-109">109</a></span>
 <span class="normal"><a href="#__codelineno-0-110">110</a></span>
-<span class="normal"><a href="#__codelineno-0-111">111</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="normal"><a href="#__codelineno-0-111">111</a></span>
+<span class="normal"><a href="#__codelineno-0-112">112</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
@@ -13326,13 +13327,14 @@ section.</p>
 </span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>        <span class="n">encoded_key</span><span class="p">,</span> <span class="n">hashed_value</span><span class="p">,</span> <span class="n">merkle_path</span><span class="p">,</span> <span class="n">state_hash</span><span class="p">,</span> <span class="n">roots</span><span class="p">)</span>
 </span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a>
 </span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a>    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">'VALID_POSITIVE'</span><span class="p">:</span>
-</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> state verified at height </span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>            <span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> proof failed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>
-</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a>        <span class="nb">print</span><span class="p">(</span>
+</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>            <span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> state verified at height </span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>            <span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> proof failed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>
+</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 <p><a class="source-link" href="https://github.com/symbol/symbol/raw/refs/heads/dev/mkdocs/snippets/devbook/chain/prove_mosaic_definition.py">Download source</a></p>
 </div>
@@ -13988,15 +13990,17 @@ The leaf node at the end stores the remaining path nibbles and the hashed value.
 <span class="normal"><a href="#__codelineno-10-105">105</a></span>
 <span class="normal"><a href="#__codelineno-10-106">106</a></span>
 <span class="normal"><a href="#__codelineno-10-107">107</a></span>
-<span class="normal"><a href="#__codelineno-10-108">108</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-100"><a id="__codelineno-10-100" name="__codelineno-10-100"></a>    <span class="c1"># Verify the mosaic state</span>
+<span class="normal"><a href="#__codelineno-10-108">108</a></span>
+<span class="normal"><a href="#__codelineno-10-109">109</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-100"><a id="__codelineno-10-100" name="__codelineno-10-100"></a>    <span class="c1"># Verify the mosaic state</span>
 </span><span id="__span-10-101"><a id="__codelineno-10-101" name="__codelineno-10-101"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">prove_patricia_merkle</span><span class="p">(</span>
 </span><span id="__span-10-102"><a id="__codelineno-10-102" name="__codelineno-10-102"></a>        <span class="n">encoded_key</span><span class="p">,</span> <span class="n">hashed_value</span><span class="p">,</span> <span class="n">merkle_path</span><span class="p">,</span> <span class="n">state_hash</span><span class="p">,</span> <span class="n">roots</span><span class="p">)</span>
 </span><span id="__span-10-103"><a id="__codelineno-10-103" name="__codelineno-10-103"></a>
 </span><span id="__span-10-104"><a id="__codelineno-10-104" name="__codelineno-10-104"></a>    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">'VALID_POSITIVE'</span><span class="p">:</span>
-</span><span id="__span-10-105"><a id="__codelineno-10-105" name="__codelineno-10-105"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> state verified at height </span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-</span><span id="__span-10-106"><a id="__codelineno-10-106" name="__codelineno-10-106"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-10-107"><a id="__codelineno-10-107" name="__codelineno-10-107"></a>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="__span-10-108"><a id="__codelineno-10-108" name="__codelineno-10-108"></a>            <span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> proof failed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</span><span id="__span-10-105"><a id="__codelineno-10-105" name="__codelineno-10-105"></a>        <span class="nb">print</span><span class="p">(</span>
+</span><span id="__span-10-106"><a id="__codelineno-10-106" name="__codelineno-10-106"></a>            <span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> state verified at height </span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</span><span id="__span-10-107"><a id="__codelineno-10-107" name="__codelineno-10-107"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-10-108"><a id="__codelineno-10-108" name="__codelineno-10-108"></a>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+</span><span id="__span-10-109"><a id="__codelineno-10-109" name="__codelineno-10-109"></a>            <span class="sa">f</span><span class="s1">'Mosaic </span><span class="si">{</span><span class="n">mosaic_id_hex</span><span class="si">}</span><span class="s1"> proof failed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 </div>
 <div class="tabbed-block">
@@ -14501,7 +14505,7 @@ fetching the tree path.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tooltips", "navigation.tracking", "navigation.tabs", "toc.follow", "content.tabs.link", "content.code.copy", "content.action.edit", "content.action.view", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../assets/javascripts/katex.js"></script>
       

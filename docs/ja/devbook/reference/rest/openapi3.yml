@@ -4731,7 +4731,8 @@ components:
         Node owners can configure the fee multiplier to any non-negative value (including zero).
         For transaction senders, the median fee multiplier over recent blocks is available
         via `/network/fees/transaction`; using `medianFeeMultiplier` or higher
-        improves chances of inclusion. See the [fees documentation](https://docs.symboltest.net/en/devbook/transactions/transfer/#fetching-recommended-fees).
+        improves chances of inclusion. See the
+        [fees documentation](https://docs.symboltest.net/en/devbook/transactions/transfer/#fetching-recommended-fees).
       examples:
         - 0
         - 100
