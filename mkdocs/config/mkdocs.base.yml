@@ -153,6 +153,7 @@ extra:
       - IdGenerator
       - Restriction
       - ripemd160
+      - FeeCalculator
     redirections:
       - from: guides/account/scams-and-security.html
         to: /en/userbook/security/

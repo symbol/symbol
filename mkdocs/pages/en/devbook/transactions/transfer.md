@@ -114,7 +114,7 @@ The snippet includes the following fields:
 Note that the `fee` field is not set in the descriptor.
 Instead, the fee is calculated after the transaction is built, once its size in bytes is known.
 
-The SDK's {{ tutorial.var('calculate_transaction_fee') }} helper computes the fee by multiplying the transaction size by
+The SDK's <dy:FeeCalculator.calculateTransactionFee> helper computes the fee by multiplying the transaction size by
 the fee multiplier.
 
 !!! info "Including a message in the transaction"
