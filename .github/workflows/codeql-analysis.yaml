@@ -42,15 +42,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
-      # Java: build explicitly
-      - name: Build Java
-        if: matrix.language == 'java'
-        run: |
-          ./gradlew --no-daemon clean assemble
-
-      # Keep autobuild for interpreted / non-custom cases if desired
-      - name: Autobuild (non-Java)
-        if: matrix.language != 'java'
+      - name: Autobuild
         uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
