@@ -8,8 +8,7 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
 from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Network import NetworkTimestamp
-from symbolchain.symbol.Restriction import (
-	mosaic_restriction_generate_key)
+from symbolchain.symbol.Restriction import mosaic_restriction_generate_key
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')

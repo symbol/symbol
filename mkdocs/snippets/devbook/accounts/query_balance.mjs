@@ -131,11 +131,12 @@ try {
 
 			// Display mosaic ID and names (if available)
 			const names = mosaicNames.get(mosaicId) || [];
-			if (0 < names.length)
+			if (0 < names.length) {
 				console.log(
 					`- Mosaic ${mosaicIdHex} (${names.join(', ')})`);
-			else
+			} else {
 				console.log(`- Mosaic ${mosaicIdHex}`);
+			}
 
 			console.log(`  Balance: ${formattedBalance}`);
 			console.log(`  Balance (atomic): ${balance.toString()}`);
