@@ -5,7 +5,8 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount, Cosignature
+from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
@@ -18,7 +19,8 @@ KEY_TEMPLATE = '0' * 63 + '{}'
 # Setup the keys for the multisig account and its two cosignatories
 MULTISIG_PRIVATE_KEY = os.getenv(
 	'MULTISIG_PRIVATE_KEY', KEY_TEMPLATE.format(1))
-multisig_key_pair = SymbolFacade.KeyPair(PrivateKey(MULTISIG_PRIVATE_KEY))
+multisig_key_pair = SymbolFacade.KeyPair(
+	PrivateKey(MULTISIG_PRIVATE_KEY))
 multisig_address = facade.network.public_key_to_address(
 	multisig_key_pair.public_key)
 print(f'Multisig address: {multisig_address} '
@@ -64,7 +66,8 @@ def wait_for_confirmation(tx_hash, label):
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise RuntimeError(f'{label} failed: {status["code"]}')
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
@@ -79,7 +82,8 @@ def get_multisig_cosignatories(address):
 		url = f'{NODE_URL}{multisig_path}'
 		with urllib.request.urlopen(url) as multisig_response:
 			status = json.loads(multisig_response.read().decode())
-			found_cosignatories = status['multisig']['cosignatoryAddresses']
+			found_cosignatories = (
+				status['multisig']['cosignatoryAddresses'])
 			print(f'  Response: {found_cosignatories}')
 			return found_cosignatories
 	except urllib.error.HTTPError:
@@ -116,9 +120,8 @@ def multisig_enable_transaction():
 	})
 	# Reserve space for two cosignatures
 	# and calculate fee for the final transaction size
-	cosignature_size = Cosignature().size
-	transaction.fee = Amount(fee_multiplier *
-		(transaction.size + cosignature_size * len(cosignatory_key_pairs)))
+	transaction.fee = Amount(calculate_transaction_fee(
+		transaction, fee_multiplier, len(cosignatory_key_pairs)))
 	print('Enabling the multisig with the aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-6]
@@ -172,7 +175,8 @@ def multisig_disable_transaction():
 	})
 	# Calculate fee for the final transaction size
 	# (No need to reserve space for cosignatures, as there are none)
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	print('Disabling the multisig with the aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 
@@ -217,7 +221,8 @@ try:
 	# [<step-4]
 	# Announce and wait for confirmation [>step-10]
 	agg_transaction_hash = facade.hash_transaction(agg_transaction)
-	print(f'Built aggregate transaction with hash: {agg_transaction_hash}')
+	print(
+		f'Built aggregate transaction with hash: {agg_transaction_hash}')
 	announce_transaction(json_payload, 'aggregate transaction')
 	wait_for_confirmation(agg_transaction_hash, 'aggregate transaction')
 	# [<step-10]

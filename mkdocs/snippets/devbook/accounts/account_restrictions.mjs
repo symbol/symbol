@@ -5,6 +5,7 @@ import {
 	NetworkTimestamp,
 	SymbolFacade,
 	SymbolTransactionFactory,
+	calculateTransactionFee,
 	models
 } from 'symbol-sdk/symbol';
 
@@ -90,7 +91,8 @@ function restrictionEnableTransaction(timestamp, feeMultiplier) { // [>step-5]
 		// This is the only authorized outgoing address
 		restrictionAdditions: [authAddress]
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	console.log('Enabling the restriction with transaction:');
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
@@ -113,7 +115,8 @@ function restrictionDisableTransaction(timestamp, feeMultiplier, // [>step-6]
 		restrictionDeletions: restriction.values.map(hex =>
 			Address.fromDecodedAddressHexString(hex))
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	console.log('Disabling the restriction with transaction:');
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
@@ -173,7 +176,8 @@ try {
 		deadline: timestamp.addHours(2).timestamp,
 		recipientAddress: 'TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y'
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	payload = SymbolTransactionFactory.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));

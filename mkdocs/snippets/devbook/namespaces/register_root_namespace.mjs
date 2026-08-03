@@ -3,6 +3,7 @@ import {
 	Address,
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateNamespaceId,
 	models
 } from 'symbol-sdk/symbol';
@@ -58,7 +59,7 @@ try {
 		name: namespaceName
 	});
 	transaction.fee = new models.Amount(
-		feeMultiplier * transaction.size);
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(

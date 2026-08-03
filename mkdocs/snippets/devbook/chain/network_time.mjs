@@ -6,7 +6,8 @@ try {
 	// Fetch Nemesis timestamp
 	const propertiesPath = '/network/properties'; // [>step-1]
 	console.log(`Fetching network properties from ${propertiesPath}`);
-	const propertiesResponse = await fetch(`${NODE_URL}${propertiesPath}`);
+	const propertiesResponse =
+		await fetch(`${NODE_URL}${propertiesPath}`);
 	const propertiesJson = await propertiesResponse.json();
 	const nemesisStr = propertiesJson.network.epochAdjustment;
 	const nemesisSeconds = parseInt(nemesisStr.replace('s', ''), 10);
@@ -23,7 +24,8 @@ try {
 	const networkDatetime = new Date(
 		nemesisDatetime.getTime() + networkMs);
 
-	console.log(`\nNemesis time (UTC): ${nemesisDatetime.toISOString()}`);
+	console.log(
+		`\nNemesis time (UTC): ${nemesisDatetime.toISOString()}`);
 	console.log(`Network time (ms since Nemesis): ${networkMs}`);
 	console.log(`Network time (UTC): ${networkDatetime.toISOString()}`); // [<step-3]
 } catch (error) {

@@ -4,6 +4,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -246,7 +247,8 @@ try {
 		hashAlgorithm: 'hash_256'
 	});
 	secretLockTransaction.fee = new models.Amount(
-		(await getFeeMultiplier()) * secretLockTransaction.size);
+		calculateTransactionFee(
+			secretLockTransaction, (await getFeeMultiplier())));
 
 	// Sign and announce
 	const lockSignature = facade.signTransaction(
@@ -278,13 +280,15 @@ try {
 		proof
 	});
 	secretProofTransaction.fee = new models.Amount(
-		(await getFeeMultiplier()) * secretProofTransaction.size);
+		calculateTransactionFee(
+			secretProofTransaction, (await getFeeMultiplier())));
 
 	// Sign and announce
 	const proofSignature = facade.signTransaction(
 		aliceXymKeyPair, secretProofTransaction);
-	const proofPayload = facade.transactionFactory.static.attachSignature(
-		secretProofTransaction, proofSignature);
+	const proofPayload =
+		facade.transactionFactory.static.attachSignature(
+			secretProofTransaction, proofSignature);
 
 	console.log('Built secret proof transaction:');
 	console.dir(secretProofTransaction.toJson(), { colors: true });

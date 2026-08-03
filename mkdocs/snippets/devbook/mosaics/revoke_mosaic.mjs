@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	models
 } from 'symbol-sdk/symbol';
 
@@ -82,7 +83,8 @@ try {
 			amount: 7_00n
 		}
 	});
-	revokeTx.fee = new models.Amount(feeMultiplier * revokeTx.size);
+	revokeTx.fee = new models.Amount(
+		calculateTransactionFee(revokeTx, feeMultiplier));
 	// [<step-4]
 	// Sign and generate final payload [>step-5]
 	const signature = facade.signTransaction(signerKeyPair, revokeTx);

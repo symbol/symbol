@@ -2,6 +2,7 @@ import { Hash256, PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -71,9 +72,8 @@ try {
 			facade.static.hashEmbeddedTransactions(embeddedTxs),
 		transactions: embeddedTxs
 	});
-	const cosignatureSize = new models.Cosignature().size;
 	bondedTx.fee = new models.Amount(
-		feeMultiplier * (bondedTx.size + cosignatureSize));
+		calculateTransactionFee(bondedTx, feeMultiplier, 1));
 
 	// Sign the bonded aggregate
 	const bondedSignature = facade.signTransaction(
@@ -97,7 +97,8 @@ try {
 		duration: 100n,
 		hash: bondedHash
 	});
-	hashLock.fee = new models.Amount(feeMultiplier * hashLock.size);
+	hashLock.fee = new models.Amount(
+		calculateTransactionFee(hashLock, feeMultiplier));
 	const hashLockSignature = facade.signTransaction(
 		accountAKeyPair, hashLock);
 	const hashLockPayload = facade.transactionFactory
@@ -146,7 +147,8 @@ try {
 				resolve();
 			}
 
-			if ('status' === name && message.data.hash === hashLockHash) {
+			if ('status' === name &&
+				message.data.hash === hashLockHash) {
 				reject(new Error(
 					`Hash lock failed: ${message.data.code}`));
 			}

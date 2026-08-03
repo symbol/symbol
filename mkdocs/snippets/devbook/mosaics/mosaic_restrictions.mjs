@@ -4,6 +4,7 @@ import {
 	NetworkTimestamp,
 	SymbolFacade,
 	SymbolTransactionFactory,
+	calculateTransactionFee,
 	models,
 	mosaicRestrictionGenerateKey
 } from 'symbol-sdk/symbol';
@@ -71,7 +72,7 @@ async function waitForConfirmation(transactionHash, label) {
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
 
-// Returns a filtered list of restrictions currently applied to the mosaic
+// Returns restrictions currently applied to the mosaic
 // matching the given restriction key
 async function getMosaicRestrictions(query, key) { // [>step-4]
 	const restrictionsPath = `/restrictions/mosaic?${query}`;
@@ -203,7 +204,8 @@ try {
 			transactions),
 		transactions
 	});
-	aggregate.fee = new models.Amount(feeMultiplier * aggregate.size);
+	aggregate.fee = new models.Amount(
+		calculateTransactionFee(aggregate, feeMultiplier));
 	// [<step-7]
 	// Sign, announce and wait for confirmation
 	let payload = SymbolTransactionFactory.attachSignature( // [>step-8]
@@ -224,7 +226,8 @@ try {
 			amount: 1n
 		}]
 	});
-	transfer.fee = new models.Amount(feeMultiplier * transfer.size);
+	transfer.fee = new models.Amount(
+		calculateTransactionFee(transfer, feeMultiplier));
 
 	payload = SymbolTransactionFactory.attachSignature(
 		transfer,

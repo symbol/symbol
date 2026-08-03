@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -14,8 +15,8 @@ const MULTISIG_PRIVATE_KEY = process.env.MULTISIG_PRIVATE_KEY || (
 const multisigKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(MULTISIG_PRIVATE_KEY));
 console.log(`Multisig public key: ${multisigKeyPair.publicKey}`);
-const COSIGNATORY0_PRIVATE_KEY = process.env.COSIGNATORY0_PRIVATE_KEY || (
-	'0000000000000000000000000000000000000000000000000000000000000002');
+const COSIGNATORY0_PRIVATE_KEY = process.env.COSIGNATORY0_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000002';
 const cosignatoryKeyPair = new SymbolFacade.KeyPair(
 	new PrivateKey(COSIGNATORY0_PRIVATE_KEY));
 console.log(`Cosignatory public key: ${cosignatoryKeyPair.publicKey}`);
@@ -44,16 +45,17 @@ try {
 	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
 	// Build the embedded transfer transaction [>step-3]
-	const transferTransaction = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: multisigKeyPair.publicKey.toString(),
-		recipientAddress: facade.network.publicKeyToAddress(
-			multisigKeyPair.publicKey).toString(),
-		mosaics: [{
-			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 1_000_000n // 1 XYM
-		}]
-	});
+	const transferTransaction =
+		facade.transactionFactory.createEmbedded({
+			type: 'transfer_transaction_v1',
+			signerPublicKey: multisigKeyPair.publicKey.toString(),
+			recipientAddress: facade.network.publicKeyToAddress(
+				multisigKeyPair.publicKey).toString(),
+			mosaics: [{
+				mosaicId: generateMosaicAliasId('symbol.xym'),
+				amount: 1_000_000n // 1 XYM
+			}]
+		});
 	// [<step-3]
 	// Build the wrapper aggregate transaction [>step-4]
 	const transaction = facade.transactionFactory.create({
@@ -65,7 +67,8 @@ try {
 			[transferTransaction]),
 		transactions: [transferTransaction]
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
 	// Sign the aggregate transaction using the cosignatory's signature [>step-5]
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
@@ -85,7 +88,8 @@ try {
 	console.log('  Response:', await announceResponse.text());
 
 	// Wait for confirmation
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
 	console.log('Waiting for confirmation from', statusPath);
 

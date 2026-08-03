@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -62,10 +63,8 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 		transactions: [messageTransaction, prefundTransaction]
 	});
 	// Calculate total fee, reserving space for a cosignature
-	const cosignatureSize = new models.Cosignature().size;
 	transaction.fee = new models.Amount(
-		feeMultiplier * (transaction.size + cosignatureSize)
-	);
+		calculateTransactionFee(transaction, feeMultiplier, 1));
 	// Update the prefund amount to match the total fee
 	prefundTransaction.mosaics[0].amount = transaction.fee;
 	// Update the embedded transaction hashes
@@ -125,10 +124,8 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 		transactions: [messageTransaction, fillerTransaction]
 	});
 	// Calculate total fee, reserving space for a cosignature
-	const cosignatureSize = new models.Cosignature().size;
 	transaction.fee = new models.Amount(
-		feeMultiplier * (transaction.size + cosignatureSize)
-	);
+		calculateTransactionFee(transaction, feeMultiplier, 1));
 	// [<step-9]
 	// Sign the aggregate transaction using the app's signature [>step-10]
 	facade.transactionFactory.static.attachSignature(
@@ -206,7 +203,8 @@ try {
 			const status = await response.json();
 			console.log(`  Transaction status: ${status.group}`);
 			if ('confirmed' === status.group) {
-				console.log(`Transaction confirmed in ${attempt} seconds`);
+				console.log(
+					`Transaction confirmed in ${attempt} seconds`);
 				break;
 			}
 			if ('failed' === status.group) {

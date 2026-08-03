@@ -178,6 +178,8 @@ Once the embedded transactions are prepared, create the complete aggregate trans
 
 The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus
 space reserved for one cosignature.
+The <dy:FeeCalculator.calculateTransactionFee> helper reserves this space through its cosignature-count
+argument, set to `1` here.
 
 ### Signing the Transaction
 

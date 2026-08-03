@@ -102,7 +102,8 @@ try:
 		encoded_key, hashed_value, merkle_path, state_hash, roots)
 
 	if result.name == 'VALID_POSITIVE':
-		print(f'Mosaic {mosaic_id_hex} state verified at height {height}')
+		print(
+			f'Mosaic {mosaic_id_hex} state verified at height {height}')
 	else:
 		raise RuntimeError(
 			f'Mosaic {mosaic_id_hex} proof failed: {result.name}')

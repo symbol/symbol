@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -89,10 +90,8 @@ try {
 	});
 	// Reserve space for one cosignature
 	// and calculate fee for the final transaction size
-	const cosignatureSize = new models.Cosignature().size;
 	transaction.fee = new models.Amount(
-		feeMultiplier * (transaction.size + cosignatureSize)
-	);
+		calculateTransactionFee(transaction, feeMultiplier, 1));
 	console.log('Built aggregate transaction without signatures:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-4]
@@ -150,7 +149,8 @@ try {
 	console.log('  Response:', await announceResponse.text());
 
 	// Compute hash of final transaction (with cosignatures)
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	// [<step-8]
 	// Wait for confirmation [>step-9]
 	const statusPath = `/transactionStatus/${transactionHash}`;

@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicId,
 	models
 } from 'symbol-sdk/symbol';
@@ -94,7 +95,7 @@ try {
 		flags: 'transferable restrictable'
 	});
 	definitionTx.fee = new models.Amount(
-		feeMultiplier * definitionTx.size);
+		calculateTransactionFee(definitionTx, feeMultiplier));
 
 	const mosaicId = generateMosaicId(signerAddress, nonce);
 	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
@@ -108,7 +109,8 @@ try {
 	console.dir(definitionTx.toJson(), { colors: true });
 
 	// Announce and wait for confirmation
-	const definitionHash = facade.hashTransaction(definitionTx).toString();
+	const definitionHash =
+		facade.hashTransaction(definitionTx).toString();
 	console.log('Transaction hash:', definitionHash);
 	await announceTransaction(defPayload, 'mosaic definition');
 	await waitForConfirmation(definitionHash, 'mosaic definition');
@@ -124,7 +126,8 @@ try {
 		action: 'increase',
 		delta: 100_00n
 	});
-	supplyTx.fee = new models.Amount(feeMultiplier * supplyTx.size);
+	supplyTx.fee = new models.Amount(
+		calculateTransactionFee(supplyTx, feeMultiplier));
 	// [<step-6]
 	// Sign and generate final payload [>step-7]
 	const supSignature = facade.signTransaction(

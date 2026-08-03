@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -25,8 +26,9 @@ try:
 	print(f'Fetching current network time from {time_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
 		response_json = json.loads(response.read().decode())
-		timestamp = NetworkTimestamp(int(
-			response_json['communicationTimestamps']['receiveTimestamp']))
+		receive_timestamp = (
+			response_json['communicationTimestamps']['receiveTimestamp'])
+		timestamp = NetworkTimestamp(int(receive_timestamp))
 		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
 	# [<step-2]
 	# Fetch recommended fees [>step-3]
@@ -52,7 +54,8 @@ try:
 			'amount': 1_000_000  # 1 XYM
 		}]
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	# [<step-4]
 	# Sign transaction and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, transaction)

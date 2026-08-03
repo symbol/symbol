@@ -3,6 +3,7 @@ import {
 	MessageEncoder,
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	models
 } from 'symbol-sdk/symbol';
 
@@ -94,7 +95,7 @@ const plainTransaction = facade.transactionFactory.create({
 	message: plainMessage
 }); // [<step-2]
 plainTransaction.fee = new models.Amount(
-	feeMultiplier * plainTransaction.size);
+	calculateTransactionFee(plainTransaction, feeMultiplier));
 
 // Sign and announce the transaction
 const plainSignature = facade.signTransaction(
@@ -137,7 +138,8 @@ const secretMessage = new TextEncoder().encode(
 const encryptedPayload = senderMessageEncoder.encode(
 	recipientKeyPair.publicKey, secretMessage
 );
-console.log('Original message:', new TextDecoder().decode(secretMessage));
+console.log(
+	'Original message:', new TextDecoder().decode(secretMessage));
 console.log('Encrypted payload:',
 	Buffer.from(encryptedPayload).toString('hex'));
 
@@ -151,7 +153,7 @@ const encryptedTransaction = facade.transactionFactory.create({
 	message: encryptedPayload
 }); // [<step-4]
 encryptedTransaction.fee = new models.Amount(
-	feeMultiplier * encryptedTransaction.size);
+	calculateTransactionFee(encryptedTransaction, feeMultiplier));
 
 // Sign and announce the transaction
 const encryptedSignature = facade.signTransaction(

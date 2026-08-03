@@ -9,7 +9,8 @@ try {
 		v.toLocaleString('en-US', { minimumFractionDigits: 6 });
 
 	const maximumResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/max`);
-	const maximumSupply = parseFloat((await maximumResponse.text()).trim());
+	const maximumSupply =
+		parseFloat((await maximumResponse.text()).trim());
 	console.log(`Maximum supply: ${fmt(maximumSupply)} XYM`);
 
 	const totalResponse = await fetch(`${NODE_URL}${SUPPLY_PATH}/total`);
@@ -23,7 +24,8 @@ try {
 	console.log(`Circulating supply: ${fmt(circulatingSupply)} XYM`); // [<step-1]
 	// [>step-2]
 	const nonCirculatingSupply = totalSupply - circulatingSupply;
-	console.log(`Non-circulating supply: ${fmt(nonCirculatingSupply)} XYM`);
+	console.log(
+		`Non-circulating supply: ${fmt(nonCirculatingSupply)} XYM`);
 
 	const unmintedSupply = maximumSupply - totalSupply;
 	console.log(`Unminted supply: ${fmt(unmintedSupply)} XYM`); // [<step-2]

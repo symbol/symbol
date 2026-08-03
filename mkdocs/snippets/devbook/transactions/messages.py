@@ -8,6 +8,7 @@ from binascii import hexlify
 from symbolchain.CryptoTypes import PrivateKey, PublicKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.MessageEncoder import MessageEncoder
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -105,7 +106,8 @@ plain_transaction = facade.transaction_factory.create(
 		"message": plain_message,
 	}
 )  # [<step-2]
-plain_transaction.fee = Amount(fee_multiplier * plain_transaction.size)
+plain_transaction.fee = Amount(
+	calculate_transaction_fee(plain_transaction, fee_multiplier))
 
 # Sign and announce the transaction
 plain_signature = facade.sign_transaction(
@@ -170,7 +172,7 @@ encrypted_transaction = facade.transaction_factory.create(
 	}
 )  # [<step-4]
 encrypted_transaction.fee = Amount(
-	fee_multiplier * encrypted_transaction.size)
+	calculate_transaction_fee(encrypted_transaction, fee_multiplier))
 
 # Sign and announce the transaction
 encrypted_signature = facade.sign_transaction(

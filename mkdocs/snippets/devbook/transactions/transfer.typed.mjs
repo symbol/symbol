@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	descriptors,
 	generateMosaicAliasId,
 	models
@@ -52,7 +53,8 @@ try {
 		);
 	const transaction = facade.createTransactionFromTypedDescriptor(
 		typedDescriptor, signerKeyPair.publicKey, 0, 2 * 60 * 60);
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 
 	// Sign transaction and generate final payload
 	const signature = facade.signTransaction(signerKeyPair, transaction);

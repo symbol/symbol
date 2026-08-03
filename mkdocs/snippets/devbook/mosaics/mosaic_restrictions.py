@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Network import NetworkTimestamp
 from symbolchain.symbol.Restriction import mosaic_restriction_generate_key
 
@@ -61,7 +62,8 @@ def wait_for_confirmation(tx_hash, label):
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise RuntimeError(f"{label} failed: {status['code']}")
+					raise RuntimeError(
+						f"{label} failed: {status['code']}")
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
@@ -187,7 +189,8 @@ try:
 			prev_value, 0, target_address))
 	# [<step-6]
 	# Build an aggregate transaction
-	print('Bundling', len(transactions), 'transaction(s) in an aggregate')  # [>step-7]
+	print(  # [>step-7]
+		'Bundling', len(transactions), 'transaction(s) in an aggregate')
 	transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		'signer_public_key': owner_key_pair.public_key,
@@ -196,7 +199,8 @@ try:
 			transactions),
 		'transactions': transactions
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	# [<step-7]
 	# Sign, announce and wait for confirmation
 	payload = facade.transaction_factory.attach_signature(  # [>step-8]
@@ -217,7 +221,8 @@ try:
 			'amount': 1
 		}]
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(owner_key_pair, transaction))

@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicId,
 	models
 } from 'symbol-sdk/symbol';
@@ -58,7 +59,8 @@ try {
 		nonce: MOSAIC_NONCE,
 		flags: 'revokable'
 	});
-	modifyTx.fee = new models.Amount(feeMultiplier * modifyTx.size);
+	modifyTx.fee = new models.Amount(
+		calculateTransactionFee(modifyTx, feeMultiplier));
 	// [<step-3]
 	// Sign and generate final payload [>step-4]
 	const signature = facade.signTransaction(

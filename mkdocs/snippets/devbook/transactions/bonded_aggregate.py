@@ -5,7 +5,8 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount, Cosignature
+from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -41,7 +42,8 @@ def wait_for_status(hash_value, expected_status, label):
 				print(f'  Transaction status: {status["group"]}')
 
 				if status['group'] == 'failed':
-					raise RuntimeError(f'{label} failed: {status["code"]}')
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
 
 				if status['group'] == expected_status:
 					print(f'{label} {expected_status} ' +
@@ -138,9 +140,8 @@ try:
 	})
 	# Reserve space for one cosignature
 	# and calculate fee for the final transaction size
-	cosignature_size = Cosignature().size
 	bonded_transaction.fee = Amount(
-		fee_multiplier * (bonded_transaction.size + cosignature_size))
+		calculate_transaction_fee(bonded_transaction, fee_multiplier, 1))
 	print('Built aggregate without signatures:')
 	print(json.dumps(bonded_transaction.to_json(), indent=2))
 	# [<step-4]
@@ -167,7 +168,8 @@ try:
 		'duration': 100,  # Lock duration in blocks
 		'hash': bonded_hash
 	})
-	hash_lock.fee = Amount(fee_multiplier * hash_lock.size)
+	hash_lock.fee = Amount(
+		calculate_transaction_fee(hash_lock, fee_multiplier))
 
 	# Sign hash lock
 	print('[Account A] Signing the hash lock...')

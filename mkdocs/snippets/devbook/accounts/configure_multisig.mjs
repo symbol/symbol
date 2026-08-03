@@ -4,6 +4,7 @@ import {
 	NetworkTimestamp,
 	SymbolFacade,
 	SymbolTransactionFactory,
+	calculateTransactionFee,
 	models
 } from 'symbol-sdk/symbol';
 
@@ -18,7 +19,8 @@ const KEY_PREFIX = '0'.repeat(63);
 // Setup the keys for the multisig account and its two cosignatories
 const MULTISIG_PRIVATE_KEY = process.env.MULTISIG_PRIVATE_KEY || (
 	`${KEY_PREFIX}1`);
-const multisigKeyPair = new KeyPair(new PrivateKey(MULTISIG_PRIVATE_KEY));
+const multisigKeyPair = new KeyPair(
+	new PrivateKey(MULTISIG_PRIVATE_KEY));
 const multisigAddress = facade.network.publicKeyToAddress(
 	multisigKeyPair.publicKey);
 console.log(`Multisig address: ${multisigAddress}`,
@@ -119,9 +121,8 @@ function multisigEnableTransaction(timestamp, feeMultiplier) {
 	});
 	// Reserve space for two cosignatures
 	// and calculate fee for the final transaction size
-	const cosignatureSize = new models.Cosignature().size;
-	transaction.fee = new models.Amount(feeMultiplier * (transaction.size +
-		(cosignatureSize * cosignatoryKeyPairs.length)));
+	transaction.fee = new models.Amount(calculateTransactionFee(
+		transaction, feeMultiplier, cosignatoryKeyPairs.length));
 	console.log('Enabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-6]
@@ -177,11 +178,13 @@ function multisigDisableTransaction(timestamp, feeMultiplier) {
 	});
 	// Calculate fee for the final transaction size
 	// (No need to reserve space for cosignatures, as there are none)
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
-	console.log('Disabling the multisig with the aggregate transaction:');
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
+	console.log(
+		'Disabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
-	// Sign the aggregate transaction using the first cosigner's signature
+	// Sign the aggregate with the first cosigner's signature
 	SymbolTransactionFactory.attachSignature(transaction,
 		facade.signTransaction(cosignatoryKeyPairs[0], transaction));
 	// [<step-9]
@@ -211,19 +214,23 @@ try {
 	// [<step-2]
 	// Get current state of the multisig account and decide which [>step-4]
 	// operation to perform
-	const cosignatories = await getMultisigCosignatories(multisigAddress);
+	const cosignatories =
+		await getMultisigCosignatories(multisigAddress);
 	let transaction;
 	if (0 === cosignatories.length) {
 		// Enable the multisig
-		transaction = multisigEnableTransaction(timestamp, feeMultiplier);
+		transaction =
+			multisigEnableTransaction(timestamp, feeMultiplier);
 	} else {
 		// Disable the multisig
-		transaction = multisigDisableTransaction(timestamp, feeMultiplier);
+		transaction =
+			multisigDisableTransaction(timestamp, feeMultiplier);
 	}
 	const payload = SymbolTransactionFactory.toJson(transaction);
 	// [<step-4]
 	// Announce and wait for confirmation [>step-10]
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(payload, 'aggregate transaction');
