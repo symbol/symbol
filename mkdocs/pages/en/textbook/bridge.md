@@ -390,3 +390,8 @@ Problems in any of these dependencies can delay or interrupt bridge operation.
 This means the bridge should be evaluated separately from Symbol itself.
 Symbol can finalize the user's deposit correctly, but the bridge operator is still responsible for detecting that
 deposit and completing the payout on the other network.
+
+# For Further Information
+
+* [Symbol Bridge implementation source code](https://github.com/symbol/product/blob/dev/bridge).
+* [Symbol Bridge API specification](https://bridge.symbol.tools/testnet/ethereum-wrapped/openapi).
