@@ -1,8 +1,11 @@
 import { PublicKey } from 'symbol-sdk';
 import { Address, Network } from 'symbol-sdk/symbol';
 
-const fmt = v => (v / 1e6).toLocaleString(
-	'en-US', { minimumFractionDigits: 6 });
+// Format an atomic amount (BigInt) as whole XYM.
+// A float division would lose precision on large amounts.
+const fmt = v =>
+	`${(v / 1_000_000n).toLocaleString('en-US')}.` +
+	`${(v % 1_000_000n).toString().padStart(6, '0')}`;
 
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
@@ -33,7 +36,7 @@ console.log(`Network sink: ${sinkB32}`);
 // Get the inflation reward at this height [>step-3]
 const inflationUrl = `${NODE_URL}/network/inflation/at/${BLOCK_HEIGHT}`;
 const inflation = await (await fetch(inflationUrl)).json();
-const reward = parseInt(inflation.rewardAmount, 10);
+const reward = BigInt(inflation.rewardAmount);
 console.log(`Inflation reward: ${fmt(reward)} XYM`);
 // [<step-3]
 // Get harvest fee receipts for this block [>step-4]
@@ -42,12 +45,12 @@ const receiptsUrl = `${NODE_URL}/statements/transaction` +
 const receipts = await (await fetch(receiptsUrl)).json();
 
 // Label and display the reward distribution
-let total = 0;
+let total = 0n;
 console.log('\nReward distribution:');
 for (const item of receipts.data) {
 	for (const r of item.statement.receipts) {
 		if (8515 === r.type) {
-			const amount = parseInt(r.amount, 10);
+			const amount = BigInt(r.amount);
 			total += amount;
 			let label;
 			if (r.targetAddress === sink) {

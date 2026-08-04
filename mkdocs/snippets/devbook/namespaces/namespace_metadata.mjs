@@ -62,9 +62,11 @@ console.log('Signer address:', signerAddress.toString());
 // Get namespace name from environment or use default
 const NAMESPACE_NAME = process.env.NAMESPACE_NAME || 'testnamespace';
 const namespaceId = generateNamespaceId(NAMESPACE_NAME);
+const namespaceIdHex = namespaceId.toString(16)
+	.toUpperCase().padStart(16, '0');
 console.log('Namespace name:', NAMESPACE_NAME);
 console.log('Namespace ID:',
-	namespaceId.toString(), `(0x${namespaceId.toString(16)})`);
+	namespaceId.toString(), `(0x${namespaceIdHex})`);
 // [<step-1]
 try {
 	// Fetch current network time [>step-2]
@@ -142,8 +144,6 @@ try {
 
 	// Fetch current metadata value from network [>step-7]
 	const scopedKeyHex = scopedMetadataKey.toString(16)
-		.toUpperCase().padStart(16, '0');
-	const namespaceIdHex = namespaceId.toString(16)
 		.toUpperCase().padStart(16, '0');
 	const metadataPath = '/metadata' +
 		`?sourceAddress=${signerAddress}` +

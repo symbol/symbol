@@ -268,7 +268,7 @@ try:
 		'recipient_address': alice_xym_address,
 		'mosaic': {
 			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 1_000000  # 1 XYM
+			'amount': 1_000_000  # 1 XYM
 		},
 		'duration': lock_duration,
 		'secret': Hash256(hashlock),

@@ -14,9 +14,9 @@ for (;;) {
 
 	const chainInfo = await response.json();
 
-	const height = parseInt(chainInfo.height, 10);
+	const height = BigInt(chainInfo.height);
 	const finalized = chainInfo.latestFinalizedBlock;
-	const finalizedHeight = parseInt(finalized.height, 10);
+	const finalizedHeight = BigInt(finalized.height);
 	// [<step-1]
 	const now = Date.now();
 	// [>step-2]

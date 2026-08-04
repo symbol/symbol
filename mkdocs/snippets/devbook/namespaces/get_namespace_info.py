@@ -15,7 +15,7 @@ try:
 	# Generate namespace ID from name [>step-1]
 	path = generate_namespace_path(NAMESPACE_NAME)
 	namespace_id = path[-1]
-	namespace_id_hex = f'{namespace_id:x}'
+	namespace_id_hex = f'{namespace_id:016X}'
 	print(f'Namespace ID: {namespace_id} (0x{namespace_id_hex})')
 	# [<step-1]
 	# Fetch namespace information [>step-2]

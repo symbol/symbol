@@ -240,7 +240,7 @@ try {
 		recipientAddress: aliceXymAddress.toString(),
 		mosaic: {
 			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 1_000000n // 1 XYM
+			amount: 1_000_000n // 1 XYM
 		},
 		duration: lockDuration,
 		secret: hashlock,

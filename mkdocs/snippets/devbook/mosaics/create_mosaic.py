@@ -99,7 +99,7 @@ try:
 		calculate_transaction_fee(definition_tx, fee_multiplier))
 
 	mosaic_id = generate_mosaic_id(signer_address, nonce)
-	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
+	print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 	# [<step-4]
 	# Sign and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, definition_tx)
@@ -145,7 +145,7 @@ try:
 	# --- VERIFYING MOSAIC ---
 	print('\n--- Verifying mosaic ---')
 	# [>step-8]
-	mosaic_id_hex = f'{mosaic_id:016x}'
+	mosaic_id_hex = f'{mosaic_id:016X}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{mosaic_path}') as response:

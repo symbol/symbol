@@ -74,7 +74,7 @@ tutorial_level: beginner
 
 出力の主なポイント:
 
-* **Namespace ID** (3行目): `symbol.xym` に対して計算されたIDは `0xe74b99ba41f4afee` です。
+* **Namespace ID** (3行目): `symbol.xym` に対して計算されたIDは `0xE74B99BA41F4AFEE` です。
 
 * **Registration type** (6行目): 値 `1` は、これがサブネームスペース（ `symbol` の子）であることを確認します。
 

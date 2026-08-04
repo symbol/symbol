@@ -35,9 +35,9 @@ SOURCE_ADDRESS = os.getenv('SOURCE_ADDRESS',
 	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA')
 print(f'Source address: {SOURCE_ADDRESS}')
 
-MOSAIC_ID_HEX = os.getenv('MOSAIC_ID', '7aed3d514c986941')
+MOSAIC_ID_HEX = os.getenv('MOSAIC_ID', '7AED3D514C986941')
 mosaic_id = int(MOSAIC_ID_HEX, 16)
-print(f'Mosaic ID: {mosaic_id} (0x{MOSAIC_ID_HEX})')
+print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 # [<step-1]
 try:
 	# Fetch current network time [>step-2]

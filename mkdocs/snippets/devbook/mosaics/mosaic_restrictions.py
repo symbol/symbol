@@ -28,7 +28,7 @@ target_address = os.getenv('TARGET_ADDRESS',
 print(f'Target address: {target_address}')
 
 mosaic_id = int(os.getenv('MOSAIC_ID', '6A5ACF2376E50D4A'), 16)
-print(f'Mosaic ID: 0x{mosaic_id:08X}')
+print(f'Mosaic ID: 0x{mosaic_id:016X}')
 restriction_name = os.getenv('RESTRICTION_NAME', 'security_level')
 restriction_key = mosaic_restriction_generate_key(restriction_name)
 print(f'Restriction name: "{restriction_name}"'
@@ -90,12 +90,12 @@ def get_mosaic_restrictions(query, key):  # [>step-4]
 
 def get_mosaic_global_restrictions(queried_mosaic_id, key):
 	return get_mosaic_restrictions(
-		f'mosaicId={queried_mosaic_id:X}&entryType=1', key)  # [<step-4]
+		f'mosaicId={queried_mosaic_id:016X}&entryType=1', key)  # [<step-4]
 
 
 def get_mosaic_address_restrictions(queried_mosaic_id, address, key):  # [>step-5]
 	return get_mosaic_restrictions(
-		f'mosaicId={queried_mosaic_id:X}&'
+		f'mosaicId={queried_mosaic_id:016X}&'
 		f'entryType=0&targetAddress={address}',
 		key)  # [<step-5]
 

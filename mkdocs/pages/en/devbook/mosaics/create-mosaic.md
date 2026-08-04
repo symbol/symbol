@@ -198,7 +198,7 @@ The output shown below corresponds to a typical run of the program.
 Some highlights from the output:
 
 * **Mosaic ID** (line 10): The nonce is combined with the signer's address
-    to derive the mosaic ID `0x736fec06ed1daa73`.
+    to derive the mosaic ID `0x736FEC06ED1DAA73`.
 
 * **Fee** (line 18): The transaction fee of 0.015 XYM is calculated as the transaction size
     multiplied by the fee multiplier. The [lease fee](../../textbook/mosaics.md#lease-fee) is deducted separately

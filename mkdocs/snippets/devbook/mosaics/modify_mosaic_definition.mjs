@@ -47,8 +47,9 @@ try {
 	console.log('Mosaic nonce:', MOSAIC_NONCE);
 
 	const mosaicId = generateMosaicId(signerAddress, MOSAIC_NONCE);
-	console.log(
-		`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
+	const mosaicIdHex = mosaicId.toString(16)
+		.toUpperCase().padStart(16, '0');
+	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicIdHex})`);
 
 	const modifyTx = facade.transactionFactory.create({
 		type: 'mosaic_definition_transaction_v1',
@@ -113,7 +114,6 @@ try {
 	}
 	// [<step-5]
 	// Retrieve the mosaic [>step-6]
-	const mosaicIdHex = mosaicId.toString(16);
 	const mosaicPath = `/mosaics/${mosaicIdHex}`;
 	console.log('Fetching mosaic information from', mosaicPath);
 	const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);
