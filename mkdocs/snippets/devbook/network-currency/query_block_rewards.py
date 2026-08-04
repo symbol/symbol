@@ -11,10 +11,11 @@ print(f'Using node {NODE_URL}')
 BLOCK_HEIGHT = os.getenv('BLOCK_HEIGHT', '3222290')
 
 
-def fmt(amount):
+def fmt(val):
 	# Format atomic amounts as whole XYM with integer math,
 	# since amounts can exceed float precision.
-	return f'{amount // 10**6:,}.{amount % 10**6:06d}'
+	return f'{val // 10**6:,}.{val % 10**6:06d}'
+
 
 try:
 	# Get the block header [>step-1]
