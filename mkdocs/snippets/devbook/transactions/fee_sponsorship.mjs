@@ -50,7 +50,7 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 		),
 		mosaics: [{
 			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 0 // To be filled once value is known
+			amount: 0n // To be filled once value is known
 		}]
 	});
 	// [<step-3]

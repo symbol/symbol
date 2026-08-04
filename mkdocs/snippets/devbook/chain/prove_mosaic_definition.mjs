@@ -65,8 +65,8 @@ try {
 	// Fetch the current network height [>step-3]
 	const chainRes = await fetch(`${NODE_URL}/chain/info`);
 	const chainInfo = await chainRes.json();
-	const height = parseInt(chainInfo.height, 10);
-	console.log('Current height:', height);
+	const height = BigInt(chainInfo.height);
+	console.log(`Current height: ${height}`);
 
 	// Fetch the block's state hash and roots
 	const blockPath = `/blocks/${height}`;

@@ -65,7 +65,7 @@ namespace_name = os.getenv('NAMESPACE_NAME', 'my_namespace')
 print(f'Namespace name: {namespace_name}')
 
 namespace_id = generate_namespace_path(namespace_name)[-1]
-print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
+print(f'Namespace ID: {namespace_id} (0x{namespace_id:016X})')
 
 # Target address to link the namespace to
 target_address = Address(
@@ -121,7 +121,7 @@ try:
 	wait_for_confirmation(transaction_hash, 'address alias transaction')
 	# [<step-5]
 	# Retrieve the namespace to verify the alias [>step-6]
-	namespace_path = f'/namespaces/{namespace_id:x}'
+	namespace_path = f'/namespaces/{namespace_id:016X}'
 	print(f'Fetching namespace information from {namespace_path}')
 	with urllib.request.urlopen(
 		f'{NODE_URL}{namespace_path}') as response:

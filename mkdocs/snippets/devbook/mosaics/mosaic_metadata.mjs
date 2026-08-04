@@ -61,8 +61,9 @@ console.log('Signer address:', signerAddress.toString());
 // Get mosaic ID from environment
 const MOSAIC_ID = process.env.MOSAIC_ID || '6D1314BE751B62C2';
 const mosaicId = BigInt(`0x${MOSAIC_ID}`);
-console.log('Mosaic ID:',
-	mosaicId.toString(), `(0x${mosaicId.toString(16)})`);
+const mosaicIdHex = mosaicId.toString(16)
+	.toUpperCase().padStart(16, '0');
+console.log('Mosaic ID:', mosaicId.toString(), `(0x${mosaicIdHex})`);
 // [<step-1]
 try {
 	// Fetch current network time [>step-2]
@@ -140,8 +141,6 @@ try {
 
 	// Fetch current metadata value from network [>step-7]
 	const scopedKeyHex = scopedMetadataKey.toString(16)
-		.toUpperCase().padStart(16, '0');
-	const mosaicIdHex = mosaicId.toString(16)
 		.toUpperCase().padStart(16, '0');
 	const metadataPath = '/metadata' +
 		`?sourceAddress=${signerAddress}` +

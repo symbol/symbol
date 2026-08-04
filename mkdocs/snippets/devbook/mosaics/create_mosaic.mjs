@@ -98,7 +98,9 @@ try {
 		calculateTransactionFee(definitionTx, feeMultiplier));
 
 	const mosaicId = generateMosaicId(signerAddress, nonce);
-	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
+	const mosaicIdHex = mosaicId.toString(16)
+		.toUpperCase().padStart(16, '0');
+	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicIdHex})`);
 	// [<step-4]
 	// Sign and generate final payload [>step-5]
 	const defSignature = facade.signTransaction(
@@ -146,7 +148,6 @@ try {
 	// --- VERIFYING MOSAIC ---
 	console.log('\n--- Verifying mosaic ---');
 	// [>step-8]
-	const mosaicIdHex = mosaicId.toString(16).padStart(16, '0');
 	const mosaicPath = `/mosaics/${mosaicIdHex}`;
 	console.log('Fetching mosaic information from', mosaicPath);
 	const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);

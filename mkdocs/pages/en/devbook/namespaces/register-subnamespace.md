@@ -133,7 +133,7 @@ Some highlights from the output:
 
 * **Full namespace path** (line 7): The subnamespace `ns_root.sub_1766533103` shows the full name.
 
-* **Parent namespace ID** (lines 8, 33): The parent ID `0xb0786316d5c1d9dd` links this subnamespace to its root.
+* **Parent namespace ID** (lines 8, 33): The parent ID `0xB0786316D5C1D9DD` links this subnamespace to its root.
 
 * **Fee** (line 16): The transaction fee of 0.016 XYM is calculated as the transaction size
     multiplied by the fee multiplier.

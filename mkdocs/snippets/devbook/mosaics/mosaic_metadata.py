@@ -63,7 +63,7 @@ print(f'Signer address: {signer_address}')
 # Get mosaic ID from environment
 MOSAIC_ID = os.getenv('MOSAIC_ID', '6D1314BE751B62C2')
 mosaic_id = int(MOSAIC_ID, 16)
-print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
+print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 # [<step-1]
 try:
 	# Fetch current network time [>step-2]

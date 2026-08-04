@@ -54,7 +54,7 @@ try:
 
 	# Generate the parent namespace ID from the root namespace name
 	parent_id = generate_namespace_id(root_namespace_name)
-	print(f'  Parent namespace ID: {hex(parent_id)}')
+	print(f'  Parent namespace ID: 0x{parent_id:016X}')
 	# [<step-1]
 	# Build the transaction [>step-2]
 	transaction = facade.transaction_factory.create({
@@ -112,9 +112,9 @@ try:
 	# Retrieve the namespace [>step-3]
 	namespace_id = generate_namespace_id(
 		subnamespace_name, parent_id)
-	print(f'Child namespace ID: {namespace_id} ({hex(namespace_id)})')
+	print(f'Child namespace ID: {namespace_id} (0x{namespace_id:016X})')
 
-	namespace_path = f'/namespaces/{namespace_id:x}'
+	namespace_path = f'/namespaces/{namespace_id:016X}'
 	print(f'Fetching namespace information from {namespace_path}')
 	with urllib.request.urlopen(
 		f'{NODE_URL}{namespace_path}'

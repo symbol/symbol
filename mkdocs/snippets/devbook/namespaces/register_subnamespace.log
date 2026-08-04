@@ -5,7 +5,7 @@ Fetching current network time from /node/time
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Creating subnamespace: ns_root.sub_1766533103
-Parent namespace ID: 0xb0786316d5c1d9dd
+Parent namespace ID: 0xB0786316D5C1D9DD
 Built transaction:
 {
   "signature": "9E91F08855D1911BE7208BB3441ACF8AE18EBEB529867D6DAC8552A837E17AA2F05BEBAE510950D5194E0837C4A6E780138CCF29A065F55C05A76CEF6AFA610E",
@@ -27,8 +27,8 @@ Waiting for namespace registration confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
 Namespace registration confirmed in 19 seconds
-Child namespace ID: 11305240440531381773 (0x9ce448486e40ee0d)
-Fetching namespace information from /namespaces/9ce448486e40ee0d
+Child namespace ID: 11305240440531381773 (0x9CE448486E40EE0D)
+Fetching namespace information from /namespaces/9CE448486E40EE0D
 Namespace information:
   Registration type: 1
   Owner address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I

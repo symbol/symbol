@@ -1,7 +1,7 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
 Namespace name: ns_1778584141043
-Namespace ID: 16980998145596513971 (0xeba89fd81fd8deb3)
+Namespace ID: 16980998145596513971 (0xEBA89FD81FD8DEB3)
 Target address: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI
 Fetching current network time from /node/time
   Network time: 111527494401n ms since nemesis
@@ -27,7 +27,7 @@ Waiting for address alias transaction confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
 address alias transaction confirmed in 7 seconds
-Fetching namespace information from /namespaces/eba89fd81fd8deb3
+Fetching namespace information from /namespaces/EBA89FD81FD8DEB3
 Alias information:
   Alias type: 2
   Linked address: TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI

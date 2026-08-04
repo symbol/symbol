@@ -28,7 +28,8 @@ console.log(`Target address: ${targetAddress}`);
 
 const mosaicId = BigInt(`0x${process.env.MOSAIC_ID ||
 	'6A5ACF2376E50D4A'}`);
-console.log(`Mosaic ID: 0x${mosaicId.toString(16).toUpperCase()}`);
+console.log(`Mosaic ID: 0x${mosaicId.toString(16)
+	.toUpperCase().padStart(16, '0')}`);
 
 const restrictionName = process.env.RESTRICTION_NAME || 'security_level';
 const restrictionKey = mosaicRestrictionGenerateKey(restrictionName);
@@ -93,14 +94,16 @@ async function getMosaicRestrictions(query, key) { // [>step-4]
 
 function getMosaicGlobalRestrictions(queriedMosaicId, key) {
 	return getMosaicRestrictions(
-		`mosaicId=${queriedMosaicId.toString(16)}&entryType=1`,
-		key);
+		`mosaicId=${queriedMosaicId.toString(16)
+			.toUpperCase().padStart(16, '0')}` +
+		'&entryType=1', key);
 }
 // [<step-4] [>step-5]
 function getMosaicAddressRestrictions(queriedMosaicId, address, key) {
 	return getMosaicRestrictions(
-		`mosaicId=${queriedMosaicId.toString(16)}&entryType=0` +
-		`&targetAddress=${address}`, key);
+		`mosaicId=${queriedMosaicId.toString(16)
+			.toUpperCase().padStart(16, '0')}` +
+		`&entryType=0&targetAddress=${address}`, key);
 }
 // [<step-5]
 // Returns a transaction enabling a mosaic's global restriction

@@ -65,9 +65,11 @@ console.log('Namespace name:', namespaceName);
 
 const nsPath = generateNamespacePath(namespaceName);
 const namespaceId = nsPath[nsPath.length - 1];
+const namespaceIdHex = namespaceId.toString(16)
+	.toUpperCase().padStart(16, '0');
 console.log(
 	'Namespace ID:',
-	`${namespaceId} (0x${namespaceId.toString(16)})`);
+	`${namespaceId} (0x${namespaceIdHex})`);
 
 // Target address to link the namespace to
 const targetAddress = new SymbolFacade.Address(
@@ -126,7 +128,7 @@ try {
 		transactionHash, 'address alias transaction');
 	// [<step-5]
 	// Retrieve the namespace to verify the alias [>step-6]
-	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
+	const namespacePath = `/namespaces/${namespaceIdHex}`;
 	console.log('Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();

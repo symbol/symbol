@@ -154,7 +154,7 @@ Some highlights from the output:
 * **Mosaic nonce** (line 7): The nonce `1770998662` matches the nonce used when the mosaic was created, targeting
     the same mosaic for modification.
 
-* **Mosaic ID** (line 8): The mosaic ID `0x5bdd3795f7a8b3af` is derived from the nonce and signer address, confirming
+* **Mosaic ID** (line 8): The mosaic ID `0x5BDD3795F7A8B3AF` is derived from the nonce and signer address, confirming
     the correct mosaic is being modified.
 
 * **Transaction properties** (lines 19, 21-22): The modification sets `duration` to `0` (no change),

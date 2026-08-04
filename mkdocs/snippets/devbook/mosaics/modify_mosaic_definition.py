@@ -49,7 +49,7 @@ try:
 	print(f'Mosaic nonce: {MOSAIC_NONCE}')
 
 	mosaic_id = generate_mosaic_id(signer_address, MOSAIC_NONCE)
-	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
+	print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 
 	modify_tx = facade.transaction_factory.create({
 		'type': 'mosaic_definition_transaction_v1',
@@ -105,7 +105,7 @@ try:
 			print('  Transaction status: unknown')
 	# [<step-5]
 	# Retrieve the mosaic [>step-6]
-	mosaic_id_hex = f'{mosaic_id:x}'
+	mosaic_id_hex = f'{mosaic_id:016X}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{mosaic_path}') as response:

@@ -10,6 +10,13 @@ print(f'Using node {NODE_URL}')
 
 BLOCK_HEIGHT = os.getenv('BLOCK_HEIGHT', '3222290')
 
+
+def fmt(val):
+	# Format atomic amounts as whole XYM with integer math,
+	# since amounts can exceed float precision.
+	return f'{val // 10**6:,}.{val % 10**6:06d}'
+
+
 try:
 	# Get the block header [>step-1]
 	block_url = f'{NODE_URL}/blocks/{BLOCK_HEIGHT}'
@@ -37,7 +44,7 @@ try:
 	with urllib.request.urlopen(inflation_url) as response:
 		inflation = json.loads(response.read())
 	reward = int(inflation['rewardAmount'])
-	print(f'Inflation reward: {reward / 1e6:,.6f} XYM')
+	print(f'Inflation reward: {fmt(reward)} XYM')
 	# [<step-3]
 	# Get harvest fee receipts for this block [>step-4]
 	receipts_url = (f'{NODE_URL}/statements/transaction'
@@ -65,14 +72,14 @@ try:
 				harvester_addr = Address.from_decoded_address_hex_string(
 					target)
 				print(f'  Harvester address: {harvester_addr}')
-			print(f'  {label}: {amount / 1e6:,.6f} XYM')
+			print(f'  {label}: {fmt(amount)} XYM')
 	# [<step-4]
 	# Summary [>step-5]
 	fees = total - reward
 	print('\nSummary:')
-	print(f'  Total block reward: {total / 1e6:,.6f} XYM')
-	print(f'  Inflation: {reward / 1e6:,.6f} XYM')
-	print(f'  Transaction fees: {fees / 1e6:,.6f} XYM')
+	print(f'  Total block reward: {fmt(total)} XYM')
+	print(f'  Inflation: {fmt(reward)} XYM')
+	print(f'  Transaction fees: {fmt(fees)} XYM')
 	# [<step-5]
 except Exception as error:
 	print(error)

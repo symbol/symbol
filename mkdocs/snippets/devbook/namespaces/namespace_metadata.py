@@ -65,7 +65,7 @@ print(f'Signer address: {signer_address}')
 NAMESPACE_NAME = os.getenv('NAMESPACE_NAME', 'testnamespace')
 namespace_id = generate_namespace_id(NAMESPACE_NAME)
 print(f'Namespace name: {NAMESPACE_NAME}')
-print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
+print(f'Namespace ID: {namespace_id} (0x{namespace_id:016X})')
 # [<step-1]
 try:
 	# Fetch current network time [>step-2]
