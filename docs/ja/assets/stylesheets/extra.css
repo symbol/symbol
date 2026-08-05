@@ -436,6 +436,16 @@ code.doc-symbol-interface::after {
 	content: "interface";
 }
 
+code.doc-symbol-variable,
+a code.doc-symbol-variable {
+	color: var(--doc-symbol-attribute-fg-color);
+	background-color: var(--doc-symbol-attribute-bg-color);
+}
+
+code.doc-symbol-variable::after {
+	content: "var";
+}
+
 /* Reset admonition text size to normal */
 .md-typeset .admonition,
 .md-typeset details {
@@ -506,30 +516,17 @@ code.doc-symbol-interface::after {
 
 /* Tutorial steps */
 .big-number {
-	font-size: xx-large;
+	font-size: x-large;
 	color: var(--md-primary-fg-color);
 }
 
-.md-typeset .tutorial {
+.md-typeset table.tutorial {
+	border: 0;
 	font-size: inherit;
 }
 
-.md-typeset .tutorial>.tutorial-step {
-	display: flow-root;
-	padding: 1em;
-	border-top: 1px solid var(--md-default-bg-color--light);
-}
-
-.md-typeset .tutorial>.tutorial-step:last-child {
-	border-bottom: 1px solid var(--md-default-bg-color--light);
-}
-
-.md-typeset .tutorial>.tutorial-step:hover {
+.md-typeset table.tutorial tr:hover {
 	background-color: var(--md-typeset-table-color--light);
-}
-
-.md-typeset .tutorial>.tutorial-step>p:first-child {
-	margin-top: 0;
 }
 
 .md-typeset .tutorial img {
@@ -538,26 +535,10 @@ code.doc-symbol-interface::after {
 	margin-left: 1em;
 }
 
-.md-typeset .tutorial.tutorial-portrait img {
-	width: 25%;
-	outline: 1px solid var(--md-default-bg-color--light);
-}
-
-.md-typeset .tutorial .tutorial-alt-grid img {
-	float: none;
-	width: 75%;
-	margin: 0;
-	outline: 1px solid var(--md-default-bg-color--light);
-}
-
-.md-typeset img.tutorial-result {
-	width: 50%;
-	outline: 1px solid var(--md-default-bg-color--light);
-}
-
-.md-typeset a.glightbox:has(img.tutorial-result) {
-	display: block;
-	text-align: center;
+.md-typeset .tutorial td {
+	padding: 1em;
+	border-top: 1px solid var(--md-default-bg-color--light);
+	border-bottom: 1px solid var(--md-default-bg-color--light);
 }
 
 /* Links around code blocks */

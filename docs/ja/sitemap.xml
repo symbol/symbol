@@ -2,1434 +2,2330 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.symboltest.net/ja/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/404/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/intro/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/accounts/account-metadata/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/accounts/account-restrictions/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/accounts/configure-multisig/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/accounts/create-from-mnemonic/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/accounts/create-from-private-key/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/accounts/query-balance/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/accounts/testnet-faucet/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/chain/chain-heights/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/chain/network-time/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/chain/prove-mosaic-definition/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/chain/prove-transaction/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/mosaics/change-mosaic-supply/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/mosaics/create-mosaic/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/mosaics/get-mosaic-info/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/mosaics/modify-mosaic-definition/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/mosaics/mosaic-metadata/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/mosaics/mosaic-restrictions/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/mosaics/revoke-mosaic/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/extend-root-namespace/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/get-namespace-info/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/link-namespace-to-address/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/link-namespace-to-mosaic/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/namespace-metadata/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/register-root-namespace/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/register-subnamespace/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/namespaces/resolve-namespace-from-receipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/network-currency/query-block-rewards/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/network-currency/query-currency-supply/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/config/network-properties/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/config/node-properties/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/BaseValue/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/Bip32.Bip32Node/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/Bip32/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/ByteArray/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CatbufferType/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CipherTypes.AesCbcCipher/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CipherTypes.AesGcmCipher/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CipherTypes.SymmetricCipher/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CipherTypes/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CryptoException/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CryptoTypes.Hash256/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CryptoTypes.PrivateKey/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CryptoTypes.PublicKey/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CryptoTypes.SharedKey256/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CryptoTypes.Signature/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/CryptoTypes/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/InvalidDescriptorException/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/JsonDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/KeyPair/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/MessageEncoderResult/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/Network.NetworkLocator/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/Network/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/NetworkTimestamp.Base/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/NetworkTimestamp.NetworkTimestampDatetimeConverter.TimeUnit/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/NetworkTimestamp.NetworkTimestampDatetimeConverter/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/NetworkTimestamp/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/RuleBasedTransactionFactory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/Serializer/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/TransactionDescriptorProcessor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/TypedDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/Verifier/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/links/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/package-summary/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/package-tree/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/Account/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/BlockchainFacade/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/FacadeFactory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/PublicAccount/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/SymbolFacade.SymbolAccount/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/SymbolFacade.SymbolPublicAccount/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/SymbolFacade/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/package-summary/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/facade/package-tree/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Address/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/BaseTransaction/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/FeeCalculator/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/IdGenerator/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/KeyPair/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle.BranchNode/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle.LeafNode/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle.MerkleHashBuilder/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle.MerklePart/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle.PatriciaMerkleProofResult/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle.PatriciaTreePath/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle.TreeNode/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Merkle/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/MessageEncoder/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Metadata/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Network/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/NetworkTimestamp/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Restriction/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/SharedKey/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/SymbolTransactionFactory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/Verifier/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/VotingKeysGenerator/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/package-summary/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/package-tree/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AccountAddressRestrictionTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AccountKeyLinkTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AccountMetadataTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AccountMosaicRestrictionTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AccountOperationRestrictionTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AddressAliasTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AggregateBondedTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AggregateBondedTransactionV2Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AggregateBondedTransactionV3Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AggregateCompleteTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AggregateCompleteTransactionV2Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/AggregateCompleteTransactionV3Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/CosignatureDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/DetachedCosignatureDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/HashLockTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicAddressRestrictionTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicAliasTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicDefinitionTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicGlobalRestrictionTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicMetadataTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicSupplyChangeTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MosaicSupplyRevocationTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/MultisigAccountModificationTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/NamespaceMetadataTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/NamespaceRegistrationTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/NodeKeyLinkTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/SecretLockTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/SecretProofTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/SymbolTransactionDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/SymbolTypedDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/TransferTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/UnresolvedMosaicDescriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/VotingKeyLinkTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/VrfKeyLinkTransactionV1Descriptor/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/package-summary/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/descriptors/package-tree/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AccountAddressRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AccountKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AccountMetadataTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AccountMosaicRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AccountOperationRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AccountRestrictionFlags/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Address/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AddressAliasTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AddressResolutionEntry/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AddressResolutionStatement/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AggregateBondedTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AggregateBondedTransactionV2/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AggregateBondedTransactionV3/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AggregateCompleteTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AggregateCompleteTransactionV2/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AggregateCompleteTransactionV3/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/AliasAction/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Amount/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Block/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/BlockDuration/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/BlockFactory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/BlockFeeMultiplier/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/BlockStatement/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/BlockType/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Cosignature/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/DetachedCosignature/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Difficulty/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedAccountAddressRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedAccountKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedAccountMetadataTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedAccountMosaicRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedAccountOperationRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedAddressAliasTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedHashLockTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMosaicAddressRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMosaicAliasTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMosaicDefinitionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMosaicGlobalRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMosaicMetadataTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMosaicSupplyChangeTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMosaicSupplyRevocationTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedMultisigAccountModificationTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedNamespaceMetadataTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedNamespaceRegistrationTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedNodeKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedSecretLockTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedSecretProofTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedTransaction/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedTransactionFactory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedTransferTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedVotingKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/EmbeddedVrfKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/FinalizationEpoch/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/FinalizationPoint/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/FinalizationRound/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/FinalizedBlockHeader/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/HarvestFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Hash256/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Hash512/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/HashLockTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Height/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Importance/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ImportanceBlockV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ImportanceHeight/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/InflationReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LinkAction/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LockHashAlgorithm/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LockHashCompletedFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LockHashCreatedFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LockHashExpiredFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LockSecretCompletedFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LockSecretCreatedFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/LockSecretExpiredFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Models/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Mosaic/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicAddressRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicAliasTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicDefinitionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicExpiredReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicFlags/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicGlobalRestrictionTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicId/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicMetadataTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicNonce/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicRentalFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicResolutionEntry/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicResolutionStatement/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicRestrictionKey/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicRestrictionType/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicSupplyChangeAction/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicSupplyChangeTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MosaicSupplyRevocationTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/MultisigAccountModificationTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NamespaceDeletedReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NamespaceExpiredReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NamespaceId/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NamespaceMetadataTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NamespaceRegistrationTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NamespaceRegistrationType/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NamespaceRentalFeeReceipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NemesisBlockV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NetworkType/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NodeKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/NormalBlockV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ProofGamma/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ProofScalar/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ProofVerificationHash/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/PublicKey/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Receipt/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ReceiptFactory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ReceiptSource/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/ReceiptType/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/SecretLockTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/SecretProofTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Signature/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Timestamp/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/Transaction/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/TransactionFactory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/TransactionStatement/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/TransactionType/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/TransferTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/UnresolvedAddress/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/UnresolvedMosaic/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/UnresolvedMosaicId/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/VotingKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/VotingPublicKey/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/VrfKeyLinkTransactionV1/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/VrfProof/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/package-summary/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/symbol/models/package-tree/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/ArrayHelpers.Factory/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/ArrayHelpers/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/Base32/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/BufferView/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/Converter/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/Transforms/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/Writer/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/package-summary/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/devbook/reference/java/utils/package-tree/</loc>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/AccountDescriptorRepository/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/ArrayHelpers/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/BaseValue/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/Bip32/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/BlockchainSettings/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/BufferReader/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/BufferWriter/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/ByteArray/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/Cipher/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/CodeWordsEncoder/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/CryptoTypes/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/DiceMnemonicGenerator/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/Network/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/NetworkTimestamp/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/NodeDescriptorRepository/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/PrivateKeyStorage/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/QrSignatureStorage/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/QrStorage/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/RuleBasedTransactionFactory/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/TransactionDescriptorProcessor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/Transforms/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/links/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/ripemd160/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/external/ed25519/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/facade/BatchOperations/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/facade/SymbolFacade/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/FeeCalculator/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/IdGenerator/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/KeyPair/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/Merkle/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/MessageEncoder/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/Metadata/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/Network/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/Restriction/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/TransactionFactory/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/py/symbol/VotingKeysGenerator/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/rest/symbol/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/serialization/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/links/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/Bip32/Bip32/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/Bip32/Bip32Node/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/Network/AddressConstructable/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/Network/Constructable/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/Network/EncodedSizeAccessor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/Network/Network/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/Network/NetworkLocator/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/NetworkTimestamp/NetworkTimestamp/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/NetworkTimestamp/NetworkTimestampDatetimeConverter/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/BaseValue/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/ByteArray/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/Hash256/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/PrivateKey/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/PublicKey/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/SharedKey256/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/Signature/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/bytesToBigInt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/bytesToInt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/deepCompare/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/hexToUint8/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/intToBytes/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/isHexString/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/tryParseUint/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/index/utils/uint8ToHex/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/Address/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/KeyPair/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/Network/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/NetworkTimestamp/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/SymbolAccount/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/SymbolFacade/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/SymbolPublicAccount/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/SymbolTransactionFactory/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/Verifier/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/VotingKeysGenerator/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/calculateTransactionFee/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/generateMosaicAliasId/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/generateMosaicId/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/generateNamespaceId/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/generateNamespacePath/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/isMosaicAlias/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/isValidNamespaceName/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/metadataGenerateKey/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/metadataUpdateValue/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/mosaicRestrictionGenerateKey/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/MessageEncoder/TryDecodeResult/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/MessageEncoder/default/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AccountAddressRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AccountKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AccountMetadataTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AccountMosaicRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AccountOperationRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AddressAliasTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AggregateBondedTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AggregateBondedTransactionV2Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AggregateBondedTransactionV3Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AggregateCompleteTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AggregateCompleteTransactionV2Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/AggregateCompleteTransactionV3Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/CosignatureDescriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/DetachedCosignatureDescriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/HashLockTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicAddressRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicAliasTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicDefinitionTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicDescriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicGlobalRestrictionTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicMetadataTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicSupplyChangeTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MosaicSupplyRevocationTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/MultisigAccountModificationTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/NamespaceMetadataTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/NamespaceRegistrationTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/NodeKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/SecretLockTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/SecretProofTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/TransferTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/UnresolvedMosaicDescriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/VotingKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/descriptors/VrfKeyLinkTransactionV1Descriptor/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/BranchNode/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/LeafNode/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/MerkleHashBuilder/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/MerklePart/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/PatriciaMerkleProofResult/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/PatriciaTreePath/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/TreeNode/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/deserializePatriciaTreeNodes/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/proveMerkle/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/merkle/provePatriciaMerkle/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AccountAddressRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AccountKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AccountMetadataTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AccountMosaicRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AccountOperationRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AccountRestrictionFlags/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Address/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AddressAliasTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AddressResolutionEntry/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AddressResolutionStatement/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AggregateBondedTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AggregateBondedTransactionV2/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AggregateBondedTransactionV3/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AggregateCompleteTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AggregateCompleteTransactionV2/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AggregateCompleteTransactionV3/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/AliasAction/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Amount/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Block/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/BlockDuration/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/BlockFactory/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/BlockFeeMultiplier/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/BlockStatement/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/BlockType/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Cosignature/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/DetachedCosignature/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Difficulty/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedAccountAddressRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedAccountKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedAccountMetadataTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedAccountMosaicRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedAccountOperationRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedAddressAliasTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedHashLockTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMosaicAddressRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMosaicAliasTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMosaicDefinitionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMosaicGlobalRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMosaicMetadataTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMosaicSupplyChangeTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMosaicSupplyRevocationTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedMultisigAccountModificationTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedNamespaceMetadataTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedNamespaceRegistrationTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedNodeKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedSecretLockTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedSecretProofTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedTransaction/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedTransactionFactory/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedTransferTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedVotingKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/EmbeddedVrfKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/FinalizationEpoch/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/FinalizationPoint/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/FinalizationRound/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/FinalizedBlockHeader/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/HarvestFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Hash256/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Hash512/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/HashLockTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Height/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Importance/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ImportanceBlockV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ImportanceHeight/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/InflationReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LinkAction/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LockHashAlgorithm/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LockHashCompletedFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LockHashCreatedFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LockHashExpiredFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LockSecretCompletedFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LockSecretCreatedFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/LockSecretExpiredFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Mosaic/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicAddressRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicAliasTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicDefinitionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicExpiredReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicFlags/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicGlobalRestrictionTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicId/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicMetadataTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicNonce/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicRentalFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicResolutionEntry/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicResolutionStatement/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicRestrictionKey/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicRestrictionType/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicSupplyChangeAction/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicSupplyChangeTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MosaicSupplyRevocationTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/MultisigAccountModificationTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NamespaceDeletedReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NamespaceExpiredReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NamespaceId/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NamespaceMetadataTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NamespaceRegistrationTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NamespaceRegistrationType/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NamespaceRentalFeeReceipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NemesisBlockV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NetworkType/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NodeKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/NormalBlockV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ProofGamma/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ProofScalar/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ProofVerificationHash/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/PublicKey/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Receipt/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ReceiptFactory/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ReceiptSource/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/ReceiptType/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/SecretLockTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/SecretProofTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Signature/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Timestamp/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/Transaction/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/TransactionFactory/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/TransactionStatement/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/TransactionType/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/TransferTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/UnresolvedAddress/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/UnresolvedMosaic/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/UnresolvedMosaicId/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/VotingKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/VotingPublicKey/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/VrfKeyLinkTransactionV1/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/ts/symbol/models/VrfProof/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/websockets/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/reference/whitepaper/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/start/hello-world/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/start/setup/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/atomic-swap/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/bonded-aggregate/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/complete-aggregate/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/cross-chain-swap/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/fee-sponsorship/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/messages/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/monitoring-status/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/sign-multisig/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/transaction-batching/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/transfer/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/transactions/typed-descriptors/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/websockets/listen-bonded-transaction-flow/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/websockets/listen-new-blocks/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/websockets/listen-transaction-error/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/devbook/websockets/listen-transaction-flow/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/accounts/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/blocks/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/bridge/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/catapult/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/cats/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/consensus/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/cross-chain-swaps/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/cryptography/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/glossary/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/harvesting/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/intro/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/metadata/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/mosaics/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/namespaces/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/nodes/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/restrictions/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/transactions/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/textbook/transfer_transactions/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/userbook/intro/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/userbook/security/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/create-account/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/create-profile/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/delete-account/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/delete-profile/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/export-profile/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/import-account/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/import-profile/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/install/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/desktop-wallet/intro/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/bridge-tokens/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/change-node/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/check-transaction-history/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/create-account/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/create-wallet/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/delete-account/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/enable-harvesting/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/export-account/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/export-wallet/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/import-account/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/import-wallet/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/install/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/intro/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/logout-wallet/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/receive-funds/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/send-funds-and-messages/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/share-address-qr-code/</loc>
-         <lastmod>2026-08-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.symboltest.net/ja/userbook/mobile-wallet/use-test-network/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/userbook/shoestring/install/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/userbook/shoestring/maintain/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/userbook/shoestring/overview/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
     </url>
     <url>
          <loc>https://docs.symboltest.net/ja/userbook/shoestring/quickstart/</loc>
-         <lastmod>2026-08-04</lastmod>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/create-account/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/create-profile/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/delete-account/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/delete-profile/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/export-profile/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/import-account/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/import-profile/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.symboltest.net/ja/userbook/wallet/install/</loc>
+         <lastmod>2026-08-05</lastmod>
     </url>
 </urlset>
