@@ -42,11 +42,12 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
-      # Java: build explicitly
+      # Java: build explicitly (the Gradle project lives in sdk/java, not the repo root)
       - name: Build Java
         if: matrix.language == 'java'
+        working-directory: sdk/java
         run: |
-          gradle --no-daemon clean assemble
+          ./gradlew --no-daemon clean assemble
 
       # Keep autobuild for interpreted / non-custom cases if desired
       - name: Autobuild (non-Java)
