@@ -1,8 +1,8 @@
 ---
-title: Installing the Wallet
+title: Installing the App
 ---
 
-# Installing the Symbol Mobile Wallet
+# Installing the Symbol Mobile Wallet App
 
 ## What Is It
 
