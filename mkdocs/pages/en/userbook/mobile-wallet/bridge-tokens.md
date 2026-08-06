@@ -74,12 +74,14 @@ Enter the amount.
 The summary box shows:
 
 * **You Send**: The amount sent from the source account.
-* **Transaction Fee**: The fee paid on the source network.
-* **Bridge Fee**: The fee deducted by the bridge.
+* **Transaction Fee**: Estimate of the fee paid on the source network.
+* **Bridge Fee**: Estimate of the fee deducted by the bridge.
 * **You Receive**: The final amount received on the target network.
 
-Fees are subtracted from the amount sent.
-If the amount cannot cover the fees, **Amount too low** is shown and the **SEND** button is disabled.
+Fees are subtracted from the amount sent, and their final value is only known when the bridge processes the request.
+Additionally, the bridge does not provide <slippage:> protection.
+
+If the amount is not expected to cover the fees, **Amount too low** is shown and the **SEND** button is disabled.
 Fees can be substantial on Ethereum.
 
 Enter a valid amount and tap **SEND**.
@@ -131,8 +133,6 @@ This involves waiting for a transaction to confirm on the target network.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("bridge-12.webp") }}
-When the swap is completed, it disappears from the **RECENT HISTORY** list.
-
 The tokens are now available in the wallet.
 Tap the back arrow to return to the **ACTIONS** screen.
 {{ tutorial.step_end() }}
