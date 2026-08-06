@@ -39,18 +39,18 @@ Symbol Desktop Wallet で新しいプロファイルを作成するには、以�
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-0.webp") }}
 Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロファイルを作成しますか？）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-1.webp") }}
 **Create Mnemonic** （ニーモニックの作成）をクリックします。
 
 新しいプロファイルを作成するには、プロファイル内のアカウントを生成するための新しいシードが必要です。  
 ウォレットが、あなたのために一意のシークレットフレーズ（ニーモニックとも呼ばれます）を生成します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-2.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-2.webp") }}
 プロファイルの詳細を入力します。
 
 プロファイルに名前を付けます。  
@@ -66,18 +66,18 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 **Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-3.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-3.webp") }}
 プログレスバーが 100% になるまで、画面上でマウスを動かします。
 
 この動きは、一意のシークレットフレーズを生成するためのランダム性（エントロピー）を確保するためのものです。  
 これにより、2人のユーザーが偶然同じフレーズになることは防ぎます。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-4.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-4.webp") }}
 **Display mnemonic words** （ニーモニック単語を表示）をクリックして、シークレットフレーズを表示します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-5.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-5.webp") }}
 コピーボタン :octicons-copy-24: をクリックしてフレーズを保存します。
 
 暗号化されたメモアプリやパスワードマネージャーなど、秘密で安全な場所にフレーズを貼り付けます。
@@ -86,13 +86,13 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 紛失や不正アクセスの恐れがあるため、デジタルデバイス上のみに保管することは避けてください。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-6.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-6.webp") }}
 正しい順序で単語を選択してフレーズを確認します。完了したら **Next** （次へ）をクリックします。
 
 このステップでは、フレーズを正しい順序で正確に書き留めているかを確認します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-7.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-7.webp") }}
 安全に関するヒントを読み、利用規約に同意して、 **Finish** （完了）をクリックします。
 {{ tutorial.step_end() }}
 
@@ -100,7 +100,7 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 
 ウォレットのメイン画面に移動します。
 
-![プロファイルの作成成功](screenshots/create-profile-8.jpg)
+![プロファイルの作成成功](screenshots/create-profile-8.webp)
 
 最初のアカウントはすでにシードフレーズから生成されているため、すぐに作業を開始できます。  
 例えば、アカウントのアドレスを共有して資金を受け取ることができます。

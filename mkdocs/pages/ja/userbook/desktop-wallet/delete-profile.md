@@ -29,15 +29,15 @@ title: プロファイルの削除
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/delete-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-profile-0.webp") }}
 ウォレットのメイン画面で、右上隅にある **:material-cog: Settings** （設定）ボタンをクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-profile-1.webp") }}
 **Delete Profile** （プロファイルの削除）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-profile-2.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-profile-2.webp") }}
 プロファイルを削除することを確認します。
 
 この操作は元に戻すことはできません。  

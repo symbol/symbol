@@ -26,15 +26,15 @@ See [Creating a Profile](./create-profile.md) or [Importing a Profile](./import-
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 From the wallet’s main screen, go to the **Accounts** tab.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-account-1.jpg") }}
+{{ tutorial.step_begin("screenshots/create-account-1.webp") }}
 Click **:material-plus-circle: Add an account** at the bottom of the screen.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-account-2.jpg") }}
+{{ tutorial.step_begin("screenshots/import-account-2.webp") }}
 In the **Select the Type of Account** dropdown, choose **"I want to import an existing account private key"**.
 
 Enter a name in the **New Account Name** field to help you recognize the account later.
@@ -50,7 +50,7 @@ Then click **Confirm** to import the account.
 
 The imported account will be added to your list of managed accounts, in the **Private key accounts** section.
 
-![New account created](screenshots/import-account-3.jpg)
+![New account created](screenshots/import-account-3.webp)
 
 !!! warning
     Imported accounts are not recoverable from your <mnemonic phrase:>.

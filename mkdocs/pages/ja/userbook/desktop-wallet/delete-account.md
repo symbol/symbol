@@ -28,27 +28,27 @@ title: アカウントの削除
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 Symbol Desktop Wallet の **Accounts** （アカウント）タブに移動します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-1.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-1.webp") }}
 左側のリストから、削除したいアカウントをクリックします。
 
 現在選択されているアカウントは、色付きのアイコンで表示されます。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-2.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-2.webp") }}
 **Account Information** （アカウント情報）パネルにある **Delete Account** （アカウントの削除）ボタンをクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-3.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-3.webp") }}
 確認ダイアログで、アカウントを削除することを確認するためのチェックボックスをオンにします。
 
 その後、 **Confirm** （確認）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-4.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-4.webp") }}
 プロファイルのパスワードを入力して削除を承認し、再度 **Confirm** （確認）をクリックします。
 {{ tutorial.step_end() }}
 
@@ -56,7 +56,7 @@ Symbol Desktop Wallet の **Accounts** （アカウント）タブに移動し�
 
 削除されたアカウントは、管理対象アカウントのリストに表示されなくなります。
 
-![正常に削除されたアカウント](screenshots/delete-account-5.jpg)
+![正常に削除されたアカウント](screenshots/delete-account-5.webp)
 
 ## 次のステップ {: #next-steps }
 

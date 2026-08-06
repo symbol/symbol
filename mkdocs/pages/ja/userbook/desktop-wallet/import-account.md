@@ -26,15 +26,15 @@ title: アカウントのインポート
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 ウォレットのメイン画面から、 **Accounts** （アカウント）タブに移動します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-account-1.jpg") }}
+{{ tutorial.step_begin("screenshots/create-account-1.webp") }}
 画面下部の **:material-plus-circle: Add an account** （アカウントの追加）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-account-2.jpg") }}
+{{ tutorial.step_begin("screenshots/import-account-2.webp") }}
 **Select the Type of Account** （アカウントの種類を選択）ドロップダウンで、 **"I want to import an existing account private key"** （既存のアカウントの秘密鍵をインポートする）を選択します。
 
 後でアカウントを識別できるように、 **New Account Name** （新しいアカウント名）フィールドに名前を入力します。
@@ -50,7 +50,7 @@ title: アカウントのインポート
 
 インポートされたアカウントは、 **Private key accounts** （秘密鍵アカウント）セクションの管理対象アカウントのリストに追加されます。
 
-![インポートされた新しいアカウント](screenshots/import-account-3.jpg)
+![インポートされた新しいアカウント](screenshots/import-account-3.webp)
 
 !!! warning "警告"
     インポートされたアカウントは、 [ニーモニックフレーズ](default:ニーモニックフレーズ) から復元することはできません。

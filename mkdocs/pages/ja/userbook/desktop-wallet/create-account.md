@@ -25,15 +25,15 @@ title: アカウントの作成
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 ウォレットのメイン画面から、 **Accounts** （アカウント）タブに移動します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-account-1.jpg") }}
+{{ tutorial.step_begin("screenshots/create-account-1.webp") }}
 画面下部の **:material-plus-circle: Add an account** （アカウントの追加）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-account-2.jpg") }}
+{{ tutorial.step_begin("screenshots/create-account-2.webp") }}
 フォームに入力して、新しいアカウントを設定します。
 
 **Select the Type of Account** （アカウントの種類を選択）では、デフォルトのオプションである
@@ -51,7 +51,7 @@ title: アカウントの作成
 
 新しいアカウントはプロファイルのニーモニックフレーズから生成され、 **Seed accounts** （シードアカウント）セクションの管理対象アカウントのリストに追加されます。
 
-![作成された新しいアカウント](screenshots/create-account-3.jpg)
+![作成された新しいアカウント](screenshots/create-account-3.webp)
 
 これはシードアカウントであるため、ニーモニックフレーズのバックアップからいつでも再生成できます。したがって、その秘密鍵を個別にバックアップする必要はありません。
 

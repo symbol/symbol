@@ -25,39 +25,39 @@ Symbol [テストネット](default:テストネット) では、テスト目的
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("faucet-open.jpg") }}
+{{ tutorial.step_begin("faucet-open.webp") }}
 ウェブブラウザを開き、Symbol テストネット Faucet（[testnet.symbol.tools](https://testnet.symbol.tools)）にアクセスします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("faucet-sign-in.jpg") }}
+{{ tutorial.step_begin("faucet-sign-in.webp") }}
 **Sign in with Twitter**（現在の 𝕏）をクリックし、認証フローに従います。
 
 このステップは、Faucet の悪用を防ぐために、1アカウントあたりのテスト資金を 10,000 XYM に制限するために設けられています。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("faucet-authorize.jpg") }}
+{{ tutorial.step_begin("faucet-authorize.webp") }}
 サインイン後、𝕏 から Faucet アプリケーションがアカウント情報にアクセスすることを許可するか確認されます。
 
 権限を確認し、**Authorize app** をクリックして続行します。承認されると、再び Faucet にリダイレクトされます。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("faucet-address.jpg") }}
+{{ tutorial.step_begin("faucet-address.webp") }}
 **Your Testnet Address** フィールドに、資金を受け取りたいアドレスを入力します。
 
 アドレスが `T` で始まっていることを確認してください。これはテストネットアカウントであることを意味します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("faucet-xym.jpg") }}
+{{ tutorial.step_begin("faucet-xym.webp") }}
 **XYM Amount** フィールドに、請求したい XYM の量を指定します。
 1回のリクエストあたりの最大量は 10,000 XYM です。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("faucet-claim.jpg") }}
+{{ tutorial.step_begin("faucet-claim.webp") }}
 **Claim** をクリックしてリクエストを送信します。
 リクエストが成功すると、Faucet は指定された量の XYM をあなたのアドレスに転送します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("faucet-view-explorer.jpg") }}
+{{ tutorial.step_begin("faucet-view-explorer.webp") }}
 右上の通知にある **View in Explorer** をクリックして、トランザクションが処理されたことを確認します。
 
 エクスプローラーには、承認状態を含むトランザクションの詳細が表示されます。通常のネットワーク条件下では、トランザクションは概ね1分以内に承認されます。

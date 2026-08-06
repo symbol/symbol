@@ -33,36 +33,36 @@ If you have not done that yet, see the [Installing the Wallet](./install.md) gui
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-0.webp") }}
 Open the Symbol Desktop Wallet and log in to the profile you want to export.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 Select the **Accounts** tab.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-2.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-2.webp") }}
 Click **:material-download: Backup Profile**.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-3.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-3.webp") }}
 Enter your profile password to confirm access.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-4.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-4.webp") }}
 Click the **:material-download: Download** button.
 
 You will receive a PDF document containing a <paper wallet:>.  
 This document should be printed and then deleted from your device for security.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-5.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-5.webp") }}
 This image shows an example of a paper wallet containing an exported <mnemonic phrase:>.
 
 You can use this phrase to restore all accounts derived from it.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-6.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-6.webp") }}
 This image shows an example of a paper wallet containing an individual account.
 
 The account may have been generated from a mnemonic phrase or imported directly from a <private key:>.

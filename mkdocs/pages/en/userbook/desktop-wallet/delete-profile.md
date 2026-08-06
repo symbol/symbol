@@ -25,15 +25,15 @@ If you have not done that yet, see the [Installing the Wallet](./install.md) gui
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/delete-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-profile-0.webp") }}
 From the wallet’s main screen, click the **:material-cog: Settings** button in the top-right corner.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-profile-1.webp") }}
 Click **Delete Profile**.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-profile-2.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-profile-2.webp") }}
 Confirm that you want to delete the profile.
 
 This action cannot be undone.  

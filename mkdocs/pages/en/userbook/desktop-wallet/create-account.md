@@ -26,15 +26,15 @@ See [Creating a Profile](./create-profile.md) or [Importing a Profile](./import-
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 From the wallet’s main screen, go to the **Accounts** tab.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-account-1.jpg") }}
+{{ tutorial.step_begin("screenshots/create-account-1.webp") }}
 Click **:material-plus-circle: Add an account** at the bottom of the screen.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/create-account-2.jpg") }}
+{{ tutorial.step_begin("screenshots/create-account-2.webp") }}
 Configure the new account by filling out the form.
 
 Leave the default option selected in **Select the Type of Account**:
@@ -53,7 +53,7 @@ Then click **Confirm** to create the account.
 The new account will be generated from your profile’s mnemonic phrase and added to your list of managed accounts,
 in the **Seed accounts** section.
 
-![New account created](screenshots/create-account-3.jpg)
+![New account created](screenshots/create-account-3.webp)
 
 Since this is a seed account, it can always be regenerated from any backup of the mnemonic phrase,
 so its private key does not need to be backed up independently.

@@ -24,15 +24,15 @@ title: プロファイルのインポート
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-0.webp") }}
 Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロファイルを作成しますか？）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-1.webp") }}
 **Import Profile** （プロファイルのインポート）を選択します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-2.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-2.webp") }}
 プロファイルの詳細を入力します。
 
 プロファイルに名前を付けます。  
@@ -47,7 +47,7 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 **Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-3.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-3.webp") }}
 復元したいプロファイルのニーモニックフレーズを入力します。
 
 これは、プロファイルを最初に作成したときに受け取ったシークレットフレーズです。  
@@ -57,7 +57,7 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 **Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-4.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-4.webp") }}
 復元するアカウントを選択します。
 
 ウォレットはニーモニックをスキャンして関連するアカウントを検索し、プロファイルに含めるアカウントを選択できるようにします。
@@ -71,7 +71,7 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 アカウントの選択が完了したら、 **Next** （次へ）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-5.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-5.webp") }}
 安全に関するヒントを読み、利用規約に同意して、 **Finish** （完了）をクリックします。
 {{ tutorial.step_end() }}
 
@@ -79,7 +79,7 @@ Symbol Desktop Wallet を開き、 **Create a new profile?** （新しいプロ�
 
 ウォレットのメイン画面に移動します。
 
-![プロファイルの作成成功](screenshots/create-profile-8.jpg)
+![プロファイルの作成成功](screenshots/create-profile-8.webp)
 
 ## 次のステップ {: #next-steps }
 

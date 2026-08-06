@@ -29,27 +29,27 @@ See [Creating a Profile](./create-profile.md) or [Importing a Profile](./import-
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 Go to the **Accounts** tab in the Symbol Desktop Wallet.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-1.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-1.webp") }}
 Click on the account you want to delete in the list on the left.
 
 The currently selected account is the one with a colored icon.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-2.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-2.webp") }}
 Click the **Delete Account** button in the **Account Information** panel.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-3.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-3.webp") }}
 In the confirmation dialog, check the box to confirm that you want to delete the account.
 
 Then click **Confirm**.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/delete-account-4.jpg") }}
+{{ tutorial.step_begin("screenshots/delete-account-4.webp") }}
 Enter your profile password to authorize the deletion, and click **Confirm** again.
 {{ tutorial.step_end() }}
 
@@ -57,7 +57,7 @@ Enter your profile password to authorize the deletion, and click **Confirm** aga
 
 The deleted account will no longer appear in the list of managed accounts.
 
-![Account successfully deleted](screenshots/delete-account-5.jpg)
+![Account successfully deleted](screenshots/delete-account-5.webp)
 
 ## Next Steps
 

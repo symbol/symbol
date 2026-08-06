@@ -24,15 +24,15 @@ If the profile was originally created in the Symbol Desktop Wallet, see the [Exp
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/create-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-0.webp") }}
 Open the Symbol Desktop Wallet and click **Create a new profile?**
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-1.webp") }}
 Select **Import Profile**.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-2.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-2.webp") }}
 Fill in your profile details:
 
 Give your profile a name.  
@@ -47,7 +47,7 @@ Optionally, add a password hint.
 Click **Next**.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-3.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-3.webp") }}
 Enter the mnemonic phrase for the profile you want to restore.
 
 This is the secret phrase you received when you first created the profile.  
@@ -57,7 +57,7 @@ The **Next** button will remain disabled until the phrase is valid.
 Click **Next**.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-4.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-4.webp") }}
 Select which accounts to restore.
 
 The wallet will scan the mnemonic for associated accounts and let you choose which ones to include in the profile.
@@ -71,7 +71,7 @@ See the [Creating an Account](./create-account.md) tutorial.
 Click **Next** when you are done selecting accounts.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/import-profile-5.jpg") }}
+{{ tutorial.step_begin("screenshots/import-profile-5.webp") }}
 Read the safety tips, accept the Terms and Conditions, and click **Finish**.
 {{ tutorial.step_end() }}
 
@@ -79,7 +79,7 @@ Read the safety tips, accept the Terms and Conditions, and click **Finish**.
 
 You will be taken to the main screen of the wallet:
 
-![Profile created successfully](screenshots/create-profile-8.jpg)
+![Profile created successfully](screenshots/create-profile-8.webp)
 
 ## Next Steps
 

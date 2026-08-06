@@ -36,36 +36,36 @@ Symbol Desktop Walletは、プロファイルをペーパーウォレットと�
 
 {{ tutorial.list_begin() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-0.webp") }}
 Symbol Desktop Walletを開き、エクスポートしたいプロファイルにログインします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-1.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-1.webp") }}
 **Accounts** （アカウント）タブを選択します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-2.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-2.webp") }}
 **:material-download: Backup Profile** （プロファイルのバックアップ）をクリックします。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-3.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-3.webp") }}
 プロファイルのパスワードを入力してアクセスを確認します。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-4.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-4.webp") }}
 **:material-download: Download** （ダウンロード）ボタンをクリックします。
 
 [ペーパーウォレット](default:ペーパーウォレット) を含むPDFドキュメントがダウンロードされます。  
 セキュリティのため、このドキュメントは印刷した後にデバイスから削除してください。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-5.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-5.webp") }}
 この画像は、エクスポートされた [ニーモニックフレーズ](default:ニーモニックフレーズ) を含むペーパーウォレットの例を示しています。
 
 このフレーズを使用して、そこから派生したすべてのアカウントを復元できます。
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("screenshots/export-profile-6.jpg") }}
+{{ tutorial.step_begin("screenshots/export-profile-6.webp") }}
 この画像は、個別のアカウントを含むペーパーウォレットの例を示しています。
 
 このアカウントは、ニーモニックフレーズから生成されたか、 [秘密鍵](default:秘密鍵) から直接インポートされたものです。
