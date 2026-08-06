@@ -35,7 +35,8 @@ Select **Import Profile**.
 {{ tutorial.step_begin("screenshots/import-profile-2.webp") }}
 Fill in your profile details:
 
-Give your profile a name.  
+Give your profile a name.
+
 This is just for your own reference to help you keep multiple profiles organized.
 
 Select the network type (usually `Mainnet`).
@@ -50,8 +51,10 @@ Click **Next**.
 {{ tutorial.step_begin("screenshots/import-profile-3.webp") }}
 Enter the mnemonic phrase for the profile you want to restore.
 
-This is the secret phrase you received when you first created the profile.  
-Make sure the words are in the correct order and separated by spaces.  
+This is the secret phrase you received when you first created the profile.
+
+Make sure the words are in the correct order and separated by spaces.
+
 The **Next** button will remain disabled until the phrase is valid.
 
 Click **Next**.
@@ -65,7 +68,8 @@ The wallet will scan the mnemonic for associated accounts and let you choose whi
 Some of these accounts may have never been used.
 To help you decide which ones to recover, their current XYM balances are shown.
 
-You can add any accounts you do not select now at a later time.  
+You can add any accounts you do not select now at a later time.
+
 See the [Creating an Account](./create-account.md) tutorial.
 
 Click **Next** when you are done selecting accounts.

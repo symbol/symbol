@@ -37,8 +37,10 @@ Tap the **Add Account** button in the bottom-right corner.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-account-2.webp") }}
-Enter a name for the new account.  
-This label helps you recognize the account later.  
+Enter a name for the new account.
+
+This label helps you recognize the account later.
+
 Select one of the available seed accounts.
 All seed accounts shown here are derived from the wallet's mnemonic phrase.
 {{ tutorial.step_end() }}

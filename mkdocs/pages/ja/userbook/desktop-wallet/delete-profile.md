@@ -40,7 +40,8 @@ title: プロファイルの削除
 {{ tutorial.step_begin("screenshots/delete-profile-2.webp") }}
 プロファイルを削除することを確認します。
 
-この操作は元に戻すことはできません。  
+この操作は元に戻すことはできません。
+
 続行する前に、バックアップがあることを確認してください。
 {{ tutorial.step_end() }}
 

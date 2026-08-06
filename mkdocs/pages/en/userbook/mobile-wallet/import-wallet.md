@@ -38,21 +38,25 @@ Follow these steps to import an existing wallet into the Symbol Mobile Wallet:
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-0.webp") }}
-Open the Symbol Mobile Wallet and tap **Import Wallet**.  
+Open the Symbol Mobile Wallet and tap **Import Wallet**.
+
 If you do not see the welcome screen, a wallet is already active and you need to [log out](./logout-wallet.md)
 or [create an account](./create-account.md) inside it instead.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("import-wallet-1.webp") }}
-Enter the mnemonic phrase for the wallet you want to import.  
+Enter the mnemonic phrase for the wallet you want to import.
+
 Make sure the words are in the correct order and separated by spaces.
 
 Tap **Next**.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-wallet-3.webp") }}
-Create a PIN code and confirm it.  
-This PIN protects access to the wallet on your device.  
+Create a PIN code and confirm it.
+
+This PIN protects access to the wallet on your device.
+
 Choose one you can remember, but do not share it with anyone.
 {{ tutorial.step_end() }}
 

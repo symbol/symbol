@@ -47,21 +47,24 @@ Open the Symbol Desktop Wallet and click **Create a new profile?**
 {{ tutorial.step_begin("screenshots/create-profile-1.webp") }}
 Click **Create Mnemonic**.
 
-To create a new profile, you need a new seed, which will generate the accounts in your profile.  
+To create a new profile, you need a new seed, which will generate the accounts in your profile.
+
 The wallet will generate a unique secret phrase (also called a mnemonic) for you.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-profile-2.webp") }}
 Fill in your profile details:
 
-Give your profile a name.  
+Give your profile a name.
+
 This is just for your own reference to help you keep multiple profiles organized.
 
 Select the network type (usually `Mainnet`).
 
 Enter and confirm a password.
 
-Optionally, add a password hint.  
+Optionally, add a password hint.
+
 This hint can help jog your memory if you forget the password.
 
 Click **Next**.
@@ -70,7 +73,8 @@ Click **Next**.
 {{ tutorial.step_begin("screenshots/create-profile-3.webp") }}
 Move your mouse around the screen until the progress bar reaches 100%.
 
-This motion is used as a source of randomness (entropy) to help generate a truly unique secret phrase.  
+This motion is used as a source of randomness (entropy) to help generate a truly unique secret phrase.
+
 It ensures that no two users will ever end up with the same phrase by chance.
 {{ tutorial.step_end() }}
 
@@ -83,7 +87,8 @@ Click the copy button :octicons-copy-24: to save the phrase.
 
 Paste the phrase somewhere secret and secure, such as an encrypted notes app or a password manager.
 
-Ideally, also copy the phrase by hand onto a piece of paper and store it in a safe place.  
+Ideally, also copy the phrase by hand onto a piece of paper and store it in a safe place.
+
 Avoid keeping it only on a digital device, which could be lost or compromised.
 {{ tutorial.step_end() }}
 

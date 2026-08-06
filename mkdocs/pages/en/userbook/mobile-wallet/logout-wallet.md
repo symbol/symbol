@@ -39,7 +39,7 @@ From the wallet's **:material-home: HOME** screen, tap the **:material-cog: Sett
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-wallet-1.webp") }}
-Tap **Logout**.
+Tap **:material-minus: Logout**.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("logout-wallet-2.webp") }}

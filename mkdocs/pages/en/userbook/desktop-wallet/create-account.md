@@ -40,7 +40,8 @@ Configure the new account by filling out the form.
 Leave the default option selected in **Select the Type of Account**:
 **"I want to create a seed account for my profile"**.
 
-Enter a name in the **New Account Name** field.  
+Enter a name in the **New Account Name** field.
+
 This label will help you recognize the account later.
 
 In the **Password** field, enter your profile password to authorize the operation.

@@ -30,8 +30,10 @@ Follow these steps to show an account address as a QR code and scan it with anot
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("share-address-0.webp") }}
-From the wallet's **:material-home: HOME** screen, select the account you want to share from the account dropdown.  
-In this example, **Second account** is selected.  
+From the wallet's **:material-home: HOME** screen, select the account you want to share from the account dropdown.
+
+In this example, **Second account** is selected.
+
 Tap **:fontawesome-regular-user: DETAILS** on the left of the account box.
 {{ tutorial.step_end() }}
 
@@ -40,7 +42,8 @@ On the account details screen, tap **:octicons-download-24: RECEIVE**.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("share-address-2.webp") }}
-A QR code is shown for the account address.  
+A QR code is shown for the account address.
+
 Keep it on screen.
 {{ tutorial.step_end() }}
 
@@ -51,12 +54,14 @@ and point the camera at the QR code.
 
 {{ tutorial.step_begin("share-address-3.webp") }}
 The **SHARED INFORMATION** screen appears on the second device, showing the shared address and a list of available
-actions.  
+actions.
+
 Tap **:fontawesome-regular-paper-plane: Send Transaction**.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("share-address-4.webp") }}
-The **TRANSFER** form is shown with the **RECIPIENT** field already filled in with the shared address.  
+The **TRANSFER** form is shown with the **RECIPIENT** field already filled in with the shared address.
+
 This guide stops here but you can complete the transaction by following
 [Sending Funds and Messages](./send-funds-and-messages.md).
 {{ tutorial.step_end() }}

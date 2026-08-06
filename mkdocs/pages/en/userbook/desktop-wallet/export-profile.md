@@ -52,7 +52,8 @@ Enter your profile password to confirm access.
 {{ tutorial.step_begin("screenshots/export-profile-4.webp") }}
 Click the **:material-download: Download** button.
 
-You will receive a PDF document containing a <paper wallet:>.  
+You will receive a PDF document containing a <paper wallet:>.
+
 This document should be printed and then deleted from your device for security.
 {{ tutorial.step_end() }}
 

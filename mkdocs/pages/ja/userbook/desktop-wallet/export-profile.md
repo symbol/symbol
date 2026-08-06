@@ -55,7 +55,8 @@ Symbol Desktop Walletを開き、エクスポートしたいプロファイル�
 {{ tutorial.step_begin("screenshots/export-profile-4.webp") }}
 **:material-download: Download** （ダウンロード）ボタンをクリックします。
 
-[ペーパーウォレット](default:ペーパーウォレット) を含むPDFドキュメントがダウンロードされます。  
+[ペーパーウォレット](default:ペーパーウォレット) を含むPDFドキュメントがダウンロードされます。
+
 セキュリティのため、このドキュメントは印刷した後にデバイスから削除してください。
 {{ tutorial.step_end() }}
 

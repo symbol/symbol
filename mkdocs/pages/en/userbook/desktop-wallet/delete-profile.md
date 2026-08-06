@@ -36,7 +36,8 @@ Click **Delete Profile**.
 {{ tutorial.step_begin("screenshots/delete-profile-2.webp") }}
 Confirm that you want to delete the profile.
 
-This action cannot be undone.  
+This action cannot be undone.
+
 Make sure you have a backup before proceeding.
 {{ tutorial.step_end() }}
 

@@ -39,13 +39,16 @@ Follow these steps to reveal and copy the private key for an external account:
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("export-account-1.webp") }}
-From the wallet's **:material-home: HOME** screen, select the external account you want to export.  
+From the wallet's **:material-home: HOME** screen, select the external account you want to export.
+
 Tap **:fontawesome-regular-user: DETAILS** on the left of the account box.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-account-2.webp") }}
-In the **DETAILS** box, check that **ACCOUNT TYPE** is `external`.  
-If it is not, follow the [Exporting a Wallet](./export-wallet.md) guide instead.  
+In the **DETAILS** box, check that **ACCOUNT TYPE** is `external`.
+
+If it is not, follow the [Exporting a Wallet](./export-wallet.md) guide instead.
+
 Tap **:octicons-key-24: REVEAL PRIVATE KEY**.
 {{ tutorial.step_end() }}
 
@@ -54,7 +57,8 @@ Enter your PIN code to unlock the wallet.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-account-4.webp") }}
-The private key is shown.  
+The private key is shown.
+
 Tap **:material-content-copy: COPY** to copy it.
 {{ tutorial.step_end() }}
 

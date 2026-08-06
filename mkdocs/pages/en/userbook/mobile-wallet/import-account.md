@@ -53,7 +53,8 @@ Tap **:octicons-key-24: ADD EXTERNAL ACCOUNT**.
 
 {{ tutorial.step_begin("import-account-2.webp") }}
 Enter a name for the account and paste its private key.
-The **CONFIRM** button will not be enabled if the private key has the wrong format.  
+The **CONFIRM** button will not be enabled if the private key has the wrong format.
+
 Review the warning, then tap **CONFIRM**.
 {{ tutorial.step_end() }}
 
