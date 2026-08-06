@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateNamespaceId,
 	metadataGenerateKey,
 	metadataUpdateValue,
@@ -61,9 +62,11 @@ console.log('Signer address:', signerAddress.toString());
 // Get namespace name from environment or use default
 const NAMESPACE_NAME = process.env.NAMESPACE_NAME || 'testnamespace';
 const namespaceId = generateNamespaceId(NAMESPACE_NAME);
+const namespaceIdHex = namespaceId.toString(16)
+	.toUpperCase().padStart(16, '0');
 console.log('Namespace name:', NAMESPACE_NAME);
 console.log('Namespace ID:',
-	namespaceId.toString(), `(0x${namespaceId.toString(16)})`);
+	namespaceId.toString(), `(0x${namespaceIdHex})`);
 // [<step-1]
 try {
 	// Fetch current network time [>step-2]
@@ -120,7 +123,8 @@ try {
 			embeddedTransactions),
 		transactions: embeddedTransactions
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-5]
 	// Sign and generate final payload [>step-6]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
@@ -128,7 +132,8 @@ try {
 		transaction, signature);
 
 	// Announce and wait for confirmation
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(jsonPayload, 'aggregate transaction');
@@ -139,8 +144,6 @@ try {
 
 	// Fetch current metadata value from network [>step-7]
 	const scopedKeyHex = scopedMetadataKey.toString(16)
-		.toUpperCase().padStart(16, '0');
-	const namespaceIdHex = namespaceId.toString(16)
 		.toUpperCase().padStart(16, '0');
 	const metadataPath = '/metadata' +
 		`?sourceAddress=${signerAddress}` +
@@ -190,7 +193,7 @@ try {
 		transactions: updateEmbedded
 	});
 	updateTransaction.fee = new models.Amount(
-		feeMultiplier * updateTransaction.size);
+		calculateTransactionFee(updateTransaction, feeMultiplier));
 
 	// Sign and announce the update
 	const updateSignature = facade.signTransaction(

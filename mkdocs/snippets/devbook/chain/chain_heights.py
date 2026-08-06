@@ -13,7 +13,8 @@ finalized_changed_at = None
 
 try:
 	while True:
-		with urllib.request.urlopen(f'{NODE_URL}/chain/info') as response:  # [>step-1]
+		with urllib.request.urlopen(  # [>step-1]
+			f'{NODE_URL}/chain/info') as response:
 			chain_info = json.loads(response.read().decode())
 
 		height = int(chain_info['height'])

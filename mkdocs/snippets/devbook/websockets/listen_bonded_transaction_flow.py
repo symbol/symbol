@@ -5,7 +5,8 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount, Cosignature
+from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 from websockets import connect
@@ -86,9 +87,8 @@ async def main():
 			embedded_txs),
 		'transactions': embedded_txs
 	})
-	cosignature_size = Cosignature().size
 	bonded_tx.fee = Amount(
-		fee_multiplier * (bonded_tx.size + cosignature_size))
+		calculate_transaction_fee(bonded_tx, fee_multiplier, 1))
 
 	# Sign the bonded aggregate
 	bonded_signature = facade.sign_transaction(
@@ -112,7 +112,8 @@ async def main():
 		'duration': 100,
 		'hash': bonded_hash
 	})
-	hash_lock.fee = Amount(fee_multiplier * hash_lock.size)
+	hash_lock.fee = Amount(
+		calculate_transaction_fee(hash_lock, fee_multiplier))
 	hash_lock_signature = facade.sign_transaction(
 		account_a_key_pair, hash_lock)
 	hash_lock_payload = facade.transaction_factory.attach_signature(

@@ -3,6 +3,7 @@ import {
 	Address,
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateNamespaceId,
 	models
 } from 'symbol-sdk/symbol';
@@ -53,8 +54,9 @@ try {
 
 	// Generate the parent namespace ID from the root name
 	const parentId = generateNamespaceId(rootNamespaceName);
-	console.log(
-		'Parent namespace ID:', `0x${parentId.toString(16)}`);
+	const parentIdHex = parentId.toString(16)
+		.toUpperCase().padStart(16, '0');
+	console.log('Parent namespace ID:', `0x${parentIdHex}`);
 	// [<step-1]
 	// Build the transaction [>step-2]
 	const transaction = facade.transactionFactory.create({
@@ -65,7 +67,8 @@ try {
 		parentId,
 		name: subnamespaceName
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-2]
 	// Sign transaction and generate final payload
 	const signature = facade.signTransaction(
@@ -119,11 +122,13 @@ try {
 	// Retrieve the namespace [>step-3]
 	const namespaceId = generateNamespaceId(
 		subnamespaceName, parentId);
+	const namespaceIdHex = namespaceId.toString(16)
+		.toUpperCase().padStart(16, '0');
 	console.log(
 		'Child namespace ID:',
-		`${namespaceId} (0x${namespaceId.toString(16)})`);
+		`${namespaceId} (0x${namespaceIdHex})`);
 
-	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
+	const namespacePath = `/namespaces/${namespaceIdHex}`;
 	console.log(
 		'Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);

@@ -8,6 +8,7 @@ import urllib.request
 from symbolchain.CryptoTypes import Hash256, PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import NetworkTimestamp
 from web3 import Web3
@@ -135,7 +136,8 @@ def wait_for_status(hash_value, expected_status, label):
 				print(f'  Transaction status: {status["group"]}')
 
 				if status['group'] == 'failed':
-					raise RuntimeError(f'{label} failed: {status["code"]}')
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
 
 				if status['group'] == expected_status:
 					print(f'{label} {expected_status}'
@@ -266,14 +268,15 @@ try:
 		'recipient_address': alice_xym_address,
 		'mosaic': {
 			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 1_000000  # 1 XYM
+			'amount': 1_000_000  # 1 XYM
 		},
 		'duration': lock_duration,
 		'secret': Hash256(hashlock),
 		'hash_algorithm': 'hash_256'
 	})
 	secret_lock_transaction.fee = Amount(
-		get_fee_multiplier() * secret_lock_transaction.size)
+		calculate_transaction_fee(
+			secret_lock_transaction, get_fee_multiplier()))
 
 	# Sign and announce
 	lock_signature = facade.sign_transaction(
@@ -302,7 +305,8 @@ try:
 		'proof': proof
 	})
 	secret_proof_transaction.fee = Amount(
-		get_fee_multiplier() * secret_proof_transaction.size)
+		calculate_transaction_fee(
+			secret_proof_transaction, get_fee_multiplier()))
 
 	# Sign and announce
 	proof_signature = facade.sign_transaction(

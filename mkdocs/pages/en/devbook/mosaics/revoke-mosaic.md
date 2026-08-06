@@ -119,7 +119,7 @@ The output shown below corresponds to a typical run of the program.
 
 Some highlights from the output:
 
-* **Mosaic ID** (line 4): The mosaic ID `8857803461494335809` (`0x7aed3d514c986941`) identifies the mosaic to revoke.
+* **Mosaic ID** (line 4): The mosaic ID `8857803461494335809` (`0x7AED3D514C986941`) identifies the mosaic to revoke.
 
 * **Initial balance** (line 12): Before the revocation, the source account holds `1000` atomic units of the mosaic.
 

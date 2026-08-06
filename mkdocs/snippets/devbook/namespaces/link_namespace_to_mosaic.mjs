@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	generateNamespacePath,
 	models
@@ -63,13 +64,18 @@ console.log('Namespace name:', namespaceName);
 
 const nsPath = generateNamespacePath(namespaceName);
 const namespaceId = nsPath[nsPath.length - 1];
+const namespaceIdHex = namespaceId.toString(16)
+	.toUpperCase().padStart(16, '0');
 console.log(
 	'Namespace ID:',
-	`${namespaceId} (0x${namespaceId.toString(16)})`);
+	`${namespaceId} (0x${namespaceIdHex})`);
 
 // Target mosaic ID to link the namespace to
-const mosaicId = BigInt(process.env.MOSAIC_ID || '0x45C8C3733983AAC2');
-console.log('Mosaic ID:', `${mosaicId} (0x${mosaicId.toString(16)})`);
+const MOSAIC_ID = process.env.MOSAIC_ID || '45C8C3733983AAC2';
+const mosaicId = BigInt(`0x${MOSAIC_ID}`);
+const mosaicIdHex = mosaicId.toString(16)
+	.toUpperCase().padStart(16, '0');
+console.log('Mosaic ID:', `${mosaicId} (0x${mosaicIdHex})`);
 // [<step-2]
 try {
 	// Fetch current network time [>step-3]
@@ -102,7 +108,8 @@ try {
 		mosaicId,
 		aliasAction: 'link'
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
@@ -111,15 +118,17 @@ try {
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce and confirm transaction
 	await announceTransaction(jsonPayload, 'mosaic alias transaction');
-	await waitForConfirmation(transactionHash, 'mosaic alias transaction');
+	await waitForConfirmation(
+		transactionHash, 'mosaic alias transaction');
 	// [<step-5]
 	// Retrieve the namespace to verify the alias [>step-6]
-	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
+	const namespacePath = `/namespaces/${namespaceIdHex}`;
 	console.log('Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();
@@ -135,8 +144,10 @@ try {
 
 	// Convert namespace to mosaic alias ID
 	const mosaicAliasId = generateMosaicAliasId(namespaceName);
+	const mosaicAliasIdHex = mosaicAliasId.toString(16)
+		.toUpperCase().padStart(16, '0');
 	console.log('  Mosaic ID (alias):',
-		`${mosaicAliasId} (0x${mosaicAliasId.toString(16)})`);
+		`${mosaicAliasId} (0x${mosaicAliasIdHex})`);
 
 	const test_transaction = facade.transactionFactory.create({
 		type: 'transfer_transaction_v1',
@@ -150,7 +161,7 @@ try {
 		}]
 	});
 	test_transaction.fee = new models.Amount(
-		feeMultiplier * test_transaction.size);
+		calculateTransactionFee(test_transaction, feeMultiplier));
 	const testJsonPayload =
 		facade.transactionFactory.static.attachSignature(
 			test_transaction,

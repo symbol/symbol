@@ -33,7 +33,8 @@ try {
 			const blockMeta = message.data.meta;
 			console.log(
 				'New block:' +
-				` height=${parseInt(block.height, 10).toLocaleString()}` +
+				' height=' +
+				`${BigInt(block.height).toLocaleString()}` +
 				` hash=${blockMeta.hash.substring(0, 16)}...`
 			);
 		}
@@ -43,7 +44,7 @@ try {
 			console.log(
 				'Finalized:' +
 				' height=' +
-				`${parseInt(finalized.height, 10).toLocaleString()}` +
+				`${BigInt(finalized.height).toLocaleString()}` +
 				` hash=${finalized.hash.substring(0, 16)}...`
 			);
 		}

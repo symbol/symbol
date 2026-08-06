@@ -3,6 +3,7 @@ import {
 	Address,
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateNamespaceId,
 	models
 } from 'symbol-sdk/symbol';
@@ -58,7 +59,7 @@ try {
 		name: namespaceName
 	});
 	transaction.fee = new models.Amount(
-		feeMultiplier * transaction.size);
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(
@@ -111,11 +112,13 @@ try {
 	// [<step-6]
 	// Retrieve the namespace [>step-7]
 	const namespaceId = generateNamespaceId(namespaceName);
+	const namespaceIdHex = namespaceId.toString(16)
+		.toUpperCase().padStart(16, '0');
 	console.log(
 		'Namespace ID:',
-		`${namespaceId} (0x${namespaceId.toString(16)})`);
+		`${namespaceId} (0x${namespaceIdHex})`);
 
-	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
+	const namespacePath = `/namespaces/${namespaceIdHex}`;
 	console.log('Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();

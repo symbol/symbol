@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicId,
 	models
 } from 'symbol-sdk/symbol';
@@ -46,8 +47,9 @@ try {
 	console.log('Mosaic nonce:', MOSAIC_NONCE);
 
 	const mosaicId = generateMosaicId(signerAddress, MOSAIC_NONCE);
-	console.log(
-		`Mosaic ID: ${mosaicId} (0x${mosaicId.toString(16)})`);
+	const mosaicIdHex = mosaicId.toString(16)
+		.toUpperCase().padStart(16, '0');
+	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicIdHex})`);
 
 	const modifyTx = facade.transactionFactory.create({
 		type: 'mosaic_definition_transaction_v1',
@@ -58,7 +60,8 @@ try {
 		nonce: MOSAIC_NONCE,
 		flags: 'revokable'
 	});
-	modifyTx.fee = new models.Amount(feeMultiplier * modifyTx.size);
+	modifyTx.fee = new models.Amount(
+		calculateTransactionFee(modifyTx, feeMultiplier));
 	// [<step-3]
 	// Sign and generate final payload [>step-4]
 	const signature = facade.signTransaction(
@@ -111,7 +114,6 @@ try {
 	}
 	// [<step-5]
 	// Retrieve the mosaic [>step-6]
-	const mosaicIdHex = mosaicId.toString(16);
 	const mosaicPath = `/mosaics/${mosaicIdHex}`;
 	console.log('Fetching mosaic information from', mosaicPath);
 	const mosaicResponse = await fetch(`${NODE_URL}${mosaicPath}`);

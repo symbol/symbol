@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -40,7 +41,8 @@ def wait_for_confirmation(tx_hash, label):
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise RuntimeError(f'{label} failed: {status["code"]}')
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
@@ -93,10 +95,11 @@ try:
 		'nonce': nonce,
 		'flags': 'transferable restrictable'
 	})
-	definition_tx.fee = Amount(fee_multiplier * definition_tx.size)
+	definition_tx.fee = Amount(
+		calculate_transaction_fee(definition_tx, fee_multiplier))
 
 	mosaic_id = generate_mosaic_id(signer_address, nonce)
-	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
+	print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 	# [<step-4]
 	# Sign and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, definition_tx)
@@ -122,7 +125,8 @@ try:
 		'action': 'increase',
 		'delta': 100_00
 	})
-	supply_tx.fee = Amount(fee_multiplier * supply_tx.size)
+	supply_tx.fee = Amount(
+		calculate_transaction_fee(supply_tx, fee_multiplier))
 	# [<step-6]
 	# Sign and generate final payload [>step-7]
 	signature = facade.sign_transaction(signer_key_pair, supply_tx)
@@ -141,7 +145,7 @@ try:
 	# --- VERIFYING MOSAIC ---
 	print('\n--- Verifying mosaic ---')
 	# [>step-8]
-	mosaic_id_hex = f'{mosaic_id:016x}'
+	mosaic_id_hex = f'{mosaic_id:016X}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{mosaic_path}') as response:

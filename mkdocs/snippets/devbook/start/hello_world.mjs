@@ -20,8 +20,9 @@ try {
 	if (!response.ok)
 		throw new Error(`HTTP error! status: ${response.status}`);
 	const responseJson = await response.json();
-	const height = parseInt(responseJson.height, 10);
-	console.log(`  Blockchain height: ${height.toLocaleString()} blocks`);
+	const height = BigInt(responseJson.height);
+	console.log(
+		`  Blockchain height: ${height.toLocaleString()} blocks`);
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 } // [<step-2]

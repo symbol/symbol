@@ -77,7 +77,7 @@ The output shown below corresponds to a typical run of the program, querying the
 
 Some highlights from the output:
 
-* **Namespace ID** (line 3): The computed ID for `symbol.xym` is `0xe74b99ba41f4afee`.
+* **Namespace ID** (line 3): The computed ID for `symbol.xym` is `0xE74B99BA41F4AFEE`.
 
 * **Registration type** (line 6): The value `1` confirms this is a subnamespace (child of `symbol`).
 

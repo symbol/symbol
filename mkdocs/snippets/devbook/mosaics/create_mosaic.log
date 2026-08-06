@@ -7,7 +7,7 @@ Fetching recommended fees from /network/fees/transaction
 
 --- Creating mosaic definition ---
 Mosaic nonce: 1770754477
-Mosaic ID: 8318126551268698739 (0x736fec06ed1daa73)
+Mosaic ID: 8318126551268698739 (0x736FEC06ED1DAA73)
 Built mosaic definition transaction:
 {
   "signature": "6516FB17F162075795E8A4578595DE4745A57B151A6A6ACABF613C1ADF94DC36AF13F661E9FC356723A1F653D2ECC434E514F891A7D16502825431FE5AC17F06",
@@ -55,7 +55,7 @@ Waiting for mosaic supply change confirmation...
 Mosaic supply change confirmed in 9 seconds
 
 --- Verifying mosaic ---
-Fetching mosaic information from /mosaics/736fec06ed1daa73
+Fetching mosaic information from /mosaics/736FEC06ED1DAA73
 Mosaic information:
   Mosaic ID: 736FEC06ED1DAA73
   Supply: 10000

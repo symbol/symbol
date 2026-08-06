@@ -3,6 +3,7 @@ import {
 	Address,
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	generateNamespacePath,
 	models
@@ -64,9 +65,11 @@ console.log('Namespace name:', namespaceName);
 
 const nsPath = generateNamespacePath(namespaceName);
 const namespaceId = nsPath[nsPath.length - 1];
+const namespaceIdHex = namespaceId.toString(16)
+	.toUpperCase().padStart(16, '0');
 console.log(
 	'Namespace ID:',
-	`${namespaceId} (0x${namespaceId.toString(16)})`);
+	`${namespaceId} (0x${namespaceIdHex})`);
 
 // Target address to link the namespace to
 const targetAddress = new SymbolFacade.Address(
@@ -105,7 +108,8 @@ try {
 		address: targetAddress,
 		aliasAction: 'link'
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
@@ -114,15 +118,17 @@ try {
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce and confirm transaction
 	await announceTransaction(jsonPayload, 'address alias transaction');
-	await waitForConfirmation(transactionHash, 'address alias transaction');
+	await waitForConfirmation(
+		transactionHash, 'address alias transaction');
 	// [<step-5]
 	// Retrieve the namespace to verify the alias [>step-6]
-	const namespacePath = `/namespaces/${namespaceId.toString(16)}`;
+	const namespacePath = `/namespaces/${namespaceIdHex}`;
 	console.log('Fetching namespace information from', namespacePath);
 	const namespaceResponse = await fetch(`${NODE_URL}${namespacePath}`);
 	const namespaceJSON = await namespaceResponse.json();
@@ -157,7 +163,7 @@ try {
 		}]
 	});
 	test_transaction.fee = new models.Amount(
-		feeMultiplier * test_transaction.size);
+		calculateTransactionFee(test_transaction, feeMultiplier));
 	const testJsonPayload =
 		facade.transactionFactory.static.attachSignature(
 			test_transaction,

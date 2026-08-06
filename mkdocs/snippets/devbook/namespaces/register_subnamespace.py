@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_namespace_id
 from symbolchain.symbol.Network import Address, NetworkTimestamp
 
@@ -53,7 +54,7 @@ try:
 
 	# Generate the parent namespace ID from the root namespace name
 	parent_id = generate_namespace_id(root_namespace_name)
-	print(f'  Parent namespace ID: {hex(parent_id)}')
+	print(f'  Parent namespace ID: 0x{parent_id:016X}')
 	# [<step-1]
 	# Build the transaction [>step-2]
 	transaction = facade.transaction_factory.create({
@@ -64,7 +65,8 @@ try:
 		'parent_id': parent_id,
 		'name': subnamespace_name
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	# [<step-2]
 	# Sign transaction and generate final payload
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -110,9 +112,9 @@ try:
 	# Retrieve the namespace [>step-3]
 	namespace_id = generate_namespace_id(
 		subnamespace_name, parent_id)
-	print(f'Child namespace ID: {namespace_id} ({hex(namespace_id)})')
+	print(f'Child namespace ID: {namespace_id} (0x{namespace_id:016X})')
 
-	namespace_path = f'/namespaces/{namespace_id:x}'
+	namespace_path = f'/namespaces/{namespace_id:016X}'
 	print(f'Fetching namespace information from {namespace_path}')
 	with urllib.request.urlopen(
 		f'{NODE_URL}{namespace_path}'

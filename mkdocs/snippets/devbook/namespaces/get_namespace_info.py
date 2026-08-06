@@ -15,13 +15,14 @@ try:
 	# Generate namespace ID from name [>step-1]
 	path = generate_namespace_path(NAMESPACE_NAME)
 	namespace_id = path[-1]
-	namespace_id_hex = f'{namespace_id:x}'
+	namespace_id_hex = f'{namespace_id:016X}'
 	print(f'Namespace ID: {namespace_id} (0x{namespace_id_hex})')
 	# [<step-1]
 	# Fetch namespace information [>step-2]
 	namespace_path = f'/namespaces/{namespace_id_hex}'
 	print(f'Fetching namespace information from {namespace_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{namespace_path}') as response:
+	with urllib.request.urlopen(
+		f'{NODE_URL}{namespace_path}') as response:
 		response_json = json.loads(response.read().decode())
 		ns = response_json['namespace']
 		print('Namespace information:')

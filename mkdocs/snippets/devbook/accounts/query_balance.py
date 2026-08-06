@@ -134,7 +134,8 @@ try:
 			mosaic_divisibility = info['divisibility']
 
 			# Format and display the balance
-			formatted_balance = format_amount(balance, mosaic_divisibility)
+			formatted_balance = format_amount(
+				balance, mosaic_divisibility)
 			mosaic_id_hex = f'0x{mosaic_id:016X}'
 
 			# Display mosaic ID and names (if available)

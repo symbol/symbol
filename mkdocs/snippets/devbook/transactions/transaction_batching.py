@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 from symbolchain.symbol.Network import Address, NetworkTimestamp
 
@@ -87,7 +88,8 @@ try:
 			facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	print('Built aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-4]

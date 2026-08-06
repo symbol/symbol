@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Network import NetworkTimestamp
 from websockets import connect
 
@@ -50,8 +51,9 @@ async def main():
 		# Build and announce a transfer transaction [>step-4]
 		with urllib.request.urlopen(f'{NODE_URL}/node/time') as resp:
 			time_json = json.loads(resp.read().decode())
-			timestamp = NetworkTimestamp(int(
-				time_json['communicationTimestamps']['receiveTimestamp']))
+			receive_timestamp = (
+				time_json['communicationTimestamps']['receiveTimestamp'])
+			timestamp = NetworkTimestamp(int(receive_timestamp))
 
 		with urllib.request.urlopen(
 			f'{NODE_URL}/network/fees/transaction'
@@ -67,7 +69,8 @@ async def main():
 			'deadline': timestamp.add_hours(2).timestamp,
 			'recipient_address': MONITOR_ADDRESS,
 		})
-		transaction.fee = Amount(fee_multiplier * transaction.size)
+		transaction.fee = Amount(
+			calculate_transaction_fee(transaction, fee_multiplier))
 
 		signature = facade.sign_transaction(signer_key_pair, transaction)
 		json_payload = facade.transaction_factory.attach_signature(
@@ -94,7 +97,8 @@ async def main():
 
 			if (name == 'confirmedAdded' and
 					message_hash == transaction_hash):
-				print(f'Transaction {transaction_hash[:16]}... confirmed')
+				print(
+					f'Transaction {transaction_hash[:16]}... confirmed')
 				break
 		# [<step-5]
 		# Unsubscribe before closing [>step-6]

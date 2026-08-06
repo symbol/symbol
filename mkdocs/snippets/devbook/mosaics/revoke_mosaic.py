@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
@@ -34,9 +35,9 @@ SOURCE_ADDRESS = os.getenv('SOURCE_ADDRESS',
 	'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA')
 print(f'Source address: {SOURCE_ADDRESS}')
 
-MOSAIC_ID_HEX = os.getenv('MOSAIC_ID', '7aed3d514c986941')
+MOSAIC_ID_HEX = os.getenv('MOSAIC_ID', '7AED3D514C986941')
 mosaic_id = int(MOSAIC_ID_HEX, 16)
-print(f'Mosaic ID: {mosaic_id} (0x{MOSAIC_ID_HEX})')
+print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 # [<step-1]
 try:
 	# Fetch current network time [>step-2]
@@ -80,7 +81,8 @@ try:
 			'amount': 7_00
 		}
 	})
-	revoke_tx.fee = Amount(fee_multiplier * revoke_tx.size)
+	revoke_tx.fee = Amount(
+		calculate_transaction_fee(revoke_tx, fee_multiplier))
 	# [<step-4]
 	# Sign and generate final payload [>step-5]
 	signature = facade.sign_transaction(

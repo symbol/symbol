@@ -1,7 +1,7 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
 Namespace name: ns_1768809538
-Namespace ID: 13058489397075111804 (0xb53912eb77ddef7c)
+Namespace ID: 13058489397075111804 (0xB53912EB77DDEF7C)
 Fetching current network time from /node/time
   Network time: 103372720119 ms since nemesis
 Fetching recommended fees from /network/fees/transaction

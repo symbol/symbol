@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	metadataGenerateKey,
 	metadataUpdateValue,
 	models
@@ -60,8 +61,9 @@ console.log('Signer address:', signerAddress.toString());
 // Get mosaic ID from environment
 const MOSAIC_ID = process.env.MOSAIC_ID || '6D1314BE751B62C2';
 const mosaicId = BigInt(`0x${MOSAIC_ID}`);
-console.log('Mosaic ID:',
-	mosaicId.toString(), `(0x${mosaicId.toString(16)})`);
+const mosaicIdHex = mosaicId.toString(16)
+	.toUpperCase().padStart(16, '0');
+console.log('Mosaic ID:', mosaicId.toString(), `(0x${mosaicIdHex})`);
 // [<step-1]
 try {
 	// Fetch current network time [>step-2]
@@ -118,7 +120,8 @@ try {
 			embeddedTransactions),
 		transactions: embeddedTransactions
 	});
-	transaction.fee = new models.Amount(feeMultiplier * transaction.size);
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-5]
 	// Sign and generate final payload [>step-6]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
@@ -126,7 +129,8 @@ try {
 		transaction, signature);
 
 	// Announce and wait for confirmation
-	const transactionHash = facade.hashTransaction(transaction).toString();
+	const transactionHash =
+		facade.hashTransaction(transaction).toString();
 	console.log(
 		'Built aggregate transaction with hash:', transactionHash);
 	await announceTransaction(jsonPayload, 'aggregate transaction');
@@ -137,8 +141,6 @@ try {
 
 	// Fetch current metadata value from network [>step-7]
 	const scopedKeyHex = scopedMetadataKey.toString(16)
-		.toUpperCase().padStart(16, '0');
-	const mosaicIdHex = mosaicId.toString(16)
 		.toUpperCase().padStart(16, '0');
 	const metadataPath = '/metadata' +
 		`?sourceAddress=${signerAddress}` +
@@ -189,7 +191,7 @@ try {
 		transactions: updateEmbedded
 	});
 	updateTransaction.fee = new models.Amount(
-		feeMultiplier * updateTransaction.size);
+		calculateTransactionFee(updateTransaction, feeMultiplier));
 
 	// Sign and announce the update
 	const updateSignature = facade.signTransaction(

@@ -2,6 +2,7 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	NetworkTimestamp,
 	SymbolFacade,
+	calculateTransactionFee,
 	models
 } from 'symbol-sdk/symbol';
 
@@ -33,10 +34,12 @@ const SOURCE_ADDRESS = process.env.SOURCE_ADDRESS ||
 console.log('Source address:', SOURCE_ADDRESS);
 
 const MOSAIC_ID_HEX = process.env.MOSAIC_ID ||
-	'7aed3d514c986941';
+	'7AED3D514C986941';
 const mosaicId = BigInt(`0x${MOSAIC_ID_HEX}`);
+const mosaicIdHex = mosaicId.toString(16)
+	.toUpperCase().padStart(16, '0');
 console.log(
-	`Mosaic ID: ${mosaicId} (0x${MOSAIC_ID_HEX})`);
+	`Mosaic ID: ${mosaicId} (0x${mosaicIdHex})`);
 // [<step-1]
 try {
 	// Fetch current network time [>step-2]
@@ -82,7 +85,8 @@ try {
 			amount: 7_00n
 		}
 	});
-	revokeTx.fee = new models.Amount(feeMultiplier * revokeTx.size);
+	revokeTx.fee = new models.Amount(
+		calculateTransactionFee(revokeTx, feeMultiplier));
 	// [<step-4]
 	// Sign and generate final payload [>step-5]
 	const signature = facade.signTransaction(signerKeyPair, revokeTx);

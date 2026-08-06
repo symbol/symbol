@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.Metadata import (
 	metadata_generate_key,
 	metadata_update_value
@@ -43,7 +44,8 @@ def wait_for_confirmation(tx_hash, label):
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise RuntimeError(f'{label} failed: {status["code"]}')
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
@@ -61,7 +63,7 @@ print(f'Signer address: {signer_address}')
 # Get mosaic ID from environment
 MOSAIC_ID = os.getenv('MOSAIC_ID', '6D1314BE751B62C2')
 mosaic_id = int(MOSAIC_ID, 16)
-print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
+print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 # [<step-1]
 try:
 	# Fetch current network time [>step-2]
@@ -117,7 +119,8 @@ try:
 			embedded_transactions),
 		'transactions': embedded_transactions
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	# [<step-5]
 	# Sign and generate final payload [>step-6]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -142,7 +145,8 @@ try:
 		'&metadataType=1'
 	)
 	print(f'Fetching current metadata from {metadata_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{metadata_path}') as response:
+	with urllib.request.urlopen(
+		f'{NODE_URL}{metadata_path}') as response:
 		response_json = json.loads(response.read().decode())
 
 	# Get the metadata entry
@@ -182,7 +186,7 @@ try:
 		'transactions': embedded_transactions
 	})
 	update_transaction.fee = Amount(
-		fee_multiplier * update_transaction.size)
+		calculate_transaction_fee(update_transaction, fee_multiplier))
 
 	# Sign and announce the update
 	signature = facade.sign_transaction(

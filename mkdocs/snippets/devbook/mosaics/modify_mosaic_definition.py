@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
 from symbolchain.symbol.Network import NetworkTimestamp
 
@@ -48,7 +49,7 @@ try:
 	print(f'Mosaic nonce: {MOSAIC_NONCE}')
 
 	mosaic_id = generate_mosaic_id(signer_address, MOSAIC_NONCE)
-	print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
+	print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 
 	modify_tx = facade.transaction_factory.create({
 		'type': 'mosaic_definition_transaction_v1',
@@ -59,7 +60,8 @@ try:
 		'nonce': MOSAIC_NONCE,
 		'flags': 'revokable'
 	})
-	modify_tx.fee = Amount(fee_multiplier * modify_tx.size)
+	modify_tx.fee = Amount(
+		calculate_transaction_fee(modify_tx, fee_multiplier))
 	# [<step-3]
 	# Sign and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, modify_tx)
@@ -103,7 +105,7 @@ try:
 			print('  Transaction status: unknown')
 	# [<step-5]
 	# Retrieve the mosaic [>step-6]
-	mosaic_id_hex = f'{mosaic_id:x}'
+	mosaic_id_hex = f'{mosaic_id:016X}'
 	mosaic_path = f'/mosaics/{mosaic_id_hex}'
 	print(f'Fetching mosaic information from {mosaic_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{mosaic_path}') as response:

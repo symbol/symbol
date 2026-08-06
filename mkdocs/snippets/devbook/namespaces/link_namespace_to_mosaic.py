@@ -6,6 +6,7 @@ import urllib.request
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.sc import Amount
+from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import (
 	generate_mosaic_alias_id,
 	generate_namespace_path
@@ -43,7 +44,8 @@ def wait_for_confirmation(tx_hash, label):
 					print(f'{label} confirmed in {attempt} seconds')
 					return
 				if status['group'] == 'failed':
-					raise RuntimeError(f"{label} failed: {status['code']}")
+					raise RuntimeError(
+						f"{label} failed: {status['code']}")
 		except urllib.error.HTTPError:
 			print('  Transaction status: unknown')
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
@@ -63,11 +65,11 @@ namespace_name = os.getenv('NAMESPACE_NAME', 'my_namespace')
 print(f'Namespace name: {namespace_name}')
 
 namespace_id = generate_namespace_path(namespace_name)[-1]
-print(f'Namespace ID: {namespace_id} ({hex(namespace_id)})')
+print(f'Namespace ID: {namespace_id} (0x{namespace_id:016X})')
 
 # Target mosaic ID to link the namespace to
-mosaic_id = int(os.getenv('MOSAIC_ID', '0x45C8C3733983AAC2'), 16)
-print(f'Mosaic ID: {mosaic_id} ({hex(mosaic_id)})')
+mosaic_id = int(os.getenv('MOSAIC_ID', '45C8C3733983AAC2'), 16)
+print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
 # [<step-2]
 try:
 	# Fetch current network time [>step-3]
@@ -99,7 +101,8 @@ try:
 		'mosaic_id': mosaic_id,
 		'alias_action': 'link'
 	})
-	transaction.fee = Amount(fee_multiplier * transaction.size)
+	transaction.fee = Amount(
+		calculate_transaction_fee(transaction, fee_multiplier))
 	# [<step-4]
 	# Sign transaction and generate final payload [>step-5]
 	json_payload = facade.transaction_factory.attach_signature(
@@ -116,9 +119,10 @@ try:
 	wait_for_confirmation(transaction_hash, 'mosaic alias transaction')
 	# [<step-5]
 	# Retrieve the namespace to verify the alias [>step-6]
-	namespace_path = f'/namespaces/{namespace_id:x}'
+	namespace_path = f'/namespaces/{namespace_id:016X}'
 	print(f'Fetching namespace information from {namespace_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{namespace_path}') as response:
+	with urllib.request.urlopen(
+		f'{NODE_URL}{namespace_path}') as response:
 		response_json = json.loads(response.read().decode())
 		namespace_info = response_json['namespace']
 		print('Alias information:')
@@ -134,7 +138,7 @@ try:
 	# Convert namespace to mosaic alias ID
 	mosaic_alias_id = generate_mosaic_alias_id(namespace_name)
 	print(f'Mosaic ID (alias):'
-		f' {mosaic_alias_id} ({hex(mosaic_alias_id)})')
+		f' {mosaic_alias_id} (0x{mosaic_alias_id:016X})')
 
 	test_transaction = facade.transaction_factory.create({
 		'type': 'transfer_transaction_v1',
@@ -148,7 +152,8 @@ try:
 			'amount': 1
 		}]
 	})
-	test_transaction.fee = Amount(fee_multiplier * test_transaction.size)
+	test_transaction.fee = Amount(
+		calculate_transaction_fee(test_transaction, fee_multiplier))
 	test_json_payload = facade.transaction_factory.attach_signature(
 		test_transaction,
 		facade.sign_transaction(signer_key_pair, test_transaction))

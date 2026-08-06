@@ -5,7 +5,7 @@ Fetching current network time from /node/time
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Mosaic nonce: 1770998662
-Mosaic ID: 6619508144549180335 (0x5bdd3795f7a8b3af)
+Mosaic ID: 6619508144549180335 (0x5BDD3795F7A8B3AF)
 Built mosaic modification transaction:
 {
   "signature": "729A40BAD69DA8B3CE38D442CFCD1258CA41B7933CF80EFE24A7A354773E0B08D7E2796DED2D93A5F1C16A5EB3298A2113601348A436A4340BFFC38BD7EEBF07",
@@ -29,7 +29,7 @@ Waiting for mosaic modification confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
 Mosaic modification confirmed in 11 seconds
-Fetching mosaic information from /mosaics/5bdd3795f7a8b3af
+Fetching mosaic information from /mosaics/5BDD3795F7A8B3AF
 Mosaic information:
   Mosaic ID: 5BDD3795F7A8B3AF
   Supply: 0

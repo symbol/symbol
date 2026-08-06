@@ -50,6 +50,11 @@ Each supply value is available through a dedicated endpoint:
 All three endpoints return a plain-text number (not JSON), already expressed in whole units with decimal places
 (e.g. `8999999999.000000`), not in <divisibility:|atomic> units.
 
+A supply value like `8323505878.695894` has 16 digits, but a floating-point number can only store about 15 digits
+accurately.
+Parsing these values as floats can silently change the last digit, so the code parses and subtracts them using exact
+numeric types instead (`Decimal` in Python, and the `toAtomic` helper with `BigInt` in JavaScript).
+
 !!! warning "Circulating supply is node-dependent"
     The list of non-circulating accounts is configured by each node operator (in the node's `rest.json` file),
     so different nodes could report different circulating supply values.

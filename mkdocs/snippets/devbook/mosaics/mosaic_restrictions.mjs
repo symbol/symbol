@@ -4,6 +4,7 @@ import {
 	NetworkTimestamp,
 	SymbolFacade,
 	SymbolTransactionFactory,
+	calculateTransactionFee,
 	models,
 	mosaicRestrictionGenerateKey
 } from 'symbol-sdk/symbol';
@@ -27,7 +28,8 @@ console.log(`Target address: ${targetAddress}`);
 
 const mosaicId = BigInt(`0x${process.env.MOSAIC_ID ||
 	'6A5ACF2376E50D4A'}`);
-console.log(`Mosaic ID: 0x${mosaicId.toString(16).toUpperCase()}`);
+console.log(`Mosaic ID: 0x${mosaicId.toString(16)
+	.toUpperCase().padStart(16, '0')}`);
 
 const restrictionName = process.env.RESTRICTION_NAME || 'security_level';
 const restrictionKey = mosaicRestrictionGenerateKey(restrictionName);
@@ -71,7 +73,7 @@ async function waitForConfirmation(transactionHash, label) {
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
 
-// Returns a filtered list of restrictions currently applied to the mosaic
+// Returns restrictions currently applied to the mosaic
 // matching the given restriction key
 async function getMosaicRestrictions(query, key) { // [>step-4]
 	const restrictionsPath = `/restrictions/mosaic?${query}`;
@@ -92,14 +94,16 @@ async function getMosaicRestrictions(query, key) { // [>step-4]
 
 function getMosaicGlobalRestrictions(queriedMosaicId, key) {
 	return getMosaicRestrictions(
-		`mosaicId=${queriedMosaicId.toString(16)}&entryType=1`,
-		key);
+		`mosaicId=${queriedMosaicId.toString(16)
+			.toUpperCase().padStart(16, '0')}` +
+		'&entryType=1', key);
 }
 // [<step-4] [>step-5]
 function getMosaicAddressRestrictions(queriedMosaicId, address, key) {
 	return getMosaicRestrictions(
-		`mosaicId=${queriedMosaicId.toString(16)}&entryType=0` +
-		`&targetAddress=${address}`, key);
+		`mosaicId=${queriedMosaicId.toString(16)
+			.toUpperCase().padStart(16, '0')}` +
+		`&entryType=0&targetAddress=${address}`, key);
 }
 // [<step-5]
 // Returns a transaction enabling a mosaic's global restriction
@@ -203,7 +207,8 @@ try {
 			transactions),
 		transactions
 	});
-	aggregate.fee = new models.Amount(feeMultiplier * aggregate.size);
+	aggregate.fee = new models.Amount(
+		calculateTransactionFee(aggregate, feeMultiplier));
 	// [<step-7]
 	// Sign, announce and wait for confirmation
 	let payload = SymbolTransactionFactory.attachSignature( // [>step-8]
@@ -224,7 +229,8 @@ try {
 			amount: 1n
 		}]
 	});
-	transfer.fee = new models.Amount(feeMultiplier * transfer.size);
+	transfer.fee = new models.Amount(
+		calculateTransactionFee(transfer, feeMultiplier));
 
 	payload = SymbolTransactionFactory.attachSignature(
 		transfer,
