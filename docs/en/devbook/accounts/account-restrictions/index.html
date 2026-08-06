@@ -79,6 +79,7 @@
 
 
 
+
   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
             html.glightbox-open { overflow: initial; height: 100%; }
             .gslide-title { margin-top: 0px; user-select: text; }
@@ -20651,7 +20652,7 @@ transactions are announced and confirmed.</p>
 </span><span id="__span-2-269"><a id="__codelineno-2-269" name="__codelineno-2-269"></a><span class="w">            </span><span class="n">announceTransaction</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="s">"test transfer"</span><span class="p">);</span>
 </span><span id="__span-2-270"><a id="__codelineno-2-270" name="__codelineno-2-270"></a><span class="w">            </span><span class="n">waitForConfirmation</span><span class="p">(</span><span class="n">hash</span><span class="p">,</span><span class="w"> </span><span class="s">"test transfer"</span><span class="p">);</span>
 </span><span id="__span-2-271"><a id="__codelineno-2-271" name="__codelineno-2-271"></a>
-</span><span id="__span-2-272"><a id="__codelineno-2-272" name="__codelineno-2-272"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">IOException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">InterruptedException</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-272"><a id="__codelineno-2-272" name="__codelineno-2-272"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-2-273"><a id="__codelineno-2-273" name="__codelineno-2-273"></a><span class="w">            </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">ex</span><span class="p">.</span><span class="na">getMessage</span><span class="p">());</span>
 </span><span id="__span-2-274"><a id="__codelineno-2-274" name="__codelineno-2-274"></a><span class="w">        </span><span class="p">}</span>
 </span><span id="__span-2-275"><a id="__codelineno-2-275" name="__codelineno-2-275"></a><span class="w">    </span><span class="p">}</span>

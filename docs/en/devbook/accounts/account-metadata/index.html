@@ -79,6 +79,7 @@
 
 
 
+
   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
             html.glightbox-open { overflow: initial; height: 100%; }
             .gslide-title { margin-top: 0px; user-select: text; }
@@ -20714,7 +20715,7 @@ all embedded transactions are accepted or none are." name="_:Aggregate Transacti
 </span><span id="__span-2-281"><a id="__codelineno-2-281" name="__codelineno-2-281"></a><span class="w">            </span><span class="n">announceTransaction</span><span class="p">(</span><span class="n">updatePayload</span><span class="p">,</span><span class="w"> </span><span class="s">"update transaction"</span><span class="p">);</span>
 </span><span id="__span-2-282"><a id="__codelineno-2-282" name="__codelineno-2-282"></a><span class="w">            </span><span class="n">waitForConfirmation</span><span class="p">(</span><span class="n">updateTxHash</span><span class="p">,</span><span class="w"> </span><span class="s">"update transaction"</span><span class="p">);</span>
 </span><span id="__span-2-283"><a id="__codelineno-2-283" name="__codelineno-2-283"></a>
-</span><span id="__span-2-284"><a id="__codelineno-2-284" name="__codelineno-2-284"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">IOException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">InterruptedException</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-284"><a id="__codelineno-2-284" name="__codelineno-2-284"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-2-285"><a id="__codelineno-2-285" name="__codelineno-2-285"></a><span class="w">            </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">ex</span><span class="p">.</span><span class="na">getMessage</span><span class="p">());</span>
 </span><span id="__span-2-286"><a id="__codelineno-2-286" name="__codelineno-2-286"></a><span class="w">        </span><span class="p">}</span>
 </span><span id="__span-2-287"><a id="__codelineno-2-287" name="__codelineno-2-287"></a><span class="w">    </span><span class="p">}</span>
