@@ -35,13 +35,14 @@ in the middle of the account box.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("transfer-1.webp") }}
-Fill in the transfer form.
+Fill in the transfer form:
 
-Paste the recipient's address into the **RECIPIENT** box or use the **:fontawesome-regular-address-book: address book**
-button inside the box to select one of your accounts.
+* Paste the recipient's address into the **RECIPIENT** box or use the **:fontawesome-regular-address-book: address book**
+    button inside the box to select one of your accounts.
 
-Select the mosaic to send, enter the amount, and optionally add a message.
-Check **ENCRYPTED** if the message should be encrypted for the recipient.
+* Select the **MOSAIC** to send and enter the **AMOUNT**.
+
+* Optionally add a message, and check **ENCRYPTED** if the message should be encrypted for the recipient.
 
 The **SEND** button remains disabled until the required fields are complete.
 

@@ -43,10 +43,11 @@ From the wallet's **:material-home: HOME** screen, tap the account dropdown at t
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("import-account-3.webp") }}
-Tap the button next to the account icon on the right of the account you want to remove.
+Tap the button next to the account icon on the right of the account you want to remove:
 
-For seed accounts, :material-eye-off: hides the account.
-For imported accounts, :material-delete: removes the account from the app.
+* For seed accounts, :material-eye-off: hides the account.
+
+* For imported accounts, :material-delete: removes the account from the app.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("delete-account-2.webp") }}

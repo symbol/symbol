@@ -55,17 +55,15 @@ The wallet will generate a unique secret phrase (also called a mnemonic) for you
 {{ tutorial.step_begin("screenshots/create-profile-2.webp") }}
 Fill in your profile details:
 
-Give your profile a name.
+* Give your profile a name.
+    This is just for your own reference to help you keep multiple profiles organized.
 
-This is just for your own reference to help you keep multiple profiles organized.
+* Select the network type (usually `Mainnet`).
 
-Select the network type (usually `Mainnet`).
+* Enter and confirm a password.
 
-Enter and confirm a password.
-
-Optionally, add a password hint.
-
-This hint can help jog your memory if you forget the password.
+* Optionally, add a password hint.
+    This hint can help jog your memory if you forget the password.
 
 Click **Next**.
 {{ tutorial.step_end() }}

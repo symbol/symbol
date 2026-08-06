@@ -35,18 +35,17 @@ Click **:material-plus-circle: Add an account** at the bottom of the screen.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("screenshots/create-account-2.webp") }}
-Configure the new account by filling out the form.
+Configure the new account by filling out the form:
 
-Leave the default option selected in **Select the Type of Account**:
-**"I want to create a seed account for my profile"**.
+* Leave the default option selected in **Select the Type of Account**:
+    **"I want to create a seed account for my profile"**.
 
-Enter a name in the **New Account Name** field.
+* Enter a name in the **New Account Name** field.
+    This label will help you recognize the account later.
 
-This label will help you recognize the account later.
+* In the **Password** field, enter your profile password to authorize the operation.
 
-In the **Password** field, enter your profile password to authorize the operation.
-
-Then click **Confirm** to create the account.
+Click **Confirm** to create the account.
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}

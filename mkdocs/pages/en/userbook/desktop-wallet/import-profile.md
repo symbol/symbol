@@ -35,15 +35,14 @@ Select **Import Profile**.
 {{ tutorial.step_begin("screenshots/import-profile-2.webp") }}
 Fill in your profile details:
 
-Give your profile a name.
+* Give your profile a name.
+    This is just for your own reference to help you keep multiple profiles organized.
 
-This is just for your own reference to help you keep multiple profiles organized.
+* Select the network type (usually `Mainnet`).
 
-Select the network type (usually `Mainnet`).
+* Enter and confirm a password.
 
-Enter and confirm a password.
-
-Optionally, add a password hint.
+* Optionally, add a password hint.
 
 Click **Next**.
 {{ tutorial.step_end() }}
