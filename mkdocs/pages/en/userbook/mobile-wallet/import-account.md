@@ -72,3 +72,4 @@ Select it to start using it.
 
 * Keep the private key backup secure and separate from the wallet's mnemonic phrase backup.
 * You can switch between accounts from the account dropdown on the **:material-home: HOME** screen.
+* Follow [Deleting an Account](./delete-account.md) if you want to remove an imported account from the app.

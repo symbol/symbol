@@ -57,4 +57,5 @@ Your new account is now ready to use.
 Select it to start using it.
 
 * You can switch between accounts from the account dropdown on the **:material-home: HOME** screen.
+* Follow [Deleting an Account](./delete-account.md) if you want to hide a seed account from the account list.
 * Follow [Exporting a Wallet](./export-wallet.md) if you still need to back up the wallet's mnemonic phrase.
