@@ -14,6 +14,22 @@ for background information when needed.
 
 The manual is organized into the following sections:
 
-* [The Symbol Desktop Wallet](desktop-wallet/install.md): Manage your accounts and handle transactions.
-* [Shoestring](shoestring/overview.md): Deploy and maintain Symbol nodes.
-* [Security](./security.md): Learn how to keep your funds and accounts secure.
+<div class="icon-list" markdown>
+
+* :fontawesome-solid-desktop: [The Symbol Desktop Wallet](desktop-wallet/install.md)
+
+    Manage your accounts and handle transactions from your desktop PC.
+
+* :fontawesome-solid-mobile-phone: [The Symbol Mobile Wallet](mobile-wallet/install.md)
+
+    Manage your accounts and handle transactions from your phone.
+
+* :material-network: [Shoestring](shoestring/overview.md)
+
+    Deploy and maintain Symbol nodes.
+
+* :material-security: [Security](./security.md)
+
+    Learn how to keep your funds and accounts secure.
+
+</div>

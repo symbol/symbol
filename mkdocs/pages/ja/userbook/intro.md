@@ -14,6 +14,18 @@ title: はじめに
 
 このマニュアルは次のセクションで構成されています。
 
-* [Symbol デスクトップウォレット](desktop-wallet/install.md)：アカウントを管理し、トランザクションを扱います。
-* [Shoestring](shoestring/overview.md)：Symbol ノードをデプロイして保守します。
-* [セキュリティ](./security.md)：資産とアカウントを安全に保つ方法を学びます。
+<div class="icon-list" markdown>
+
+* :fontawesome-solid-desktop: [Symbol デスクトップウォレット](desktop-wallet/install.md)
+
+    アカウントを管理し、トランザクションを扱います。
+
+* :material-network: [Shoestring](shoestring/overview.md)
+
+    Symbol ノードをデプロイして保守します。
+
+* :material-security: [セキュリティ](./security.md)
+
+    資産とアカウントを安全に保つ方法を学びます。
+
+</div>
