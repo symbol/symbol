@@ -98,6 +98,7 @@ nav:
               - userbook/mobile-wallet/delete-account.md
           - Transactions:
               - userbook/mobile-wallet/send-funds-and-messages.md
+              - userbook/mobile-wallet/receive-funds.md
       - Shoestring Node Operation:
           - userbook/shoestring/overview.md
           - userbook/shoestring/install.md
