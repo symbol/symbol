@@ -39,7 +39,8 @@ You can create a shortcut to this file for quicker access in the future.
 
 ## Next Steps
 
-Now that the Symbol Desktop Wallet is installed, you need to create or import a profile so you can keep your accounts organized.
+After the Symbol Desktop Wallet is installed, you need to create or import a profile so you can keep your accounts
+organized.
 
-* To set up a new profile and account, follow the [Creating a Profile](./create-profile.md) tutorial.
-* To restore existing accounts, follow the [Importing a Profile](./import-profile.md) tutorial.
+* To set up a new profile and account, follow the [Creating a Profile](./create-profile.md) guide.
+* To restore existing accounts, follow the [Importing a Profile](./import-profile.md) guide.
