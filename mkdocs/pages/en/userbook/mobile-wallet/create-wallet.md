@@ -4,8 +4,11 @@ title: Creating a Wallet
 
 # Creating a New Wallet
 
-This page explains how to create a **new** wallet in the Symbol Mobile Wallet.
+This page explains how to create a **new** wallet in the Symbol Mobile Wallet App.
 If you already have a backup phrase and want to restore an existing wallet, follow the importing guide instead.
+
+The app can manage multiple accounts in a wallet.
+If you only need another account, you may not need to create a separate wallet.
 
 !!! info "What does wallet mean here?"
 
@@ -24,6 +27,15 @@ If you already have a backup phrase and want to restore an existing wallet, foll
 * Make sure you have installed the Symbol Mobile Wallet.
     If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
 
+!!! warning "Only one wallet can be active at a time"
+
+    The Symbol Mobile Wallet App handles one wallet at a time.
+    If a wallet is already active, the option to create a new wallet may not be shown.
+
+    To create a different wallet, first log out from the current one.
+    Before doing that, make sure you have backed up the current wallet's <mnemonic phrase:>
+    so you can recover it later if needed.
+
 ## How to Create a Wallet
 
 Follow these steps to create a new wallet in the Symbol Mobile Wallet:
@@ -33,7 +45,9 @@ Follow these steps to create a new wallet in the Symbol Mobile Wallet:
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-0.webp") }}
-Open the Symbol Mobile Wallet and tap **Create Wallet**.
+Open the Symbol Mobile Wallet and tap **Create Wallet**.  
+If you do not see the welcome screen, a wallet is already active and you need to log out
+or create an account inside it instead.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-wallet-1.webp") }}
@@ -58,7 +72,7 @@ Choose one you can remember, but do not share it with anyone.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-wallet-4.webp") }}
-Wait while the wallet saves the mnemonic phrase, sets up the PIN code, and generates your account.
+Wait a few seconds while the app finishes setting up the wallet.
 {{ tutorial.step_end() }}
 
 {{ tutorial.list_end() }}
@@ -75,4 +89,5 @@ You can share its address to receive funds or use the app to send transactions.
 Your new wallet is now ready to use.
 
 * Keep your mnemonic phrase backup secure.
+* Use the same wallet to manage more accounts when you do not need a separate backup phrase.
 * Review the [Security](../security.md) guide before receiving or sending funds.
