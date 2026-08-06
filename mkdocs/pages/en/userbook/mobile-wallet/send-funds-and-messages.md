@@ -55,6 +55,8 @@ After the required fields are filled in, the fee slider appears.
 Move the slider to choose the fee and confirmation speed.
 
 Smaller fees typically result in slower transactions but actual confirmation time depends on network conditions.
+The connected node's minimum fee multiplier also affects how low the fee can be.
+To inspect or change the connected node, see the [Changing the Node](./change-node.md) guide.
 
 Tap **SEND**.
 The next screen will ask for confirmation.
