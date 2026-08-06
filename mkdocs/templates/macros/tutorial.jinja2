@@ -1,4 +1,6 @@
 {% set ns = namespace(step_count=1) %}
+{% set ns.list_count = 0 %}
+{% set ns.current_list = 0 %}
 {% set ns.group_count = 99 %}
 {% set lang_name = {"py":"Python", "js":"JavaScript"} %}
 {% set lang_icon = {"py":":simple-python:", "js":":simple-javascript:"} %}
@@ -6,6 +8,8 @@
 
 {% macro list_begin(layout="landscape") -%}
 {% set ns.step_count = 1 %}
+{% set ns.list_count = ns.list_count + 1 %}
+{% set ns.current_list = ns.list_count %}
 <table markdown class="tutorial tutorial-{{ layout }}">
 {%- endmacro %}
 
@@ -14,7 +18,7 @@
 {%- endmacro %}
 
 {% macro step_begin(fname) -%}
-<tr markdown><td markdown>![]({{ fname }}){ data-description=".step-{{ ns.step_count }}" }<div markdown class="step-{{ ns.step_count }}"><span class="big-number">{{ ns.step_count }}. </span>
+<tr markdown><td markdown>![]({{ fname }}){ data-description=".step-{{ ns.current_list }}-{{ ns.step_count }}" }<div markdown class="step-{{ ns.current_list }}-{{ ns.step_count }}"><span class="big-number">{{ ns.step_count }}. </span>
 {%- endmacro -%}
 
 {% macro step_end() -%}
