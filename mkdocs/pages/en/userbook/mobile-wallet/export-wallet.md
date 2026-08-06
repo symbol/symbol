@@ -64,5 +64,6 @@ Write the words down in the exact order shown and store them somewhere safe, suc
 Your wallet backup phrase is now backed up.
 
 * Keep the backup secure and offline.
-* Use the phrase to [import the wallet](./import-wallet.md) if you need to restore access later.
+* Use the phrase to [import the wallet](./import-wallet.md) if you need to restore access to its seed accounts later.
+* Back up each external account separately by following [Exporting an External Account](./export-account.md).
 * Review the [Security](../security.md) guide for more advice on protecting wallet backups.

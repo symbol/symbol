@@ -21,11 +21,12 @@ See [the introduction](./intro.md) for more information about wallets and accoun
 !!! warning "Only one wallet can be active at a time"
 
     The Symbol Mobile Wallet App handles one wallet at a time.
-    If a wallet is already active, the option to create a new wallet may not be shown.
+    If a wallet is already active, the option to create a new wallet will not be shown.
 
     To create a different wallet, first [log out](./logout-wallet.md) from the current one.
     Before doing that, make sure you have [backed up](./export-wallet.md) the current wallet's
     <mnemonic phrase:> so you can recover it later if needed.
+    If it contains <external accounts:>, also make sure you have [backed them up](./export-account.md).
 
 ## How to Create a Wallet
 

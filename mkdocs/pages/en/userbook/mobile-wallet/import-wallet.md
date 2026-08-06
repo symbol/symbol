@@ -23,11 +23,12 @@ See [the introduction](./intro.md) for more about wallets and accounts in the ap
 !!! warning "Only one wallet can be active at a time"
 
     The Symbol Mobile Wallet App handles one wallet at a time.
-    If a wallet is already active, the option to import a wallet may not be shown.
+    If a wallet is already active, the option to import a wallet will not be shown.
 
     To import a different wallet, first [log out](./logout-wallet.md) from the current one.
     Before doing that, make sure you have [backed up](./export-wallet.md) the current wallet's
     <mnemonic phrase:> so you can recover it later if needed.
+    If it contains <external accounts:>, also make sure you have [backed them up](./export-account.md).
 
 ## How to Import a Wallet
 
@@ -79,4 +80,5 @@ Your wallet is now available on this device.
 
 * Keep your mnemonic phrase backup secure.
 * You can [add more accounts](./create-account.md) to this wallet if needed.
+* To restore external accounts, [import them separately](./import-account.md).
 * Review the [Security](../security.md) guide before receiving or sending funds.

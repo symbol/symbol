@@ -7,14 +7,14 @@ title: Logging Out
 This page explains how to log out from the active wallet in the Symbol Mobile Wallet App.
 
 Logging out removes the wallet data from this device.
-The accounts and assets still exist on the blockchain, but you will need the wallet's <mnemonic phrase:>
-to recover access later.
+The accounts and assets still exist on the blockchain, but they will become **inaccessible** unless you have
+a copy of the wallet's <mnemonic phrase:> and the <private keys:> of any imported <external accounts:>.
 
 !!! warning "Back up your wallet before logging out"
 
-    Make sure you have backed up the wallet's <mnemonic phrase:> before logging out.
-
-    If you do not have a backup, follow the [Exporting a Wallet](./export-wallet.md) guide first.
+    Make sure you have [backed up the wallet's mnemonic phrase](./export-wallet.md) before logging out.
+    If the wallet contains external accounts, also make sure you have
+    [backed up their private keys](./export-account.md).
 
 ## Prerequisites
 
@@ -45,7 +45,7 @@ Tap **:material-minus: Logout**.
 {{ tutorial.step_begin("logout-wallet-2.webp") }}
 Read the confirmation message.
 
-If your mnemonic phrase is backed up, tap **Confirm**.
+If your mnemonic phrase and any external account private keys are backed up, tap **Confirm**.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-wallet-3.webp") }}
@@ -63,4 +63,5 @@ You will be taken back to the welcome screen:
 You are now logged out from the wallet on this device.
 
 * To restore the same wallet later, follow [Importing a Wallet](./import-wallet.md).
+* To restore external accounts later, follow [Importing an Account](./import-account.md).
 * To start fresh, follow [Creating a Wallet](./create-wallet.md).
