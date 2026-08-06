@@ -95,6 +95,8 @@ nav:
               - userbook/mobile-wallet/create-account.md
               - userbook/mobile-wallet/import-account.md
               - userbook/mobile-wallet/delete-account.md
+          - Transactions:
+              - userbook/mobile-wallet/send-funds-and-messages.md
       - Shoestring Node Operation:
           - userbook/shoestring/overview.md
           - userbook/shoestring/install.md
