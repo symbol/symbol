@@ -32,7 +32,8 @@ Follow these steps to view the mnemonic phrase for the active wallet:
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-5.webp") }}
-From the wallet's main screen, tap the **:material-cog: Settings** button in the top-right corner.
+From the wallet's **:material-home: HOME** screen, tap the **:material-cog: Settings** button
+in the top-right corner.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-wallet-1.webp") }}

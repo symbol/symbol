@@ -35,7 +35,7 @@ If you want to create a new wallet from scratch, follow the [Creating a Wallet](
     The Symbol Mobile Wallet App handles one wallet at a time.
     If a wallet is already active, the option to import a wallet may not be shown.
 
-    To import a different wallet, first log out from the current one.
+    To import a different wallet, first [log out](./logout-wallet.md) from the current one.
     Before doing that, make sure you have [backed up](./export-wallet.md) the current wallet's
     <mnemonic phrase:> so you can recover it later if needed.
 
@@ -49,7 +49,7 @@ Follow these steps to import an existing wallet into the Symbol Mobile Wallet:
 
 {{ tutorial.step_begin("create-wallet-0.webp") }}
 Open the Symbol Mobile Wallet and tap **Import Wallet**.  
-If you do not see the welcome screen, a wallet is already active and you need to log out
+If you do not see the welcome screen, a wallet is already active and you need to [log out](./logout-wallet.md)
 or create an account inside it instead.
 {{ tutorial.step_end() }}
 
@@ -72,7 +72,7 @@ Wait a few seconds while the app finishes setting up the wallet.
 
 {{ tutorial.list_end() }}
 
-You will be taken to the main screen of the wallet:
+You will be taken to the **:material-home: HOME** screen:
 
 ![Wallet imported successfully](create-wallet-5.webp){ .tutorial-result }
 
