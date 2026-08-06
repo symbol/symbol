@@ -4,9 +4,9 @@ title: Exporting an External Account
 
 # Exporting an External Account
 
-This page explains how to back up an external account from the Symbol Mobile Wallet App by exporting its <private key:>.
+This page explains how to back up an <external account:> from the Symbol Mobile Wallet App by exporting its <private key:>.
 
-Seed accounts are derived from the wallet's <mnemonic phrase:>, so they are backed up when you
+<Seed accounts:|Seed accounts> are derived from the wallet's <mnemonic phrase:>, so they are backed up when you
 [export the wallet backup phrase](./export-wallet.md).
 External accounts are different: they are imported into the app from a private key, and they are not included in the
 wallet's mnemonic phrase backup.

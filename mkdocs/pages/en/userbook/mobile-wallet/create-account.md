@@ -6,7 +6,7 @@ title: Creating an Account
 
 This page explains how to add another <account:> to the active wallet in the Symbol Mobile Wallet App.
 
-Accounts created this way are **seed accounts**.
+Accounts created this way are <seed accounts:>.
 They are derived from the wallet's <mnemonic phrase:>, so the same wallet backup can recover them later.
 
 If you want to bring an existing account from another wallet, you will need its <private key:> and the

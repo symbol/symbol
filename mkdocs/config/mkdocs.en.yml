@@ -85,6 +85,7 @@ nav:
               - userbook/desktop-wallet/import-account.md
               - userbook/desktop-wallet/delete-account.md
       - Symbol Mobile Wallet:
+          - userbook/mobile-wallet/intro.md
           - userbook/mobile-wallet/install.md
           - Wallets:
               - userbook/mobile-wallet/create-wallet.md

@@ -8,17 +8,7 @@ This page explains how to import an **existing** wallet into the Symbol Mobile W
 <mnemonic phrase:>.
 If you want to create a new wallet from scratch, follow the [Creating a Wallet](./create-wallet.md) guide instead.
 
-!!! info "What does wallet mean here?"
-
-    In the Symbol Mobile Wallet App, a **wallet** is the local setup that stores the information needed to manage
-    one or more <accounts:> on your mobile device.
-    It is similar to a <profile:> in the [Symbol Desktop Wallet](../desktop-wallet/install.md).
-
-    Each wallet includes:
-
-    * A <mnemonic phrase:>, from which account keys can be derived and which can be used to restore access later.
-    * One or more accounts managed by the app.
-    * A PIN code to protect access to the wallet on the device.
+See [the introduction](./intro.md) for more about wallets and accounts in the app.
 
 ## Prerequisites
 

@@ -11,17 +11,7 @@ If you already have a backup phrase and want to restore an existing wallet, foll
 The app can manage multiple accounts in a wallet.
 If you only need to [create another account](./create-account.md), you may not need to create a separate wallet.
 
-!!! info "What does wallet mean here?"
-
-    In the Symbol Mobile Wallet App, a **wallet** is the local setup that stores the information needed to manage
-    one or more <accounts:> on your mobile device.
-    It is similar to a <profile:> in the [Symbol Desktop Wallet](../desktop-wallet/install.md).
-
-    Each wallet includes:
-
-    * A <mnemonic phrase:>, from which account keys can be derived and which can be used to restore access later.
-    * A first account, created during setup.
-    * A PIN code to protect access to the wallet on the device.
+See [the introduction](./intro.md) for more information about wallets and accounts.
 
 ## Prerequisites
 

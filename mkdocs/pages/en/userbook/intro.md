@@ -20,7 +20,7 @@ The manual is organized into the following sections:
 
     Manage your accounts and handle transactions from your desktop PC.
 
-* :fontawesome-solid-mobile-phone: [The Symbol Mobile Wallet](mobile-wallet/install.md)
+* :fontawesome-solid-mobile-phone: [The Symbol Mobile Wallet](mobile-wallet/intro.md)
 
     Manage your accounts and handle transactions from your phone.
 

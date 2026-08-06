@@ -6,12 +6,12 @@ title: Deleting an Account
 
 This page explains how to hide or delete an <account:> from the active wallet in the Symbol Mobile Wallet App.
 
-The wallet's main account, which is the first seed account, cannot be deleted.
+The wallet's main account, which is the first <seed account:>, cannot be deleted.
 Other seed accounts can be hidden from the account list, but they cannot be removed permanently because they are
 derived from the wallet's <mnemonic phrase:>.
 You can recover a hidden seed account later by following [Creating an Account](./create-account.md).
 
-Only imported external accounts can be truly deleted.
+Only imported <external accounts:> can be truly deleted.
 If an imported account's <private key:> is not backed up, deleting it can make the account permanently inaccessible.
 Follow [Exporting an External Account](./export-account.md) first if you need to back it up from the app.
 

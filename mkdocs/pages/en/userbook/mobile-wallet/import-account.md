@@ -7,7 +7,7 @@ title: Importing an Account
 This page explains how to import an existing <account:> into the active wallet in the Symbol Mobile Wallet App
 using its <private key:>.
 
-Imported accounts are **external accounts**.
+Imported accounts are <External accounts:>.
 They are not derived from the wallet's <mnemonic phrase:>, so they cannot be recovered from the wallet backup.
 Make sure you keep a [separate backup of the private key](./export-account.md).
 
