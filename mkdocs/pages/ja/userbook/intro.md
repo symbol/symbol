@@ -16,11 +16,15 @@ title: はじめに
 
 <div class="icon-list" markdown>
 
-* :fontawesome-solid-desktop: [Symbol デスクトップウォレット](desktop-wallet/intro.md)
+* :octicons-device-desktop-24: [Symbol デスクトップウォレット](desktop-wallet/intro.md)
 
     アカウントを管理し、トランザクションを扱います。
 
-* :material-network: [Shoestring](shoestring/overview.md)
+* :octicons-device-mobile-24: [Symbol モバイルウォレット](mobile-wallet/intro.md)
+
+    スマートフォンからアカウントを管理し、トランザクションを扱います。
+
+* :material-network-outline: [Shoestring](shoestring/overview.md)
 
     Symbol ノードをデプロイして保守します。
 

@@ -44,7 +44,7 @@ From the wallet's **:material-home: HOME** screen, tap the account dropdown at t
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-account-3.webp") }}
-Tap the **Add Account** button in the bottom-right corner.
+Tap the **:fontawesome-solid-user-plus: Add Account** button in the bottom-right corner.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-account-2.webp") }}

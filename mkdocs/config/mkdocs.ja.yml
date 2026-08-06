@@ -84,6 +84,31 @@ nav:
               - userbook/desktop-wallet/create-account.md
               - userbook/desktop-wallet/import-account.md
               - userbook/desktop-wallet/delete-account.md
+      - Symbol モバイルウォレット:
+          - userbook/mobile-wallet/intro.md
+          - userbook/mobile-wallet/install.md
+          - ウォレット:
+              - userbook/mobile-wallet/create-wallet.md
+              - userbook/mobile-wallet/import-wallet.md
+              - userbook/mobile-wallet/export-wallet.md
+              - userbook/mobile-wallet/logout-wallet.md
+          - アカウント:
+              - userbook/mobile-wallet/create-account.md
+              - userbook/mobile-wallet/import-account.md
+              - userbook/mobile-wallet/export-account.md
+              - userbook/mobile-wallet/share-address-qr-code.md
+              - userbook/mobile-wallet/delete-account.md
+          - トランザクション:
+              - userbook/mobile-wallet/send-funds-and-messages.md
+              - userbook/mobile-wallet/receive-funds.md
+              - userbook/mobile-wallet/check-transaction-history.md
+          - ハーベスティング:
+              - userbook/mobile-wallet/enable-harvesting.md
+          - 設定:
+              - userbook/mobile-wallet/change-node.md
+              - userbook/mobile-wallet/use-test-network.md
+          - ブリッジ:
+              - userbook/mobile-wallet/bridge-tokens.md
       - Shoestringを使用したノード運用:
           - userbook/shoestring/overview.md
           - userbook/shoestring/install.md
