@@ -4,9 +4,9 @@
 {% set lang_icon = {"py":":simple-python:", "js":":simple-javascript:"} %}
 {% set lang_ext = {"py":"py", "js":"mjs"} %}
 
-{% macro list_begin() -%}
+{% macro list_begin(layout="landscape") -%}
 {% set ns.step_count = 1 %}
-<table markdown class="tutorial">
+<table markdown class="tutorial tutorial-{{ layout }}">
 {%- endmacro %}
 
 {% macro list_end() -%}
