@@ -26,7 +26,7 @@ If you only need to [create another account](./create-account.md), you may not n
 ## Prerequisites
 
 * Make sure you have installed the Symbol Mobile Wallet.
-    If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+    If you have not done that yet, see the [Installing the App](./install.md) guide.
 
 !!! warning "Only one wallet can be active at a time"
 

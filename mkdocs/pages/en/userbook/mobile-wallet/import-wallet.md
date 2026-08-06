@@ -23,7 +23,7 @@ If you want to create a new wallet from scratch, follow the [Creating a Wallet](
 ## Prerequisites
 
 * Make sure you have installed the Symbol Mobile Wallet.
-    If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+    If you have not done that yet, see the [Installing the App](./install.md) guide.
 
 * Make sure you have the mnemonic phrase for the wallet you want to import.
 

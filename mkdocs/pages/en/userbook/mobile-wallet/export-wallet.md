@@ -16,7 +16,7 @@ You can use this phrase later to [import the wallet](./import-wallet.md) on the 
 ## Prerequisites
 
 * Make sure you have installed the Symbol Mobile Wallet.
-    If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+    If you have not done that yet, see the [Installing the App](./install.md) guide.
 
 * You must already have a wallet set up and unlocked in the app.
     See [Creating a Wallet](./create-wallet.md) or [Importing a Wallet](./import-wallet.md) if needed.
