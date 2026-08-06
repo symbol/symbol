@@ -60,7 +60,7 @@ digraph {
 
 自身のアカウントを使用する場合は、以下の手順を完了してください：
 
-* アグリゲートトランザクションを開始するためのアカウント（アカウント A）を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成します。
+* アグリゲートトランザクションを開始するためのアカウント（アカウント A）を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/desktop-wallet/create-account.md) を使用して作成します。
 * スワップに参加するための2つ目のアカウント（アカウント B）を作成します。
 * トランザクション手数料、転送量、およびハッシュロックのデポジットを支払うための XYM をアカウント A で入手します。[蛇口 (Faucet) からテストネットの通貨を入手する](../accounts/testnet-faucet.md) を参照してください。
 * スワップのためにアカウント B が所有するモザイクを作成します。[モザイクの作成](../mosaics/create-mosaic.md) を参照してください。

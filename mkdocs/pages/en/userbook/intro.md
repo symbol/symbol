@@ -14,6 +14,6 @@ for background information when needed.
 
 The manual is organized into the following sections:
 
-* [The Symbol Desktop Wallet](wallet/install.md): Manage your accounts and handle transactions.
+* [The Symbol Desktop Wallet](desktop-wallet/install.md): Manage your accounts and handle transactions.
 * [Shoestring](shoestring/overview.md): Deploy and maintain Symbol nodes.
 * [Security](./security.md): Learn how to keep your funds and accounts secure.

@@ -17,7 +17,7 @@ Before you start, make sure to:
 * Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
 * Create an <account:> that owns the namespace, either [from code](../accounts/create-from-private-key.md) or
-    [by using a wallet](../../userbook/wallet/create-account.md).
+    [by using a wallet](../../userbook/desktop-wallet/create-account.md).
 * [Register a root namespace](./register-root-namespace.md) to link to an address.
 * Obtain <XYM:> to pay for the transaction fee.
     See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).

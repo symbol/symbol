@@ -74,16 +74,16 @@ nav:
   - User Manual:
       - userbook/intro.md
       - Symbol Desktop Wallet:
-          - userbook/wallet/install.md
+          - userbook/desktop-wallet/install.md
           - Profiles:
-              - userbook/wallet/create-profile.md
-              - userbook/wallet/import-profile.md
-              - userbook/wallet/export-profile.md
-              - userbook/wallet/delete-profile.md
+              - userbook/desktop-wallet/create-profile.md
+              - userbook/desktop-wallet/import-profile.md
+              - userbook/desktop-wallet/export-profile.md
+              - userbook/desktop-wallet/delete-profile.md
           - Accounts:
-              - userbook/wallet/create-account.md
-              - userbook/wallet/import-account.md
-              - userbook/wallet/delete-account.md
+              - userbook/desktop-wallet/create-account.md
+              - userbook/desktop-wallet/import-account.md
+              - userbook/desktop-wallet/delete-account.md
       - Shoestring Node Operation:
           - userbook/shoestring/overview.md
           - userbook/shoestring/install.md

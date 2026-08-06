@@ -21,7 +21,7 @@ Before you start, make sure to:
 
 * Create a testnet <account:> to receive funds, either
   [from code](../accounts/create-from-private-key.md) or
-  [by using a wallet](../../userbook/wallet/create-account.md).
+  [by using a wallet](../../userbook/desktop-wallet/create-account.md).
 * Have an 𝕏 account to verify your identity with the faucet.
 
 ## How to Claim Testnet Funds
