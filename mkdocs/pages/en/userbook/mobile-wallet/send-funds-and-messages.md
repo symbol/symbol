@@ -75,51 +75,7 @@ The app shows a success message when the transfer transaction is confirmed.
 
 {{ tutorial.list_end() }}
 
-## Checking the Transaction History
+## Next Steps
 
-You can check the history to see what happened.
-
-{{ tutorial.list_begin("portrait") }}
-
-{{ tutorial.step_begin("create-wallet-5.webp") }}
-From the wallet's **:material-home: HOME** screen, tap **:fontawesome-solid-history: HISTORY** at the bottom.
-{{ tutorial.step_end() }}
-
-{{ tutorial.step_begin("transfer-6.webp") }}
-The history shows past transactions involving the selected account.
-
-In this example, **MY ACCOUNT** is selected, so the top transaction is the one just sent.
-
-Tap the transaction to open its details.
-{{ tutorial.step_end() }}
-
-{{ tutorial.step_begin("transfer-7.webp") }}
-Review the transaction details.
-
-The details show the transaction status, date, amount, sender, recipient, fee, and transaction hash.
-
-To see the message, tap the long arrow to expand the details.
-{{ tutorial.step_end() }}
-
-{{ tutorial.step_begin("transfer-9.webp") }}
-The expanded details show the message, the transferred mosaics, and the full sender and recipient addresses.
-
-To check the history from the recipient's point of view, you need to have it in your wallet.
-
-Return to the transaction history using the **:material-arrow-left: back arrow** and select the recipient account
-from the account dropdown at the top.
-{{ tutorial.step_end() }}
-
-{{ tutorial.step_begin("transfer-8.webp") }}
-The history now shows transactions involving **Second account**.
-
-In this example, it only shows the received transfer.
-
-Tap the transaction to open its details.
-{{ tutorial.step_end() }}
-
-{{ tutorial.step_begin("transfer-7.webp") }}
-The transaction details are the same because both accounts are viewing the same transfer transaction.
-{{ tutorial.step_end() }}
-
-{{ tutorial.list_end() }}
+After sending a transfer, you can [check the transaction history](./check-transaction-history.md)
+to see it from the sender's or recipient's point of view.
