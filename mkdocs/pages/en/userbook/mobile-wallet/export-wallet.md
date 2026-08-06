@@ -5,7 +5,11 @@ title: Exporting a Wallet
 # Exporting a Wallet Backup Phrase
 
 This page explains how to view and back up the <mnemonic phrase:> for the active wallet in the Symbol Mobile Wallet App.
-You can use this phrase later to [import the wallet](./import-wallet.md) on the same device or another device.
+You can use this phrase later to [import the wallet](./import-wallet.md) on the same device or another device,
+which will include all its seed accounts.
+
+External accounts are not included in this backup.
+To back up each external account, follow [Exporting an External Account](./export-account.md).
 
 !!! danger "Keep your mnemonic phrase secret"
 

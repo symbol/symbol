@@ -9,7 +9,7 @@ using its <private key:>.
 
 Imported accounts are **external accounts**.
 They are not derived from the wallet's <mnemonic phrase:>, so they cannot be recovered from the wallet backup.
-Make sure you keep a separate backup of the private key.
+Make sure you keep a [separate backup of the private key](./export-account.md).
 
 If you want to create another account from the wallet's mnemonic phrase instead, follow
 [Creating an Account](./create-account.md).
@@ -71,5 +71,6 @@ Your imported account is now available in the app.
 Select it to start using it.
 
 * Keep the private key backup secure and separate from the wallet's mnemonic phrase backup.
+* Follow [Exporting an External Account](./export-account.md) if you need to back up this private key from the app later.
 * You can switch between accounts from the account dropdown on the **:material-home: HOME** screen.
 * Follow [Deleting an Account](./delete-account.md) if you want to remove an imported account from the app.

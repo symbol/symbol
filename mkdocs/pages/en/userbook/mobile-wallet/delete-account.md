@@ -13,6 +13,7 @@ You can recover a hidden seed account later by following [Creating an Account](.
 
 Only imported external accounts can be truly deleted.
 If an imported account's <private key:> is not backed up, deleting it can make the account permanently inaccessible.
+Follow [Exporting an External Account](./export-account.md) first if you need to back it up from the app.
 
 ## Prerequisites
 

@@ -94,6 +94,7 @@ nav:
           - Accounts:
               - userbook/mobile-wallet/create-account.md
               - userbook/mobile-wallet/import-account.md
+              - userbook/mobile-wallet/export-account.md
               - userbook/mobile-wallet/share-address-qr-code.md
               - userbook/mobile-wallet/delete-account.md
           - Transactions:
