@@ -16,15 +16,15 @@ The manual is organized into the following sections:
 
 <div class="icon-list" markdown>
 
-* :fontawesome-solid-desktop: [The Symbol Desktop Wallet](desktop-wallet/intro.md)
+* :octicons-device-desktop-24: [Symbol Desktop Wallet](desktop-wallet/intro.md)
 
     Manage your accounts and handle transactions from your desktop PC.
 
-* :fontawesome-solid-mobile-phone: [The Symbol Mobile Wallet](mobile-wallet/intro.md)
+* :octicons-device-mobile-24: [Symbol Mobile Wallet](mobile-wallet/intro.md)
 
     Manage your accounts and handle transactions from your phone.
 
-* :material-network: [Shoestring](shoestring/overview.md)
+* :material-network-outline: [Shoestring Node Operation](shoestring/overview.md)
 
     Deploy and maintain Symbol nodes.
 
