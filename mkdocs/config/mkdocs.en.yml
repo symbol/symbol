@@ -95,6 +95,7 @@ nav:
               - userbook/mobile-wallet/logout-wallet.md
           - Settings:
               - userbook/mobile-wallet/change-node.md
+              - userbook/mobile-wallet/use-test-network.md
           - Accounts:
               - userbook/mobile-wallet/create-account.md
               - userbook/mobile-wallet/import-account.md
