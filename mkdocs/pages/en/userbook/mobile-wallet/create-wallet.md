@@ -1,0 +1,79 @@
+---
+title: Creating a Wallet
+---
+
+# Creating a New Wallet
+
+This page explains how to create a **new** wallet in the Symbol Mobile Wallet.
+If you already have a backup phrase and want to restore an existing wallet, follow the importing guide instead.
+
+!!! info "What does wallet mean here?"
+
+    In the Symbol Mobile Wallet, a **wallet** is the local setup that stores the information needed to manage
+    one or more <accounts:> on your mobile device.
+    It is similar to a <profile:> in the [Symbol Desktop Wallet](../desktop-wallet/install.md).
+
+    Each wallet includes:
+
+    * A <mnemonic phrase:>, from which account keys can be derived and which can be used to restore access later.
+    * A first account, created during setup.
+    * A PIN code to protect access to the wallet on the device.
+
+## Prerequisites
+
+* Make sure you have installed the Symbol Mobile Wallet.
+    If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
+
+## How to Create a Wallet
+
+Follow these steps to create a new wallet in the Symbol Mobile Wallet:
+
+{% import 'tutorial.jinja2' as tutorial %}
+
+{{ tutorial.list_begin() }}
+
+{{ tutorial.step_begin("create-wallet-0.webp") }}
+Open the Symbol Mobile Wallet and tap **Create Wallet**.
+{{ tutorial.step_end() }}
+
+{{ tutorial.step_begin("create-wallet-1.webp") }}
+Enter a name for your first account.
+
+This label helps you recognize the account later. You can keep the default name or choose your own.
+
+Tap **Next**.
+{{ tutorial.step_end() }}
+
+{{ tutorial.step_begin("create-wallet-2.webp") }}
+Tap **Show Mnemonic Phrase** to reveal your backup phrase.
+
+Write the phrase down in the exact order shown. **Store it somewhere safe, such as an offline backup location**.
+
+After you have saved it, check the confirmation box to accept the risk of losing the phrase, then tap **Next**.
+{{ tutorial.step_end() }}
+
+{{ tutorial.step_begin("create-wallet-3.webp") }}
+Create a PIN code.
+
+This PIN protects access to the wallet on your device. Choose one you can remember, but do not share it with anyone.
+{{ tutorial.step_end() }}
+
+{{ tutorial.step_begin("create-wallet-4.webp") }}
+Wait while the wallet saves the mnemonic phrase, sets up the PIN code, and generates your account.
+{{ tutorial.step_end() }}
+
+{{ tutorial.list_end() }}
+
+You will be taken to the main screen of the wallet:
+
+![Wallet created successfully](create-wallet-5.webp)
+
+Your first account is ready to use.
+You can share its address to receive funds or use the app to send transactions.
+
+## Next Steps
+
+Your new wallet is now ready to use.
+
+* Keep your mnemonic phrase backup secure.
+* Review the [Security](../security.md) guide before receiving or sending funds.

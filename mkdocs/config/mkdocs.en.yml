@@ -86,6 +86,7 @@ nav:
               - userbook/desktop-wallet/delete-account.md
       - Symbol Mobile Wallet:
           - userbook/mobile-wallet/install.md
+          - userbook/mobile-wallet/create-wallet.md
       - Shoestring Node Operation:
           - userbook/shoestring/overview.md
           - userbook/shoestring/install.md
