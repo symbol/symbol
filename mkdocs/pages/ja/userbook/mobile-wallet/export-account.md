@@ -46,7 +46,7 @@ title: 外部アカウントのエクスポート
 {{ tutorial.step_begin("export-account-2.webp") }}
 **DETAILS** ボックスで、**ACCOUNT TYPE** が `external` であることを確認します。
 
-そうでない場合は、 [ウォレットのエクスポート](./export-wallet.md) ガイドに従ってください。
+そうでない場合は、[ウォレットのエクスポート](./export-wallet.md) ガイドに従ってください。
 
 **:octicons-key-24: REVEAL PRIVATE KEY** をタップします。
 {{ tutorial.step_end() }}

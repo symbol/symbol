@@ -53,7 +53,7 @@ title: QR コードでアドレスを共有
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("share-address-3.webp") }}
-別な端末にに **SHARED INFORMATION** 画面が表示され、共有されたアドレスと利用可能なアクションの一覧が表示されます。
+別な端末に **SHARED INFORMATION** 画面が表示され、共有されたアドレスと利用可能なアクションの一覧が表示されます。
 
 **:fontawesome-regular-paper-plane: Send Transaction** をタップします。
 {{ tutorial.step_end() }}
