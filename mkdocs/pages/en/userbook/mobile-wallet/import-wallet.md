@@ -36,8 +36,8 @@ If you want to create a new wallet from scratch, follow the [Creating a Wallet](
     If a wallet is already active, the option to import a wallet may not be shown.
 
     To import a different wallet, first log out from the current one.
-    Before doing that, make sure you have backed up the current wallet's <mnemonic phrase:>
-    so you can recover it later if needed.
+    Before doing that, make sure you have [backed up](./export-wallet.md) the current wallet's
+    <mnemonic phrase:> so you can recover it later if needed.
 
 ## How to Import a Wallet
 

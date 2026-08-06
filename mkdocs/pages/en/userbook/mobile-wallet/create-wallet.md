@@ -34,8 +34,8 @@ If you only need another account, you may not need to create a separate wallet.
     If a wallet is already active, the option to create a new wallet may not be shown.
 
     To create a different wallet, first log out from the current one.
-    Before doing that, make sure you have backed up the current wallet's <mnemonic phrase:>
-    so you can recover it later if needed.
+    Before doing that, make sure you have [backed up](./export-wallet.md) the current wallet's
+    <mnemonic phrase:> so you can recover it later if needed.
 
 ## How to Create a Wallet
 
