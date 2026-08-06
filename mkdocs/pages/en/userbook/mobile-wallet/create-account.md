@@ -49,6 +49,8 @@ The new account will be added to the account list:
 
 ![Account created successfully](create-account-3.webp){ .tutorial-result }
 
+If the account has any balance, it will be shown in the account list.
+
 ## Next Steps
 
 Your new account is now ready to use.
