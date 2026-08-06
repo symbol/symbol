@@ -1,15 +1,12 @@
 ---
-title: Creating a Wallet
+title: Importing a Wallet
 ---
 
-# Creating a New Wallet
+# Importing an Existing Wallet
 
-This page explains how to create a **new** wallet in the Symbol Mobile Wallet App.
-If you already have a backup phrase and want to restore an existing wallet, follow the
-[Importing a Wallet](./import-wallet.md) guide instead.
-
-The app can manage multiple accounts in a wallet.
-If you only need another account, you may not need to create a separate wallet.
+This page explains how to import an **existing** wallet into the Symbol Mobile Wallet App using a
+<mnemonic phrase:>.
+If you want to create a new wallet from scratch, follow the [Creating a Wallet](./create-wallet.md) guide instead.
 
 !!! info "What does wallet mean here?"
 
@@ -20,7 +17,7 @@ If you only need another account, you may not need to create a separate wallet.
     Each wallet includes:
 
     * A <mnemonic phrase:>, from which account keys can be derived and which can be used to restore access later.
-    * A first account, created during setup.
+    * One or more accounts managed by the app.
     * A PIN code to protect access to the wallet on the device.
 
 ## Prerequisites
@@ -28,42 +25,39 @@ If you only need another account, you may not need to create a separate wallet.
 * Make sure you have installed the Symbol Mobile Wallet.
     If you have not done that yet, see the [Installing the Wallet](./install.md) guide.
 
+* Make sure you have the mnemonic phrase for the wallet you want to import.
+
+    Symbol uses the [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) standard, which represents
+    mnemonics as 24 English words selected from a standardized word list.
+
 !!! warning "Only one wallet can be active at a time"
 
     The Symbol Mobile Wallet App handles one wallet at a time.
-    If a wallet is already active, the option to create a new wallet may not be shown.
+    If a wallet is already active, the option to import a wallet may not be shown.
 
-    To create a different wallet, first log out from the current one.
+    To import a different wallet, first log out from the current one.
     Before doing that, make sure you have backed up the current wallet's <mnemonic phrase:>
     so you can recover it later if needed.
 
-## How to Create a Wallet
+## How to Import a Wallet
 
-Follow these steps to create a new wallet in the Symbol Mobile Wallet:
+Follow these steps to import an existing wallet into the Symbol Mobile Wallet:
 
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-0.webp") }}
-Open the Symbol Mobile Wallet and tap **Create Wallet**.  
+Open the Symbol Mobile Wallet and tap **Import Wallet**.  
 If you do not see the welcome screen, a wallet is already active and you need to log out
 or create an account inside it instead.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("create-wallet-1.webp") }}
-Enter a name for your first account.  
-This label helps you recognize the account later.
-You can keep the default name or choose your own.
+{{ tutorial.step_begin("import-wallet-1.webp") }}
+Enter the mnemonic phrase for the wallet you want to import.  
+Make sure the words are in the correct order and separated by spaces.
 
 Tap **Next**.
-{{ tutorial.step_end() }}
-
-{{ tutorial.step_begin("create-wallet-2.webp") }}
-Tap **Show Mnemonic Phrase** to reveal your backup phrase.  
-Write the phrase down in the exact order shown.  
-**Store it somewhere safe, such as an offline backup location**.  
-After you have saved it, check the confirmation box to accept the risk of losing the phrase, then tap **Next**.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-wallet-3.webp") }}
@@ -72,7 +66,7 @@ This PIN protects access to the wallet on your device.
 Choose one you can remember, but do not share it with anyone.
 {{ tutorial.step_end() }}
 
-{{ tutorial.step_begin("create-wallet-4.webp") }}
+{{ tutorial.step_begin("import-wallet-2.webp") }}
 Wait a few seconds while the app finishes setting up the wallet.
 {{ tutorial.step_end() }}
 
@@ -80,14 +74,14 @@ Wait a few seconds while the app finishes setting up the wallet.
 
 You will be taken to the main screen of the wallet:
 
-![Wallet created successfully](create-wallet-5.webp){ .tutorial-result }
+![Wallet imported successfully](create-wallet-5.webp){ .tutorial-result }
 
-Your first account is ready to use.
-You can share its address to receive funds or use the app to send transactions.
+Your imported wallet is ready to use.
+You can share an account address to receive funds or use the app to send transactions.
 
 ## Next Steps
 
-Your new wallet is now ready to use.
+Your wallet is now available on this device.
 
 * Keep your mnemonic phrase backup secure.
 * You can add more accounts to this wallet if needed.
