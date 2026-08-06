@@ -506,17 +506,30 @@ code.doc-symbol-interface::after {
 
 /* Tutorial steps */
 .big-number {
-	font-size: x-large;
+	font-size: xx-large;
 	color: var(--md-primary-fg-color);
 }
 
-.md-typeset table.tutorial {
-	border: 0;
+.md-typeset .tutorial {
 	font-size: inherit;
 }
 
-.md-typeset table.tutorial tr:hover {
+.md-typeset .tutorial>.tutorial-step {
+	display: flow-root;
+	padding: 1em;
+	border-top: 1px solid var(--md-default-bg-color--light);
+}
+
+.md-typeset .tutorial>.tutorial-step:last-child {
+	border-bottom: 1px solid var(--md-default-bg-color--light);
+}
+
+.md-typeset .tutorial>.tutorial-step:hover {
 	background-color: var(--md-typeset-table-color--light);
+}
+
+.md-typeset .tutorial>.tutorial-step>p:first-child {
+	margin-top: 0;
 }
 
 .md-typeset .tutorial img {
@@ -538,12 +551,6 @@ code.doc-symbol-interface::after {
 .md-typeset a.glightbox:has(img.tutorial-result) {
 	display: block;
 	text-align: center;
-}
-
-.md-typeset .tutorial td {
-	padding: 1em;
-	border-top: 1px solid var(--md-default-bg-color--light);
-	border-bottom: 1px solid var(--md-default-bg-color--light);
 }
 
 /* Links around code blocks */

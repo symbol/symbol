@@ -10,19 +10,23 @@
 {% set ns.step_count = 1 %}
 {% set ns.list_count = ns.list_count + 1 %}
 {% set ns.current_list = ns.list_count %}
-<table markdown class="tutorial tutorial-{{ layout }}">
+<div markdown="block" class="tutorial tutorial-{{ layout }}">
 {%- endmacro %}
 
 {% macro list_end() -%}
-</table>
+</div>
 {%- endmacro %}
 
 {% macro step_begin(fname) -%}
-<tr markdown><td markdown>![]({{ fname }}){ data-description=".step-{{ ns.current_list }}-{{ ns.step_count }}" }<div markdown class="step-{{ ns.current_list }}-{{ ns.step_count }}"><span class="big-number">{{ ns.step_count }}. </span>
+<div markdown="block" class="tutorial-step">
+![]({{ fname }}){ data-description=".step-{{ ns.current_list }}-{{ ns.step_count }}" }
+
+<div markdown="block" class="step-{{ ns.current_list }}-{{ ns.step_count }}"><span class="big-number">{{ ns.step_count }}. </span>
 {%- endmacro -%}
 
 {% macro step_end() -%}
-</div></td></tr>
+</div>
+</div>
 {% set ns.step_count = ns.step_count + 1 %}
 {%- endmacro %}
 
