@@ -108,6 +108,8 @@ nav:
           - Settings:
               - userbook/mobile-wallet/change-node.md
               - userbook/mobile-wallet/use-test-network.md
+          - Bridging:
+              - userbook/mobile-wallet/bridge-tokens.md
       - Shoestring Node Operation:
           - userbook/shoestring/overview.md
           - userbook/shoestring/install.md
