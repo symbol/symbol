@@ -9,7 +9,7 @@ If you already have a backup phrase and want to restore an existing wallet, foll
 [Importing a Wallet](./import-wallet.md) guide instead.
 
 The app can manage multiple accounts in a wallet.
-If you only need another account, you may not need to create a separate wallet.
+If you only need to [create another account](./create-account.md), you may not need to create a separate wallet.
 
 !!! info "What does wallet mean here?"
 
@@ -48,7 +48,7 @@ Follow these steps to create a new wallet in the Symbol Mobile Wallet:
 {{ tutorial.step_begin("create-wallet-0.webp") }}
 Open the Symbol Mobile Wallet and tap **Create Wallet**.  
 If you do not see the welcome screen, a wallet is already active and you need to [log out](./logout-wallet.md)
-or create an account inside it instead.
+or [create an account](./create-account.md) inside it instead.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-wallet-1.webp") }}
@@ -90,5 +90,5 @@ You can share its address to receive funds or use the app to send transactions.
 Your new wallet is now ready to use.
 
 * Keep your mnemonic phrase backup secure.
-* You can add more accounts to this wallet if needed.
+* You can [add more accounts](./create-account.md) to this wallet if needed.
 * Review the [Security](../security.md) guide before receiving or sending funds.

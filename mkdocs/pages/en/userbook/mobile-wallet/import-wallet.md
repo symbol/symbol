@@ -50,7 +50,7 @@ Follow these steps to import an existing wallet into the Symbol Mobile Wallet:
 {{ tutorial.step_begin("create-wallet-0.webp") }}
 Open the Symbol Mobile Wallet and tap **Import Wallet**.  
 If you do not see the welcome screen, a wallet is already active and you need to [log out](./logout-wallet.md)
-or create an account inside it instead.
+or [create an account](./create-account.md) inside it instead.
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("import-wallet-1.webp") }}
@@ -84,5 +84,5 @@ You can share an account address to receive funds or use the app to send transac
 Your wallet is now available on this device.
 
 * Keep your mnemonic phrase backup secure.
-* You can add more accounts to this wallet if needed.
+* You can [add more accounts](./create-account.md) to this wallet if needed.
 * Review the [Security](../security.md) guide before receiving or sending funds.
