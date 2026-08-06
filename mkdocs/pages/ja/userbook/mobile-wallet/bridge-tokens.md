@@ -37,7 +37,7 @@ title: トークンのブリッジ
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("harvesting-0.webp") }}
-ウォレットの **:material-home: HOME** 画面で、右下隅の **ACTIONS** をタップします。
+ウォレットの **:material-home: HOME** 画面で、右下の **ACTIONS** をタップします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("harvesting-1.webp") }}
@@ -46,7 +46,7 @@ title: トークンのブリッジ
 
 {{ tutorial.step_begin("bridge-2.webp") }}
 ウォレットに Ethereum アカウントがまだない場合、作成を促すポップアップが表示されます。
-これは、初めてブリッジを使用するときに発生する場合があります。
+これは、初めてブリッジを使用するときに表示される場合があります。
 
 **CONFIRM** をタップします。
 

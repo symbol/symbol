@@ -63,7 +63,7 @@ graph WalletNodeConnection {
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-5.webp") }}
-ウォレットの **:material-home: HOME** 画面で、右上隅の **:material-cog: Settings** ボタンをタップします。
+ウォレットの **:material-home: HOME** 画面で、右上の **:material-cog: Settings** ボタンをタップします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-wallet-1.webp") }}
@@ -90,7 +90,7 @@ graph WalletNodeConnection {
     他のノードより明らかに低い場合は、より新しい状態のノードに切り替えてください。
 
 * **MIN FEE MULTIPLIER** は、そのノード経由でトランザクションをアナウンスする際のコストに影響します。
-    値が高いほど、トランザクションが高くなる可能性があります。
+    値が高いほど、トランザクション手数料が高くなる可能性があります。
     トランザクション手数料をどこで選択するかについては、[資金とメッセージの送信](./send-funds-and-messages.md) を参照してください。
 
 アプリは、今後のブロックチェーン照会とトランザクションのアナウンスに、選択したノードを使用します。
@@ -102,4 +102,4 @@ graph WalletNodeConnection {
 
     その一部だけが [API ノード](default:API ノード) でもあり、Symbol モバイルウォレットのようなプログラムからの接続を許可します。
 
-    そのため、アプリに表示されるノード一覧は、ネットワーク全体のノード一覧よりかなり短い場合があります。
+    そのため、アプリに表示されるノード一覧は、ネットワーク全体のノード一覧より少ない場合があります。

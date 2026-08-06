@@ -9,7 +9,7 @@ title: ウォレットのエクスポート
 そのウォレットのすべての[シードアカウント](default:シードアカウント)も含まれます。
 
 [外部アカウント](default:外部アカウント)は、このバックアップには含まれません。
-各外部アカウントをバックアップするには、[外部アカウントのエクスポート](./export-account.md) に従ってください。
+各外部アカウントをバックアップするには、[外部アカウントのエクスポート](./export-account.md) を参照してください。
 
 !!! danger "ニーモニックフレーズは秘密にしてください"
 
@@ -36,7 +36,7 @@ title: ウォレットのエクスポート
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-5.webp") }}
-ウォレットの **:material-home: HOME** 画面で、右上隅の **:material-cog: Settings** ボタンをタップします。
+ウォレットの **:material-home: HOME** 画面で、右上の **:material-cog: Settings** ボタンをタップします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-wallet-1.webp") }}
@@ -64,5 +64,5 @@ PIN コードを入力してウォレットのロックを解除します。
 
 * バックアップは安全かつオフラインで保管してください。
 * 後でシードアカウントへのアクセスを復元する必要がある場合は、このフレーズを使って[ウォレットをインポート](./import-wallet.md)してください。
-* [外部アカウントのエクスポート](./export-account.md) に従い、各外部アカウントを個別にバックアップしてください。
+* [外部アカウントのエクスポート](./export-account.md) を参照して、各外部アカウントを個別にバックアップしてください。
 * ウォレットバックアップの保護について詳しくは、[セキュリティ](../security.md) ガイドを確認してください。

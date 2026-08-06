@@ -1,8 +1,8 @@
 ---
-title: テストネットワークの使用
+title: テストネットの使用
 ---
 
-# テストネットワークの使用
+# テストネットの使用
 
 このページでは、Symbol モバイルウォレットアプリを [メインネット](default:メインネット) と [テストネット](default:テストネット) の間で切り替える方法を説明します。
 
@@ -13,7 +13,7 @@ title: テストネットワークの使用
 テストネットを使うと、実際の資金を危険にさらさずにブロックチェーンに慣れることができます。
 テストネットの <XYM:> は、[フォーセットからテストネット資金を取得する](../../devbook/accounts/testnet-faucet.md) ガイドで入手できます。
 
-!!! warning "メインネットとテストネットは別々です"
+!!! warning "メインネットとテストネットは別なネットワークです"
 
     メインネットとテストネットは独立したネットワークです。
     一方のネットワーク上のアカウント、残高、トランザクション履歴は、もう一方とは同じになりません。
@@ -35,7 +35,7 @@ title: テストネットワークの使用
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-5.webp") }}
-ウォレットの **:material-home: HOME** 画面で、右上隅の **:material-cog: Settings** ボタンをタップします。
+ウォレットの **:material-home: HOME** 画面で、右上の **:material-cog: Settings** ボタンをタップします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-wallet-1.webp") }}

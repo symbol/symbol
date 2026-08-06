@@ -34,7 +34,7 @@ title: ログアウト
 {{ tutorial.list_begin("portrait") }}
 
 {{ tutorial.step_begin("create-wallet-5.webp") }}
-ウォレットの **:material-home: HOME** 画面で、右上隅の **:material-cog: Settings** ボタンをタップします。
+ウォレットの **:material-home: HOME** 画面で、右上の **:material-cog: Settings** ボタンをタップします。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("export-wallet-1.webp") }}
@@ -61,6 +61,6 @@ PIN コードを入力してウォレットのロックを解除し、ログア�
 
 このデバイス上のウォレットからログアウトしました。
 
-* 後で同じウォレットを復元するには、[ウォレットのインポート](./import-wallet.md) に従ってください。
-* 後で外部アカウントを復元するには、[アカウントのインポート](./import-account.md) に従ってください。
-* 最初から始めるには、[ウォレットの作成](./create-wallet.md) に従ってください。
+* 後で同じウォレットを復元するには、[ウォレットのインポート](./import-wallet.md) を参照してください。
+* 後で外部アカウントを復元するには、[アカウントのインポート](./import-account.md) を参照してください。
+* 新たなウォレットを作成するには、[ウォレットの作成](./create-wallet.md) を参照してください。

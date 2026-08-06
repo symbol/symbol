@@ -7,7 +7,7 @@ title: QR コードでアドレスを共有
 このページでは、[QR コード](https://en.wikipedia.org/wiki/QR_code)を使用して、Symbol モバイルウォレットアプリから
 [アカウント](default:アカウント) アドレスを共有する方法を説明します。
 
-アカウントの [アドレス](default:アドレス) は QR コードに変換でき、2 台目の Symbol モバイルウォレットで簡単にスキャンできます。
+アカウントの [アドレス](default:アドレス) は QR コードに変換でき、別な端末の Symbol モバイルウォレットで簡単にスキャンできます。
 スキャンされたアドレスは、単発のトランザクションの受信者として使用したり、後で使うためにスキャン側ウォレットの
 アドレス帳に追加したりできます。
 
@@ -19,11 +19,11 @@ title: QR コードでアドレスを共有
 * すでにウォレットが設定され、アプリでロック解除されている必要があります。
     必要に応じて、[ウォレットの作成](./create-wallet.md) または [ウォレットのインポート](./import-wallet.md) を参照してください。
 
-* 2 台目のデバイスにも Symbol モバイルウォレットがインストールされている必要があります。
+* 別な端末にも Symbol モバイルウォレットがインストールされている必要があります。
 
 ## QR コードでアドレスを共有する方法
 
-アカウントアドレスを QR コードとして表示し、別のデバイスでスキャンするには、次の手順に従ってください。
+アカウントアドレスを QR コードとして表示し、別な端末でスキャンするには、次の手順に従ってください。
 
 {% import 'tutorial.jinja2' as tutorial %}
 
@@ -48,12 +48,12 @@ title: QR コードでアドレスを共有
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("create-wallet-5.webp") }}
-2 台目のデバイスで **:material-home: HOME** 画面に移動し、下部の **:material-line-scan: SCAN** をタップして、
+別な端末で **:material-home: HOME** 画面に移動し、下部の **:material-line-scan: SCAN** をタップして、
 カメラを QR コードに向けます。
 {{ tutorial.step_end() }}
 
 {{ tutorial.step_begin("share-address-3.webp") }}
-2 台目のデバイスに **SHARED INFORMATION** 画面が表示され、共有されたアドレスと利用可能なアクションの一覧が表示されます。
+別な端末にに **SHARED INFORMATION** 画面が表示され、共有されたアドレスと利用可能なアクションの一覧が表示されます。
 
 **:fontawesome-regular-paper-plane: Send Transaction** をタップします。
 {{ tutorial.step_end() }}
