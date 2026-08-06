@@ -16,7 +16,7 @@ The manual is organized into the following sections:
 
 <div class="icon-list" markdown>
 
-* :fontawesome-solid-desktop: [The Symbol Desktop Wallet](desktop-wallet/install.md)
+* :fontawesome-solid-desktop: [The Symbol Desktop Wallet](desktop-wallet/intro.md)
 
     Manage your accounts and handle transactions from your desktop PC.
 

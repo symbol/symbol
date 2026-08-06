@@ -16,7 +16,7 @@ title: はじめに
 
 <div class="icon-list" markdown>
 
-* :fontawesome-solid-desktop: [Symbol デスクトップウォレット](desktop-wallet/install.md)
+* :fontawesome-solid-desktop: [Symbol デスクトップウォレット](desktop-wallet/intro.md)
 
     アカウントを管理し、トランザクションを扱います。
 

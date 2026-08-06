@@ -73,6 +73,7 @@ nav:
   - ユーザーマニュアル:
       - userbook/intro.md
       - Symbol デスクトップウォレット:
+          - userbook/desktop-wallet/intro.md
           - userbook/desktop-wallet/install.md
           - プロファイル:
               - userbook/desktop-wallet/create-profile.md

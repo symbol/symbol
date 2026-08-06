@@ -74,6 +74,7 @@ nav:
   - User Manual:
       - userbook/intro.md
       - Symbol Desktop Wallet:
+          - userbook/desktop-wallet/intro.md
           - userbook/desktop-wallet/install.md
           - Profiles:
               - userbook/desktop-wallet/create-profile.md
