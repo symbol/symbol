@@ -1,7 +1,7 @@
 plugins {
 	`java-library`
 	jacoco
-	id("com.diffplug.spotless") version "6.25.0"
+	id("com.diffplug.spotless") version "8.9.0"
 }
 
 group = "org.symbol"
@@ -40,7 +40,7 @@ dependencies {
 	implementation("network.lightsail:mnemonic4j:0.1.1")
 
 	testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-	testImplementation("org.hamcrest:hamcrest:2.2")
+	testImplementation("org.hamcrest:hamcrest:3.0")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
