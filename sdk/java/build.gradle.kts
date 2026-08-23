@@ -1,7 +1,7 @@
 plugins {
 	`java-library`
 	jacoco
-	id("com.diffplug.spotless") version "8.9.0"
+	id("com.diffplug.spotless") version "8.10.0"
 }
 
 group = "org.symbol"
@@ -31,10 +31,10 @@ repositories {
 dependencies {
 	// Bouncy Castle is used only where the JDK does not provide a primitive directly:
 	// Keccak (NEM hash), RIPEMD-160, HKDF-SHA256, and Ed25519 with a custom hasher.
-	implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+	implementation("org.bouncycastle:bcprov-jdk18on:1.85.2")
 	// JSON descriptor parsing (JsonDescriptor / facade createTransactionFromJson) and, in tests,
 	// the catbuffer vector toJson() serializability checks.
-	implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
 	// BIP-39 mnemonic generation / validation / seed derivation + bundled wordlists (used by Bip32). The
 	// ed25519 SLIP-0010 + keccak key derivation has no library and stays hand-rolled. Pulls kotlin-stdlib transitively.
 	implementation("network.lightsail:mnemonic4j:0.1.1")
