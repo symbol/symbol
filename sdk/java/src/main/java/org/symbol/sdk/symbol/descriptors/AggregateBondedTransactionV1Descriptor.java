@@ -25,47 +25,21 @@ public final class AggregateBondedTransactionV1Descriptor implements SymbolTrans
 	 * Creates a descriptor for AggregateBondedTransactionV1.
 	 *
 	 * @param transactionsHash Hash of the aggregate's transaction.
+	 * @param transactions Embedded transaction data. Transactions are variable-sized and the total payload size is in bytes. Embedded
+	 *            transactions cannot be aggregates. (field is omitted when null)
+	 * @param cosignatures Cosignatures data. Fills up remaining body space after transactions. (field is omitted when null)
 	 */
-	public AggregateBondedTransactionV1Descriptor(final CryptoTypes.Hash256 transactionsHash) {
+	public AggregateBondedTransactionV1Descriptor(final CryptoTypes.Hash256 transactionsHash, final List<EmbeddedTransaction> transactions,
+			final List<Cosignature> cosignatures) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "aggregate_bonded_transaction_v1");
 		rawDescriptor.put("transactionsHash", transactionsHash);
-	}
 
-	/**
-	 * Creates a descriptor for AggregateBondedTransactionV1 from string-form values.
-	 *
-	 * @param transactionsHash Hash of the aggregate's transaction.
-	 */
-	public AggregateBondedTransactionV1Descriptor(final String transactionsHash) {
-		this(new CryptoTypes.Hash256(transactionsHash));
-	}
-
-	/**
-	 * Sets the transactions field.
-	 *
-	 * @param transactions Embedded transaction data. Transactions are variable-sized and the total payload size is in bytes. Embedded
-	 *            transactions cannot be aggregates.
-	 * @return This descriptor for chaining.
-	 */
-	public AggregateBondedTransactionV1Descriptor transactions(final List<EmbeddedTransaction> transactions) {
 		if (null != transactions)
 			rawDescriptor.put("transactions", transactions);
 
-		return this;
-	}
-
-	/**
-	 * Sets the cosignatures field.
-	 *
-	 * @param cosignatures Cosignatures data. Fills up remaining body space after transactions.
-	 * @return This descriptor for chaining.
-	 */
-	public AggregateBondedTransactionV1Descriptor cosignatures(final List<Cosignature> cosignatures) {
 		if (null != cosignatures)
 			rawDescriptor.put("cosignatures", cosignatures);
-
-		return this;
 	}
 
 	/**

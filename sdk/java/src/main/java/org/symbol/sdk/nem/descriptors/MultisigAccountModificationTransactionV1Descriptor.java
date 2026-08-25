@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,36 +19,15 @@ public final class MultisigAccountModificationTransactionV1Descriptor implements
 	/**
 	 * Creates a descriptor for MultisigAccountModificationTransactionV1.
 	 *
+	 * @param modifications multisig account modifications (field is omitted when null)
 	 */
-	public MultisigAccountModificationTransactionV1Descriptor() {
+	public MultisigAccountModificationTransactionV1Descriptor(final List<SizePrefixedMultisigAccountModificationDescriptor> modifications) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "multisig_account_modification_transaction_v1");
-	}
 
-	/**
-	 * Sets the modifications field.
-	 *
-	 * @param modifications multisig account modifications
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV1Descriptor modifications(
-			final List<SizePrefixedMultisigAccountModificationDescriptor> modifications) {
 		if (null != modifications)
 			rawDescriptor.put("modifications",
 					modifications.stream().map(SizePrefixedMultisigAccountModificationDescriptor::toMap).collect(Collectors.toList()));
-
-		return this;
-	}
-
-	/**
-	 * Sets the modifications field.
-	 *
-	 * @param modifications multisig account modifications
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV1Descriptor modifications(
-			final SizePrefixedMultisigAccountModificationDescriptor... modifications) {
-		return modifications(null == modifications ? null : Arrays.asList(modifications));
 	}
 
 	/**

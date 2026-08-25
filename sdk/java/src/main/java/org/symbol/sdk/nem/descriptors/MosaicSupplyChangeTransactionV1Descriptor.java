@@ -34,17 +34,6 @@ public final class MosaicSupplyChangeTransactionV1Descriptor implements NemTrans
 	}
 
 	/**
-	 * Creates a descriptor for MosaicSupplyChangeTransactionV1 from string-form values.
-	 *
-	 * @param mosaicId mosaic id
-	 * @param action supply change action
-	 * @param delta change amount
-	 */
-	public MosaicSupplyChangeTransactionV1Descriptor(final MosaicIdDescriptor mosaicId, final String action, final String delta) {
-		this(mosaicId, MosaicSupplyChangeAction.parse(action), Amount.parse(delta));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

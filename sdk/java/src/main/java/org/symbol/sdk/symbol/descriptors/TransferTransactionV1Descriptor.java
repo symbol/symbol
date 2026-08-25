@@ -3,8 +3,6 @@
 
 package org.symbol.sdk.symbol.descriptors;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,66 +22,20 @@ public final class TransferTransactionV1Descriptor implements SymbolTransactionD
 	 * Creates a descriptor for TransferTransactionV1.
 	 *
 	 * @param recipientAddress recipient address
+	 * @param mosaics attached mosaics (field is omitted when null)
+	 * @param message attached message (field is omitted when null)
 	 */
-	public TransferTransactionV1Descriptor(final Address recipientAddress) {
+	public TransferTransactionV1Descriptor(final Address recipientAddress, final List<UnresolvedMosaicDescriptor> mosaics,
+			final byte[] message) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "transfer_transaction_v1");
 		rawDescriptor.put("recipientAddress", recipientAddress);
-	}
 
-	/**
-	 * Creates a descriptor for TransferTransactionV1 from string-form values.
-	 *
-	 * @param recipientAddress recipient address
-	 */
-	public TransferTransactionV1Descriptor(final String recipientAddress) {
-		this(new Address(recipientAddress));
-	}
-
-	/**
-	 * Sets the mosaics field.
-	 *
-	 * @param mosaics attached mosaics
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV1Descriptor mosaics(final List<UnresolvedMosaicDescriptor> mosaics) {
 		if (null != mosaics)
 			rawDescriptor.put("mosaics", mosaics.stream().map(UnresolvedMosaicDescriptor::toMap).collect(Collectors.toList()));
 
-		return this;
-	}
-
-	/**
-	 * Sets the mosaics field.
-	 *
-	 * @param mosaics attached mosaics
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV1Descriptor mosaics(final UnresolvedMosaicDescriptor... mosaics) {
-		return mosaics(null == mosaics ? null : Arrays.asList(mosaics));
-	}
-
-	/**
-	 * Sets the message field.
-	 *
-	 * @param message attached message
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV1Descriptor message(final byte[] message) {
 		if (null != message)
 			rawDescriptor.put("message", message);
-
-		return this;
-	}
-
-	/**
-	 * Sets the message field.
-	 *
-	 * @param message attached message
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV1Descriptor message(final String message) {
-		return message(null == message ? null : message.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

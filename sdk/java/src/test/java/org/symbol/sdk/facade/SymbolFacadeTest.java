@@ -720,7 +720,8 @@ final class SymbolFacadeTest {
 		void toMapInjectsTypeAndOmitsNullOptionalFields() {
 			// Act: only the required recipientAddress is supplied.
 			final Address recipient = new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA");
-			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient).toMap();
+			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, (List<UnresolvedMosaicDescriptor>) null,
+					(byte[]) null).toMap();
 
 			// Assert: discriminator baked in; null optional fields are not present.
 			assertThat(map.get("type"), is(equalTo("transfer_transaction_v1")));
@@ -738,8 +739,7 @@ final class SymbolFacadeTest {
 			final byte[] message = "Hello, world!".getBytes();
 
 			// Act:
-			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient).mosaics(List.of(mosaic)).message(message)
-					.toMap();
+			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, List.of(mosaic), message).toMap();
 
 			// Assert: mosaics is a list of raw descriptor maps (not descriptor objects).
 			assertThat(map.get("message"), is(sameInstance(message)));
@@ -752,37 +752,13 @@ final class SymbolFacadeTest {
 		}
 
 		@Test
-		void stringFormConstructorMatchesTypedConstructor() {
-			// Act: same descriptor built from typed values and from their string forms.
-			final TransferTransactionV1Descriptor typed = new TransferTransactionV1Descriptor(
-					new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA"));
-			final TransferTransactionV1Descriptor stringForm = new TransferTransactionV1Descriptor(
-					"AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA");
-
-			// Assert:
-			assertThat(stringForm.toMap(), is(equalTo(typed.toMap())));
-		}
-
-		@Test
-		void stringFormMessageMatchesTypedMessage() {
-			// Act: message set as a String vs the equivalent UTF-8 bytes.
-			final Address recipient = new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA");
-			final byte[] typedMessage = (byte[]) new TransferTransactionV1Descriptor(recipient)
-					.message("hello symbol".getBytes(java.nio.charset.StandardCharsets.UTF_8)).toMap().get("message");
-			final byte[] stringMessage = (byte[]) new TransferTransactionV1Descriptor(recipient.toString()).message("hello symbol").toMap()
-					.get("message");
-
-			// Assert:
-			assertThat(stringMessage, is(equalTo(typedMessage)));
-		}
-
-		@Test
 		void createTransactionFromTypedDescriptorMatchesUntypedPath() {
 			// Arrange: a typed descriptor and the equivalent untyped descriptor map.
 			final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final Address recipient = new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA");
-			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(recipient);
+			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(recipient,
+					(List<UnresolvedMosaicDescriptor>) null, (byte[]) null);
 
 			// Act:
 			final Transaction typed = facade.createTransactionFromTypedDescriptor(typedDescriptor, keyPair.getPublicKey(), 100L, 60L);
@@ -800,7 +776,7 @@ final class SymbolFacadeTest {
 			final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(
-					new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA"));
+					new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA"), (List<UnresolvedMosaicDescriptor>) null, (byte[]) null);
 
 			// Act:
 			final Transaction txNoCos = facade.createTransactionFromTypedDescriptor(typedDescriptor, keyPair.getPublicKey(), 100L, 60L, 0);
@@ -818,9 +794,9 @@ final class SymbolFacadeTest {
 
 			final CryptoTypes.PublicKey signerPublicKey = new CryptoTypes.PublicKey(REAL_SIGNER_HEX);
 			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(
-					new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))
-					.mosaics(new UnresolvedMosaicDescriptor(new UnresolvedMosaicId(0x7CDF3B117A3C40CCL), new Amount(1000000L)))
-					.message("hello symbol");
+					new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+					List.of(new UnresolvedMosaicDescriptor(new UnresolvedMosaicId(0x7CDF3B117A3C40CCL), new Amount(1000000L))),
+					"hello symbol".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 			// Act:
 			final TransferTransactionV1 transaction = (TransferTransactionV1) facade.createTransactionFromTypedDescriptor(typedDescriptor,
@@ -847,15 +823,14 @@ final class SymbolFacadeTest {
 			final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
 
 			final CryptoTypes.PublicKey signerPublicKey = new CryptoTypes.PublicKey(REAL_SIGNER_HEX);
-			final AggregateCompleteTransactionV1Descriptor typedDescriptor = new AggregateCompleteTransactionV1Descriptor(
-					"157D3C15A677030DBD106C0C16556E305F3796B66F684715E0C18FC178DC8026").transactions(List.of());
-			if (0 != descriptorCosignatureCount) {
-				final List<Cosignature> cosignatures = new ArrayList<>();
-				for (int i = 0; i < descriptorCosignatureCount; ++i)
-					cosignatures.add(new Cosignature());
+			final List<Cosignature> cosignatures = new ArrayList<>();
+			for (int i = 0; i < descriptorCosignatureCount; ++i)
+				cosignatures.add(new Cosignature());
 
-				typedDescriptor.cosignatures(cosignatures);
-			}
+			// a zero count passes null so the cosignatures key stays absent, like the old unset state
+			final AggregateCompleteTransactionV1Descriptor typedDescriptor = new AggregateCompleteTransactionV1Descriptor(
+					new CryptoTypes.Hash256("157D3C15A677030DBD106C0C16556E305F3796B66F684715E0C18FC178DC8026"), List.of(),
+					0 == descriptorCosignatureCount ? null : cosignatures);
 
 			// Act:
 			final Transaction transaction = facade.createTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey, 100L, 60L * 60L,
@@ -891,9 +866,9 @@ final class SymbolFacadeTest {
 
 			final CryptoTypes.PublicKey signerPublicKey = new CryptoTypes.PublicKey(REAL_SIGNER_HEX);
 			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(
-					new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))
-					.mosaics(new UnresolvedMosaicDescriptor(new UnresolvedMosaicId(0x7CDF3B117A3C40CCL), new Amount(1000000L)))
-					.message("hello symbol");
+					new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+					List.of(new UnresolvedMosaicDescriptor(new UnresolvedMosaicId(0x7CDF3B117A3C40CCL), new Amount(1000000L))),
+					"hello symbol".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 			// Act:
 			final EmbeddedTransferTransactionV1 transaction = (EmbeddedTransferTransactionV1) facade

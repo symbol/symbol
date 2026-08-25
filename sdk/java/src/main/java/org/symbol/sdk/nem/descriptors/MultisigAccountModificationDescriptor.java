@@ -31,16 +31,6 @@ public final class MultisigAccountModificationDescriptor implements NemTypedDesc
 	}
 
 	/**
-	 * Creates a descriptor for MultisigAccountModification from string-form values.
-	 *
-	 * @param modificationType modification type
-	 * @param cosignatoryPublicKey cosignatory public key
-	 */
-	public MultisigAccountModificationDescriptor(final String modificationType, final String cosignatoryPublicKey) {
-		this(MultisigAccountModificationType.parse(modificationType), new CryptoTypes.PublicKey(cosignatoryPublicKey));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

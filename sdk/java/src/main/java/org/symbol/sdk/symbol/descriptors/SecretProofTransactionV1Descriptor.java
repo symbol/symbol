@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.symbol.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,48 +25,18 @@ public final class SecretProofTransactionV1Descriptor implements SymbolTransacti
 	 * @param recipientAddress Address that receives the funds once unlocked.
 	 * @param secret Hashed proof.
 	 * @param hashAlgorithm Algorithm used to hash the proof.
+	 * @param proof Original random set of bytes that were hashed. (field is omitted when null)
 	 */
 	public SecretProofTransactionV1Descriptor(final Address recipientAddress, final CryptoTypes.Hash256 secret,
-			final LockHashAlgorithm hashAlgorithm) {
+			final LockHashAlgorithm hashAlgorithm, final byte[] proof) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "secret_proof_transaction_v1");
 		rawDescriptor.put("recipientAddress", recipientAddress);
 		rawDescriptor.put("secret", secret);
 		rawDescriptor.put("hashAlgorithm", hashAlgorithm);
-	}
 
-	/**
-	 * Creates a descriptor for SecretProofTransactionV1 from string-form values.
-	 *
-	 * @param recipientAddress Address that receives the funds once unlocked.
-	 * @param secret Hashed proof.
-	 * @param hashAlgorithm Algorithm used to hash the proof.
-	 */
-	public SecretProofTransactionV1Descriptor(final String recipientAddress, final String secret, final String hashAlgorithm) {
-		this(new Address(recipientAddress), new CryptoTypes.Hash256(secret), LockHashAlgorithm.parse(hashAlgorithm));
-	}
-
-	/**
-	 * Sets the proof field.
-	 *
-	 * @param proof Original random set of bytes that were hashed.
-	 * @return This descriptor for chaining.
-	 */
-	public SecretProofTransactionV1Descriptor proof(final byte[] proof) {
 		if (null != proof)
 			rawDescriptor.put("proof", proof);
-
-		return this;
-	}
-
-	/**
-	 * Sets the proof field.
-	 *
-	 * @param proof Original random set of bytes that were hashed.
-	 * @return This descriptor for chaining.
-	 */
-	public SecretProofTransactionV1Descriptor proof(final String proof) {
-		return proof(null == proof ? null : proof.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

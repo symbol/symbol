@@ -30,16 +30,6 @@ public final class CosignatureV1BodyDescriptor implements NemTypedDescriptor {
 	}
 
 	/**
-	 * Creates a descriptor for CosignatureV1Body from string-form values.
-	 *
-	 * @param otherTransactionHash other transaction hash
-	 * @param multisigAccountAddress multisig account address
-	 */
-	public CosignatureV1BodyDescriptor(final String otherTransactionHash, final String multisigAccountAddress) {
-		this(new CryptoTypes.Hash256(otherTransactionHash), new Address(multisigAccountAddress));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

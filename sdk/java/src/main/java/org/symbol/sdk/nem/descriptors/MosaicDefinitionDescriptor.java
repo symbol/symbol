@@ -3,8 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,81 +23,25 @@ public final class MosaicDefinitionDescriptor implements NemTypedDescriptor {
 	 *
 	 * @param ownerPublicKey owner public key
 	 * @param id mosaic id referenced by this definition
+	 * @param description description (field is omitted when null)
+	 * @param properties properties (field is omitted when null)
+	 * @param levy optional levy that is applied to transfers of this mosaic (field is omitted when null)
 	 */
-	public MosaicDefinitionDescriptor(final CryptoTypes.PublicKey ownerPublicKey, final MosaicIdDescriptor id) {
+	public MosaicDefinitionDescriptor(final CryptoTypes.PublicKey ownerPublicKey, final MosaicIdDescriptor id, final byte[] description,
+			final List<SizePrefixedMosaicPropertyDescriptor> properties, final MosaicLevyDescriptor levy) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("ownerPublicKey", ownerPublicKey);
 		rawDescriptor.put("id", id.toMap());
-	}
 
-	/**
-	 * Creates a descriptor for MosaicDefinition from string-form values.
-	 *
-	 * @param ownerPublicKey owner public key
-	 * @param id mosaic id referenced by this definition
-	 */
-	public MosaicDefinitionDescriptor(final String ownerPublicKey, final MosaicIdDescriptor id) {
-		this(new CryptoTypes.PublicKey(ownerPublicKey), id);
-	}
-
-	/**
-	 * Sets the description field.
-	 *
-	 * @param description description
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicDefinitionDescriptor description(final byte[] description) {
 		if (null != description)
 			rawDescriptor.put("description", description);
 
-		return this;
-	}
-
-	/**
-	 * Sets the description field.
-	 *
-	 * @param description description
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicDefinitionDescriptor description(final String description) {
-		return description(null == description ? null : description.getBytes(StandardCharsets.UTF_8));
-	}
-
-	/**
-	 * Sets the properties field.
-	 *
-	 * @param properties properties
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicDefinitionDescriptor properties(final List<SizePrefixedMosaicPropertyDescriptor> properties) {
 		if (null != properties)
 			rawDescriptor.put("properties",
 					properties.stream().map(SizePrefixedMosaicPropertyDescriptor::toMap).collect(Collectors.toList()));
 
-		return this;
-	}
-
-	/**
-	 * Sets the properties field.
-	 *
-	 * @param properties properties
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicDefinitionDescriptor properties(final SizePrefixedMosaicPropertyDescriptor... properties) {
-		return properties(null == properties ? null : Arrays.asList(properties));
-	}
-
-	/**
-	 * Sets the levy field.
-	 *
-	 * @param levy optional levy that is applied to transfers of this mosaic
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicDefinitionDescriptor levy(final MosaicLevyDescriptor levy) {
 		if (null != levy)
 			rawDescriptor.put("levy", levy.toMap());
-
-		return this;
 	}
 
 	/**

@@ -42,12 +42,12 @@ public final class TransactionMultisig {
 			addressAdditions.add(facade.network.publicKeyToAddress(cosigner.getPublicKey()));
 
 		final MultisigAccountModificationTransactionV1Descriptor embeddedDescriptor = new MultisigAccountModificationTransactionV1Descriptor(
-				1, 1).addressAdditions(addressAdditions);
+				1, 1, addressAdditions, (List<Address>) null);
 		final List<EmbeddedTransaction> embeddedTransactions = List
 				.of(facade.createEmbeddedTransactionFromTypedDescriptor(embeddedDescriptor, multisigKeyPair.getPublicKey()));
 
 		final AggregateCompleteTransactionV3Descriptor aggregateDescriptor = new AggregateCompleteTransactionV3Descriptor(
-				SymbolFacade.hashEmbeddedTransactions(embeddedTransactions)).transactions(embeddedTransactions);
+				SymbolFacade.hashEmbeddedTransactions(embeddedTransactions), embeddedTransactions, (List<Cosignature>) null);
 
 		// pin deterministic header values in the descriptor (like the JS / Python examples) so the output stays comparable
 		final Map<String, Object> aggregateMap = aggregateDescriptor.toMap();

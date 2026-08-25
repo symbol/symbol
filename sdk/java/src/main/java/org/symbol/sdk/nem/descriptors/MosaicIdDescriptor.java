@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,33 +18,14 @@ public final class MosaicIdDescriptor implements NemTypedDescriptor {
 	 * Creates a descriptor for MosaicId.
 	 *
 	 * @param namespaceId namespace id
+	 * @param name name (field is omitted when null)
 	 */
-	public MosaicIdDescriptor(final NamespaceIdDescriptor namespaceId) {
+	public MosaicIdDescriptor(final NamespaceIdDescriptor namespaceId, final byte[] name) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("namespaceId", namespaceId.toMap());
-	}
 
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name name
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicIdDescriptor name(final byte[] name) {
 		if (null != name)
 			rawDescriptor.put("name", name);
-
-		return this;
-	}
-
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name name
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicIdDescriptor name(final String name) {
-		return name(null == name ? null : name.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

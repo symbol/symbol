@@ -30,16 +30,6 @@ public final class MosaicSupplyRevocationTransactionV1Descriptor implements Symb
 	}
 
 	/**
-	 * Creates a descriptor for MosaicSupplyRevocationTransactionV1 from string-form values.
-	 *
-	 * @param sourceAddress Address from which tokens should be revoked.
-	 * @param mosaic Revoked mosaic and amount.
-	 */
-	public MosaicSupplyRevocationTransactionV1Descriptor(final String sourceAddress, final UnresolvedMosaicDescriptor mosaic) {
-		this(new Address(sourceAddress), mosaic);
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

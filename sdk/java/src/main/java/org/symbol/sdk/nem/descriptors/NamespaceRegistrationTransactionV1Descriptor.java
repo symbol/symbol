@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -23,68 +22,21 @@ public final class NamespaceRegistrationTransactionV1Descriptor implements NemTr
 	 *
 	 * @param rentalFeeSink mosaic rental fee sink public key
 	 * @param rentalFee mosaic rental fee
+	 * @param name new namespace name (field is omitted when null)
+	 * @param parentName parent namespace name (field is omitted when null)
 	 */
-	public NamespaceRegistrationTransactionV1Descriptor(final Address rentalFeeSink, final Amount rentalFee) {
+	public NamespaceRegistrationTransactionV1Descriptor(final Address rentalFeeSink, final Amount rentalFee, final byte[] name,
+			final byte[] parentName) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "namespace_registration_transaction_v1");
 		rawDescriptor.put("rentalFeeSink", rentalFeeSink);
 		rawDescriptor.put("rentalFee", rentalFee);
-	}
 
-	/**
-	 * Creates a descriptor for NamespaceRegistrationTransactionV1 from string-form values.
-	 *
-	 * @param rentalFeeSink mosaic rental fee sink public key
-	 * @param rentalFee mosaic rental fee
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor(final String rentalFeeSink, final String rentalFee) {
-		this(new Address(rentalFeeSink), Amount.parse(rentalFee));
-	}
-
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name new namespace name
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor name(final byte[] name) {
 		if (null != name)
 			rawDescriptor.put("name", name);
 
-		return this;
-	}
-
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name new namespace name
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor name(final String name) {
-		return name(null == name ? null : name.getBytes(StandardCharsets.UTF_8));
-	}
-
-	/**
-	 * Sets the parentName field.
-	 *
-	 * @param parentName parent namespace name
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor parentName(final byte[] parentName) {
 		if (null != parentName)
 			rawDescriptor.put("parentName", parentName);
-
-		return this;
-	}
-
-	/**
-	 * Sets the parentName field.
-	 *
-	 * @param parentName parent namespace name
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor parentName(final String parentName) {
-		return parentName(null == parentName ? null : parentName.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

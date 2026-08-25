@@ -43,21 +43,6 @@ public final class SecretLockTransactionV1Descriptor implements SymbolTransactio
 	}
 
 	/**
-	 * Creates a descriptor for SecretLockTransactionV1 from string-form values.
-	 *
-	 * @param recipientAddress Address that receives the funds once successfully unlocked by a SecretProofTransaction.
-	 * @param secret Hashed proof.
-	 * @param mosaic Locked mosaics.
-	 * @param duration Number of blocks to wait for the SecretProofTransaction.
-	 * @param hashAlgorithm Algorithm used to hash the proof.
-	 */
-	public SecretLockTransactionV1Descriptor(final String recipientAddress, final String secret, final UnresolvedMosaicDescriptor mosaic,
-			final String duration, final String hashAlgorithm) {
-		this(new Address(recipientAddress), new CryptoTypes.Hash256(secret), mosaic, BlockDuration.parse(duration),
-				LockHashAlgorithm.parse(hashAlgorithm));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

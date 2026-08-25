@@ -43,18 +43,6 @@ public final class HashLockTransactionV1Descriptor implements SymbolTransactionD
 	}
 
 	/**
-	 * Creates a descriptor for HashLockTransactionV1 from string-form values.
-	 *
-	 * @param mosaic Locked mosaic.
-	 * @param duration Number of blocks for which a lock should be valid. The default maximum is 48h (See the `maxHashLockDuration` network
-	 *            property).
-	 * @param hash Hash of the AggregateBondedTransaction to be confirmed before unlocking the mosaics.
-	 */
-	public HashLockTransactionV1Descriptor(final UnresolvedMosaicDescriptor mosaic, final String duration, final String hash) {
-		this(mosaic, BlockDuration.parse(duration), new CryptoTypes.Hash256(hash));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

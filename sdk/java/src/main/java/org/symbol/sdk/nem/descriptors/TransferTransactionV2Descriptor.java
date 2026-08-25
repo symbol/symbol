@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,58 +24,22 @@ public final class TransferTransactionV2Descriptor implements NemTransactionDesc
 	 *
 	 * @param recipientAddress recipient address
 	 * @param amount XEM amount
+	 * @param message optional message (field is omitted when null)
+	 * @param mosaics attached mosaics notice that mosaic amount is multipled by transfer amount to get effective amount (field is omitted
+	 *            when null)
 	 */
-	public TransferTransactionV2Descriptor(final Address recipientAddress, final Amount amount) {
+	public TransferTransactionV2Descriptor(final Address recipientAddress, final Amount amount, final MessageDescriptor message,
+			final List<SizePrefixedMosaicDescriptor> mosaics) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "transfer_transaction_v2");
 		rawDescriptor.put("recipientAddress", recipientAddress);
 		rawDescriptor.put("amount", amount);
-	}
 
-	/**
-	 * Creates a descriptor for TransferTransactionV2 from string-form values.
-	 *
-	 * @param recipientAddress recipient address
-	 * @param amount XEM amount
-	 */
-	public TransferTransactionV2Descriptor(final String recipientAddress, final String amount) {
-		this(new Address(recipientAddress), Amount.parse(amount));
-	}
-
-	/**
-	 * Sets the message field.
-	 *
-	 * @param message optional message
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV2Descriptor message(final MessageDescriptor message) {
 		if (null != message)
 			rawDescriptor.put("message", message.toMap());
 
-		return this;
-	}
-
-	/**
-	 * Sets the mosaics field.
-	 *
-	 * @param mosaics attached mosaics notice that mosaic amount is multipled by transfer amount to get effective amount
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV2Descriptor mosaics(final List<SizePrefixedMosaicDescriptor> mosaics) {
 		if (null != mosaics)
 			rawDescriptor.put("mosaics", mosaics.stream().map(SizePrefixedMosaicDescriptor::toMap).collect(Collectors.toList()));
-
-		return this;
-	}
-
-	/**
-	 * Sets the mosaics field.
-	 *
-	 * @param mosaics attached mosaics notice that mosaic amount is multipled by transfer amount to get effective amount
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV2Descriptor mosaics(final SizePrefixedMosaicDescriptor... mosaics) {
-		return mosaics(null == mosaics ? null : Arrays.asList(mosaics));
 	}
 
 	/**

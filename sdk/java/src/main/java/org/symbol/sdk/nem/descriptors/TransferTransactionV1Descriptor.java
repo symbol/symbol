@@ -22,35 +22,16 @@ public final class TransferTransactionV1Descriptor implements NemTransactionDesc
 	 *
 	 * @param recipientAddress recipient address
 	 * @param amount XEM amount
+	 * @param message optional message (field is omitted when null)
 	 */
-	public TransferTransactionV1Descriptor(final Address recipientAddress, final Amount amount) {
+	public TransferTransactionV1Descriptor(final Address recipientAddress, final Amount amount, final MessageDescriptor message) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "transfer_transaction_v1");
 		rawDescriptor.put("recipientAddress", recipientAddress);
 		rawDescriptor.put("amount", amount);
-	}
 
-	/**
-	 * Creates a descriptor for TransferTransactionV1 from string-form values.
-	 *
-	 * @param recipientAddress recipient address
-	 * @param amount XEM amount
-	 */
-	public TransferTransactionV1Descriptor(final String recipientAddress, final String amount) {
-		this(new Address(recipientAddress), Amount.parse(amount));
-	}
-
-	/**
-	 * Sets the message field.
-	 *
-	 * @param message optional message
-	 * @return This descriptor for chaining.
-	 */
-	public TransferTransactionV1Descriptor message(final MessageDescriptor message) {
 		if (null != message)
 			rawDescriptor.put("message", message.toMap());
-
-		return this;
 	}
 
 	/**

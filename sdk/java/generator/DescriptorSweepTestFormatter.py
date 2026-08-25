@@ -35,8 +35,6 @@ class _FieldSample:
 		self._raw_field = raw_field
 		self._context = context
 		self._type_info = type_info
-		self.string_literal = None
-		self.element_string_literal = None
 		self.element_typed_expr = None
 		# model-struct samples are fresh instances without value equality; their asserts degrade to non-null
 		self.is_model_struct = False
@@ -67,12 +65,11 @@ class _FieldSample:
 		resolved = self.resolved
 		if 'byte[]' == resolved.java_type:
 			# the field's own name doubles as a distinct payload
-			self.string_literal = self.name
 			return f'"{self.name}".getBytes(java.nio.charset.StandardCharsets.UTF_8)'
 
 		if resolved.string_conversion:
-			self.string_literal = self._sample_string_for(str(self._raw_field.field_type))
-			return resolved.string_conversion.format(value=f'"{self.string_literal}"')
+			sample = self._sample_string_for(str(self._raw_field.field_type))
+			return resolved.string_conversion.format(value=f'"{sample}"')
 
 		if resolved.descriptor_element_type:
 			element = resolved.descriptor_element_type
@@ -80,8 +77,7 @@ class _FieldSample:
 
 		if resolved.element_string_conversion:
 			element_name = str(self._raw_field.field_type.element_type)
-			self.element_string_literal = self._sample_string_for(element_name)
-			self.element_typed_expr = resolved.element_string_conversion.format(value=f'"{self.element_string_literal}"')
+			self.element_typed_expr = resolved.element_string_conversion.format(value=f'"{self._sample_string_for(element_name)}"')
 			return f'java.util.List.of({self.element_typed_expr})'
 
 		if resolved.java_type.startswith('java.util.List<'):
@@ -217,16 +213,23 @@ class SweepTestFormatter:
 	def _helper_name(typename):
 		return f'sweepNew{typename}'
 
-	def _render_helper(self, typename, required):
-		arguments = ', '.join(sample.typed_expr for sample in required)
+	def _render_helper(self, typename, required, optional):
+		arguments = ', '.join([sample.typed_expr for sample in required] + ['null' for _ in optional])
+		doc = 'distinct sample required arguments and null optionals' if optional else 'distinct sample required arguments'
 		return (
-			f'\t/** Constructs a {typename} with distinct sample required arguments. */\n'
+			f'\t/** Constructs a {typename} with {doc}. */\n'
 			f'\tprivate static {typename} {self._helper_name(typename)}() {{\n'
 			f'\t\treturn new {typename}({arguments});\n'
 			'\t}\n')
 
 	@staticmethod
-	def _render_construction_asserts(ast_model, required):
+	def _full_ctor_expr(typename, required, optional):
+		"""All-args constructor expression with every field populated by its sample."""
+		args = ', '.join(sample.typed_expr for sample in required + optional)
+		return f'new {typename}({args})'
+
+	@staticmethod
+	def _render_construction_asserts(ast_model, required, optional):
 		lines = []
 		if ast_model.factory_type:
 			lines.append(f'\t\tassertThat(built.get("type"), equalTo("{underline_name(ast_model.name)}"));')
@@ -237,97 +240,31 @@ class SweepTestFormatter:
 			else:
 				lines.append(f'\t\tassertThat(built.get("{sample.name}"), equalTo({sample.map_expected_expr()}));')
 
+		for sample in optional:
+			lines.append(f'\t\tassertThat(built.containsKey("{sample.name}"), equalTo(false));')
+
 		lines.append(f'\t\tassertThat(built.size(), equalTo({len(required) + (1 if ast_model.factory_type else 0)}));')
 		return lines
 
-	def _render_string_ctor_test(self, ast_model, typename, required):
-		if not any(sample.resolved.string_conversion for sample in required):
-			return None
+	def _render_full_ctor_asserts(self, ast_model, typename, required, optional):
+		"""Asserts the all-args constructor stores every optional field (the required half is covered above)."""
+		if not optional:
+			return []
 
-		args = ', '.join(
-			f'"{sample.string_literal}"' if sample.resolved.string_conversion else sample.typed_expr for sample in required)
-		lines = [
-			'\t\t// Arrange:',
-			f'\t\tfinal java.util.Map<String, Object> built = {self._helper_name(typename)}().toMap();',
-			'',
-			'\t\t// Act:',
-			f'\t\tfinal java.util.Map<String, Object> stringBuilt = new {typename}({args}).toMap();',
-			'',
-			'\t\t// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)',
-			'\t\tassertThat(stringBuilt.size(), equalTo(built.size()));',
-		]
-		if ast_model.factory_type:
-			lines.append('\t\tassertThat(stringBuilt.get("type"), equalTo(built.get("type")));')
-
-		for sample in required:
-			if sample.is_model_struct:
-				lines.append(f'\t\tassertThat(stringBuilt.get("{sample.name}"), notNullValue());')
-			else:
-				lines.append(f'\t\tassertThat(stringBuilt.get("{sample.name}"), equalTo(built.get("{sample.name}")));')
-
-		body = '\n'.join(lines)
-		return (
-			'\t@Test\n'
-			f'\tvoid {uncapitalize(typename)}StringFormConstructor() {{\n'
-			f'{body}\n'
-			'\t}\n')
-
-	def _render_setter_asserts(self, typename, optional):
-		lines = []
-		helper = self._helper_name(typename)
+		lines = [f'\t\tfinal java.util.Map<String, Object> fullBuilt = {self._full_ctor_expr(typename, required, optional)}.toMap();']
 		for sample in optional:
-			lines.append('')
-			lines.append(f'\t\t// optional field: {sample.name}')
-			lines.append(f'\t\tassertThat(built.containsKey("{sample.name}"), equalTo(false));')
-			# a null argument must leave the key absent (the setter's null guard)
-			lines.append(
-				f'\t\tassertThat({helper}().{sample.name}(({sample.resolved.parameter_type()}) null).toMap()'
-				f'.containsKey("{sample.name}"), equalTo(false));')
-			if sample.resolved.string_conversion:
-				lines.append(
-					f'\t\tassertThat({helper}().{sample.name}((String) null).toMap()'
-					f'.containsKey("{sample.name}"), equalTo(false));')
-			lines.append(f'\t\tfinal {typename} with{capitalize(sample.name)} = {helper}();')
-			lines.append(
-				f'\t\tassertThat(with{capitalize(sample.name)}.{sample.name}({sample.typed_expr}),'
-				f' sameInstance(with{capitalize(sample.name)}));')
 			if sample.is_model_struct:
-				lines.append(f'\t\tassertThat(with{capitalize(sample.name)}.toMap().get("{sample.name}"), notNullValue());')
+				lines.append(f'\t\tassertThat(fullBuilt.get("{sample.name}"), notNullValue());')
 			elif sample.is_struct_element_list:
 				# struct elements have no value equality; the one-element size distinguishes the stored
 				# list from an empty default
-				lines.append(
-					f'\t\tassertThat(((java.util.List<?>) with{capitalize(sample.name)}.toMap()'
-					f'.get("{sample.name}")).size(), equalTo(1));')
+				lines.append(f'\t\tassertThat(((java.util.List<?>) fullBuilt.get("{sample.name}")).size(), equalTo(1));')
 			else:
-				lines.append(
-					f'\t\tassertThat(with{capitalize(sample.name)}.toMap().get("{sample.name}"),'
-					f' equalTo({sample.map_expected_expr()}));')
-			overload_expr = self._setter_overload_expr(sample)
-			if overload_expr is not None:
-				# compare only the key being set: whole-map equality would trip over byte[] identity
-				# semantics and over sibling fields without value equality
-				lines.append(
-					f'\t\tassertThat({helper}().{sample.name}({overload_expr}).toMap().get("{sample.name}"),'
-					f' equalTo(with{capitalize(sample.name)}.toMap().get("{sample.name}")));')
+				lines.append(f'\t\tassertThat(fullBuilt.get("{sample.name}"), equalTo({sample.map_expected_expr()}));')
 
+		total = len(required) + len(optional) + (1 if ast_model.factory_type else 0)
+		lines.append(f'\t\tassertThat(fullBuilt.size(), equalTo({total}));')
 		return lines
-
-	@staticmethod
-	def _setter_overload_expr(sample):
-		"""Argument for the convenience overload (String / String... / Descriptor...), or None."""
-		resolved = sample.resolved
-		if resolved.string_conversion:
-			return f'"{sample.string_literal}"'
-
-		if resolved.element_string_conversion:
-			return f'"{sample.element_string_literal}"'
-
-		if resolved.descriptor_element_type:
-			element = resolved.descriptor_element_type
-			return f'sweepNew{element[:-len("Descriptor")]}Descriptor()'
-
-		return None
 
 	def _render_factory_round_trip_test(self, ast_model, typename, required, optional):
 		"""Standalone factory round-trip test: the fully-populated map creates a model whose fields echo the samples."""
@@ -338,17 +275,18 @@ class SweepTestFormatter:
 		# struct-element lists get a held element local so the created model can be asserted to carry
 		# the exact same instance (the pipeline has no conversion rule for these element types)
 		element_locals = {}
-		descriptor_expr = self._helper_name(typename) + '()'
+		arguments = [sample.typed_expr for sample in required]
 		for sample in optional:
 			if sample.is_struct_element_list:
 				local = f'sweep{capitalize(sample.name)}Element'
 				element_locals[sample.name] = local
-				descriptor_expr += f'.{sample.name}(java.util.List.of({local}))'
+				arguments.append(f'java.util.List.of({local})')
 			else:
-				descriptor_expr += f'.{sample.name}({sample.typed_expr})'
+				arguments.append(sample.typed_expr)
 
+		descriptor_expr = f'new {typename}({", ".join(arguments)})'
 		concrete_model = f'{self.context.models_package}.{ast_model.name}'
-		lines = ['\t\t// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer']
+		lines = ['\t\t// Arrange: the sample descriptor with every field populated, plus the signer']
 		for sample in optional:
 			if sample.name in element_locals:
 				lines.append(
@@ -404,6 +342,10 @@ class SweepTestFormatter:
 		typename = formatter.typename
 		required, optional = self._field_samples(ast_model, factory_ast_model)
 
+		assert_comment = '\t\t// Assert: exact required contents'
+		if optional:
+			assert_comment += '; null optional arguments leave their keys absent'
+
 		body_lines = [
 			'\t\t// Arrange:',
 			f'\t\tfinal {typename} descriptor = {self._helper_name(typename)}();',
@@ -411,27 +353,23 @@ class SweepTestFormatter:
 			'\t\t// Act:',
 			'\t\tfinal java.util.Map<String, Object> built = descriptor.toMap();',
 			'',
-			'\t\t// Assert: exact required contents',
+			assert_comment,
 		]
-		body_lines.extend(SweepTestFormatter._render_construction_asserts(ast_model, required))
-		setter_lines = self._render_setter_asserts(typename, optional)
-		if setter_lines:
+		body_lines.extend(SweepTestFormatter._render_construction_asserts(ast_model, required, optional))
+		full_ctor_lines = self._render_full_ctor_asserts(ast_model, typename, required, optional)
+		if full_ctor_lines:
 			body_lines.append('')
-			body_lines.append('\t\t// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)')
-			body_lines.extend(setter_lines)
+			body_lines.append('\t\t// Act + Assert: the all-args constructor stores every optional field')
+			body_lines.extend(full_ctor_lines)
 
 		body = '\n'.join(body_lines)
 		parts = [
-			f'{self._render_helper(typename, required)}\n'
+			f'{self._render_helper(typename, required, optional)}\n'
 			'\t@Test\n'
 			f'\tvoid {uncapitalize(typename)}() {{\n'
 			f'{body}\n'
 			'\t}\n'
 		]
-		string_ctor_test = self._render_string_ctor_test(ast_model, typename, required)
-		if string_ctor_test is not None:
-			parts.append(string_ctor_test)
-
 		round_trip_test = self._render_factory_round_trip_test(ast_model, typename, required, optional)
 		if round_trip_test is not None:
 			parts.append(round_trip_test)
@@ -447,9 +385,9 @@ class SweepTestFormatter:
 			for ast_model, factory_ast_model, formatter in self.struct_entries)
 		return (
 			'/**\n'
-			' * Generated per-descriptor sweep: construction with distinct sample values, exact {@code toMap()} contents,\n'
-			' * string-form constructor equivalence, every optional fluent setter, and (for transaction descriptors) a\n'
-			' * factory round-trip verifying each created-model field via {@code getField}.\n'
+			' * Generated per-descriptor sweep: construction with distinct sample values, exact {@code toMap()} contents\n'
+			' * (null optional arguments leave their keys absent), all-args constructor storage of every field, and\n'
+			' * (for transaction descriptors) a factory round-trip verifying each created-model field via {@code getField}.\n'
 			' */\n'
 			'final class DescriptorsSweepTest {\n'
 			'\tprivate static final org.symbol.sdk.CryptoTypes.PublicKey SWEEP_SIGNER_PUBLIC_KEY ='

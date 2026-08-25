@@ -34,18 +34,6 @@ public final class MosaicDefinitionTransactionV1Descriptor implements NemTransac
 	}
 
 	/**
-	 * Creates a descriptor for MosaicDefinitionTransactionV1 from string-form values.
-	 *
-	 * @param mosaicDefinition mosaic definition
-	 * @param rentalFeeSink mosaic rental fee sink public key
-	 * @param rentalFee mosaic rental fee
-	 */
-	public MosaicDefinitionTransactionV1Descriptor(final MosaicDefinitionDescriptor mosaicDefinition, final String rentalFeeSink,
-			final String rentalFee) {
-		this(mosaicDefinition, new Address(rentalFeeSink), Amount.parse(rentalFee));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

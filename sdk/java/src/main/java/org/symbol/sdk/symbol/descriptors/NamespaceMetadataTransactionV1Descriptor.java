@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.symbol.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,55 +25,21 @@ public final class NamespaceMetadataTransactionV1Descriptor implements SymbolTra
 	 * @param scopedMetadataKey Metadata key scoped to source, target and type.
 	 * @param targetNamespaceId Namespace whose metadata should be modified.
 	 * @param valueSizeDelta Change in value size in bytes, compared to previous size.
+	 * @param value Difference between existing value and new value. \note When there is no existing value, this array is directly used and
+	 *            `value_size_delta`==`value_size`. \note When there is an existing value, the new value is the byte-wise XOR of the
+	 *            previous value and this array. (field is omitted when null)
 	 */
 	public NamespaceMetadataTransactionV1Descriptor(final Address targetAddress, final long scopedMetadataKey,
-			final NamespaceId targetNamespaceId, final int valueSizeDelta) {
+			final NamespaceId targetNamespaceId, final int valueSizeDelta, final byte[] value) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "namespace_metadata_transaction_v1");
 		rawDescriptor.put("targetAddress", targetAddress);
 		rawDescriptor.put("scopedMetadataKey", scopedMetadataKey);
 		rawDescriptor.put("targetNamespaceId", targetNamespaceId);
 		rawDescriptor.put("valueSizeDelta", valueSizeDelta);
-	}
 
-	/**
-	 * Creates a descriptor for NamespaceMetadataTransactionV1 from string-form values.
-	 *
-	 * @param targetAddress Account owning the namespace whose metadata should be modified.
-	 * @param scopedMetadataKey Metadata key scoped to source, target and type.
-	 * @param targetNamespaceId Namespace whose metadata should be modified.
-	 * @param valueSizeDelta Change in value size in bytes, compared to previous size.
-	 */
-	public NamespaceMetadataTransactionV1Descriptor(final String targetAddress, final long scopedMetadataKey,
-			final String targetNamespaceId, final int valueSizeDelta) {
-		this(new Address(targetAddress), scopedMetadataKey, NamespaceId.parse(targetNamespaceId), valueSizeDelta);
-	}
-
-	/**
-	 * Sets the value field.
-	 *
-	 * @param value Difference between existing value and new value. \note When there is no existing value, this array is directly used and
-	 *            `value_size_delta`==`value_size`. \note When there is an existing value, the new value is the byte-wise XOR of the
-	 *            previous value and this array.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceMetadataTransactionV1Descriptor value(final byte[] value) {
 		if (null != value)
 			rawDescriptor.put("value", value);
-
-		return this;
-	}
-
-	/**
-	 * Sets the value field.
-	 *
-	 * @param value Difference between existing value and new value. \note When there is no existing value, this array is directly used and
-	 *            `value_size_delta`==`value_size`. \note When there is an existing value, the new value is the byte-wise XOR of the
-	 *            previous value and this array.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceMetadataTransactionV1Descriptor value(final String value) {
-		return value(null == value ? null : value.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**
