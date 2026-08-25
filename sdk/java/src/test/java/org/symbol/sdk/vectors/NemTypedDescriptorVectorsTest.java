@@ -14,28 +14,7 @@ import org.symbol.sdk.Serializer;
 import org.symbol.sdk.facade.NemFacade;
 import org.symbol.sdk.nem.Address;
 import org.symbol.sdk.nem.NemTransactionFactory;
-import org.symbol.sdk.nem.descriptors.AccountKeyLinkTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.CosignatureV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MessageDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicDefinitionDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicDefinitionTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MosaicDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicIdDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicLevyDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicPropertyDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicSupplyChangeTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MultisigAccountModificationDescriptor;
-import org.symbol.sdk.nem.descriptors.MultisigAccountModificationTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MultisigAccountModificationTransactionV2Descriptor;
-import org.symbol.sdk.nem.descriptors.MultisigTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.NamespaceIdDescriptor;
-import org.symbol.sdk.nem.descriptors.NamespaceRegistrationTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.NemTransactionDescriptor;
-import org.symbol.sdk.nem.descriptors.SizePrefixedMosaicDescriptor;
-import org.symbol.sdk.nem.descriptors.SizePrefixedMosaicPropertyDescriptor;
-import org.symbol.sdk.nem.descriptors.SizePrefixedMultisigAccountModificationDescriptor;
-import org.symbol.sdk.nem.descriptors.TransferTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.TransferTransactionV2Descriptor;
+import org.symbol.sdk.nem.descriptors.*;
 import org.symbol.sdk.nem.models.Amount;
 import org.symbol.sdk.nem.models.LinkAction;
 import org.symbol.sdk.nem.models.MessageType;
@@ -151,7 +130,7 @@ final class NemTypedDescriptorVectorsTest {
 
 				final NonVerifiableTransaction inner = NemTransactionFactory
 						.toNonVerifiableTransaction(facade.transactionFactory.create(innerDescriptor));
-				return new MultisigTransactionV1Descriptor(inner, /* cosignatures */ null);
+				return new MultisigTransactionV1Descriptor(inner, (List<SizePrefixedCosignatureV1Descriptor>) null);
 			}
 
 			default :

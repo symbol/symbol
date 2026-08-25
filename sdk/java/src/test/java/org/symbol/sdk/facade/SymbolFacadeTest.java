@@ -720,7 +720,7 @@ final class SymbolFacadeTest {
 		void toMapInjectsTypeAndOmitsNullOptionalFields() {
 			// Act: only the required recipientAddress is supplied.
 			final Address recipient = new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA");
-			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, /* mosaics */ null, /* message */ null).toMap();
+			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, (List<UnresolvedMosaicDescriptor>) null, (byte[]) null).toMap();
 
 			// Assert: discriminator baked in; null optional fields are not present.
 			assertThat(map.get("type"), is(equalTo("transfer_transaction_v1")));
@@ -756,8 +756,8 @@ final class SymbolFacadeTest {
 			final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final Address recipient = new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA");
-			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(recipient, /* mosaics */ null,
-					/* message */ null);
+			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(recipient, (List<UnresolvedMosaicDescriptor>) null,
+					(byte[]) null);
 
 			// Act:
 			final Transaction typed = facade.createTransactionFromTypedDescriptor(typedDescriptor, keyPair.getPublicKey(), 100L, 60L);
@@ -775,7 +775,7 @@ final class SymbolFacadeTest {
 			final SymbolFacade facade = new SymbolFacade(Network.TESTNET);
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final SymbolTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(
-					new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA"), /* mosaics */ null, /* message */ null);
+					new Address("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA"), (List<UnresolvedMosaicDescriptor>) null, (byte[]) null);
 
 			// Act:
 			final Transaction txNoCos = facade.createTransactionFromTypedDescriptor(typedDescriptor, keyPair.getPublicKey(), 100L, 60L, 0);

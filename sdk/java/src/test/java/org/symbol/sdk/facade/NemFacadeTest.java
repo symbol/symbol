@@ -423,7 +423,7 @@ final class NemFacadeTest {
 			// Act: required fields only.
 			final Address recipient = new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C");
 			final Amount amount = new Amount(5L);
-			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, amount, /* message */ null).toMap();
+			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, amount, (MessageDescriptor) null).toMap();
 
 			// Assert: discriminator baked in; null optional message field is omitted.
 			assertThat(map.get("type"), is(equalTo("transfer_transaction_v1")));
@@ -437,7 +437,7 @@ final class NemFacadeTest {
 			// Act: root-namespace registration — passing null for the optional parentName omits it.
 			final NamespaceRegistrationTransactionV1Descriptor descriptor = new NamespaceRegistrationTransactionV1Descriptor(
 					new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(50000L),
-					"roger".getBytes(java.nio.charset.StandardCharsets.UTF_8), /* parentName */ null);
+					"roger".getBytes(java.nio.charset.StandardCharsets.UTF_8), (byte[]) null);
 
 			// Assert: name converted, parentName omitted (not NPE, not a null entry).
 			final Map<String, Object> rawDescriptor = descriptor.toMap();
@@ -452,7 +452,7 @@ final class NemFacadeTest {
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final Transaction inner = facade.createTransactionFromTypedDescriptor(
 					new TransferTransactionV1Descriptor(new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(5000000L),
-							/* message */ null),
+							(MessageDescriptor) null),
 					keyPair.getPublicKey(), FEE, 60L);
 			final MultisigTransactionV1Descriptor descriptor = new MultisigTransactionV1Descriptor(
 					NemTransactionFactory.toNonVerifiableTransaction(inner),
@@ -519,7 +519,7 @@ final class NemFacadeTest {
 			final NemFacade facade = new NemFacade(Network.TESTNET);
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final NemTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(
-					new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(5L), /* message */ null);
+					new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(5L), (MessageDescriptor) null);
 
 			// Act:
 			final Transaction typed = facade.createTransactionFromTypedDescriptor(typedDescriptor, keyPair.getPublicKey(), FEE, 60L);

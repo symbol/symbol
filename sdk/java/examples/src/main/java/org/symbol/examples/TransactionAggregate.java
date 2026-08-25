@@ -13,6 +13,8 @@ import org.symbol.sdk.symbol.KeyPair;
 import org.symbol.sdk.symbol.SymbolTransactionFactory;
 import org.symbol.sdk.symbol.descriptors.AggregateCompleteTransactionV3Descriptor;
 import org.symbol.sdk.symbol.descriptors.TransferTransactionV1Descriptor;
+import org.symbol.sdk.symbol.descriptors.UnresolvedMosaicDescriptor;
+import org.symbol.sdk.symbol.models.Cosignature;
 import org.symbol.sdk.symbol.models.EmbeddedTransaction;
 import org.symbol.sdk.symbol.models.EmbeddedTransferTransactionV1;
 import org.symbol.sdk.symbol.models.Transaction;
@@ -39,7 +41,7 @@ public final class TransactionAggregate {
 			// and other tools that treat messages starting with 00 byte as "plain text"
 			final byte[] prefixed = ArrayHelpers.concat(new byte[1], messageBytes);
 
-			final TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(recipientAddress, /* mosaics */ null, prefixed);
+			final TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(recipientAddress, (List<UnresolvedMosaicDescriptor>) null, prefixed);
 			final EmbeddedTransferTransactionV1 embeddedTransaction = (EmbeddedTransferTransactionV1) facade
 					.createEmbeddedTransactionFromTypedDescriptor(descriptor, publicKey);
 
@@ -65,7 +67,7 @@ public final class TransactionAggregate {
 		final CryptoTypes.Hash256 merkleHash = SymbolFacade.hashEmbeddedTransactions(embeddedTransactions);
 
 		final AggregateCompleteTransactionV3Descriptor aggregateDescriptor = new AggregateCompleteTransactionV3Descriptor(merkleHash,
-				embeddedTransactions, /* cosignatures */ null);
+				embeddedTransactions, (List<Cosignature>) null);
 		// pin deterministic header values in the descriptor (like the JS / Python examples) so the output stays comparable
 		final Map<String, Object> aggregateMap = aggregateDescriptor.toMap();
 		aggregateMap.put("signerPublicKey", keyPair.getPublicKey());
