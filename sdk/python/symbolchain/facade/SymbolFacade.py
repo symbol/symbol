@@ -138,6 +138,10 @@ class SymbolFacade:
 		transaction.fee = sc.Amount(transaction_with_cosignatures_size * fee_multiplier)
 		return transaction
 
+	def create_embedded_transaction_from_descriptor(self, descriptor, signer_public_key):  # pylint: disable=invalid-name
+		"""Creates an embedded transaction from a descriptor, adding signer to a copy of it."""
+		return self.transaction_factory.create_embedded({**descriptor, 'signer_public_key': signer_public_key})
+
 	def hash_transaction(self, transaction):
 		"""Hashes a Symbol transaction."""
 		hasher = hashlib.sha3_256()

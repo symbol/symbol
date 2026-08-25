@@ -382,6 +382,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual(sc.TransactionType.TRANSFER, transaction.type_)
 		self.assertEqual(sc.NetworkType.TESTNET, transaction.network)
+		self.assertEqual(1, transaction.version)
 		self.assertEqual(signer_public_key.bytes, transaction.signer_public_key.bytes)
 		self.assertEqual(transaction.size * 100, transaction.fee.value)
 
@@ -420,6 +421,23 @@ class SymbolFacadeTest(unittest.TestCase):
 		self._assert_aggregate_size_calculation(3, 4, 4)
 		self._assert_aggregate_size_calculation(4, 3, 4)
 		self._assert_aggregate_size_calculation(4, 4, 4)
+
+	def test_can_create_embedded_transaction_from_descriptor(self):
+		# Arrange:
+		facade = SymbolFacade('testnet')
+		signer_public_key = PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8')
+
+		# Act:
+		transaction = facade.create_embedded_transaction_from_descriptor({
+			'type': 'transfer_transaction_v1',
+			'recipient_address': 'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I'
+		}, signer_public_key)
+
+		# Assert:
+		self.assertEqual(sc.TransactionType.TRANSFER, transaction.type_)
+		self.assertEqual(sc.NetworkType.TESTNET, transaction.network)
+		self.assertEqual(1, transaction.version)
+		self.assertEqual(signer_public_key.bytes, transaction.signer_public_key.bytes)
 
 	# endregion
 
