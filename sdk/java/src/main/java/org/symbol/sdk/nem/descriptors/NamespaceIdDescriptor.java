@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,32 +17,13 @@ public final class NamespaceIdDescriptor implements NemTypedDescriptor {
 	/**
 	 * Creates a descriptor for NamespaceId.
 	 *
+	 * @param name name (field is omitted when null)
 	 */
-	public NamespaceIdDescriptor() {
+	public NamespaceIdDescriptor(final byte[] name) {
 		rawDescriptor = new LinkedHashMap<>();
-	}
 
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name name
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceIdDescriptor name(final byte[] name) {
 		if (null != name)
 			rawDescriptor.put("name", name);
-
-		return this;
-	}
-
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name name
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceIdDescriptor name(final String name) {
-		return name(null == name ? null : name.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

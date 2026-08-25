@@ -35,17 +35,6 @@ public final class MosaicAliasTransactionV1Descriptor implements SymbolTransacti
 	}
 
 	/**
-	 * Creates a descriptor for MosaicAliasTransactionV1 from string-form values.
-	 *
-	 * @param namespaceId Identifier of the namespace that will become (or stop being) an alias for the Mosaic.
-	 * @param mosaicId Aliased mosaic identifier.
-	 * @param aliasAction Alias action.
-	 */
-	public MosaicAliasTransactionV1Descriptor(final String namespaceId, final String mosaicId, final String aliasAction) {
-		this(NamespaceId.parse(namespaceId), MosaicId.parse(mosaicId), AliasAction.parse(aliasAction));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

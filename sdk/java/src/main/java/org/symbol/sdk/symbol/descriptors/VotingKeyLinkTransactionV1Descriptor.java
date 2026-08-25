@@ -42,20 +42,6 @@ public final class VotingKeyLinkTransactionV1Descriptor implements SymbolTransac
 	}
 
 	/**
-	 * Creates a descriptor for VotingKeyLinkTransactionV1 from string-form values.
-	 *
-	 * @param linkedPublicKey Linked voting public key.
-	 * @param startEpoch Starting finalization epoch.
-	 * @param endEpoch Ending finalization epoch.
-	 * @param linkAction Account link action.
-	 */
-	public VotingKeyLinkTransactionV1Descriptor(final String linkedPublicKey, final String startEpoch, final String endEpoch,
-			final String linkAction) {
-		this(new CryptoTypes.PublicKey(linkedPublicKey), FinalizationEpoch.parse(startEpoch), FinalizationEpoch.parse(endEpoch),
-				LinkAction.parse(linkAction));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

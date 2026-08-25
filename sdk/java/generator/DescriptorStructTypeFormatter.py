@@ -131,17 +131,6 @@ class DescriptorField:
 		"""Java expression stored into the descriptor map for this field."""
 		return f'{self.name}{self._unwrap}'
 
-	def convert_expression(self):
-		"""Expression converting this field's String parameter to its typed form (scalar fields only)."""
-		return self.string_conversion.format(value=self.name)
-
-	def guarded_convert_expression(self):
-		"""Like :meth:`convert_expression`, but optional fields pass ``null`` through unconverted."""
-		if not self.is_optional:
-			return self.convert_expression()
-
-		return f'null == {self.name} ? null : {self.convert_expression()}'
-
 
 class StructFormatter:
 	"""Renders a single ``XxxDescriptor`` Java class (sans package/imports header)."""
@@ -198,32 +187,14 @@ class StructFormatter:
 		return javadoc(lines, prefix='')
 
 	def _render_constructors(self, required, optional):
-		"""Required-only constructor(s) followed by one fluent setter per optional field."""
-		methods = [self._render_required_ctor(required)]
-		methods.extend(self._render_string_required_ctor(required))
-		for field in optional:
-			methods.append(self._render_typed_setter(field))
-			methods.extend(self._render_setter_overloads(field))
+		"""The single all-args typed constructor (mirrors the JS models_ts shape)."""
+		return [self._render_ctor(required, optional)]
 
-		return methods
-
-	@staticmethod
-	def _string_variant_signature(fields):
-		"""Parameter / argument lists for a string-form overload, or None when no field converts."""
-		if not any(field.string_conversion for field in fields):
-			return None
-
-		params = ', '.join(
-			f'final String {field.name}' if field.string_conversion else f'final {field.parameter_type()} {field.name}' for field in fields
-		)
-		args = ', '.join(field.guarded_convert_expression() if field.string_conversion else field.name for field in fields)
-		return params, args
-
-	def _render_required_ctor(self, required):
-		"""Typed constructor taking only the required fields; optionals are populated via fluent setters."""
+	def _render_ctor(self, required, optional):
+		"""Typed constructor taking every field; a null optional leaves its key out of the map."""
 		doc = [f'Creates a descriptor for {self.struct.name}.', '']
-		doc.extend(self._param_docs(required))
-		params = ', '.join(f'final {field.parameter_type()} {field.name}' for field in required)
+		doc.extend(StructFormatter._param_docs(required, optional))
+		params = ', '.join(f'final {field.parameter_type()} {field.name}' for field in required + optional)
 
 		body_lines = ['\t\trawDescriptor = new java.util.LinkedHashMap<>();']
 		if self.struct.factory_type:
@@ -232,58 +203,14 @@ class StructFormatter:
 		for field in required:
 			body_lines.append(f'\t\trawDescriptor.put("{field.name}", {field.store_expression()});')
 
+		# a null optional must leave its key ABSENT (TransactionDescriptorProcessor.copyTo iterates present keys)
+		for field in optional:
+			body_lines.append('')
+			body_lines.append(f'\t\tif (null != {field.name})')
+			body_lines.append(f'\t\t\trawDescriptor.put("{field.name}", {field.store_expression()});')
+
 		body = '\n'.join(body_lines) + '\n'
 		return method(doc, f'\tpublic {self.typename}({params})', body)
-
-	def _render_string_required_ctor(self, required):
-		"""String-form overload of the required constructor (every string-convertible field takes a ``String``)."""
-		signature = StructFormatter._string_variant_signature(required)
-		if signature is None:
-			return []
-
-		params, args = signature
-		doc = [f'Creates a descriptor for {self.struct.name} from string-form values.', '']
-		doc.extend(self._param_docs(required))
-		return [method(doc, f'\tpublic {self.typename}({params})', f'\t\tthis({args});\n')]
-
-	def _render_typed_setter(self, field):
-		"""Fluent setter for one optional field, storing the typed value into the descriptor map."""
-		signature = f'\tpublic {self.typename} {field.name}(final {field.parameter_type()} {field.name})'
-		body = (
-			f'\t\tif (null != {field.name})\n'
-			f'\t\t\trawDescriptor.put("{field.name}", {field.store_expression()});\n'
-			f'\t\treturn this;\n')
-		return method(self._setter_doc(field), signature, body)
-
-	def _render_setter_overloads(self, field):
-		"""String / varargs convenience overloads that convert and delegate to the typed setter."""
-		doc = self._setter_doc(field)
-		signature = f'\tpublic {self.typename} {field.name}'
-		if field.string_conversion:
-			body = f'\t\treturn {field.name}({field.guarded_convert_expression()});\n'
-			return [method(doc, f'{signature}(final String {field.name})', body)]
-
-		if field.element_string_conversion:
-			element_expression = field.element_string_conversion.format(value='value')
-			body = (
-				f'\t\treturn {field.name}(null == {field.name} ? null : java.util.Arrays.stream({field.name})'
-				f'.map(value -> {element_expression}).collect(java.util.stream.Collectors.toList()));\n')
-			return [method(doc, f'{signature}(final String... {field.name})', body)]
-
-		if field.descriptor_element_type:
-			body = f'\t\treturn {field.name}(null == {field.name} ? null : java.util.Arrays.asList({field.name}));\n'
-			return [method(doc, f'{signature}(final {field.descriptor_element_type}... {field.name})', body)]
-
-		return []
-
-	@staticmethod
-	def _setter_doc(field):
-		return [
-			f'Sets the {field.name} field.',
-			'',
-			f'@param {field.name} {field.comment or field.name}',
-			'@return This descriptor for chaining.',
-		]
 
 	@staticmethod
 	def _render_to_map():
@@ -296,10 +223,12 @@ class StructFormatter:
 		return method(doc, '\t@Override\n\tpublic java.util.Map<String, Object> toMap()', body)
 
 	@staticmethod
-	def _param_docs(fields):
+	def _param_docs(required, optional):
 		docs = []
-		for field in fields:
-			comment = field.comment or field.name
-			docs.append(f'@param {field.name} {comment}')
+		for field in required:
+			docs.append(f'@param {field.name} {field.comment or field.name}')
+
+		for field in optional:
+			docs.append(f'@param {field.name} {field.comment or field.name} (field is omitted when null)')
 
 		return docs

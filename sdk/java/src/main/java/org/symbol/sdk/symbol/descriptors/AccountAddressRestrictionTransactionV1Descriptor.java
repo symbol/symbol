@@ -3,11 +3,9 @@
 
 package org.symbol.sdk.symbol.descriptors;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.models.AccountRestrictionFlags;
@@ -24,70 +22,20 @@ public final class AccountAddressRestrictionTransactionV1Descriptor implements S
 	 * Creates a descriptor for AccountAddressRestrictionTransactionV1.
 	 *
 	 * @param restrictionFlags Type of restriction being applied to the listed addresses.
+	 * @param restrictionAdditions Array of account addresses being added to the restricted list. (field is omitted when null)
+	 * @param restrictionDeletions Array of account addresses being removed from the restricted list. (field is omitted when null)
 	 */
-	public AccountAddressRestrictionTransactionV1Descriptor(final AccountRestrictionFlags restrictionFlags) {
+	public AccountAddressRestrictionTransactionV1Descriptor(final AccountRestrictionFlags restrictionFlags,
+			final List<Address> restrictionAdditions, final List<Address> restrictionDeletions) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "account_address_restriction_transaction_v1");
 		rawDescriptor.put("restrictionFlags", restrictionFlags);
-	}
 
-	/**
-	 * Creates a descriptor for AccountAddressRestrictionTransactionV1 from string-form values.
-	 *
-	 * @param restrictionFlags Type of restriction being applied to the listed addresses.
-	 */
-	public AccountAddressRestrictionTransactionV1Descriptor(final String restrictionFlags) {
-		this(AccountRestrictionFlags.parse(restrictionFlags));
-	}
-
-	/**
-	 * Sets the restrictionAdditions field.
-	 *
-	 * @param restrictionAdditions Array of account addresses being added to the restricted list.
-	 * @return This descriptor for chaining.
-	 */
-	public AccountAddressRestrictionTransactionV1Descriptor restrictionAdditions(final List<Address> restrictionAdditions) {
 		if (null != restrictionAdditions)
 			rawDescriptor.put("restrictionAdditions", restrictionAdditions);
 
-		return this;
-	}
-
-	/**
-	 * Sets the restrictionAdditions field.
-	 *
-	 * @param restrictionAdditions Array of account addresses being added to the restricted list.
-	 * @return This descriptor for chaining.
-	 */
-	public AccountAddressRestrictionTransactionV1Descriptor restrictionAdditions(final String... restrictionAdditions) {
-		return restrictionAdditions(null == restrictionAdditions
-				? null
-				: Arrays.stream(restrictionAdditions).map(value -> new Address(value)).collect(Collectors.toList()));
-	}
-
-	/**
-	 * Sets the restrictionDeletions field.
-	 *
-	 * @param restrictionDeletions Array of account addresses being removed from the restricted list.
-	 * @return This descriptor for chaining.
-	 */
-	public AccountAddressRestrictionTransactionV1Descriptor restrictionDeletions(final List<Address> restrictionDeletions) {
 		if (null != restrictionDeletions)
 			rawDescriptor.put("restrictionDeletions", restrictionDeletions);
-
-		return this;
-	}
-
-	/**
-	 * Sets the restrictionDeletions field.
-	 *
-	 * @param restrictionDeletions Array of account addresses being removed from the restricted list.
-	 * @return This descriptor for chaining.
-	 */
-	public AccountAddressRestrictionTransactionV1Descriptor restrictionDeletions(final String... restrictionDeletions) {
-		return restrictionDeletions(null == restrictionDeletions
-				? null
-				: Arrays.stream(restrictionDeletions).map(value -> new Address(value)).collect(Collectors.toList()));
 	}
 
 	/**

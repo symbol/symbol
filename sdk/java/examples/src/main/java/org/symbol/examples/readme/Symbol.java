@@ -3,18 +3,22 @@
 
 package org.symbol.examples.readme;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.facade.SymbolFacade;
+import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.KeyPair;
 import org.symbol.sdk.symbol.SymbolTransactionFactory;
 import org.symbol.sdk.symbol.descriptors.TransferTransactionV1Descriptor;
 import org.symbol.sdk.symbol.descriptors.UnresolvedMosaicDescriptor;
+import org.symbol.sdk.symbol.models.Amount;
 import org.symbol.sdk.symbol.models.EmbeddedTransaction;
 import org.symbol.sdk.symbol.models.Transaction;
+import org.symbol.sdk.symbol.models.UnresolvedMosaicId;
 
 public final class Symbol {
 	private Symbol() {
@@ -46,15 +50,13 @@ public final class Symbol {
 
 	private static void typedDescriptorExample(final SymbolFacade facade, final CryptoTypes.PublicKey signerPublicKey) {
 		System.out.println("*** EXAMPLE CONSTRUCTION FROM TYPED DESCRIPTOR ***");
-		// required fields are constructor args; optional fields are fluent setters. The string
-		// overloads parse canonical forms (base32 addresses, UTF-8 text, 0x-hex or decimal ids), and
-		// the array setter takes varargs — here two mosaics.
+		// every field is a constructor argument
 		final TransferTransactionV1Descriptor typedDescriptor = new TransferTransactionV1Descriptor(
-			"TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")
-			.mosaics(
-				new UnresolvedMosaicDescriptor("0x7CDF3B117A3C40CC", "1000000"),
-				new UnresolvedMosaicDescriptor("0x1F031D8D3905B931", "5"))
-			.message("hello symbol");
+			new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+			List.of(
+				new UnresolvedMosaicDescriptor(new UnresolvedMosaicId(0x7CDF3B117A3C40CCL), new Amount(1000000L)),
+				new UnresolvedMosaicDescriptor(new UnresolvedMosaicId(0x1F031D8D3905B931L), new Amount(5L))),
+			"hello symbol".getBytes(StandardCharsets.UTF_8));
 
 		final Transaction typedTransaction = facade.createTransactionFromTypedDescriptor(
 			typedDescriptor, signerPublicKey, FEE_MULTIPLIER, DEADLINE_SECONDS);

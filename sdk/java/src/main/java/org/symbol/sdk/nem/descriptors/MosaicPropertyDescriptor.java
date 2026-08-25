@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,55 +17,17 @@ public final class MosaicPropertyDescriptor implements NemTypedDescriptor {
 	/**
 	 * Creates a descriptor for MosaicProperty.
 	 *
+	 * @param name property name (field is omitted when null)
+	 * @param value property value (field is omitted when null)
 	 */
-	public MosaicPropertyDescriptor() {
+	public MosaicPropertyDescriptor(final byte[] name, final byte[] value) {
 		rawDescriptor = new LinkedHashMap<>();
-	}
 
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name property name
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicPropertyDescriptor name(final byte[] name) {
 		if (null != name)
 			rawDescriptor.put("name", name);
 
-		return this;
-	}
-
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name property name
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicPropertyDescriptor name(final String name) {
-		return name(null == name ? null : name.getBytes(StandardCharsets.UTF_8));
-	}
-
-	/**
-	 * Sets the value field.
-	 *
-	 * @param value property value
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicPropertyDescriptor value(final byte[] value) {
 		if (null != value)
 			rawDescriptor.put("value", value);
-
-		return this;
-	}
-
-	/**
-	 * Sets the value field.
-	 *
-	 * @param value property value
-	 * @return This descriptor for chaining.
-	 */
-	public MosaicPropertyDescriptor value(final String value) {
-		return value(null == value ? null : value.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

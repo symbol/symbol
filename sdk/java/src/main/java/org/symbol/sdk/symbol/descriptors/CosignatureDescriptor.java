@@ -32,17 +32,6 @@ public final class CosignatureDescriptor implements SymbolTypedDescriptor {
 	}
 
 	/**
-	 * Creates a descriptor for Cosignature from string-form values.
-	 *
-	 * @param version Version.
-	 * @param signerPublicKey Cosigner public key.
-	 * @param signature Transaction signature.
-	 */
-	public CosignatureDescriptor(final long version, final String signerPublicKey, final String signature) {
-		this(version, new CryptoTypes.PublicKey(signerPublicKey), Signature.parse(signature));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

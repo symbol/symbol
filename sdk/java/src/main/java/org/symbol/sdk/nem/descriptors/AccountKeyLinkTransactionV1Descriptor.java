@@ -31,16 +31,6 @@ public final class AccountKeyLinkTransactionV1Descriptor implements NemTransacti
 	}
 
 	/**
-	 * Creates a descriptor for AccountKeyLinkTransactionV1 from string-form values.
-	 *
-	 * @param linkAction link action
-	 * @param remotePublicKey public key of remote account to which importance should be transferred
-	 */
-	public AccountKeyLinkTransactionV1Descriptor(final String linkAction, final String remotePublicKey) {
-		this(LinkAction.parse(linkAction), new CryptoTypes.PublicKey(remotePublicKey));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

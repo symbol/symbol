@@ -39,7 +39,7 @@ public final class TransactionAggregate {
 			// and other tools that treat messages starting with 00 byte as "plain text"
 			final byte[] prefixed = ArrayHelpers.concat(new byte[1], messageBytes);
 
-			final TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(recipientAddress).message(prefixed);
+			final TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(recipientAddress, /* mosaics */ null, prefixed);
 			final EmbeddedTransferTransactionV1 embeddedTransaction = (EmbeddedTransferTransactionV1) facade
 					.createEmbeddedTransactionFromTypedDescriptor(descriptor, publicKey);
 
@@ -64,8 +64,8 @@ public final class TransactionAggregate {
 		final List<EmbeddedTransaction> embeddedTransactions = addEmbeddedTransfers(facade, keyPair.getPublicKey(), partFiles);
 		final CryptoTypes.Hash256 merkleHash = SymbolFacade.hashEmbeddedTransactions(embeddedTransactions);
 
-		final AggregateCompleteTransactionV3Descriptor aggregateDescriptor = new AggregateCompleteTransactionV3Descriptor(merkleHash)
-				.transactions(embeddedTransactions);
+		final AggregateCompleteTransactionV3Descriptor aggregateDescriptor = new AggregateCompleteTransactionV3Descriptor(merkleHash,
+				embeddedTransactions, /* cosignatures */ null);
 		// pin deterministic header values in the descriptor (like the JS / Python examples) so the output stays comparable
 		final Map<String, Object> aggregateMap = aggregateDescriptor.toMap();
 		aggregateMap.put("signerPublicKey", keyPair.getPublicKey());

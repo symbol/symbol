@@ -3,15 +3,19 @@
 
 package org.symbol.examples.readme;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.facade.NemFacade;
+import org.symbol.sdk.nem.Address;
 import org.symbol.sdk.nem.KeyPair;
 import org.symbol.sdk.nem.NemTransactionFactory;
 import org.symbol.sdk.nem.descriptors.MessageDescriptor;
 import org.symbol.sdk.nem.descriptors.TransferTransactionV1Descriptor;
+import org.symbol.sdk.nem.models.Amount;
+import org.symbol.sdk.nem.models.MessageType;
 import org.symbol.sdk.nem.models.Transaction;
 
 public final class Nem {
@@ -34,11 +38,10 @@ public final class Nem {
 
 	private static void typedDescriptorExample(final NemFacade facade, final CryptoTypes.PublicKey signerPublicKey) {
 		System.out.println("*** EXAMPLE CONSTRUCTION FROM TYPED DESCRIPTOR ***");
-		// required fields are constructor args; optional fields are fluent setters. The string
-		// overloads parse canonical forms: base32 addresses, enum names, UTF-8 text fields.
+		// every field is a constructor argument
 		final TransferTransactionV1Descriptor typedDescriptor = new TransferTransactionV1Descriptor(
-			"TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW", "5100000")
-			.message(new MessageDescriptor("plain").message("hello nem"));
+			new Address("TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW"), new Amount(5100000L),
+			new MessageDescriptor(MessageType.PLAIN, "hello nem".getBytes(StandardCharsets.UTF_8)));
 
 		final long fee = 0x186A0L;
 		final long deadlineSeconds = 60L * 60L * 24L;

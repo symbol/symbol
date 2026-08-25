@@ -30,16 +30,6 @@ public final class MosaicDescriptor implements SymbolTypedDescriptor {
 	}
 
 	/**
-	 * Creates a descriptor for Mosaic from string-form values.
-	 *
-	 * @param mosaicId Mosaic identifier.
-	 * @param amount Mosaic amount.
-	 */
-	public MosaicDescriptor(final String mosaicId, final String amount) {
-		this(MosaicId.parse(mosaicId), Amount.parse(amount));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

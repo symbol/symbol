@@ -41,21 +41,6 @@ public final class MosaicDefinitionTransactionV1Descriptor implements SymbolTran
 	}
 
 	/**
-	 * Creates a descriptor for MosaicDefinitionTransactionV1 from string-form values.
-	 *
-	 * @param id Unique mosaic identifier obtained from the generator account's public key and the `nonce`. The SDK's can take care of
-	 *            generating this ID for you.
-	 * @param duration Mosaic duration expressed in blocks. If set to 0, the mosaic never expires.
-	 * @param nonce Random nonce used to generate the mosaic id.
-	 * @param flags Mosaic flags.
-	 * @param divisibility Mosaic divisibility.
-	 */
-	public MosaicDefinitionTransactionV1Descriptor(final String id, final String duration, final String nonce, final String flags,
-			final int divisibility) {
-		this(MosaicId.parse(id), BlockDuration.parse(duration), MosaicNonce.parse(nonce), MosaicFlags.parse(flags), divisibility);
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

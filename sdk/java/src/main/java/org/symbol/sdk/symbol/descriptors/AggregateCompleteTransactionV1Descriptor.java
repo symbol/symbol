@@ -24,47 +24,21 @@ public final class AggregateCompleteTransactionV1Descriptor implements SymbolTra
 	 * Creates a descriptor for AggregateCompleteTransactionV1.
 	 *
 	 * @param transactionsHash Hash of the aggregate's transaction.
+	 * @param transactions Embedded transaction data. Transactions are variable-sized and the total payload size is in bytes. Embedded
+	 *            transactions cannot be aggregates. (field is omitted when null)
+	 * @param cosignatures Cosignatures data. Fills up remaining body space after transactions. (field is omitted when null)
 	 */
-	public AggregateCompleteTransactionV1Descriptor(final CryptoTypes.Hash256 transactionsHash) {
+	public AggregateCompleteTransactionV1Descriptor(final CryptoTypes.Hash256 transactionsHash,
+			final List<EmbeddedTransaction> transactions, final List<Cosignature> cosignatures) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "aggregate_complete_transaction_v1");
 		rawDescriptor.put("transactionsHash", transactionsHash);
-	}
 
-	/**
-	 * Creates a descriptor for AggregateCompleteTransactionV1 from string-form values.
-	 *
-	 * @param transactionsHash Hash of the aggregate's transaction.
-	 */
-	public AggregateCompleteTransactionV1Descriptor(final String transactionsHash) {
-		this(new CryptoTypes.Hash256(transactionsHash));
-	}
-
-	/**
-	 * Sets the transactions field.
-	 *
-	 * @param transactions Embedded transaction data. Transactions are variable-sized and the total payload size is in bytes. Embedded
-	 *            transactions cannot be aggregates.
-	 * @return This descriptor for chaining.
-	 */
-	public AggregateCompleteTransactionV1Descriptor transactions(final List<EmbeddedTransaction> transactions) {
 		if (null != transactions)
 			rawDescriptor.put("transactions", transactions);
 
-		return this;
-	}
-
-	/**
-	 * Sets the cosignatures field.
-	 *
-	 * @param cosignatures Cosignatures data. Fills up remaining body space after transactions.
-	 * @return This descriptor for chaining.
-	 */
-	public AggregateCompleteTransactionV1Descriptor cosignatures(final List<Cosignature> cosignatures) {
 		if (null != cosignatures)
 			rawDescriptor.put("cosignatures", cosignatures);
-
-		return this;
 	}
 
 	/**

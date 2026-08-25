@@ -30,16 +30,6 @@ public final class UnresolvedMosaicDescriptor implements SymbolTypedDescriptor {
 	}
 
 	/**
-	 * Creates a descriptor for UnresolvedMosaic from string-form values.
-	 *
-	 * @param mosaicId Unresolved mosaic identifier.
-	 * @param amount Mosaic amount.
-	 */
-	public UnresolvedMosaicDescriptor(final String mosaicId, final String amount) {
-		this(UnresolvedMosaicId.parse(mosaicId), Amount.parse(amount));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

@@ -45,26 +45,6 @@ public final class MosaicGlobalRestrictionTransactionV1Descriptor implements Sym
 	}
 
 	/**
-	 * Creates a descriptor for MosaicGlobalRestrictionTransactionV1 from string-form values.
-	 *
-	 * @param mosaicId Identifier of the mosaic being restricted. The mosaic creator must be the signer of the transaction.
-	 * @param referenceMosaicId Identifier of the mosaic providing the restriction key. The mosaic global restriction for the mosaic
-	 *            identifier depends on global restrictions set on the reference mosaic. Set `reference_mosaic_id` to **0** if the mosaic
-	 *            giving the restriction equals the `mosaic_id`.
-	 * @param restrictionKey Restriction key relative to the reference mosaic identifier.
-	 * @param previousRestrictionValue Previous restriction value.
-	 * @param newRestrictionValue New restriction value.
-	 * @param previousRestrictionType Previous restriction type.
-	 * @param newRestrictionType New restriction type.
-	 */
-	public MosaicGlobalRestrictionTransactionV1Descriptor(final String mosaicId, final String referenceMosaicId, final long restrictionKey,
-			final long previousRestrictionValue, final long newRestrictionValue, final String previousRestrictionType,
-			final String newRestrictionType) {
-		this(UnresolvedMosaicId.parse(mosaicId), UnresolvedMosaicId.parse(referenceMosaicId), restrictionKey, previousRestrictionValue,
-				newRestrictionValue, MosaicRestrictionType.parse(previousRestrictionType), MosaicRestrictionType.parse(newRestrictionType));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

@@ -423,7 +423,7 @@ final class NemFacadeTest {
 			// Act: required fields only.
 			final Address recipient = new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C");
 			final Amount amount = new Amount(5L);
-			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, amount).toMap();
+			final Map<String, Object> map = new TransferTransactionV1Descriptor(recipient, amount, /* message */ null).toMap();
 
 			// Assert: discriminator baked in; null optional message field is omitted.
 			assertThat(map.get("type"), is(equalTo("transfer_transaction_v1")));
@@ -433,10 +433,11 @@ final class NemFacadeTest {
 		}
 
 		@Test
-		void nullOptionalSetterOmitsField() {
-			// Act: root-namespace registration — passing null to the optional parentName setter omits it.
+		void nullOptionalConstructorArgOmitsField() {
+			// Act: root-namespace registration — passing null for the optional parentName omits it.
 			final NamespaceRegistrationTransactionV1Descriptor descriptor = new NamespaceRegistrationTransactionV1Descriptor(
-					"TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C", "50000").name("roger").parentName((String) null);
+					new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(50000L),
+					"roger".getBytes(java.nio.charset.StandardCharsets.UTF_8), /* parentName */ null);
 
 			// Assert: name converted, parentName omitted (not NPE, not a null entry).
 			final Map<String, Object> rawDescriptor = descriptor.toMap();
@@ -450,13 +451,14 @@ final class NemFacadeTest {
 			final NemFacade facade = new NemFacade(Network.TESTNET);
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final Transaction inner = facade.createTransactionFromTypedDescriptor(
-					new TransferTransactionV1Descriptor("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C", "5000000"), keyPair.getPublicKey(), FEE,
-					60L);
+					new TransferTransactionV1Descriptor(new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(5000000L),
+							/* message */ null),
+					keyPair.getPublicKey(), FEE, 60L);
 			final MultisigTransactionV1Descriptor descriptor = new MultisigTransactionV1Descriptor(
-					NemTransactionFactory.toNonVerifiableTransaction(inner))
-					.cosignatures(new SizePrefixedCosignatureV1Descriptor(
-							new CosignatureV1Descriptor("E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C",
-									"TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C")));
+					NemTransactionFactory.toNonVerifiableTransaction(inner),
+					List.of(new SizePrefixedCosignatureV1Descriptor(new CosignatureV1Descriptor(
+							new CryptoTypes.Hash256("E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C"),
+							new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C")))));
 
 			// Act: the cosignatures array must flow through the struct/array rules (previously unregistered).
 			final Transaction transaction = facade.createTransactionFromTypedDescriptor(descriptor, keyPair.getPublicKey(), FEE, 60L);
@@ -482,8 +484,8 @@ final class NemFacadeTest {
 			final CryptoTypes.PublicKey signerPublicKey = new CryptoTypes.PublicKey(
 					"87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8");
 			final NemTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(
-					new Address("TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW"), new Amount(1000000L))
-					.message(new MessageDescriptor(MessageType.PLAIN).message("hello nem"));
+					new Address("TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW"), new Amount(1000000L),
+					new MessageDescriptor(MessageType.PLAIN, "hello nem".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 
 			// Act:
 			final TransferTransactionV1 transaction = (TransferTransactionV1) facade.createTransactionFromTypedDescriptor(typedDescriptor,
@@ -517,7 +519,7 @@ final class NemFacadeTest {
 			final NemFacade facade = new NemFacade(Network.TESTNET);
 			final KeyPair keyPair = new KeyPair(TEST_PRIVATE_KEY);
 			final NemTransactionDescriptor typedDescriptor = new TransferTransactionV1Descriptor(
-					new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(5L));
+					new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(5L), /* message */ null);
 
 			// Act:
 			final Transaction typed = facade.createTransactionFromTypedDescriptor(typedDescriptor, keyPair.getPublicKey(), FEE, 60L);
