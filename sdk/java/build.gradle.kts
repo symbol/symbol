@@ -17,8 +17,6 @@ java {
 mavenPublishing {
 	publishToMavenCentral()
 
-	// keyless invocations (internal nexus, local file: verification) must stay publishable: an unconditional
-	// signAllPublications() fails gradle's sign task with "no configured signatory" when the key is absent
 	if (providers.gradleProperty("signingInMemoryKey").isPresent)
 		signAllPublications()
 
@@ -36,7 +34,7 @@ mavenPublishing {
 			developer {
 				name.set("Symbol Contributors")
 				url.set("https://github.com/symbol/symbol/graphs/contributors")
-				email.set("Symbol Contributors <contributors@symbol.dev>")
+				email.set("contributors@symbol.dev")
 			}
 		}
 		scm {
@@ -49,12 +47,17 @@ mavenPublishing {
 
 publishing {
 	repositories {
-		maven {
-			name = "internal"
-			url = uri(providers.gradleProperty("mavenRepoUrl"))
-			credentials {
-				username = providers.gradleProperty("mavenRepoUsername").orElse("").get()
-				password = providers.gradleProperty("mavenRepoPassword").orElse("").get()
+		providers.gradleProperty("mavenRepoUrl").orNull?.let { repoUrl ->
+			maven {
+				name = "internal"
+				url = uri(repoUrl)
+				// credentials only apply to http(s) repositories; a file: mavenRepoUrl (local verification) rejects them
+				if (url.scheme.startsWith("http")) {
+					credentials {
+						username = providers.gradleProperty("mavenRepoUsername").orElse("").get()
+						password = providers.gradleProperty("mavenRepoPassword").orElse("").get()
+					}
+				}
 			}
 		}
 
@@ -73,9 +76,6 @@ val publishInternal by tasks.registering {
 	dependsOn("publishAllPublicationsToInternalRepository")
 }
 
-// The codebase is free of unchecked operations (generated setField uses checked asList coercion)
-// and of deprecated-API usage; fail the build — in every project, including examples — if either
-// creeps back in.
 allprojects {
 	tasks.withType<JavaCompile>().configureEach {
 		// Pin the source charset so non-ASCII (em-dashes / arrows in comments, CJK BIP-39 mnemonics in tests) decodes
