@@ -5,10 +5,7 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
-from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 
@@ -21,17 +18,7 @@ signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 facade = SymbolFacade('testnet')
 
 try:
-	# Fetch current network time [>step-2]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-	# [<step-2]
-	# Fetch recommended fees [>step-3]
+	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -40,31 +27,31 @@ try:
 		minimum_multiplier = response_json['minFeeMultiplier']
 		fee_multiplier = max(median_multiplier, minimum_multiplier)
 		print(f'  Fee multiplier: {fee_multiplier}')
+	# [<step-2]
+	# Build the transaction [>step-3]
+	transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'transfer_transaction_v1',
+			'recipient_address':
+				facade.network.public_key_to_address(
+					signer_key_pair.public_key),
+			'mosaics': [{
+				'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
+				'amount': 1_000_000  # 1 XYM
+			}]
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	# [<step-3]
-	# Build the transaction [>step-4]
-	transaction = facade.transaction_factory.create({
-		'type': 'transfer_transaction_v1',
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'recipient_address':
-			facade.network.public_key_to_address(
-				signer_key_pair.public_key),
-		'mosaics': [{
-			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 1_000_000  # 1 XYM
-		}]
-	})
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
-	# [<step-4]
-	# Sign transaction and generate final payload [>step-5]
+	# Sign transaction and generate final payload [>step-4]
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction, signature)
 	print('Built transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
-	# [<step-5]
-	# Announce the transaction [>step-6]
+	# [<step-4]
+	# Announce the transaction [>step-5]
 	announce_path = '/transactions'
 	print(f'Announcing transaction to {announce_path}')
 	announce_request = urllib.request.Request(
@@ -75,8 +62,8 @@ try:
 	)
 	with urllib.request.urlopen(announce_request) as response:
 		print(f'  Response: {response.read().decode()}')
-	# [<step-6]
-	# Wait for confirmation [>step-7]
+	# [<step-5]
+	# Wait for confirmation [>step-6]
 	status_path = (
 		f'/transactionStatus/{facade.hash_transaction(transaction)}')
 	print(f'Waiting for confirmation from {status_path}')
@@ -98,6 +85,6 @@ try:
 		time.sleep(1)
 	else:
 		print('Confirmation took too long.')
-	# [<step-7]
+	# [<step-6]
 except urllib.error.URLError as e:
 	print(e.reason)
