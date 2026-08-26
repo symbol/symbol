@@ -149,7 +149,7 @@ Note that the name of the method changes automatically.
 The code to handle this conversion is located in `hooks.py` and it takes care of JS to Python name changes.
 Additionally:
 
-* Class name remaps can be provided in `mkdocs.base.yml` in the `extra.symbol.class-remaps` key.
+* Class name remaps can be provided in `mkdocs.base.yml` in the `extra.symbol.py-sdk.class-remaps` key.
 * Global functions must be prepended by their Python module, even in JS, so Python can find them.
     The list of modules which contain global functions is in the `extra.symbol.global.namespaces` key.
 
