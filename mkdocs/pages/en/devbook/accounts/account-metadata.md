@@ -63,12 +63,14 @@ The signer's address is derived from the public key.
 In this tutorial, the signer adds metadata to their own account.
 Adding metadata to a different account requires the target to cosign the transaction.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
+
+The fee multiplier is used later to calculate the transaction's fee.
 
 ### Defining the Metadata
 
@@ -117,12 +119,15 @@ An aggregate is still required even when the transaction is initiated by the acc
 to keep the transaction format uniform.
 For this reason, the code defines the account metadata transaction as an <embedded transaction:>.
 
-This transaction specifies:
+<dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor> receives:
+
+* The transaction's descriptor: Defines <ser:AccountMetadataTransactionV1> and the metadata fields.
+* The signer's public key: The account creating the metadata entry.
+    In this case, this is the account receiving the metadata too.
+
+The transaction's descriptor contains:
 
 * {{ tutorial.var('type') }}: Use <ser:AccountMetadataTransactionV1>.
-
-* {{ tutorial.var('signer_public_key') }}: The account creating the metadata entry.
-    In this case, this is the account receiving the metadata too.
 
 * {{ tutorial.var('target_address') }}: The account to attach the metadata to.
     When the target differs from the signer, the target account must cosign the aggregate transaction.
@@ -141,7 +146,13 @@ This transaction specifies:
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-The code adds the embedded account metadata transaction to an <aggregate transaction:>.
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> receives:
+
+* The aggregate transaction's descriptor: Adds the embedded account metadata transaction to an
+    <aggregate transaction:>.
+* The signer's public key: Added to the aggregate transaction.
+* The fee multiplier: Used to calculate the transaction fee.
+* The deadline duration: Set to two hours from the current time.
 
 Since the signer is modifying their own account, no <cosignatures:> are required and the aggregate can be created as
 <complete aggregate transaction:|complete>, allowing it to be signed and announced immediately.
@@ -209,23 +220,23 @@ in an aggregate transaction and then signed and announced.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="16 17 18 20 31 40 41 43"
+```text linenums="1" hl_lines="14 15 16 18 29 38 39 41"
 --8<-- 'devbook/accounts/account_metadata.log'
 ```
 
 Key points in the output:
 
-* **Line 16** (`"scoped_metadata_key"`): The 64-bit key generated from the input string using SHA3-256 hashing.
-* **Line 17** (`"value_size_delta": 5`): When creating new metadata, this equals the byte length of the value
+* **Line 14** (`"scoped_metadata_key"`): The 64-bit key generated from the input string using SHA3-256 hashing.
+* **Line 15** (`"value_size_delta": 5`): When creating new metadata, this equals the byte length of the value
     (`"alice"` = 5 bytes).
-* **Line 18** (`"value": "616c696365"`): The metadata value encoded as hexadecimal (`"alice"` in UTF-8).
-* **Line 20**: The transaction hash for looking up the metadata creation in the explorer.
-* **Line 31** (`Current value: alice`): Retrieved from the network before updating.
-* **Line 40** (`"value_size_delta": -2`): Negative because the new value (`"bob"` = 3 bytes) is shorter than the
+* **Line 16** (`"value": "616c696365"`): The metadata value encoded as hexadecimal (`"alice"` in UTF-8).
+* **Line 18**: The transaction hash for looking up the metadata creation in the explorer.
+* **Line 29** (`Current value: alice`): Retrieved from the network before updating.
+* **Line 38** (`"value_size_delta": -2`): Negative because the new value (`"bob"` = 3 bytes) is shorter than the
     current value (5 bytes). The difference is -2.
-* **Line 41** (`"value": "03030b6365"`): The XOR'd value computed from the current and new values, not the raw new
+* **Line 39** (`"value": "03030b6365"`): The XOR'd value computed from the current and new values, not the raw new
     value.
-* **Line 43**: The transaction hash for looking up the metadata update in the explorer.
+* **Line 41**: The transaction hash for looking up the metadata update in the explorer.
 
 The transaction hashes can be used to search for the transactions in the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -237,6 +248,7 @@ This tutorial showed how to:
 | Step                                                                                          | Related documentation                                                            |
 | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | [Define metadata key and value](#defining-the-metadata)                                       | <dy:Metadata.metadataGenerateKey>                                                |
-| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:AccountMetadataTransactionV1> |
+| [Create an account metadata transaction](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:AccountMetadataTransactionV1> |
+| [Build the aggregate transaction](#building-the-aggregate-transaction)                        | <dy:SymbolFacade.createTransactionFromTypedDescriptor>                           |
 | [Retrieve metadata](#retrieving-metadata)                                                     | <get:/metadata>                                                                  |
 | [Modify existing metadata](#modifying-existing-metadata)                                      | <dy:Metadata.metadataUpdateValue>                                                |
