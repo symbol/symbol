@@ -1,11 +1,9 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	metadataGenerateKey,
-	metadataUpdateValue,
-	models
+	metadataUpdateValue
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL ||
@@ -59,17 +57,7 @@ const signerAddress = facade.network.publicKeyToAddress(
 console.log('Signer address:', signerAddress.toString());
 // [<step-1]
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -88,32 +76,29 @@ try {
 	const metadataValue = new TextEncoder().encode('alice');
 	// [<step-3]
 	// Create the embedded metadata transaction [>step-4]
-	const creationEmbeddedTx = facade.transactionFactory
-		.createEmbedded({
-			type: 'account_metadata_transaction_v1',
-			signerPublicKey: signerKeyPair.publicKey.toString(),
-			targetAddress: signerAddress.toString(),
-			scopedMetadataKey,
-			// When creating new metadata, valueSizeDelta
-			// equals value length
-			valueSizeDelta: metadataValue.length,
-			value: metadataValue
-		});
+	const creationEmbeddedTx =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.AccountMetadataTransactionV1Descriptor(
+				signerAddress,
+				scopedMetadataKey,
+				// When creating new metadata, valueSizeDelta
+				// equals value length
+				metadataValue.length,
+				metadataValue),
+			signerKeyPair.publicKey);
 	console.log('Created embedded metadata transaction:');
 	console.log(JSON.stringify(creationEmbeddedTx.toJson(), null, 2));
 	// [<step-4]
 	// Build the aggregate transaction [>step-5]
 	const creationEmbeddedTxs = [creationEmbeddedTx];
-	const creationTx = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			creationEmbeddedTxs),
-		transactions: creationEmbeddedTxs
-	});
-	creationTx.fee = new models.Amount(
-		calculateTransactionFee(creationTx, feeMultiplier));
+	const creationTx = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(creationEmbeddedTxs),
+			creationEmbeddedTxs,
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-5]
 	// Sign and generate final payload [>step-6]
 	const signature = facade.signTransaction(signerKeyPair, creationTx);
@@ -155,30 +140,27 @@ try {
 	const updateValue = metadataUpdateValue(currentValue, newValue);
 
 	// Create the update transaction with XOR'd value
-	const updateEmbeddedTx = facade.transactionFactory
-		.createEmbedded({
-			type: 'account_metadata_transaction_v1',
-			signerPublicKey: signerKeyPair.publicKey.toString(),
-			targetAddress: signerAddress.toString(),
-			scopedMetadataKey,
-			// valueSizeDelta is the difference in length
-			// (can be negative)
-			valueSizeDelta: newValue.length - currentValue.length,
-			value: updateValue
-		});
+	const updateEmbeddedTx =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.AccountMetadataTransactionV1Descriptor(
+				signerAddress,
+				scopedMetadataKey,
+				// valueSizeDelta is the difference in length
+				// (can be negative)
+				newValue.length - currentValue.length,
+				updateValue),
+			signerKeyPair.publicKey);
 	// [<step-8]
 	// Build the aggregate for the update [>step-9]
 	const updateEmbeddedTxs = [updateEmbeddedTx];
-	const updateTx = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			updateEmbeddedTxs),
-		transactions: updateEmbeddedTxs
-	});
-	updateTx.fee = new models.Amount(
-		calculateTransactionFee(updateTx, feeMultiplier));
+	const updateTx = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(updateEmbeddedTxs),
+			updateEmbeddedTxs,
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 
 	// Sign and announce the update
 	const updateSignature = facade.signTransaction(
