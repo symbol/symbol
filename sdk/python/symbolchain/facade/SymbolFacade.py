@@ -115,6 +115,33 @@ class SymbolFacade:
 		"""Creates a Symbol account from a private key."""
 		return SymbolAccount(self, KeyPair(private_key))
 
+	def create_transaction_from_descriptor(self, descriptor, signer_public_key, fee_multiplier, deadline_seconds, cosignature_count=0):
+		"""
+		Creates a transaction from a descriptor, adding signer and deadline to a copy of it, with the fee computed as
+		(size + reserved cosignatures size) * fee_multiplier.
+		"""
+		raw_descriptor = {
+			**descriptor,
+			'signer_public_key': signer_public_key,
+			'deadline': self.now().add_seconds(deadline_seconds).timestamp
+		}
+		transaction = self.transaction_factory.create(raw_descriptor)
+
+		# if cosignatures are specified in the descriptor, use the max of them and cosignature_count
+		cosignature_count_adjustment = cosignature_count
+		explicit_cosignatures = raw_descriptor.get('cosignatures')
+		if isinstance(explicit_cosignatures, list):
+			explicit_count = len(explicit_cosignatures)
+			cosignature_count_adjustment = 0 if explicit_count > cosignature_count else cosignature_count - explicit_count
+
+		transaction_with_cosignatures_size = transaction.size + cosignature_count_adjustment * sc.Cosignature().size
+		transaction.fee = sc.Amount(transaction_with_cosignatures_size * fee_multiplier)
+		return transaction
+
+	def create_embedded_transaction_from_descriptor(self, descriptor, signer_public_key):  # pylint: disable=invalid-name
+		"""Creates an embedded transaction from a descriptor, adding signer to a copy of it."""
+		return self.transaction_factory.create_embedded({**descriptor, 'signer_public_key': signer_public_key})
+
 	def hash_transaction(self, transaction):
 		"""Hashes a Symbol transaction."""
 		hasher = hashlib.sha3_256()

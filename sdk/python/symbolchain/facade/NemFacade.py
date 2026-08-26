@@ -86,6 +86,17 @@ class NemFacade:
 		"""Creates a NEM account from a private key."""
 		return NemAccount(self, KeyPair(private_key))
 
+	def create_transaction_from_descriptor(self, descriptor, signer_public_key, fee, deadline_seconds):
+		"""Creates a transaction from a descriptor, adding signer, fee, timestamp and deadline to a copy of it."""
+		now = self.now()
+		return self.transaction_factory.create({
+			**descriptor,
+			'signer_public_key': signer_public_key,
+			'fee': fee,
+			'timestamp': now.timestamp,
+			'deadline': now.add_seconds(deadline_seconds).timestamp
+		})
+
 	@staticmethod
 	def hash_transaction(transaction):
 		"""Hashes a NEM transaction."""

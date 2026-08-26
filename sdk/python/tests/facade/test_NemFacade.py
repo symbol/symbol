@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime, timezone
 
+from symbolchain import nc
 from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.Bip32 import Bip32
 from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
@@ -232,6 +233,40 @@ class NemFacadeTest(unittest.TestCase):
 
 		# Assert:
 		self.assertTrue(is_verified)
+
+	# endregion
+
+	# region create_transaction_from_descriptor
+
+	def test_can_create_transaction_from_descriptor(self):
+		# Arrange:
+		facade = NemFacade('testnet')
+		now_timestamp = facade.now()
+		signer_public_key = PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8')
+
+		# Act:
+		transaction = facade.create_transaction_from_descriptor({
+			'type': 'transfer_transaction_v1',
+			'recipient_address': 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C',
+			'amount': 5000000
+		}, signer_public_key, 100000, 60 * 60)
+
+		# Assert:
+		self.assertEqual(nc.TransactionType.TRANSFER, transaction.type_)
+		self.assertEqual(nc.NetworkType.TESTNET, transaction.network)
+		self.assertEqual(signer_public_key.bytes, transaction.signer_public_key.bytes)
+		self.assertEqual(100000, transaction.fee.value)
+
+		# - check timestamp and deadline are in range (within 10s)
+		self.assertLessEqual(now_timestamp.timestamp, transaction.timestamp.value)
+		self.assertLessEqual(transaction.timestamp.value, now_timestamp.timestamp + 10)
+
+		min_raw_deadline = now_timestamp.timestamp + (60 * 60)
+		self.assertLessEqual(min_raw_deadline, transaction.deadline.value)
+		self.assertLessEqual(transaction.deadline.value, min_raw_deadline + 10)
+
+		# - both fields derive from one now() snapshot, so their difference is exactly deadline_seconds
+		self.assertEqual(60 * 60, transaction.deadline.value - transaction.timestamp.value)
 
 	# endregion
 
