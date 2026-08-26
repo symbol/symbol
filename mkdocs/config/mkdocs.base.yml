@@ -147,6 +147,9 @@ extra:
         - impl
       class-remaps:
         SymbolTransactionFactory: TransactionFactory
+      method-remaps:
+        createTransactionFromTypedDescriptor: createTransactionFromDescriptor
+        createEmbeddedTransactionFromTypedDescriptor: createEmbeddedTransactionFromDescriptor
     global-namespaces:
       - Metadata
       - Merkle
