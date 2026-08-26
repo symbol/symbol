@@ -90,7 +90,7 @@ try:
 	metadata_value = 'alice'.encode('utf8')
 	# [<step-3]
 	# Create the embedded metadata transaction [>step-4]
-	embedded_transaction = facade.transaction_factory.create_embedded({
+	creation_embedded_tx = facade.transaction_factory.create_embedded({
 		'type': 'account_metadata_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'target_address': signer_address,
@@ -101,31 +101,31 @@ try:
 		'value': metadata_value
 	})
 	print('Created embedded metadata transaction:')
-	print(json.dumps(embedded_transaction.to_json(), indent=2))
+	print(json.dumps(creation_embedded_tx.to_json(), indent=2))
 	# [<step-4]
 	# Build the aggregate transaction [>step-5]
-	embedded_transactions = [embedded_transaction]
-	transaction = facade.transaction_factory.create({
+	creation_embedded_txs = [creation_embedded_tx]
+	creation_tx = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
 		'transactions_hash': facade.hash_embedded_transactions(
-			embedded_transactions),
-		'transactions': embedded_transactions
+			creation_embedded_txs),
+		'transactions': creation_embedded_txs
 	})
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
+	creation_tx.fee = Amount(
+		calculate_transaction_fee(creation_tx, fee_multiplier))
 	# [<step-5]
 	# Sign and generate final payload [>step-6]
-	signature = facade.sign_transaction(signer_key_pair, transaction)
-	json_payload = facade.transaction_factory.attach_signature(
-		transaction, signature)
+	signature = facade.sign_transaction(signer_key_pair, creation_tx)
+	creation_payload = facade.transaction_factory.attach_signature(
+		creation_tx, signature)
 
 	# Announce and wait for confirmation
-	transaction_hash = facade.hash_transaction(transaction)
-	print(f'Built aggregate transaction with hash: {transaction_hash}')
-	announce_transaction(json_payload, 'aggregate transaction')
-	wait_for_confirmation(transaction_hash, 'aggregate transaction')
+	creation_tx_hash = facade.hash_transaction(creation_tx)
+	print(f'Built aggregate transaction with hash: {creation_tx_hash}')
+	announce_transaction(creation_payload, 'creation transaction')
+	wait_for_confirmation(creation_tx_hash, 'creation transaction')
 	# [<step-6]
 	# --- MODIFYING EXISTING METADATA ---
 	print('\n--- Modifying existing metadata ---')
@@ -154,7 +154,7 @@ try:
 	update_value = metadata_update_value(current_value, new_value)
 
 	# Create the update transaction with XOR'd value
-	embedded_update = facade.transaction_factory.create_embedded({
+	update_embedded_tx = facade.transaction_factory.create_embedded({
 		'type': 'account_metadata_transaction_v1',
 		'signer_public_key': signer_key_pair.public_key,
 		'target_address': signer_address,
@@ -166,29 +166,29 @@ try:
 	})
 	# [<step-8]
 	# Build the aggregate for the update [>step-9]
-	embedded_transactions = [embedded_update]
-	update_transaction = facade.transaction_factory.create({
+	update_embedded_txs = [update_embedded_tx]
+	update_tx = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction_v3',
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': timestamp.add_hours(2).timestamp,
 		'transactions_hash': facade.hash_embedded_transactions(
-			embedded_transactions),
-		'transactions': embedded_transactions
+			update_embedded_txs),
+		'transactions': update_embedded_txs
 	})
-	update_transaction.fee = Amount(
-		calculate_transaction_fee(update_transaction, fee_multiplier))
+	update_tx.fee = Amount(
+		calculate_transaction_fee(update_tx, fee_multiplier))
 
 	# Sign and announce the update
 	signature = facade.sign_transaction(
-		signer_key_pair, update_transaction)
-	json_payload = facade.transaction_factory.attach_signature(
-		update_transaction, signature)
+		signer_key_pair, update_tx)
+	update_payload = facade.transaction_factory.attach_signature(
+		update_tx, signature)
 
 	# Announce and wait for confirmation
-	update_hash = facade.hash_transaction(update_transaction)
-	print(f'Built aggregate transaction with hash: {update_hash}')
-	announce_transaction(json_payload, 'aggregate transaction')
-	wait_for_confirmation(update_hash, 'aggregate transaction')
+	update_tx_hash = facade.hash_transaction(update_tx)
+	print(f'Built aggregate transaction with hash: {update_tx_hash}')
+	announce_transaction(update_payload, 'update transaction')
+	wait_for_confirmation(update_tx_hash, 'update transaction')
 	# [<step-9]
 except Exception as e:
 	print(e)

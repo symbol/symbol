@@ -88,7 +88,7 @@ try {
 	const metadataValue = new TextEncoder().encode('alice');
 	// [<step-3]
 	// Create the embedded metadata transaction [>step-4]
-	const embeddedTransaction = facade.transactionFactory
+	const creationEmbeddedTx = facade.transactionFactory
 		.createEmbedded({
 			type: 'account_metadata_transaction_v1',
 			signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -100,33 +100,33 @@ try {
 			value: metadataValue
 		});
 	console.log('Created embedded metadata transaction:');
-	console.log(JSON.stringify(embeddedTransaction.toJson(), null, 2));
+	console.log(JSON.stringify(creationEmbeddedTx.toJson(), null, 2));
 	// [<step-4]
 	// Build the aggregate transaction [>step-5]
-	const embeddedTransactions = [embeddedTransaction];
-	const transaction = facade.transactionFactory.create({
+	const creationEmbeddedTxs = [creationEmbeddedTx];
+	const creationTx = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
 		transactionsHash: facade.static.hashEmbeddedTransactions(
-			embeddedTransactions),
-		transactions: embeddedTransactions
+			creationEmbeddedTxs),
+		transactions: creationEmbeddedTxs
 	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	creationTx.fee = new models.Amount(
+		calculateTransactionFee(creationTx, feeMultiplier));
 	// [<step-5]
 	// Sign and generate final payload [>step-6]
-	const signature = facade.signTransaction(signerKeyPair, transaction);
-	const jsonPayload = facade.transactionFactory.static.attachSignature(
-		transaction, signature);
+	const signature = facade.signTransaction(signerKeyPair, creationTx);
+	const creationPayload = facade.transactionFactory.static
+		.attachSignature(creationTx, signature);
 
 	// Announce and wait for confirmation
-	const transactionHash =
-		facade.hashTransaction(transaction).toString();
+	const creationTxHash =
+		facade.hashTransaction(creationTx).toString();
 	console.log(
-		'Built aggregate transaction with hash:', transactionHash);
-	await announceTransaction(jsonPayload, 'aggregate transaction');
-	await waitForConfirmation(transactionHash, 'aggregate transaction');
+		'Built aggregate transaction with hash:', creationTxHash);
+	await announceTransaction(creationPayload, 'creation transaction');
+	await waitForConfirmation(creationTxHash, 'creation transaction');
 	// [<step-6]
 	// --- MODIFYING EXISTING METADATA ---
 	console.log('\n--- Modifying existing metadata ---');
@@ -155,7 +155,7 @@ try {
 	const updateValue = metadataUpdateValue(currentValue, newValue);
 
 	// Create the update transaction with XOR'd value
-	const embeddedUpdate = facade.transactionFactory
+	const updateEmbeddedTx = facade.transactionFactory
 		.createEmbedded({
 			type: 'account_metadata_transaction_v1',
 			signerPublicKey: signerKeyPair.publicKey.toString(),
@@ -168,31 +168,31 @@ try {
 		});
 	// [<step-8]
 	// Build the aggregate for the update [>step-9]
-	const updateEmbedded = [embeddedUpdate];
-	const updateTransaction = facade.transactionFactory.create({
+	const updateEmbeddedTxs = [updateEmbeddedTx];
+	const updateTx = facade.transactionFactory.create({
 		type: 'aggregate_complete_transaction_v3',
 		signerPublicKey: signerKeyPair.publicKey.toString(),
 		deadline: timestamp.addHours(2).timestamp,
 		transactionsHash: facade.static.hashEmbeddedTransactions(
-			updateEmbedded),
-		transactions: updateEmbedded
+			updateEmbeddedTxs),
+		transactions: updateEmbeddedTxs
 	});
-	updateTransaction.fee = new models.Amount(
-		calculateTransactionFee(updateTransaction, feeMultiplier));
+	updateTx.fee = new models.Amount(
+		calculateTransactionFee(updateTx, feeMultiplier));
 
 	// Sign and announce the update
 	const updateSignature = facade.signTransaction(
-		signerKeyPair, updateTransaction);
+		signerKeyPair, updateTx);
 	const updatePayload = facade.transactionFactory.static
-		.attachSignature(updateTransaction, updateSignature);
+		.attachSignature(updateTx, updateSignature);
 
 	// Announce and wait for confirmation
-	const updateHash =
-		facade.hashTransaction(updateTransaction).toString();
+	const updateTxHash =
+		facade.hashTransaction(updateTx).toString();
 	console.log(
-		'Built aggregate transaction with hash:', updateHash);
-	await announceTransaction(updatePayload, 'aggregate transaction');
-	await waitForConfirmation(updateHash, 'aggregate transaction');
+		'Built aggregate transaction with hash:', updateTxHash);
+	await announceTransaction(updatePayload, 'update transaction');
+	await waitForConfirmation(updateTxHash, 'update transaction');
 	// [<step-9]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
