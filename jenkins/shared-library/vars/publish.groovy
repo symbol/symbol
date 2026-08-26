@@ -198,19 +198,23 @@ void gradlePublisher(Map config, String phase) {
 		return
 	}
 
-	env.MAVEN_SIGNING_KEY = credentials('MAVEN_SIGNING_KEY')
-	env.MAVEN_SIGNING_PASSWORD = credentials('MAVEN_SIGNING_PASSWORD')
 	String credentialsId = 'MAVEN_CREDENTIALS_ID'
+	String gradleTask="publishCentral"
+	String usernameEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralUsername'
+	String passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralPassword'
 	if (shouldPublishToInternalRepository(phase, config)) {
+		usernameEnvironmentName = 'ORG_GRADLE_PROJECT_mavenRepoUsername'
+		passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenRepoPassword'
 		credentialsId = resolveArtifactoryCredentialsId()
-		env.MAVEN_REPO_URL = resolveInternalRepositoryUrl(REPOSITORY_TYPE.MAVEN, config)
+		env.ORG_GRADLE_PROJECT_mavenRepoUrl = resolveInternalRepositoryUrl(REPOSITORY_TYPE.MAVEN, config)
+		gradleTask="publishInternal"
 	}
 
 	withCredentials([usernamePassword(credentialsId: credentialsId,
-		usernameVariable: 'MAVEN_REPO_USERNAME',
-		passwordVariable: 'MAVEN_REPO_PASSWORD')]) {
+		usernameVariable: usernameEnvironmentName,
+		passwordVariable: passwordEnvironmentName)]) {
 		publishArtifact {
-			runScript('./gradlew publishRelease')
+			runScript("./gradlew ${gradleTask} --debug")
 		}
 	}
 }
