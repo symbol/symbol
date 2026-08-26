@@ -5,9 +5,7 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import Address, SymbolFacade
-from symbolchain.sc import AccountRestrictionFlags, Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
-from symbolchain.symbol.Network import NetworkTimestamp
+from symbolchain.sc import AccountRestrictionFlags
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
@@ -21,7 +19,7 @@ signer_address = facade.network.public_key_to_address(
 	signer_key_pair.public_key)
 print(f'Signer address: {signer_address}')
 
-auth_address = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA'
+auth_address = Address('TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA')
 print(f'Authorized address: {auth_address}')  # [<step-1]
 
 
@@ -59,8 +57,9 @@ def wait_for_confirmation(tx_hash, label):
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
 
 
+# [>step-3]
 # Returns the list of restrictions currently applied to the account
-def get_account_restrictions(address):  # [>step-3]
+def get_account_restrictions(address):
 	restrictions_path = f'/restrictions/account/{address}'
 	print(f'Getting restrictions from {restrictions_path}')
 	try:
@@ -76,47 +75,46 @@ def get_account_restrictions(address):  # [>step-3]
 	return []  # [<step-3]
 
 
-# Returns a transaction that restricts an account
-def restriction_enable_transaction():  # [>step-5]
-	enable_transaction = facade.transaction_factory.create({
-		'type': 'account_address_restriction_transaction_v1',
-		# This is the account that will be restricted
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		# Allow only OUTGOING transactions to the authorized ADDRESS
-		'restriction_flags':
-			AccountRestrictionFlags.ADDRESS |
-			AccountRestrictionFlags.OUTGOING,
-		# This is the only authorized outgoing address
-		'restriction_additions': [auth_address]
-	})
-	enable_transaction.fee = Amount(
-		calculate_transaction_fee(enable_transaction, fee_multiplier))
+# Returns a transaction that restricts an account [>step-5]
+def restriction_enable_transaction():
+	enable_transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'account_address_restriction_transaction_v1',
+			# Allow only OUTGOING transactions to the authorized ADDRESS
+			'restriction_flags':
+				AccountRestrictionFlags.ADDRESS |
+				AccountRestrictionFlags.OUTGOING,
+			# This is the only authorized outgoing address
+			'restriction_additions': [auth_address]
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	print('Enabling the restriction with transaction:')
 	print(json.dumps(enable_transaction.to_json(), indent=2))
 
 	return enable_transaction  # [<step-5]
 
 
+# [>step-6]
 # Returns a transaction that removes a restriction from an account
-def restriction_disable_transaction(restriction):  # [>step-6]
-	disable_transaction = facade.transaction_factory.create({
-		'type': 'account_address_restriction_transaction_v1',
-		# This is the account whose restriction will be lifted
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		# Lift restrictions for OUTGOING ADDRESSES
-		'restriction_flags':
-			AccountRestrictionFlags.ADDRESS |
-			AccountRestrictionFlags.OUTGOING,
-		# Remove all addresses currently restricted
-		'restriction_deletions': [
-			Address.from_decoded_address_hex_string(addr)
-			for addr in restriction['values']
-		]
-	})
-	disable_transaction.fee = Amount(
-		calculate_transaction_fee(disable_transaction, fee_multiplier))
+def restriction_disable_transaction(restriction):
+	disable_transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'account_address_restriction_transaction_v1',
+			# Lift restrictions for OUTGOING ADDRESSES
+			'restriction_flags':
+				AccountRestrictionFlags.ADDRESS |
+				AccountRestrictionFlags.OUTGOING,
+			# Remove all addresses currently restricted
+			'restriction_deletions': [
+				Address.from_decoded_address_hex_string(addr)
+				for addr in restriction['values']
+			]
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	print('Disabling the restriction with transaction:')
 	print(json.dumps(disable_transaction.to_json(), indent=2))
 
@@ -124,17 +122,7 @@ def restriction_disable_transaction(restriction):  # [>step-6]
 
 
 try:
-	# Fetch current network time [>step-2]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-
-	# Fetch recommended fees
+	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -144,9 +132,9 @@ try:
 		fee_multiplier = max(median_multiplier, minimum_multiplier)
 		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
-	# Get current state of the restriction and decide which
+	# Get current state of the restriction and decide which [>step-4]
 	# operation to perform
-	restrictions = get_account_restrictions(signer_address)  # [>step-4]
+	restrictions = get_account_restrictions(signer_address)
 	if len(restrictions) == 0:
 		# Enable the restriction
 		print('\n--- Enabling restriction ---')
@@ -166,14 +154,15 @@ try:
 	wait_for_confirmation(transaction_hash, 'restriction transaction')
 	# [<step-7]
 	# Try a dummy transfer to a random address with no mosaics [>step-8]
-	transaction = facade.transaction_factory.create({
-		'type': 'transfer_transaction_v1',
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'recipient_address': 'TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y'
-	})
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
+	transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'transfer_transaction_v1',
+			'recipient_address': Address(
+				'TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y')
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	json_payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(signer_key_pair, transaction))
