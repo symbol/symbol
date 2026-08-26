@@ -64,7 +64,7 @@ The remaining helper functions are described in the sections below.
 The tutorial then proceeds to:
 
 * [set up the required keys](#setting-up-the-accounts)
-* [fetch the current network conditions](#fetching-network-time-and-fees)
+* [fetch the recommended fees](#fetching-recommended-fees)
 * [detect the current restriction state](#detecting-the-restriction-state)
 
 Depending on whether the account is already restricted,
@@ -91,12 +91,12 @@ If the default key is used, the corresponding account may already be funded.
 At this stage, the authorized address is also configured.
 The restriction will later limit outgoing transactions to this address only.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>.
+The fee multiplier is used later to calculate transaction fees.
 
 ### Detecting the Restriction State
 
@@ -126,9 +126,14 @@ The other two account restriction types, not covered in this tutorial, are:
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-The transaction includes the following fields:
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> receives:
 
-* {{ tutorial.var('signer_public_key') }}: <public key:> of the account whose restriction configuration will be modified.
+* The transaction's descriptor: Defines <ser:AccountAddressRestrictionTransactionV1> and the restriction fields.
+* The signer public key: <public key:> of the account whose restriction configuration will be modified.
+* The fee multiplier: Used to calculate the transaction fee.
+* The deadline duration: Set to two hours from the current time.
+
+The transaction's descriptor contains:
 
 * {{ tutorial.var('restriction_flags') }}: These are <ser:AccountRestrictionFlags>.
 
@@ -153,6 +158,9 @@ The transaction includes the following fields:
 Disabling the restriction requires removing the addresses for the set of restriction flags used when enabling it.
 
 {{ tutorial.code_snippet_tagged('step-6') }}
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> receives the transaction's descriptor, signer public key,
+fee multiplier, and deadline duration.
 
 The same {{ tutorial.var('restriction_flags') }} values used when enabling the restriction are provided again.
 
@@ -190,33 +198,33 @@ The output shown below corresponds to two typical runs of the program.
 
 === ":material-lock-plus: Enabling the Restriction"
 
-    ```text linenums="1" hl_lines="2-3 9 21-24 41"
+    ```text linenums="1" hl_lines="2-3 7 19-22 39"
     --8<-- 'devbook/accounts/account_restrictions_enable.log'
     ```
 
     Key points in the output:
 
     * **Lines 2-3**: Addresses of the involved accounts.
-    * **Line 9** (`Response: No restrictions found`): No restrictions are currently configured.
-    * **Line 21** (`"restriction_flags": 16385`): `0x4001` corresponds to the combination of `ADDRESS` and `OUTGOING`.
-    * **Line 22-24** (`"restriction_additions"`): List of allowed addresses, in decoded hexadecimal format.
+    * **Line 7** (`Response: No restrictions found`): No restrictions are currently configured.
+    * **Line 19** (`"restriction_flags": 16385`): `0x4001` corresponds to the combination of `ADDRESS` and `OUTGOING`.
+    * **Line 20-22** (`"restriction_additions"`): List of allowed addresses, in decoded hexadecimal format.
         The value corresponds to the address shown in line 3.
-    * **Line 41** (`test transfer failed`): The unauthorized recipient address results in an
+    * **Line 39** (`test transfer failed`): The unauthorized recipient address results in an
         `Address_Interaction_Prohibited` error, as expected.
 
 === ":material-lock-open: Removing the Restriction"
 
-    ```text linenums="1" hl_lines="2-3 9 21 23-25 44"
+    ```text linenums="1" hl_lines="2-3 7 19 21-23 42"
     --8<-- 'devbook/accounts/account_restrictions_disable.log'
     ```
 
     Key points in the output:
 
     * **Lines 2-3**: Addresses of the involved accounts.
-    * **Line 9** (`Response: [ ... ]`): Existing restrictions are detected.
-    * **Line 21** (`restriction_flags`): Same flag value used when enabling the restriction.
-    * **Line 23-25** (`restriction_deletions`): The previously configured address is removed.
-    * **Line 44** (`test transfer confirmed`): The transfer is confirmed successfully because the restriction has been
+    * **Line 7** (`Response: [ ... ]`): Existing restrictions are detected.
+    * **Line 19** (`restriction_flags`): Same flag value used when enabling the restriction.
+    * **Line 21-23** (`restriction_deletions`): The previously configured address is removed.
+    * **Line 42** (`test transfer confirmed`): The transfer is confirmed successfully because the restriction has been
         lifted.
 
 The transaction hashes shown in the output can be used to look up the transactions in the
@@ -229,5 +237,6 @@ This tutorial showed how to:
 | Step                                                                               | Related documentation                        |
 |------------------------------------------------------------------------------------|----------------------------------------------|
 | [Retrieve the current restriction configuration](#detecting-the-restriction-state) | <get:/restrictions/account/{address}>        |
-| [Enable a restriction](#enabling-the-restriction)                                  | <ser:AccountAddressRestrictionTransactionV1> |
-| [Remove a restriction](#removing-the-restriction)                                  | <ser:AccountAddressRestrictionTransactionV1> |
+| [Enable a restriction](#enabling-the-restriction)                                  | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:AccountAddressRestrictionTransactionV1> |
+| [Remove a restriction](#removing-the-restriction)                                  | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:AccountAddressRestrictionTransactionV1> |
+| [Create a test transfer](#sending-a-test-transfer)                                 | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:TransferTransactionV1> |

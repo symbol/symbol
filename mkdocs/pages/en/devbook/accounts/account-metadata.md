@@ -70,7 +70,7 @@ Adding metadata to a different account requires the target to cosign the transac
 Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
 [Transfer Transaction](../transactions/transfer.md) tutorial.
 
-The fee multiplier is used later to calculate the transaction's fee.
+The fee multiplier is used later to calculate transaction fees.
 
 ### Defining the Metadata
 

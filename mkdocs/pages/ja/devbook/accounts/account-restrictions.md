@@ -53,7 +53,7 @@ tutorial_level: advanced
 その後、チュートリアルは以下の手順で進みます。
 
 * [必要な鍵の設定](#setting-up-the-accounts)
-* [現在のネットワーク状態の取得](#fetching-network-time-and-fees)
+* [推奨手数料の取得](#fetching-recommended-fees)
 * [現在の制限状態の検出](#detecting-the-restriction-state)
 
 アカウントがすでに制限されているかどうかに応じて、以下のいずれかのトランザクションが作成されます。
@@ -74,11 +74,12 @@ tutorial_level: advanced
 
 この段階で、許可されたアドレスも設定されます。制限によって、後に送信トランザクションはこのアドレスのみに限定されます。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+推奨手数料は <get:/network/fees/transaction> から取得します。
+この手数料乗数は、後で各トランザクションの手数料を計算するために使用されます。
 
 ### 制限状態の検出 {: #detecting-the-restriction-state }
 
@@ -103,9 +104,14 @@ tutorial_level: advanced
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-トランザクションには以下のフィールドが含まれます。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> は、以下の引数を受け取ります。
 
-* `signer_public_key`: 制限設定を変更するアカウントの [公開鍵](default: 公開鍵)。
+* トランザクションのディスクリプタ: <ser:AccountAddressRestrictionTransactionV1> と制限フィールドを定義します。
+* 署名者の公開鍵: 制限設定を変更するアカウントの [公開鍵](default: 公開鍵)。
+* 手数料乗数: トランザクション手数料の計算に使用されます。
+* デッドラインの期間: 現在時刻から2時間後に設定されます。
+
+トランザクションのディスクリプタには、以下のフィールドが含まれます。
 
 * `restriction_flags`: これらは <ser:AccountRestrictionFlags> です。
 
@@ -127,6 +133,8 @@ tutorial_level: advanced
 制限を無効にするには、設定されているフラグとリストされたアドレスの両方をクリアする必要があります。
 
 {{ tutorial.code_snippet_tagged('step-6') }}
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> は、トランザクションのディスクリプタ、署名者の公開鍵、手数料乗数、デッドラインの期間を受け取ります。
 
 制限を有効にした時と同じ `restriction_flags` の値が再度提供されます。フラグはネットワークによって XOR されるため、同じ値を提供するとそれらがオフに切り替わり、実質的に制限がクリアされます。
 
@@ -158,31 +166,31 @@ tutorial_level: advanced
 
 === ":material-lock-plus: 制限の有効化"
 
-    ```text linenums="1" hl_lines="2-3 9 21-24 41"
+    ```text linenums="1" hl_lines="2-3 7 19-22 39"
     --8<-- 'devbook/accounts/account_restrictions_enable.log'
     ```
 
     出力の主なポイント:
 
     * **2-3行目**: 関与するアカウントのアドレス。
-    * **9行目** (`Response: No restrictions found`): 現在制限は設定されていません。
-    * **21行目** (`"restriction_flags": 16385`): `0x4001` は `ADDRESS` と `OUTGOING` の組み合わせに対応します。
-    * **22-24行目** (`"restriction_additions"`): デコードされた16進数形式の、許可されたアドレスのリスト。この値は3行目に示されているアドレスに対応します。
-    * **41行目** (`test transfer failed`): 期待通り、未承認の受信者アドレスにより `Address_Interaction_Prohibited` エラーが発生しています。
+    * **7行目** (`Response: No restrictions found`): 現在制限は設定されていません。
+    * **19行目** (`"restriction_flags": 16385`): `0x4001` は `ADDRESS` と `OUTGOING` の組み合わせに対応します。
+    * **20-22行目** (`"restriction_additions"`): デコードされた16進数形式の、許可されたアドレスのリスト。この値は3行目に示されているアドレスに対応します。
+    * **39行目** (`test transfer failed`): 期待通り、未承認の受信者アドレスにより `Address_Interaction_Prohibited` エラーが発生しています。
 
 === ":material-lock-open: 制限の解除"
 
-    ```text linenums="1" hl_lines="2-3 9 21 23-25 44"
+    ```text linenums="1" hl_lines="2-3 7 19 21-23 42"
     --8<-- 'devbook/accounts/account_restrictions_disable.log'
     ```
 
     出力の主なポイント:
 
     * **2-3行目**: 関与するアカウントのアドレス。
-    * **9行目** (`Response: [ ... ]`): 既存の制限が検出されました。
-    * **21行目** (`restriction_flags`): 制限を有効にした時と同じフラグ値。
-    * **23-25行目** (`restriction_deletions`): 以前に設定されていたアドレスが削除されます。
-    * **44行目** (`test transfer confirmed`): 制限が解除されたため、転送が正常に承認されました。
+    * **7行目** (`Response: [ ... ]`): 既存の制限が検出されました。
+    * **19行目** (`restriction_flags`): 制限を有効にした時と同じフラグ値。
+    * **21-23行目** (`restriction_deletions`): 以前に設定されていたアドレスが削除されます。
+    * **42行目** (`test transfer confirmed`): 制限が解除されたため、転送が正常に承認されました。
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
@@ -193,5 +201,6 @@ tutorial_level: advanced
 | ステップ | 関連ドキュメント |
 |------------------------------------------------------------------------------------|----------------------------------------------|
 | [現在の制限設定の取得](#detecting-the-restriction-state) | <get:/restrictions/account/{address}> |
-| [制限の有効化](#enabling-the-restriction) | <ser:AccountAddressRestrictionTransactionV1> |
-| [制限の解除](#removing-the-restriction) | <ser:AccountAddressRestrictionTransactionV1> |
+| [制限の有効化](#enabling-the-restriction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:AccountAddressRestrictionTransactionV1> |
+| [制限の解除](#removing-the-restriction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:AccountAddressRestrictionTransactionV1> |
+| [テスト転送の作成](#sending-a-test-transfer) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:TransferTransactionV1> |
