@@ -1,5 +1,7 @@
 plugins {
 	`java-library`
+	`maven-publish`
+	signing
 	jacoco
 	id("com.diffplug.spotless") version "8.9.0"
 }
@@ -15,6 +17,81 @@ java {
 	withSourcesJar()
 }
 
+// Maven publication (`gradle publish`). The target repository and
+// credentials come from MAVEN_REPO_URL / MAVEN_REPO_USERNAME / MAVEN_REPO_PASSWORD; artifacts are PGP-signed
+// only when MAVEN_SIGNING_KEY (ASCII-armored) / MAVEN_SIGNING_PASSWORD are present, so internal repositories
+// work without signing while Maven Central gets the signatures it requires.
+publishing {
+	publications {
+		create<MavenPublication>("maven") {
+			artifactId = "symbol-sdk"
+			from(components["java"])
+			pom {
+				name.set("symbol-sdk")
+				description.set("Java SDK for the Symbol and NEM blockchains")
+				url.set("https://github.com/symbol/symbol/tree/main/sdk/java")
+				licenses {
+					license {
+						name.set("MIT License")
+						url.set("https://opensource.org/licenses/MIT")
+					}
+				}
+				developers {
+					developer {
+						name.set("Symbol Contributors")
+						url.set("https://github.com/symbol/symbol/graphs/contributors")
+					}
+				}
+				scm {
+					connection.set("scm:git:https://github.com/symbol/symbol.git")
+					developerConnection.set("scm:git:ssh://github.com/symbol/symbol.git")
+					url.set("https://github.com/symbol/symbol")
+				}
+			}
+		}
+	}
+	repositories {
+		// MAVEN_REPO_URL selects the target: defaults to maven central via the portal's OSSRH-compatible staging
+		// endpoint (deploys land in a staging state and must be promoted in central.sonatype.com after upload);
+		// point it at the private symbolsyndicate nexus to publish internally
+		maven {
+			name = "release"
+			url = uri(
+				providers.environmentVariable("MAVEN_REPO_URL")
+					.orElse("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/").get())
+			// credentials only apply to http(s) repositories; a file: MAVEN_REPO_URL (local verification) rejects them
+			if (url.scheme.startsWith("http")) {
+				credentials {
+					username = providers.environmentVariable("MAVEN_REPO_USERNAME").orElse("").get()
+					password = providers.environmentVariable("MAVEN_REPO_PASSWORD").orElse("").get()
+				}
+			}
+		}
+
+	}
+}
+
+// short entry point for the generated publish task name (publish<Publication>PublicationTo<Repository>Repository
+// is gradle's fixed naming scheme and cannot be renamed, only aliased)
+val publishRelease by tasks.registering {
+	group = "publishing"
+	description = "Publishes the SDK to the repository selected by MAVEN_REPO_URL (maven central by default)."
+	dependsOn("publishMavenPublicationToReleaseRepository")
+}
+
+signing {
+	val signingKey = providers.environmentVariable("MAVEN_SIGNING_KEY").orNull
+	if (null != signingKey) {
+		useInMemoryPgpKeys(signingKey, providers.environmentVariable("MAVEN_SIGNING_PASSWORD").orElse("").get())
+		sign(publishing.publications["maven"])
+	} else {
+		logger.info("MAVEN_SIGNING_KEY not found. Skipping artifact signing.")
+	}
+}
+
+// The codebase is free of unchecked operations (generated setField uses checked asList coercion)
+// and of deprecated-API usage; fail the build — in every project, including examples — if either
+// creeps back in.
 allprojects {
 	tasks.withType<JavaCompile>().configureEach {
 		// Pin the source charset so non-ASCII (em-dashes / arrows in comments, CJK BIP-39 mnemonics in tests) decodes
