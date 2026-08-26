@@ -74,9 +74,9 @@ following the process described in the [Transfer Transaction](../transactions/tr
 
 Each account metadata entry is uniquely identified by:
 
-* The **signer's address**: the account adding the metadata
-* The **target account's address**: the account receiving the metadata, whose signature is required
-* A **scoped metadata key**: a 64-bit value chosen by the metadata creator
+* {{ tutorial.var('source_address') }}: The account adding the metadata.
+* {{ tutorial.var('target_address') }}: The account receiving the metadata, whose signature is required.
+* {{ tutorial.var('scoped_metadata_key') }}: A 64-bit value chosen by the metadata creator.
 
     The SDK provides a <dy:Metadata.metadataGenerateKey> helper function that generates this key from a
     human-readable string using SHA3-256 hashing.
@@ -119,20 +119,20 @@ For this reason, the code defines the account metadata transaction as an <embedd
 
 This transaction specifies:
 
-* **Type:** Use <ser:AccountMetadataTransactionV1>.
+* {{ tutorial.var('type') }}: Use <ser:AccountMetadataTransactionV1>.
 
-* **Signer public key:** The account creating the metadata entry.
+* {{ tutorial.var('signer_public_key') }}: The account creating the metadata entry.
     In this case, this is the account receiving the metadata too.
 
-* **Target address:** The account to attach the metadata to.
+* {{ tutorial.var('target_address') }}: The account to attach the metadata to.
     When the target differs from the signer, the target account must cosign the aggregate transaction.
 
-* **Scoped metadata key:** The 64-bit key used to identify this metadata entry.
+* {{ tutorial.var('scoped_metadata_key') }}: The 64-bit key used to identify this metadata entry.
 
-* **Value size delta:** When creating new metadata, set this to the byte length of the value.
+* {{ tutorial.var('value_size_delta') }}: When creating new metadata, set this to the byte length of the value.
     When updating existing metadata, set this to the difference between the new and current value lengths.
 
-* **Value:** The metadata content as bytes.
+* {{ tutorial.var('value') }}: The metadata content as bytes.
     When creating new metadata, provide the raw value.
     When updating, provide a computed value (explained in the
     [Modifying Existing Metadata](#modifying-existing-metadata) section).
@@ -186,7 +186,7 @@ in terms of the current value, using the following fields:
 * {{ tutorial.var('value_size_delta') }}: The difference in length between the new and current values.
     In this example, the delta is `-2` because `bob` (3 bytes) is two bytes shorter than `alice` (5 bytes).
 
-* `value`: The XOR'd bytes computed by comparing the current and new values byte-by-byte.
+* {{ tutorial.var('value') }}: The XOR'd bytes computed by comparing the current and new values byte-by-byte.
 
     The SDK provides a <dy:Metadata.metadataUpdateValue> helper function that handles the XOR calculation.
     The XOR operation compares each byte: matching bytes become zero, and differing bytes capture the change.
@@ -197,8 +197,8 @@ not the length of the XOR'd bytes themselves.
 !!! tip "Deleting a metadata entry"
 
     To delete a metadata entry, set {{ tutorial.var('value_size_delta') }} to the negative of the current value length
-    and provide the current value as `value`. The XOR produces an empty result, which removes the entry from the
-    network.
+    and provide the current value as {{ tutorial.var('value') }}. The XOR produces an empty result, which removes the
+    entry from the network.
 
 As with the [initial metadata creation](#building-the-aggregate-transaction), this metadata modification is wrapped
 in an aggregate transaction and then signed and announced.
