@@ -46,12 +46,12 @@ test key if not set.
 The signer's address is derived from the public key.
 This account will own the registered namespace.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Choosing the Namespace Name
 
@@ -68,14 +68,12 @@ You can force the tutorial to use a fixed name through the `ROOT_NAMESPACE` envi
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-The namespace registration transaction specifies:
+The namespace registration transaction registers the namespace on the network.
+The signer passed to <dy:SymbolFacade.createTransactionFromTypedDescriptor> becomes the owner of the registered
+namespace.
+The transaction's descriptor contains:
 
 * {{ tutorial.var('type') }}: Namespace registration transactions use the type <ser:NamespaceRegistrationTransactionV1>.
-
-* {{ tutorial.var('signer_public_key') }}: The account that signs the transaction and pays the fees.
-    It becomes the owner of the registered namespace.
-
-* {{ tutorial.var('deadline') }}: The value computed in the network time step.
 
 * {{ tutorial.var('registration_type') }}: The value `root` indicates a root namespace is being created.
     Use `child` to [register a subnamespace](./register-subnamespace.md) instead.
@@ -88,7 +86,7 @@ The namespace registration transaction specifies:
 
 !!! note "Namespace lease fees"
 
-    In addition to the standard [transaction fee](#fetching-network-time-and-fees),
+    In addition to the standard [transaction fee](#fetching-recommended-fees),
     registering a namespace requires a [lease fee](../../textbook/namespaces.md#lease-fee) proportional to
     the requested duration.
 
@@ -132,29 +130,29 @@ A successful response confirms the namespace was registered and is active on the
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="7 15 18 20 30 33 34 35 36"
+```text linenums="1" hl_lines="5 13 16 18 28 31 32 33 34"
 --8<-- 'devbook/namespaces/register_root_namespace.log'
 ```
 
 Some highlights from the output:
 
-* **Namespace name** (line 7): The chosen name `ns_1766533079` includes a timestamp to ensure uniqueness.
+* **Namespace name** (line 5): The chosen name `ns_1766533079` includes a timestamp to ensure uniqueness.
     Search for this name in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/) to view the namespace details.
 
-* **Fee** (line 15): The transaction fee of 0.0159 XYM is calculated as the transaction size
+* **Fee** (line 13): The transaction fee of 0.0159 XYM is calculated as the transaction size
     multiplied by the fee multiplier. The [lease fee](../../textbook/namespaces.md#lease-fee) is deducted separately
     by the network when the transaction is confirmed.
 
-* **ID and name** (lines 18, 20): The `id` field shows the namespace ID as a decimal number, while `name` contains
+* **ID and name** (lines 16, 18): The `id` field shows the namespace ID as a decimal number, while `name` contains
     the namespace name encoded as a hexadecimal string. For example, `6e735f...` decodes to `ns_1...`.
 
-* **Namespace ID** (line 30): Shows both decimal and hexadecimal representations to match the `id` field on line 18.
+* **Namespace ID** (line 28): Shows both decimal and hexadecimal representations to match the `id` field on line 16.
 
-* **Registration type** (line 33): The value `0` indicates a root namespace (versus `1` for subnamespaces).
+* **Registration type** (line 31): The value `0` indicates a root namespace (versus `1` for subnamespaces).
 
-* **Owner address** (line 34): The account that registered and owns the namespace.
+* **Owner address** (line 32): The account that registered and owns the namespace.
 
-* **Start and end heights** (lines 35-36): The namespace is active from block `2984442` to block `3073722`.
+* **Start and end heights** (lines 33-34): The namespace is active from block `2984442` to block `3073722`.
     The end height includes a [grace period](../../textbook/namespaces.md#duration) (1 day on <testnet:>,
     30 days on <mainnet:>) beyond the requested duration, giving owners time to renew before the namespace
     becomes available to others.
@@ -166,11 +164,11 @@ in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 This tutorial showed how to:
 
-| Step                                                                    | Related documentation                                                          |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [Build a namespace registration transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.create>, <ser:NamespaceRegistrationTransactionV1> |
-| [Generate namespace ID](#retrieving-the-namespace)                      | <dy:IdGenerator.generateNamespaceId>                                           |
-| [Retrieve the namespace](#retrieving-the-namespace)                     | <get:/namespaces/{namespaceId}>                                                |
+| Step                                                                    | Related documentation                                                                            |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Build a namespace registration transaction](#building-the-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:NamespaceRegistrationTransactionV1> |
+| [Generate namespace ID](#retrieving-the-namespace)                      | <dy:IdGenerator.generateNamespaceId>                                                             |
+| [Retrieve the namespace](#retrieving-the-namespace)                     | <get:/namespaces/{namespaceId}>                                                                  |
 
 ## Next Steps
 

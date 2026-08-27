@@ -63,11 +63,11 @@ digraph {
 
     作成方法については [ルートネームスペースの登録](./register-root-namespace.md) を参照してください。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### メタデータの定義 {: #defining-the-metadata }
 
@@ -108,11 +108,10 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 これにより、所有者の許可なく不要なメタデータがネームスペースに関連付けられるのを防ぎます。
 
 このチュートリアルでは、署名者がネームスペース所有者でもあるため、必要な署名は1つだけです。
-しかし、トランザクションは依然としてアグリゲート内にある必要があるため、コードではネームスペースメタデータトランザクションを以下のプロパティを持つ [埋め込みトランザクション](default: 埋め込みトランザクション) として定義します。
+しかし、トランザクションは依然としてアグリゲート内にある必要があるため、コードではネームスペースメタデータトランザクションを [埋め込みトランザクション](default: 埋め込みトランザクション) として定義します。
+トランザクションの記述子には以下を指定します。
 
 * **Type:** <ser:NamespaceMetadataTransactionV1> を使用します。
-
-* **署名者の公開鍵:** メタデータエントリを作成するアカウント。
 
 * **ターゲットアドレス:** ネームスペース所有者のアドレス。
     署名者がネームスペース所有者と異なる場合、所有者はアグリゲートトランザクションに [連署](default: マルチシグアカウント) する必要があります。
@@ -127,6 +126,8 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 * **値:** バイト形式のメタデータ内容。
     新しいメタデータを作成する場合は、生の値を指定します。
     更新する場合は、計算された値を指定します（[既存のメタデータの変更](#modifying-existing-metadata) セクションで説明します）。
+
+署名者の公開鍵は <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor> に別の引数として渡します。
 
 ### アグリゲートトランザクションの構築 {: #building-the-aggregate-transaction }
 
@@ -186,7 +187,7 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="3 4 18 19 20 23 37 47 48 50"
+```text linenums="1" hl_lines="3 4 16 17 18 21 35 45 46 48"
 --8<-- 'devbook/namespaces/namespace_metadata.log'
 ```
 
@@ -194,14 +195,14 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 
 * **3行目** (`Namespace name`): メタデータを受け取るネームスペース。
 * **4行目** (`Namespace ID`): 計算されたネームスペース ID（10進数および16進数形式）。
-* **18行目** (`"scoped_metadata_key"`): 入力文字列からSHA3-256ハッシュを使用して生成された64ビットのキー。
-* **19行目** (`"target_namespace_id"`): メタデータを受け取るネームスペース。
-* **20行目** (`"value_size_delta": 18`): 新しいメタデータを作成する場合、これは値のバイト長に等しくなります（`"My first namespace"` = 18バイト）。
-* **23行目**: エクスプローラーでメタデータの作成を確認するためのトランザクション [ハッシュ](default: ハッシュ)。
-* **37行目** (`Current value: My first namespace`): 更新前にネットワークから取得された値。
-* **47行目** (`"value_size_delta": -1`): 新しい値（`"Updated namespace"` = 17バイト）が現在の値（18バイト）より短いため、負の値になります。
-* **48行目** (`"value"`): 生の新しい値ではなく、現在の値と新しい値から計算された XOR 値。
-* **50行目**: エクスプローラーでメタデータの更新を確認するためのトランザクションハッシュ。
+* **16行目** (`"scoped_metadata_key"`): 入力文字列からSHA3-256ハッシュを使用して生成された64ビットのキー。
+* **17行目** (`"target_namespace_id"`): メタデータを受け取るネームスペース。
+* **18行目** (`"value_size_delta": 18`): 新しいメタデータを作成する場合、これは値のバイト長に等しくなります（`"My first namespace"` = 18バイト）。
+* **21行目**: エクスプローラーでメタデータの作成を確認するためのトランザクション [ハッシュ](default: ハッシュ)。
+* **35行目** (`Current value: My first namespace`): 更新前にネットワークから取得された値。
+* **45行目** (`"value_size_delta": -1`): 新しい値（`"Updated namespace"` = 17バイト）が現在の値（18バイト）より短いため、負の値になります。
+* **46行目** (`"value"`): 生の新しい値ではなく、現在の値と新しい値から計算された XOR 値。
+* **48行目**: エクスプローラーでメタデータの更新を確認するためのトランザクションハッシュ。
 
 トランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
@@ -212,6 +213,6 @@ Symbolでは、これらのトランザクションを署名者アカウント�
 | ステップ                                                                               | 関連ドキュメント                                   |
 |------------------------------------------------------------------------------------|----------------------------------------------|
 | [メタデータのキーと値の定義](#defining-the-metadata)                                         | <dy:Metadata.metadataGenerateKey>            |
-| [ネームスペースメタデータトランザクションの作成](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:NamespaceMetadataTransactionV1> |
+| [ネームスペースメタデータトランザクションの作成](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:NamespaceMetadataTransactionV1> |
 | [メタデータの取得](#retrieving-metadata)                                                 | <get:/metadata>                              |
 | [既存のメタデータの変更](#modifying-existing-metadata)                                    | <dy:Metadata.metadataUpdateValue>            |

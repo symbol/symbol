@@ -71,22 +71,22 @@ The code defines:
 * **Target address:** The address that the namespace will point to, read from the `TARGET_ADDRESS`
     environment variable. If not set, a default test address is used.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-The address alias transaction specifies:
+The address alias transaction links a namespace to an address.
+The signer passed to <dy:SymbolFacade.createTransactionFromTypedDescriptor> must own the namespace.
+The transaction's descriptor contains:
 
 * **Type:** Address alias transactions use the type <ser:AddressAliasTransactionV1>.
-
-* **Signer public key:** The account that owns the namespace and will pay the transaction fee.
 
 * **Namespace ID:** The identifier of the namespace being linked.
 
@@ -152,7 +152,7 @@ see the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="3 5 23 32 33 35"
+```text linenums="1" hl_lines="3 5 21 30 31 33"
 --8<-- 'devbook/namespaces/link_namespace_to_address.log'
 ```
 
@@ -160,13 +160,13 @@ Some highlights from the output:
 
 * **Namespace and target** (lines 3, 5): The namespace and the address being linked.
 
-* **Transaction hash** (line 23): The transaction hash can be used to search for the transaction in the
+* **Transaction hash** (line 21): The transaction hash can be used to search for the transaction in the
     [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
-* **Alias verification** (lines 32-33): The namespace information confirms the alias type is `2` (address) and
+* **Alias verification** (lines 30-31): The namespace information confirms the alias type is `2` (address) and
     shows the linked address.
 
-* **Using the alias** (line 35): A transfer transaction is created using the alias as the recipient,
+* **Using the alias** (line 33): A transfer transaction is created using the alias as the recipient,
     demonstrating that it can be used in place of the full address.
 
     !!! note "Different recipient address"
@@ -178,10 +178,10 @@ Some highlights from the output:
 
 This tutorial showed how to:
 
-| Step                                                                | Related documentation                                                 |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [Generate namespace ID](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath>                                |
-| [Build an address alias transaction](#building-the-transaction)     | <dy:SymbolTransactionFactory.create>, <ser:AddressAliasTransactionV1> |
-| [Verify the alias](#verifying-the-alias)                            | <get:/namespaces/{namespaceId}>                                       |
-| [Use the alias in a transfer](#using-the-alias)                     | <dy:Address.fromNamespaceId>                                          |
-| [Query address resolution receipts](#using-the-alias)               | <get:/statements/resolutions/address>                                 |
+| Step                                                                | Related documentation                                                                   |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [Generate namespace ID](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath>                                                  |
+| [Build an address alias transaction](#building-the-transaction)     | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:AddressAliasTransactionV1> |
+| [Verify the alias](#verifying-the-alias)                            | <get:/namespaces/{namespaceId}>                                                         |
+| [Use the alias in a transfer](#using-the-alias)                     | <dy:Address.fromNamespaceId>                                                            |
+| [Query address resolution receipts](#using-the-alias)               | <get:/statements/resolutions/address>                                                   |

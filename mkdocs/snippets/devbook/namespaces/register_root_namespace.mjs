@@ -1,9 +1,8 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	Address,
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateNamespaceId,
 	models
 } from 'symbol-sdk/symbol';
@@ -23,18 +22,7 @@ const signerAddress = facade.network.publicKeyToAddress(
 console.log('Signer address:', signerAddress.toString());
 // [<step-1]
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const receiveTimestamp =
-		timeJSON.communicationTimestamps.receiveTimestamp;
-	const timestamp = new NetworkTimestamp(receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -50,16 +38,16 @@ try {
 	console.log('Creating root namespace:', namespaceName);
 	// [<step-3]
 	// Build the transaction [>step-4]
-	const transaction = facade.transactionFactory.create({
-		type: 'namespace_registration_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		registrationType: 'root',
-		duration: 86400n, // approximately 30 days
-		name: namespaceName
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.NamespaceRegistrationTransactionV1Descriptor(
+			new models.NamespaceId(0n),
+			models.NamespaceRegistrationType.ROOT,
+			new models.BlockDuration(86400n), // approximately 30 days
+			undefined,
+			namespaceName),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const signature = facade.signTransaction(

@@ -5,10 +5,8 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_namespace_id
-from symbolchain.symbol.Network import Address, NetworkTimestamp
+from symbolchain.symbol.Network import Address
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
@@ -24,17 +22,7 @@ signer_address = facade.network.public_key_to_address(
 print(f'Signer address: {signer_address}')
 # [<step-1]
 try:
-	# Fetch current network time [>step-2]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-
-	# Fetch recommended fees
+	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -50,16 +38,16 @@ try:
 	print(f'Creating root namespace: {namespace_name}')
 	# [<step-3]
 	# Build the transaction [>step-4]
-	transaction = facade.transaction_factory.create({
-		'type': 'namespace_registration_transaction_v1',
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'registration_type': 'root',
-		'duration': 86400,  # approximately 30 days
-		'name': namespace_name
-	})
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
+	transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'namespace_registration_transaction_v1',
+			'registration_type': 'root',
+			'duration': 86400,  # approximately 30 days
+			'name': namespace_name
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	# [<step-4]
 	# Sign transaction and generate final payload [>step-5]
 	signature = facade.sign_transaction(signer_key_pair, transaction)

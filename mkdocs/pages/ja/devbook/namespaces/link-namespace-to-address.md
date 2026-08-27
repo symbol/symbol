@@ -65,21 +65,21 @@ tutorial_level: intermediate
 * **ターゲットアドレス:** ネームスペースが指し示す先のアドレス。 `TARGET_ADDRESS` 環境変数から読み込まれます。
     設定されていない場合は、デフォルトのテストアドレスが使用されます。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-アドレスエイリアストランザクションでは以下を指定します。
+アドレスエイリアストランザクションは、ネームスペースをアドレスにリンクします。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> に渡した署名者は、そのネームスペースを所有している必要があります。
+トランザクションの記述子には以下を指定します。
 
 * **Type:** アドレスエイリアストランザクションにはタイプ <ser:AddressAliasTransactionV1> を使用します。
-
-* **署名者の公開鍵:** ネームスペースを所有し、トランザクション手数料を支払うアカウント。
 
 * **ネームスペース ID:** リンクされるネームスペースの識別子。
 
@@ -134,19 +134,19 @@ tutorial_level: intermediate
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="3 5 23 32 33 36"
+```text linenums="1" hl_lines="3 5 21 30 31 33"
 --8<-- 'devbook/namespaces/link_namespace_to_address.log'
 ```
 
 出力の主なポイント:
 
-* **ネームスペースとターゲット** (3、5行目): ネームスペース `nsaddr_1770541301` がターゲットアドレス `TCWYXKVYBMO4NBCUF3AXKJMXCGVSYQOS7ZG2TLI` にリンクされています。
+* **ネームスペースとターゲット** (3、5行目): ネームスペースとリンク先のアドレスが表示されます。
 
-* **トランザクションハッシュ** (23行目): トランザクションハッシュを使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
+* **トランザクションハッシュ** (21行目): トランザクションハッシュを使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-* **エイリアスの検証** (32-33行目): ネームスペース情報により、エイリアスタイプが `2` (アドレス) であることが確認され、リンクされたアドレスが表示されています。
+* **エイリアスの検証** (30-31行目): ネームスペース情報により、エイリアスタイプが `2` (アドレス) であることが確認され、リンクされたアドレスが表示されています。
 
-* **エイリアスの使用** (36行目): エイリアスを受信者として使用して転送トランザクションが作成されており、完全なアドレスの代わりに使用できることが実証されています。
+* **エイリアスの使用** (33行目): エイリアスを受信者として使用して転送トランザクションが作成されており、完全なアドレスの代わりに使用できることが実証されています。
 
     !!! note "異なる受信者アドレス"
         受信者アドレスがターゲットアドレスと異なるのは、それがターゲットアドレス自体ではなく [エンコードされたネームスペース ID](#using-the-alias) であるためです。
@@ -159,7 +159,7 @@ tutorial_level: intermediate
 | ステップ                                                             | 関連ドキュメント                             |
 |------------------------------------------------------------------|----------------------------------------|
 | [ネームスペース ID を生成する](#defining-the-namespace-and-target-address) | <dy:IdGenerator.generateNamespacePath> |
-| [アドレスエイリアストランザクションを構築する](#building-the-transaction)            | <dy:SymbolTransactionFactory.create>, <ser:AddressAliasTransactionV1>   |
+| [アドレスエイリアストランザクションを構築する](#building-the-transaction)            | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:AddressAliasTransactionV1>   |
 | [エイリアスを検証する](#verifying-the-alias)                             | <get:/namespaces/{namespaceId}>        |
 | [エイリアスを使用する](#using-the-alias)                                 | <dy:Address.fromNamespaceId>           |
 | [アドレス解決レシートを照会する](#using-the-alias)                          | <get:/statements/resolutions/address>  |
