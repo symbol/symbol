@@ -73,12 +73,12 @@ The namespace ID is computed from the name using <dy:IdGenerator.generateNamespa
 
     See [Registering a Root Namespace](./register-root-namespace.md) to learn how to do it.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Defining the Metadata
 
@@ -125,12 +125,11 @@ the signer account and the namespace owner's signature.
 This prevents unwanted metadata from being attached to a namespace without its owner's permission.
 
 In this tutorial, the signer is also the namespace owner so only one signature is needed.
-However, the transaction still needs to be inside an aggregate,
-so the code defines the namespace metadata transaction as an <embedded transaction:> with these properties:
+However, the transaction still needs to be inside an aggregate, so the code defines it as an
+<embedded transaction:>.
+The transaction's descriptor contains:
 
 * **Type:** Use <ser:NamespaceMetadataTransactionV1>.
-
-* **Signer public key:** The account creating the metadata entry.
 
 * **Target address:** The namespace owner's address.
     When the signer differs from the namespace owner, the owner must <cosignature:|cosign> the aggregate transaction.
@@ -146,6 +145,8 @@ so the code defines the namespace metadata transaction as an <embedded transacti
     When creating new metadata, provide the raw value.
     When updating, provide a computed value (explained in the
     [Modifying Existing Metadata](#modifying-existing-metadata) section).
+
+The signer public key is passed separately to <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>.
 
 ### Building the Aggregate Transaction
 
@@ -220,7 +221,7 @@ in an aggregate transaction and then signed and announced.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="3 4 18 19 20 23 37 47 48 50"
+```text linenums="1" hl_lines="3 4 16 17 18 21 35 45 46 48"
 --8<-- 'devbook/namespaces/namespace_metadata.log'
 ```
 
@@ -228,16 +229,16 @@ Key points in the output:
 
 * **Line 3** (`Namespace name`): The namespace receiving the metadata.
 * **Line 4** (`Namespace ID`): The computed namespace ID in decimal and hexadecimal formats.
-* **Line 18** (`"scoped_metadata_key"`): The 64-bit key generated from the input string using SHA3-256 hashing.
-* **Line 19** (`"target_namespace_id"`): The namespace receiving the metadata.
-* **Line 20** (`"value_size_delta": 18`): When creating new metadata, this equals the byte length of the value
+* **Line 16** (`"scoped_metadata_key"`): The 64-bit key generated from the input string using SHA3-256 hashing.
+* **Line 17** (`"target_namespace_id"`): The namespace receiving the metadata.
+* **Line 18** (`"value_size_delta": 18`): When creating new metadata, this equals the byte length of the value
     (`"My first namespace"` = 18 bytes).
-* **Line 23**: The transaction hash for looking up the metadata creation in the explorer.
-* **Line 37** (`Current value: My first namespace`): Retrieved from the network before updating.
-* **Line 47** (`"value_size_delta": -1`): Negative because the new value (`"Updated namespace"` = 17 bytes) is shorter
+* **Line 21**: The transaction hash for looking up the metadata creation in the explorer.
+* **Line 35** (`Current value: My first namespace`): Retrieved from the network before updating.
+* **Line 45** (`"value_size_delta": -1`): Negative because the new value (`"Updated namespace"` = 17 bytes) is shorter
     than the current value (18 bytes).
-* **Line 48** (`"value"`): The XOR'd value computed from the current and new values, not the raw new value.
-* **Line 50**: The transaction hash for looking up the metadata update in the explorer.
+* **Line 46** (`"value"`): The XOR'd value computed from the current and new values, not the raw new value.
+* **Line 48**: The transaction hash for looking up the metadata update in the explorer.
 
 The transaction hashes can be used to search for the transactions in the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -249,6 +250,6 @@ This tutorial showed how to:
 | Step                                                                                             | Related documentation                                                              |
 | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | [Define metadata key and value](#defining-the-metadata)                                          | <dy:Metadata.metadataGenerateKey>                                                  |
-| [Create a namespace metadata transaction](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:NamespaceMetadataTransactionV1> |
+| [Create a namespace metadata transaction](#creating-the-embedded-namespace-metadata-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:NamespaceMetadataTransactionV1> |
 | [Retrieve metadata](#retrieving-metadata)                                                        | <get:/metadata>                                                                    |
 | [Modify existing metadata](#modifying-existing-metadata)                                         | <dy:Metadata.metadataUpdateValue>                                                  |

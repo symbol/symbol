@@ -1,8 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	generateNamespacePath,
 	models
@@ -78,18 +77,7 @@ const mosaicIdHex = mosaicId.toString(16)
 console.log('Mosaic ID:', `${mosaicId} (0x${mosaicIdHex})`);
 // [<step-2]
 try {
-	// Fetch current network time [>step-3]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const receiveTimestamp =
-		timeJSON.communicationTimestamps.receiveTimestamp;
-	const timestamp = new NetworkTimestamp(receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-3]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -100,16 +88,14 @@ try {
 	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-3]
 	// Build the alias transaction [>step-4]
-	const transaction = facade.transactionFactory.create({
-		type: 'mosaic_alias_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		namespaceId,
-		mosaicId,
-		aliasAction: 'link'
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.MosaicAliasTransactionV1Descriptor(
+			new models.NamespaceId(namespaceId),
+			new models.MosaicId(mosaicId),
+			models.AliasAction.LINK),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-4]
 	// Sign transaction and generate final payload [>step-5]
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
@@ -149,19 +135,18 @@ try {
 	console.log('  Mosaic ID (alias):',
 		`${mosaicAliasId} (0x${mosaicAliasIdHex})`);
 
-	const test_transaction = facade.transactionFactory.create({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: facade.network.publicKeyToAddress(
-			signerKeyPair.publicKey).toString(),
-		mosaics: [{
-			mosaicId: mosaicAliasId,
-			amount: 1n
-		}]
-	});
-	test_transaction.fee = new models.Amount(
-		calculateTransactionFee(test_transaction, feeMultiplier));
+	const test_transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			facade.network.publicKeyToAddress(signerKeyPair.publicKey),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					generateMosaicAliasId(namespaceName),
+					new models.Amount(1n))
+			],
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	const testJsonPayload =
 		facade.transactionFactory.static.attachSignature(
 			test_transaction,

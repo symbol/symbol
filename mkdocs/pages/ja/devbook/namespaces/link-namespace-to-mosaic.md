@@ -64,21 +64,21 @@ tutorial_level: intermediate
 
 * **モザイク ID:** ネームスペースが指し示す先のモザイクの16進数識別子。 `MOSAIC_ID` 環境変数から読み込まれます。設定されていない場合は、デフォルトのテスト用モザイクIDが使用されます。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-モザイクエイリアストランザクションでは以下を指定します。
+モザイクエイリアストランザクションは、ネームスペースをモザイクにリンクします。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> に渡した署名者は、そのネームスペースとモザイクの両方を所有している必要があります。
+トランザクションの記述子には以下を指定します。
 
 * **Type:** モザイクエイリアストランザクションにはタイプ <ser:MosaicAliasTransactionV1> を使用します。
-
-* **署名者の公開鍵:** ネームスペースとモザイクを所有し、トランザクション手数料を支払うアカウント。
 
 * **ネームスペース ID:** リンクされるネームスペースの識別子。
 
@@ -134,19 +134,19 @@ tutorial_level: intermediate
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="3 5 23 32 33 36"
+```text linenums="1" hl_lines="3 5 21 30 31 33"
 --8<-- 'devbook/namespaces/link_namespace_to_mosaic.log'
 ```
 
 出力の主なポイント:
 
-* **ネームスペースとターゲット** (3、5行目): ネームスペース `nsmos_1770541301` がターゲットのモザイクIDにリンクされています。
+* **ネームスペースとターゲット** (3、5行目): ネームスペースとリンク先のモザイクIDが表示されます。
 
-* **トランザクションハッシュ** (23行目): トランザクションハッシュを使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
+* **トランザクションハッシュ** (21行目): トランザクションハッシュを使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
-* **エイリアスの検証** (32-33行目): ネームスペース情報により、エイリアスタイプが `1` (モザイク) であることが確認され、リンクされたモザイクIDが表示されています。
+* **エイリアスの検証** (30-31行目): ネームスペース情報により、エイリアスタイプが `1` (モザイク) であることが確認され、リンクされたモザイクIDが表示されています。
 
-* **エイリアスの使用** (36行目): モザイク配列内でエイリアスを使用して転送トランザクションが作成されており、完全なモザイクIDの代わりに使用できることが実証されています。
+* **エイリアスの使用** (33行目): モザイク配列内でエイリアスを使用して転送トランザクションが作成されており、完全なモザイクIDの代わりに使用できることが実証されています。
 
     !!! note "異なるモザイク ID"
         転送で使用されているモザイクIDが元のモザイクIDと異なるのは、それがモザイクID自体ではなく [エンコードされたネームスペース ID](#using-the-alias) であるためです。
@@ -159,7 +159,7 @@ tutorial_level: intermediate
 | ステップ                                                            | 関連ドキュメント                             |
 |-----------------------------------------------------------------|----------------------------------------|
 | [ネームスペース ID を生成する](#defining-the-namespace-and-target-mosaic) | <dy:IdGenerator.generateNamespacePath> |
-| [モザイクエイリアストランザクションを構築する](#building-the-transaction)           | <dy:SymbolTransactionFactory.create>, <ser:MosaicAliasTransactionV1>   |
+| [モザイクエイリアストランザクションを構築する](#building-the-transaction)           | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicAliasTransactionV1>   |
 | [エイリアスを検証する](#verifying-the-alias)                            | <get:/namespaces/{namespaceId}>        |
 | [転送内でエイリアスを使用する](#using-the-alias)                         | <dy:IdGenerator.generateMosaicAliasId> |
 | [モザイク解決レシートを照会する](#using-the-alias)                         | <get:/statements/resolutions/mosaic>   |
