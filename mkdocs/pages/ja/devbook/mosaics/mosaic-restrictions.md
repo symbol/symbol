@@ -61,7 +61,7 @@ tutorial_level: advanced
 その後、チュートリアルは以下の手順で進みます。
 
 * [必要な鍵の設定](#setting-up-the-accounts)
-* [現在のネットワーク状態の取得](#fetching-network-time-and-fees)
+* [推奨手数料の取得](#fetching-recommended-fees)
 * [必要に応じてグローバル制限を有効化](#enabling-the-global-restriction)
 * [アドレス制限の切り替え](#toggling-the-address-restriction)
 * 単一のアグリゲートトランザクションに [すべてのトランザクションをまとめる](#building-the-aggregate-transaction)
@@ -89,11 +89,11 @@ tutorial_level: advanced
 
 所有者アカウントはトランザクションをアナウンスするのに十分な資金を保有している必要があります。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### グローバル制限の有効化 {: #enabling-the-global-restriction }
 
@@ -173,7 +173,7 @@ tutorial_level: advanced
 
 === ":material-lock-open: 制限の有効化とアカウントの許可"
 
-    ```text linenums="1" hl_lines="2-5 12-13 27 41-42 72"
+    ```text linenums="1" hl_lines="2-5 10-11 25 39-40 70"
     --8<-- 'devbook/mosaics/mosaic_restrictions_enable.log'
     ```
 
@@ -182,16 +182,16 @@ tutorial_level: advanced
     * **2-3行目**: 関与するアカウントのアドレス。
     * **4行目**: 制限されるモザイク。
     * **5行目**: 制限名と対応するキー。
-    * **12行目** (`Response: []`): 現在このモザイクにはグローバル制限がありません。
-    * **13行目**: モザイク制限を設定するトランザクション。これにはモザイクID（10進数）、制限キー（10進数）、制限値（`1`）、および制限条件（`6`。これは `greater-or-equal` の <ser:MosaicRestrictionType> に対応します）が含まれます。
-    * **27行目**: 所有者アカウントを許可するトランザクション。
-    * **41行目** (`Response: []`): ターゲットアカウントは現在、制限キーに関連付けられた値がないため、許可されていません。
-    * **42行目**: ターゲットアカウントを許可するトランザクション。
-    * **72行目** (`test transfer confirmed`): 両方のアカウントが制限を満たし、許可されているため、テストトランザクションが成功しました。
+    * **10行目** (`Response: []`): 現在このモザイクにはグローバル制限がありません。
+    * **11行目**: モザイク制限を設定するトランザクション。これにはモザイクID（10進数）、制限キー（10進数）、制限値（`1`）、および制限条件（`6`。これは `greater-or-equal` の <ser:MosaicRestrictionType> に対応します）が含まれます。
+    * **25行目**: 所有者アカウントを許可するトランザクション。
+    * **39行目** (`Response: []`): ターゲットアカウントは現在、制限キーに関連付けられた値がないため、許可されていません。
+    * **40行目**: ターゲットアカウントを許可するトランザクション。
+    * **70行目** (`test transfer confirmed`): 両方のアカウントが制限を満たし、許可されているため、テストトランザクションが成功しました。
 
 === ":material-lock-plus: アカウントの許可取り消し"
 
-    ```text linenums="1" hl_lines="2-5 12 15-16 43"
+    ```text linenums="1" hl_lines="2-5 10 13-14 41"
     --8<-- 'devbook/mosaics/mosaic_restrictions_disable.log'
     ```
 
@@ -200,10 +200,10 @@ tutorial_level: advanced
     * **2-3行目**: 関与するアカウントのアドレス。
     * **4行目**: 制限されるモザイク。
     * **5行目**: 制限名と対応するキー。
-    * **12行目** (`Response: [ ... ]`): 既存の制限が検出されました。
-    * **15行目** (`Response: [ ... ]`): ターゲットアカウントは制限値 `1` を持っており、許可されています。
-    * **16行目**: ターゲットアカウントの許可を取り消すトランザクション。制限値を `0` に設定します。
-    * **43行目** (`test transfer failed`): 期待通り、ターゲットアカウントが制限を満たさなくなったため、テストトランザクションが失敗しました。
+    * **10行目** (`Response: [ ... ]`): 既存の制限が検出されました。
+    * **13行目** (`Response: [ ... ]`): ターゲットアカウントは制限値 `1` を持っており、許可されています。
+    * **14行目**: ターゲットアカウントの許可を取り消すトランザクション。制限値を `0` に設定します。
+    * **41行目** (`test transfer failed`): 期待通り、ターゲットアカウントが制限を満たさなくなったため、テストトランザクションが失敗しました。
 
 出力に示されているトランザクション [ハッシュ](default:ハッシュ) を使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
@@ -227,6 +227,6 @@ tutorial_level: advanced
 | ステップ                                                         | 関連ドキュメント                                  |
 |--------------------------------------------------------------|---------------------------------------------|
 | [現在のモザイク制限設定の取得](#enabling-the-global-restriction)   | <get:/restrictions/mosaic>                  |
-| [モザイクグローバル制限の設定](#enabling-the-global-restriction)       | <ser:MosaicGlobalRestrictionTransactionV1>  |
+| [モザイクグローバル制限の設定](#enabling-the-global-restriction)       | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MosaicGlobalRestrictionTransactionV1>  |
 | [アカウントのモザイク制限設定の取得](#toggling-the-address-restriction) | <get:/restrictions/mosaic>                  |
-| [モザイクアドレス制限の設定](#toggling-the-address-restriction)       | <ser:MosaicAddressRestrictionTransactionV1> |
+| [モザイクアドレス制限の設定](#toggling-the-address-restriction)       | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MosaicAddressRestrictionTransactionV1> |

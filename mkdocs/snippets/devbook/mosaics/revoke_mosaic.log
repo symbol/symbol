@@ -2,8 +2,6 @@ Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
 Source address: TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA
 Mosaic ID: 8857803461494335809 (0x7AED3D514C986941)
-Fetching current network time from /node/time
-  Network time: 104783268507 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 

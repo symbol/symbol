@@ -5,9 +5,6 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
-from symbolchain.symbol.Network import NetworkTimestamp
 from symbolchain.symbol.Restriction import mosaic_restriction_generate_key
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
@@ -93,7 +90,8 @@ def get_mosaic_global_restrictions(queried_mosaic_id, key):
 		f'mosaicId={queried_mosaic_id:016X}&entryType=1', key)  # [<step-4]
 
 
-def get_mosaic_address_restrictions(queried_mosaic_id, address, key):  # [>step-5]
+def get_mosaic_address_restrictions(  # [>step-5]
+	queried_mosaic_id, address, key):
 	return get_mosaic_restrictions(
 		f'mosaicId={queried_mosaic_id:016X}&'
 		f'entryType=0&targetAddress={address}',
@@ -102,17 +100,18 @@ def get_mosaic_address_restrictions(queried_mosaic_id, address, key):  # [>step-
 
 # Returns a transaction enabling a mosaic's global restriction
 def set_global_restriction_transaction():
-	restr_transaction = facade.transaction_factory.create_embedded({
-		'type': 'mosaic_global_restriction_transaction_v1',
-		'signer_public_key': owner_key_pair.public_key,
-		'mosaic_id': mosaic_id,
-		'reference_mosaic_id': 0,
-		'restriction_key': restriction_key,
-		'previous_restriction_type': 0,
-		'previous_restriction_value': 0,
-		'new_restriction_type': 'ge',
-		'new_restriction_value': 1
-	})
+	restr_transaction = facade.create_embedded_transaction_from_descriptor(
+		{
+			'type': 'mosaic_global_restriction_transaction_v1',
+			'mosaic_id': mosaic_id,
+			'reference_mosaic_id': 0,
+			'restriction_key': restriction_key,
+			'previous_restriction_type': 0,
+			'previous_restriction_value': 0,
+			'new_restriction_type': 'ge',
+			'new_restriction_value': 1
+		},
+		owner_key_pair.public_key)
 	print(json.dumps(restr_transaction.to_json(), indent=2))
 
 	return restr_transaction
@@ -120,32 +119,23 @@ def set_global_restriction_transaction():
 
 # Returns a transaction setting an address restriction's value
 def address_restriction_set_value(previous_value, new_value, address):
-	restr_transaction = facade.transaction_factory.create_embedded({
-		'type': 'mosaic_address_restriction_transaction_v1',
-		'signer_public_key': owner_key_pair.public_key,
-		'mosaic_id': mosaic_id,
-		'restriction_key': restriction_key,
-		'previous_restriction_value': previous_value,
-		'new_restriction_value': new_value,
-		'target_address': address
-	})
+	restr_transaction = facade.create_embedded_transaction_from_descriptor(
+		{
+			'type': 'mosaic_address_restriction_transaction_v1',
+			'mosaic_id': mosaic_id,
+			'restriction_key': restriction_key,
+			'previous_restriction_value': previous_value,
+			'new_restriction_value': new_value,
+			'target_address': address
+		},
+		owner_key_pair.public_key)
 	print(json.dumps(restr_transaction.to_json(), indent=2))
 
 	return restr_transaction
 
 
 try:
-	# Fetch current network time [>step-2]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-
-	# Fetch recommended fees
+	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -191,16 +181,16 @@ try:
 	# Build an aggregate transaction
 	print(  # [>step-7]
 		'Bundling', len(transactions), 'transaction(s) in an aggregate')
-	transaction = facade.transaction_factory.create({
-		'type': 'aggregate_complete_transaction_v3',
-		'signer_public_key': owner_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'transactions_hash': facade.hash_embedded_transactions(
-			transactions),
-		'transactions': transactions
-	})
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
+	transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'aggregate_complete_transaction_v3',
+			'transactions_hash': facade.hash_embedded_transactions(
+				transactions),
+			'transactions': transactions
+		},
+		owner_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	# [<step-7]
 	# Sign, announce and wait for confirmation
 	payload = facade.transaction_factory.attach_signature(  # [>step-8]
@@ -211,18 +201,18 @@ try:
 	wait_for_confirmation(transaction_hash, 'aggregate')
 	# [<step-8]
 	# Try to transfer the mosaic to the target address
-	transaction = facade.transaction_factory.create({  # [>step-9]
-		'type': 'transfer_transaction_v1',
-		'signer_public_key': owner_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'recipient_address': target_address,
-		'mosaics': [{
-			'mosaic_id': mosaic_id,
-			'amount': 1
-		}]
-	})
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
+	transaction = facade.create_transaction_from_descriptor(  # [>step-9]
+		{
+			'type': 'transfer_transaction_v1',
+			'recipient_address': target_address,
+			'mosaics': [{
+				'mosaic_id': mosaic_id,
+				'amount': 1
+			}]
+		},
+		owner_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	payload = facade.transaction_factory.attach_signature(
 		transaction,
 		facade.sign_transaction(owner_key_pair, transaction))

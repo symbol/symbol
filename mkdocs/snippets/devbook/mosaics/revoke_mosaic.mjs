@@ -1,8 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	models
 } from 'symbol-sdk/symbol';
 
@@ -42,17 +41,7 @@ console.log(
 	`Mosaic ID: ${mosaicId} (0x${mosaicIdHex})`);
 // [<step-1]
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:',
-		timestamp.timestamp, 'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -75,18 +64,15 @@ try {
 	// --- REVOKING MOSAIC ---
 	console.log('\n--- Revoking mosaic ---');
 	// [>step-4]
-	const revokeTx = facade.transactionFactory.create({
-		type: 'mosaic_supply_revocation_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		sourceAddress: SOURCE_ADDRESS,
-		mosaic: {
-			mosaicId,
-			amount: 7_00n
-		}
-	});
-	revokeTx.fee = new models.Amount(
-		calculateTransactionFee(revokeTx, feeMultiplier));
+	const revokeTx = facade.createTransactionFromTypedDescriptor(
+		new descriptors.MosaicSupplyRevocationTransactionV1Descriptor(
+			new SymbolFacade.Address(SOURCE_ADDRESS),
+			new descriptors.UnresolvedMosaicDescriptor(
+				new models.UnresolvedMosaicId(mosaicId),
+				new models.Amount(7_00n))),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-4]
 	// Sign and generate final payload [>step-5]
 	const signature = facade.signTransaction(signerKeyPair, revokeTx);

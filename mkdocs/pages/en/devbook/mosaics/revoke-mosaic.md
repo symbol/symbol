@@ -51,12 +51,12 @@ The `SOURCE_ADDRESS` environment variable specifies the address of the account f
 The `MOSAIC_ID` environment variable specifies the hexadecimal identifier of the mosaic to revoke.
 See [Querying Account Balance](../accounts/query-balance.md) to list the mosaics held by an account.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Checking Initial Balance
 
@@ -113,7 +113,7 @@ The balance should be lower than the [initial balance](#checking-initial-balance
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="4 12 24 26 27 47"
+```text linenums="1" hl_lines="4 10 22 24 25 45"
 --8<-- 'devbook/mosaics/revoke_mosaic.log'
 ```
 
@@ -121,15 +121,15 @@ Some highlights from the output:
 
 * **Mosaic ID** (line 4): The mosaic ID `8857803461494335809` (`0x7AED3D514C986941`) identifies the mosaic to revoke.
 
-* **Initial balance** (line 12): Before the revocation, the source account holds `1000` atomic units of the mosaic.
+* **Initial balance** (line 10): Before the revocation, the source account holds `1000` atomic units of the mosaic.
 
-* **Source address** (line 24): The `source_address` field identifies the account from which units are revoked.
+* **Source address** (line 22): The `source_address` field identifies the account from which units are revoked.
     This is the hex-encoded form of the Base32 address shown on line 3.
 
-* **Revoked amount** (lines 26-27): The `mosaic` object specifies the mosaic ID in decimal format and the amount `700`.
+* **Revoked amount** (lines 24-25): The `mosaic` object specifies the mosaic ID in decimal format and the amount `700`.
     The decimal value corresponds to the hexadecimal ID shown on line 4.
 
-* **Verified balance** (line 47): After the revocation, the source account's balance is `300`, confirming that `700`
+* **Verified balance** (line 45): After the revocation, the source account's balance is `300`, confirming that `700`
     atomic units were successfully reclaimed.
 
 The transaction hash printed in the output can be used to search for the transaction in the
@@ -142,5 +142,5 @@ This tutorial showed how to:
 | Step                                                        | Related documentation                                                           |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | [Check account balance](#checking-initial-balance)          | <get:/accounts/{accountId}>                                                     |
-| [Revoke mosaic units](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyRevocationTransactionV1> |
+| [Revoke mosaic units](#building-the-revocation-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicSupplyRevocationTransactionV1> |
 | [Verify the revocation](#verifying-the-revocation)          | <get:/accounts/{accountId}>                                                     |

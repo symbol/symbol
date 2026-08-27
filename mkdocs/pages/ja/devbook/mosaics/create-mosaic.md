@@ -44,11 +44,11 @@ tutorial_level: advanced
 署名者の [アドレス](default: アドレス) は [公開鍵](default:公開鍵) から派生します。
 このアカウントが作成されたモザイクを所有することになります。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### モザイクノンスの生成 {: #generating-the-mosaic-nonce }
 
@@ -67,14 +67,11 @@ tutorial_level: advanced
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-モザイク定義トランザクションは、以下のプロパティを使用してネットワークに新しいモザイクを登録します。
+モザイク定義トランザクションは、新しいモザイクをネットワークに登録します。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> に渡す署名者が、作成されたモザイクの所有者になります。
+トランザクションのディスクリプタには、以下が含まれます。
 
 * {{ tutorial.var('type') }}: モザイク定義トランザクションにはタイプ <ser:MosaicDefinitionTransactionV1> を使用します。
-
-* {{ tutorial.var('signer_public_key') }}: トランザクションに署名し、手数料を支払うアカウント。
-    作成されたモザイクの所有者になります。
-
-* {{ tutorial.var('deadline') }}: ネットワーク時間のステップで計算された値。
 
 * {{ tutorial.var('duration') }}: モザイクがアクティブな状態を維持するブロック数。値が `0` の場合、モザイクは期限切れになりません。
     有効期間を指定する場合、最大許容値は [約10年](../../textbook/mosaics.md#duration) です（デフォルトの30秒ブロックターゲットで、3,650日、または約10,512,000ブロック）。
@@ -105,7 +102,7 @@ tutorial_level: advanced
 
 !!! note "レンタル手数料"
 
-    標準の [トランザクション手数料](#fetching-network-time-and-fees) に加えて、モザイクの作成には [XYM](default: XYM) で支払う一回限りのレンタル手数料が必要です。
+    標準の [トランザクション手数料](#fetching-recommended-fees) に加えて、モザイクの作成には [XYM](default: XYM) で支払う一回限りのレンタル手数料が必要です。
 
     トランザクション手数料とは異なり、レンタル手数料はトランザクションリクエストには **含まれません**。
     モザイク定義トランザクションが承認されると、ネットワークによって署名者のアカウントから自動的に差し引かれます。
@@ -125,13 +122,10 @@ tutorial_level: advanced
 {{ tutorial.code_snippet_tagged('step-6') }}
 
 モザイク定義が承認されると、2番目のトランザクションでモザイクの供給量を増加させます。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> に渡す署名者は、変更対象のモザイクの所有者である必要があります。
+トランザクションのディスクリプタには、以下が含まれます。
 
 * {{ tutorial.var('type') }}: モザイク供給量変更トランザクションにはタイプ <ser:MosaicSupplyChangeTransactionV1> を使用します。
-
-* {{ tutorial.var('signer_public_key') }}: トランザクションに署名し、手数料を支払うアカウント。
-    モザイクの作成者である必要があります。
-
-* {{ tutorial.var('deadline') }}: ネットワーク時間のステップで計算された値。
 
 * {{ tutorial.var('mosaic_id') }}: 署名者のアドレスとノンスから <dy:IdGenerator.generateMosaicId> を使用して計算されたモザイクの識別子。
 
@@ -166,24 +160,24 @@ tutorial_level: advanced
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="9 10 18 20 21 23 24 46 60 61 62 63 64"
+```text linenums="1" hl_lines="8 16 18 19 21 22 44 58 59 60 61 62"
 --8<-- 'devbook/mosaics/create_mosaic.log'
 ```
 
 出力の主なポイント:
 
-* **モザイクID** (10行目): ノンスが署名者のアドレスと組み合わされ、モザイクID `0x736FEC06ED1DAA73` が派生します。
+* **モザイクID** (8行目): ノンスが署名者のアドレスと組み合わされ、モザイクID `0x736FEC06ED1DAA73` が派生します。
 
-* **手数料** (18行目): 0.015 XYM のトランザクション手数料は、トランザクションサイズに手数料倍率を乗じて計算されます。 [レンタル手数料](../../textbook/mosaics.md#lease-fee) は、トランザクションが承認された際にネットワークによって別途差し引かれます。
+* **手数料** (16行目): 0.015 XYM のトランザクション手数料は、トランザクションサイズに手数料倍率を乗じて計算されます。 [レンタル手数料](../../textbook/mosaics.md#lease-fee) は、トランザクションが承認された際にネットワークによって別途差し引かれます。
 
-* **モザイクID** (20行目): `id` フィールドは、ノンスと署名者のアドレスからトランザクションファクトリによって自動的に計算され、10行目に印刷された値と一致します。
+* **モザイクID** (18行目): `id` フィールドは、ノンスと署名者のアドレスから SDK によって自動的に計算され、8行目に印刷された値と一致します。
 
-* **モザイクプロパティ** (21、23-24行目): フラグはビットマスクとして保存され、各フラグは1ビットを占めます。 `supply_mutable` (1)、 `transferable` (2)、 `restrictable` (4)、 `revokable` (8) です。
+* **モザイクプロパティ** (19、21-22行目): フラグはビットマスクとして保存され、各フラグは1ビットを占めます。 `supply_mutable` (1)、 `transferable` (2)、 `restrictable` (4)、 `revokable` (8) です。
     値 `6` は、 `transferable` (2) + `restrictable` (4) と等しくなります。可分性は `2` で、有効期間 `0` はモザイクが期限切れにならないことを意味します。
 
-* **供給量デルタ** (46行目): デルタ `10000` 絶対単位は、モザイクの可分性が `2` であるため、 `100.00` 全体単位を表します。
+* **供給量デルタ** (44行目): デルタ `10000` 絶対単位は、モザイクの可分性が `2` であるため、 `100.00` 全体単位を表します。
 
-* **検証されたプロパティ** (60-64行目): モザイクがネットワークから取得され、期待通りの供給量、フラグ、可分性、有効期間が確認されました。
+* **検証されたプロパティ** (58-62行目): モザイクがネットワークから取得され、期待通りの供給量、フラグ、可分性、有効期間が確認されました。
 
 出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
@@ -194,8 +188,8 @@ tutorial_level: advanced
 | ステップ                                                               | 関連ドキュメント                           |
 |--------------------------------------------------------------------|--------------------------------------|
 | [モザイクIDを生成する](#generating-the-mosaic-nonce)       | <dy:IdGenerator.generateMosaicId>    |
-| [モザイクを定義する](#building-the-mosaic-definition-transaction)         | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1> |
-| [モザイク供給量をミントする](#building-the-mosaic-supply-change-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyChangeTransactionV1> |
+| [モザイクを定義する](#building-the-mosaic-definition-transaction)         | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicDefinitionTransactionV1> |
+| [モザイク供給量をミントする](#building-the-mosaic-supply-change-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicSupplyChangeTransactionV1> |
 | [モザイクを取得する](#retrieving-the-mosaic)                              | <get:/mosaics/{mosaicId}>            |
 
 ## 次のステップ {: #next-steps }
