@@ -108,7 +108,7 @@ nav:
               - devbook/transactions/transfer.md
               - devbook/transactions/messages.md
               - devbook/transactions/monitoring-status.md
-              - devbook/transactions/typed-descriptors.md
+              - devbook/transactions/manual-transaction-creation.md
               - devbook/transactions/complete-aggregate.md
               - devbook/transactions/bonded-aggregate.md
               - devbook/transactions/sign-multisig.md

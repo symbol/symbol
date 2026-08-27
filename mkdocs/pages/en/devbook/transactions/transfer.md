@@ -12,6 +12,15 @@ This tutorial shows how to create, sign, and announce a transfer transaction, an
 until it is confirmed.
 The recommended fee multiplier is fetched from the network so the SDK can calculate an appropriate transaction fee.
 
+This tutorial is used to explain the basic concepts of transaction creation and announcement.
+The rest of tutorials refer to this one to explain these basic techniques.
+
+!!! note "Alternative Manual Transaction Creation"
+
+    This tutorial describes the most convenient and type-safe method to create transactions.
+    For an alternative, lower-level, manual method, see the
+    [Manual Transaction Creation](./manual-transaction-creation.md) tutorial.
+
 ## Prerequisites
 
 Before you start, make sure to:
