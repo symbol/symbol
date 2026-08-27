@@ -156,7 +156,7 @@ digraph CrossChainSwapSteps {
 実際には、アリスとボブはそれぞれ別のマシンで自分のパートを実行します。
 このチュートリアルでは、分かりやすくするために両方の側を1つのスクリプトにまとめています。
 
-コードでは、[転送](./transfer.md)チュートリアルで説明されているのと同じパターンに従って、ネットワークの時刻や手数料を取得したり、トランザクションをアナウンスしたり、承認をポーリングしたりするためのヘルパー関数を定義しています。
+コードでは、[転送](./transfer.md)チュートリアルで説明されているのと同じパターンに従って、推奨手数料を取得したり、トランザクションをアナウンスしたり、承認をポーリングしたりするためのヘルパー関数を定義しています。
 
 このチュートリアルではステップ間でトランザクションの [ファイナリティ](default:ファイナライズ) を待ちませんが、本番環境への実装ではロールバック関連のリスクを防ぐために必ず待機する必要があります。
 
@@ -262,7 +262,7 @@ digraph CrossChainSwapSteps {
 
 以下に示す出力は、プログラムの一般的な実行例に対応しています。
 
-```text linenums="1" hl_lines="9 10 15 16 19 50 70 80 87 89"
+```text linenums="1" hl_lines="9 10 15 16 19 49 66 77 83 85"
 --8<-- 'devbook/transactions/cross_chain_swap.log'
 ```
 
@@ -272,11 +272,11 @@ digraph CrossChainSwapSteps {
 * **行 15:** イーサリアムでのアリスのETHロックが承認されます。
 * **行 16:** HTLCコントラクトIDは、アリスのイーサリアムロックを識別します。ボブはこれを使用してハッシュロックをクエリし、後で引き出します。
 * **行 19:** ボブは `getContract` を使用して、イーサリアムコントラクトからハッシュロックを取得します。
-* **行 50:** ボブのSymbolシークレットロックが承認されます。これで、アリスはXYMを請求できるようになります。
-* **行 70:** アリスはシークレット証明トランザクションに証明を含めます。アナウンスされると、Symbol上で誰でも見れる状態（パブリック）になります。
-* **行 80:** アリスのシークレット証明が承認されます。アリスは1 XYMを受け取ります。
-* **行 87:** ボブは、Symbol上で承認されたアリスのトランザクションから公開された証明を取得し、それを使用してイーサリアムで引き出しを行います。
-* **行 89:** ボブのイーサリアムでの引き出しが承認されます。
+* **行 49:** ボブのSymbolシークレットロックが承認されます。これで、アリスはXYMを請求できるようになります。
+* **行 66:** アリスはシークレット証明トランザクションに証明を含めます。アナウンスされると、Symbol上で誰でも見れる状態（パブリック）になります。
+* **行 77:** アリスのシークレット証明が承認されます。アリスは1 XYMを受け取ります。
+* **行 83:** ボブは、Symbol上で承認されたアリスのトランザクションから公開された証明を取得し、それを使用してイーサリアムで引き出しを行います。
+* **行 85:** ボブのイーサリアムでの引き出しが承認されます。
     ボブはアリスの0.01 ETHを受け取り、スワップが完了します。
 
 出力に表示されたハッシュを使用して、各ネットワークのブロックエクスプローラーでトランザクションを確認できます。
@@ -292,8 +292,8 @@ digraph CrossChainSwapSteps {
 | ------------------------------------------------------------------------------ | ------------------------------ |
 | [証明とハッシュロックの生成](#alice-generating-the-proof-and-hashlock)      | <ser:LockHashAlgorithm>        |
 | [イーサリアムでETHをロックする](#step-1-alice-locking-eth-on-ethereum)                  | イーサリアムHTLCコントラクト         |
-| [Symbolでシークレットロックを作成する](#step-2-bob-creating-a-secret-lock-on-symbol) | <ser:SecretLockTransactionV1>  |
-| [Symbolで証明を公開する](#step-3-alice-claiming-xym-on-symbol)             | <ser:SecretProofTransactionV1> |
+| [Symbolでシークレットロックを作成する](#step-2-bob-creating-a-secret-lock-on-symbol) | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:SecretLockTransactionV1>  |
+| [Symbolで証明を公開する](#step-3-alice-claiming-xym-on-symbol)             | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:SecretProofTransactionV1> |
 | [イーサリアムでETHを引き出す](#step-4-bob-withdrawing-eth-on-ethereum)            | イーサリアムHTLCコントラクト         |
 
 ## 次のステップ {: #next-steps }

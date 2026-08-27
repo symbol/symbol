@@ -112,11 +112,11 @@ If using your own keys, ensure Account A has XYM and Account B holds a custom mo
 
 The addresses for both accounts are derived from their public keys using the facade's network configuration.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
+Recommended fees are fetched from <get:/network/fees/transaction>,
 following the process described in the [Transfer Transaction](./transfer.md) tutorial.
 
 ### Creating Embedded Transactions
@@ -154,21 +154,10 @@ The example creates two <transfer transactions:> for the swap:
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-Once the embedded transactions are prepared, create the complete aggregate transaction that wraps them:
+Once the embedded transactions are prepared, create the complete aggregate transaction from the transaction's descriptor.
+The descriptor contains:
 
-* **Type:** Use <ser:AggregateCompleteTransactionV3|aggregate_complete_transaction_v3>.
-
-* **Signer public key:** The account initiating the aggregate.
-  This account announces the transaction and pays the transaction fee.
-
-    !!! tip "Sharing transaction fees"
-
-        While the signer pays the entire fee upfront, other participants can contribute to the cost within
-        the aggregate.
-        For more details, see the [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
-
-* **Deadline:** The timestamp, in [network time](./transfer.md#fetching-network-time), after which the transaction
-  expires and can no longer be confirmed.
+* **Type:** Use <ser:AggregateCompleteTransactionV3>.
 
 * **Transactions hash:** A hash computed from all embedded transactions.
   This ensures the embedded transactions cannot be modified after signing.
@@ -176,10 +165,18 @@ Once the embedded transactions are prepared, create the complete aggregate trans
 
 * **Transactions:** The array of embedded transactions to execute.
 
-The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus
-space reserved for one cosignature.
-The <dy:FeeCalculator.calculateTransactionFee> helper reserves this space through its cosignature-count
-argument, set to `1` here.
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> also receives the signer public key, fee multiplier, deadline
+duration, and reserved cosignature count.
+The signer initiates the aggregate, announces the transaction, and pays the transaction fee.
+
+!!! tip "Sharing transaction fees"
+
+    While the signer pays the entire fee upfront, other participants can contribute to the cost within the aggregate.
+    For more details, see the [Paying Transaction Fees on Behalf of Another Account](./fee-sponsorship.md) tutorial.
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> calculates the fee based on the aggregate's total size,
+which includes all embedded transactions plus space reserved for one cosignature.
+The reserved cosignature count is provided as the final argument, set to `1` here.
 
 ### Signing the Transaction
 
@@ -253,22 +250,22 @@ Once confirmed, the swap is complete and both transfers have executed.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="10 14 18 48 53 60 66"
+```text linenums="1" hl_lines="8 12 16 46 51 58 64"
 --8<-- 'devbook/transactions/complete_aggregate.log'
 ```
 
 Key points in the output:
 
-* **Line 10** (`"signature": "0000..."`): Shows all zeros initially because the transaction hasn't been signed yet.
-* **Line 14** (`"type": 16705`): Indicates this is an <ser:AggregateCompleteTransactionV3>.
-* **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
-* **Line 48** (`"cosignatures": []`): Initially empty. Account B's cosignature is added before announcement.
+* **Line 8** (`"signature": "0000..."`): Shows all zeros initially because the transaction hasn't been signed yet.
+* **Line 12** (`"type": 16705`): Indicates this is an <ser:AggregateCompleteTransactionV3>.
+* **Line 16** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
+* **Line 46** (`"cosignatures": []`): Initially empty. Account B's cosignature is added before announcement.
     Note how Account A's signature is only needed once, even though it appears as signer in both the aggregate and the
     first embedded transaction.
-* **Line 53** (`"payload": "6801..."`): The transaction payload computed from the aggregate transaction and its embedded
+* **Line 51** (`"payload": "6801..."`): The transaction payload computed from the aggregate transaction and its embedded
     transactions.
-* **Line 60** (`"signature": "7037..."`): Account B's cosignature for the aggregate transaction.
-* **Line 66** (`Waiting for confirmation ...`): The hash shown in the confirmation check can be used to search for the
+* **Line 58** (`"signature": "7037..."`): Account B's cosignature for the aggregate transaction.
+* **Line 64** (`Waiting for confirmation ...`): The hash shown in the confirmation check can be used to search for the
     transaction in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 The aggregate transaction is treated as a single atomic unit by the network.
@@ -281,8 +278,8 @@ This tutorial showed how to:
 
 | Step                                                            | Related documentation                                                                                                        |
 | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| [Create embedded transactions](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                                                                 |
-| [Build the aggregate](#building-the-aggregate-transaction)      | <dy:SymbolTransactionFactory.create><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [Create embedded transactions](#creating-embedded-transactions) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor><br/><ser:TransferTransactionV1>                               |
+| [Build the aggregate](#building-the-aggregate-transaction)      | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
 | [Sign the transaction](#signing-the-transaction)                | <dy:SymbolFacade.signTransaction>                                                                                            |
 | [Verify and cosign](#verifying-and-cosigning)                   | <dy:SymbolFacade.cosignTransaction>                                                                                          |
 | [Collect the cosignature](#collecting-the-cosignature)          | <dy:SymbolTransactionFactory.attachSignature>                                                                                |

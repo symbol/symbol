@@ -1,10 +1,9 @@
 // eslint-disable-next-line import/no-unresolved
 import { ethers } from 'ethers';
-import { PrivateKey } from 'symbol-sdk';
+import { Hash256, PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -35,19 +34,6 @@ const HTLC_ABI = [
 		'address indexed receiver, uint amount, ' +
 		'bytes32 hashlock, uint timelock)'
 ];
-
-// Helper function to fetch current Symbol network time
-async function getNetworkTime() {
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${SYMBOL_NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-	return timestamp;
-}
 
 // Helper function to fetch recommended Symbol fee multiplier
 async function getFeeMultiplier() {
@@ -221,7 +207,8 @@ try {
 	console.log('HTLC contract ID:', contractId);
 	// [<step-3]
 	// --- Step 2. Bob: Create secret lock on Symbol ---
-	console.log('\n--- Step 2. Bob: Create secret lock on Symbol ---'); // [>step-4]
+	// [>step-4]
+	console.log('\n--- Step 2. Bob: Create secret lock on Symbol ---');
 
 	// Bob queries the Ethereum contract to get the hashlock
 	const htlcAsBob = new ethers.Contract(
@@ -233,22 +220,21 @@ try {
 	const lockDuration = 5760n; // ~48h at 30s blocks
 	console.log('Lock duration:', lockDuration.toString(), 'blocks');
 
-	const secretLockTransaction = facade.transactionFactory.create({
-		type: 'secret_lock_transaction_v1',
-		signerPublicKey: bobXymKeyPair.publicKey.toString(),
-		deadline: (await getNetworkTime()).addHours(2).timestamp,
-		recipientAddress: aliceXymAddress.toString(),
-		mosaic: {
-			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 1_000_000n // 1 XYM
-		},
-		duration: lockDuration,
-		secret: hashlock,
-		hashAlgorithm: 'hash_256'
-	});
-	secretLockTransaction.fee = new models.Amount(
-		calculateTransactionFee(
-			secretLockTransaction, (await getFeeMultiplier())));
+	const secretLockTransaction =
+		facade.createTransactionFromTypedDescriptor(
+			new descriptors.SecretLockTransactionV1Descriptor(
+				aliceXymAddress,
+				new Hash256(hashlock),
+				new descriptors.UnresolvedMosaicDescriptor(
+					generateMosaicAliasId('symbol.xym'),
+					new models.Amount(1_000_000n) // 1 XYM
+				),
+				new models.BlockDuration(lockDuration),
+				models.LockHashAlgorithm.HASH_256
+			),
+			bobXymKeyPair.publicKey,
+			await getFeeMultiplier(),
+			2 * 60 * 60);
 
 	// Sign and announce
 	const lockSignature = facade.signTransaction(
@@ -269,19 +255,17 @@ try {
 	// --- Step 3. Alice: Claim XYM on Symbol ---
 	console.log('\n--- Step 3. Alice: Claim XYM on Symbol ---'); // [>step-5]
 
-	const secretProofTransaction = facade.transactionFactory.create({
-		type: 'secret_proof_transaction_v1',
-		signerPublicKey:
-				aliceXymKeyPair.publicKey.toString(),
-		deadline: (await getNetworkTime()).addHours(2).timestamp,
-		recipientAddress: aliceXymAddress.toString(),
-		secret: hashlock,
-		hashAlgorithm: 'hash_256',
-		proof
-	});
-	secretProofTransaction.fee = new models.Amount(
-		calculateTransactionFee(
-			secretProofTransaction, (await getFeeMultiplier())));
+	const secretProofTransaction =
+		facade.createTransactionFromTypedDescriptor(
+			new descriptors.SecretProofTransactionV1Descriptor(
+				aliceXymAddress,
+				new Hash256(hashlock),
+				models.LockHashAlgorithm.HASH_256,
+				proof
+			),
+			aliceXymKeyPair.publicKey,
+			await getFeeMultiplier(),
+			2 * 60 * 60);
 
 	// Sign and announce
 	const proofSignature = facade.signTransaction(

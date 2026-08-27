@@ -92,11 +92,11 @@ digraph {
 
 両方のアカウントのアドレスは、ファサードのネットワーク設定を使用して公開鍵から派生します。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+推奨手数料は、[転送トランザクション](./transfer.md) チュートリアルで説明されているプロセスに従って <get:/network/fees/transaction> から取得します。
 
 ### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
@@ -125,20 +125,22 @@ digraph {
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-埋め込みトランザクションの準備ができたら、それらをラップするコンプリートアグリゲートトランザクションを作成します。
+埋め込みトランザクションの準備ができたら、トランザクションのディスクリプタからコンプリートアグリゲートトランザクションを作成します。
+ディスクリプタには以下のフィールドが含まれます。
 
-* **タイプ**: <ser:AggregateCompleteTransactionV3|aggregate_complete_transaction_v3> を使用します。
-* **署名者の公開鍵**: アグリゲートを開始するアカウントです。このアカウントがトランザクションをアナウンスし、トランザクション手数料を支払います。
-
-    !!! tip "トランザクション手数料の共有"
-
-        署名者が全額を前払いで支払いますが、他の参加者がアグリゲート内で費用を負担することも可能です。詳細は [他のアカウントの代理でのトランザクション手数料の支払い](./fee-sponsorship.md) チュートリアルを参照してください。
-
-* **有効期限 (Deadline)**: タイムスタンプです。これ以降はトランザクションが失効し、承認されなくなります。
+* **タイプ**: <ser:AggregateCompleteTransactionV3> を使用します。
 * **トランザクションハッシュ**: すべての埋め込みトランザクションから計算されるハッシュです。これにより、署名後に埋め込みトランザクションが変更されないことが保証されます。この値を計算するには `SymbolFacade.hash_embedded_transactions` を使用します。
 * **トランザクション**: 実行する埋め込みトランザクションの配列です。
 
-手数料は、アグリゲートの総サイズに基づいて計算されます。これには、すべての埋め込みトランザクションと、1つの連署用に予約されたスペースが含まれます。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> には、署名者の公開鍵、手数料乗数、デッドラインの期間、予約する連署数も渡します。
+署名者はアグリゲートを開始し、トランザクションをアナウンスして手数料を支払います。
+
+!!! tip "トランザクション手数料の共有"
+
+    署名者が全額を前払いで支払いますが、他の参加者がアグリゲート内で費用を負担することも可能です。詳細は [他のアカウントの代理でのトランザクション手数料の支払い](./fee-sponsorship.md) チュートリアルを参照してください。
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> が、すべての埋め込みトランザクションと1つの連署用に予約されたスペースを含むアグリゲートの総サイズに基づいて手数料を計算します。
+予約する連署数は最後の引数として渡し、この例では `1` を指定しています。
 
 ### トランザクションの署名 {: #signing-the-transaction }
 
@@ -196,19 +198,19 @@ digraph {
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="10 14 18 48 53 60 66"
+```text linenums="1" hl_lines="8 12 16 46 51 58 64"
 --8<-- 'devbook/transactions/complete_aggregate.log'
 ```
 
 出力の主なポイント:
 
-* **10行目** (`"signature": "0000..."`): トランザクションがまだ署名されていないため、最初はすべてゼロが表示されています。
-* **14行目** (`"type": 16705`): これが <ser:AggregateCompleteTransactionV3> であることを示します。
-* **18行目** (`"transactions"`): アトミックに実行される2つの埋め込み転送が含まれています。
-* **48行目** (`"cosignatures": []`): 最初は空です。アカウント B の連署はアナウンス前に追加されます。
-* **53行目** (`"payload": "6801..."`): アグリゲートトランザクションとその埋め込みトランザクションから計算されたトランザクションペイロード。
-* **60行目** (`"signature": "7037..."`): アグリゲートトランザクションに対するアカウント B の連署。
-* **66行目** (`Waiting for confirmation ...`): 承認確認で示されているハッシュは、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索するために使用できます。
+* **8行目** (`"signature": "0000..."`): トランザクションがまだ署名されていないため、最初はすべてゼロが表示されています。
+* **12行目** (`"type": 16705`): これが <ser:AggregateCompleteTransactionV3> であることを示します。
+* **16行目** (`"transactions"`): アトミックに実行される2つの埋め込み転送が含まれています。
+* **46行目** (`"cosignatures": []`): 最初は空です。アカウント B の連署はアナウンス前に追加されます。
+* **51行目** (`"payload": "6801..."`): アグリゲートトランザクションとその埋め込みトランザクションから計算されたトランザクションペイロード。
+* **58行目** (`"signature": "7037..."`): アグリゲートトランザクションに対するアカウント B の連署。
+* **64行目** (`Waiting for confirmation ...`): 承認確認で示されているハッシュは、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索するために使用できます。
 
 アグリゲートトランザクションは、ネットワークによって単一のアトミックな単位として扱われます。スワップは完全に実行されるか、トランザクション全体が失敗してアセットが一切転送されないかのどちらかとなります。
 
@@ -218,8 +220,8 @@ digraph {
 
 | ステップ                                                   | 関連ドキュメント                                                                          |
 |--------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolTransactionFactory.create><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor><br/><ser:TransferTransactionV1> |
+| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
 | [トランザクションの署名](#signing-the-transaction)              | <dy:SymbolFacade.signTransaction>                                                   |
 | [検証と連署](#verifying-and-cosigning)                  | <dy:SymbolFacade.cosignTransaction>                                                 |
 | [連署の収集](#collecting-the-cosignature)               | <dy:SymbolTransactionFactory.attachSignature>                                       |

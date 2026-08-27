@@ -1,10 +1,8 @@
 import { PrivateKey, PublicKey } from 'symbol-sdk';
 import {
 	MessageEncoder,
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
-	models
+	descriptors
 } from 'symbol-sdk/symbol';
 
 // Configuration
@@ -57,16 +55,6 @@ const recipientAddress = facade.network.publicKeyToAddress(
 console.log('Sender address:', senderAddress.toString());
 console.log('Recipient address:', recipientAddress.toString(), '\n');
 // [<step-1]
-// Fetch current network time
-const timePath = '/node/time';
-console.log('Fetching current network time from', timePath);
-const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-const timeJSON = await timeResponse.json();
-const timestamp = new NetworkTimestamp(
-	timeJSON.communicationTimestamps.receiveTimestamp);
-console.log('  Network time:', timestamp.timestamp,
-	'ms since nemesis');
-
 // Fetch recommended fees
 const feePath = '/network/fees/transaction';
 console.log('Fetching recommended fees from', feePath);
@@ -86,16 +74,15 @@ console.log('Plain message:',
 	new TextDecoder().decode(plainMessage));
 
 // Build transfer transaction with plain message
-const plainTransaction = facade.transactionFactory.create({
-	type: 'transfer_transaction_v1',
-	signerPublicKey: senderKeyPair.publicKey.toString(),
-	deadline: timestamp.addHours(2).timestamp,
-	recipientAddress: recipientAddress.toString(),
-	mosaics: [],
-	message: plainMessage
-}); // [<step-2]
-plainTransaction.fee = new models.Amount(
-	calculateTransactionFee(plainTransaction, feeMultiplier));
+const plainTransaction = facade.createTransactionFromTypedDescriptor(
+	new descriptors.TransferTransactionV1Descriptor(
+		recipientAddress,
+		[],
+		plainMessage
+	),
+	senderKeyPair.publicKey,
+	feeMultiplier,
+	2 * 60 * 60); // [<step-2]
 
 // Sign and announce the transaction
 const plainSignature = facade.signTransaction(
@@ -144,16 +131,15 @@ console.log('Encrypted payload:',
 	Buffer.from(encryptedPayload).toString('hex'));
 
 // Build transfer transaction with encrypted message
-const encryptedTransaction = facade.transactionFactory.create({
-	type: 'transfer_transaction_v1',
-	signerPublicKey: senderKeyPair.publicKey.toString(),
-	deadline: timestamp.addHours(2).timestamp,
-	recipientAddress: recipientAddress.toString(),
-	mosaics: [],
-	message: encryptedPayload
-}); // [<step-4]
-encryptedTransaction.fee = new models.Amount(
-	calculateTransactionFee(encryptedTransaction, feeMultiplier));
+const encryptedTransaction = facade.createTransactionFromTypedDescriptor(
+	new descriptors.TransferTransactionV1Descriptor(
+		recipientAddress,
+		[],
+		encryptedPayload
+	),
+	senderKeyPair.publicKey,
+	feeMultiplier,
+	2 * 60 * 60); // [<step-4]
 
 // Sign and announce the transaction
 const encryptedSignature = facade.signTransaction(

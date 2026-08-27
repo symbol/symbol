@@ -18,8 +18,6 @@ HTLC contract ID: 92217fcd48907e5759e5431d8a0d606e64942cdb209d329590a68250a01b41
 --- Step 2. Bob: Create secret lock on Symbol ---
 Hashlock from chain: d128c3c3924ecff0a19f81c89a84e7fe6320b8a2b07ff22812e58a2360e1a910
 Lock duration: 5760 blocks
-Fetching current network time from /node/time
-  Network time: 109425352582 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Built secret lock transaction:
@@ -51,8 +49,6 @@ Waiting for Secret lock to reach confirmed status...
 Secret lock confirmed in 24 seconds
 
 --- Step 3. Alice: Claim XYM on Symbol ---
-Fetching current network time from /node/time
-  Network time: 109425393033 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Built secret proof transaction:
