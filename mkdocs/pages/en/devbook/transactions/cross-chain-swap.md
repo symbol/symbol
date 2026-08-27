@@ -173,7 +173,7 @@ digraph CrossChainSwapSteps {
 In practice, Alice and Bob would each run their own part on different machines.
 This tutorial combines both sides in a single script for simplicity.
 
-The code defines helper functions to fetch the network time and fees, announce transactions, and poll for confirmation,
+The code defines helper functions to fetch recommended fees, announce transactions, and poll for confirmation,
 following the same patterns described in the [Transfer](./transfer.md) tutorial.
 
 This tutorial does not wait for transaction <finalization:|finality> between steps,
@@ -292,7 +292,7 @@ Alice already received Bob's 1 XYM at the end of Step 3.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="9 10 15 16 19 50 70 80 87 89"
+```text linenums="1" hl_lines="9 10 15 16 19 49 66 77 83 85"
 --8<-- 'devbook/transactions/cross_chain_swap.log'
 ```
 
@@ -303,12 +303,12 @@ Key points in the output:
 * **Line 16:** The HTLC contract ID identifies Alice's Ethereum lock. Bob uses this to query the hashlock and later
     to withdraw.
 * **Line 19:** Bob retrieves the hashlock from the Ethereum contract using `getContract`.
-* **Line 50:** Bob's Symbol secret lock is confirmed. Alice can now claim the XYM.
-* **Line 70:** Alice includes the proof in her secret proof transaction. Once announced, it becomes public on Symbol.
-* **Line 80:** Alice's secret proof is confirmed. Alice receives the 1 XYM.
-* **Line 87:** Bob retrieves the revealed proof from Alice's confirmed transaction on Symbol, then uses it to
+* **Line 49:** Bob's Symbol secret lock is confirmed. Alice can now claim the XYM.
+* **Line 66:** Alice includes the proof in her secret proof transaction. Once announced, it becomes public on Symbol.
+* **Line 77:** Alice's secret proof is confirmed. Alice receives the 1 XYM.
+* **Line 83:** Bob retrieves the revealed proof from Alice's confirmed transaction on Symbol, then uses it to
     withdraw on Ethereum.
-* **Line 89:** Bob's Ethereum withdrawal is confirmed.
+* **Line 85:** Bob's Ethereum withdrawal is confirmed.
     Bob has received Alice's 0.01 ETH, completing the swap.
 
 You can verify the transactions on each network's block explorer using the hashes printed in the output:
@@ -324,8 +324,8 @@ This tutorial showed how to:
 | ------------------------------------------------------------------------------ | ------------------------------ |
 | [Generate a proof and hashlock](#alice-generating-the-proof-and-hashlock)      | <ser:LockHashAlgorithm>        |
 | [Lock ETH on Ethereum](#step-1-alice-locking-eth-on-ethereum)                  | Ethereum HTLC contract         |
-| [Create a secret lock on Symbol](#step-2-bob-creating-a-secret-lock-on-symbol) | <ser:SecretLockTransactionV1>  |
-| [Reveal the proof on Symbol](#step-3-alice-claiming-xym-on-symbol)             | <ser:SecretProofTransactionV1> |
+| [Create a secret lock on Symbol](#step-2-bob-creating-a-secret-lock-on-symbol) | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:SecretLockTransactionV1>  |
+| [Reveal the proof on Symbol](#step-3-alice-claiming-xym-on-symbol)             | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:SecretProofTransactionV1> |
 | [Withdraw ETH on Ethereum](#step-4-bob-withdrawing-eth-on-ethereum)            | Ethereum HTLC contract         |
 
 ## Next Steps

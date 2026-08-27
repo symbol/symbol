@@ -76,11 +76,11 @@ digraph {
 2つの受信者アドレスは、 `RECIPIENT_1` および `RECIPIENT_2` 環境変数から読み込まれます。
 指定されていない場合は、デフォルトでテストアドレスが使用されます。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-ネットワーク時間と推奨手数料は、[転送トランザクション](./transfer.md) のチュートリアルで説明されているプロセスに従い、それぞれ <get:/node/time> と <get:/network/fees/transaction> から取得されます。
+推奨手数料は、[転送トランザクション](./transfer.md) のチュートリアルで説明されているプロセスに従い、 <get:/network/fees/transaction> から取得されます。
 
 ### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
@@ -108,19 +108,21 @@ digraph {
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-* **Type:** <ser:AggregateCompleteTransactionV3|aggregate_complete_transaction_v3> を使用します。
+アグリゲートトランザクションは、トランザクションのディスクリプタから作成します。
+ディスクリプタには以下のフィールドが含まれます。
 
-* **Signer public key:** アグリゲートに署名し、トランザクション手数料を支払うアカウント。
-
-* **Deadline:** ネットワーク時間 で指定されるタイムスタンプ。これを過ぎるとトランザクションは期限切れとなり、承認できなくなります。
+* **Type:** <ser:AggregateCompleteTransactionV3> を使用します。
 
 * **Transactions hash:** <dy:SymbolFacade.hashEmbeddedTransactions> を使用して、すべての埋め込みトランザクションから計算されるハッシュ。
 これにより、署名後に埋め込みトランザクションが変更されないことが保証されます。
 
 * **Transactions:** 実行する埋め込みトランザクションの配列。
 
-手数料は、アグリゲートの合計サイズに基づいて計算されます。
-連署は必要ないため、連署バイト用に余分なスペースを確保する必要はありません。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> には、署名者の公開鍵、手数料乗数、デッドラインの期間も渡します。
+署名者はアグリゲートに署名し、トランザクション手数料を支払います。
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> が、アグリゲートの合計サイズに基づいて手数料を計算します。
+連署は必要ないため、追加の連署数は指定しません。
 
 ### 署名とアナウンス {: #signing-and-announcing }
 
@@ -140,26 +142,26 @@ digraph {
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="16 26 29 30 40 43 44 50"
+```text linenums="1" hl_lines="14 24 27 28 38 41 42 48"
 --8<-- 'devbook/transactions/transaction_batching.log'
 ```
 
 出力の主なポイント:
 
-* **16行目** (`"type": 16705`): これが <ser:AggregateCompleteTransactionV3> であることを識別します。
+* **14行目** (`"type": 16705`): これが <ser:AggregateCompleteTransactionV3> であることを識別します。
 
-* **26行目と40行目** (`"recipient_address"`): 2つの埋め込み転送は異なるアカウントをターゲットにしています。
+* **24行目と38行目** (`"recipient_address"`): 2つの埋め込み転送は異なるアカウントをターゲットにしています。
 これらは、4〜5行目に出力された Base32 アドレスの16進数エンコード形式です。
 
-* **29-30行目と43-44行目** (`"mosaic_id", "amount"`): 各転送は XYM（モザイクエイリアス ID `16666583871264174062`）を送信します。
+* **27-28行目と41-42行目** (`"mosaic_id", "amount"`): 各転送は XYM（モザイクエイリアス ID `16666583871264174062`）を送信します。
 このモザイクの [可分性](default:可分性) は 6 であるため、金額 5000000 と 3000000 はそれぞれ 5 および 3 XYM に対応します。
 
-* **50行目** (`"cosignatures": []`): すべての埋め込みトランザクションが同じ署名者を共有しているため、空です。
+* **48行目** (`"cosignatures": []`): すべての埋め込みトランザクションが同じ署名者を共有しているため、空です。
 追加の署名は必要ありません。
 
 アグリゲートトランザクションはアトミックに実行されます。つまり、両方の受信者が XYM の転送を受け取るか、どちらも受け取らないかのいずれかになります。
 
-出力されたトランザクションハッシュ（54行目）を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
+出力されたトランザクションハッシュ（52行目）を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
 ## 結論 {: #conclusion }
 
@@ -167,8 +169,8 @@ digraph {
 
 | ステップ                                                   | 関連ドキュメント                                                                          |
 |--------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolTransactionFactory.create><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [埋め込みトランザクションの作成](#creating-embedded-transactions) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor><br/><ser:TransferTransactionV1> |
+| [アグリゲートの構築](#building-the-aggregate-transaction)     | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:AggregateCompleteTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
 | [署名とアナウンス](#signing-and-announcing)                  | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
 
 ## 次のステップ {: #next-steps }

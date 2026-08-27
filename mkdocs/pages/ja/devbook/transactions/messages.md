@@ -22,7 +22,7 @@ tutorial_level: intermediate
 * トランザクション手数料を支払うための [XYM](default: XYM) を入手していること。
     [蛇口 (Faucet) からテストネットの通貨を入手する](../accounts/testnet-faucet.md) を参照してください。
 
-さらに、手数料の計算、ネットワーク時間、およびトランザクションの承認がどのように機能するかを理解するために、[転送トランザクション](./transfer.md) チュートリアルを確認してください。
+さらに、手数料、デッドライン、およびトランザクションの承認がどのように機能するかを理解するために、[転送トランザクション](./transfer.md) チュートリアルを確認してください。
 
 ## 完全なコード {: #full-code }
 
@@ -33,7 +33,7 @@ tutorial_level: intermediate
 ## コード解説 {: #code-explanation }
 
 このチュートリアルでは、転送トランザクションのメッセージ固有の側面に焦点を当てます。
-ネットワーク時間の取得、手数料の計算、トランザクションのアナウンスに関する部分は、
+手数料の取得、トランザクションの作成とアナウンスに関する部分は、
 [転送トランザクション](./transfer.md) のチュートリアルで説明しているため、ここでは省略します。
 
 ### アカウントの設定 {: #setting-up-accounts }
@@ -133,21 +133,21 @@ tutorial_level: intermediate
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="11 18 21 22 29"
+```text linenums="1" hl_lines="9 16 19 20 27"
 --8<-- 'devbook/transactions/messages.log'
 ```
 
 出力のハイライトをいくつか紹介します。
 
-* **平文メッセージ**（11 行目）: 最初のトランザクションに添付されたメッセージ。暗号化されていないため、ブロックチェーンを閲覧できる誰もが読むことができます。
+* **平文メッセージ**（9行目）: 最初のトランザクションに添付されたメッセージ。暗号化されていないため、ブロックチェーンを閲覧できる誰もが読むことができます。
 
-* **受信した平文メッセージ**（18 行目）: 承認されたトランザクションから、16 進数のペイロードを UTF-8 に変換して復元された同じメッセージ。
+* **受信した平文メッセージ**（16行目）: 承認されたトランザクションから、16 進数のペイロードを UTF-8 に変換して復元された同じメッセージ。
 
-* **元のメッセージ**（21 行目）: 暗号化前の秘密のメッセージ。
+* **元のメッセージ**（19行目）: 暗号化前の秘密のメッセージ。
 
-* **暗号化されたペイロード**（22 行目）: 前のメッセージを <dy:MessageEncoder.encode> で暗号化した結果で、16 進数文字列として表示されます。これがブロックチェーンに保存されます。
+* **暗号化されたペイロード**（20行目）: 前のメッセージを <dy:MessageEncoder.encode> で暗号化した結果で、16 進数文字列として表示されます。これがブロックチェーンに保存されます。
 
-* **受信者が復号したメッセージ**（29 行目）: 承認されたトランザクションから取得し、受信者の秘密鍵と送信者の公開鍵を使って <dy:MessageEncoder.tryDecode> で復号した元のメッセージ。
+* **受信者が復号したメッセージ**（27行目）: 承認されたトランザクションから取得し、受信者の秘密鍵と送信者の公開鍵を使って <dy:MessageEncoder.tryDecode> で復号した元のメッセージ。
 
 出力に表示されたトランザクションハッシュを検索することで、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを確認できます。
 
@@ -160,6 +160,6 @@ tutorial_level: intermediate
 | ステップ | 関連ドキュメント |
 | --- | --- |
 | [テキストをUTF-8バイトに変換する](#sending-a-plain-text-message) | `TextEncoder` (JS) および `str.encode`/`bytes.decode` (Python) <br> システムメソッドであり、Symbol SDKの一部ではありません |
-| [転送トランザクションにメッセージを含める](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory.create>, <ser:TransferTransactionV1> |
+| [転送トランザクションにメッセージを含める](#sending-a-plain-text-message) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:TransferTransactionV1> |
 | [メッセージの暗号化](#sending-an-encrypted-message) | <dy:MessageEncoder.encode> |
 | [メッセージの復号](#receiving-an-encrypted-message) | <dy:MessageEncoder.tryDecode> |

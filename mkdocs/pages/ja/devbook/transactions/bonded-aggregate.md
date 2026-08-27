@@ -93,11 +93,11 @@ digraph {
 
 両方のアカウントのアドレスは、ファサードのネットワーク設定を使用して公開鍵から派生します。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](./transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](./transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### 埋め込みトランザクションの作成 {: #creating-embedded-transactions }
 
@@ -128,23 +128,24 @@ digraph {
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-埋め込みトランザクションの準備ができたら、それらをラップするボンデッドアグリゲートトランザクションを作成します：
+埋め込みトランザクションの準備ができたら、トランザクションのディスクリプタからボンデッドアグリゲートトランザクションを作成します。
+ディスクリプタには以下のフィールドが含まれます。
 
-* **タイプ:** <ser:AggregateBondedTransactionV3|aggregate_bonded_transaction_v3> を使用します。
-
-* **署名者の公開鍵:** アグリゲートを開始するアカウントです。このアカウントがトランザクションをアナウンスし、トランザクション手数料を支払います。
-
-    !!! tip "トランザクション手数料の共有"
-
-        署名者が全額を前払いで支払いますが、他の参加者がアグリゲート内で費用を負担することも可能です。詳細は [他のアカウントの代理でのトランザクション手数料の支払い](./fee-sponsorship.md) を参照してください。
-
-* **有効期限 (Deadline):** トランザクションが失効し、承認されなくなる [ネットワーク時間](./transfer.md#fetching-network-time) 上のタイムスタンプです。
+* **タイプ:** <ser:AggregateBondedTransactionV3> を使用します。
 
 * **トランザクションハッシュ:** すべての埋め込みトランザクションから計算されるハッシュです。これにより、署名後に埋め込みトランザクションが変更されないことが保証されます。この値の計算には <dy:SymbolFacade.hashEmbeddedTransactions> を使用します。
 
 * **トランザクション:** 実行する埋め込みトランザクションの配列です。
 
-手数料は、アグリゲートの総サイズに基づいて計算されます。これには、すべての埋め込みトランザクションと、1つの連署用に予約されたスペースが含まれます。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> には、署名者の公開鍵、手数料乗数、デッドラインの期間、予約する連署数も渡します。
+署名者はアグリゲートを開始し、トランザクションをアナウンスして手数料を支払います。
+
+!!! tip "トランザクション手数料の共有"
+
+    署名者が全額を前払いで支払いますが、他の参加者がアグリゲート内で費用を負担することも可能です。詳細は [他のアカウントの代理でのトランザクション手数料の支払い](./fee-sponsorship.md) を参照してください。
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> が、すべての埋め込みトランザクションと1つの連署用に予約されたスペースを含むアグリゲートの総サイズに基づいて手数料を計算します。
+予約する連署数は最後の引数として渡し、この例では `1` を指定しています。
 
 ### ボンデッドトランザクションの署名 {: #signing-the-bonded-transaction }
 
@@ -239,21 +240,21 @@ digraph {
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="14 18 48 51 54 63 67 71 73"
+```text linenums="1" hl_lines="12 16 46 49 53 61 65 69 71"
 --8<-- 'devbook/transactions/bonded_aggregate.log'
 ```
 
 出力の主なポイント：
 
-* **14行目** (`"type": 16961`): これが <ser:AggregateBondedTransactionV3> であることを示します。
-* **18行目** (`"transactions"`): アトミックに実行される2つの埋め込み転送が含まれています。
-* **48行目** (`"cosignatures": []`): 最初は空です。署名はアナウンス後にオンチェーンで送信されます。
-* **51行目** (`Bonded aggregate transaction hash:`): ハッシュロックの作成とトランザクションのアナウンスに必要な、ボンデッドアグリゲートのハッシュです。
-* **54行目** (`Announcing Hash lock to /transactions`): ボンデッドアグリゲートの前にハッシュロックをアナウンスし、承認させる必要があります。
-* **63行目** (`Announcing Bonded aggregate transaction to /transactions/partial`): ボンデッドアグリゲートは通常のトランザクションとは異なるエンドポイントを使用します。
-* **67行目** (`Bonded aggregate transaction partial in 1 seconds`): ボンデッドアグリゲートは現在、連署がオンチェーンで送信されるのを待っています。
-* **71行目** (`[Account B] Verifying transaction: 2 embedded transactions`): アカウント B は連署する前にトランザクション内容を検査し、すべての操作に同意できるか確認しています。
-* **73行目** (`Announcing cosignature to /transactions/cosignature`): 連署がネットワークに送信されます。
+* **12行目** (`"type": 16961`): これが <ser:AggregateBondedTransactionV3> であることを示します。
+* **16行目** (`"transactions"`): アトミックに実行される2つの埋め込み転送が含まれています。
+* **46行目** (`"cosignatures": []`): 最初は空です。署名はアナウンス後にオンチェーンで送信されます。
+* **49行目** (`Bonded aggregate transaction hash:`): ハッシュロックの作成とトランザクションのアナウンスに必要な、ボンデッドアグリゲートのハッシュです。
+* **53行目** (`Announcing Hash lock to /transactions`): ボンデッドアグリゲートの前にハッシュロックをアナウンスし、承認させる必要があります。
+* **61行目** (`Announcing Bonded aggregate transaction to /transactions/partial`): ボンデッドアグリゲートは通常のトランザクションとは異なるエンドポイントを使用します。
+* **65行目** (`Bonded aggregate transaction partial in 1 seconds`): ボンデッドアグリゲートは現在、連署がオンチェーンで送信されるのを待っています。
+* **69行目** (`[Account B] Verifying transaction: 2 embedded transactions`): アカウント B は連署する前にトランザクション内容を検査し、すべての操作に同意できるか確認しています。
+* **71行目** (`Announcing cosignature to /transactions/cosignature`): 連署がネットワークに送信されます。
 
 アグリゲートトランザクションは、ネットワークによって単一のアトミックな単位として扱われます。スワップは完全に実行される（アカウント A がカスタムモザイクを受け取り、アカウント B が XYM を受け取る）か、トランザクション全体が失敗してアセットが一切転送されないかのどちらかとなります。
 
@@ -263,10 +264,10 @@ digraph {
 
 | ステップ                                                      | 関連ドキュメント                                                                          |
 |-----------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [埋め込みトランザクションの作成](#creating-embedded-transactions)    | <dy:SymbolTransactionFactory.createEmbedded>                                        |
-| [アグリゲートの構築](#building-the-aggregate-transaction)        | <dy:SymbolTransactionFactory.create><br/><ser:AggregateBondedTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [埋め込みトランザクションの作成](#creating-embedded-transactions)    | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor><br/><ser:TransferTransactionV1> |
+| [アグリゲートの構築](#building-the-aggregate-transaction)        | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:AggregateBondedTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
 | [ボンデッドトランザクションの署名](#signing-the-bonded-transaction)     | <dy:SymbolFacade.signTransaction>                                                   |
-| [ハッシュロックの作成](#creating-the-hash-lock)                   | <dy:SymbolTransactionFactory.create><br/><ser:HashLockTransactionV1><br/><put:/transactions>                        |
+| [ハッシュロックの作成](#creating-the-hash-lock)                   | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:HashLockTransactionV1><br/><put:/transactions> |
 | [ボンデッドトランザクションのアナウンス](#announcing-the-bonded-transaction) | <put:/transactions/partial>                                                         |
 | [トランザクションの復元](#recovering-the-transaction)              | <get:/transactions/partial>                                                         |
 | [トランザクションの検証](#verifying-the-transaction)               | <get:/transactions/partial/{transactionId}>                                         |

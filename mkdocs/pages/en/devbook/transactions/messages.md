@@ -36,7 +36,7 @@ calculation, network time, and transaction confirmation work.
 ## Code Explanation
 
 This tutorial focuses on the message-specific aspects of transfer transactions.
-The parts about fetching network time, calculating fees, and announcing transactions have been explained in the
+The parts about fetching fees, creating, and announcing transactions have been explained in the
 [Transfer Transaction](./transfer.md) tutorial and are skipped here for brevity.
 
 ### Setting Up Accounts
@@ -150,25 +150,25 @@ If decryption fails, possible causes include:
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="11 18 21 22 29"
+```text linenums="1" hl_lines="9 16 19 20 27"
 --8<-- 'devbook/transactions/messages.log'
 ```
 
 Some highlights from the output:
 
-* **Plain message** (line 11): The message attached to the first transaction.
+* **Plain message** (line 9): The message attached to the first transaction.
     Because it is not encrypted, anyone inspecting the blockchain can read it.
 
-* **Received plain message** (line 18): The same message, recovered from the confirmed transaction by converting the
+* **Received plain message** (line 16): The same message, recovered from the confirmed transaction by converting the
     hexadecimal payload back to UTF-8.
 
-* **Original message** (line 21): The secret message before encryption.
+* **Original message** (line 19): The secret message before encryption.
 
-* **Encrypted payload** (line 22): The result of encrypting the previous message with <dy:MessageEncoder.encode>,
+* **Encrypted payload** (line 20): The result of encrypting the previous message with <dy:MessageEncoder.encode>,
     shown as a hexadecimal string.
     This is what gets stored on the blockchain.
 
-* **Recipient decrypted message** (line 29): The original message, retrieved from the confirmed transaction and
+* **Recipient decrypted message** (line 27): The original message, retrieved from the confirmed transaction and
     decrypted by <dy:MessageEncoder.tryDecode> using the recipient's private key and the sender's public key.
 
 You can view the transactions on the [Symbol Testnet Explorer](https://testnet.symbol.fyi/) by searching for the
@@ -183,6 +183,6 @@ This tutorial showed how to:
 | Step                                                                         | Related documentation                                                                                       |
 | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | [Convert text into UTF-8 bytes](#sending-a-plain-text-message)               | `TextEncoder` (JS) and `str.encode`/`bytes.decode` (Python) <br> System methods, not part of the Symbol SDK |
-| [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolTransactionFactory.create>, <ser:TransferTransactionV1>                                           |
+| [Include a message in a Transfer Transaction](#sending-a-plain-text-message) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:TransferTransactionV1>                         |
 | [Encrypt a message](#sending-an-encrypted-message)                           | <dy:MessageEncoder.encode>                                                                                  |
 | [Decrypt a message](#receiving-an-encrypted-message)                         | <dy:MessageEncoder.tryDecode>                                                                               |

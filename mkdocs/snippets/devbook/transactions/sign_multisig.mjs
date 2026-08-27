@@ -1,8 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -24,17 +23,7 @@ console.log(`Cosignatory public key: ${cosignatoryKeyPair.publicKey}`);
 const facade = new SymbolFacade('testnet');
 
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -46,31 +35,30 @@ try {
 	// [<step-2]
 	// Build the embedded transfer transaction [>step-3]
 	const transferTransaction =
-		facade.transactionFactory.createEmbedded({
-			type: 'transfer_transaction_v1',
-			signerPublicKey: multisigKeyPair.publicKey.toString(),
-			recipientAddress: facade.network.publicKeyToAddress(
-				multisigKeyPair.publicKey).toString(),
-			mosaics: [{
-				mosaicId: generateMosaicAliasId('symbol.xym'),
-				amount: 1_000_000n // 1 XYM
-			}]
-		});
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				facade.network.publicKeyToAddress(
+					multisigKeyPair.publicKey),
+				[
+					new descriptors.UnresolvedMosaicDescriptor(
+						generateMosaicAliasId('symbol.xym'),
+						new models.Amount(1_000_000n)) // 1 XYM
+				],
+				undefined),
+			multisigKeyPair.publicKey);
 	// [<step-3]
 	// Build the wrapper aggregate transaction [>step-4]
-	const transaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		// This is the account that will pay for the transaction
-		signerPublicKey: cosignatoryKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			[transferTransaction]),
-		transactions: [transferTransaction]
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions([transferTransaction]),
+			[transferTransaction],
+			undefined),
+		cosignatoryKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-4]
-	// Sign the aggregate transaction using the cosignatory's signature [>step-5]
+	// [>step-5]
+	// Sign the aggregate transaction using the cosignatory's signature
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction,
 		facade.signTransaction(cosignatoryKeyPair, transaction));

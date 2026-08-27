@@ -1,8 +1,8 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
+	Address,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -24,47 +24,46 @@ console.log(`User public key: ${userKeyPair.publicKey}`);
 
 const facade = new SymbolFacade('testnet');
 
-let timestamp;
 let feeMultiplier;
 
 // OPTION 1
 // [>step-1]
 function buildPrefundedMessageTransaction(recipientAddress, message) {
 	// Build the embedded message transaction [>step-2]
-	const messageTransaction = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		// Account sending the message
-		signerPublicKey: userKeyPair.publicKey,
-		recipientAddress,
-		message
-	});
+	const messageTransaction =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				new Address(recipientAddress),
+				undefined,
+				message),
+			userKeyPair.publicKey);
 	// [<step-2]
 	// Build the embedded prefund transaction [>step-3]
-	const prefundTransaction = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		// Account funding the transaction fee
-		signerPublicKey: appKeyPair.publicKey,
-		// Account receiving the funds
-		recipientAddress: facade.network.publicKeyToAddress(
-			userKeyPair.publicKey
-		),
-		mosaics: [{
-			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 0n // To be filled once value is known
-		}]
-	});
+	const prefundTransaction =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				facade.network.publicKeyToAddress(userKeyPair.publicKey),
+				[
+					new descriptors.UnresolvedMosaicDescriptor(
+						generateMosaicAliasId('symbol.xym'),
+						// To be filled once value is known.
+						new models.Amount(0n))
+				],
+				undefined
+			),
+			appKeyPair.publicKey);
 	// [<step-3]
 	// Build the wrapper complete aggregate transaction [>step-4]
-	const transaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		// This is the account that will pay for the transaction
-		signerPublicKey: userKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		transactions: [messageTransaction, prefundTransaction]
-	});
-	// Calculate total fee, reserving space for a cosignature
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier, 1));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(
+				[messageTransaction, prefundTransaction]),
+			[messageTransaction, prefundTransaction],
+			undefined),
+		userKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60,
+		1);
 	// Update the prefund amount to match the total fee
 	prefundTransaction.mosaics[0].amount = transaction.fee;
 	// Update the embedded transaction hashes
@@ -94,38 +93,35 @@ function buildPrefundedMessageTransaction(recipientAddress, message) {
 // [>step-6]
 function buildSponsoredMessageTransaction(recipientAddress, message) {
 	// Build the embedded message transaction [>step-7]
-	const messageTransaction = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		// Account sending the message
-		signerPublicKey: userKeyPair.publicKey,
-		recipientAddress,
-		message
-	});
+	const messageTransaction =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				new Address(recipientAddress),
+				undefined,
+				message),
+			userKeyPair.publicKey);
 	// [<step-7]
 	// Build the embedded filler transaction [>step-8]
-	const fillerTransaction = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		// The application account is both the sender and the recipient
-		// and there is no `mosaics` field
-		signerPublicKey: appKeyPair.publicKey,
-		recipientAddress: facade.network.publicKeyToAddress(
-			appKeyPair.publicKey
-		)
-	});
+	const fillerTransaction =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				facade.network.publicKeyToAddress(appKeyPair.publicKey),
+				undefined,
+				undefined
+			),
+			appKeyPair.publicKey);
 	// [<step-8]
 	// Build the wrapper complete aggregate transaction [>step-9]
-	const transaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		// This is the account that will pay for the transaction
-		signerPublicKey: appKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			[messageTransaction, fillerTransaction]),
-		transactions: [messageTransaction, fillerTransaction]
-	});
-	// Calculate total fee, reserving space for a cosignature
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier, 1));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(
+				[messageTransaction, fillerTransaction]),
+			[messageTransaction, fillerTransaction],
+			undefined),
+		appKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60,
+		1);
 	// [<step-9]
 	// Sign the aggregate transaction using the app's signature [>step-10]
 	facade.transactionFactory.static.attachSignature(
@@ -145,16 +141,6 @@ function buildSponsoredMessageTransaction(recipientAddress, message) {
 // [<step-6]
 
 try {
-	// Fetch current network time
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
 	// Fetch recommended fees
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);

@@ -132,14 +132,15 @@ The sender of this transaction is the application account, and the recipient is 
 
 ### Aggregate Transaction
 
-The <complete aggregate transaction:> is built as usual, and its `fee` field is updated once the transaction size is
-known.
+The <complete aggregate transaction:> is built from its descriptor, and
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> calculates the fee once the transaction size is known.
 
 The prefund transaction's amount is then set to match the calculated fee.
 
 Finally, the {{ tutorial.var('transactions_hash') }} field is updated with the hash of the embedded transactions.
-This field is normally set when the aggregate is created using <dy:SymbolTransactionFactory.create>, but in this
-case it must be updated afterwards, once the prefund transaction has been modified.
+This field is normally set when the aggregate is created using
+<dy:SymbolFacade.createTransactionFromTypedDescriptor>, but in this case it must be updated afterwards, once the
+prefund transaction has been modified.
 
 !!! caution
 
@@ -200,8 +201,8 @@ digraph Option2 {
 }
 ```
 
-Compared to Option 1, this approach is simpler to set up, as it does not require calculating the total fee after the
-embedded transactions are built, nor updating the transactions and their hashes.
+Compared to Option 1, this approach is simpler to set up, as it does not require modifying any embedded transaction
+after the aggregate has been built, nor updating the aggregate hash.
 On the other hand, the application account takes a more active role, which might be counterproductive if the goal is
 to empower users to eventually manage their own funds and fees.
 
@@ -224,8 +225,8 @@ As explained above, its only purpose is to allow the application account to sign
 
 ### Aggregate Transaction
 
-The <complete aggregate transaction:> is built as usual, updating its `fee` field once the transaction size is known.
-But unlike Option 1, it does not need to be further modified.
+The <complete aggregate transaction:> is built as usual from its descriptor.
+Unlike Option 1, it does not need to be further modified.
 
 {{ tutorial.code_snippet_tagged('step-9') }}
 
