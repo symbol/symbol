@@ -199,7 +199,7 @@ void gradlePublisher(Map config, String phase) {
 	}
 
 	String credentialsId = 'MAVEN_CREDENTIALS_ID'
-	String gradleTask='publishCentral'
+	String gradleTask = 'publishCentral'
 	String usernameEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralUsername'
 	String passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralPassword'
 	if (shouldPublishToInternalRepository(phase, config)) {
@@ -207,7 +207,7 @@ void gradlePublisher(Map config, String phase) {
 		passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenRepoPassword'
 		credentialsId = resolveArtifactoryCredentialsId()
 		env.ORG_GRADLE_PROJECT_mavenRepoUrl = resolveInternalRepositoryUrl(REPOSITORY_TYPE.MAVEN, config)
-		gradleTask='publishInternal'
+		gradleTask = 'publishInternal'
 	}
 
 	withCredentials([
