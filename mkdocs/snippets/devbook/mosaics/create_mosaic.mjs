@@ -1,8 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicId,
 	models
 } from 'symbol-sdk/symbol';
@@ -58,17 +57,7 @@ const signerAddress = facade.network.publicKeyToAddress(
 console.log('Signer address:', signerAddress.toString());
 // [<step-1]
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -85,17 +74,18 @@ try {
 	console.log('Mosaic nonce:', nonce);
 	// [<step-3]
 	// Build the mosaic definition transaction [>step-4]
-	const definitionTx = facade.transactionFactory.create({
-		type: 'mosaic_definition_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		duration: 0n,
-		divisibility: 2,
-		nonce,
-		flags: 'transferable restrictable'
-	});
-	definitionTx.fee = new models.Amount(
-		calculateTransactionFee(definitionTx, feeMultiplier));
+	const definitionTx = facade.createTransactionFromTypedDescriptor(
+		new descriptors.MosaicDefinitionTransactionV1Descriptor(
+			new models.MosaicId(0n),
+			new models.BlockDuration(0n),
+			new models.MosaicNonce(nonce),
+			new models.MosaicFlags(
+				models.MosaicFlags.TRANSFERABLE.value |
+				models.MosaicFlags.RESTRICTABLE.value),
+			2),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 
 	const mosaicId = generateMosaicId(signerAddress, nonce);
 	const mosaicIdHex = mosaicId.toString(16)
@@ -120,16 +110,14 @@ try {
 	// --- INCREASING MOSAIC SUPPLY ---
 	console.log('\n--- Increasing mosaic supply ---');
 	// [>step-6]
-	const supplyTx = facade.transactionFactory.create({
-		type: 'mosaic_supply_change_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		mosaicId,
-		action: 'increase',
-		delta: 100_00n
-	});
-	supplyTx.fee = new models.Amount(
-		calculateTransactionFee(supplyTx, feeMultiplier));
+	const supplyTx = facade.createTransactionFromTypedDescriptor(
+		new descriptors.MosaicSupplyChangeTransactionV1Descriptor(
+			new models.UnresolvedMosaicId(mosaicId),
+			new models.Amount(100_00n),
+			models.MosaicSupplyChangeAction.INCREASE),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-6]
 	// Sign and generate final payload [>step-7]
 	const supSignature = facade.signTransaction(

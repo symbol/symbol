@@ -1,10 +1,9 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	KeyPair,
-	NetworkTimestamp,
 	SymbolFacade,
 	SymbolTransactionFactory,
-	calculateTransactionFee,
+	descriptors,
 	models,
 	mosaicRestrictionGenerateKey
 } from 'symbol-sdk/symbol';
@@ -108,17 +107,16 @@ function getMosaicAddressRestrictions(queriedMosaicId, address, key) {
 // [<step-5]
 // Returns a transaction enabling a mosaic's global restriction
 function globalRestrictionEnableTransaction() {
-	const transaction = facade.transactionFactory.createEmbedded({
-		type: 'mosaic_global_restriction_transaction_v1',
-		signerPublicKey: ownerKeyPair.publicKey,
-		mosaicId,
-		referenceMosaicId: 0n,
-		restrictionKey,
-		previousRestrictionType: 0,
-		previousRestrictionValue: 0n,
-		newRestrictionType: 'ge',
-		newRestrictionValue: 1n
-	});
+	const transaction = facade.createEmbeddedTransactionFromTypedDescriptor(
+		new descriptors.MosaicGlobalRestrictionTransactionV1Descriptor(
+			new models.UnresolvedMosaicId(mosaicId),
+			new models.UnresolvedMosaicId(0n),
+			restrictionKey,
+			0n,
+			1n,
+			models.MosaicRestrictionType.NONE,
+			models.MosaicRestrictionType.GE),
+		ownerKeyPair.publicKey);
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
 	return transaction;
@@ -126,32 +124,21 @@ function globalRestrictionEnableTransaction() {
 
 // Returns a transaction setting an address restriction's value
 function addressRestrictionSetValue(prevValue, newValue, address) {
-	const transaction = facade.transactionFactory.createEmbedded({
-		type: 'mosaic_address_restriction_transaction_v1',
-		signerPublicKey: ownerKeyPair.publicKey,
-		mosaicId,
-		restrictionKey,
-		previousRestrictionValue: prevValue,
-		newRestrictionValue: newValue,
-		targetAddress: address
-	});
+	const transaction = facade.createEmbeddedTransactionFromTypedDescriptor(
+		new descriptors.MosaicAddressRestrictionTransactionV1Descriptor(
+			new models.UnresolvedMosaicId(mosaicId),
+			restrictionKey,
+			prevValue,
+			newValue,
+			new SymbolFacade.Address(address)),
+		ownerKeyPair.publicKey);
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
 	return transaction;
 }
 
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -199,16 +186,14 @@ try {
 	// Build an aggregate transaction
 	console.log('Bundling', transactions.length, // [>step-7]
 		'transaction(s) in an aggregate');
-	const aggregate = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		signerPublicKey: ownerKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			transactions),
-		transactions
-	});
-	aggregate.fee = new models.Amount(
-		calculateTransactionFee(aggregate, feeMultiplier));
+	const aggregate = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(transactions),
+			transactions,
+			undefined),
+		ownerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-7]
 	// Sign, announce and wait for confirmation
 	let payload = SymbolTransactionFactory.attachSignature( // [>step-8]
@@ -219,18 +204,18 @@ try {
 	await waitForConfirmation(hash, 'aggregate');
 	// [<step-8]
 	// Try to transfer the mosaic to the target address
-	const transfer = facade.transactionFactory.create({ // [>step-9]
-		type: 'transfer_transaction_v1',
-		signerPublicKey: ownerKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: targetAddress,
-		mosaics: [{
-			mosaicId,
-			amount: 1n
-		}]
-	});
-	transfer.fee = new models.Amount(
-		calculateTransactionFee(transfer, feeMultiplier));
+	const transfer = facade.createTransactionFromTypedDescriptor( // [>step-9]
+		new descriptors.TransferTransactionV1Descriptor(
+			new SymbolFacade.Address(targetAddress),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					new models.UnresolvedMosaicId(mosaicId),
+					new models.Amount(1n))
+			],
+			undefined),
+		ownerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 
 	payload = SymbolTransactionFactory.attachSignature(
 		transfer,

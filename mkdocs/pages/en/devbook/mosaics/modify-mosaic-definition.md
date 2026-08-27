@@ -57,12 +57,12 @@ test key if not set.
 The signer's address is derived from the public key.
 This account must be the original creator of the mosaic.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Modification Transaction
 
@@ -116,7 +116,7 @@ duration.
 
     Each mosaic definition transaction incurs the full [lease fee](../../textbook/mosaics.md#lease-fee) paid in
     <XYM:>, whether creating or modifying a mosaic.
-    This is the same fee every time, in addition to the standard [transaction fee](#fetching-network-time-and-fees).
+    This is the same fee every time, in addition to the standard [transaction fee](#fetching-recommended-fees).
     The lease fee amount can be queried from the <get:/network/fees/rental> endpoint
     (`effectiveMosaicRentalFee` property).
 
@@ -145,22 +145,22 @@ A successful response confirms the mosaic now has the expected flags value.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="7 8 19 21 22 36 37 38"
+```text linenums="1" hl_lines="5 6 17 19 20 34 35 36"
 --8<-- 'devbook/mosaics/modify_mosaic_definition.log'
 ```
 
 Some highlights from the output:
 
-* **Mosaic nonce** (line 7): The nonce `1770998662` matches the nonce used when the mosaic was created, targeting
+* **Mosaic nonce** (line 5): The nonce `1770998662` matches the nonce used when the mosaic was created, targeting
     the same mosaic for modification.
 
-* **Mosaic ID** (line 8): The mosaic ID `0x5BDD3795F7A8B3AF` is derived from the nonce and signer address, confirming
+* **Mosaic ID** (line 6): The mosaic ID `0x5BDD3795F7A8B3AF` is derived from the nonce and signer address, confirming
     the correct mosaic is being modified.
 
-* **Transaction properties** (lines 19, 21-22): The modification sets `duration` to `0` (no change),
+* **Transaction properties** (lines 17, 19-20): The modification sets `duration` to `0` (no change),
     `flags` to `8` (`revokable`), and `divisibility` to `0` (no change).
 
-* **Updated properties** (lines 36-38): The mosaic's divisibility remains `2` (unchanged by XOR with `0`).
+* **Updated properties** (lines 34-36): The mosaic's divisibility remains `2` (unchanged by XOR with `0`).
     The flags are now `14`, which corresponds to `transferable` (2) + `restrictable` (4) + `revokable` (8).
     The duration remains `0` (eternal, unchanged).
 
@@ -171,8 +171,8 @@ The transaction hash printed in the output can be used to search for the transac
 
 This tutorial showed how to:
 
-| Step                                                          | Related documentation                                                     |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [Generate mosaic ID](#building-the-modification-transaction)  | <dy:IdGenerator.generateMosaicId>                                         |
-| [Modify mosaic flags](#building-the-modification-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1> |
-| [Verify the updated mosaic](#retrieving-the-mosaic)           | <get:/mosaics/{mosaicId}>                                                 |
+| Step                                                          | Related documentation                                                                       |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [Generate mosaic ID](#building-the-modification-transaction)  | <dy:IdGenerator.generateMosaicId>                                                           |
+| [Modify mosaic flags](#building-the-modification-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicDefinitionTransactionV1> |
+| [Verify the updated mosaic](#retrieving-the-mosaic)           | <get:/mosaics/{mosaicId}>                                                                   |

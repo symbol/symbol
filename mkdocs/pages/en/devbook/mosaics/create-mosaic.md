@@ -49,12 +49,12 @@ test key if not set.
 The signer's address is derived from the public key.
 This account will own the created mosaic.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Generating the Mosaic Nonce
 
@@ -76,14 +76,11 @@ The <mosaic ID:> is derived deterministically from the owner's address and the n
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-The mosaic definition transaction registers a new mosaic on the network with the following properties:
+The mosaic definition transaction registers a new mosaic on the network.
+The signer passed to <dy:SymbolFacade.createTransactionFromTypedDescriptor> becomes the owner of the created mosaic.
+The transaction's descriptor contains:
 
 * {{ tutorial.var('type') }}: Mosaic definition transactions use the type <ser:MosaicDefinitionTransactionV1>.
-
-* {{ tutorial.var('signer_public_key') }}: The account that signs the transaction and pays the fees.
-    It becomes the owner of the created mosaic.
-
-* {{ tutorial.var('deadline') }}: The value computed in the network time step.
 
 * {{ tutorial.var('duration') }}: The number of blocks the mosaic will remain active.
     A value of `0` means the mosaic never expires.
@@ -119,7 +116,7 @@ The mosaic definition transaction registers a new mosaic on the network with the
 
 !!! note "Lease fee"
 
-    In addition to the standard [transaction fee](#fetching-network-time-and-fees),
+    In addition to the standard [transaction fee](#fetching-recommended-fees),
     creating a mosaic requires a one-time lease fee paid in <XYM:>.
 
     Unlike the transaction fee, the lease fee is **not** included in the transaction request.
@@ -143,14 +140,11 @@ The code then waits for the transaction to be confirmed by polling the
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
-Once the mosaic definition is confirmed, a second transaction increases the mosaic's supply:
+Once the mosaic definition is confirmed, a second transaction increases the mosaic's supply.
+The signer passed to <dy:SymbolFacade.createTransactionFromTypedDescriptor> must be the owner of the modified mosaic.
+The transaction's descriptor contains:
 
 * {{ tutorial.var('type') }}: Mosaic supply change transactions use the type <ser:MosaicSupplyChangeTransactionV1>.
-
-* {{ tutorial.var('signer_public_key') }}: The account that signs the transaction and pays the fees.
-    It must be the creator of the mosaic.
-
-* {{ tutorial.var('deadline') }}: The value computed in the network time step.
 
 * {{ tutorial.var('mosaic_id') }}: The identifier of the mosaic, computed from the signer's address and nonce using
     <dy:IdGenerator.generateMosaicId>.
@@ -191,31 +185,31 @@ A successful response confirms the mosaic exists on the network with the expecte
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="9 10 18 20 21 23 24 46 60 61 62 63 64"
+```text linenums="1" hl_lines="8 16 18 19 21 22 44 58 59 60 61 62"
 --8<-- 'devbook/mosaics/create_mosaic.log'
 ```
 
 Some highlights from the output:
 
-* **Mosaic ID** (line 10): The nonce is combined with the signer's address
+* **Mosaic ID** (line 8): The nonce is combined with the signer's address
     to derive the mosaic ID `0x736FEC06ED1DAA73`.
 
-* **Fee** (line 18): The transaction fee of 0.015 XYM is calculated as the transaction size
+* **Fee** (line 16): The transaction fee of 0.015 XYM is calculated as the transaction size
     multiplied by the fee multiplier. The [lease fee](../../textbook/mosaics.md#lease-fee) is deducted separately
     by the network when the transaction is confirmed.
 
-* **Mosaic ID** (line 20): The `id` field is automatically computed by the transaction factory from the nonce
-    and the signer's address, matching the value printed on line 10.
+* **Mosaic ID** (line 18): The `id` field is automatically computed by the SDK from the nonce
+    and the signer's address, matching the value printed on line 8.
 
-* **Mosaic properties** (lines 21, 23-24): Flags are stored as a bitmask, where each flag occupies a single bit:
+* **Mosaic properties** (lines 19, 21-22): Flags are stored as a bitmask, where each flag occupies a single bit:
     `supply_mutable` (1), `transferable` (2), `restrictable` (4), and `revokable` (8).
     The value `6` equals `transferable` (2) + `restrictable` (4).
     The divisibility is `2` and the duration `0` means the mosaic never expires.
 
-* **Supply delta** (line 46): The delta of `10000` atomic units represents `100.00` whole units
+* **Supply delta** (line 44): The delta of `10000` atomic units represents `100.00` whole units
     given the mosaic's divisibility of `2`.
 
-* **Verified properties** (lines 60-64): The mosaic is retrieved from the network, confirming
+* **Verified properties** (lines 58-62): The mosaic is retrieved from the network, confirming
     the expected supply, flags, divisibility, and duration.
 
 The transaction hashes printed in the output can be used to search for the transactions
@@ -228,8 +222,8 @@ This tutorial showed how to:
 | Step                                                                 | Related documentation                                                       |
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | [Generate mosaic ID](#generating-the-mosaic-nonce)                   | <dy:IdGenerator.generateMosaicId>                                           |
-| [Define the mosaic](#building-the-mosaic-definition-transaction)     | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1>   |
-| [Mint mosaic supply](#building-the-mosaic-supply-change-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyChangeTransactionV1> |
+| [Define the mosaic](#building-the-mosaic-definition-transaction)     | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicDefinitionTransactionV1>   |
+| [Mint mosaic supply](#building-the-mosaic-supply-change-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicSupplyChangeTransactionV1> |
 | [Retrieve the mosaic](#retrieving-the-mosaic)                        | <get:/mosaics/{mosaicId}>                                                   |
 
 ## Next Steps

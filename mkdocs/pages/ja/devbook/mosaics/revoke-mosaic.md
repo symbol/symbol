@@ -47,11 +47,11 @@ tutorial_level: beginner
 `MOSAIC_ID` 環境変数は、回収するモザイクの16進数識別子を指定します 。
 アカウントが保持しているモザイクを一覧表示するには、[アカウント残高の照会](../accounts/query-balance.md) を参照してください 。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します 。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### 初期残高の確認 {: #checking-initial-balance }
 
@@ -103,7 +103,7 @@ tutorial_level: beginner
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています 。
 
-```text linenums="1" hl_lines="4 12 24 26 27 47"
+```text linenums="1" hl_lines="4 10 22 24 25 45"
 --8<-- 'devbook/mosaics/revoke_mosaic.log'
 ```
 
@@ -111,15 +111,15 @@ tutorial_level: beginner
 
 * **モザイクID** (4行目): モザイクID `8857803461494335809` (`0x7AED3D514C986941`) は、回収対象のモザイクを識別します 。
 
-* **初期残高** (12行目): 回収前、ソースアカウントはそのモザイクを `1000` 絶対単位保持しています 。
+* **初期残高** (10行目): 回収前、ソースアカウントはそのモザイクを `1000` 絶対単位保持しています 。
 
-* **ソースアドレス** (24行目): `source_address` フィールドは、ユニットが回収されるアカウントを識別します 。
+* **ソースアドレス** (22行目): `source_address` フィールドは、ユニットが回収されるアカウントを識別します 。
     これは、3行目に示されている Base32 [アドレス](default: アドレス) の16進数エンコード形式です 。
 
-* **回収量** (26-27行目): `mosaic` オブジェクトは、10進数形式のモザイクIDと数量 `700` を指定しています 。
+* **回収量** (24-25行目): `mosaic` オブジェクトは、10進数形式のモザイクIDと数量 `700` を指定しています 。
     10進数の値は、4行目に示されている16進数IDに対応します 。
 
-* **検証された残高** (47行目): 回収後、ソースアカウントの残高は `300` になっており、 `700` 絶対単位が正常に回収されたことが確認されました 。
+* **検証された残高** (45行目): 回収後、ソースアカウントの残高は `300` になっており、 `700` 絶対単位が正常に回収されたことが確認されました 。
 
 出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます 。
 
@@ -130,5 +130,5 @@ tutorial_level: beginner
 | ステップ                                                    | 関連ドキュメント                           |
 |---------------------------------------------------------|--------------------------------------|
 | [アカウント残高を確認する](#checking-initial-balance)           | <get:/accounts/{accountId}>          |
-| [モザイクユニットを回収する](#building-the-revocation-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicSupplyRevocationTransactionV1> |
+| [モザイクユニットを回収する](#building-the-revocation-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicSupplyRevocationTransactionV1> |
 | [回収を検証する](#verifying-the-revocation)                | <get:/accounts/{accountId}>          |

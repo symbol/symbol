@@ -50,11 +50,11 @@ tutorial_level: intermediate
 署名者の [アドレス](default:アドレス) は [公開鍵](default:公開鍵) から派生します。
 この [アカウント](default:アカウント) は、そのモザイクの元の作成者である必要があります。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### 変更トランザクションの構築 {: #building-the-modification-transaction }
 
@@ -100,7 +100,7 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 !!! note "レンタル手数料"
 
     モザイクの作成時と同様に、変更時にも [XYM](default: XYM) で支払う [レンタル手数料](../../textbook/mosaics.md#lease-fee) が全額発生します。
-    これは、標準の [トランザクション手数料](#fetching-network-time-and-fees) に加えて、毎回発生する固定の手数料です。
+    これは、標準の [トランザクション手数料](#fetching-recommended-fees) に加えて、毎回発生する固定の手数料です。
     レンタル手数料の額は <get:/network/fees/rental> エンドポイント（ `effectiveMosaicRentalFee` プロパティ）から照会できます。
 
 ### 変更の送信 {: #submitting-the-modification }
@@ -125,19 +125,19 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="7 8 19 21 22 36 37 38"
+```text linenums="1" hl_lines="5 6 17 19 20 34 35 36"
 --8<-- 'devbook/mosaics/modify_mosaic_definition.log'
 ```
 
 出力の主なポイント:
 
-* **モザイクノンス**（7行目）: ノンス `1770998662` はモザイク作成時に使用されたものと一致しており、同じモザイクを変更対象としています。
+* **モザイクノンス**（5行目）: ノンス `1770998662` はモザイク作成時に使用されたものと一致しており、同じモザイクを変更対象としています。
 
-* **モザイクID**（8行目）: モザイクID `0x5BDD3795F7A8B3AF` はノンスと署名者のアドレスから派生しており、正しいモザイクが変更されていることが確認できます。
+* **モザイクID**（6行目）: モザイクID `0x5BDD3795F7A8B3AF` はノンスと署名者のアドレスから派生しており、正しいモザイクが変更されていることが確認できます。
 
-* **トランザクションプロパティ**（19、21-22行目）: 変更により `duration` が `0`（変更なし）、 `flags` が `8`（ `revokable` ）、 `divisibility` が `0`（変更なし）に設定されています。
+* **トランザクションプロパティ**（17、19-20行目）: 変更により `duration` が `0`（変更なし）、 `flags` が `8`（ `revokable` ）、 `divisibility` が `0`（変更なし）に設定されています。
 
-* **更新されたプロパティ**（36-38行目）: モザイクの可分性は `2` のままです（ `0` との XOR により不変）。
+* **更新されたプロパティ**（34-36行目）: モザイクの可分性は `2` のままです（ `0` との XOR により不変）。
     フラグは `14` になっており、これは `transferable` (2) + `restrictable` (4) + `revokable` (8) に対応します。
     有効期間は `0`（無期限、不変）のままです。
 
@@ -150,5 +150,5 @@ XOR 演算により 6 ⊕ 8 = 14 となり、これは `transferable restrictabl
 | ステップ | 関連ドキュメント |
 | --------------------------------------------------------------------------- | ------------------------------------ |
 | [モザイクIDを生成する](#building-the-modification-transaction) | <dy:IdGenerator.generateMosaicId> |
-| [モザイクフラグを変更する](#building-the-modification-transaction) | <dy:SymbolTransactionFactory.create>, <ser:MosaicDefinitionTransactionV1> |
+| [モザイクフラグを変更する](#building-the-modification-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicDefinitionTransactionV1> |
 | [更新されたモザイクを検証する](#retrieving-the-mosaic) | <get:/mosaics/{mosaicId}> |
