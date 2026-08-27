@@ -199,7 +199,7 @@ void gradlePublisher(Map config, String phase) {
 	}
 
 	String credentialsId = 'MAVEN_CREDENTIALS_ID'
-	String gradleTask="publishCentral"
+	String gradleTask='publishCentral'
 	String usernameEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralUsername'
 	String passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralPassword'
 	if (shouldPublishToInternalRepository(phase, config)) {
@@ -207,14 +207,18 @@ void gradlePublisher(Map config, String phase) {
 		passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenRepoPassword'
 		credentialsId = resolveArtifactoryCredentialsId()
 		env.ORG_GRADLE_PROJECT_mavenRepoUrl = resolveInternalRepositoryUrl(REPOSITORY_TYPE.MAVEN, config)
-		gradleTask="publishInternal"
+		gradleTask='publishInternal'
 	}
 
-	withCredentials([usernamePassword(credentialsId: credentialsId,
-		usernameVariable: usernameEnvironmentName,
-		passwordVariable: passwordEnvironmentName)]) {
+	withCredentials([
+			file(credentialsId: 'MAVEN_SIGNING_KEY', variable: 'SECRET_KEY_PATH'),
+			string(credentialsId: 'MAVEN_SIGNING_PASSWORD', variable: 'SECRET_PASSWORD'),
+			usernamePassword(credentialsId: credentialsId, usernameVariable: usernameEnvironmentName, passwordVariable: passwordEnvironmentName)
+	]) {
+		env.ORG_GRADLE_PROJECT_signingInMemoryKey = readFile(SECRET_KEY_PATH)
+		env.ORG_GRADLE_PROJECT_signingInMemoryKeyPassword = "${SECRET_PASSWORD}"
 		publishArtifact {
-			runScript("./gradlew ${gradleTask} --debug")
+			runScript("./gradlew ${gradleTask}")
 		}
 	}
 }
