@@ -1,8 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -39,29 +38,24 @@ try {
 	console.log('Subscribed to status channel');
 	// [<step-3]
 	// Build a transfer transaction with a non-existent mosaic [>step-4]
-	const timeResponse = await fetch(`${NODE_URL}/node/time`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-
 	const feeResponse = await fetch(
 		`${NODE_URL}/network/fees/transaction`);
 	const feeJSON = await feeResponse.json();
 	const feeMultiplier = Math.max(
 		feeJSON.medianFeeMultiplier, feeJSON.minFeeMultiplier);
 
-	const transaction = facade.transactionFactory.create({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: MONITOR_ADDRESS,
-		mosaics: [{
-			mosaicId: generateMosaicAliasId('symbol.unknown'),
-			amount: 1n
-		}]
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			new SymbolFacade.Address(MONITOR_ADDRESS),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					generateMosaicAliasId('symbol.unknown'),
+					new models.Amount(1n))
+			],
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(

@@ -106,8 +106,10 @@ This tutorial builds a minimal [Transfer Transaction](../transactions/transfer.m
 mosaics and no message.
 A transfer is used for simplicity, but any transaction type triggers the same WebSocket notifications.
 
-The transaction is built as usual: fetching the network time and fee multiplier, creating the transaction descriptor,
-and signing it.
+The transaction is built as usual: fetching recommended fees, creating the transaction from its descriptor, and
+signing it.
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> uses the fee multiplier to calculate the transaction fee and
+accepts a deadline duration.
 
 Signing the transaction produces its hash, which uniquely identifies it.
 The code stores this hash because transaction channel notifications include the transaction hash.

@@ -1,8 +1,7 @@
 import { Hash256, PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -30,13 +29,7 @@ console.log('Account A:', accountAAddress.toString());
 console.log('Account B:', accountBAddress.toString());
 // [<step-1]
 try {
-	// Fetch current network time
-	const timeResponse = await fetch(`${NODE_URL}/node/time`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-
-	// Fetch recommended fee multiplier
+	// Fetch recommended fees
 	const feeResponse = await fetch(
 		`${NODE_URL}/network/fees/transaction`);
 	const feeJSON = await feeResponse.json();
@@ -44,36 +37,40 @@ try {
 		feeJSON.medianFeeMultiplier, feeJSON.minFeeMultiplier);
 
 	// [Account A] Build embedded transactions for the swap [>step-2]
-	const embeddedTx1 = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: accountAKeyPair.publicKey.toString(),
-		recipientAddress: accountBAddress.toString(),
-		mosaics: [{
-			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 10_000_000n
-		}]
-	});
+	const embeddedTx1 = facade.createEmbeddedTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			accountBAddress,
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					generateMosaicAliasId('symbol.xym'),
+					new models.Amount(10_000_000n))
+			],
+			undefined),
+		accountAKeyPair.publicKey);
 
 	const customMosaicId = 0x6D1314BE751B62C2n;
-	const embeddedTx2 = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: accountBKeyPair.publicKey.toString(),
-		recipientAddress: accountAAddress.toString(),
-		mosaics: [{ mosaicId: customMosaicId, amount: 1n }]
-	});
+	const embeddedTx2 = facade.createEmbeddedTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			accountAAddress,
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					customMosaicId,
+					new models.Amount(1n))
+			],
+			undefined),
+		accountBKeyPair.publicKey);
 
 	// Build the bonded aggregate transaction
 	const embeddedTxs = [embeddedTx1, embeddedTx2];
-	const bondedTx = facade.transactionFactory.create({
-		type: 'aggregate_bonded_transaction_v3',
-		signerPublicKey: accountAKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash:
+	const bondedTx = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateBondedTransactionV3Descriptor(
 			facade.static.hashEmbeddedTransactions(embeddedTxs),
-		transactions: embeddedTxs
-	});
-	bondedTx.fee = new models.Amount(
-		calculateTransactionFee(bondedTx, feeMultiplier, 1));
+			embeddedTxs,
+			undefined),
+		accountAKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60,
+		1);
 
 	// Sign the bonded aggregate
 	const bondedSignature = facade.signTransaction(
@@ -86,19 +83,16 @@ try {
 		`${bondedHash.substring(0, 16)}...`);
 
 	// Create the hash lock transaction
-	const hashLock = facade.transactionFactory.create({
-		type: 'hash_lock_transaction_v1',
-		signerPublicKey: accountAKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		mosaic: {
-			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 10_000_000n
-		},
-		duration: 100n,
-		hash: bondedHash
-	});
-	hashLock.fee = new models.Amount(
-		calculateTransactionFee(hashLock, feeMultiplier));
+	const hashLock = facade.createTransactionFromTypedDescriptor(
+		new descriptors.HashLockTransactionV1Descriptor(
+			new descriptors.UnresolvedMosaicDescriptor(
+				generateMosaicAliasId('symbol.xym'),
+				new models.Amount(10_000_000n)),
+			new models.BlockDuration(100n),
+			new Hash256(bondedHash)),
+		accountAKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	const hashLockSignature = facade.signTransaction(
 		accountAKeyPair, hashLock);
 	const hashLockPayload = facade.transactionFactory

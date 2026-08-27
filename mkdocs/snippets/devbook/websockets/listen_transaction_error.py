@@ -5,10 +5,8 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
-from symbolchain.symbol.Network import NetworkTimestamp
+from symbolchain.symbol.Network import Address
 from websockets import connect
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
@@ -22,7 +20,8 @@ print(f'Monitoring address: {MONITOR_ADDRESS}')
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 facade = SymbolFacade('testnet')
-signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))  # [<step-1]
+signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
+# [<step-1]
 
 
 async def main():
@@ -40,12 +39,6 @@ async def main():
 		print('Subscribed to status channel')
 		# [<step-3]
 		# Build a transfer transaction with a non-existent mosaic [>step-4]
-		with urllib.request.urlopen(f'{NODE_URL}/node/time') as resp:
-			time_json = json.loads(resp.read().decode())
-			receive_timestamp = (
-				time_json['communicationTimestamps']['receiveTimestamp'])
-			timestamp = NetworkTimestamp(int(receive_timestamp))
-
 		with urllib.request.urlopen(
 			f'{NODE_URL}/network/fees/transaction'
 		) as resp:
@@ -54,18 +47,18 @@ async def main():
 				fee_json['medianFeeMultiplier'],
 				fee_json['minFeeMultiplier'])
 
-		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction_v1',
-			'signer_public_key': signer_key_pair.public_key,
-			'deadline': timestamp.add_hours(2).timestamp,
-			'recipient_address': MONITOR_ADDRESS,
-			'mosaics': [{
-				'mosaic_id': generate_mosaic_alias_id('symbol.unknown'),
-				'amount': 1
-			}],
-		})
-		transaction.fee = Amount(
-			calculate_transaction_fee(transaction, fee_multiplier))
+		transaction = facade.create_transaction_from_descriptor(
+			{
+				'type': 'transfer_transaction_v1',
+				'recipient_address': Address(MONITOR_ADDRESS),
+				'mosaics': [{
+					'mosaic_id': generate_mosaic_alias_id('symbol.unknown'),
+					'amount': 1
+				}]
+			},
+			signer_key_pair.public_key,
+			fee_multiplier,
+			2 * 60 * 60)
 
 		signature = facade.sign_transaction(signer_key_pair, transaction)
 		json_payload = facade.transaction_factory.attach_signature(
