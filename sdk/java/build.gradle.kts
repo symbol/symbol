@@ -1,5 +1,6 @@
 plugins {
 	`java-library`
+	id("com.vanniktech.maven.publish") version "0.37.0"
 	jacoco
 	id("com.diffplug.spotless") version "8.9.0"
 }
@@ -11,8 +12,68 @@ java {
 	toolchain {
 		languageVersion.set(JavaLanguageVersion.of(21))
 	}
-	withJavadocJar()
-	withSourcesJar()
+}
+
+mavenPublishing {
+	publishToMavenCentral()
+
+	if (providers.gradleProperty("signingInMemoryKey").isPresent)
+		signAllPublications()
+
+	pom {
+		name.set("symbol-sdk")
+		description.set("Java SDK for the Symbol and NEM blockchains")
+		url.set("https://github.com/symbol/symbol/tree/main/sdk/java")
+		licenses {
+			license {
+				name.set("MIT License")
+				url.set("https://opensource.org/licenses/MIT")
+			}
+		}
+		developers {
+			developer {
+				name.set("Symbol Contributors")
+				url.set("https://github.com/symbol/symbol/graphs/contributors")
+				email.set("contributors@symbol.dev")
+			}
+		}
+		scm {
+			connection.set("scm:git:https://github.com/symbol/symbol.git")
+			developerConnection.set("scm:git:ssh://github.com/symbol/symbol.git")
+			url.set("https://github.com/symbol/symbol")
+		}
+	}
+}
+
+publishing {
+	repositories {
+		providers.gradleProperty("mavenRepoUrl").orNull?.let { repoUrl ->
+			maven {
+				name = "internal"
+				url = uri(repoUrl)
+				// credentials only apply to http(s) repositories; a file: mavenRepoUrl (local verification) rejects them
+				if (url.scheme.startsWith("http")) {
+					credentials {
+						username = providers.gradleProperty("mavenRepoUsername").orElse("").get()
+						password = providers.gradleProperty("mavenRepoPassword").orElse("").get()
+					}
+				}
+			}
+		}
+
+	}
+}
+
+val publishCentral by tasks.registering {
+	group = "publishing"
+	description = "Publishes the SDK to maven central via the central portal publisher API."
+	dependsOn("publishAndReleaseToMavenCentral")
+}
+
+val publishInternal by tasks.registering {
+	group = "publishing"
+	description = "Publishes the SDK to the internal repository (symbolsyndicate nexus, or MAVEN_REPO_URL)."
+	dependsOn("publishAllPublicationsToInternalRepository")
 }
 
 allprojects {
