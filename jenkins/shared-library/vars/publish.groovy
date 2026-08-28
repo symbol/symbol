@@ -1,3 +1,27 @@
+import groovy.transform.Field
+
+// Constants
+@Field final Map PHASE = [
+	ALPHA: 'alpha',
+	RELEASE: 'release'
+]
+
+@Field final Map PUBLISHER_TYPE = [
+	DOCKER: 'docker',
+	NPM: 'npm',
+	PYPI: 'pypi',
+	GH_PAGES: 'gh-pages',
+	AWS: 'aws',
+	GRADLE: 'gradle'
+]
+
+@Field final Map REPOSITORY_TYPE = [
+	DOCKER: 'docker-hosted',
+	NPM: 'npm-hosted',
+	PYPI: 'pypi-hosted',
+	MAVEN: 'maven-releases'
+]
+
 void call(Map config, String phase) {
 	logger.logInfo("publishing data for ${phase}, ${config}")
 
@@ -14,11 +38,11 @@ String readPackageVersion() {
 }
 
 Boolean isAlphaRelease(String phase) {
-	return phase == 'alpha'
+	return phase == PHASE.ALPHA
 }
 
 Boolean isRelease(String phase) {
-	return phase == 'release'
+	return phase == PHASE.RELEASE
 }
 
 String resolveArtifactRepositoryName(String repositoryName, Boolean isPublicRepo) {
@@ -29,18 +53,27 @@ Boolean shouldPublishToInternalRepository(String phase, Map config) {
 	return isAlphaRelease(phase) || !config.isPublicGitHubRepo
 }
 
+String resolveArtifactoryCredentialsId() {
+	final String ownerName = helper.resolveOrganizationName()
+	return "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
+}
+
+String resolveInternalRepositoryUrl(String repositoryType, Map config) {
+	final String artifactRepositoryName = resolveArtifactRepositoryName(repositoryType, config.isPublicGitHubRepo)
+	final String ownerName = helper.resolveOrganizationName()
+	return configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName)
+}
+
 void dockerPublisher(Map config, String phase) {
-	if (config.publisher != 'docker' || config.dockerImageName == null) {
+	if (config.publisher != PUBLISHER_TYPE.DOCKER || config.dockerImageName == null) {
 		return
 	}
 
 	String dockerHost = 'registry.hub.docker.com'
 	String dockerCredentialsId = DOCKER_CREDENTIALS_ID
 	if (shouldPublishToInternalRepository(phase, config)) {
-		String artifactRepositoryName = resolveArtifactRepositoryName('docker-hosted', config.isPublicGitHubRepo)
-		final String ownerName = helper.resolveOrganizationName()
-		dockerCredentialsId = "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
-		dockerHost = helper.resolveUrlHostName(configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName))
+		dockerHost = helper.resolveUrlHostName(resolveInternalRepositoryUrl(REPOSITORY_TYPE.DOCKER, config))
+		dockerCredentialsId = resolveArtifactoryCredentialsId()
 	}
 
 	final String version = readPackageVersion()
@@ -63,7 +96,7 @@ void dockerPublisher(Map config, String phase) {
 }
 
 void npmPublisher(Map config, String phase) {
-	if (config.publisher != 'npm') {
+	if (config.publisher != PUBLISHER_TYPE.NPM) {
 		return
 	}
 
@@ -73,12 +106,11 @@ void npmPublisher(Map config, String phase) {
 	}
 
 	if (shouldPublishToInternalRepository(phase, config)) {
-		final String artifactRepositoryName = resolveArtifactRepositoryName('npm-hosted', config.isPublicGitHubRepo)
-		final String ownerName = helper.resolveOrganizationName()
-		final String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName)
+		final String publishUrl = resolveInternalRepositoryUrl(REPOSITORY_TYPE.NPM, config)
 		final String environment = jobHelper.resolveCiEnvironmentName(config)
 
 		npmPublishCommand.append(" --registry=${publishUrl}")
+		final String ownerName = helper.resolveOrganizationName()
 		configureArtifactRepository.configure(environment, ownerName, publishUrl)
 		publishArtifact {
 			logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()} to private repository")
@@ -98,17 +130,15 @@ void npmPublisher(Map config, String phase) {
 }
 
 void pythonPublisher(Map config, String phase) {
-	if (config.publisher != 'pypi') {
+	if (config.publisher != PUBLISHER_TYPE.PYPI) {
 		return
 	}
 
 	if (shouldPublishToInternalRepository(phase, config)) {
-		final String ownerName = helper.resolveOrganizationName()
-		withCredentials([usernamePassword(credentialsId: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID",
+		withCredentials([usernamePassword(credentialsId: resolveArtifactoryCredentialsId(),
 			usernameVariable: 'USERNAME',
 			passwordVariable: 'PYPI_TOKEN')]) {
-			final String artifactRepositoryName = resolveArtifactRepositoryName('pypi-hosted', config.isPublicGitHubRepo)
-			String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName)
+			String publishUrl = resolveInternalRepositoryUrl(REPOSITORY_TYPE.PYPI, config)
 			env.PYPI_URL = publishUrl
 
 			publishArtifact {
@@ -140,7 +170,7 @@ void poetryBuildPackage() {
 }
 
 void gitHubPagesPublisher(Map config, String phase) {
-	if (config.publisher != 'gh-pages' || !isRelease(phase)) {
+	if (config.publisher != PUBLISHER_TYPE.GH_PAGES || !isRelease(phase)) {
 		return
 	}
 
@@ -152,7 +182,7 @@ void gitHubPagesPublisher(Map config, String phase) {
 }
 
 void awsPublisher(Map config, String phase) {
-	if (config.publisher != 'aws' || !isRelease(phase)) {
+	if (config.publisher != PUBLISHER_TYPE.AWS || !isRelease(phase)) {
 		return
 	}
 
@@ -160,6 +190,36 @@ void awsPublisher(Map config, String phase) {
 		usernameVariable: 'AWS_ACCESS_KEY_ID',
 		passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
 		publishArtifact { }
+	}
+}
+
+void gradlePublisher(Map config, String phase) {
+	if (config.publisher != PUBLISHER_TYPE.GRADLE) {
+		return
+	}
+
+	String credentialsId = 'MAVEN_CREDENTIALS_ID'
+	String gradleTask = 'publishCentral'
+	String usernameEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralUsername'
+	String passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenCentralPassword'
+	if (shouldPublishToInternalRepository(phase, config)) {
+		usernameEnvironmentName = 'ORG_GRADLE_PROJECT_mavenRepoUsername'
+		passwordEnvironmentName = 'ORG_GRADLE_PROJECT_mavenRepoPassword'
+		credentialsId = resolveArtifactoryCredentialsId()
+		env.ORG_GRADLE_PROJECT_mavenRepoUrl = resolveInternalRepositoryUrl(REPOSITORY_TYPE.MAVEN, config)
+		gradleTask = 'publishInternal'
+	}
+
+	withCredentials([
+			file(credentialsId: 'MAVEN_SIGNING_KEY', variable: 'SECRET_KEY_PATH'),
+			string(credentialsId: 'MAVEN_SIGNING_PASSWORD', variable: 'SECRET_PASSWORD'),
+			usernamePassword(credentialsId: credentialsId, usernameVariable: usernameEnvironmentName, passwordVariable: passwordEnvironmentName)
+	]) {
+		env.ORG_GRADLE_PROJECT_signingInMemoryKey = readFile(SECRET_KEY_PATH)
+		env.ORG_GRADLE_PROJECT_signingInMemoryKeyPassword = "${SECRET_PASSWORD}"
+		publishArtifact {
+			runScript("./gradlew ${gradleTask}")
+		}
 	}
 }
 
@@ -179,11 +239,12 @@ void publisher(Map config, String phase) {
 		this.&npmPublisher,
 		this.&pythonPublisher,
 		this.&gitHubPagesPublisher,
-		this.&awsPublisher
+		this.&awsPublisher,
+		this.&gradlePublisher
 	]
 
-	strategies.each { publisher ->
-		publisher.call(config, phase)
+	strategies.each { publisherStrategy ->
+		publisherStrategy.call(config, phase)
 	}
 }
 
