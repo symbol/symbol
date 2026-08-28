@@ -17,7 +17,7 @@ The rest of tutorials refer to this one to explain these basic techniques.
 
 !!! note "Alternative Manual Transaction Creation"
 
-    This tutorial describes the most convenient and type-safe method to create transactions.
+    This tutorial creates transactions from descriptors, which is the most convenient and type-safe method.
     For an alternative, lower-level, manual method, see the
     [Manual Transaction Creation](./manual-transaction-creation.md) tutorial.
 
@@ -79,15 +79,23 @@ The result is stored for later use once the transaction size is known.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet_tagged('step-3') }}
+!!! note "On Descriptors"
 
-The transfer transaction is created from the transaction's descriptor.
-The descriptor contains the transaction-specific fields, while the creation method receives the common fields used
-to finish the transaction.
+    The transfer transaction is created from the transaction's _descriptor_.
+
+    On typed languages like Java or JavaScript, these descriptors are also typed, so there are less chances of using
+    the wrong parameter when building or using them.
+    On untyped languages like Python, descriptors are generic objects which must contain the right fields for each
+    transaction type.
+
+    The descriptor contains the transaction-specific fields, while the creation method receives the common fields used
+    to finish the transaction.
+
+{{ tutorial.code_snippet_tagged('step-3') }}
 
 <dy:SymbolFacade.createTransactionFromTypedDescriptor> receives:
 
-* The transaction's descriptor: Defines <ser:TransferTransactionV1> and the transfer fields.
+* The transaction's descriptor: Defines <ser:TransferTransactionV1> and the transfer fields described below.
 * The signer public key: The signer is the account that will pay the fee.
     In a transfer transaction, it is also the source of the transferred mosaics.
 * The fee multiplier: Used to calculate the transaction fee.
@@ -106,10 +114,7 @@ to finish the transaction.
         duration in seconds from now.
 
         If you create transactions manually using <dy:SymbolTransactionFactory.create>, you need to provide the absolute
-        deadline yourself.
-        You can fetch the current network time from <get:/node/time>.
-        Applications do not need to query network time before every transaction: it can be fetched once and then adjusted
-        using the local system clock when needed.
+        deadline yourself, as shown in the [Manual Transaction Creation](./manual-transaction-creation.md) tutorial.
 
 The transaction's descriptor contains:
 

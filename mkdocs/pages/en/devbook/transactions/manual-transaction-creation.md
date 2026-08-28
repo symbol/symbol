@@ -56,6 +56,8 @@ fetching the current network time is not necessary.
 
 The snippet fetches the current network time from <get:/node/time> and stores it so the transaction deadline can be
 set later.
+Applications do not need to query network time before every transaction: it can be fetched once and then adjusted
+using the local system clock.
 
 !!! info "Deadline checks"
 
