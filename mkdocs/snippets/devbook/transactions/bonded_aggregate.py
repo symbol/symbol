@@ -5,10 +5,7 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
-from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
@@ -63,7 +60,8 @@ def wait_for_status(hash_value, expected_status, label):
 	)
 
 
-# Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
+# [>step-1]
+# Account A (initiates the aggregate tx and sends XYM to Account B)
 ACCOUNT_A_PRIVATE_KEY = os.getenv('ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 account_a_key_pair = SymbolFacade.KeyPair(
@@ -84,17 +82,7 @@ print(f'Account A: {account_a_address}')
 print(f'Account B: {account_b_address}')
 # [<step-1]
 try:
-	# Fetch current network time [>step-2]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-
-	# Fetch recommended fees
+	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -105,43 +93,46 @@ try:
 		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
 	# Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
-	embedded_transaction_1 = facade.transaction_factory.create_embedded({
-		'type': 'transfer_transaction_v1',
-		'signer_public_key': account_a_key_pair.public_key,
-		'recipient_address': account_b_address,
-		'mosaics': [{
-			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 10_000_000  # 10 XYM (divisibility = 6)
-		}]
-	})
+	embedded_transaction_1 = (
+		facade.create_embedded_transaction_from_descriptor(
+			{
+				'type': 'transfer_transaction_v1',
+				'recipient_address': account_b_address,
+				'mosaics': [{
+					'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
+					'amount': 10_000_000  # 10 XYM (divisibility = 6)
+				}]
+			},
+			account_a_key_pair.public_key))
 
 	# Embedded tx 2: Account B transfers 1 custom mosaic to Account A
 	custom_mosaic_id = 0x6D1314BE751B62C2
-	embedded_transaction_2 = facade.transaction_factory.create_embedded({
-		'type': 'transfer_transaction_v1',
-		'signer_public_key': account_b_key_pair.public_key,
-		'recipient_address': account_a_address,
-		'mosaics': [{
-			'mosaic_id': custom_mosaic_id,
-			'amount': 1  # 1 custom mosaic (divisibility = 0)
-		}]
-	})
+	embedded_transaction_2 = (
+		facade.create_embedded_transaction_from_descriptor(
+			{
+				'type': 'transfer_transaction_v1',
+				'recipient_address': account_a_address,
+				'mosaics': [{
+					'mosaic_id': custom_mosaic_id,
+					'amount': 1  # 1 custom mosaic (divisibility = 0)
+				}]
+			},
+			account_b_key_pair.public_key))
 	# [<step-3]
 	# Build the bonded aggregate transaction [>step-4]
 	embedded_transactions = [
 		embedded_transaction_1, embedded_transaction_2]
-	bonded_transaction = facade.transaction_factory.create({
-		'type': 'aggregate_bonded_transaction_v3',
-		'signer_public_key': account_a_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'transactions_hash': facade.hash_embedded_transactions(
-			embedded_transactions),
-		'transactions': embedded_transactions
-	})
-	# Reserve space for one cosignature
-	# and calculate fee for the final transaction size
-	bonded_transaction.fee = Amount(
-		calculate_transaction_fee(bonded_transaction, fee_multiplier, 1))
+	bonded_transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'aggregate_bonded_transaction_v3',
+			'transactions_hash': facade.hash_embedded_transactions(
+				embedded_transactions),
+			'transactions': embedded_transactions
+		},
+		account_a_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60,
+		1)
 	print('Built aggregate without signatures:')
 	print(json.dumps(bonded_transaction.to_json(), indent=2))
 	# [<step-4]
@@ -157,19 +148,19 @@ try:
 	# [<step-5]
 	# Create hash lock transaction [>step-6]
 	print('Creating hash lock transaction...')
-	hash_lock = facade.transaction_factory.create({
-		'type': 'hash_lock_transaction_v1',
-		'signer_public_key': account_a_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'mosaic': {
-			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 10_000_000  # 10 XYM deposit
+	hash_lock = facade.create_transaction_from_descriptor(
+		{
+			'type': 'hash_lock_transaction_v1',
+			'mosaic': {
+				'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
+				'amount': 10_000_000  # 10 XYM deposit
+			},
+			'duration': 100,  # Lock duration in blocks
+			'hash': bonded_hash
 		},
-		'duration': 100,  # Lock duration in blocks
-		'hash': bonded_hash
-	})
-	hash_lock.fee = Amount(
-		calculate_transaction_fee(hash_lock, fee_multiplier))
+		account_a_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 
 	# Sign hash lock
 	print('[Account A] Signing the hash lock...')

@@ -22,7 +22,7 @@ inline struct HashLockTransactionBody
 #
 # Upon completion of the aggregate, the locked funds become available again to the account that signed the HashLockTransaction.
 #
-# If the lock expires before the aggregate is signed by all cosignatories (**48h by default),
+# If the lock expires before the aggregate is signed by all cosignatories (**48h** by default),
 # the locked funds become a reward collected by the block harvester at the height where the lock expires.
 #
 # \note It is not necessary to sign the aggregate and its HashLockTransaction with the same account.

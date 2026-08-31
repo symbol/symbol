@@ -1,5 +1,6 @@
 package org.symbol.sdk.vectors;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.symbol.sdk.symbol.descriptors.TransferTransactionV1Descriptor;
 import org.symbol.sdk.symbol.descriptors.UnresolvedMosaicDescriptor;
 import org.symbol.sdk.symbol.descriptors.VotingKeyLinkTransactionV1Descriptor;
 import org.symbol.sdk.symbol.descriptors.VrfKeyLinkTransactionV1Descriptor;
+import org.symbol.sdk.symbol.models.AccountRestrictionFlags;
 import org.symbol.sdk.symbol.models.AliasAction;
 import org.symbol.sdk.symbol.models.Amount;
 import org.symbol.sdk.symbol.models.BlockDuration;
@@ -59,6 +61,7 @@ import org.symbol.sdk.symbol.models.MosaicRestrictionType;
 import org.symbol.sdk.symbol.models.MosaicSupplyChangeAction;
 import org.symbol.sdk.symbol.models.NamespaceId;
 import org.symbol.sdk.symbol.models.NamespaceRegistrationType;
+import org.symbol.sdk.symbol.models.TransactionType;
 import org.symbol.sdk.symbol.models.UnresolvedMosaicId;
 import org.symbol.sdk.utils.Converter;
 
@@ -71,9 +74,10 @@ import org.symbol.sdk.utils.Converter;
  * typed descriptors deliberately omit (signature, signerPublicKey, fee, deadline) are overlaid on the descriptor map — the analog of the JS
  * rawDescriptor override.
  *
- * Values flow from the vector JSON as-is: strings feed the String constructor overloads, numbers feed the pod {@code parse} coercions (u64
- * values arrive as wrapped longs — stringifying a negative long would corrupt them), and the byte-carrying fields (message, metadata
- * values, proof) go through {@link CatbufferDescriptorHelper#rawBytes}.
+ * Values flow from the vector JSON as-is: strings feed the model constructors ({@code Address},
+ * {@code CryptoTypes.PublicKey}/{@code Hash256}) and enum {@code parse} calls, numbers feed the pod {@code parse} coercions (u64 values
+ * arrive as wrapped longs — stringifying a negative long would corrupt them), and the byte-carrying fields (message, metadata values,
+ * proof) go through {@link CatbufferDescriptorHelper#rawBytes}.
  */
 @Tag("catvectors")
 final class SymbolTypedDescriptorVectorsTest {
@@ -118,16 +122,13 @@ final class SymbolTypedDescriptorVectorsTest {
 				List<Cosignature> cosignatures);
 	}
 
-	// the six aggregate variants differ only in the constructor; the shared tail lives once in createTypedTransactionDescriptor
+	// the six aggregate variants differ only in the constructed type; the shared tail lives once in createTypedTransactionDescriptor
 	private static final Map<String, AggregateDescriptorFactory> AGGREGATE_FACTORIES = Map.of("aggregate_bonded_transaction_v1",
-			(h, t, c) -> new AggregateBondedTransactionV1Descriptor(h).transactions(t).cosignatures(c), "aggregate_bonded_transaction_v2",
-			(h, t, c) -> new AggregateBondedTransactionV2Descriptor(h).transactions(t).cosignatures(c), "aggregate_bonded_transaction_v3",
-			(h, t, c) -> new AggregateBondedTransactionV3Descriptor(h).transactions(t).cosignatures(c), "aggregate_complete_transaction_v1",
-			(h, t, c) -> new AggregateCompleteTransactionV1Descriptor(h).transactions(t).cosignatures(c),
-			"aggregate_complete_transaction_v2",
-			(h, t, c) -> new AggregateCompleteTransactionV2Descriptor(h).transactions(t).cosignatures(c),
-			"aggregate_complete_transaction_v3",
-			(h, t, c) -> new AggregateCompleteTransactionV3Descriptor(h).transactions(t).cosignatures(c));
+			AggregateBondedTransactionV1Descriptor::new, "aggregate_bonded_transaction_v2", AggregateBondedTransactionV2Descriptor::new,
+			"aggregate_bonded_transaction_v3", AggregateBondedTransactionV3Descriptor::new, "aggregate_complete_transaction_v1",
+			AggregateCompleteTransactionV1Descriptor::new, "aggregate_complete_transaction_v2",
+			AggregateCompleteTransactionV2Descriptor::new, "aggregate_complete_transaction_v3",
+			AggregateCompleteTransactionV3Descriptor::new);
 
 	private static SymbolTransactionDescriptor createTypedTransactionDescriptor(final Map<String, Object> plain,
 			final SymbolFacade facade) {
@@ -138,10 +139,12 @@ final class SymbolTypedDescriptorVectorsTest {
 
 		switch (type) {
 			case "account_key_link_transaction_v1":
-				return new AccountKeyLinkTransactionV1Descriptor((String) plain.get("linkedPublicKey"), (String) plain.get("linkAction"));
+				return new AccountKeyLinkTransactionV1Descriptor(new CryptoTypes.PublicKey((String) plain.get("linkedPublicKey")),
+						LinkAction.parse(plain.get("linkAction")));
 
 			case "node_key_link_transaction_v1":
-				return new NodeKeyLinkTransactionV1Descriptor((String) plain.get("linkedPublicKey"), (String) plain.get("linkAction"));
+				return new NodeKeyLinkTransactionV1Descriptor(new CryptoTypes.PublicKey((String) plain.get("linkedPublicKey")),
+						LinkAction.parse(plain.get("linkAction")));
 
 			case "voting_key_link_transaction_v1":
 				return new VotingKeyLinkTransactionV1Descriptor(new CryptoTypes.PublicKey((String) plain.get("linkedPublicKey")),
@@ -149,7 +152,8 @@ final class SymbolTypedDescriptorVectorsTest {
 						LinkAction.parse(plain.get("linkAction")));
 
 			case "vrf_key_link_transaction_v1":
-				return new VrfKeyLinkTransactionV1Descriptor((String) plain.get("linkedPublicKey"), (String) plain.get("linkAction"));
+				return new VrfKeyLinkTransactionV1Descriptor(new CryptoTypes.PublicKey((String) plain.get("linkedPublicKey")),
+						LinkAction.parse(plain.get("linkAction")));
 
 			case "hash_lock_transaction_v1":
 				return new HashLockTransactionV1Descriptor(mapUnresolvedMosaic(CatbufferVectorsHelper.toObjectMap(plain.get("mosaic"))),
@@ -162,25 +166,26 @@ final class SymbolTypedDescriptorVectorsTest {
 						BlockDuration.parse(plain.get("duration")), LockHashAlgorithm.parse(plain.get("hashAlgorithm")));
 
 			case "secret_proof_transaction_v1":
-				return new SecretProofTransactionV1Descriptor((String) plain.get("recipientAddress"), (String) plain.get("secret"),
-						(String) plain.get("hashAlgorithm")).proof(CatbufferDescriptorHelper.rawBytes(plain.get("proof")));
+				return new SecretProofTransactionV1Descriptor(new Address((String) plain.get("recipientAddress")),
+						new CryptoTypes.Hash256((String) plain.get("secret")), LockHashAlgorithm.parse(plain.get("hashAlgorithm")),
+						CatbufferDescriptorHelper.rawBytes(plain.get("proof")));
 
 			case "account_metadata_transaction_v1":
-				return new AccountMetadataTransactionV1Descriptor((String) plain.get("targetAddress"),
-						Converter.toLong((Number) plain.get("scopedMetadataKey")), Converter.toInt((Number) plain.get("valueSizeDelta")))
-						.value(CatbufferDescriptorHelper.rawBytes(plain.get("value")));
+				return new AccountMetadataTransactionV1Descriptor(new Address((String) plain.get("targetAddress")),
+						Converter.toLong((Number) plain.get("scopedMetadataKey")), Converter.toInt((Number) plain.get("valueSizeDelta")),
+						CatbufferDescriptorHelper.rawBytes(plain.get("value")));
 
 			case "mosaic_metadata_transaction_v1":
 				return new MosaicMetadataTransactionV1Descriptor(new Address((String) plain.get("targetAddress")),
 						Converter.toLong((Number) plain.get("scopedMetadataKey")), UnresolvedMosaicId.parse(plain.get("targetMosaicId")),
-						Converter.toInt((Number) plain.get("valueSizeDelta")))
-						.value(CatbufferDescriptorHelper.rawBytes(plain.get("value")));
+						Converter.toInt((Number) plain.get("valueSizeDelta")), CatbufferDescriptorHelper.rawBytes(plain.get("value")));
 
 			case "namespace_metadata_transaction_v1":
 				// deliberately plain text even when it looks like hex — see CatbufferDescriptorHelper.isPlainTextValue
 				return new NamespaceMetadataTransactionV1Descriptor(new Address((String) plain.get("targetAddress")),
 						Converter.toLong((Number) plain.get("scopedMetadataKey")), NamespaceId.parse(plain.get("targetNamespaceId")),
-						Converter.toInt((Number) plain.get("valueSizeDelta"))).value((String) plain.get("value"));
+						Converter.toInt((Number) plain.get("valueSizeDelta")),
+						((String) plain.get("value")).getBytes(StandardCharsets.UTF_8));
 
 			case "mosaic_definition_transaction_v1":
 				// placeholder id mirrors JS: the factory autogenerates the mosaic id from nonce + signer
@@ -193,17 +198,13 @@ final class SymbolTypedDescriptorVectorsTest {
 						Amount.parse(plain.get("delta")), MosaicSupplyChangeAction.parse(plain.get("action")));
 
 			case "mosaic_supply_revocation_transaction_v1":
-				return new MosaicSupplyRevocationTransactionV1Descriptor((String) plain.get("sourceAddress"),
+				return new MosaicSupplyRevocationTransactionV1Descriptor(new Address((String) plain.get("sourceAddress")),
 						mapUnresolvedMosaic(CatbufferVectorsHelper.toObjectMap(plain.get("mosaic"))));
 
-			case "multisig_account_modification_transaction_v1": {
-				final MultisigAccountModificationTransactionV1Descriptor descriptor = new MultisigAccountModificationTransactionV1Descriptor(
-						Converter.toInt((Number) plain.get("minRemovalDelta")), Converter.toInt((Number) plain.get("minApprovalDelta")));
-				applyIfPresent(plain, "addressAdditions", () -> descriptor.addressAdditions(toStringArray(plain.get("addressAdditions"))));
-				applyIfPresent(plain, "addressDeletions", () -> descriptor.addressDeletions(toStringArray(plain.get("addressDeletions"))));
-
-				return descriptor;
-			}
+			case "multisig_account_modification_transaction_v1":
+				return new MultisigAccountModificationTransactionV1Descriptor(Converter.toInt((Number) plain.get("minRemovalDelta")),
+						Converter.toInt((Number) plain.get("minApprovalDelta")), mapAddressList(plain.get("addressAdditions")),
+						mapAddressList(plain.get("addressDeletions")));
 
 			case "address_alias_transaction_v1":
 				return new AddressAliasTransactionV1Descriptor(NamespaceId.parse(plain.get("namespaceId")),
@@ -213,51 +214,27 @@ final class SymbolTypedDescriptorVectorsTest {
 				return new MosaicAliasTransactionV1Descriptor(NamespaceId.parse(plain.get("namespaceId")),
 						MosaicId.parse(plain.get("mosaicId")), AliasAction.parse(plain.get("aliasAction")));
 
-			case "namespace_registration_transaction_v1": {
-				// placeholder id mirrors JS: the factory autogenerates the namespace id from the name
-				final NamespaceRegistrationTransactionV1Descriptor descriptor = new NamespaceRegistrationTransactionV1Descriptor(
-						new NamespaceId(0L), NamespaceRegistrationType.parse(plain.get("registrationType")))
-						.name((String) plain.get("name"));
-				applyIfPresent(plain, "duration", () -> descriptor.duration(BlockDuration.parse(plain.get("duration")))); // only used for
-																															// 'root'
-				applyIfPresent(plain, "parentId", () -> descriptor.parentId(NamespaceId.parse(plain.get("parentId")))); // only used for
-																														// 'child'
+			case "namespace_registration_transaction_v1":
+				// placeholder id mirrors JS: the factory autogenerates the namespace id from the name;
+				// duration is only present for 'root' registrations and parentId only for 'child'
+				return new NamespaceRegistrationTransactionV1Descriptor(new NamespaceId(0L),
+						NamespaceRegistrationType.parse(plain.get("registrationType")),
+						null == plain.get("duration") ? null : BlockDuration.parse(plain.get("duration")),
+						null == plain.get("parentId") ? null : NamespaceId.parse(plain.get("parentId")),
+						((String) plain.get("name")).getBytes(StandardCharsets.UTF_8));
 
-				return descriptor;
-			}
+			case "account_address_restriction_transaction_v1":
+				return new AccountAddressRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse(plain.get("restrictionFlags")),
+						mapAddressList(plain.get("restrictionAdditions")), mapAddressList(plain.get("restrictionDeletions")));
 
-			case "account_address_restriction_transaction_v1": {
-				final AccountAddressRestrictionTransactionV1Descriptor descriptor = new AccountAddressRestrictionTransactionV1Descriptor(
-						(String) plain.get("restrictionFlags"));
-				applyIfPresent(plain, "restrictionAdditions",
-						() -> descriptor.restrictionAdditions(toStringArray(plain.get("restrictionAdditions"))));
-				applyIfPresent(plain, "restrictionDeletions",
-						() -> descriptor.restrictionDeletions(toStringArray(plain.get("restrictionDeletions"))));
+			case "account_mosaic_restriction_transaction_v1":
+				return new AccountMosaicRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse(plain.get("restrictionFlags")),
+						mapMosaicIdList(plain.get("restrictionAdditions")), mapMosaicIdList(plain.get("restrictionDeletions")));
 
-				return descriptor;
-			}
-
-			case "account_mosaic_restriction_transaction_v1": {
-				final AccountMosaicRestrictionTransactionV1Descriptor descriptor = new AccountMosaicRestrictionTransactionV1Descriptor(
-						(String) plain.get("restrictionFlags"));
-				applyIfPresent(plain, "restrictionAdditions",
-						() -> descriptor.restrictionAdditions(mapMosaicIdList(plain.get("restrictionAdditions"))));
-				applyIfPresent(plain, "restrictionDeletions",
-						() -> descriptor.restrictionDeletions(mapMosaicIdList(plain.get("restrictionDeletions"))));
-
-				return descriptor;
-			}
-
-			case "account_operation_restriction_transaction_v1": {
-				final AccountOperationRestrictionTransactionV1Descriptor descriptor = new AccountOperationRestrictionTransactionV1Descriptor(
-						(String) plain.get("restrictionFlags"));
-				applyIfPresent(plain, "restrictionAdditions",
-						() -> descriptor.restrictionAdditions(toStringArray(plain.get("restrictionAdditions"))));
-				applyIfPresent(plain, "restrictionDeletions",
-						() -> descriptor.restrictionDeletions(toStringArray(plain.get("restrictionDeletions"))));
-
-				return descriptor;
-			}
+			case "account_operation_restriction_transaction_v1":
+				return new AccountOperationRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse(plain.get("restrictionFlags")),
+						mapTransactionTypeList(plain.get("restrictionAdditions")),
+						mapTransactionTypeList(plain.get("restrictionDeletions")));
 
 			case "mosaic_address_restriction_transaction_v1":
 				return new MosaicAddressRestrictionTransactionV1Descriptor(UnresolvedMosaicId.parse(plain.get("mosaicId")),
@@ -273,22 +250,10 @@ final class SymbolTypedDescriptorVectorsTest {
 						MosaicRestrictionType.parse(plain.get("previousRestrictionType")),
 						MosaicRestrictionType.parse(plain.get("newRestrictionType")));
 
-			case "transfer_transaction_v1": {
-				final TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(
-						(String) plain.get("recipientAddress"));
-				if (null != plain.get("mosaics")) {
-					final List<UnresolvedMosaicDescriptor> mosaics = new ArrayList<>();
-					for (final Object element : (List<?>) plain.get("mosaics"))
-						mosaics.add(mapUnresolvedMosaic(CatbufferVectorsHelper.toObjectMap(element)));
-
-					descriptor.mosaics(mosaics);
-				}
-
-				if (null != plain.get("message"))
-					descriptor.message(CatbufferDescriptorHelper.rawBytes(plain.get("message")));
-
-				return descriptor;
-			}
+			case "transfer_transaction_v1":
+				return new TransferTransactionV1Descriptor(new Address((String) plain.get("recipientAddress")),
+						mapUnresolvedMosaicList(plain.get("mosaics")),
+						null == plain.get("message") ? null : CatbufferDescriptorHelper.rawBytes(plain.get("message")));
 
 			default :
 				throw new IllegalArgumentException("unknown transaction type " + type);
@@ -303,7 +268,45 @@ final class SymbolTypedDescriptorVectorsTest {
 		return new UnresolvedMosaicDescriptor(UnresolvedMosaicId.parse(mosaic.get("mosaicId")), Amount.parse(mosaic.get("amount")));
 	}
 
+	// the list mappers pass an absent vector field through as null, which the all-args constructors omit from the map
+
+	private static List<UnresolvedMosaicDescriptor> mapUnresolvedMosaicList(final Object mosaics) {
+		if (null == mosaics)
+			return null;
+
+		final List<UnresolvedMosaicDescriptor> result = new ArrayList<>();
+		for (final Object element : (List<?>) mosaics)
+			result.add(mapUnresolvedMosaic(CatbufferVectorsHelper.toObjectMap(element)));
+
+		return result;
+	}
+
+	private static List<Address> mapAddressList(final Object addresses) {
+		if (null == addresses)
+			return null;
+
+		final List<Address> result = new ArrayList<>();
+		for (final Object element : (List<?>) addresses)
+			result.add(new Address((String) element));
+
+		return result;
+	}
+
+	private static List<TransactionType> mapTransactionTypeList(final Object types) {
+		if (null == types)
+			return null;
+
+		final List<TransactionType> result = new ArrayList<>();
+		for (final Object element : (List<?>) types)
+			result.add(TransactionType.parse(element));
+
+		return result;
+	}
+
 	private static List<UnresolvedMosaicId> mapMosaicIdList(final Object mosaicIds) {
+		if (null == mosaicIds)
+			return null;
+
 		final List<UnresolvedMosaicId> result = new ArrayList<>();
 		for (final Object element : (List<?>) mosaicIds)
 			result.add(UnresolvedMosaicId.parse(element));
@@ -343,18 +346,8 @@ final class SymbolTypedDescriptorVectorsTest {
 
 	// region value helpers
 
-	private static String[] toStringArray(final Object values) {
-		final List<?> list = (List<?>) values;
-		return list.stream().map(String.class::cast).toArray(String[]::new);
-	}
-
 	private static CryptoTypes.Hash256 getTransactionsHash(final Map<String, Object> plain) {
 		return new CryptoTypes.Hash256((String) plain.get("transactionsHash"));
-	}
-
-	private static void applyIfPresent(final Map<String, Object> plain, final String field, final Runnable applier) {
-		if (null != plain.get(field))
-			applier.run();
 	}
 
 	// endregion

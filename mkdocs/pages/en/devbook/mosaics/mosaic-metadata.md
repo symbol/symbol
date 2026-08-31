@@ -72,12 +72,12 @@ This value is an unprefixed hexadecimal string, which defaults to a test value i
 
     See the [Creating a Mosaic](./create-mosaic.md) tutorial to learn how to create one.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>, following the process described in the
+[Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Defining the Metadata
 
@@ -124,12 +124,11 @@ the signer account and the mosaic owner's signature.
 This prevents unwanted metadata from being attached to a mosaic without its owner's permission.
 
 In this tutorial, the signer is also the mosaic owner so only one signature is needed.
-However, the transaction still needs to be inside an aggregate,
-so the code defines the mosaic metadata transaction as an <embedded transaction:> with these properties:
+However, the transaction still needs to be inside an aggregate, so the code defines it as an
+<embedded transaction:>.
+The transaction's descriptor contains:
 
 * **Type:** Use <ser:MosaicMetadataTransactionV1>.
-
-* **Signer public key:** The account creating the metadata entry.
 
 * **Target address:** The mosaic owner's address.
     When the signer differs from the mosaic owner, the owner must <cosignature:|cosign> the aggregate transaction.
@@ -145,6 +144,8 @@ so the code defines the mosaic metadata transaction as an <embedded transaction:
     When creating new metadata, provide the raw value.
     When updating, provide a computed value (explained in the
     [Modifying Existing Metadata](#modifying-existing-metadata) section).
+
+The signer public key is passed separately to <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>.
 
 ### Building the Aggregate Transaction
 
@@ -219,23 +220,23 @@ in an aggregate transaction and then signed and announced.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="3 17 18 19 22 36 46 47 49"
+```text linenums="1" hl_lines="3 15 16 17 20 34 44 45 47"
 --8<-- 'devbook/mosaics/mosaic_metadata.log'
 ```
 
 Key points in the output:
 
 * **Line 3** (`Mosaic ID`): The mosaic ID used, in decimal and hexadecimal formats.
-* **Line 17** (`"scoped_metadata_key"`): The 64-bit key generated from the input string using SHA3-256 hashing.
-* **Line 18** (`"target_mosaic_id"`): The mosaic receiving the metadata.
-* **Line 19** (`"value_size_delta": 15`): When creating new metadata, this equals the byte length of the value
+* **Line 15** (`"scoped_metadata_key"`): The 64-bit key generated from the input string using SHA3-256 hashing.
+* **Line 16** (`"target_mosaic_id"`): The mosaic receiving the metadata.
+* **Line 17** (`"value_size_delta": 15`): When creating new metadata, this equals the byte length of the value
     (`"My first mosaic"` = 15 bytes).
-* **Line 22**: The transaction hash for looking up the metadata creation in the explorer.
-* **Line 36** (`Current value: My first mosaic`): Retrieved from the network before updating.
-* **Line 46** (`"value_size_delta": -1`): Negative because the new value (`"Updated mosaic"` = 14 bytes) is shorter
+* **Line 20**: The transaction hash for looking up the metadata creation in the explorer.
+* **Line 34** (`Current value: My first mosaic`): Retrieved from the network before updating.
+* **Line 44** (`"value_size_delta": -1`): Negative because the new value (`"Updated mosaic"` = 14 bytes) is shorter
     than the current value (15 bytes).
-* **Line 47** (`"value"`): The XOR'd value computed from the current and new values, not the raw new value.
-* **Line 49**: The transaction hash for looking up the metadata update in the explorer.
+* **Line 45** (`"value"`): The XOR'd value computed from the current and new values, not the raw new value.
+* **Line 47**: The transaction hash for looking up the metadata update in the explorer.
 
 The transaction hashes can be used to search for the transactions in the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -247,6 +248,6 @@ This tutorial showed how to:
 | Step                                                                                       | Related documentation                                                           |
 | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
 | [Define metadata key and value](#defining-the-metadata)                                    | <dy:Metadata.metadataGenerateKey>                                               |
-| [Create a mosaic metadata transaction](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:MosaicMetadataTransactionV1> |
+| [Create a mosaic metadata transaction](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MosaicMetadataTransactionV1> |
 | [Retrieve metadata](#retrieving-metadata)                                                  | <get:/metadata>                                                                 |
 | [Modify existing metadata](#modifying-existing-metadata)                                   | <dy:Metadata.metadataUpdateValue>                                               |

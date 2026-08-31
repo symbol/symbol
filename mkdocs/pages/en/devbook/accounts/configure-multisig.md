@@ -68,7 +68,7 @@ For details on how transactions are announced and how their confirmation is trac
 The remaining helper functions are described in the sections below.
 
 The tutorial then proceeds to [set up the required keys](#setting-up-the-accounts),
-[fetch the current network conditions](#fetching-network-time-and-fees), and
+[fetch the recommended fees](#fetching-recommended-fees), and
 [detect the current configuration](#detecting-the-multisig) of the multisig account.
 
 Depending on whether the account is already configured as a multisig,
@@ -96,12 +96,12 @@ If the default values are used, these accounts may already be funded.
 
 The snippet above derives and stores the <key pair:> and <address:> of each account for later use.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
-following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
+Recommended fees are fetched from <get:/network/fees/transaction>.
+The fee multiplier is used later to calculate transaction fees.
 
 ### Detecting the Multisig
 
@@ -127,9 +127,17 @@ are performed using a <ser:MultisigAccountModificationTransactionV1>, which **mu
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-The embedded <ser:MultisigAccountModificationTransactionV1> includes the following fields:
+<dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor> receives:
 
-* {{ tutorial.var('signer_public_key') }}: <public key:> of the account whose multisig configuration will be modified.
+* The transaction's descriptor: Defines <ser:MultisigAccountModificationTransactionV1> and the multisig changes.
+* The signer public key: <public key:> of the account whose multisig configuration will be modified.
+
+The transaction's descriptor contains:
+
+* {{ tutorial.var('min_removal_delta') }}: Difference in the number of signatures required to remove cosignatories from
+    the account configuration.
+    This allows, for example, requiring more signatures to remove a cosignatory than to approve a regular transaction,
+    which is often a more sensitive governance operation.
 
 * {{ tutorial.var('min_approval_delta') }}: difference between the _desired value_ and the _current value_ of the
     number of signatures that will be required to approve a transaction from the multisig account.
@@ -139,11 +147,6 @@ The embedded <ser:MultisigAccountModificationTransactionV1> includes the followi
     the delta is set to `1`.
 
     The delta value can be negative to _reduce_ the current value, as shown in the next section.
-
-* {{ tutorial.var('min_removal_delta') }}: Difference in the number of signatures required to remove cosignatories from
-    the account configuration.
-    This allows, for example, requiring more signatures to remove a cosignatory than to approve a regular transaction,
-    which is often a more sensitive governance operation.
 
 * {{ tutorial.var('address_additions') }}: list of addresses of the cosignatories that will be added to the account.
     The {{ tutorial.var('cosignatory_addresses') }} variable was prepared during the
@@ -164,13 +167,15 @@ The embedded transaction is then wrapped in an aggregate transaction, even thoug
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> receives the aggregate transaction's descriptor, signer public key,
+fee multiplier, deadline duration, and the number of cosignature spaces to reserve.
+
 For simplicity, the tutorial uses a <complete aggregate transaction:>.
 See the tutorials on [complete](../transactions/complete-aggregate.md) and
 [bonded](../transactions/bonded-aggregate.md) aggregate transactions for more details.
 
-Care is taken when calculating the transaction fee to account for the space required by all cosignatures.
-The <dy:FeeCalculator.calculateTransactionFee> helper reserves this space through its cosignature-count
-argument, set to the number of cosignatories.
+The cosignature count tells the method how much space to reserve for cosignatures when it calculates the
+transaction fee.
 
 Finally, signatures are attached to the aggregate transaction:
 
@@ -198,7 +203,8 @@ For this reason, two <ser:MultisigAccountModificationTransactionV1>s are created
 
 {{ tutorial.code_snippet_tagged('step-8') }}
 
-In both transactions, {{ tutorial.var('signer_public_key') }} is set to the multisig account's public key.
+In both transactions, <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor> receives the transaction's descriptor
+and the multisig account's public key.
 
 The first transaction removes {{ tutorial.var('cosignatory_addresses[1]') }} without modifying the approval or
 removal deltas, because one cosignatory still remains and signatures are still required.
@@ -211,6 +217,9 @@ and the desired value is `0`, so the delta is `-1`.
 Both embedded transactions are then wrapped in an aggregate transaction and signed:
 
 {{ tutorial.code_snippet_tagged('step-9') }}
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> receives the aggregate transaction's descriptor, signer public key,
+fee multiplier, and deadline duration.
 
 The aggregate transaction is signed by {{ tutorial.var('cosignatory_addresses[0]') }}.
 This is the only valid option: once an account has cosignatories, it can no longer sign transactions on its own,
@@ -238,33 +247,33 @@ The output shown below corresponds to two typical runs of the program.
 
 === ":material-plus-thick: Enabling the Multisig"
 
-    ```text linenums="1" hl_lines="2-4 10 27-28 30-31"
+    ```text linenums="1" hl_lines="2-4 8 25-27"
     --8<-- 'devbook/accounts/configure_multisig_enable.log'
     ```
 
     Key points in the output:
 
     * **Lines 2-4**: Addresses and public keys of all involved accounts.
-    * **Line 10** (`Response: No cosignatories`): No cosignatories are currently configured.
-    * **Line 27** (`"min_approval_delta": 1`): The number of required signatures to approve transactions will be
+    * **Line 8** (`Response: No cosignatories`): No cosignatories are currently configured.
+    * **Line 25** (`"min_removal_delta": 1`): The number of required signatures to remove a cosignatory will be
         increased by one.
-    * **Line 28** (`"min_removal_delta": 1`): The number of required signatures to remove a cosignatory will be
+    * **Line 26** (`"min_approval_delta": 1`): The number of required signatures to approve transactions will be
         increased by one.
-    * **Line 30-31** (`"address_additions"`): List of addresses that will be added as cosignatories.
+    * **Line 27-29** (`"address_additions"`): List of addresses that will be added as cosignatories.
 
 === ":material-minus-thick: Disabling the Multisig"
 
-    ```text linenums="1" hl_lines="2-4 10 27-32 39-44"
+    ```text linenums="1" hl_lines="2-4 8 25-30 37-42"
     --8<-- 'devbook/accounts/configure_multisig_disable.log'
     ```
 
     Key points in the output:
 
     * **Lines 2-4**: Addresses and public keys of all involved accounts.
-    * **Line 10** (`Response: [ ... ]`): Existing cosignatories have been detected.
-    * **Line 27-32** (First embedded transaction): The minimum number of required signatures will remain unchanged,
+    * **Line 8** (`Response: [ ... ]`): Existing cosignatories have been detected.
+    * **Line 25-30** (First embedded transaction): The minimum number of required signatures will remain unchanged,
         no new cosignatories will be added, and one existing cosignatory will be removed.
-    * **Line 39-44** (Second embedded transaction): The minimum number of required signatures will be decreased by one,
+    * **Line 37-42** (Second embedded transaction): The minimum number of required signatures will be decreased by one,
         no new cosignatories will be added, and the last remaining cosignatory will be removed.
 
 The transaction hashes shown in the output can be used to look up the transactions in the
@@ -277,6 +286,5 @@ This tutorial showed how to:
 | Step                                                                   | Related documentation                                                                        |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | [Retrieve the current multisig configuration](#detecting-the-multisig) | <get:/account/{address}/multisig>                                                            |
-| [Enable a multisig account](#enabling-the-multisig)                    | <ser:MultisigAccountModificationTransactionV1>                                               |
-| [Disable a multisig account](#disabling-the-multisig)                  | <ser:MultisigAccountModificationTransactionV1>                                               |
-| Wrap configuration in an embedded transaction                          | <dy:SymbolTransactionFactory.createEmbedded>, <ser:MultisigAccountModificationTransactionV1> |
+| [Create a multisig modification transaction](#enabling-the-multisig)    | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MultisigAccountModificationTransactionV1> |
+| [Build the aggregate transaction](#enabling-the-multisig)               | <dy:SymbolFacade.createTransactionFromTypedDescriptor> |

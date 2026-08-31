@@ -7,10 +7,7 @@ import urllib.request
 
 from symbolchain.CryptoTypes import Hash256, PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
-from symbolchain.symbol.Network import NetworkTimestamp
 from web3 import Web3
 
 SYMBOL_NODE_URL = os.getenv(
@@ -76,22 +73,6 @@ HTLC_ABI = [
 		]
 	}
 ]
-
-
-# Helper function to fetch current Symbol network time
-def get_network_time():
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(
-		f'{SYMBOL_NODE_URL}{time_path}'
-	) as response:
-		response_json = json.loads(response.read().decode())
-		timestamp = NetworkTimestamp(int(
-			response_json['communicationTimestamps'][
-				'receiveTimestamp']))
-		print(f'  Network time: {timestamp.timestamp}'
-			' ms since nemesis')
-		return timestamp
 
 
 # Helper function to fetch recommended Symbol fee multiplier
@@ -251,7 +232,8 @@ try:
 	print(f'HTLC contract ID: {contract_id.hex()}')
 	# [<step-3]
 	# --- Step 2. Bob: Create secret lock on Symbol ---
-	print('\n--- Step 2. Bob: Create secret lock on Symbol ---')  # [>step-4]
+	# [>step-4]
+	print('\n--- Step 2. Bob: Create secret lock on Symbol ---')
 
 	# Bob queries the Ethereum contract to get the hashlock
 	contract_info = htlc.functions.getContract(contract_id).call()
@@ -261,22 +243,21 @@ try:
 	lock_duration = 5760  # ~48h at 30s blocks
 	print(f'Lock duration: {lock_duration} blocks')
 
-	secret_lock_transaction = facade.transaction_factory.create({
-		'type': 'secret_lock_transaction_v1',
-		'signer_public_key': bob_xym_key_pair.public_key,
-		'deadline': get_network_time().add_hours(2).timestamp,
-		'recipient_address': alice_xym_address,
-		'mosaic': {
-			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 1_000_000  # 1 XYM
+	secret_lock_transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'secret_lock_transaction_v1',
+			'recipient_address': alice_xym_address,
+			'secret': Hash256(hashlock),
+			'mosaic': {
+				'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
+				'amount': 1_000_000  # 1 XYM
+			},
+			'duration': lock_duration,
+			'hash_algorithm': 'hash_256'
 		},
-		'duration': lock_duration,
-		'secret': Hash256(hashlock),
-		'hash_algorithm': 'hash_256'
-	})
-	secret_lock_transaction.fee = Amount(
-		calculate_transaction_fee(
-			secret_lock_transaction, get_fee_multiplier()))
+		bob_xym_key_pair.public_key,
+		get_fee_multiplier(),
+		2 * 60 * 60)
 
 	# Sign and announce
 	lock_signature = facade.sign_transaction(
@@ -295,18 +276,17 @@ try:
 	# --- Step 3. Alice: Claim XYM on Symbol ---
 	print('\n--- Step 3. Alice: Claim XYM on Symbol ---')  # [>step-5]
 
-	secret_proof_transaction = facade.transaction_factory.create({
-		'type': 'secret_proof_transaction_v1',
-		'signer_public_key': alice_xym_key_pair.public_key,
-		'deadline': get_network_time().add_hours(2).timestamp,
-		'recipient_address': alice_xym_address,
-		'secret': Hash256(hashlock),
-		'hash_algorithm': 'hash_256',
-		'proof': proof
-	})
-	secret_proof_transaction.fee = Amount(
-		calculate_transaction_fee(
-			secret_proof_transaction, get_fee_multiplier()))
+	secret_proof_transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'secret_proof_transaction_v1',
+			'recipient_address': alice_xym_address,
+			'secret': Hash256(hashlock),
+			'hash_algorithm': 'hash_256',
+			'proof': proof
+		},
+		alice_xym_key_pair.public_key,
+		get_fee_multiplier(),
+		2 * 60 * 60)
 
 	# Sign and announce
 	proof_signature = facade.sign_transaction(

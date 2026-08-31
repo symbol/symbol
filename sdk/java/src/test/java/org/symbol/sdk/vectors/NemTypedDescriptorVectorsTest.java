@@ -9,35 +9,18 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestFactory;
 
+import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.Serializer;
 import org.symbol.sdk.facade.NemFacade;
 import org.symbol.sdk.nem.Address;
 import org.symbol.sdk.nem.NemTransactionFactory;
-import org.symbol.sdk.nem.descriptors.AccountKeyLinkTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.CosignatureV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MessageDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicDefinitionDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicDefinitionTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MosaicDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicIdDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicLevyDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicPropertyDescriptor;
-import org.symbol.sdk.nem.descriptors.MosaicSupplyChangeTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MultisigAccountModificationDescriptor;
-import org.symbol.sdk.nem.descriptors.MultisigAccountModificationTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.MultisigAccountModificationTransactionV2Descriptor;
-import org.symbol.sdk.nem.descriptors.MultisigTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.NamespaceIdDescriptor;
-import org.symbol.sdk.nem.descriptors.NamespaceRegistrationTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.NemTransactionDescriptor;
-import org.symbol.sdk.nem.descriptors.SizePrefixedMosaicDescriptor;
-import org.symbol.sdk.nem.descriptors.SizePrefixedMosaicPropertyDescriptor;
-import org.symbol.sdk.nem.descriptors.SizePrefixedMultisigAccountModificationDescriptor;
-import org.symbol.sdk.nem.descriptors.TransferTransactionV1Descriptor;
-import org.symbol.sdk.nem.descriptors.TransferTransactionV2Descriptor;
+import org.symbol.sdk.nem.descriptors.*;
 import org.symbol.sdk.nem.models.Amount;
+import org.symbol.sdk.nem.models.LinkAction;
+import org.symbol.sdk.nem.models.MessageType;
 import org.symbol.sdk.nem.models.MosaicSupplyChangeAction;
 import org.symbol.sdk.nem.models.MosaicTransferFeeType;
+import org.symbol.sdk.nem.models.MultisigAccountModificationType;
 import org.symbol.sdk.nem.models.NonVerifiableTransaction;
 import org.symbol.sdk.nem.models.SizePrefixedCosignatureV1;
 import org.symbol.sdk.utils.Converter;
@@ -50,8 +33,9 @@ import org.symbol.sdk.utils.Converter;
  * were rejected by design), and the header fields typed descriptors deliberately omit (signature, timestamp, signerPublicKey, fee) are
  * overlaid on the descriptor map — the analog of the JS rawDescriptor override.
  *
- * Values flow from the vector JSON as-is: strings feed the String constructor overloads, numbers feed the pod {@code parse} coercions (u64
- * values arrive as wrapped longs — stringifying a negative long would corrupt them), and the byte-carrying fields (message content, names,
+ * Values flow from the vector JSON as-is: strings feed the model constructors ({@code Address},
+ * {@code CryptoTypes.PublicKey}/{@code Hash256}) and enum {@code parse} calls, numbers feed the pod {@code parse} coercions (u64 values
+ * arrive as wrapped longs — stringifying a negative long would corrupt them), and the byte-carrying fields (message content, names,
  * descriptions, property name/value pairs — hex-encoded in the NEM vectors) go through {@link CatbufferDescriptorHelper#rawBytes}.
  */
 @Tag("catvectors")
@@ -98,7 +82,8 @@ final class NemTypedDescriptorVectorsTest {
 		final String type = (String) plain.get("type");
 		switch (type) {
 			case "account_key_link_transaction_v1":
-				return new AccountKeyLinkTransactionV1Descriptor((String) plain.get("linkAction"), (String) plain.get("remotePublicKey"));
+				return new AccountKeyLinkTransactionV1Descriptor(LinkAction.parse(plain.get("linkAction")),
+						new CryptoTypes.PublicKey((String) plain.get("remotePublicKey")));
 
 			case "mosaic_definition_transaction_v1":
 				return new MosaicDefinitionTransactionV1Descriptor(
@@ -110,55 +95,28 @@ final class NemTypedDescriptorVectorsTest {
 						MosaicSupplyChangeAction.parse(plain.get("action")), Amount.parse(plain.get("delta")));
 
 			case "multisig_account_modification_transaction_v1":
-				return new MultisigAccountModificationTransactionV1Descriptor().modifications(mapModifications(plain));
+				return new MultisigAccountModificationTransactionV1Descriptor(mapModifications(plain));
 
 			case "multisig_account_modification_transaction_v2":
-				return new MultisigAccountModificationTransactionV2Descriptor(Converter.toInt((Number) plain.get("minApprovalDelta")))
-						.modifications(mapModifications(plain));
+				return new MultisigAccountModificationTransactionV2Descriptor(Converter.toInt((Number) plain.get("minApprovalDelta")),
+						mapModifications(plain));
 
-			case "namespace_registration_transaction_v1": {
-				final NamespaceRegistrationTransactionV1Descriptor descriptor = new NamespaceRegistrationTransactionV1Descriptor(
-						new Address((String) plain.get("rentalFeeSink")), Amount.parse(plain.get("rentalFee")))
-						.name(CatbufferDescriptorHelper.rawBytes(plain.get("name")));
-				if (null != plain.get("parentName"))
-					descriptor.parentName(CatbufferDescriptorHelper.rawBytes(plain.get("parentName")));
+			case "namespace_registration_transaction_v1":
+				return new NamespaceRegistrationTransactionV1Descriptor(new Address((String) plain.get("rentalFeeSink")),
+						Amount.parse(plain.get("rentalFee")), CatbufferDescriptorHelper.rawBytes(plain.get("name")),
+						null == plain.get("parentName") ? null : CatbufferDescriptorHelper.rawBytes(plain.get("parentName")));
 
-				return descriptor;
-			}
+			case "transfer_transaction_v1":
+				return new TransferTransactionV1Descriptor(new Address((String) plain.get("recipientAddress")),
+						Amount.parse(plain.get("amount")), mapOptionalMessage(plain));
 
-			case "transfer_transaction_v1": {
-				final TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(
-						new Address((String) plain.get("recipientAddress")), Amount.parse(plain.get("amount")));
-				if (null != plain.get("message"))
-					descriptor.message(mapMessage(CatbufferVectorsHelper.toObjectMap(plain.get("message"))));
-
-				return descriptor;
-			}
-
-			case "transfer_transaction_v2": {
-				final TransferTransactionV2Descriptor descriptor = new TransferTransactionV2Descriptor(
-						new Address((String) plain.get("recipientAddress")), Amount.parse(plain.get("amount")));
-				if (null != plain.get("message"))
-					descriptor.message(mapMessage(CatbufferVectorsHelper.toObjectMap(plain.get("message"))));
-
-				if (null != plain.get("mosaics")) {
-					final List<SizePrefixedMosaicDescriptor> mosaics = new ArrayList<>();
-					for (final Object element : (List<?>) plain.get("mosaics")) {
-						final Map<String, Object> mosaic = extractNamedChild(element, "mosaic");
-						mosaics.add(new SizePrefixedMosaicDescriptor(
-								new MosaicDescriptor(mapMosaicId(CatbufferVectorsHelper.toObjectMap(mosaic.get("mosaicId"))),
-										Amount.parse(mosaic.get("amount")))));
-					}
-
-					descriptor.mosaics(mosaics);
-				}
-
-				return descriptor;
-			}
+			case "transfer_transaction_v2":
+				return new TransferTransactionV2Descriptor(new Address((String) plain.get("recipientAddress")),
+						Amount.parse(plain.get("amount")), mapOptionalMessage(plain), mapMosaicList(plain.get("mosaics")));
 
 			case "cosignature_v1":
-				return new CosignatureV1Descriptor((String) plain.get("otherTransactionHash"),
-						(String) plain.get("multisigAccountAddress"));
+				return new CosignatureV1Descriptor(new CryptoTypes.Hash256((String) plain.get("otherTransactionHash")),
+						new Address((String) plain.get("multisigAccountAddress")));
 
 			case "multisig_transaction_v1": {
 				final Map<String, Object> innerPlain = CatbufferVectorsHelper.toObjectMap(plain.get("innerTransaction"));
@@ -172,7 +130,7 @@ final class NemTypedDescriptorVectorsTest {
 
 				final NonVerifiableTransaction inner = NemTransactionFactory
 						.toNonVerifiableTransaction(facade.transactionFactory.create(innerDescriptor));
-				return new MultisigTransactionV1Descriptor(inner);
+				return new MultisigTransactionV1Descriptor(inner, (List<SizePrefixedCosignatureV1Descriptor>) null);
 			}
 
 			default :
@@ -184,8 +142,9 @@ final class NemTypedDescriptorVectorsTest {
 		final List<SizePrefixedCosignatureV1> cosignatures = new ArrayList<>();
 		for (final Object element : (List<?>) plain.get("cosignatures")) {
 			final Map<String, Object> cosignature = extractNamedChild(element, "cosignature");
-			final CosignatureV1Descriptor typedCosignature = new CosignatureV1Descriptor((String) cosignature.get("otherTransactionHash"),
-					(String) cosignature.get("multisigAccountAddress"));
+			final CosignatureV1Descriptor typedCosignature = new CosignatureV1Descriptor(
+					new CryptoTypes.Hash256((String) cosignature.get("otherTransactionHash")),
+					new Address((String) cosignature.get("multisigAccountAddress")));
 
 			final Map<String, Object> cosignatureDescriptor = new LinkedHashMap<>(typedCosignature.toMap());
 			// override base transaction properties to get vectors to pass (the analog of the JS rawDescriptor override)
@@ -200,50 +159,75 @@ final class NemTypedDescriptorVectorsTest {
 		return cosignatures;
 	}
 
-	private static MessageDescriptor mapMessage(final Map<String, Object> message) {
-		return new MessageDescriptor((String) message.get("messageType"))
-				.message(CatbufferDescriptorHelper.rawBytes(message.get("message")));
+	// the optional-field mappers pass an absent vector field through as null, which the all-args constructors omit from the map
+
+	private static MessageDescriptor mapOptionalMessage(final Map<String, Object> plain) {
+		if (null == plain.get("message"))
+			return null;
+
+		final Map<String, Object> message = CatbufferVectorsHelper.toObjectMap(plain.get("message"));
+		return new MessageDescriptor(MessageType.parse(message.get("messageType")),
+				CatbufferDescriptorHelper.rawBytes(message.get("message")));
+	}
+
+	private static List<SizePrefixedMosaicDescriptor> mapMosaicList(final Object mosaics) {
+		if (null == mosaics)
+			return null;
+
+		final List<SizePrefixedMosaicDescriptor> result = new ArrayList<>();
+		for (final Object element : (List<?>) mosaics) {
+			final Map<String, Object> mosaic = extractNamedChild(element, "mosaic");
+			result.add(new SizePrefixedMosaicDescriptor(new MosaicDescriptor(
+					mapMosaicId(CatbufferVectorsHelper.toObjectMap(mosaic.get("mosaicId"))), Amount.parse(mosaic.get("amount")))));
+		}
+
+		return result;
 	}
 
 	private static MosaicIdDescriptor mapMosaicId(final Map<String, Object> mosaicId) {
 		final Map<String, Object> namespaceId = CatbufferVectorsHelper.toObjectMap(mosaicId.get("namespaceId"));
-		return new MosaicIdDescriptor(new NamespaceIdDescriptor().name(CatbufferDescriptorHelper.rawBytes(namespaceId.get("name"))))
-				.name(CatbufferDescriptorHelper.rawBytes(mosaicId.get("name")));
+		return new MosaicIdDescriptor(new NamespaceIdDescriptor(CatbufferDescriptorHelper.rawBytes(namespaceId.get("name"))),
+				CatbufferDescriptorHelper.rawBytes(mosaicId.get("name")));
 	}
 
 	private static MosaicDefinitionDescriptor mapMosaicDefinition(final Map<String, Object> definition) {
-		final MosaicDefinitionDescriptor descriptor = new MosaicDefinitionDescriptor((String) definition.get("ownerPublicKey"),
-				mapMosaicId(CatbufferVectorsHelper.toObjectMap(definition.get("id"))))
-				.description(CatbufferDescriptorHelper.rawBytes(definition.get("description")));
+		return new MosaicDefinitionDescriptor(new CryptoTypes.PublicKey((String) definition.get("ownerPublicKey")),
+				mapMosaicId(CatbufferVectorsHelper.toObjectMap(definition.get("id"))),
+				CatbufferDescriptorHelper.rawBytes(definition.get("description")), mapProperties(definition.get("properties")),
+				mapLevy(definition.get("levy")));
+	}
 
-		if (null != definition.get("properties")) {
-			final List<SizePrefixedMosaicPropertyDescriptor> properties = new ArrayList<>();
-			for (final Object element : (List<?>) definition.get("properties")) {
-				final Map<String, Object> property = extractNamedChild(element, "property");
-				properties.add(new SizePrefixedMosaicPropertyDescriptor(
-						new MosaicPropertyDescriptor().name(CatbufferDescriptorHelper.rawBytes(property.get("name")))
-								.value(CatbufferDescriptorHelper.rawBytes(property.get("value")))));
-			}
+	private static List<SizePrefixedMosaicPropertyDescriptor> mapProperties(final Object propertyList) {
+		if (null == propertyList)
+			return null;
 
-			descriptor.properties(properties);
+		final List<SizePrefixedMosaicPropertyDescriptor> properties = new ArrayList<>();
+		for (final Object element : (List<?>) propertyList) {
+			final Map<String, Object> property = extractNamedChild(element, "property");
+			properties.add(new SizePrefixedMosaicPropertyDescriptor(new MosaicPropertyDescriptor(
+					CatbufferDescriptorHelper.rawBytes(property.get("name")), CatbufferDescriptorHelper.rawBytes(property.get("value")))));
 		}
 
-		if (null != definition.get("levy")) {
-			final Map<String, Object> levy = CatbufferVectorsHelper.toObjectMap(definition.get("levy"));
-			descriptor.levy(new MosaicLevyDescriptor(MosaicTransferFeeType.parse(levy.get("transferFeeType")),
-					new Address((String) levy.get("recipientAddress")),
-					mapMosaicId(CatbufferVectorsHelper.toObjectMap(levy.get("mosaicId"))), Amount.parse(levy.get("fee"))));
-		}
+		return properties;
+	}
 
-		return descriptor;
+	private static MosaicLevyDescriptor mapLevy(final Object levyValue) {
+		if (null == levyValue)
+			return null;
+
+		final Map<String, Object> levy = CatbufferVectorsHelper.toObjectMap(levyValue);
+		return new MosaicLevyDescriptor(MosaicTransferFeeType.parse(levy.get("transferFeeType")),
+				new Address((String) levy.get("recipientAddress")), mapMosaicId(CatbufferVectorsHelper.toObjectMap(levy.get("mosaicId"))),
+				Amount.parse(levy.get("fee")));
 	}
 
 	private static List<SizePrefixedMultisigAccountModificationDescriptor> mapModifications(final Map<String, Object> plain) {
 		final List<SizePrefixedMultisigAccountModificationDescriptor> modifications = new ArrayList<>();
 		for (final Object element : (List<?>) plain.get("modifications")) {
 			final Map<String, Object> modification = extractNamedChild(element, "modification");
-			modifications.add(new SizePrefixedMultisigAccountModificationDescriptor(new MultisigAccountModificationDescriptor(
-					(String) modification.get("modificationType"), (String) modification.get("cosignatoryPublicKey"))));
+			modifications.add(new SizePrefixedMultisigAccountModificationDescriptor(
+					new MultisigAccountModificationDescriptor(MultisigAccountModificationType.parse(modification.get("modificationType")),
+							new CryptoTypes.PublicKey((String) modification.get("cosignatoryPublicKey")))));
 		}
 
 		return modifications;

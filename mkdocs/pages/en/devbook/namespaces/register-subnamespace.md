@@ -42,7 +42,7 @@ transactions are announced and confirmed.
 The code follows the same pattern as the [Registering a Root Namespace](./register-root-namespace.md) tutorial.
 This section focuses only on the key differences.
 
-For detailed explanations of the common steps (setting up the account, fetching network time and fees, and announcing)
+For detailed explanations of the common steps (setting up the account, fetching recommended fees, and announcing)
 and the transaction descriptor fields shared with a root namespace,
 see [Registering a Root Namespace](./register-root-namespace.md).
 
@@ -125,40 +125,40 @@ A successful response confirms the subnamespace was registered and is active on 
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="7 8 16 19 21 30 33 34 35 36 37 38 39 40"
+```text linenums="1" hl_lines="5 6 14 17 19 28 31 32 33 34 35 36 37 38"
 --8<-- 'devbook/namespaces/register_subnamespace.log'
 ```
 
 Some highlights from the output:
 
-* **Full namespace path** (line 7): The subnamespace `ns_root.sub_1766533103` shows the full name.
+* **Full namespace path** (line 5): The subnamespace `ns_root.sub_1766533103` shows the full name.
 
-* **Parent namespace ID** (lines 8, 33): The parent ID `0xB0786316D5C1D9DD` links this subnamespace to its root.
+* **Parent namespace ID** (lines 6, 33): The parent ID `0xB0786316D5C1D9DD` links this subnamespace to its root.
 
-* **Fee** (line 16): The transaction fee of 0.016 XYM is calculated as the transaction size
+* **Fee** (line 14): The transaction fee of 0.016 XYM is calculated as the transaction size
     multiplied by the fee multiplier.
     The [lease fee](../../textbook/namespaces.md#lease-fee) is deducted separately by the network when the transaction
     is confirmed.
 
-* **ID and name** (lines 19, 21): The `id` field shows the subnamespace ID as a decimal number, while `name` contains
+* **ID and name** (lines 17, 19): The `id` field shows the subnamespace ID as a decimal number, while `name` contains
     only the child portion encoded as hexadecimal (for example, `7375625f...` decodes to `sub_1...`).
 
-* **Subnamespace ID** (line 30): Shows both decimal and hexadecimal representations to match the `id` field on
-    line 19.
+* **Subnamespace ID** (line 28): Shows both decimal and hexadecimal representations to match the `id` field on
+    line 17.
 
-* **Registration type** (line 34): The value `1` indicates a subnamespace (versus `0` for root namespaces).
+* **Registration type** (line 31): The value `1` indicates a subnamespace (versus `0` for root namespaces).
 
-* **Owner address** (line 35): The account that registered the namespace, which must be the same as the root
+* **Owner address** (line 32): The account that registered the namespace, which must be the same as the root
     namespace owner.
 
-* **Depth** (line 36): The depth of `2` indicates there are 2 levels in the namespace hierarchy.
+* **Depth** (line 34): The depth of `2` indicates there are 2 levels in the namespace hierarchy.
     Level 0 is the root namespace, and level 1 is this subnamespace.
 
-* **Levels** (lines 37-38): The full hierarchical path. `level0` contains the root namespace ID, and `level1`
+* **Levels** (lines 35-36): The full hierarchical path. `level0` contains the root namespace ID, and `level1`
     contains the child ID.
     If depth were 3, `level2` would contain the grandchild ID.
 
-* **Start and end heights** (lines 39-40): These values are inherited from the root namespace, not set independently.
+* **Start and end heights** (lines 37-38): These values are inherited from the root namespace, not set independently.
 
 The transaction hash printed in the output can also be used to search for the transaction
 in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -167,11 +167,11 @@ in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 This tutorial showed how to:
 
-| Step                                                                       | Related documentation                                                          |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [Generate namespace ID](#choosing-the-subnamespace-name)                   | <dy:IdGenerator.generateNamespaceId>                                           |
-| [Build a subnamespace registration transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.create>, <ser:NamespaceRegistrationTransactionV1> |
-| [Retrieve the subnamespace](#retrieving-the-subnamespace)                  | <get:/namespaces/{namespaceId}>                                                |
+| Step                                                                       | Related documentation                                                                            |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Generate namespace ID](#choosing-the-subnamespace-name)                   | <dy:IdGenerator.generateNamespaceId>                                                             |
+| [Build a subnamespace registration transaction](#building-the-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:NamespaceRegistrationTransactionV1> |
+| [Retrieve the subnamespace](#retrieving-the-subnamespace)                  | <get:/namespaces/{namespaceId}>                                                                  |
 
 ## Next Steps
 

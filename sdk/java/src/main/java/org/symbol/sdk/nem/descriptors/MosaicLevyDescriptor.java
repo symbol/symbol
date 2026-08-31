@@ -36,19 +36,6 @@ public final class MosaicLevyDescriptor implements NemTypedDescriptor {
 	}
 
 	/**
-	 * Creates a descriptor for MosaicLevy from string-form values.
-	 *
-	 * @param transferFeeType mosaic fee type
-	 * @param recipientAddress recipient address
-	 * @param mosaicId levy mosaic id
-	 * @param fee amount of levy mosaic to transfer
-	 */
-	public MosaicLevyDescriptor(final String transferFeeType, final String recipientAddress, final MosaicIdDescriptor mosaicId,
-			final String fee) {
-		this(MosaicTransferFeeType.parse(transferFeeType), new Address(recipientAddress), mosaicId, Amount.parse(fee));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

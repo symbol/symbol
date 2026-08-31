@@ -5,13 +5,12 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount, NamespaceId
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
+from symbolchain.sc import NamespaceId
 from symbolchain.symbol.IdGenerator import (
 	generate_mosaic_alias_id,
 	generate_namespace_path
 )
-from symbolchain.symbol.Network import Address, NetworkTimestamp
+from symbolchain.symbol.Network import Address
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
@@ -74,17 +73,7 @@ target_address = Address(
 print(f'Target address: {target_address}')
 # [<step-2]
 try:
-	# Fetch current network time [>step-3]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-
-	# Fetch recommended fees
+	# Fetch recommended fees [>step-3]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -95,16 +84,16 @@ try:
 		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-3]
 	# Build the alias transaction [>step-4]
-	transaction = facade.transaction_factory.create({
-		'type': 'address_alias_transaction_v1',
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'namespace_id': namespace_id,
-		'address': target_address,
-		'alias_action': 'link'
-	})
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
+	transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'address_alias_transaction_v1',
+			'namespace_id': namespace_id,
+			'address': target_address,
+			'alias_action': 'link'
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	# [<step-4]
 	# Sign transaction and generate final payload [>step-5]
 	json_payload = facade.transaction_factory.attach_signature(
@@ -144,18 +133,18 @@ try:
 		NamespaceId(recipient_id), facade.network.identifier)
 	print(f'Recipient address (alias): {recipient_address}')
 
-	test_transaction = facade.transaction_factory.create({
-		'type': 'transfer_transaction_v1',
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'recipient_address': recipient_address,
-		'mosaics': [{
-			'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-			'amount': 1_000_000  # 1 XYM
-		}]
-	})
-	test_transaction.fee = Amount(
-		calculate_transaction_fee(test_transaction, fee_multiplier))
+	test_transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'transfer_transaction_v1',
+			'recipient_address': recipient_address,
+			'mosaics': [{
+				'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
+				'amount': 1_000_000  # 1 XYM
+			}]
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	test_json_payload = facade.transaction_factory.attach_signature(
 		test_transaction,
 		facade.sign_transaction(signer_key_pair, test_transaction))

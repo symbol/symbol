@@ -57,11 +57,13 @@ digraph {
 このチュートリアルでは、署名者が自身のアカウントにメタデータを追加します。
 別のアカウントにメタデータを追加する場合は、対象となるアカウントがトランザクションに連署する必要があります。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
+
+この手数料乗数は、後で各トランザクションの手数料を計算するために使用されます。
 
 ### メタデータの定義 {: #defining-the-metadata}
 
@@ -104,12 +106,15 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 アカウント所有者によってトランザクションが開始される場合でも、トランザクション形式を統一するためにアグリゲートが必要です。
 このため、コードではアカウントメタデータトランザクションを [埋め込みトランザクション](default:埋め込みトランザクション) として定義します。
 
-このトランザクションでは以下を指定します。
+<dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor> は、以下の引数を受け取ります。
+
+* トランザクションのディスクリプター: <ser:AccountMetadataTransactionV1> とメタデータフィールドを定義します。
+* 署名者の公開鍵: メタデータエントリを作成するアカウント。
+    この例では、このアカウントがメタデータを受け取るアカウントでもあります。
+
+トランザクションのディスクリプターには以下が含まれます。
 
 * **Type:** <ser:AccountMetadataTransactionV1> を使用します。
-
-* **署名者の公開鍵:** メタデータエントリを作成するアカウント。
-    この例では、このアカウントがメタデータを受け取るアカウントでもあります。
 
 * **ターゲットアドレス:** メタデータを関連付けるアカウント。
     ターゲットが署名者と異なる場合、ターゲットアカウントはアグリゲートトランザクションに連署する必要があります。
@@ -127,7 +132,12 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-コードは、[埋め込みトランザクション](default:埋め込みトランザクション) を [アグリゲートトランザクション](default:アグリゲートトランザクション) に追加します。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> は、以下の引数を受け取ります。
+
+* アグリゲートトランザクションのディスクリプター: 埋め込みアカウントメタデータトランザクションを [アグリゲートトランザクション](default:アグリゲートトランザクション) に追加します。
+* 署名者の公開鍵: アグリゲートトランザクションに追加されます。
+* 手数料乗数: トランザクション手数料の計算に使用されます。
+* 期限までの時間: 現在時刻から2時間後に設定されます。
 
 署名者が自身のアカウントを変更しているため、[連署](default:連署) は不要であり、アグリゲートは [コンプリート](default:コンプリートアグリゲートトランザクション) として作成できるため、すぐに署名してアナウンスできます。
 
@@ -183,20 +193,20 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="16 17 18 20 31 40 41 43"
+```text linenums="1" hl_lines="14 15 16 18 29 38 39 41"
 --8<-- 'devbook/accounts/account_metadata.log'
 ```
 
 出力の主なポイント:
 
-* **16行目** (`"scoped_metadata_key"`): 入力文字列からSHA3-256ハッシュを使用して生成された64ビットのキー。
-* **17行目** (`"value_size_delta": 5`): 新しいメタデータを作成する場合、これは値のバイト長に等しくなります（`"alice"` = 5バイト）。
-* **18行目** (`"value": "616c696365"`): 16進数でエンコードされたメタデータの値（UTF-8の `"alice"`）。
-* **20行目**: エクスプローラーでメタデータの作成を確認するためのトランザクション [ハッシュ](default: ハッシュ)。
-* **31行目** (`Current value: alice`): 更新前にネットワークから取得された値。
-* **40行目** (`"value_size_delta": -2`): 新しい値（`"bob"` = 3バイト）が現在の値（5バイト）より短いため、負の値になります。差は -2 です。
-* **41行目** (`"value": "03030b6365"`): 生の新しい値ではなく、現在の値と新しい値から計算された XOR 値。
-* **43行目**: エクスプローラーでメタデータの更新を確認するためのトランザクションハッシュ。
+* **14行目** (`"scoped_metadata_key"`): 入力文字列からSHA3-256ハッシュを使用して生成された64ビットのキー。
+* **15行目** (`"value_size_delta": 5`): 新しいメタデータを作成する場合、これは値のバイト長に等しくなります（`"alice"` = 5バイト）。
+* **16行目** (`"value": "616c696365"`): 16進数でエンコードされたメタデータの値（UTF-8の `"alice"`）。
+* **18行目**: エクスプローラーでメタデータの作成を確認するためのトランザクション [ハッシュ](default: ハッシュ)。
+* **29行目** (`Current value: alice`): 更新前にネットワークから取得された値。
+* **38行目** (`"value_size_delta": -2`): 新しい値（`"bob"` = 3バイト）が現在の値（5バイト）より短いため、負の値になります。差は -2 です。
+* **39行目** (`"value": "03030b6365"`): 生の新しい値ではなく、現在の値と新しい値から計算された XOR 値。
+* **41行目**: エクスプローラーでメタデータの更新を確認するためのトランザクションハッシュ。
 
 トランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
@@ -207,6 +217,7 @@ Symbolでは、これらのトランザクションをターゲットアカウ�
 | ステップ | 関連ドキュメント |
 |-----------------------------------------------------------------------------------------------|----------------------------------------------|
 | [メタデータのキーと値の定義](#defining-the-metadata) | <dy:Metadata.metadataGenerateKey> |
-| [アカウントメタデータトランザクションの作成](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:AccountMetadataTransactionV1> |
+| [アカウントメタデータトランザクションの作成](#creating-the-embedded-account-metadata-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:AccountMetadataTransactionV1> |
+| [アグリゲートトランザクションの構築](#building-the-aggregate-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor> |
 | [メタデータの取得](#retrieving-metadata) | <get:/metadata> |
 | [既存のメタデータの変更](#modifying-existing-metadata) | <dy:Metadata.metadataUpdateValue> |

@@ -112,11 +112,11 @@ If using your own keys, ensure Account A has XYM and Account B holds a custom mo
 
 The addresses for both accounts are derived from their public keys using the facade's network configuration.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
+Recommended fees are fetched from <get:/network/fees/transaction>,
 following the process described in the [Transfer Transaction](./transfer.md) tutorial.
 
 ### Creating Embedded Transactions
@@ -153,15 +153,10 @@ The example creates two <transfer transactions:> for the swap:
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-Once the embedded transactions are prepared, create the bonded aggregate transaction that wraps them:
+Once the embedded transactions are prepared, create the bonded aggregate transaction from the transaction's descriptor.
+The descriptor contains:
 
-* **Type:** Use <ser:AggregateBondedTransactionV3|aggregate_bonded_transaction_v3>.
-
-* **Signer public key:** The account initiating the aggregate.
-  This account announces the transaction and pays the transaction fee.
-
-* **Deadline:** The timestamp, in [network time](./transfer.md#fetching-network-time), after which the transaction
-  expires and can no longer be confirmed.
+* **Type:** Use <ser:AggregateBondedTransactionV3>.
 
 * **Transactions hash:** A hash computed from all embedded transactions.
   This ensures the embedded transactions cannot be modified after signing.
@@ -169,10 +164,13 @@ Once the embedded transactions are prepared, create the bonded aggregate transac
 
 * **Transactions:** The array of embedded transactions to execute.
 
-The fee is calculated based on the aggregate's total size, which includes all embedded transactions plus space reserved
-for one cosignature.
-The <dy:FeeCalculator.calculateTransactionFee> helper reserves this space through its cosignature-count
-argument, set to `1` here.
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> also receives the signer public key, fee multiplier, deadline
+duration, and reserved cosignature count.
+The signer initiates the aggregate, announces the transaction, and pays the transaction fee.
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> calculates the fee based on the aggregate's total size,
+which includes all embedded transactions plus space reserved for one cosignature.
+The reserved cosignature count is provided as the final argument, set to `1` here.
 
 ### Signing the Bonded Transaction
 
@@ -294,26 +292,26 @@ If the deadline expires or any cosignature is invalid, the transaction fails and
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="14 18 48 51 54 63 67 71 73"
+```text linenums="1" hl_lines="12 16 46 49 53 61 65 69 71"
 --8<-- 'devbook/transactions/bonded_aggregate.log'
 ```
 
 Key points in the output:
 
-* **Line 14** (`"type": 16961`): Indicates this is an <ser:AggregateBondedTransactionV3>.
-* **Line 18** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
-* **Line 48** (`"cosignatures": []`): Initially empty. Cosignatures are submitted after announcement.
-* **Line 51** (`Bonded aggregate transaction hash:`): The hash of the bonded aggregate, required for creating the hash
+* **Line 12** (`"type": 16961`): Indicates this is an <ser:AggregateBondedTransactionV3>.
+* **Line 16** (`"transactions"`): Contains the two embedded transfers that will execute atomically.
+* **Line 46** (`"cosignatures": []`): Initially empty. Cosignatures are submitted after announcement.
+* **Line 49** (`Bonded aggregate transaction hash:`): The hash of the bonded aggregate, required for creating the hash
     lock and announcing the transaction.
-* **Line 54** (`Announcing Hash lock to /transactions`): A hash lock must be announced and confirmed before the bonded
+* **Line 53** (`Announcing Hash lock to /transactions`): A hash lock must be announced and confirmed before the bonded
     aggregate.
-* **Line 63** (`Announcing Bonded aggregate transaction to /transactions/partial`): Bonded aggregates use a different
+* **Line 61** (`Announcing Bonded aggregate transaction to /transactions/partial`): Bonded aggregates use a different
     endpoint than regular transactions.
-* **Line 67** (`Bonded aggregate transaction partial in 1 seconds`): The bonded aggregate is now waiting for
+* **Line 65** (`Bonded aggregate transaction partial in 1 seconds`): The bonded aggregate is now waiting for
     cosignatures to be submitted to the network.
-* **Line 71** (`[Account B] Verifying transaction: 2 embedded transactions`): Account B inspects the transaction content
+* **Line 69** (`[Account B] Verifying transaction: 2 embedded transactions`): Account B inspects the transaction content
     before cosigning to ensure they agree with all operations.
-* **Line 73** (`Announcing cosignature to /transactions/cosignature`): The cosignature is submitted to the network.
+* **Line 71** (`Announcing cosignature to /transactions/cosignature`): The cosignature is submitted to the network.
 
 The aggregate transaction is treated as a single atomic unit by the network.
 The swap executes completely: Account A receives the custom mosaic and Account B receives the XYM,
@@ -325,10 +323,10 @@ This tutorial showed how to:
 
 | Step                                                              | Related documentation                                                                                                      |
 | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| [Create embedded transactions](#creating-embedded-transactions)   | <dy:SymbolTransactionFactory.createEmbedded>                                                                               |
-| [Build the aggregate](#building-the-aggregate-transaction)        | <dy:SymbolTransactionFactory.create><br/><ser:AggregateBondedTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
+| [Create embedded transactions](#creating-embedded-transactions)   | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor><br/><ser:TransferTransactionV1>                             |
+| [Build the aggregate](#building-the-aggregate-transaction)        | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:AggregateBondedTransactionV3><br/><dy:SymbolFacade.hashEmbeddedTransactions> |
 | [Sign the bonded transaction](#signing-the-bonded-transaction)    | <dy:SymbolFacade.signTransaction>                                                                                          |
-| [Create hash lock](#creating-the-hash-lock)                       | <dy:SymbolTransactionFactory.create><br/><ser:HashLockTransactionV1><br/><put:/transactions>                               |
+| [Create hash lock](#creating-the-hash-lock)                       | <dy:SymbolFacade.createTransactionFromTypedDescriptor><br/><ser:HashLockTransactionV1><br/><put:/transactions>             |
 | [Announce bonded transaction](#announcing-the-bonded-transaction) | <put:/transactions/partial>                                                                                                |
 | [Recover the transaction](#recovering-the-transaction)            | <get:/transactions/partial>                                                                                                |
 | [Verify the transaction](#verifying-the-transaction)              | <get:/transactions/partial/{transactionId}>                                                                                |

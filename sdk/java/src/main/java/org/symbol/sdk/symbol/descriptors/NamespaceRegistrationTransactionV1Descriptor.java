@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.symbol.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,91 +23,26 @@ public final class NamespaceRegistrationTransactionV1Descriptor implements Symbo
 	 *
 	 * @param id Namespace identifier.
 	 * @param registrationType Namespace registration type.
+	 * @param duration Number of confirmed blocks you would like to rent the namespace for. Required for root namespaces. (field is omitted
+	 *            when null)
+	 * @param parentId Parent namespace identifier. Required for sub-namespaces. (field is omitted when null)
+	 * @param name Namespace name. (field is omitted when null)
 	 */
-	public NamespaceRegistrationTransactionV1Descriptor(final NamespaceId id, final NamespaceRegistrationType registrationType) {
+	public NamespaceRegistrationTransactionV1Descriptor(final NamespaceId id, final NamespaceRegistrationType registrationType,
+			final BlockDuration duration, final NamespaceId parentId, final byte[] name) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "namespace_registration_transaction_v1");
 		rawDescriptor.put("id", id);
 		rawDescriptor.put("registrationType", registrationType);
-	}
 
-	/**
-	 * Creates a descriptor for NamespaceRegistrationTransactionV1 from string-form values.
-	 *
-	 * @param id Namespace identifier.
-	 * @param registrationType Namespace registration type.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor(final String id, final String registrationType) {
-		this(NamespaceId.parse(id), NamespaceRegistrationType.parse(registrationType));
-	}
-
-	/**
-	 * Sets the duration field.
-	 *
-	 * @param duration Number of confirmed blocks you would like to rent the namespace for. Required for root namespaces.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor duration(final BlockDuration duration) {
 		if (null != duration)
 			rawDescriptor.put("duration", duration);
 
-		return this;
-	}
-
-	/**
-	 * Sets the duration field.
-	 *
-	 * @param duration Number of confirmed blocks you would like to rent the namespace for. Required for root namespaces.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor duration(final String duration) {
-		return duration(null == duration ? null : BlockDuration.parse(duration));
-	}
-
-	/**
-	 * Sets the parentId field.
-	 *
-	 * @param parentId Parent namespace identifier. Required for sub-namespaces.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor parentId(final NamespaceId parentId) {
 		if (null != parentId)
 			rawDescriptor.put("parentId", parentId);
 
-		return this;
-	}
-
-	/**
-	 * Sets the parentId field.
-	 *
-	 * @param parentId Parent namespace identifier. Required for sub-namespaces.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor parentId(final String parentId) {
-		return parentId(null == parentId ? null : NamespaceId.parse(parentId));
-	}
-
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name Namespace name.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor name(final byte[] name) {
 		if (null != name)
 			rawDescriptor.put("name", name);
-
-		return this;
-	}
-
-	/**
-	 * Sets the name field.
-	 *
-	 * @param name Namespace name.
-	 * @return This descriptor for chaining.
-	 */
-	public NamespaceRegistrationTransactionV1Descriptor name(final String name) {
-		return name(null == name ? null : name.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

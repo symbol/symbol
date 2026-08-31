@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -21,42 +20,14 @@ public final class MessageDescriptor implements NemTypedDescriptor {
 	 * Creates a descriptor for Message.
 	 *
 	 * @param messageType message type
+	 * @param message message payload (field is omitted when null)
 	 */
-	public MessageDescriptor(final MessageType messageType) {
+	public MessageDescriptor(final MessageType messageType, final byte[] message) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("messageType", messageType);
-	}
 
-	/**
-	 * Creates a descriptor for Message from string-form values.
-	 *
-	 * @param messageType message type
-	 */
-	public MessageDescriptor(final String messageType) {
-		this(MessageType.parse(messageType));
-	}
-
-	/**
-	 * Sets the message field.
-	 *
-	 * @param message message payload
-	 * @return This descriptor for chaining.
-	 */
-	public MessageDescriptor message(final byte[] message) {
 		if (null != message)
 			rawDescriptor.put("message", message);
-
-		return this;
-	}
-
-	/**
-	 * Sets the message field.
-	 *
-	 * @param message message payload
-	 * @return This descriptor for chaining.
-	 */
-	public MessageDescriptor message(final String message) {
-		return message(null == message ? null : message.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

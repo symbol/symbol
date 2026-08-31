@@ -1,8 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -19,17 +18,7 @@ const signerKeyPair = new SymbolFacade.KeyPair(
 const facade = new SymbolFacade('testnet');
 
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-	// [<step-2]
-	// Fetch recommended fees [>step-3]
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -38,30 +27,29 @@ try {
 	const minimumMultiplier = feeJSON.minFeeMultiplier;
 	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
 	console.log('  Fee multiplier:', feeMultiplier);
+	// [<step-2]
+	// Build the transaction [>step-3]
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			facade.network.publicKeyToAddress(signerKeyPair.publicKey),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					generateMosaicAliasId('symbol.xym'),
+					new models.Amount(1_000_000n)) // 1 XYM
+			],
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-3]
-	// Build the transaction [>step-4]
-	const transaction = facade.transactionFactory.create({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: facade.network.publicKeyToAddress(
-			signerKeyPair.publicKey).toString(),
-		mosaics: [{
-			mosaicId: generateMosaicAliasId('symbol.xym'),
-			amount: 1_000_000n // 1 XYM
-		}]
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
-	// [<step-4]
-	// Sign transaction and generate final payload [>step-5]
+	// Sign transaction and generate final payload [>step-4]
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
 		transaction, signature);
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
-	// [<step-5]
-	// Announce the transaction [>step-6]
+	// [<step-4]
+	// Announce the transaction [>step-5]
 	const announcePath = '/transactions';
 	console.log('Announcing transaction to', announcePath);
 	const announceResponse = await fetch(`${NODE_URL}${announcePath}`, {
@@ -70,8 +58,8 @@ try {
 		body: jsonPayload
 	});
 	console.log('  Response:', await announceResponse.text());
-	// [<step-6]
-	// Wait for confirmation [>step-7]
+	// [<step-5]
+	// Wait for confirmation [>step-6]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
@@ -100,7 +88,7 @@ try {
 		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		if (60 === attempt)
 			console.warn('Confirmation took too long.');
-	} // [<step-7]
+	} // [<step-6]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

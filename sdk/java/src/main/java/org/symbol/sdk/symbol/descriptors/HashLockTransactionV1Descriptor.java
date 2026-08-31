@@ -16,11 +16,11 @@ import org.symbol.sdk.symbol.models.BlockDuration;
  * it is stored in every node's partial cache while it waits to be fully signed. To avoid spam attacks a HashLockTransaction must be
  * announced and confirmed before an AggregateBondedTransaction can be announced. The HashLockTransaction locks a certain amount of funds
  * (**10** XYM by default) until the aggregate is signed. Upon completion of the aggregate, the locked funds become available again to the
- * account that signed the HashLockTransaction. If the lock expires before the aggregate is signed by all cosignatories (**48h by default),
- * the locked funds become a reward collected by the block harvester at the height where the lock expires. \note It is not necessary to sign
- * the aggregate and its HashLockTransaction with the same account. For example, if Bob wants to announce an aggregate and does not have
- * enough funds to announce a HashLockTransaction, he can ask Alice to announce the lock transaction for him by sharing the signed
- * AggregateTransaction hash.
+ * account that signed the HashLockTransaction. If the lock expires before the aggregate is signed by all cosignatories (**48h** by
+ * default), the locked funds become a reward collected by the block harvester at the height where the lock expires. \note It is not
+ * necessary to sign the aggregate and its HashLockTransaction with the same account. For example, if Bob wants to announce an aggregate and
+ * does not have enough funds to announce a HashLockTransaction, he can ask Alice to announce the lock transaction for him by sharing the
+ * signed AggregateTransaction hash.
  */
 public final class HashLockTransactionV1Descriptor implements SymbolTransactionDescriptor {
 	private final Map<String, Object> rawDescriptor;
@@ -40,18 +40,6 @@ public final class HashLockTransactionV1Descriptor implements SymbolTransactionD
 		rawDescriptor.put("mosaic", mosaic.toMap());
 		rawDescriptor.put("duration", duration);
 		rawDescriptor.put("hash", hash);
-	}
-
-	/**
-	 * Creates a descriptor for HashLockTransactionV1 from string-form values.
-	 *
-	 * @param mosaic Locked mosaic.
-	 * @param duration Number of blocks for which a lock should be valid. The default maximum is 48h (See the `maxHashLockDuration` network
-	 *            property).
-	 * @param hash Hash of the AggregateBondedTransaction to be confirmed before unlocking the mosaics.
-	 */
-	public HashLockTransactionV1Descriptor(final UnresolvedMosaicDescriptor mosaic, final String duration, final String hash) {
-		this(mosaic, BlockDuration.parse(duration), new CryptoTypes.Hash256(hash));
 	}
 
 	/**

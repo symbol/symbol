@@ -29,16 +29,6 @@ public final class MosaicDescriptor implements NemTypedDescriptor {
 	}
 
 	/**
-	 * Creates a descriptor for Mosaic from string-form values.
-	 *
-	 * @param mosaicId mosaic id
-	 * @param amount quantity
-	 */
-	public MosaicDescriptor(final MosaicIdDescriptor mosaicId, final String amount) {
-		this(mosaicId, Amount.parse(amount));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

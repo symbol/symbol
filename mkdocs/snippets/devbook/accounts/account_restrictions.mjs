@@ -2,10 +2,8 @@ import { PrivateKey } from 'symbol-sdk';
 import {
 	Address,
 	KeyPair,
-	NetworkTimestamp,
 	SymbolFacade,
-	SymbolTransactionFactory,
-	calculateTransactionFee,
+	descriptors,
 	models
 } from 'symbol-sdk/symbol';
 
@@ -22,7 +20,7 @@ const signerAddress = facade.network.publicKeyToAddress(
 	signerKeyPair.publicKey);
 console.log(`Signer address: ${signerAddress}`);
 
-const authAddress = 'TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA';
+const authAddress = new Address('TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA');
 console.log(`Authorized address: ${authAddress}`);
 // [<step-1]
 
@@ -62,8 +60,9 @@ async function waitForConfirmation(transactionHash, label) {
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
 
+// [>step-3]
 // Returns the list of restrictions currently applied to the account
-async function getAccountRestrictions(address) { // [>step-3]
+async function getAccountRestrictions(address) {
 	const restrictionsPath = `/restrictions/account/${address}`;
 	console.log(`Getting restrictions from ${restrictionsPath}`);
 	const response = await fetch(`${NODE_URL}${restrictionsPath}`);
@@ -77,46 +76,39 @@ async function getAccountRestrictions(address) { // [>step-3]
 	return restrictions;
 }
 // [<step-3]
-// Returns a transaction that restricts an account
-function restrictionEnableTransaction(timestamp, feeMultiplier) { // [>step-5]
-	const transaction = facade.transactionFactory.create({
-		type: 'account_address_restriction_transaction_v1',
-		// This is the account that will be restricted
-		signerPublicKey: signerKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		// Allow only OUTGOING transactions to the authorized ADDRESS
-		restrictionFlags:
+// Returns a transaction that restricts an account [>step-5]
+function restrictionEnableTransaction(feeMultiplier) {
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AccountAddressRestrictionTransactionV1Descriptor(
+			// Allow only OUTGOING transactions to the authorized ADDRESS
 			models.AccountRestrictionFlags.ADDRESS.value |
-			models.AccountRestrictionFlags.OUTGOING.value,
-		// This is the only authorized outgoing address
-		restrictionAdditions: [authAddress]
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+				models.AccountRestrictionFlags.OUTGOING.value,
+			// This is the only authorized outgoing address
+			[authAddress],
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	console.log('Enabling the restriction with transaction:');
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
 	return transaction;
 }
 // [<step-5]
-// Returns a transaction that removes a restriction from an account
-function restrictionDisableTransaction(timestamp, feeMultiplier, // [>step-6]
-	restriction) {
-	const transaction = facade.transactionFactory.create({
-		type: 'account_address_restriction_transaction_v1',
-		// This is the account whose restriction will be lifted
-		signerPublicKey: signerKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		// Lift restrictions for OUTGOING ADDRESSES
-		restrictionFlags:
+// Returns a transaction that removes a restriction from an account [>step-6]
+function restrictionDisableTransaction(feeMultiplier, restriction) {
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AccountAddressRestrictionTransactionV1Descriptor(
+			// Lift restrictions for OUTGOING ADDRESSES
 			models.AccountRestrictionFlags.ADDRESS.value |
-			models.AccountRestrictionFlags.OUTGOING.value,
-		// Remove all addresses currently restricted
-		restrictionDeletions: restriction.values.map(hex =>
-			Address.fromDecodedAddressHexString(hex))
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+				models.AccountRestrictionFlags.OUTGOING.value,
+			undefined,
+			// Remove all addresses currently restricted
+			restriction.values.map(hex =>
+				Address.fromDecodedAddressHexString(hex))),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	console.log('Disabling the restriction with transaction:');
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
@@ -125,17 +117,7 @@ function restrictionDisableTransaction(timestamp, feeMultiplier, // [>step-6]
 // [<step-6]
 
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -145,24 +127,23 @@ try {
 	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
 	console.log('  Fee multiplier:', feeMultiplier);
 	// [<step-2]
-	// Get current state of the restriction and decide which
+	// Get current state of the restriction and decide which [>step-4]
 	// operation to perform
-	const restrictions = await getAccountRestrictions(signerAddress); // [>step-4]
+	const restrictions = await getAccountRestrictions(signerAddress);
 	let transaction;
 	if (0 === restrictions.length) {
 		// Enable the restriction
 		console.log('\n--- Enabling restriction ---');
-		transaction = restrictionEnableTransaction(timestamp,
-			feeMultiplier);
+		transaction = restrictionEnableTransaction(feeMultiplier);
 	} else {
 		// Disable the restriction
 		console.log('\n--- Disabling restriction ---');
-		transaction = restrictionDisableTransaction(timestamp,
+		transaction = restrictionDisableTransaction(
 			feeMultiplier, restrictions[0]);
 	}
 	// [<step-4]
 	// Sign, announce and wait for confirmation [>step-7]
-	let payload = SymbolTransactionFactory.attachSignature(
+	let payload = facade.transactionFactory.static.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));
 	let hash = facade.hashTransaction(transaction).toString();
@@ -170,15 +151,15 @@ try {
 	await waitForConfirmation(hash, 'restriction transaction');
 	// [<step-7]
 	// Try a dummy transfer to a random address with no mosaics [>step-8]
-	transaction = facade.transactionFactory.create({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: 'TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y'
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
-	payload = SymbolTransactionFactory.attachSignature(
+	transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			new Address('TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y'),
+			undefined,
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
+	payload = facade.transactionFactory.static.attachSignature(
 		transaction,
 		facade.signTransaction(signerKeyPair, transaction));
 	hash = facade.hashTransaction(transaction).toString();

@@ -1,9 +1,8 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	Address,
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateNamespaceId,
 	models
 } from 'symbol-sdk/symbol';
@@ -23,17 +22,6 @@ const signerAddress = facade.network.publicKeyToAddress(
 console.log('Signer address:', signerAddress.toString());
 
 try {
-	// Fetch current network time
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const receiveTimestamp =
-		timeJSON.communicationTimestamps.receiveTimestamp;
-	const timestamp = new NetworkTimestamp(receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
 	// Fetch recommended fees
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
@@ -59,16 +47,16 @@ try {
 	console.log('Parent namespace ID:', `0x${parentIdHex}`);
 	// [<step-1]
 	// Build the transaction [>step-2]
-	const transaction = facade.transactionFactory.create({
-		type: 'namespace_registration_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		registrationType: 'child',
-		parentId,
-		name: subnamespaceName
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.NamespaceRegistrationTransactionV1Descriptor(
+			new models.NamespaceId(0n),
+			models.NamespaceRegistrationType.CHILD,
+			undefined,
+			new models.NamespaceId(parentId),
+			subnamespaceName),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-2]
 	// Sign transaction and generate final payload
 	const signature = facade.signTransaction(

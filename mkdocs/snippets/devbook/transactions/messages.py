@@ -7,10 +7,7 @@ from binascii import hexlify
 
 from symbolchain.CryptoTypes import PrivateKey, PublicKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.MessageEncoder import MessageEncoder
-from symbolchain.symbol.Network import NetworkTimestamp
 
 # Configuration
 NODE_URL = os.getenv("NODE_URL", "https://reference.symboltest.net:3001")
@@ -68,16 +65,6 @@ recipient_address = facade.network.public_key_to_address(
 print(f"Sender address: {sender_address}")
 print(f"Recipient address: {recipient_address}\n")
 # [<step-1]
-# Fetch current network time
-time_path = "/node/time"
-print(f"Fetching current network time from {time_path}")
-with urllib.request.urlopen(f"{NODE_URL}{time_path}") as response:
-	response_json = json.loads(response.read().decode())
-	timestamp = NetworkTimestamp(int(
-		response_json["communicationTimestamps"]["receiveTimestamp"])
-	)
-	print(f"  Network time: {timestamp.timestamp} ms since nemesis")
-
 # Fetch recommended fees
 fee_path = "/network/fees/transaction"
 print(f"Fetching recommended fees from {fee_path}")
@@ -96,18 +83,16 @@ plain_message = "Hello, Symbol!".encode("utf-8")
 print(f"Plain message: {plain_message.decode('utf-8')}")
 
 # Build transfer transaction with plain message
-plain_transaction = facade.transaction_factory.create(
+plain_transaction = facade.create_transaction_from_descriptor(
 	{
 		"type": "transfer_transaction_v1",
-		"signer_public_key": sender_key_pair.public_key,
-		"deadline": timestamp.add_hours(2).timestamp,
 		"recipient_address": recipient_address,
 		"mosaics": [],
 		"message": plain_message,
-	}
-)  # [<step-2]
-plain_transaction.fee = Amount(
-	calculate_transaction_fee(plain_transaction, fee_multiplier))
+	},
+	sender_key_pair.public_key,
+	fee_multiplier,
+	2 * 60 * 60)  # [<step-2]
 
 # Sign and announce the transaction
 plain_signature = facade.sign_transaction(
@@ -161,18 +146,16 @@ print(f"Original message: {secret_message.decode('utf-8')}")
 print(f"Encrypted payload: {hexlify(encrypted_payload).decode("utf-8")}")
 
 # Build transfer transaction with encrypted message
-encrypted_transaction = facade.transaction_factory.create(
+encrypted_transaction = facade.create_transaction_from_descriptor(
 	{
 		"type": "transfer_transaction_v1",
-		"signer_public_key": sender_key_pair.public_key,
-		"deadline": timestamp.add_hours(2).timestamp,
 		"recipient_address": recipient_address,
 		"mosaics": [],
 		"message": encrypted_payload,
-	}
-)  # [<step-4]
-encrypted_transaction.fee = Amount(
-	calculate_transaction_fee(encrypted_transaction, fee_multiplier))
+	},
+	sender_key_pair.public_key,
+	fee_multiplier,
+	2 * 60 * 60)  # [<step-4]
 
 # Sign and announce the transaction
 encrypted_signature = facade.sign_transaction(

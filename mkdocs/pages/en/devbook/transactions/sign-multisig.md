@@ -78,21 +78,20 @@ If the default values are used, these accounts may already be funded.
 
 The snippet above derives and stores the <key pair:> of each account for later use.
 
-### Fetching Network Time and Fees
+### Fetching Recommended Fees
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-Network time and recommended fees are fetched from <get:/node/time> and <get:/network/fees/transaction> respectively,
+Recommended fees are fetched from <get:/network/fees/transaction>,
 following the process described in the [Transfer Transaction](../transactions/transfer.md) tutorial.
 
 ### Building the Transaction
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
-The embedded <transfer transaction:> includes the following fields:
-
-* {{ tutorial.var('signer_public_key') }}: <public key:> of the account whose funds are being transferred, that is,
-    the multisignature account.
+The embedded <transfer transaction:> is created from the transaction's descriptor and the signer public key.
+The signer public key belongs to the account whose funds are being transferred, that is, the multisignature account.
+The descriptor includes:
 
 * {{ tutorial.var('recipient_address') }}: in this particular example, the funds are sent back to the sender,
     so the recipient is also the multisig account.
@@ -104,10 +103,9 @@ The embedded transaction is then wrapped in an aggregate transaction, even thoug
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-Its most relevant fields are:
-
-* {{ tutorial.var('signer_public_key') }}: this time this is the <public key:> of the cosignatory that will be
-    authorizing the transaction and paying its fees.
+Its descriptor contains the embedded transactions.
+The aggregate is then created with the cosignatory's public key as signer, because the cosignatory authorizes the
+transaction and pays its fees.
 
 * `transactions`: the list of embedded transactions.
     This example has only one, but there could be any number of them.
@@ -149,18 +147,18 @@ The following table summarizes the most common error sources:
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="2-3 11 20 24"
+```text linenums="1" hl_lines="2-3 9 18 22"
 --8<-- 'devbook/transactions/sign_multisig.log'
 ```
 
 Key points in the output:
 
 * **Lines 2-3**: Public keys of all involved accounts.
-* **Line 11** (`signer_public_key`): Signer of the aggregate transaction.
+* **Line 9** (`signer_public_key`): Signer of the aggregate transaction.
     Note that it matches the cosignatory account.
-* **Line 20** (`signer_public_key`): Signer of the embedded transfer transaction.
+* **Line 18** (`signer_public_key`): Signer of the embedded transfer transaction.
     Note that it matches the multisig account.
-* **Line 24** (`recipient_address`): Encoded <address:> of the multisig account.
+* **Line 22** (`recipient_address`): Encoded <address:> of the multisig account.
 
 The transaction hashes shown in the output can be used to look up the transactions in the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
@@ -174,5 +172,5 @@ In particular, the tutorial showed how to:
 
 | Step                                                                  | Related documentation                                                     |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [Wrap transfer in an embedded transaction](#building-the-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:TransferTransactionV1> |
+| [Wrap transfer in an embedded transaction](#building-the-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:TransferTransactionV1> |
 | [Attach signatures in the right place](#building-the-transaction)     | <dy:SymbolFacade.signTransaction>                                         |

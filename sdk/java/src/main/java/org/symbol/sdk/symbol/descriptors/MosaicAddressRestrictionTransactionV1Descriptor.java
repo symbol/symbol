@@ -39,21 +39,6 @@ public final class MosaicAddressRestrictionTransactionV1Descriptor implements Sy
 	}
 
 	/**
-	 * Creates a descriptor for MosaicAddressRestrictionTransactionV1 from string-form values.
-	 *
-	 * @param mosaicId Identifier of the mosaic to which the restriction applies.
-	 * @param restrictionKey Restriction key.
-	 * @param previousRestrictionValue Previous restriction value. Set `previousRestrictionValue` to `FFFFFFFFFFFFFFFF` if the target
-	 *            address does not have a previous restriction value for this mosaic id and restriction key.
-	 * @param newRestrictionValue New restriction value.
-	 * @param targetAddress Address being restricted.
-	 */
-	public MosaicAddressRestrictionTransactionV1Descriptor(final String mosaicId, final long restrictionKey,
-			final long previousRestrictionValue, final long newRestrictionValue, final String targetAddress) {
-		this(UnresolvedMosaicId.parse(mosaicId), restrictionKey, previousRestrictionValue, newRestrictionValue, new Address(targetAddress));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

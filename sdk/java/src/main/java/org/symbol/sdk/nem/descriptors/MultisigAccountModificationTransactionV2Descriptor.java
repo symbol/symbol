@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,37 +20,17 @@ public final class MultisigAccountModificationTransactionV2Descriptor implements
 	 * Creates a descriptor for MultisigAccountModificationTransactionV2.
 	 *
 	 * @param minApprovalDelta relative change of the minimal number of cosignatories required when approving a transaction
+	 * @param modifications multisig account modifications (field is omitted when null)
 	 */
-	public MultisigAccountModificationTransactionV2Descriptor(final int minApprovalDelta) {
+	public MultisigAccountModificationTransactionV2Descriptor(final int minApprovalDelta,
+			final List<SizePrefixedMultisigAccountModificationDescriptor> modifications) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "multisig_account_modification_transaction_v2");
 		rawDescriptor.put("minApprovalDelta", minApprovalDelta);
-	}
 
-	/**
-	 * Sets the modifications field.
-	 *
-	 * @param modifications multisig account modifications
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV2Descriptor modifications(
-			final List<SizePrefixedMultisigAccountModificationDescriptor> modifications) {
 		if (null != modifications)
 			rawDescriptor.put("modifications",
 					modifications.stream().map(SizePrefixedMultisigAccountModificationDescriptor::toMap).collect(Collectors.toList()));
-
-		return this;
-	}
-
-	/**
-	 * Sets the modifications field.
-	 *
-	 * @param modifications multisig account modifications
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV2Descriptor modifications(
-			final SizePrefixedMultisigAccountModificationDescriptor... modifications) {
-		return modifications(null == modifications ? null : Arrays.asList(modifications));
 	}
 
 	/**

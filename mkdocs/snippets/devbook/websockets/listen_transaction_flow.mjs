@@ -1,9 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
-	models
+	descriptors
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL ||
@@ -45,25 +43,20 @@ try {
 	}
 	// [<step-3]
 	// Build and announce a transfer transaction [>step-4]
-	const timeResponse = await fetch(`${NODE_URL}/node/time`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-
 	const feeResponse = await fetch(
 		`${NODE_URL}/network/fees/transaction`);
 	const feeJSON = await feeResponse.json();
 	const feeMultiplier = Math.max(
 		feeJSON.medianFeeMultiplier, feeJSON.minFeeMultiplier);
 
-	const transaction = facade.transactionFactory.create({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		recipientAddress: MONITOR_ADDRESS
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			new SymbolFacade.Address(MONITOR_ADDRESS),
+			undefined,
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 
 	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(

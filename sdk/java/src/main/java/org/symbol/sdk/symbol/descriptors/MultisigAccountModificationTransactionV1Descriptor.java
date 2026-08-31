@@ -3,11 +3,9 @@
 
 package org.symbol.sdk.symbol.descriptors;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.symbol.sdk.symbol.Address;
 
@@ -30,70 +28,25 @@ public final class MultisigAccountModificationTransactionV1Descriptor implements
 	 * @param minApprovalDelta Relative change to the **minimum** number of cosignatures required when **approving a transaction**. E.g.,
 	 *            when moving from 0 to 2 cosignatures this number would be **2**. When moving from 4 to 3 cosignatures, the number would be
 	 *            **-1**.
+	 * @param addressAdditions Cosignatory address additions. All accounts in this list will be able to cosign transactions on behalf of the
+	 *            multisig account. The number of required cosignatures depends on the configured minimum approval and minimum removal
+	 *            values. (field is omitted when null)
+	 * @param addressDeletions Cosignatory address deletions. All accounts in this list will stop being able to cosign transactions on
+	 *            behalf of the multisig account. A transaction containing **any** address in this array requires a number of cosignatures
+	 *            at least equal to the minimum removal value. (field is omitted when null)
 	 */
-	public MultisigAccountModificationTransactionV1Descriptor(final int minRemovalDelta, final int minApprovalDelta) {
+	public MultisigAccountModificationTransactionV1Descriptor(final int minRemovalDelta, final int minApprovalDelta,
+			final List<Address> addressAdditions, final List<Address> addressDeletions) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "multisig_account_modification_transaction_v1");
 		rawDescriptor.put("minRemovalDelta", minRemovalDelta);
 		rawDescriptor.put("minApprovalDelta", minApprovalDelta);
-	}
 
-	/**
-	 * Sets the addressAdditions field.
-	 *
-	 * @param addressAdditions Cosignatory address additions. All accounts in this list will be able to cosign transactions on behalf of the
-	 *            multisig account. The number of required cosignatures depends on the configured minimum approval and minimum removal
-	 *            values.
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV1Descriptor addressAdditions(final List<Address> addressAdditions) {
 		if (null != addressAdditions)
 			rawDescriptor.put("addressAdditions", addressAdditions);
 
-		return this;
-	}
-
-	/**
-	 * Sets the addressAdditions field.
-	 *
-	 * @param addressAdditions Cosignatory address additions. All accounts in this list will be able to cosign transactions on behalf of the
-	 *            multisig account. The number of required cosignatures depends on the configured minimum approval and minimum removal
-	 *            values.
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV1Descriptor addressAdditions(final String... addressAdditions) {
-		return addressAdditions(null == addressAdditions
-				? null
-				: Arrays.stream(addressAdditions).map(value -> new Address(value)).collect(Collectors.toList()));
-	}
-
-	/**
-	 * Sets the addressDeletions field.
-	 *
-	 * @param addressDeletions Cosignatory address deletions. All accounts in this list will stop being able to cosign transactions on
-	 *            behalf of the multisig account. A transaction containing **any** address in this array requires a number of cosignatures
-	 *            at least equal to the minimum removal value.
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV1Descriptor addressDeletions(final List<Address> addressDeletions) {
 		if (null != addressDeletions)
 			rawDescriptor.put("addressDeletions", addressDeletions);
-
-		return this;
-	}
-
-	/**
-	 * Sets the addressDeletions field.
-	 *
-	 * @param addressDeletions Cosignatory address deletions. All accounts in this list will stop being able to cosign transactions on
-	 *            behalf of the multisig account. A transaction containing **any** address in this array requires a number of cosignatures
-	 *            at least equal to the minimum removal value.
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigAccountModificationTransactionV1Descriptor addressDeletions(final String... addressDeletions) {
-		return addressDeletions(null == addressDeletions
-				? null
-				: Arrays.stream(addressDeletions).map(value -> new Address(value)).collect(Collectors.toList()));
 	}
 
 	/**

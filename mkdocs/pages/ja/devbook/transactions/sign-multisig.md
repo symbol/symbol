@@ -64,19 +64,19 @@ digraph "Multisignature Tree" {
 
 上記のスニペットは、後で使用するために各アカウントの [キーペア](default:キーペア) を派生させて保存します。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### トランザクションの構築 {: #building-the-transaction }
 
 {{ tutorial.code_snippet_tagged('step-3') }}
 
-埋め込まれた [転送トランザクション](default:トランザクション) には以下のフィールドが含まれます。
-
-* `signer_public_key`: 資金の転送元となるアカウント、つまりマルチシグアカウントの [公開鍵](default: 公開鍵)。
+埋め込まれた [転送トランザクション](default:トランザクション) は、トランザクションのディスクリプタと署名者の公開鍵から作成します。
+署名者の公開鍵は、資金の転送元となるアカウント、つまりマルチシグアカウントの [公開鍵](default: 公開鍵) です。
+ディスクリプタには以下のフィールドが含まれます。
 
 * `recipient_address`: この例では、資金は送信元に戻されるため、受信者もマルチシグアカウントになります。
 
@@ -86,9 +86,8 @@ digraph "Multisignature Tree" {
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-主なフィールドは以下の通りです。
-
-* `signer_public_key`: 今回は、トランザクションを承認し、その手数料を支払う連署者の [公開鍵](default: 公開鍵) です。
+ディスクリプタには埋め込みトランザクションが含まれます。
+アグリゲートは、トランザクションを承認し、その手数料を支払う連署者の公開鍵を署名者として作成します。
 
 * `transactions`: 埋め込みトランザクションのリスト。この例では1つだけですが、いくつでも含めることができます。
 
@@ -123,16 +122,16 @@ digraph "Multisignature Tree" {
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="2-3 11 20 24"
+```text linenums="1" hl_lines="2-3 9 18 22"
 --8<-- 'devbook/transactions/sign_multisig.log'
 ```
 
 出力の主なポイント:
 
 * **2-3行目**: 関与するすべてのアカウントの公開鍵。
-* **11行目** (`signer_public_key`): アグリゲートトランザクションの署名者。連署者アカウントと一致していることに注目してください。
-* **20行目** (`signer_public_key`): 埋め込まれた転送トランザクションの署名者。マルチシグアカウントと一致していることに注目してください。
-* **24行目** (`recipient_address`): エンコードされたマルチシグアカウントの [アドレス](default:アドレス)。
+* **9行目** (`signer_public_key`): アグリゲートトランザクションの署名者。連署者アカウントと一致していることに注目してください。
+* **18行目** (`signer_public_key`): 埋め込まれた転送トランザクションの署名者。マルチシグアカウントと一致していることに注目してください。
+* **22行目** (`recipient_address`): エンコードされたマルチシグアカウントの [アドレス](default:アドレス)。
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
@@ -144,5 +143,5 @@ digraph "Multisignature Tree" {
 
 | ステップ                                                           | 関連ドキュメント                                   |
 |----------------------------------------------------------------|----------------------------------------------|
-| [転送トランザクションを埋め込みトランザクションにラップする](#building-the-transaction) | <dy:SymbolTransactionFactory.createEmbedded>, <ser:TransferTransactionV1> |
+| [転送トランザクションを埋め込みトランザクションにラップする](#building-the-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:TransferTransactionV1> |
 | [適切な場所に署名を付加する](#building-the-transaction)             | <dy:SymbolFacade.signTransaction>            |

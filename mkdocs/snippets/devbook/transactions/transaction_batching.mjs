@@ -1,9 +1,8 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	Address,
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
@@ -35,17 +34,7 @@ console.log(`Recipient 1: ${RECIPIENT_1} (${recipient1Hex})`);
 console.log(`Recipient 2: ${RECIPIENT_2} (${recipient2Hex})`);
 // [<step-1]
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -57,39 +46,39 @@ try {
 	// [<step-2]
 	// Embedded tx 1: Send 5 XYM to Recipient 1 [>step-3]
 	const xymMosaicId = generateMosaicAliasId('symbol.xym');
-	const embeddedTx1 = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		recipientAddress: RECIPIENT_1,
-		mosaics: [{
-			mosaicId: xymMosaicId,
-			amount: 5_000_000n // 5 XYM
-		}]
-	});
+	const embeddedTx1 = facade.createEmbeddedTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			new Address(RECIPIENT_1),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					xymMosaicId,
+					new models.Amount(5_000_000n)) // 5 XYM
+			],
+			undefined),
+		signerKeyPair.publicKey);
 
 	// Embedded tx 2: Send 3 XYM to Recipient 2
-	const embeddedTx2 = facade.transactionFactory.createEmbedded({
-		type: 'transfer_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		recipientAddress: RECIPIENT_2,
-		mosaics: [{
-			mosaicId: xymMosaicId,
-			amount: 3_000_000n // 3 XYM
-		}]
-	});
+	const embeddedTx2 = facade.createEmbeddedTransactionFromTypedDescriptor(
+		new descriptors.TransferTransactionV1Descriptor(
+			new Address(RECIPIENT_2),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(
+					xymMosaicId,
+					new models.Amount(3_000_000n)) // 3 XYM
+			],
+			undefined),
+		signerKeyPair.publicKey);
 	// [<step-3]
 	// Build the aggregate transaction [>step-4]
 	const embeddedTransactions = [embeddedTx1, embeddedTx2];
-	const transaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			embeddedTransactions),
-		transactions: embeddedTransactions
-	});
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(embeddedTransactions),
+			embeddedTransactions,
+			undefined),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	console.log('Built aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-4]

@@ -36,18 +36,6 @@ public final class MosaicSupplyChangeTransactionV1Descriptor implements SymbolTr
 	}
 
 	/**
-	 * Creates a descriptor for MosaicSupplyChangeTransactionV1 from string-form values.
-	 *
-	 * @param mosaicId Affected mosaic identifier.
-	 * @param delta Change amount. It cannot be negative, use the `action` field to indicate if this amount should be **added** or
-	 *            **subtracted** from the current supply.
-	 * @param action Supply change action.
-	 */
-	public MosaicSupplyChangeTransactionV1Descriptor(final String mosaicId, final String delta, final String action) {
-		this(UnresolvedMosaicId.parse(mosaicId), Amount.parse(delta), MosaicSupplyChangeAction.parse(action));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

@@ -32,16 +32,6 @@ public final class NodeKeyLinkTransactionV1Descriptor implements SymbolTransacti
 	}
 
 	/**
-	 * Creates a descriptor for NodeKeyLinkTransactionV1 from string-form values.
-	 *
-	 * @param linkedPublicKey Linked public key.
-	 * @param linkAction Account link action.
-	 */
-	public NodeKeyLinkTransactionV1Descriptor(final String linkedPublicKey, final String linkAction) {
-		this(new CryptoTypes.PublicKey(linkedPublicKey), LinkAction.parse(linkAction));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

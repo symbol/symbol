@@ -1,29 +1,35 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
+	NetworkTimestamp,
 	SymbolFacade,
-	descriptors,
+	calculateTransactionFee,
 	generateMosaicAliasId,
 	models
 } from 'symbol-sdk/symbol';
 
-const NODE_URL = 'https://reference.symboltest.net:3001';
+const NODE_URL = process.env.NODE_URL ||
+	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 // [>step-1]
-const MULTISIG_PRIVATE_KEY = process.env.MULTISIG_PRIVATE_KEY || (
-	'0000000000000000000000000000000000000000000000000000000000000001');
-const multisigKeyPair = new SymbolFacade.KeyPair(
-	new PrivateKey(MULTISIG_PRIVATE_KEY));
-console.log(`Multisig public key: ${multisigKeyPair.publicKey}`);
-const COSIGNATORY0_PRIVATE_KEY = process.env.COSIGNATORY0_PRIVATE_KEY ||
-	'0000000000000000000000000000000000000000000000000000000000000002';
-const cosignatoryKeyPair = new SymbolFacade.KeyPair(
-	new PrivateKey(COSIGNATORY0_PRIVATE_KEY));
-console.log(`Cosignatory public key: ${cosignatoryKeyPair.publicKey}`);
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
+	'0000000000000000000000000000000000000000000000000000000000000000';
+const signerKeyPair = new SymbolFacade.KeyPair(
+	new PrivateKey(SIGNER_PRIVATE_KEY));
 // [<step-1]
 const facade = new SymbolFacade('testnet');
 
 try {
-	// Fetch recommended fees [>step-2]
+	// Fetch current network time [>step-2]
+	const timePath = '/node/time';
+	console.log('Fetching current network time from', timePath);
+	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
+	const timeJSON = await timeResponse.json();
+	const timestamp = new NetworkTimestamp(
+		timeJSON.communicationTimestamps.receiveTimestamp);
+	console.log('  Network time:', timestamp.timestamp,
+		'ms since nemesis');
+	// [<step-2]
+	// Fetch recommended fees [>step-3]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -32,36 +38,26 @@ try {
 	const minimumMultiplier = feeJSON.minFeeMultiplier;
 	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
 	console.log('  Fee multiplier:', feeMultiplier);
-	// [<step-2]
-	// Build the embedded transfer transaction [>step-3]
-	const transferTransaction =
-		facade.createEmbeddedTransactionFromTypedDescriptor(
-			new descriptors.TransferTransactionV1Descriptor(
-				facade.network.publicKeyToAddress(
-					multisigKeyPair.publicKey),
-				[
-					new descriptors.UnresolvedMosaicDescriptor(
-						generateMosaicAliasId('symbol.xym'),
-						new models.Amount(1_000_000n)) // 1 XYM
-				],
-				undefined),
-			multisigKeyPair.publicKey);
 	// [<step-3]
-	// Build the wrapper aggregate transaction [>step-4]
-	const transaction = facade.createTransactionFromTypedDescriptor(
-		new descriptors.AggregateCompleteTransactionV3Descriptor(
-			facade.static.hashEmbeddedTransactions([transferTransaction]),
-			[transferTransaction],
-			undefined),
-		cosignatoryKeyPair.publicKey,
-		feeMultiplier,
-		2 * 60 * 60);
+	// Build the transaction [>step-4]
+	const transaction = facade.transactionFactory.create({
+		type: 'transfer_transaction_v1',
+		signerPublicKey: signerKeyPair.publicKey.toString(),
+		deadline: timestamp.addHours(2).timestamp,
+		recipientAddress: facade.network.publicKeyToAddress(
+			signerKeyPair.publicKey).toString(),
+		mosaics: [{
+			mosaicId: generateMosaicAliasId('symbol.xym'),
+			amount: 1_000_000n // 1 XYM
+		}]
+	});
+	transaction.fee = new models.Amount(
+		calculateTransactionFee(transaction, feeMultiplier));
 	// [<step-4]
-	// [>step-5]
-	// Sign the aggregate transaction using the cosignatory's signature
+	// Sign transaction and generate final payload [>step-5]
+	const signature = facade.signTransaction(signerKeyPair, transaction);
 	const jsonPayload = facade.transactionFactory.static.attachSignature(
-		transaction,
-		facade.signTransaction(cosignatoryKeyPair, transaction));
+		transaction, signature);
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 	// [<step-5]
@@ -74,8 +70,8 @@ try {
 		body: jsonPayload
 	});
 	console.log('  Response:', await announceResponse.text());
-
-	// Wait for confirmation
+	// [<step-6]
+	// Wait for confirmation [>step-7]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
 	const statusPath = `/transactionStatus/${transactionHash}`;
@@ -104,7 +100,7 @@ try {
 		await new Promise(resolve => { setTimeout(resolve, 1000); });
 		if (60 === attempt)
 			console.warn('Confirmation took too long.');
-	} // [<step-6]
+	} // [<step-7]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

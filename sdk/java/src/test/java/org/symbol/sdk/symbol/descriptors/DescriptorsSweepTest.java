@@ -35,7 +35,6 @@ import org.symbol.sdk.symbol.models.Amount;
 import org.symbol.sdk.symbol.models.BlockDuration;
 import org.symbol.sdk.symbol.models.Cosignature;
 import org.symbol.sdk.symbol.models.EmbeddedAccountKeyLinkTransactionV1;
-import org.symbol.sdk.symbol.models.EmbeddedTransaction;
 import org.symbol.sdk.symbol.models.FinalizationEpoch;
 import org.symbol.sdk.symbol.models.Hash256;
 import org.symbol.sdk.symbol.models.HashLockTransactionV1;
@@ -72,9 +71,9 @@ import org.symbol.sdk.symbol.models.VotingPublicKey;
 import org.symbol.sdk.symbol.models.VrfKeyLinkTransactionV1;
 
 /**
- * Generated per-descriptor sweep: construction with distinct sample values, exact {@code toMap()} contents, string-form constructor
- * equivalence, every optional fluent setter, and (for transaction descriptors) a factory round-trip verifying each created-model field via
- * {@code getField}.
+ * Generated per-descriptor sweep: construction with distinct sample values, exact {@code toMap()} contents (null optional arguments leave
+ * their keys absent), all-args constructor storage of every field, and (for transaction descriptors) a factory round-trip verifying each
+ * created-model field via {@code getField}.
  */
 final class DescriptorsSweepTest {
 	private static final CryptoTypes.PublicKey SWEEP_SIGNER_PUBLIC_KEY = new CryptoTypes.PublicKey(
@@ -111,20 +110,6 @@ final class DescriptorsSweepTest {
 		assertThat(built.size(), equalTo(2));
 	}
 
-	@Test
-	void mosaicDescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicDescriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicDescriptor("1", "2").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("mosaicId"), equalTo(built.get("mosaicId")));
-		assertThat(stringBuilt.get("amount"), equalTo(built.get("amount")));
-	}
-
 	/** Constructs a UnresolvedMosaicDescriptor with distinct sample required arguments. */
 	private static UnresolvedMosaicDescriptor sweepNewUnresolvedMosaicDescriptor() {
 		return new UnresolvedMosaicDescriptor(UnresolvedMosaicId.parse("1"), Amount.parse("2"));
@@ -142,20 +127,6 @@ final class DescriptorsSweepTest {
 		assertThat(built.get("mosaicId"), equalTo(UnresolvedMosaicId.parse("1")));
 		assertThat(built.get("amount"), equalTo(Amount.parse("2")));
 		assertThat(built.size(), equalTo(2));
-	}
-
-	@Test
-	void unresolvedMosaicDescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewUnresolvedMosaicDescriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new UnresolvedMosaicDescriptor("1", "2").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("mosaicId"), equalTo(built.get("mosaicId")));
-		assertThat(stringBuilt.get("amount"), equalTo(built.get("amount")));
 	}
 
 	/** Constructs a AccountKeyLinkTransactionV1Descriptor with distinct sample required arguments. */
@@ -181,25 +152,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void accountKeyLinkTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAccountKeyLinkTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AccountKeyLinkTransactionV1Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202", "link").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("linkedPublicKey"), equalTo(built.get("linkedPublicKey")));
-		assertThat(stringBuilt.get("linkAction"), equalTo(built.get("linkAction")));
-	}
-
-	@Test
 	void accountKeyLinkTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAccountKeyLinkTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new AccountKeyLinkTransactionV1Descriptor(
+				new CryptoTypes.PublicKey("0202020202020202020202020202020202020202020202020202020202020202"), LinkAction.parse("link")));
 
 		// Act:
 		final AccountKeyLinkTransactionV1 transaction = (AccountKeyLinkTransactionV1) FACTORY.create(createMap);
@@ -238,25 +194,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void nodeKeyLinkTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewNodeKeyLinkTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new NodeKeyLinkTransactionV1Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202", "link").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("linkedPublicKey"), equalTo(built.get("linkedPublicKey")));
-		assertThat(stringBuilt.get("linkAction"), equalTo(built.get("linkAction")));
-	}
-
-	@Test
 	void nodeKeyLinkTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewNodeKeyLinkTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new NodeKeyLinkTransactionV1Descriptor(
+				new CryptoTypes.PublicKey("0202020202020202020202020202020202020202020202020202020202020202"), LinkAction.parse("link")));
 
 		// Act:
 		final NodeKeyLinkTransactionV1 transaction = (NodeKeyLinkTransactionV1) FACTORY.create(createMap);
@@ -296,24 +237,6 @@ final class DescriptorsSweepTest {
 		assertThat(built.size(), equalTo(3));
 	}
 
-	@Test
-	void cosignatureDescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewCosignatureDescriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new CosignatureDescriptor(1L,
-				"0303030303030303030303030303030303030303030303030303030303030303",
-				"04040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404")
-				.toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("version"), equalTo(built.get("version")));
-		assertThat(stringBuilt.get("signerPublicKey"), equalTo(built.get("signerPublicKey")));
-		assertThat(stringBuilt.get("signature"), equalTo(built.get("signature")));
-	}
-
 	/** Constructs a DetachedCosignatureDescriptor with distinct sample required arguments. */
 	private static DetachedCosignatureDescriptor sweepNewDetachedCosignatureDescriptor() {
 		return new DetachedCosignatureDescriptor(1L,
@@ -342,29 +265,10 @@ final class DescriptorsSweepTest {
 		assertThat(built.size(), equalTo(4));
 	}
 
-	@Test
-	void detachedCosignatureDescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewDetachedCosignatureDescriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new DetachedCosignatureDescriptor(1L,
-				"0303030303030303030303030303030303030303030303030303030303030303",
-				"04040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404",
-				"0505050505050505050505050505050505050505050505050505050505050505").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("version"), equalTo(built.get("version")));
-		assertThat(stringBuilt.get("signerPublicKey"), equalTo(built.get("signerPublicKey")));
-		assertThat(stringBuilt.get("signature"), equalTo(built.get("signature")));
-		assertThat(stringBuilt.get("parentHash"), equalTo(built.get("parentHash")));
-	}
-
-	/** Constructs a AggregateCompleteTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a AggregateCompleteTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static AggregateCompleteTransactionV1Descriptor sweepNewAggregateCompleteTransactionV1Descriptor() {
 		return new AggregateCompleteTransactionV1Descriptor(
-				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"));
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"), null, null);
 	}
 
 	@Test
@@ -375,53 +279,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("aggregate_complete_transaction_v1"));
 		assertThat(built.get("transactionsHash"),
 				equalTo(new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202")));
+		assertThat(built.containsKey("transactions"), equalTo(false));
+		assertThat(built.containsKey("cosignatures"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: transactions
-		assertThat(built.containsKey("transactions"), equalTo(false));
-		assertThat(sweepNewAggregateCompleteTransactionV1Descriptor().transactions((List<EmbeddedTransaction>) null).toMap()
-				.containsKey("transactions"), equalTo(false));
-		final AggregateCompleteTransactionV1Descriptor withTransactions = sweepNewAggregateCompleteTransactionV1Descriptor();
-		assertThat(withTransactions.transactions(List.of(new EmbeddedAccountKeyLinkTransactionV1())), sameInstance(withTransactions));
-		assertThat(((List<?>) withTransactions.toMap().get("transactions")).size(), equalTo(1));
-
-		// optional field: cosignatures
-		assertThat(built.containsKey("cosignatures"), equalTo(false));
-		assertThat(sweepNewAggregateCompleteTransactionV1Descriptor().cosignatures((List<Cosignature>) null).toMap()
-				.containsKey("cosignatures"), equalTo(false));
-		final AggregateCompleteTransactionV1Descriptor withCosignatures = sweepNewAggregateCompleteTransactionV1Descriptor();
-		assertThat(withCosignatures.cosignatures(List.of(new Cosignature())), sameInstance(withCosignatures));
-		assertThat(((List<?>) withCosignatures.toMap().get("cosignatures")).size(), equalTo(1));
-	}
-
-	@Test
-	void aggregateCompleteTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAggregateCompleteTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AggregateCompleteTransactionV1Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("transactionsHash"), equalTo(built.get("transactionsHash")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AggregateCompleteTransactionV1Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(new EmbeddedAccountKeyLinkTransactionV1()), List.of(new Cosignature())).toMap();
+		assertThat(((List<?>) fullBuilt.get("transactions")).size(), equalTo(1));
+		assertThat(((List<?>) fullBuilt.get("cosignatures")).size(), equalTo(1));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void aggregateCompleteTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final EmbeddedAccountKeyLinkTransactionV1 sweepTransactionsElement = new EmbeddedAccountKeyLinkTransactionV1();
 		final Cosignature sweepCosignaturesElement = new Cosignature();
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAggregateCompleteTransactionV1Descriptor()
-				.transactions(List.of(sweepTransactionsElement)).cosignatures(List.of(sweepCosignaturesElement)));
+		final Map<String, Object> createMap = sweepCreateMap(new AggregateCompleteTransactionV1Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(sweepTransactionsElement), List.of(sweepCosignaturesElement)));
 
 		// Act:
 		final AggregateCompleteTransactionV1 transaction = (AggregateCompleteTransactionV1) FACTORY.create(createMap);
@@ -440,10 +322,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AggregateCompleteTransactionV2Descriptor with distinct sample required arguments. */
+	/** Constructs a AggregateCompleteTransactionV2Descriptor with distinct sample required arguments and null optionals. */
 	private static AggregateCompleteTransactionV2Descriptor sweepNewAggregateCompleteTransactionV2Descriptor() {
 		return new AggregateCompleteTransactionV2Descriptor(
-				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"));
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"), null, null);
 	}
 
 	@Test
@@ -454,53 +336,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("aggregate_complete_transaction_v2"));
 		assertThat(built.get("transactionsHash"),
 				equalTo(new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202")));
+		assertThat(built.containsKey("transactions"), equalTo(false));
+		assertThat(built.containsKey("cosignatures"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: transactions
-		assertThat(built.containsKey("transactions"), equalTo(false));
-		assertThat(sweepNewAggregateCompleteTransactionV2Descriptor().transactions((List<EmbeddedTransaction>) null).toMap()
-				.containsKey("transactions"), equalTo(false));
-		final AggregateCompleteTransactionV2Descriptor withTransactions = sweepNewAggregateCompleteTransactionV2Descriptor();
-		assertThat(withTransactions.transactions(List.of(new EmbeddedAccountKeyLinkTransactionV1())), sameInstance(withTransactions));
-		assertThat(((List<?>) withTransactions.toMap().get("transactions")).size(), equalTo(1));
-
-		// optional field: cosignatures
-		assertThat(built.containsKey("cosignatures"), equalTo(false));
-		assertThat(sweepNewAggregateCompleteTransactionV2Descriptor().cosignatures((List<Cosignature>) null).toMap()
-				.containsKey("cosignatures"), equalTo(false));
-		final AggregateCompleteTransactionV2Descriptor withCosignatures = sweepNewAggregateCompleteTransactionV2Descriptor();
-		assertThat(withCosignatures.cosignatures(List.of(new Cosignature())), sameInstance(withCosignatures));
-		assertThat(((List<?>) withCosignatures.toMap().get("cosignatures")).size(), equalTo(1));
-	}
-
-	@Test
-	void aggregateCompleteTransactionV2DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAggregateCompleteTransactionV2Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AggregateCompleteTransactionV2Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("transactionsHash"), equalTo(built.get("transactionsHash")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AggregateCompleteTransactionV2Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(new EmbeddedAccountKeyLinkTransactionV1()), List.of(new Cosignature())).toMap();
+		assertThat(((List<?>) fullBuilt.get("transactions")).size(), equalTo(1));
+		assertThat(((List<?>) fullBuilt.get("cosignatures")).size(), equalTo(1));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void aggregateCompleteTransactionV2DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final EmbeddedAccountKeyLinkTransactionV1 sweepTransactionsElement = new EmbeddedAccountKeyLinkTransactionV1();
 		final Cosignature sweepCosignaturesElement = new Cosignature();
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAggregateCompleteTransactionV2Descriptor()
-				.transactions(List.of(sweepTransactionsElement)).cosignatures(List.of(sweepCosignaturesElement)));
+		final Map<String, Object> createMap = sweepCreateMap(new AggregateCompleteTransactionV2Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(sweepTransactionsElement), List.of(sweepCosignaturesElement)));
 
 		// Act:
 		final AggregateCompleteTransactionV2 transaction = (AggregateCompleteTransactionV2) FACTORY.create(createMap);
@@ -519,10 +379,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AggregateCompleteTransactionV3Descriptor with distinct sample required arguments. */
+	/** Constructs a AggregateCompleteTransactionV3Descriptor with distinct sample required arguments and null optionals. */
 	private static AggregateCompleteTransactionV3Descriptor sweepNewAggregateCompleteTransactionV3Descriptor() {
 		return new AggregateCompleteTransactionV3Descriptor(
-				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"));
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"), null, null);
 	}
 
 	@Test
@@ -533,53 +393,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("aggregate_complete_transaction_v3"));
 		assertThat(built.get("transactionsHash"),
 				equalTo(new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202")));
+		assertThat(built.containsKey("transactions"), equalTo(false));
+		assertThat(built.containsKey("cosignatures"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: transactions
-		assertThat(built.containsKey("transactions"), equalTo(false));
-		assertThat(sweepNewAggregateCompleteTransactionV3Descriptor().transactions((List<EmbeddedTransaction>) null).toMap()
-				.containsKey("transactions"), equalTo(false));
-		final AggregateCompleteTransactionV3Descriptor withTransactions = sweepNewAggregateCompleteTransactionV3Descriptor();
-		assertThat(withTransactions.transactions(List.of(new EmbeddedAccountKeyLinkTransactionV1())), sameInstance(withTransactions));
-		assertThat(((List<?>) withTransactions.toMap().get("transactions")).size(), equalTo(1));
-
-		// optional field: cosignatures
-		assertThat(built.containsKey("cosignatures"), equalTo(false));
-		assertThat(sweepNewAggregateCompleteTransactionV3Descriptor().cosignatures((List<Cosignature>) null).toMap()
-				.containsKey("cosignatures"), equalTo(false));
-		final AggregateCompleteTransactionV3Descriptor withCosignatures = sweepNewAggregateCompleteTransactionV3Descriptor();
-		assertThat(withCosignatures.cosignatures(List.of(new Cosignature())), sameInstance(withCosignatures));
-		assertThat(((List<?>) withCosignatures.toMap().get("cosignatures")).size(), equalTo(1));
-	}
-
-	@Test
-	void aggregateCompleteTransactionV3DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAggregateCompleteTransactionV3Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AggregateCompleteTransactionV3Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("transactionsHash"), equalTo(built.get("transactionsHash")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AggregateCompleteTransactionV3Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(new EmbeddedAccountKeyLinkTransactionV1()), List.of(new Cosignature())).toMap();
+		assertThat(((List<?>) fullBuilt.get("transactions")).size(), equalTo(1));
+		assertThat(((List<?>) fullBuilt.get("cosignatures")).size(), equalTo(1));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void aggregateCompleteTransactionV3DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final EmbeddedAccountKeyLinkTransactionV1 sweepTransactionsElement = new EmbeddedAccountKeyLinkTransactionV1();
 		final Cosignature sweepCosignaturesElement = new Cosignature();
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAggregateCompleteTransactionV3Descriptor()
-				.transactions(List.of(sweepTransactionsElement)).cosignatures(List.of(sweepCosignaturesElement)));
+		final Map<String, Object> createMap = sweepCreateMap(new AggregateCompleteTransactionV3Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(sweepTransactionsElement), List.of(sweepCosignaturesElement)));
 
 		// Act:
 		final AggregateCompleteTransactionV3 transaction = (AggregateCompleteTransactionV3) FACTORY.create(createMap);
@@ -598,10 +436,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AggregateBondedTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a AggregateBondedTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static AggregateBondedTransactionV1Descriptor sweepNewAggregateBondedTransactionV1Descriptor() {
 		return new AggregateBondedTransactionV1Descriptor(
-				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"));
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"), null, null);
 	}
 
 	@Test
@@ -612,54 +450,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("aggregate_bonded_transaction_v1"));
 		assertThat(built.get("transactionsHash"),
 				equalTo(new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202")));
+		assertThat(built.containsKey("transactions"), equalTo(false));
+		assertThat(built.containsKey("cosignatures"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: transactions
-		assertThat(built.containsKey("transactions"), equalTo(false));
-		assertThat(sweepNewAggregateBondedTransactionV1Descriptor().transactions((List<EmbeddedTransaction>) null).toMap()
-				.containsKey("transactions"), equalTo(false));
-		final AggregateBondedTransactionV1Descriptor withTransactions = sweepNewAggregateBondedTransactionV1Descriptor();
-		assertThat(withTransactions.transactions(List.of(new EmbeddedAccountKeyLinkTransactionV1())), sameInstance(withTransactions));
-		assertThat(((List<?>) withTransactions.toMap().get("transactions")).size(), equalTo(1));
-
-		// optional field: cosignatures
-		assertThat(built.containsKey("cosignatures"), equalTo(false));
-		assertThat(
-				sweepNewAggregateBondedTransactionV1Descriptor().cosignatures((List<Cosignature>) null).toMap().containsKey("cosignatures"),
-				equalTo(false));
-		final AggregateBondedTransactionV1Descriptor withCosignatures = sweepNewAggregateBondedTransactionV1Descriptor();
-		assertThat(withCosignatures.cosignatures(List.of(new Cosignature())), sameInstance(withCosignatures));
-		assertThat(((List<?>) withCosignatures.toMap().get("cosignatures")).size(), equalTo(1));
-	}
-
-	@Test
-	void aggregateBondedTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAggregateBondedTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AggregateBondedTransactionV1Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("transactionsHash"), equalTo(built.get("transactionsHash")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AggregateBondedTransactionV1Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(new EmbeddedAccountKeyLinkTransactionV1()), List.of(new Cosignature())).toMap();
+		assertThat(((List<?>) fullBuilt.get("transactions")).size(), equalTo(1));
+		assertThat(((List<?>) fullBuilt.get("cosignatures")).size(), equalTo(1));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void aggregateBondedTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final EmbeddedAccountKeyLinkTransactionV1 sweepTransactionsElement = new EmbeddedAccountKeyLinkTransactionV1();
 		final Cosignature sweepCosignaturesElement = new Cosignature();
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAggregateBondedTransactionV1Descriptor()
-				.transactions(List.of(sweepTransactionsElement)).cosignatures(List.of(sweepCosignaturesElement)));
+		final Map<String, Object> createMap = sweepCreateMap(new AggregateBondedTransactionV1Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(sweepTransactionsElement), List.of(sweepCosignaturesElement)));
 
 		// Act:
 		final AggregateBondedTransactionV1 transaction = (AggregateBondedTransactionV1) FACTORY.create(createMap);
@@ -678,10 +493,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AggregateBondedTransactionV2Descriptor with distinct sample required arguments. */
+	/** Constructs a AggregateBondedTransactionV2Descriptor with distinct sample required arguments and null optionals. */
 	private static AggregateBondedTransactionV2Descriptor sweepNewAggregateBondedTransactionV2Descriptor() {
 		return new AggregateBondedTransactionV2Descriptor(
-				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"));
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"), null, null);
 	}
 
 	@Test
@@ -692,54 +507,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("aggregate_bonded_transaction_v2"));
 		assertThat(built.get("transactionsHash"),
 				equalTo(new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202")));
+		assertThat(built.containsKey("transactions"), equalTo(false));
+		assertThat(built.containsKey("cosignatures"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: transactions
-		assertThat(built.containsKey("transactions"), equalTo(false));
-		assertThat(sweepNewAggregateBondedTransactionV2Descriptor().transactions((List<EmbeddedTransaction>) null).toMap()
-				.containsKey("transactions"), equalTo(false));
-		final AggregateBondedTransactionV2Descriptor withTransactions = sweepNewAggregateBondedTransactionV2Descriptor();
-		assertThat(withTransactions.transactions(List.of(new EmbeddedAccountKeyLinkTransactionV1())), sameInstance(withTransactions));
-		assertThat(((List<?>) withTransactions.toMap().get("transactions")).size(), equalTo(1));
-
-		// optional field: cosignatures
-		assertThat(built.containsKey("cosignatures"), equalTo(false));
-		assertThat(
-				sweepNewAggregateBondedTransactionV2Descriptor().cosignatures((List<Cosignature>) null).toMap().containsKey("cosignatures"),
-				equalTo(false));
-		final AggregateBondedTransactionV2Descriptor withCosignatures = sweepNewAggregateBondedTransactionV2Descriptor();
-		assertThat(withCosignatures.cosignatures(List.of(new Cosignature())), sameInstance(withCosignatures));
-		assertThat(((List<?>) withCosignatures.toMap().get("cosignatures")).size(), equalTo(1));
-	}
-
-	@Test
-	void aggregateBondedTransactionV2DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAggregateBondedTransactionV2Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AggregateBondedTransactionV2Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("transactionsHash"), equalTo(built.get("transactionsHash")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AggregateBondedTransactionV2Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(new EmbeddedAccountKeyLinkTransactionV1()), List.of(new Cosignature())).toMap();
+		assertThat(((List<?>) fullBuilt.get("transactions")).size(), equalTo(1));
+		assertThat(((List<?>) fullBuilt.get("cosignatures")).size(), equalTo(1));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void aggregateBondedTransactionV2DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final EmbeddedAccountKeyLinkTransactionV1 sweepTransactionsElement = new EmbeddedAccountKeyLinkTransactionV1();
 		final Cosignature sweepCosignaturesElement = new Cosignature();
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAggregateBondedTransactionV2Descriptor()
-				.transactions(List.of(sweepTransactionsElement)).cosignatures(List.of(sweepCosignaturesElement)));
+		final Map<String, Object> createMap = sweepCreateMap(new AggregateBondedTransactionV2Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(sweepTransactionsElement), List.of(sweepCosignaturesElement)));
 
 		// Act:
 		final AggregateBondedTransactionV2 transaction = (AggregateBondedTransactionV2) FACTORY.create(createMap);
@@ -758,10 +550,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AggregateBondedTransactionV3Descriptor with distinct sample required arguments. */
+	/** Constructs a AggregateBondedTransactionV3Descriptor with distinct sample required arguments and null optionals. */
 	private static AggregateBondedTransactionV3Descriptor sweepNewAggregateBondedTransactionV3Descriptor() {
 		return new AggregateBondedTransactionV3Descriptor(
-				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"));
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"), null, null);
 	}
 
 	@Test
@@ -772,54 +564,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("aggregate_bonded_transaction_v3"));
 		assertThat(built.get("transactionsHash"),
 				equalTo(new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202")));
+		assertThat(built.containsKey("transactions"), equalTo(false));
+		assertThat(built.containsKey("cosignatures"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: transactions
-		assertThat(built.containsKey("transactions"), equalTo(false));
-		assertThat(sweepNewAggregateBondedTransactionV3Descriptor().transactions((List<EmbeddedTransaction>) null).toMap()
-				.containsKey("transactions"), equalTo(false));
-		final AggregateBondedTransactionV3Descriptor withTransactions = sweepNewAggregateBondedTransactionV3Descriptor();
-		assertThat(withTransactions.transactions(List.of(new EmbeddedAccountKeyLinkTransactionV1())), sameInstance(withTransactions));
-		assertThat(((List<?>) withTransactions.toMap().get("transactions")).size(), equalTo(1));
-
-		// optional field: cosignatures
-		assertThat(built.containsKey("cosignatures"), equalTo(false));
-		assertThat(
-				sweepNewAggregateBondedTransactionV3Descriptor().cosignatures((List<Cosignature>) null).toMap().containsKey("cosignatures"),
-				equalTo(false));
-		final AggregateBondedTransactionV3Descriptor withCosignatures = sweepNewAggregateBondedTransactionV3Descriptor();
-		assertThat(withCosignatures.cosignatures(List.of(new Cosignature())), sameInstance(withCosignatures));
-		assertThat(((List<?>) withCosignatures.toMap().get("cosignatures")).size(), equalTo(1));
-	}
-
-	@Test
-	void aggregateBondedTransactionV3DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAggregateBondedTransactionV3Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AggregateBondedTransactionV3Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("transactionsHash"), equalTo(built.get("transactionsHash")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AggregateBondedTransactionV3Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(new EmbeddedAccountKeyLinkTransactionV1()), List.of(new Cosignature())).toMap();
+		assertThat(((List<?>) fullBuilt.get("transactions")).size(), equalTo(1));
+		assertThat(((List<?>) fullBuilt.get("cosignatures")).size(), equalTo(1));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void aggregateBondedTransactionV3DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final EmbeddedAccountKeyLinkTransactionV1 sweepTransactionsElement = new EmbeddedAccountKeyLinkTransactionV1();
 		final Cosignature sweepCosignaturesElement = new Cosignature();
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAggregateBondedTransactionV3Descriptor()
-				.transactions(List.of(sweepTransactionsElement)).cosignatures(List.of(sweepCosignaturesElement)));
+		final Map<String, Object> createMap = sweepCreateMap(new AggregateBondedTransactionV3Descriptor(
+				new CryptoTypes.Hash256("0202020202020202020202020202020202020202020202020202020202020202"),
+				List.of(sweepTransactionsElement), List.of(sweepCosignaturesElement)));
 
 		// Act:
 		final AggregateBondedTransactionV3 transaction = (AggregateBondedTransactionV3) FACTORY.create(createMap);
@@ -864,27 +633,11 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void votingKeyLinkTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewVotingKeyLinkTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new VotingKeyLinkTransactionV1Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202", "2", "3", "link").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("linkedPublicKey"), equalTo(built.get("linkedPublicKey")));
-		assertThat(stringBuilt.get("startEpoch"), equalTo(built.get("startEpoch")));
-		assertThat(stringBuilt.get("endEpoch"), equalTo(built.get("endEpoch")));
-		assertThat(stringBuilt.get("linkAction"), equalTo(built.get("linkAction")));
-	}
-
-	@Test
 	void votingKeyLinkTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewVotingKeyLinkTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new VotingKeyLinkTransactionV1Descriptor(
+				new CryptoTypes.PublicKey("0202020202020202020202020202020202020202020202020202020202020202"), FinalizationEpoch.parse("2"),
+				FinalizationEpoch.parse("3"), LinkAction.parse("link")));
 
 		// Act:
 		final VotingKeyLinkTransactionV1 transaction = (VotingKeyLinkTransactionV1) FACTORY.create(createMap);
@@ -925,25 +678,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void vrfKeyLinkTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewVrfKeyLinkTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new VrfKeyLinkTransactionV1Descriptor(
-				"0202020202020202020202020202020202020202020202020202020202020202", "link").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("linkedPublicKey"), equalTo(built.get("linkedPublicKey")));
-		assertThat(stringBuilt.get("linkAction"), equalTo(built.get("linkAction")));
-	}
-
-	@Test
 	void vrfKeyLinkTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewVrfKeyLinkTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new VrfKeyLinkTransactionV1Descriptor(
+				new CryptoTypes.PublicKey("0202020202020202020202020202020202020202020202020202020202020202"), LinkAction.parse("link")));
 
 		// Act:
 		final VrfKeyLinkTransactionV1 transaction = (VrfKeyLinkTransactionV1) FACTORY.create(createMap);
@@ -982,26 +720,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void hashLockTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewHashLockTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new HashLockTransactionV1Descriptor(sweepNewUnresolvedMosaicDescriptor(), "2",
-				"0404040404040404040404040404040404040404040404040404040404040404").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("mosaic"), equalTo(built.get("mosaic")));
-		assertThat(stringBuilt.get("duration"), equalTo(built.get("duration")));
-		assertThat(stringBuilt.get("hash"), equalTo(built.get("hash")));
-	}
-
-	@Test
 	void hashLockTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewHashLockTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new HashLockTransactionV1Descriptor(sweepNewUnresolvedMosaicDescriptor(),
+				BlockDuration.parse("2"), new CryptoTypes.Hash256("0404040404040404040404040404040404040404040404040404040404040404")));
 
 		// Act:
 		final HashLockTransactionV1 transaction = (HashLockTransactionV1) FACTORY.create(createMap);
@@ -1045,29 +767,12 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void secretLockTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewSecretLockTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new SecretLockTransactionV1Descriptor("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I",
-				"0303030303030303030303030303030303030303030303030303030303030303", sweepNewUnresolvedMosaicDescriptor(), "4", "hash_160")
-				.toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("recipientAddress"), equalTo(built.get("recipientAddress")));
-		assertThat(stringBuilt.get("secret"), equalTo(built.get("secret")));
-		assertThat(stringBuilt.get("mosaic"), equalTo(built.get("mosaic")));
-		assertThat(stringBuilt.get("duration"), equalTo(built.get("duration")));
-		assertThat(stringBuilt.get("hashAlgorithm"), equalTo(built.get("hashAlgorithm")));
-	}
-
-	@Test
 	void secretLockTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewSecretLockTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(
+				new SecretLockTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+						new CryptoTypes.Hash256("0303030303030303030303030303030303030303030303030303030303030303"),
+						sweepNewUnresolvedMosaicDescriptor(), BlockDuration.parse("4"), LockHashAlgorithm.parse("hash_160")));
 
 		// Act:
 		final SecretLockTransactionV1 transaction = (SecretLockTransactionV1) FACTORY.create(createMap);
@@ -1087,11 +792,11 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a SecretProofTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a SecretProofTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static SecretProofTransactionV1Descriptor sweepNewSecretProofTransactionV1Descriptor() {
 		return new SecretProofTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
 				new CryptoTypes.Hash256("0303030303030303030303030303030303030303030303030303030303030303"),
-				LockHashAlgorithm.parse("hash_256"));
+				LockHashAlgorithm.parse("hash_256"), null);
 	}
 
 	@Test
@@ -1102,49 +807,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("secret_proof_transaction_v1"));
 		assertThat(built.get("recipientAddress"), equalTo(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")));
 		assertThat(built.get("secret"),
 				equalTo(new CryptoTypes.Hash256("0303030303030303030303030303030303030303030303030303030303030303")));
 		assertThat(built.get("hashAlgorithm"), equalTo(LockHashAlgorithm.parse("hash_256")));
+		assertThat(built.containsKey("proof"), equalTo(false));
 		assertThat(built.size(), equalTo(4));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: proof
-		assertThat(built.containsKey("proof"), equalTo(false));
-		assertThat(sweepNewSecretProofTransactionV1Descriptor().proof((byte[]) null).toMap().containsKey("proof"), equalTo(false));
-		assertThat(sweepNewSecretProofTransactionV1Descriptor().proof((String) null).toMap().containsKey("proof"), equalTo(false));
-		final SecretProofTransactionV1Descriptor withProof = sweepNewSecretProofTransactionV1Descriptor();
-		assertThat(withProof.proof("proof".getBytes(StandardCharsets.UTF_8)), sameInstance(withProof));
-		assertThat(withProof.toMap().get("proof"), equalTo("proof".getBytes(StandardCharsets.UTF_8)));
-		assertThat(sweepNewSecretProofTransactionV1Descriptor().proof("proof").toMap().get("proof"),
-				equalTo(withProof.toMap().get("proof")));
-	}
-
-	@Test
-	void secretProofTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewSecretProofTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new SecretProofTransactionV1Descriptor("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I",
-				"0303030303030303030303030303030303030303030303030303030303030303", "hash_256").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("recipientAddress"), equalTo(built.get("recipientAddress")));
-		assertThat(stringBuilt.get("secret"), equalTo(built.get("secret")));
-		assertThat(stringBuilt.get("hashAlgorithm"), equalTo(built.get("hashAlgorithm")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new SecretProofTransactionV1Descriptor(
+				new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+				new CryptoTypes.Hash256("0303030303030303030303030303030303030303030303030303030303030303"),
+				LockHashAlgorithm.parse("hash_256"), "proof".getBytes(StandardCharsets.UTF_8)).toMap();
+		assertThat(fullBuilt.get("proof"), equalTo("proof".getBytes(StandardCharsets.UTF_8)));
+		assertThat(fullBuilt.size(), equalTo(5));
 	}
 
 	@Test
 	void secretProofTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final Map<String, Object> createMap = sweepCreateMap(
-				sweepNewSecretProofTransactionV1Descriptor().proof("proof".getBytes(StandardCharsets.UTF_8)));
+				new SecretProofTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+						new CryptoTypes.Hash256("0303030303030303030303030303030303030303030303030303030303030303"),
+						LockHashAlgorithm.parse("hash_256"), "proof".getBytes(StandardCharsets.UTF_8)));
 
 		// Act:
 		final SecretProofTransactionV1 transaction = (SecretProofTransactionV1) FACTORY.create(createMap);
@@ -1163,10 +850,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AccountMetadataTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a AccountMetadataTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static AccountMetadataTransactionV1Descriptor sweepNewAccountMetadataTransactionV1Descriptor() {
 		return new AccountMetadataTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), 2L,
-				3);
+				3, null);
 	}
 
 	@Test
@@ -1177,48 +864,28 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("account_metadata_transaction_v1"));
 		assertThat(built.get("targetAddress"), equalTo(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")));
 		assertThat(built.get("scopedMetadataKey"), equalTo(2L));
 		assertThat(built.get("valueSizeDelta"), equalTo(3));
+		assertThat(built.containsKey("value"), equalTo(false));
 		assertThat(built.size(), equalTo(4));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: value
-		assertThat(built.containsKey("value"), equalTo(false));
-		assertThat(sweepNewAccountMetadataTransactionV1Descriptor().value((byte[]) null).toMap().containsKey("value"), equalTo(false));
-		assertThat(sweepNewAccountMetadataTransactionV1Descriptor().value((String) null).toMap().containsKey("value"), equalTo(false));
-		final AccountMetadataTransactionV1Descriptor withValue = sweepNewAccountMetadataTransactionV1Descriptor();
-		assertThat(withValue.value("value".getBytes(StandardCharsets.UTF_8)), sameInstance(withValue));
-		assertThat(withValue.toMap().get("value"), equalTo("value".getBytes(StandardCharsets.UTF_8)));
-		assertThat(sweepNewAccountMetadataTransactionV1Descriptor().value("value").toMap().get("value"),
-				equalTo(withValue.toMap().get("value")));
-	}
-
-	@Test
-	void accountMetadataTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAccountMetadataTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AccountMetadataTransactionV1Descriptor("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I", 2L, 3)
-				.toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("targetAddress"), equalTo(built.get("targetAddress")));
-		assertThat(stringBuilt.get("scopedMetadataKey"), equalTo(built.get("scopedMetadataKey")));
-		assertThat(stringBuilt.get("valueSizeDelta"), equalTo(built.get("valueSizeDelta")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AccountMetadataTransactionV1Descriptor(
+				new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), 2L, 3,
+				"value".getBytes(StandardCharsets.UTF_8)).toMap();
+		assertThat(fullBuilt.get("value"), equalTo("value".getBytes(StandardCharsets.UTF_8)));
+		assertThat(fullBuilt.size(), equalTo(5));
 	}
 
 	@Test
 	void accountMetadataTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final Map<String, Object> createMap = sweepCreateMap(
-				sweepNewAccountMetadataTransactionV1Descriptor().value("value".getBytes(StandardCharsets.UTF_8)));
+				new AccountMetadataTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), 2L,
+						3, "value".getBytes(StandardCharsets.UTF_8)));
 
 		// Act:
 		final AccountMetadataTransactionV1 transaction = (AccountMetadataTransactionV1) FACTORY.create(createMap);
@@ -1236,10 +903,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a MosaicMetadataTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a MosaicMetadataTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static MosaicMetadataTransactionV1Descriptor sweepNewMosaicMetadataTransactionV1Descriptor() {
 		return new MosaicMetadataTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), 2L,
-				UnresolvedMosaicId.parse("3"), 4);
+				UnresolvedMosaicId.parse("3"), 4, null);
 	}
 
 	@Test
@@ -1250,50 +917,29 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("mosaic_metadata_transaction_v1"));
 		assertThat(built.get("targetAddress"), equalTo(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")));
 		assertThat(built.get("scopedMetadataKey"), equalTo(2L));
 		assertThat(built.get("targetMosaicId"), equalTo(UnresolvedMosaicId.parse("3")));
 		assertThat(built.get("valueSizeDelta"), equalTo(4));
+		assertThat(built.containsKey("value"), equalTo(false));
 		assertThat(built.size(), equalTo(5));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: value
-		assertThat(built.containsKey("value"), equalTo(false));
-		assertThat(sweepNewMosaicMetadataTransactionV1Descriptor().value((byte[]) null).toMap().containsKey("value"), equalTo(false));
-		assertThat(sweepNewMosaicMetadataTransactionV1Descriptor().value((String) null).toMap().containsKey("value"), equalTo(false));
-		final MosaicMetadataTransactionV1Descriptor withValue = sweepNewMosaicMetadataTransactionV1Descriptor();
-		assertThat(withValue.value("value".getBytes(StandardCharsets.UTF_8)), sameInstance(withValue));
-		assertThat(withValue.toMap().get("value"), equalTo("value".getBytes(StandardCharsets.UTF_8)));
-		assertThat(sweepNewMosaicMetadataTransactionV1Descriptor().value("value").toMap().get("value"),
-				equalTo(withValue.toMap().get("value")));
-	}
-
-	@Test
-	void mosaicMetadataTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicMetadataTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicMetadataTransactionV1Descriptor("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I", 2L,
-				"3", 4).toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("targetAddress"), equalTo(built.get("targetAddress")));
-		assertThat(stringBuilt.get("scopedMetadataKey"), equalTo(built.get("scopedMetadataKey")));
-		assertThat(stringBuilt.get("targetMosaicId"), equalTo(built.get("targetMosaicId")));
-		assertThat(stringBuilt.get("valueSizeDelta"), equalTo(built.get("valueSizeDelta")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new MosaicMetadataTransactionV1Descriptor(
+				new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), 2L, UnresolvedMosaicId.parse("3"), 4,
+				"value".getBytes(StandardCharsets.UTF_8)).toMap();
+		assertThat(fullBuilt.get("value"), equalTo("value".getBytes(StandardCharsets.UTF_8)));
+		assertThat(fullBuilt.size(), equalTo(6));
 	}
 
 	@Test
 	void mosaicMetadataTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final Map<String, Object> createMap = sweepCreateMap(
-				sweepNewMosaicMetadataTransactionV1Descriptor().value("value".getBytes(StandardCharsets.UTF_8)));
+				new MosaicMetadataTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), 2L,
+						UnresolvedMosaicId.parse("3"), 4, "value".getBytes(StandardCharsets.UTF_8)));
 
 		// Act:
 		final MosaicMetadataTransactionV1 transaction = (MosaicMetadataTransactionV1) FACTORY.create(createMap);
@@ -1312,10 +958,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a NamespaceMetadataTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a NamespaceMetadataTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static NamespaceMetadataTransactionV1Descriptor sweepNewNamespaceMetadataTransactionV1Descriptor() {
 		return new NamespaceMetadataTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
-				2L, NamespaceId.parse("3"), 4);
+				2L, NamespaceId.parse("3"), 4, null);
 	}
 
 	@Test
@@ -1326,50 +972,29 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("namespace_metadata_transaction_v1"));
 		assertThat(built.get("targetAddress"), equalTo(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")));
 		assertThat(built.get("scopedMetadataKey"), equalTo(2L));
 		assertThat(built.get("targetNamespaceId"), equalTo(NamespaceId.parse("3")));
 		assertThat(built.get("valueSizeDelta"), equalTo(4));
+		assertThat(built.containsKey("value"), equalTo(false));
 		assertThat(built.size(), equalTo(5));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: value
-		assertThat(built.containsKey("value"), equalTo(false));
-		assertThat(sweepNewNamespaceMetadataTransactionV1Descriptor().value((byte[]) null).toMap().containsKey("value"), equalTo(false));
-		assertThat(sweepNewNamespaceMetadataTransactionV1Descriptor().value((String) null).toMap().containsKey("value"), equalTo(false));
-		final NamespaceMetadataTransactionV1Descriptor withValue = sweepNewNamespaceMetadataTransactionV1Descriptor();
-		assertThat(withValue.value("value".getBytes(StandardCharsets.UTF_8)), sameInstance(withValue));
-		assertThat(withValue.toMap().get("value"), equalTo("value".getBytes(StandardCharsets.UTF_8)));
-		assertThat(sweepNewNamespaceMetadataTransactionV1Descriptor().value("value").toMap().get("value"),
-				equalTo(withValue.toMap().get("value")));
-	}
-
-	@Test
-	void namespaceMetadataTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewNamespaceMetadataTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new NamespaceMetadataTransactionV1Descriptor("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I", 2L,
-				"3", 4).toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("targetAddress"), equalTo(built.get("targetAddress")));
-		assertThat(stringBuilt.get("scopedMetadataKey"), equalTo(built.get("scopedMetadataKey")));
-		assertThat(stringBuilt.get("targetNamespaceId"), equalTo(built.get("targetNamespaceId")));
-		assertThat(stringBuilt.get("valueSizeDelta"), equalTo(built.get("valueSizeDelta")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new NamespaceMetadataTransactionV1Descriptor(
+				new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), 2L, NamespaceId.parse("3"), 4,
+				"value".getBytes(StandardCharsets.UTF_8)).toMap();
+		assertThat(fullBuilt.get("value"), equalTo("value".getBytes(StandardCharsets.UTF_8)));
+		assertThat(fullBuilt.size(), equalTo(6));
 	}
 
 	@Test
 	void namespaceMetadataTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
+		// Arrange: the sample descriptor with every field populated, plus the signer
 		final Map<String, Object> createMap = sweepCreateMap(
-				sweepNewNamespaceMetadataTransactionV1Descriptor().value("value".getBytes(StandardCharsets.UTF_8)));
+				new NamespaceMetadataTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+						2L, NamespaceId.parse("3"), 4, "value".getBytes(StandardCharsets.UTF_8)));
 
 		// Act:
 		final NamespaceMetadataTransactionV1 transaction = (NamespaceMetadataTransactionV1) FACTORY.create(createMap);
@@ -1413,27 +1038,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void mosaicDefinitionTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicDefinitionTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicDefinitionTransactionV1Descriptor("1", "2", "3", "restrictable", 5).toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("id"), equalTo(built.get("id")));
-		assertThat(stringBuilt.get("duration"), equalTo(built.get("duration")));
-		assertThat(stringBuilt.get("nonce"), equalTo(built.get("nonce")));
-		assertThat(stringBuilt.get("flags"), equalTo(built.get("flags")));
-		assertThat(stringBuilt.get("divisibility"), equalTo(built.get("divisibility")));
-	}
-
-	@Test
 	void mosaicDefinitionTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewMosaicDefinitionTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new MosaicDefinitionTransactionV1Descriptor(MosaicId.parse("1"),
+				BlockDuration.parse("2"), MosaicNonce.parse("3"), MosaicFlags.parse("restrictable"), 5));
 
 		// Act:
 		final MosaicDefinitionTransactionV1 transaction = (MosaicDefinitionTransactionV1) FACTORY.create(createMap);
@@ -1474,25 +1082,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void mosaicSupplyChangeTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicSupplyChangeTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicSupplyChangeTransactionV1Descriptor("1", "2", "decrease").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("mosaicId"), equalTo(built.get("mosaicId")));
-		assertThat(stringBuilt.get("delta"), equalTo(built.get("delta")));
-		assertThat(stringBuilt.get("action"), equalTo(built.get("action")));
-	}
-
-	@Test
 	void mosaicSupplyChangeTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewMosaicSupplyChangeTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new MosaicSupplyChangeTransactionV1Descriptor(UnresolvedMosaicId.parse("1"),
+				Amount.parse("2"), MosaicSupplyChangeAction.parse("decrease")));
 
 		// Act:
 		final MosaicSupplyChangeTransactionV1 transaction = (MosaicSupplyChangeTransactionV1) FACTORY.create(createMap);
@@ -1530,25 +1123,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void mosaicSupplyRevocationTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicSupplyRevocationTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicSupplyRevocationTransactionV1Descriptor("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I",
-				sweepNewUnresolvedMosaicDescriptor()).toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("sourceAddress"), equalTo(built.get("sourceAddress")));
-		assertThat(stringBuilt.get("mosaic"), equalTo(built.get("mosaic")));
-	}
-
-	@Test
 	void mosaicSupplyRevocationTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewMosaicSupplyRevocationTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new MosaicSupplyRevocationTransactionV1Descriptor(
+				new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), sweepNewUnresolvedMosaicDescriptor()));
 
 		// Act:
 		final MosaicSupplyRevocationTransactionV1 transaction = (MosaicSupplyRevocationTransactionV1) FACTORY.create(createMap);
@@ -1564,9 +1142,9 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a MultisigAccountModificationTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a MultisigAccountModificationTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static MultisigAccountModificationTransactionV1Descriptor sweepNewMultisigAccountModificationTransactionV1Descriptor() {
-		return new MultisigAccountModificationTransactionV1Descriptor(1, 2);
+		return new MultisigAccountModificationTransactionV1Descriptor(1, 2, null, null);
 	}
 
 	@Test
@@ -1577,49 +1155,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("multisig_account_modification_transaction_v1"));
 		assertThat(built.get("minRemovalDelta"), equalTo(1));
 		assertThat(built.get("minApprovalDelta"), equalTo(2));
+		assertThat(built.containsKey("addressAdditions"), equalTo(false));
+		assertThat(built.containsKey("addressDeletions"), equalTo(false));
 		assertThat(built.size(), equalTo(3));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: addressAdditions
-		assertThat(built.containsKey("addressAdditions"), equalTo(false));
-		assertThat(sweepNewMultisigAccountModificationTransactionV1Descriptor().addressAdditions((List<org.symbol.sdk.symbol.Address>) null)
-				.toMap().containsKey("addressAdditions"), equalTo(false));
-		final MultisigAccountModificationTransactionV1Descriptor withAddressAdditions = sweepNewMultisigAccountModificationTransactionV1Descriptor();
-		assertThat(
-				withAddressAdditions
-						.addressAdditions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))),
-				sameInstance(withAddressAdditions));
-		assertThat(withAddressAdditions.toMap().get("addressAdditions"),
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new MultisigAccountModificationTransactionV1Descriptor(1, 2,
+				List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")),
+				List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))).toMap();
+		assertThat(fullBuilt.get("addressAdditions"),
 				equalTo(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
-		assertThat(sweepNewMultisigAccountModificationTransactionV1Descriptor().addressAdditions("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")
-				.toMap().get("addressAdditions"), equalTo(withAddressAdditions.toMap().get("addressAdditions")));
-
-		// optional field: addressDeletions
-		assertThat(built.containsKey("addressDeletions"), equalTo(false));
-		assertThat(sweepNewMultisigAccountModificationTransactionV1Descriptor().addressDeletions((List<org.symbol.sdk.symbol.Address>) null)
-				.toMap().containsKey("addressDeletions"), equalTo(false));
-		final MultisigAccountModificationTransactionV1Descriptor withAddressDeletions = sweepNewMultisigAccountModificationTransactionV1Descriptor();
-		assertThat(
-				withAddressDeletions
-						.addressDeletions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))),
-				sameInstance(withAddressDeletions));
-		assertThat(withAddressDeletions.toMap().get("addressDeletions"),
+		assertThat(fullBuilt.get("addressDeletions"),
 				equalTo(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
-		assertThat(sweepNewMultisigAccountModificationTransactionV1Descriptor().addressDeletions("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")
-				.toMap().get("addressDeletions"), equalTo(withAddressDeletions.toMap().get("addressDeletions")));
+		assertThat(fullBuilt.size(), equalTo(5));
 	}
 
 	@Test
 	void multisigAccountModificationTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewMultisigAccountModificationTransactionV1Descriptor()
-				.addressAdditions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")))
-				.addressDeletions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new MultisigAccountModificationTransactionV1Descriptor(1, 2,
+				List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")),
+				List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
 
 		// Act:
 		final MultisigAccountModificationTransactionV1 transaction = (MultisigAccountModificationTransactionV1) FACTORY.create(createMap);
@@ -1661,26 +1221,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void addressAliasTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAddressAliasTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AddressAliasTransactionV1Descriptor("1", "TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I",
-				"unlink").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("namespaceId"), equalTo(built.get("namespaceId")));
-		assertThat(stringBuilt.get("address"), equalTo(built.get("address")));
-		assertThat(stringBuilt.get("aliasAction"), equalTo(built.get("aliasAction")));
-	}
-
-	@Test
 	void addressAliasTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAddressAliasTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new AddressAliasTransactionV1Descriptor(NamespaceId.parse("1"),
+				new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), AliasAction.parse("unlink")));
 
 		// Act:
 		final AddressAliasTransactionV1 transaction = (AddressAliasTransactionV1) FACTORY.create(createMap);
@@ -1719,25 +1263,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void mosaicAliasTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicAliasTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicAliasTransactionV1Descriptor("1", "2", "unlink").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("namespaceId"), equalTo(built.get("namespaceId")));
-		assertThat(stringBuilt.get("mosaicId"), equalTo(built.get("mosaicId")));
-		assertThat(stringBuilt.get("aliasAction"), equalTo(built.get("aliasAction")));
-	}
-
-	@Test
 	void mosaicAliasTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewMosaicAliasTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(
+				new MosaicAliasTransactionV1Descriptor(NamespaceId.parse("1"), MosaicId.parse("2"), AliasAction.parse("unlink")));
 
 		// Act:
 		final MosaicAliasTransactionV1 transaction = (MosaicAliasTransactionV1) FACTORY.create(createMap);
@@ -1753,9 +1282,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a NamespaceRegistrationTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a NamespaceRegistrationTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static NamespaceRegistrationTransactionV1Descriptor sweepNewNamespaceRegistrationTransactionV1Descriptor() {
-		return new NamespaceRegistrationTransactionV1Descriptor(NamespaceId.parse("3"), NamespaceRegistrationType.parse("child"));
+		return new NamespaceRegistrationTransactionV1Descriptor(NamespaceId.parse("3"), NamespaceRegistrationType.parse("child"), null,
+				null, null);
 	}
 
 	@Test
@@ -1766,69 +1296,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("namespace_registration_transaction_v1"));
 		assertThat(built.get("id"), equalTo(NamespaceId.parse("3")));
 		assertThat(built.get("registrationType"), equalTo(NamespaceRegistrationType.parse("child")));
+		assertThat(built.containsKey("duration"), equalTo(false));
+		assertThat(built.containsKey("parentId"), equalTo(false));
+		assertThat(built.containsKey("name"), equalTo(false));
 		assertThat(built.size(), equalTo(3));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: duration
-		assertThat(built.containsKey("duration"), equalTo(false));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().duration((BlockDuration) null).toMap().containsKey("duration"),
-				equalTo(false));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().duration((String) null).toMap().containsKey("duration"),
-				equalTo(false));
-		final NamespaceRegistrationTransactionV1Descriptor withDuration = sweepNewNamespaceRegistrationTransactionV1Descriptor();
-		assertThat(withDuration.duration(BlockDuration.parse("1")), sameInstance(withDuration));
-		assertThat(withDuration.toMap().get("duration"), equalTo(BlockDuration.parse("1")));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().duration("1").toMap().get("duration"),
-				equalTo(withDuration.toMap().get("duration")));
-
-		// optional field: parentId
-		assertThat(built.containsKey("parentId"), equalTo(false));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().parentId((NamespaceId) null).toMap().containsKey("parentId"),
-				equalTo(false));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().parentId((String) null).toMap().containsKey("parentId"),
-				equalTo(false));
-		final NamespaceRegistrationTransactionV1Descriptor withParentId = sweepNewNamespaceRegistrationTransactionV1Descriptor();
-		assertThat(withParentId.parentId(NamespaceId.parse("2")), sameInstance(withParentId));
-		assertThat(withParentId.toMap().get("parentId"), equalTo(NamespaceId.parse("2")));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().parentId("2").toMap().get("parentId"),
-				equalTo(withParentId.toMap().get("parentId")));
-
-		// optional field: name
-		assertThat(built.containsKey("name"), equalTo(false));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().name((byte[]) null).toMap().containsKey("name"), equalTo(false));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().name((String) null).toMap().containsKey("name"), equalTo(false));
-		final NamespaceRegistrationTransactionV1Descriptor withName = sweepNewNamespaceRegistrationTransactionV1Descriptor();
-		assertThat(withName.name("name".getBytes(StandardCharsets.UTF_8)), sameInstance(withName));
-		assertThat(withName.toMap().get("name"), equalTo("name".getBytes(StandardCharsets.UTF_8)));
-		assertThat(sweepNewNamespaceRegistrationTransactionV1Descriptor().name("name").toMap().get("name"),
-				equalTo(withName.toMap().get("name")));
-	}
-
-	@Test
-	void namespaceRegistrationTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewNamespaceRegistrationTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new NamespaceRegistrationTransactionV1Descriptor("3", "child").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("id"), equalTo(built.get("id")));
-		assertThat(stringBuilt.get("registrationType"), equalTo(built.get("registrationType")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new NamespaceRegistrationTransactionV1Descriptor(NamespaceId.parse("3"),
+				NamespaceRegistrationType.parse("child"), BlockDuration.parse("1"), NamespaceId.parse("2"),
+				"name".getBytes(StandardCharsets.UTF_8)).toMap();
+		assertThat(fullBuilt.get("duration"), equalTo(BlockDuration.parse("1")));
+		assertThat(fullBuilt.get("parentId"), equalTo(NamespaceId.parse("2")));
+		assertThat(fullBuilt.get("name"), equalTo("name".getBytes(StandardCharsets.UTF_8)));
+		assertThat(fullBuilt.size(), equalTo(6));
 	}
 
 	@Test
 	void namespaceRegistrationTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewNamespaceRegistrationTransactionV1Descriptor()
-				.duration(BlockDuration.parse("1")).parentId(NamespaceId.parse("2")).name("name".getBytes(StandardCharsets.UTF_8)));
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(
+				new NamespaceRegistrationTransactionV1Descriptor(NamespaceId.parse("3"), NamespaceRegistrationType.parse("child"),
+						BlockDuration.parse("1"), NamespaceId.parse("2"), "name".getBytes(StandardCharsets.UTF_8)));
 
 		// Act:
 		final NamespaceRegistrationTransactionV1 transaction = (NamespaceRegistrationTransactionV1) FACTORY.create(createMap);
@@ -1846,9 +1338,9 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AccountAddressRestrictionTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a AccountAddressRestrictionTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static AccountAddressRestrictionTransactionV1Descriptor sweepNewAccountAddressRestrictionTransactionV1Descriptor() {
-		return new AccountAddressRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"));
+		return new AccountAddressRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"), null, null);
 	}
 
 	@Test
@@ -1859,66 +1351,31 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("account_address_restriction_transaction_v1"));
 		assertThat(built.get("restrictionFlags"), equalTo(AccountRestrictionFlags.parse("address")));
+		assertThat(built.containsKey("restrictionAdditions"), equalTo(false));
+		assertThat(built.containsKey("restrictionDeletions"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: restrictionAdditions
-		assertThat(built.containsKey("restrictionAdditions"), equalTo(false));
-		assertThat(sweepNewAccountAddressRestrictionTransactionV1Descriptor()
-				.restrictionAdditions((List<org.symbol.sdk.symbol.Address>) null).toMap().containsKey("restrictionAdditions"),
-				equalTo(false));
-		final AccountAddressRestrictionTransactionV1Descriptor withRestrictionAdditions = sweepNewAccountAddressRestrictionTransactionV1Descriptor();
-		assertThat(
-				withRestrictionAdditions
-						.restrictionAdditions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))),
-				sameInstance(withRestrictionAdditions));
-		assertThat(withRestrictionAdditions.toMap().get("restrictionAdditions"),
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AccountAddressRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"),
+				List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")),
+				List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))).toMap();
+		assertThat(fullBuilt.get("restrictionAdditions"),
 				equalTo(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
-		assertThat(sweepNewAccountAddressRestrictionTransactionV1Descriptor()
-				.restrictionAdditions("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I").toMap().get("restrictionAdditions"),
-				equalTo(withRestrictionAdditions.toMap().get("restrictionAdditions")));
-
-		// optional field: restrictionDeletions
-		assertThat(built.containsKey("restrictionDeletions"), equalTo(false));
-		assertThat(sweepNewAccountAddressRestrictionTransactionV1Descriptor()
-				.restrictionDeletions((List<org.symbol.sdk.symbol.Address>) null).toMap().containsKey("restrictionDeletions"),
-				equalTo(false));
-		final AccountAddressRestrictionTransactionV1Descriptor withRestrictionDeletions = sweepNewAccountAddressRestrictionTransactionV1Descriptor();
-		assertThat(
-				withRestrictionDeletions
-						.restrictionDeletions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))),
-				sameInstance(withRestrictionDeletions));
-		assertThat(withRestrictionDeletions.toMap().get("restrictionDeletions"),
+		assertThat(fullBuilt.get("restrictionDeletions"),
 				equalTo(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
-		assertThat(sweepNewAccountAddressRestrictionTransactionV1Descriptor()
-				.restrictionDeletions("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I").toMap().get("restrictionDeletions"),
-				equalTo(withRestrictionDeletions.toMap().get("restrictionDeletions")));
-	}
-
-	@Test
-	void accountAddressRestrictionTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAccountAddressRestrictionTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AccountAddressRestrictionTransactionV1Descriptor("address").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("restrictionFlags"), equalTo(built.get("restrictionFlags")));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void accountAddressRestrictionTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAccountAddressRestrictionTransactionV1Descriptor()
-				.restrictionAdditions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")))
-				.restrictionDeletions(List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(
+				new AccountAddressRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"),
+						List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")),
+						List.of(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))));
 
 		// Act:
 		final AccountAddressRestrictionTransactionV1 transaction = (AccountAddressRestrictionTransactionV1) FACTORY.create(createMap);
@@ -1936,9 +1393,9 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AccountMosaicRestrictionTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a AccountMosaicRestrictionTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static AccountMosaicRestrictionTransactionV1Descriptor sweepNewAccountMosaicRestrictionTransactionV1Descriptor() {
-		return new AccountMosaicRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"));
+		return new AccountMosaicRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"), null, null);
 	}
 
 	@Test
@@ -1949,55 +1406,26 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("account_mosaic_restriction_transaction_v1"));
 		assertThat(built.get("restrictionFlags"), equalTo(AccountRestrictionFlags.parse("address")));
+		assertThat(built.containsKey("restrictionAdditions"), equalTo(false));
+		assertThat(built.containsKey("restrictionDeletions"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: restrictionAdditions
-		assertThat(built.containsKey("restrictionAdditions"), equalTo(false));
-		assertThat(sweepNewAccountMosaicRestrictionTransactionV1Descriptor().restrictionAdditions((List<UnresolvedMosaicId>) null).toMap()
-				.containsKey("restrictionAdditions"), equalTo(false));
-		final AccountMosaicRestrictionTransactionV1Descriptor withRestrictionAdditions = sweepNewAccountMosaicRestrictionTransactionV1Descriptor();
-		assertThat(withRestrictionAdditions.restrictionAdditions(List.of(UnresolvedMosaicId.parse("2"))),
-				sameInstance(withRestrictionAdditions));
-		assertThat(withRestrictionAdditions.toMap().get("restrictionAdditions"), equalTo(List.of(UnresolvedMosaicId.parse("2"))));
-		assertThat(sweepNewAccountMosaicRestrictionTransactionV1Descriptor().restrictionAdditions("2").toMap().get("restrictionAdditions"),
-				equalTo(withRestrictionAdditions.toMap().get("restrictionAdditions")));
-
-		// optional field: restrictionDeletions
-		assertThat(built.containsKey("restrictionDeletions"), equalTo(false));
-		assertThat(sweepNewAccountMosaicRestrictionTransactionV1Descriptor().restrictionDeletions((List<UnresolvedMosaicId>) null).toMap()
-				.containsKey("restrictionDeletions"), equalTo(false));
-		final AccountMosaicRestrictionTransactionV1Descriptor withRestrictionDeletions = sweepNewAccountMosaicRestrictionTransactionV1Descriptor();
-		assertThat(withRestrictionDeletions.restrictionDeletions(List.of(UnresolvedMosaicId.parse("3"))),
-				sameInstance(withRestrictionDeletions));
-		assertThat(withRestrictionDeletions.toMap().get("restrictionDeletions"), equalTo(List.of(UnresolvedMosaicId.parse("3"))));
-		assertThat(sweepNewAccountMosaicRestrictionTransactionV1Descriptor().restrictionDeletions("3").toMap().get("restrictionDeletions"),
-				equalTo(withRestrictionDeletions.toMap().get("restrictionDeletions")));
-	}
-
-	@Test
-	void accountMosaicRestrictionTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAccountMosaicRestrictionTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AccountMosaicRestrictionTransactionV1Descriptor("address").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("restrictionFlags"), equalTo(built.get("restrictionFlags")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AccountMosaicRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"),
+				List.of(UnresolvedMosaicId.parse("2")), List.of(UnresolvedMosaicId.parse("3"))).toMap();
+		assertThat(fullBuilt.get("restrictionAdditions"), equalTo(List.of(UnresolvedMosaicId.parse("2"))));
+		assertThat(fullBuilt.get("restrictionDeletions"), equalTo(List.of(UnresolvedMosaicId.parse("3"))));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void accountMosaicRestrictionTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAccountMosaicRestrictionTransactionV1Descriptor()
-				.restrictionAdditions(List.of(UnresolvedMosaicId.parse("2"))).restrictionDeletions(List.of(UnresolvedMosaicId.parse("3"))));
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new AccountMosaicRestrictionTransactionV1Descriptor(
+				AccountRestrictionFlags.parse("address"), List.of(UnresolvedMosaicId.parse("2")), List.of(UnresolvedMosaicId.parse("3"))));
 
 		// Act:
 		final AccountMosaicRestrictionTransactionV1 transaction = (AccountMosaicRestrictionTransactionV1) FACTORY.create(createMap);
@@ -2013,9 +1441,9 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a AccountOperationRestrictionTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a AccountOperationRestrictionTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static AccountOperationRestrictionTransactionV1Descriptor sweepNewAccountOperationRestrictionTransactionV1Descriptor() {
-		return new AccountOperationRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"));
+		return new AccountOperationRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"), null, null);
 	}
 
 	@Test
@@ -2026,57 +1454,28 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("account_operation_restriction_transaction_v1"));
 		assertThat(built.get("restrictionFlags"), equalTo(AccountRestrictionFlags.parse("address")));
+		assertThat(built.containsKey("restrictionAdditions"), equalTo(false));
+		assertThat(built.containsKey("restrictionDeletions"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: restrictionAdditions
-		assertThat(built.containsKey("restrictionAdditions"), equalTo(false));
-		assertThat(sweepNewAccountOperationRestrictionTransactionV1Descriptor().restrictionAdditions((List<TransactionType>) null).toMap()
-				.containsKey("restrictionAdditions"), equalTo(false));
-		final AccountOperationRestrictionTransactionV1Descriptor withRestrictionAdditions = sweepNewAccountOperationRestrictionTransactionV1Descriptor();
-		assertThat(withRestrictionAdditions.restrictionAdditions(List.of(TransactionType.parse("node_key_link"))),
-				sameInstance(withRestrictionAdditions));
-		assertThat(withRestrictionAdditions.toMap().get("restrictionAdditions"), equalTo(List.of(TransactionType.parse("node_key_link"))));
-		assertThat(sweepNewAccountOperationRestrictionTransactionV1Descriptor().restrictionAdditions("node_key_link").toMap()
-				.get("restrictionAdditions"), equalTo(withRestrictionAdditions.toMap().get("restrictionAdditions")));
-
-		// optional field: restrictionDeletions
-		assertThat(built.containsKey("restrictionDeletions"), equalTo(false));
-		assertThat(sweepNewAccountOperationRestrictionTransactionV1Descriptor().restrictionDeletions((List<TransactionType>) null).toMap()
-				.containsKey("restrictionDeletions"), equalTo(false));
-		final AccountOperationRestrictionTransactionV1Descriptor withRestrictionDeletions = sweepNewAccountOperationRestrictionTransactionV1Descriptor();
-		assertThat(withRestrictionDeletions.restrictionDeletions(List.of(TransactionType.parse("aggregate_complete"))),
-				sameInstance(withRestrictionDeletions));
-		assertThat(withRestrictionDeletions.toMap().get("restrictionDeletions"),
-				equalTo(List.of(TransactionType.parse("aggregate_complete"))));
-		assertThat(sweepNewAccountOperationRestrictionTransactionV1Descriptor().restrictionDeletions("aggregate_complete").toMap()
-				.get("restrictionDeletions"), equalTo(withRestrictionDeletions.toMap().get("restrictionDeletions")));
-	}
-
-	@Test
-	void accountOperationRestrictionTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewAccountOperationRestrictionTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new AccountOperationRestrictionTransactionV1Descriptor("address").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("restrictionFlags"), equalTo(built.get("restrictionFlags")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new AccountOperationRestrictionTransactionV1Descriptor(
+				AccountRestrictionFlags.parse("address"), List.of(TransactionType.parse("node_key_link")),
+				List.of(TransactionType.parse("aggregate_complete"))).toMap();
+		assertThat(fullBuilt.get("restrictionAdditions"), equalTo(List.of(TransactionType.parse("node_key_link"))));
+		assertThat(fullBuilt.get("restrictionDeletions"), equalTo(List.of(TransactionType.parse("aggregate_complete"))));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void accountOperationRestrictionTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewAccountOperationRestrictionTransactionV1Descriptor()
-				.restrictionAdditions(List.of(TransactionType.parse("node_key_link")))
-				.restrictionDeletions(List.of(TransactionType.parse("aggregate_complete"))));
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(
+				new AccountOperationRestrictionTransactionV1Descriptor(AccountRestrictionFlags.parse("address"),
+						List.of(TransactionType.parse("node_key_link")), List.of(TransactionType.parse("aggregate_complete"))));
 
 		// Act:
 		final AccountOperationRestrictionTransactionV1 transaction = (AccountOperationRestrictionTransactionV1) FACTORY.create(createMap);
@@ -2117,28 +1516,10 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void mosaicAddressRestrictionTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicAddressRestrictionTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicAddressRestrictionTransactionV1Descriptor("1", 2L, 3L, 4L,
-				"TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("mosaicId"), equalTo(built.get("mosaicId")));
-		assertThat(stringBuilt.get("restrictionKey"), equalTo(built.get("restrictionKey")));
-		assertThat(stringBuilt.get("previousRestrictionValue"), equalTo(built.get("previousRestrictionValue")));
-		assertThat(stringBuilt.get("newRestrictionValue"), equalTo(built.get("newRestrictionValue")));
-		assertThat(stringBuilt.get("targetAddress"), equalTo(built.get("targetAddress")));
-	}
-
-	@Test
 	void mosaicAddressRestrictionTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewMosaicAddressRestrictionTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(new MosaicAddressRestrictionTransactionV1Descriptor(
+				UnresolvedMosaicId.parse("1"), 2L, 3L, 4L, new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")));
 
 		// Act:
 		final MosaicAddressRestrictionTransactionV1 transaction = (MosaicAddressRestrictionTransactionV1) FACTORY.create(createMap);
@@ -2184,30 +1565,11 @@ final class DescriptorsSweepTest {
 	}
 
 	@Test
-	void mosaicGlobalRestrictionTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewMosaicGlobalRestrictionTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new MosaicGlobalRestrictionTransactionV1Descriptor("1", "2", 3L, 4L, 5L, "gt", "ge")
-				.toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("mosaicId"), equalTo(built.get("mosaicId")));
-		assertThat(stringBuilt.get("referenceMosaicId"), equalTo(built.get("referenceMosaicId")));
-		assertThat(stringBuilt.get("restrictionKey"), equalTo(built.get("restrictionKey")));
-		assertThat(stringBuilt.get("previousRestrictionValue"), equalTo(built.get("previousRestrictionValue")));
-		assertThat(stringBuilt.get("newRestrictionValue"), equalTo(built.get("newRestrictionValue")));
-		assertThat(stringBuilt.get("previousRestrictionType"), equalTo(built.get("previousRestrictionType")));
-		assertThat(stringBuilt.get("newRestrictionType"), equalTo(built.get("newRestrictionType")));
-	}
-
-	@Test
 	void mosaicGlobalRestrictionTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewMosaicGlobalRestrictionTransactionV1Descriptor());
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(
+				new MosaicGlobalRestrictionTransactionV1Descriptor(UnresolvedMosaicId.parse("1"), UnresolvedMosaicId.parse("2"), 3L, 4L, 5L,
+						MosaicRestrictionType.parse("gt"), MosaicRestrictionType.parse("ge")));
 
 		// Act:
 		final MosaicGlobalRestrictionTransactionV1 transaction = (MosaicGlobalRestrictionTransactionV1) FACTORY.create(createMap);
@@ -2227,9 +1589,10 @@ final class DescriptorsSweepTest {
 		assertThat(SymbolTransactionFactory.deserialize(payload).serialize(), equalTo(payload));
 	}
 
-	/** Constructs a TransferTransactionV1Descriptor with distinct sample required arguments. */
+	/** Constructs a TransferTransactionV1Descriptor with distinct sample required arguments and null optionals. */
 	private static TransferTransactionV1Descriptor sweepNewTransferTransactionV1Descriptor() {
-		return new TransferTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"));
+		return new TransferTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), null,
+				null);
 	}
 
 	@Test
@@ -2240,54 +1603,28 @@ final class DescriptorsSweepTest {
 		// Act:
 		final Map<String, Object> built = descriptor.toMap();
 
-		// Assert: exact required contents
+		// Assert: exact required contents; null optional arguments leave their keys absent
 		assertThat(built.get("type"), equalTo("transfer_transaction_v1"));
 		assertThat(built.get("recipientAddress"), equalTo(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")));
+		assertThat(built.containsKey("mosaics"), equalTo(false));
+		assertThat(built.containsKey("message"), equalTo(false));
 		assertThat(built.size(), equalTo(2));
 
-		// Act + Assert: each optional fluent setter (typed form, chaining, stored value, overload)
-
-		// optional field: mosaics
-		assertThat(built.containsKey("mosaics"), equalTo(false));
-		assertThat(
-				sweepNewTransferTransactionV1Descriptor().mosaics((List<UnresolvedMosaicDescriptor>) null).toMap().containsKey("mosaics"),
-				equalTo(false));
-		final TransferTransactionV1Descriptor withMosaics = sweepNewTransferTransactionV1Descriptor();
-		assertThat(withMosaics.mosaics(List.of(sweepNewUnresolvedMosaicDescriptor())), sameInstance(withMosaics));
-		assertThat(withMosaics.toMap().get("mosaics"), equalTo(List.of(sweepNewUnresolvedMosaicDescriptor().toMap())));
-		assertThat(sweepNewTransferTransactionV1Descriptor().mosaics(sweepNewUnresolvedMosaicDescriptor()).toMap().get("mosaics"),
-				equalTo(withMosaics.toMap().get("mosaics")));
-
-		// optional field: message
-		assertThat(built.containsKey("message"), equalTo(false));
-		assertThat(sweepNewTransferTransactionV1Descriptor().message((byte[]) null).toMap().containsKey("message"), equalTo(false));
-		assertThat(sweepNewTransferTransactionV1Descriptor().message((String) null).toMap().containsKey("message"), equalTo(false));
-		final TransferTransactionV1Descriptor withMessage = sweepNewTransferTransactionV1Descriptor();
-		assertThat(withMessage.message("message".getBytes(StandardCharsets.UTF_8)), sameInstance(withMessage));
-		assertThat(withMessage.toMap().get("message"), equalTo("message".getBytes(StandardCharsets.UTF_8)));
-		assertThat(sweepNewTransferTransactionV1Descriptor().message("message").toMap().get("message"),
-				equalTo(withMessage.toMap().get("message")));
-	}
-
-	@Test
-	void transferTransactionV1DescriptorStringFormConstructor() {
-		// Arrange:
-		final Map<String, Object> built = sweepNewTransferTransactionV1Descriptor().toMap();
-
-		// Act:
-		final Map<String, Object> stringBuilt = new TransferTransactionV1Descriptor("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I").toMap();
-
-		// Assert: the string-form constructor parses into the same typed values (and no extra/missing keys)
-		assertThat(stringBuilt.size(), equalTo(built.size()));
-		assertThat(stringBuilt.get("type"), equalTo(built.get("type")));
-		assertThat(stringBuilt.get("recipientAddress"), equalTo(built.get("recipientAddress")));
+		// Act + Assert: the all-args constructor stores every optional field
+		final Map<String, Object> fullBuilt = new TransferTransactionV1Descriptor(
+				new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), List.of(sweepNewUnresolvedMosaicDescriptor()),
+				"message".getBytes(StandardCharsets.UTF_8)).toMap();
+		assertThat(fullBuilt.get("mosaics"), equalTo(List.of(sweepNewUnresolvedMosaicDescriptor().toMap())));
+		assertThat(fullBuilt.get("message"), equalTo("message".getBytes(StandardCharsets.UTF_8)));
+		assertThat(fullBuilt.size(), equalTo(4));
 	}
 
 	@Test
 	void transferTransactionV1DescriptorFactoryRoundTrip() {
-		// Arrange: the sample descriptor, all optional fields populated via their setters, plus the signer
-		final Map<String, Object> createMap = sweepCreateMap(sweepNewTransferTransactionV1Descriptor()
-				.mosaics(List.of(sweepNewUnresolvedMosaicDescriptor())).message("message".getBytes(StandardCharsets.UTF_8)));
+		// Arrange: the sample descriptor with every field populated, plus the signer
+		final Map<String, Object> createMap = sweepCreateMap(
+				new TransferTransactionV1Descriptor(new org.symbol.sdk.symbol.Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+						List.of(sweepNewUnresolvedMosaicDescriptor()), "message".getBytes(StandardCharsets.UTF_8)));
 
 		// Act:
 		final TransferTransactionV1 transaction = (TransferTransactionV1) FACTORY.create(createMap);

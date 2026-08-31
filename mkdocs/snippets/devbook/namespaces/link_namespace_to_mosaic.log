@@ -3,8 +3,6 @@ Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
 Namespace name: ns_1778514754.sub_1778514998
 Namespace ID: 18182428759753405815 (0xFC54F69F52F2B577)
 Mosaic ID: 507540378882865098 (0x070B2549187AF7CA)
-Fetching current network time from /node/time
-  Network time: 111579658666 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Mosaic alias transaction:

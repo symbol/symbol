@@ -35,19 +35,6 @@ public final class DetachedCosignatureDescriptor implements SymbolTypedDescripto
 	}
 
 	/**
-	 * Creates a descriptor for DetachedCosignature from string-form values.
-	 *
-	 * @param version Version.
-	 * @param signerPublicKey Cosigner public key.
-	 * @param signature Transaction signature.
-	 * @param parentHash Hash of the AggregateBondedTransaction that is signed by this cosignature.
-	 */
-	public DetachedCosignatureDescriptor(final long version, final String signerPublicKey, final String signature,
-			final String parentHash) {
-		this(version, new CryptoTypes.PublicKey(signerPublicKey), Signature.parse(signature), new CryptoTypes.Hash256(parentHash));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

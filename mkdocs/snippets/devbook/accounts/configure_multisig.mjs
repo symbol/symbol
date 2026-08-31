@@ -1,11 +1,8 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
 	KeyPair,
-	NetworkTimestamp,
 	SymbolFacade,
-	SymbolTransactionFactory,
-	calculateTransactionFee,
-	models
+	descriptors
 } from 'symbol-sdk/symbol';
 
 const NODE_URL = process.env.NODE_URL ||
@@ -76,7 +73,8 @@ async function waitForConfirmation(transactionHash, label) {
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
 
-// Returns the cosignatory addresses of the provided multisig account, [>step-3]
+// [>step-3]
+// Returns the cosignatory addresses of the provided multisig account,
 // or an empty list if the account is not multisig or has never been used
 async function getMultisigCosignatories(address) {
 	const multisigPath = `/account/${address}/multisig`;
@@ -93,41 +91,36 @@ async function getMultisigCosignatories(address) {
 }
 // [<step-3]
 // Returns a transaction that turns a regular account into a multisig
-function multisigEnableTransaction(timestamp, feeMultiplier) {
+function multisigEnableTransaction(feeMultiplier) {
 	// Create an embedded multisig account modification transaction [>step-5]
 	// that adds two cosignatories
-	const embeddedTransaction = facade.transactionFactory
-		.createEmbedded({
-			type: 'multisig_account_modification_transaction_v1',
-			// This is the account that will be turned into a multisig
-			signerPublicKey: multisigKeyPair.publicKey,
-			// Delta of the number of signatures required for approvals
-			minApprovalDelta: 1,
-			// Delta of the number of signatures required for removals
-			minRemovalDelta: 1,
-			addressAdditions: cosignatoryAddresses
-		});
+	const embeddedTransaction =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.MultisigAccountModificationTransactionV1Descriptor(
+				// Delta of the number of signatures required for removals
+				1,
+				// Delta of the number of signatures required for approvals
+				1,
+				cosignatoryAddresses,
+				undefined),
+			multisigKeyPair.publicKey);
 	// [<step-5]
 	// Build the aggregate transaction [>step-6]
 	const embeddedTransactions = [embeddedTransaction];
-	const transaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		// This is the account that will pay for this transaction
-		signerPublicKey: multisigKeyPair.publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			embeddedTransactions),
-		transactions: embeddedTransactions
-	});
-	// Reserve space for two cosignatures
-	// and calculate fee for the final transaction size
-	transaction.fee = new models.Amount(calculateTransactionFee(
-		transaction, feeMultiplier, cosignatoryKeyPairs.length));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(embeddedTransactions),
+			embeddedTransactions,
+			undefined),
+		multisigKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60,
+		cosignatoryKeyPairs.length);
 	console.log('Enabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 	// [<step-6]
 	// Sign the aggregate transaction with the multisig's signature [>step-7]
-	SymbolTransactionFactory.attachSignature(transaction,
+	facade.transactionFactory.static.attachSignature(transaction,
 		facade.signTransaction(multisigKeyPair, transaction));
 
 	// Append signatures from all cosignatories
@@ -140,69 +133,53 @@ function multisigEnableTransaction(timestamp, feeMultiplier) {
 }
 
 // Returns a transaction that turns a multisig into a regular account
-function multisigDisableTransaction(timestamp, feeMultiplier) {
-	// Create two embedded multisig account modification transactions [>step-8]
+function multisigDisableTransaction(feeMultiplier) {
+	// [>step-8]
+	// Create two embedded multisig account modification transactions
 	// because cosignatories must be removed one by one
-	const embeddedTransaction1 = facade.transactionFactory
-		.createEmbedded({
-			type: 'multisig_account_modification_transaction_v1',
-			// This is the multisig account that will be modified
-			signerPublicKey: multisigKeyPair.publicKey,
-			// Keep required signatures unchanged for this step
-			minApprovalDelta: 0,
-			minRemovalDelta: 0,
-			addressDeletions: [cosignatoryAddresses[1]]
-		});
-	const embeddedTransaction2 = facade.transactionFactory
-		.createEmbedded({
-			type: 'multisig_account_modification_transaction_v1',
-			// This is the multisig account that will be modified
-			signerPublicKey: multisigKeyPair.publicKey,
-			// Decrease required signatures after final removal
-			minApprovalDelta: -1,
-			minRemovalDelta: -1,
-			addressDeletions: [cosignatoryAddresses[0]]
-		});
+	const embeddedTransaction1 =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.MultisigAccountModificationTransactionV1Descriptor(
+				// Keep required signatures unchanged for this step
+				0,
+				0,
+				undefined,
+				[cosignatoryAddresses[1]]),
+			multisigKeyPair.publicKey);
+	const embeddedTransaction2 =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.MultisigAccountModificationTransactionV1Descriptor(
+				// Decrease required signatures after final removal
+				-1,
+				-1,
+				undefined,
+				[cosignatoryAddresses[0]]),
+			multisigKeyPair.publicKey);
 	// [<step-8]
 	// Build the aggregate transaction [>step-9]
 	const embeddedTransactions = [embeddedTransaction1,
 		embeddedTransaction2];
-	const transaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction_v3',
-		// This is the account that will pay for this transaction
-		signerPublicKey: cosignatoryKeyPairs[0].publicKey,
-		deadline: timestamp.addHours(2).timestamp,
-		transactionsHash: facade.static.hashEmbeddedTransactions(
-			embeddedTransactions),
-		transactions: embeddedTransactions
-	});
-	// Calculate fee for the final transaction size
-	// (No need to reserve space for cosignatures, as there are none)
-	transaction.fee = new models.Amount(
-		calculateTransactionFee(transaction, feeMultiplier));
+	const transaction = facade.createTransactionFromTypedDescriptor(
+		new descriptors.AggregateCompleteTransactionV3Descriptor(
+			facade.static.hashEmbeddedTransactions(embeddedTransactions),
+			embeddedTransactions,
+			undefined),
+		cosignatoryKeyPairs[0].publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	console.log(
 		'Disabling the multisig with the aggregate transaction:');
 	console.log(JSON.stringify(transaction.toJson(), null, 2));
 
 	// Sign the aggregate with the first cosigner's signature
-	SymbolTransactionFactory.attachSignature(transaction,
+	facade.transactionFactory.static.attachSignature(transaction,
 		facade.signTransaction(cosignatoryKeyPairs[0], transaction));
 	// [<step-9]
 	return transaction;
 }
 
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log('  Network time:', timestamp.timestamp,
-		'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -219,14 +196,12 @@ try {
 	let transaction;
 	if (0 === cosignatories.length) {
 		// Enable the multisig
-		transaction =
-			multisigEnableTransaction(timestamp, feeMultiplier);
+		transaction = multisigEnableTransaction(feeMultiplier);
 	} else {
 		// Disable the multisig
-		transaction =
-			multisigDisableTransaction(timestamp, feeMultiplier);
+		transaction = multisigDisableTransaction(feeMultiplier);
 	}
-	const payload = SymbolTransactionFactory.toJson(transaction);
+	const payload = facade.transactionFactory.static.toJson(transaction);
 	// [<step-4]
 	// Announce and wait for confirmation [>step-10]
 	const transactionHash =

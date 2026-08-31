@@ -39,11 +39,11 @@ tutorial_level: intermediate
 署名者の [アドレス](default:アドレス) は [公開鍵](default:公開鍵) から派生します。
 このアカウントが、登録されたネームスペースを所有することになります。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、推奨手数料を <get:/network/fees/transaction> から取得します。
 
 ### ネームスペース名の選択 {: #choosing-the-namespace-name }
 
@@ -60,14 +60,11 @@ tutorial_level: intermediate
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 
-ネームスペース登録トランザクションでは以下を指定します。
+ネームスペース登録トランザクションは、ネットワークにネームスペースを登録します。
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> に渡した署名者が、登録されたネームスペースの所有者になります。
+トランザクションの記述子には以下を指定します。
 
 * {{ tutorial.var('type') }}: ネームスペース登録トランザクションにはタイプ <ser:NamespaceRegistrationTransactionV1> を使用します。
-
-* {{ tutorial.var('signer_public_key') }}: トランザクションに署名し、手数料を支払うアカウント。
-    登録されたネームスペースの所有者になります。
-
-* {{ tutorial.var('deadline') }}: ネットワーク時間のステップで計算された値。
 
 * {{ tutorial.var('registration_type') }}: `root` という値は、ルートネームスペースが作成されることを示します。
     代わりに [サブネームスペースを登録](./register-subnamespace.md) するには `child` を使用してください。
@@ -79,7 +76,7 @@ tutorial_level: intermediate
 
 !!! note "ネームスペースレンタル手数料"
 
-    標準の [トランザクション手数料](#fetching-network-time-and-fees) に加えて、ネームスペースの登録には、要求された期間に比例した [レンタル手数料](../../textbook/namespaces.md#lease-fee) が必要です。
+    標準の [トランザクション手数料](#fetching-recommended-fees) に加えて、ネームスペースの登録には、要求された期間に比例した [レンタル手数料](../../textbook/namespaces.md#lease-fee) が必要です。
 
     トランザクション手数料とは異なり、レンタル手数料はトランザクションリクエストには **含まれません**。
     登録トランザクションが承認されると、ネットワークによって **トランザクション署名者のアカウント** から自動的に計算され、差し引かれます。
@@ -116,26 +113,26 @@ tutorial_level: intermediate
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="7 15 18 20 30 33 34 35 36"
+```text linenums="1" hl_lines="5 13 16 18 28 31 32 33 34"
 --8<-- 'devbook/namespaces/register_root_namespace.log'
 ```
 
 出力の主なポイント:
 
-* **ネームスペース名** (7行目): 選択された名前 `ns_1766533079` には、一意性を確保するためにタイムスタンプが含まれています。
+* **ネームスペース名** (5行目): 選択された名前 `ns_1766533079` には、一意性を確保するためにタイムスタンプが含まれています。
     ネームスペースの詳細を表示するには、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でこの名前を検索してください。
 
-* **手数料** (15行目): 0.0159 XYM のトランザクション手数料は、トランザクションサイズに手数料倍率を乗じて計算されます。 [レンタル手数料](../../textbook/namespaces.md#lease-fee) は、トランザクションが承認された際にネットワークによって別途差し引かれます。
+* **手数料** (13行目): 0.0159 XYM のトランザクション手数料は、トランザクションサイズに手数料倍率を乗じて計算されます。 [レンタル手数料](../../textbook/namespaces.md#lease-fee) は、トランザクションが承認された際にネットワークによって別途差し引かれます。
 
-* **ID と名前** (18、20行目): `id` フィールドにはネームスペース ID が10進数で表示され、 `name` には16進数文字列としてエンコードされたネームスペース名が含まれます。例えば、 `6e735f...` は `ns_1...` にデコードされます。
+* **ID と名前** (16、18行目): `id` フィールドにはネームスペース ID が10進数で表示され、 `name` には16進数文字列としてエンコードされたネームスペース名が含まれます。例えば、 `6e735f...` は `ns_1...` にデコードされます。
 
-* **ネームスペース ID** (30行目): 18行目の `id` フィールドと一致するように、10進数と16進数の両方の表現が表示されます。
+* **ネームスペース ID** (28行目): 16行目の `id` フィールドと一致するように、10進数と16進数の両方の表現が表示されます。
 
-* **登録タイプ** (33行目): 値 `0` はルートネームスペースであることを示します（サブネームスペースの場合は `1` ）。
+* **登録タイプ** (31行目): 値 `0` はルートネームスペースであることを示します（サブネームスペースの場合は `1` ）。
 
-* **所有者アドレス** (34行目): ネームスペースを登録し、所有しているアカウント。
+* **所有者アドレス** (32行目): ネームスペースを登録し、所有しているアカウント。
 
-* **開始高と終了高** (35-36行目): ネームスペースはブロック `2984442` から `3073722` まで有効です。
+* **開始高と終了高** (33-34行目): ネームスペースはブロック `2984442` から `3073722` まで有効です。
     終了高には、要求された期間を超えて [猶予期間](../../textbook/namespaces.md#duration) （テストネットでは1日、メインネットでは30日）が含まれており、所有者がネームスペースを他の人に利用可能になる前に更新する時間を与えます。
 
 出力に印刷されたトランザクション [ハッシュ](default: ハッシュ) を使用して、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索することもできます。
@@ -146,7 +143,7 @@ tutorial_level: intermediate
 
 | ステップ                                                    | 関連ドキュメント                           |
 |---------------------------------------------------------|--------------------------------------|
-| [ネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolTransactionFactory.create>, <ser:NamespaceRegistrationTransactionV1> |
+| [ネームスペース登録トランザクションを構築する](#building-the-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:NamespaceRegistrationTransactionV1> |
 | [ネームスペース ID を生成する](#retrieving-the-namespace)         | <dy:IdGenerator.generateNamespaceId> |
 | [ネームスペースを取得する](#retrieving-the-namespace)             | <get:/namespaces/{namespaceId}>      |
 

@@ -92,8 +92,10 @@ This tutorial builds a [Transfer Transaction](../transactions/transfer.md) sent 
 a mosaic with the alias `symbol.unknown`.
 Since this mosaic does not exist on the network, the transaction will be rejected.
 
-The transaction is built as usual: fetching the network time and fee multiplier, creating the transaction descriptor,
-and signing it.
+The transaction is built as usual: fetching recommended fees, creating the transaction from its descriptor, and
+signing it.
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> uses the fee multiplier to calculate the transaction fee and
+accepts a deadline duration.
 The hash is computed locally so it can be matched against the incoming WebSocket error message.
 
 ### Announcing and Waiting for the Error

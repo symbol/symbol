@@ -1,8 +1,7 @@
 import { PrivateKey } from 'symbol-sdk';
 import {
-	NetworkTimestamp,
 	SymbolFacade,
-	calculateTransactionFee,
+	descriptors,
 	generateMosaicId,
 	models
 } from 'symbol-sdk/symbol';
@@ -22,17 +21,7 @@ const signerAddress =
 console.log('Signer address:', signerAddress.toString());
 // [<step-1]
 try {
-	// Fetch current network time [>step-2]
-	const timePath = '/node/time';
-	console.log('Fetching current network time from', timePath);
-	const timeResponse = await fetch(`${NODE_URL}${timePath}`);
-	const timeJSON = await timeResponse.json();
-	const timestamp = new NetworkTimestamp(
-		timeJSON.communicationTimestamps.receiveTimestamp);
-	console.log(
-		'  Network time:', timestamp.timestamp, 'ms since nemesis');
-
-	// Fetch recommended fees
+	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
 	console.log('Fetching recommended fees from', feePath);
 	const feeResponse = await fetch(`${NODE_URL}${feePath}`);
@@ -51,17 +40,16 @@ try {
 		.toUpperCase().padStart(16, '0');
 	console.log(`Mosaic ID: ${mosaicId} (0x${mosaicIdHex})`);
 
-	const modifyTx = facade.transactionFactory.create({
-		type: 'mosaic_definition_transaction_v1',
-		signerPublicKey: signerKeyPair.publicKey.toString(),
-		deadline: timestamp.addHours(2).timestamp,
-		duration: 0n,
-		divisibility: 0,
-		nonce: MOSAIC_NONCE,
-		flags: 'revokable'
-	});
-	modifyTx.fee = new models.Amount(
-		calculateTransactionFee(modifyTx, feeMultiplier));
+	const modifyTx = facade.createTransactionFromTypedDescriptor(
+		new descriptors.MosaicDefinitionTransactionV1Descriptor(
+			new models.MosaicId(0n),
+			new models.BlockDuration(0n),
+			new models.MosaicNonce(MOSAIC_NONCE),
+			models.MosaicFlags.REVOKABLE,
+			0),
+		signerKeyPair.publicKey,
+		feeMultiplier,
+		2 * 60 * 60);
 	// [<step-3]
 	// Sign and generate final payload [>step-4]
 	const signature = facade.signTransaction(

@@ -55,7 +55,7 @@ digraph "Multisignature Tree" {
 コードは、2つのヘルパー関数の定義から始まります。
 トランザクションのアナウンス方法や承認の追跡方法の詳細については、[転送トランザクション](../transactions/transfer.md) のチュートリアルを参照してください。その他のヘルパー関数については、以下のセクションで説明します。
 
-その後、チュートリアルは [必要な鍵の設定](#setting-up-the-accounts)、[現在のネットワーク状態の取得](#fetching-network-time-and-fees)、およびマルチシグアカウントの [現在の設定の検出](#detecting-the-multisig) へと進みます。
+その後、チュートリアルは [必要な鍵の設定](#setting-up-the-accounts)、[推奨手数料の取得](#fetching-recommended-fees)、およびマルチシグアカウントの [現在の設定の検出](#detecting-the-multisig) へと進みます。
 
 アカウントがすでにマルチシグとして設定されているかどうかに応じて、状況に合わせて [有効化](#enabling-the-multisig) または [無効化](#disabling-the-multisig) するためのトランザクションが作成されます。
 最後に、トランザクションが [アナウンスおよび承認](#submitting-the-aggregate-transaction) されます。
@@ -79,11 +79,12 @@ digraph "Multisignature Tree" {
 
 上記のスニペットは、後で使用するために各アカウントの [キーペア](default:キーペア) と [アドレス](default:アドレス) を派生させて保存します。
 
-### ネットワーク時間と手数料の取得 {: #fetching-network-time-and-fees }
+### 推奨手数料の取得 {: #fetching-recommended-fees }
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-[転送トランザクション](../transactions/transfer.md) チュートリアルで説明されているプロセスに従い、ネットワーク時間と推奨手数料をそれぞれ <get:/node/time> および <get:/network/fees/transaction> から取得します。
+推奨手数料は <get:/network/fees/transaction> から取得します。
+この手数料乗数は、後で各トランザクションの手数料を計算するために使用されます。
 
 ### マルチシグの検出 {: #detecting-the-multisig }
 
@@ -104,9 +105,15 @@ digraph "Multisignature Tree" {
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
-埋め込まれた <ser:MultisigAccountModificationTransactionV1> には以下のフィールドが含まれます。
+<dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor> は、以下の引数を受け取ります。
 
-* `signer_public_key`: マルチシグ設定を変更するアカウントの [公開鍵](default:公開鍵)。
+* トランザクションのディスクリプタ: <ser:MultisigAccountModificationTransactionV1> とマルチシグ設定の変更内容を定義します。
+* 署名者の公開鍵: マルチシグ設定を変更するアカウントの [公開鍵](default:公開鍵)。
+
+トランザクションのディスクリプタには、以下のフィールドが含まれます。
+
+* `min_removal_delta`: アカウント設定から連署者を削除するために必要な署名数の差分。
+    これにより、例えば通常のトランザクションの承認よりも、連署者の削除（より機微なガバナンス操作）に多くの署名を要求するといった設定が可能です。
 
 * `min_approval_delta`: マルチシグアカウントからのトランザクションを承認するために必要となる署名数の、「希望する値」と「現在の値」の差分。
 
@@ -114,9 +121,6 @@ digraph "Multisignature Tree" {
     連署者のうち1人からの署名を必要とするマルチシグアカウントに変換するために、デルタは `1` に設定されます。
 
     デルタ値は、次のセクションで示すように、現在の値を減らすために負の値にすることもできます。
-
-* `min_removal_delta`: アカウント設定から連署者を削除するために必要な署名数の差分。
-    これにより、例えば通常のトランザクションの承認よりも、連署者の削除（より機微なガバナンス操作）に多くの署名を要求するといった設定が可能です。
 
 * `address_additions`: アカウントに追加される連署者のアドレスリスト。
     `cosignatory_addresses` 変数は [アカウントの設定](#setting-up-the-accounts) で準備したものです。
@@ -134,10 +138,12 @@ digraph "Multisignature Tree" {
 
 {{ tutorial.code_snippet_tagged('step-6') }}
 
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> は、アグリゲートトランザクションのディスクリプタ、署名者の公開鍵、手数料乗数、デッドラインの期間、予約する連署領域の数を受け取ります。
+
 簡単にするため、このチュートリアルでは [コンプリートアグリゲートトランザクション](default: コンプリートアグリゲートトランザクション) を使用します。
 詳細については、[コンプリート](../transactions/complete-aggregate.md) および [ボンデッド](../transactions/bonded-aggregate.md) アグリゲートトランザクションのチュートリアルを参照してください。
 
-すべての連署に必要な容量を考慮して、トランザクション手数料の計算には注意が払われています。
+連署数は、メソッドがトランザクション手数料を計算するときに、連署用に予約する領域を決めるために使用されます。
 
 最後に、署名がアグリゲートトランザクションに付加されます。
 
@@ -159,7 +165,7 @@ digraph "Multisignature Tree" {
 
 {{ tutorial.code_snippet_tagged('step-8') }}
 
-両方のトランザクションで、 `signer_public_key` はマルチシグアカウントの公開鍵に設定されます。
+両方のトランザクションで、<dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor> は、トランザクションのディスクリプタとマルチシグアカウントの公開鍵を受け取ります。
 
 最初のトランザクションは、承認または削除のデルタを変更せずに `cosignatory_addresses[1]` を削除します。これは、まだ1人の連署者が残っており、署名が依然として必要だからです。
 
@@ -169,6 +175,8 @@ digraph "Multisignature Tree" {
 その後、両方の埋め込みトランザクションはアグリゲートトランザクションにラップされ、署名されます。
 
 {{ tutorial.code_snippet_tagged('step-9') }}
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> は、アグリゲートトランザクションのディスクリプタ、署名者の公開鍵、手数料乗数、デッドラインの期間を受け取ります。
 
 アグリゲートトランザクションは `cosignatory_addresses[0]` によって署名されます。
 これが唯一の有効な選択肢です。一度アカウントに連署者が設定されると、そのアカウント自身でトランザクションに署名することはできなくなり、また `cosignatory_addresses[1]` は最初の埋め込みトランザクションが実行された後にマルチシグから削除されるためです。
@@ -190,30 +198,30 @@ digraph "Multisignature Tree" {
 
 === ":material-plus-thick: マルチシグの有効化"
 
-    ```text linenums="1" hl_lines="2-4 10 27-29"
+    ```text linenums="1" hl_lines="2-4 8 25-27"
     --8<-- 'devbook/accounts/configure_multisig_enable.log'
     ```
 
     出力の主なポイント:
 
     * **2-4行目**: 関与するすべてのアカウントのアドレスと公開鍵。
-    * **10行目** (`Response: No cosignatories`): 現在連署者は設定されていません。
-    * **27行目** (`"min_approval_delta": 1`): トランザクション承認に必要な署名数が1つ増加します。
-    * **28行目** (`"min_removal_delta": 1`): 連署者の削除に必要な署名数が1つ増加します。
-    * **29行目** (`"address_additions"`): 連署者として追加されるアドレスのリスト。
+    * **8行目** (`Response: No cosignatories`): 現在連署者は設定されていません。
+    * **25行目** (`"min_removal_delta": 1`): 連署者の削除に必要な署名数が1つ増加します。
+    * **26行目** (`"min_approval_delta": 1`): トランザクション承認に必要な署名数が1つ増加します。
+    * **27-29行目** (`"address_additions"`): 連署者として追加されるアドレスのリスト。
 
 === ":material-minus-thick: マルチシグの無効化"
 
-    ```text linenums="1" hl_lines="2-4 10 27-32 39-44"
+    ```text linenums="1" hl_lines="2-4 8 25-30 37-42"
     --8<-- 'devbook/accounts/configure_multisig_disable.log'
     ```
 
     出力の主なポイント:
 
     * **2-4行目**: 関与するすべてのアカウントのアドレスと公開鍵。
-    * **10行目** (`Response: [ ... ]`): 既存の連署者が検出されました。
-    * **27-32行目** (最初の埋め込みトランザクション): 最小必要署名数は変更されず、新しい連署者は追加されず、既存の連署者が1人削除されます。
-    * **39-44行目** (2番目の埋め込みトランザクション): 最小必要署名数が1つ減少し、新しい連署者は追加されず、最後に残った連署者が削除されます。
+    * **8行目** (`Response: [ ... ]`): 既存の連署者が検出されました。
+    * **25-30行目** (最初の埋め込みトランザクション): 最小必要署名数は変更されず、新しい連署者は追加されず、既存の連署者が1人削除されます。
+    * **37-42行目** (2番目の埋め込みトランザクション): 最小必要署名数が1つ減少し、新しい連署者は追加されず、最後に残った連署者が削除されます。
 
 出力に示されているトランザクションハッシュを使用して、[Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索できます。
 
@@ -224,6 +232,5 @@ digraph "Multisignature Tree" {
 | ステップ                                           | 関連ドキュメント                                     |
 |------------------------------------------------|------------------------------------------------|
 | [現在のマルチシグ設定の取得](#detecting-the-multisig) | <get:/account/{address}/multisig>              |
-| [マルチシグアカウントの有効化](#enabling-the-multisig)    | <ser:MultisigAccountModificationTransactionV1> |
-| [マルチシグアカウントの無効化](#disabling-the-multisig)   | <ser:MultisigAccountModificationTransactionV1> |
-| 設定を埋め込みトランザクションにラップする                      | <dy:SymbolTransactionFactory.createEmbedded>, <ser:MultisigAccountModificationTransactionV1>   |
+| [マルチシグ変更トランザクションの作成](#enabling-the-multisig)    | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MultisigAccountModificationTransactionV1> |
+| [アグリゲートトランザクションの構築](#enabling-the-multisig)   | <dy:SymbolFacade.createTransactionFromTypedDescriptor> |

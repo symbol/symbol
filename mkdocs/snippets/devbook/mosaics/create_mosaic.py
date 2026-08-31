@@ -5,10 +5,7 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
-from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
@@ -59,17 +56,7 @@ signer_address = facade.network.public_key_to_address(
 print(f'Signer address: {signer_address}')
 # [<step-1]
 try:
-	# Fetch current network time [>step-2]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-
-	# Fetch recommended fees
+	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -86,17 +73,17 @@ try:
 	print(f'Mosaic nonce: {nonce}')
 	# [<step-3]
 	# Build the mosaic definition transaction [>step-4]
-	definition_tx = facade.transaction_factory.create({
-		'type': 'mosaic_definition_transaction_v1',
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'duration': 0,
-		'divisibility': 2,
-		'nonce': nonce,
-		'flags': 'transferable restrictable'
-	})
-	definition_tx.fee = Amount(
-		calculate_transaction_fee(definition_tx, fee_multiplier))
+	definition_tx = facade.create_transaction_from_descriptor(
+		{
+			'type': 'mosaic_definition_transaction_v1',
+			'duration': 0,
+			'divisibility': 2,
+			'nonce': nonce,
+			'flags': 'transferable restrictable'
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 
 	mosaic_id = generate_mosaic_id(signer_address, nonce)
 	print(f'Mosaic ID: {mosaic_id} (0x{mosaic_id:016X})')
@@ -117,16 +104,16 @@ try:
 	# --- INCREASING MOSAIC SUPPLY ---
 	print('\n--- Increasing mosaic supply ---')
 	# [>step-6]
-	supply_tx = facade.transaction_factory.create({
-		'type': 'mosaic_supply_change_transaction_v1',
-		'signer_public_key': signer_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'mosaic_id': mosaic_id,
-		'action': 'increase',
-		'delta': 100_00
-	})
-	supply_tx.fee = Amount(
-		calculate_transaction_fee(supply_tx, fee_multiplier))
+	supply_tx = facade.create_transaction_from_descriptor(
+		{
+			'type': 'mosaic_supply_change_transaction_v1',
+			'mosaic_id': mosaic_id,
+			'action': 'increase',
+			'delta': 100_00
+		},
+		signer_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	# [<step-6]
 	# Sign and generate final payload [>step-7]
 	signature = facade.sign_transaction(signer_key_pair, supply_tx)

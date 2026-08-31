@@ -136,12 +136,15 @@ The SDK exposes two descriptor surfaces:
 ## Usage
 
 ```java
+import java.util.List;
+
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.facade.SymbolFacade;
 import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.descriptors.TransferTransactionV1Descriptor;
 import org.symbol.sdk.symbol.descriptors.UnresolvedMosaicDescriptor;
 import org.symbol.sdk.symbol.models.Amount;
+import org.symbol.sdk.symbol.models.EmbeddedTransaction;
 import org.symbol.sdk.symbol.models.Signature;
 import org.symbol.sdk.symbol.models.Transaction;
 import org.symbol.sdk.symbol.models.UnresolvedMosaicId;
@@ -150,32 +153,19 @@ SymbolFacade facade = new SymbolFacade("testnet");
 SymbolFacade.SymbolAccount account = facade.createAccount(
         new CryptoTypes.PrivateKey("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
 
-// Each descriptor takes its required fields as constructor arguments and exposes a fluent
-// setter for every optional field. Both the constructor and the setters come in a typed and a
-// string-parsing flavour (nested descriptors included), and array setters accept a List or varargs.
-
-// 1. typed form — pass the SDK types directly
+// Each descriptor takes every field as a constructor argument — required fields first, then
+// optional fields, which may be null (a null optional is omitted from the descriptor). For
+// string-driven construction, use the JSON path below.
 TransferTransactionV1Descriptor descriptor = new TransferTransactionV1Descriptor(
-        new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"))
-        .mosaics(new UnresolvedMosaicDescriptor(
+        new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"),
+        List.of(new UnresolvedMosaicDescriptor(
                 new UnresolvedMosaicId(0x7CDF3B117A3C40CCL),
-                new Amount(1_000_000L)))
-        .message("hello symbol".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                new Amount(1_000_000L))),
+        "hello symbol".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
-// 2. string form — every field accepts its canonical string form, nested descriptors included.
-//    Integer ids accept 0x-prefixed hex (or decimal); amounts are usually given in decimal.
-TransferTransactionV1Descriptor stringDescriptor = new TransferTransactionV1Descriptor(
-        "TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")
-        .mosaics(new UnresolvedMosaicDescriptor("0x7CDF3B117A3C40CC", "1000000"))
-        .message("hello symbol");
-
-// 3. array input — pass multiple elements as varargs (or a List) to the array setter
-TransferTransactionV1Descriptor multiMosaicDescriptor = new TransferTransactionV1Descriptor(
-        "TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I")
-        .mosaics(
-                new UnresolvedMosaicDescriptor("0x7CDF3B117A3C40CC", "1000000"),
-                new UnresolvedMosaicDescriptor("0x1F031D8D3905B931", "5"))
-        .message("hello symbol");
+// optional fields may be null — a transfer with no mosaics and no message
+TransferTransactionV1Descriptor minimalDescriptor = new TransferTransactionV1Descriptor(
+        new Address("TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I"), /* mosaics */ null, /* message */ null);
 
 Transaction transaction = facade.createTransactionFromTypedDescriptor(
         descriptor, account.publicKey(), /* feeMultiplier */ 100L, /* deadlineSeconds */ 60L);
@@ -201,6 +191,10 @@ String json = """
         }""";
 Transaction jsonTransaction = facade.createTransactionFromJson(
         json, account.publicKey(), /* feeMultiplier */ 100L, /* deadlineSeconds */ 60L);
+
+// the same document also creates an embedded transaction (for use inside an aggregate);
+// embedded transactions carry no fee or deadline, so only the signer is needed
+EmbeddedTransaction jsonEmbedded = facade.createEmbeddedTransactionFromJson(json, account.publicKey());
 ```
 
 A raw `Map<String, Object>` descriptor works through `facade.transactionFactory.create(map)` — identical
@@ -210,21 +204,24 @@ for the typed / JSON / map paths side by side.
 ### NEM
 
 NEM works the same way via `NemFacade`, except the fee is an absolute `long` rather than a
-fee multiplier. Descriptors and their setters share the same typed/string flavours:
+fee multiplier:
 
 ```java
 import org.symbol.sdk.facade.NemFacade;
+import org.symbol.sdk.nem.Address;
 import org.symbol.sdk.nem.descriptors.MessageDescriptor;
 import org.symbol.sdk.nem.descriptors.TransferTransactionV1Descriptor; // note: nem.descriptors
+import org.symbol.sdk.nem.models.Amount;
+import org.symbol.sdk.nem.models.MessageType;
 
 NemFacade nemFacade = new NemFacade("testnet");
 NemFacade.NemAccount nemAccount = nemFacade.createAccount(
         new CryptoTypes.PrivateKey("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
 
-// string form: base32 address, decimal amount, nested message descriptor
+// base32 address, amount, nested message descriptor (optional — may be null)
 TransferTransactionV1Descriptor nemTransfer = new TransferTransactionV1Descriptor(
-        "TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C", "5000000")
-        .message(new MessageDescriptor("plain").message("hello nem"));
+        new Address("TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C"), new Amount(5_000_000L),
+        new MessageDescriptor(MessageType.PLAIN, "hello nem".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 
 Transaction nemTransaction = nemFacade.createTransactionFromTypedDescriptor(
         nemTransfer, nemAccount.publicKey(),

@@ -10,8 +10,16 @@ They allow sending <XYM:> or any other type of <mosaic:> from one <account:> to 
 
 This tutorial shows how to create, sign, and announce a transfer transaction, and then poll the transaction's status
 until it is confirmed.
-Required transaction parameters, such as the current time and fees, are fetched from the network to use the most
-up-to-date values.
+The recommended fee multiplier is fetched from the network so the SDK can calculate an appropriate transaction fee.
+
+This tutorial is used to explain the basic concepts of transaction creation and announcement.
+The rest of tutorials refer to this one to explain these basic techniques.
+
+!!! note "Alternative Manual Transaction Creation"
+
+    This tutorial creates transactions from descriptors, which is the most convenient and type-safe method.
+    For an alternative, lower-level, manual method, see the
+    [Manual Transaction Creation](./manual-transaction-creation.md) tutorial.
 
 ## Prerequisites
 
@@ -43,26 +51,9 @@ but applications will probably want to use more fine-grained control.
 The signer account is loaded from the `SIGNER_PRIVATE_KEY` environment variable.
 If not provided, a test key is used as default.
 
-### Fetching Network Time
-
-{{ tutorial.code_snippet_tagged('step-2') }}
-
-Transactions on Symbol must include a deadline, which defines how long the network should attempt to confirm the
-transaction before discarding it.
-Deadlines are expressed in <network time:>, so the first step is to fetch the current network time from a <node:>.
-
-If a transaction's deadline is earlier than the current network time or more than six hours in the future,
-the transaction will be rejected.
-To avoid this, you need to know the current network time before constructing the transaction, using the
-<get:/node/time> endpoint.
-
-However, applications do not need to query the network time before every transaction.
-It can be fetched once and then adjusted using the local system clock when needed.
-This provides a good balance between accuracy and performance.
-
 ### Fetching Recommended Fees
 
-{{ tutorial.code_snippet_tagged('step-3') }}
+{{ tutorial.code_snippet_tagged('step-2') }}
 
 Transactions on Symbol must pay a fee to incentivize nodes to include them in blocks.
 If the fee is too low, no node may include the transaction.
@@ -75,11 +66,12 @@ To support fee estimation, Symbol provides the <get:/network/fees/transaction>
 endpoint that returns a _recommended fee multiplier_ based on recent transaction activity.
 
 The final fee is calculated by multiplying the recommended multiplier by the transaction's size in bytes.
-This ensures that larger transactions pay proportionally more while smaller ones remain cost-effective.
+When creating transactions from descriptors as done in all tutorials, this operation is performed by the SDK.
+If you create transactions manually using <dy:SymbolTransactionFactory.create>, you need to calculate the final fee
+yourself.
 
 Although applications can use a fixed fee for simplicity, it is more efficient to follow the network recommendation.
-As with network time, there is no need to query the multiplier for every transaction,
-but it should be refreshed regularly.
+There is no need to query the multiplier for every transaction, but it should be refreshed regularly.
 
 The snippet above takes the greater of the network's recommended multiplier (`medianFeeMultiplier`) and the
 minimum multiplier (`minFeeMultiplier`) required by the node where the transactions will be sent.
@@ -87,17 +79,44 @@ The result is stored for later use once the transaction size is known.
 
 ### Building the Transaction
 
-{{ tutorial.code_snippet_tagged('step-4') }}
+!!! note "On Descriptors"
 
-All required transaction properties must be provided when building the transfer transaction.
-The snippet includes the following fields:
+    The transfer transaction is created from the transaction's _descriptor_.
 
-* `type`: Transfer transactions use the type <ser:TransferTransactionV1>.
+    On typed languages like Java or JavaScript, these descriptors are also typed, so there are less chances of using
+    the wrong parameter when building or using them.
+    On untyped languages like Python, descriptors are generic objects which must contain the right fields for each
+    transaction type.
 
-* {{ tutorial.var('signer_public_key') }}: The signer is the account that will pay the fee.
+    The descriptor contains the transaction-specific fields, while the creation method receives the common fields used
+    to finish the transaction.
+
+{{ tutorial.code_snippet_tagged('step-3') }}
+
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> receives:
+
+* The transaction's descriptor: Defines <ser:TransferTransactionV1> and the transfer fields described below.
+* The signer public key: The signer is the account that will pay the fee.
     In a transfer transaction, it is also the source of the transferred mosaics.
+* The fee multiplier: Used to calculate the transaction fee.
+* The deadline duration: Set to two hours from the current time.
 
-* `deadline`: This value is set to two hours after the current network time.
+    !!! info "Deadlines and network time"
+
+        Transactions on Symbol must include a deadline, which defines how long the network should attempt to confirm the
+        transaction before discarding it.
+        Deadlines are expressed in <network time:>, measured from the <nemesis block:>.
+
+        If a transaction's deadline is earlier than the current network time or more than six hours in the future,
+        the transaction will be rejected.
+
+        When creating transactions from descriptors, the SDK takes care of network time and accepts a relative deadline
+        duration in seconds from now.
+
+        If you create transactions manually using <dy:SymbolTransactionFactory.create>, you need to provide the absolute
+        deadline yourself, as shown in the [Manual Transaction Creation](./manual-transaction-creation.md) tutorial.
+
+The transaction's descriptor contains:
 
 * {{ tutorial.var('recipient_address') }}: In this example, the recipient is the same as the sender,
     which is useful for demonstration but not terribly practical.
@@ -111,11 +130,9 @@ The snippet includes the following fields:
     Amounts are expressed in atomic units, which depend on the mosaic's <divisibility:>.
     For XYM, the divisibility is 6, so 1 XYM must be expressed as `1_000_000`.
 
-Note that the `fee` field is not set in the descriptor.
-Instead, the fee is calculated after the transaction is built, once its size in bytes is known.
-
-The SDK's <dy:FeeCalculator.calculateTransactionFee> helper computes the fee by multiplying the transaction size by
-the fee multiplier.
+The descriptor does not include common transaction fields such as the signer public key, deadline, or fee.
+<dy:SymbolFacade.createTransactionFromTypedDescriptor> fills them in, taking care of network time for the relative
+deadline and calculating the fee from the fee multiplier.
 
 !!! info "Including a message in the transaction"
 
@@ -124,7 +141,7 @@ the fee multiplier.
 
 ### Signing and Serializing
 
-{{ tutorial.code_snippet_tagged('step-5') }}
+{{ tutorial.code_snippet_tagged('step-4') }}
 
 Once the transaction is created, it must be signed with the signing account's private key.
 Signing ensures the transaction is authentic and authorized by the sender.
@@ -136,7 +153,7 @@ JSON payload ready to be submitted directly to a node for announcement.
 
 ### Announcing the Transaction
 
-{{ tutorial.code_snippet_tagged('step-6') }}
+{{ tutorial.code_snippet_tagged('step-5') }}
 
 Announcing a transaction is a simple request to the <put:/transactions> endpoint of any Symbol <API node:>.
 As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.
@@ -149,7 +166,7 @@ as shown in the next step.
 
 ### Waiting for Confirmation
 
-{{ tutorial.code_snippet_tagged('step-7') }}
+{{ tutorial.code_snippet_tagged('step-6') }}
 
 !!! note
     This step uses polling to check whether the transaction has been confirmed.
@@ -177,31 +194,31 @@ In any other case, the code waits one second and tries again, up to a maximum of
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="5 9 13 15 16 20 27"
+```text linenums="1" hl_lines="3 7 11 13 14 18 25"
 --8<-- 'devbook/transactions/transfer.log'
 ```
 
 Some highlights from the output:
 
-* **Fee multiplier** (line 5): The recommended multiplier fetched from the network, used together with the
+* **Fee multiplier** (line 3): The recommended multiplier fetched from the network, used together with the
     transaction size to compute the fee.
 
-* **Signer public key** (line 9): The account that signs the transaction and sends the mosaics.
+* **Signer public key** (line 7): The account that signs the transaction and sends the mosaics.
 
-* **Transaction fee** (line 13): `17600` atomic units (0.0176 XYM), derived from the fee multiplier and the
+* **Transaction fee** (line 11): `17600` atomic units (0.0176 XYM), derived from the fee multiplier and the
     transaction's size in bytes.
 
-* **Recipient address** (line 15): The account that receives the mosaics.
+* **Recipient address** (line 13): The account that receives the mosaics.
     It looks different from the address used in the code because the transaction format encodes it in its raw
     hexadecimal form rather than the Base32 text.
 
-* **Mosaics** (line 16): The assets transferred.
+* **Mosaics** (line 14): The assets transferred.
     Here, `1000000` atomic units of the mosaic aliased by `symbol.xym` (<XYM:>), equal to 1 XYM.
 
-* **Announcement response** (line 20): The node accepted the payload.
+* **Announcement response** (line 18): The node accepted the payload.
     This does not yet mean the transaction is valid or included in a block.
 
-* **Confirmed status** (line 27): The transaction has been accepted and included in a block.
+* **Confirmed status** (line 25): The transaction has been accepted and included in a block.
 
 The number of status checks before confirmation can vary based on network conditions,
 and the initial `unknown` status may or may not appear,
@@ -220,9 +237,8 @@ This tutorial showed how to:
 
 | Step                                                    | Related documentation                                                               |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [Obtain deadline information](#fetching-network-time)   | <get:/node/time>                                                                    |
 | [Obtain fee information](#fetching-recommended-fees)    | <get:/network/fees/transaction>                                                     |
-| [Build a transaction](#building-the-transaction)        | <dy:SymbolTransactionFactory.create>, <ser:TransferTransactionV1>                   |
+| [Build a transaction](#building-the-transaction)        | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:TransferTransactionV1> |
 | [Sign the transaction](#signing-and-serializing)        | <dy:SymbolFacade.signTransaction><br/><dy:SymbolTransactionFactory.attachSignature> |
 | [Announce the transaction](#announcing-the-transaction) | <put:/transactions>                                                                 |
 | [Wait for confirmation](#waiting-for-confirmation)      | <get:/transactionStatus/{hash}>                                                     |

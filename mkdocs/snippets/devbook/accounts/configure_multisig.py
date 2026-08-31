@@ -5,9 +5,6 @@ import urllib.request
 
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.sc import Amount
-from symbolchain.symbol.FeeCalculator import calculate_transaction_fee
-from symbolchain.symbol.Network import NetworkTimestamp
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
@@ -73,7 +70,8 @@ def wait_for_confirmation(tx_hash, label):
 	raise TimeoutError(f'{label} not confirmed after 60 seconds')
 
 
-# Returns the cosignatory addresses of the provided multisig account, [>step-3]
+# [>step-3]
+# Returns the cosignatory addresses of the provided multisig account,
 # or an empty list if the account is not multisig or has never been used
 def get_multisig_cosignatories(address):
 	multisig_path = f'/account/{address}/multisig'
@@ -94,38 +92,39 @@ def get_multisig_cosignatories(address):
 
 # Returns a transaction that turns a regular account into a multisig
 def multisig_enable_transaction():
-	# Create an embedded multisig account modification transaction [>step-5]
+	# [>step-5]
+	# Create an embedded multisig account modification transaction
 	# that adds two cosignatories
-	embedded_transaction = facade.transaction_factory.create_embedded({
-		'type': 'multisig_account_modification_transaction_v1',
-		# This is the account that will be turned into a multisig
-		'signer_public_key': multisig_key_pair.public_key,
-		# Increment of the number of signatures required for approvals
-		'min_approval_delta': 1,
-		# Increment of the number of signatures required for removals
-		'min_removal_delta': 1,
-		'address_additions': cosignatory_addresses
-	})
+	embedded_transaction = (
+		facade.create_embedded_transaction_from_descriptor(
+			{
+				'type': 'multisig_account_modification_transaction_v1',
+				# Increment of required signatures for removals
+				'min_removal_delta': 1,
+				# Increment of required signatures for approvals
+				'min_approval_delta': 1,
+				'address_additions': cosignatory_addresses
+			},
+			multisig_key_pair.public_key))
 	# [<step-5]
 	# Build the aggregate transaction [>step-6]
 	embedded_transactions = [embedded_transaction]
-	transaction = facade.transaction_factory.create({
-		'type': 'aggregate_complete_transaction_v3',
-		# This is the account that will pay for this transaction
-		'signer_public_key': multisig_key_pair.public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'transactions_hash': facade.hash_embedded_transactions(
-			embedded_transactions),
-		'transactions': embedded_transactions
-	})
-	# Reserve space for two cosignatures
-	# and calculate fee for the final transaction size
-	transaction.fee = Amount(calculate_transaction_fee(
-		transaction, fee_multiplier, len(cosignatory_key_pairs)))
+	transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'aggregate_complete_transaction_v3',
+			'transactions_hash': facade.hash_embedded_transactions(
+				embedded_transactions),
+			'transactions': embedded_transactions
+		},
+		multisig_key_pair.public_key,
+		fee_multiplier,
+		2 * 60 * 60,
+		len(cosignatory_key_pairs))
 	print('Enabling the multisig with the aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-6]
-	# Sign the aggregate transaction with the multisig's signature [>step-7]
+	# [>step-7]
+	# Sign the aggregate transaction with the multisig's signature
 	facade.transaction_factory.attach_signature(transaction,
 		facade.sign_transaction(multisig_key_pair, transaction))
 
@@ -140,43 +139,43 @@ def multisig_enable_transaction():
 
 # Returns a transaction that turns a multisig into a regular account
 def multisig_disable_transaction():
-	# Create two embedded multisig account modification transactions [>step-8]
+	# [>step-8]
+	# Create two embedded multisig account modification transactions
 	# because cosignatories must be removed one by one
-	embedded_transaction_1 = facade.transaction_factory.create_embedded({
-		'type': 'multisig_account_modification_transaction_v1',
-		# This is the multisig account that will be modified
-		'signer_public_key': multisig_key_pair.public_key,
-		# Keep required signatures unchanged for this step
-		'min_approval_delta': 0,
-		'min_removal_delta': 0,
-		'address_deletions': [cosignatory_addresses[1]]
-	})
-	embedded_transaction_2 = facade.transaction_factory.create_embedded({
-		'type': 'multisig_account_modification_transaction_v1',
-		# This is the multisig account that will be modified
-		'signer_public_key': multisig_key_pair.public_key,
-		# Decrease required signatures after final removal
-		'min_approval_delta': -1,
-		'min_removal_delta': -1,
-		'address_deletions': [cosignatory_addresses[0]]
-	})
+	embedded_transaction_1 = (
+		facade.create_embedded_transaction_from_descriptor(
+			{
+				'type': 'multisig_account_modification_transaction_v1',
+				# Keep required signatures unchanged for this step
+				'min_removal_delta': 0,
+				'min_approval_delta': 0,
+				'address_deletions': [cosignatory_addresses[1]]
+			},
+			multisig_key_pair.public_key))
+	embedded_transaction_2 = (
+		facade.create_embedded_transaction_from_descriptor(
+			{
+				'type': 'multisig_account_modification_transaction_v1',
+				# Decrease required signatures after final removal
+				'min_removal_delta': -1,
+				'min_approval_delta': -1,
+				'address_deletions': [cosignatory_addresses[0]]
+			},
+			multisig_key_pair.public_key))
 	# [<step-8]
 	# Build the aggregate transaction [>step-9]
 	embedded_transactions = [embedded_transaction_1,
 		embedded_transaction_2]
-	transaction = facade.transaction_factory.create({
-		'type': 'aggregate_complete_transaction_v3',
-		# This is the account that will pay for all transactions
-		'signer_public_key': cosignatory_key_pairs[0].public_key,
-		'deadline': timestamp.add_hours(2).timestamp,
-		'transactions_hash': facade.hash_embedded_transactions(
-			embedded_transactions),
-		'transactions': embedded_transactions
-	})
-	# Calculate fee for the final transaction size
-	# (No need to reserve space for cosignatures, as there are none)
-	transaction.fee = Amount(
-		calculate_transaction_fee(transaction, fee_multiplier))
+	transaction = facade.create_transaction_from_descriptor(
+		{
+			'type': 'aggregate_complete_transaction_v3',
+			'transactions_hash': facade.hash_embedded_transactions(
+				embedded_transactions),
+			'transactions': embedded_transactions
+		},
+		cosignatory_key_pairs[0].public_key,
+		fee_multiplier,
+		2 * 60 * 60)
 	print('Disabling the multisig with the aggregate transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 
@@ -188,17 +187,7 @@ def multisig_disable_transaction():
 
 
 try:
-	# Fetch current network time [>step-2]
-	time_path = '/node/time'
-	print(f'Fetching current network time from {time_path}')
-	with urllib.request.urlopen(f'{NODE_URL}{time_path}') as response:
-		response_json = json.loads(response.read().decode())
-		receive_timestamp = (
-			response_json['communicationTimestamps']['receiveTimestamp'])
-		timestamp = NetworkTimestamp(int(receive_timestamp))
-		print(f'  Network time: {timestamp.timestamp} ms since nemesis')
-
-	# Fetch recommended fees
+	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
 	print(f'Fetching recommended fees from {fee_path}')
 	with urllib.request.urlopen(f'{NODE_URL}{fee_path}') as response:
@@ -208,7 +197,8 @@ try:
 		fee_multiplier = max(median_multiplier, minimum_multiplier)
 		print(f'  Fee multiplier: {fee_multiplier}')
 	# [<step-2]
-	# Get current state of the multisig account and decide which [>step-4]
+	# [>step-4]
+	# Get current state of the multisig account and decide which
 	# operation to perform
 	cosignatories = get_multisig_cosignatories(multisig_address)
 	if len(cosignatories) == 0:

@@ -1,10 +1,12 @@
 Using node https://reference.symboltest.net:3001
+Fetching current network time from /node/time
+  Network time: 78235462065 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Built transaction:
 {
   signature: '728D968E14F50EBB2496B560721E938629D6B4C1522B4A22DD659507B469C0EC5125485EBD38D48FBF351FF9DEC9CF3AFD7A5AFC5E945087E53173589B0B6B08',
-  signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
+  signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC8',
   version: 1,
   network: 152,
   type: 16724,

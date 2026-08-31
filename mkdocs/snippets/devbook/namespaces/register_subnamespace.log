@@ -1,7 +1,5 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
-Fetching current network time from /node/time
-  Network time: 99282637399 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Creating subnamespace: ns_root.sub_1766533103

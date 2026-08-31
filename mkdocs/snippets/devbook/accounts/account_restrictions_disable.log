@@ -1,8 +1,6 @@
 Using node https://reference.symboltest.net:3001
 Signer address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
 Authorized address: TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA
-Fetching current network time from /node/time
-  Network time: 104098759668 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Getting restrictions from /restrictions/account/TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I

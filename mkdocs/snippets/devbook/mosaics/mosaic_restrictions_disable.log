@@ -3,8 +3,6 @@ Owner address: TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I
 Target address: TB6QOVCUOFRCF5QJSKPIQMLUVWGJS3KYFDETRPA
 Mosaic ID: 0x6A5ACF2376E50D4A
 Restriction name: "security_level" (key: 0xE08F1643881FD0C1)
-Fetching current network time from /node/time
-  Network time: 109528567086 ms since nemesis
 Fetching recommended fees from /network/fees/transaction
   Fee multiplier: 100
 Checking if the global restriction is enabled:

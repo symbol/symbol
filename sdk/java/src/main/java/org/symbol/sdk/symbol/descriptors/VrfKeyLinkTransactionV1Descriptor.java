@@ -33,16 +33,6 @@ public final class VrfKeyLinkTransactionV1Descriptor implements SymbolTransactio
 	}
 
 	/**
-	 * Creates a descriptor for VrfKeyLinkTransactionV1 from string-form values.
-	 *
-	 * @param linkedPublicKey Linked VRF public key.
-	 * @param linkAction Account link action.
-	 */
-	public VrfKeyLinkTransactionV1Descriptor(final String linkedPublicKey, final String linkAction) {
-		this(new CryptoTypes.PublicKey(linkedPublicKey), LinkAction.parse(linkAction));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.

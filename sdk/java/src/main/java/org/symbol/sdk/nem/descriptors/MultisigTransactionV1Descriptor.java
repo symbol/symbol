@@ -3,7 +3,6 @@
 
 package org.symbol.sdk.nem.descriptors;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,35 +22,17 @@ public final class MultisigTransactionV1Descriptor implements NemTransactionDesc
 	 * Creates a descriptor for MultisigTransactionV1.
 	 *
 	 * @param innerTransaction inner transaction
+	 * @param cosignatures cosignatures (field is omitted when null)
 	 */
-	public MultisigTransactionV1Descriptor(final NonVerifiableTransaction innerTransaction) {
+	public MultisigTransactionV1Descriptor(final NonVerifiableTransaction innerTransaction,
+			final List<SizePrefixedCosignatureV1Descriptor> cosignatures) {
 		rawDescriptor = new LinkedHashMap<>();
 		rawDescriptor.put("type", "multisig_transaction_v1");
 		rawDescriptor.put("innerTransaction", innerTransaction);
-	}
 
-	/**
-	 * Sets the cosignatures field.
-	 *
-	 * @param cosignatures cosignatures
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigTransactionV1Descriptor cosignatures(final List<SizePrefixedCosignatureV1Descriptor> cosignatures) {
 		if (null != cosignatures)
 			rawDescriptor.put("cosignatures",
 					cosignatures.stream().map(SizePrefixedCosignatureV1Descriptor::toMap).collect(Collectors.toList()));
-
-		return this;
-	}
-
-	/**
-	 * Sets the cosignatures field.
-	 *
-	 * @param cosignatures cosignatures
-	 * @return This descriptor for chaining.
-	 */
-	public MultisigTransactionV1Descriptor cosignatures(final SizePrefixedCosignatureV1Descriptor... cosignatures) {
-		return cosignatures(null == cosignatures ? null : Arrays.asList(cosignatures));
 	}
 
 	/**

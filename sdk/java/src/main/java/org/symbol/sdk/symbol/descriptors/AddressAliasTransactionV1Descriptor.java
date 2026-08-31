@@ -35,17 +35,6 @@ public final class AddressAliasTransactionV1Descriptor implements SymbolTransact
 	}
 
 	/**
-	 * Creates a descriptor for AddressAliasTransactionV1 from string-form values.
-	 *
-	 * @param namespaceId Identifier of the namespace that will become (or stop being) an alias for the address.
-	 * @param address Aliased address.
-	 * @param aliasAction Alias action.
-	 */
-	public AddressAliasTransactionV1Descriptor(final String namespaceId, final String address, final String aliasAction) {
-		this(NamespaceId.parse(namespaceId), new Address(address), AliasAction.parse(aliasAction));
-	}
-
-	/**
 	 * Builds a representation of this descriptor that can be passed to a factory function.
 	 *
 	 * @return Descriptor map that can be passed to a transaction factory.
