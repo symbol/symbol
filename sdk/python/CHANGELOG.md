@@ -8,7 +8,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [3.3.3] - 31-Aug-2026
 
 ### Added
-- add a create_transaction_from_descriptor function that creates a transaction from a raw descriptor
+- add a create_transaction_from_descriptor function that creates a transaction from a raw descriptor.  This matches similar functionality in the TS/Java SDK.
+- add a create_embedded_transaction_from_descriptor function that creates an embedded transaction from a raw descriptor for Symbol.  This matches similar functionality in the TS/Java SDK.
 
 ### Fixed
 - property is a reserved keyword in Python, so property maps to the _property_ field, which is misidentified as a system property and skipped.  For NEM, add special handling for this field.
