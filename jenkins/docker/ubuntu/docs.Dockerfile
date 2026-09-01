@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 # install dependencies (install tzdata first to prevent 'geographic area' prompt)
 RUN apt-get update \
 	&& apt-get install -y tzdata \
-	&& apt-get install -y openjdk-11-jdk-headless git curl libssl-dev maven ca-certificates zip unzip \
+	&& apt-get install -y openjdk-21-jdk-headless git curl libssl-dev maven ca-certificates zip unzip \
 	&& update-ca-certificates
 
 # install python
@@ -22,21 +22,6 @@ RUN apt-get install -y ca-certificates curl gnupg \
 	| tee /etc/apt/sources.list.d/nodesource.list \
 	&& apt-get update \
 	&& apt-get install -y nodejs
-
-# doxygen
-RUN apt-get install -y bison cmake flex gcc g++ graphviz make qtcreator qt6-tools-dev texlive-full
-ARG DOXYGEN_VERSION=1.13.2
-RUN curl -Os https://www.doxygen.nl/files/doxygen-${DOXYGEN_VERSION}.src.tar.gz \
-	&& tar -xf doxygen-${DOXYGEN_VERSION}.src.tar.gz \
-	&& cd doxygen-${DOXYGEN_VERSION} \
-	&& mkdir build \
-	&& cd build \
-	&& cmake -G "Unix Makefiles" .. \
-	&& cmake -Dbuild_wizard=YES .. \
-	&& make \
-	&& make install \
-	&& cd ../.. \
-	&& rm -rf doxygen-${DOXYGEN_VERSION} doxygen-${DOXYGEN_VERSION}.src.tar.gz
 
 # add ubuntu user (used by jenkins)
 RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
