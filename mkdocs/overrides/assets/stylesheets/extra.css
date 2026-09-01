@@ -790,7 +790,7 @@ code.doc-symbol-variable::after {
 	--javadoc-border: var(--md-default-fg-color--lightest);
 	--javadoc-header-bg: var(--md-code-bg-color);
 	--javadoc-row-bg: var(--md-default-bg-color);
-	--javadoc-row-alt-bg: var(--md-default-bg-color--light);
+	--javadoc-row-alt-bg: var(--md-default-bg-color);
 	--javadoc-accent-bg: var(--devbook-color--transparent);
 	--javadoc-accent: var(--devbook-a-color);
 	font-size: 0.78rem;
@@ -908,7 +908,7 @@ code.doc-symbol-variable::after {
 }
 
 .javadoc-container .table-tabs button:not(.active-table-tab) {
-	background: var(--md-default-bg-color--light);
+	background: var(--md-default-bg-color);
 	color: var(--md-default-fg-color--light);
 }
 
