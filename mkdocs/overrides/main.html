@@ -20,6 +20,9 @@
 	});
 </script>
 {% endif %}
+{% if page and page.meta and page.meta.java_reference %}
+<script src="{{ 'assets/javascripts/javadoc.js' | url }}" defer></script>
+{% endif %}
 {% endblock %}
 
 {% block styles %}
