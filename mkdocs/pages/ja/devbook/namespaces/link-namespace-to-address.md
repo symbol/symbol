@@ -30,7 +30,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/link_namespace_to_address', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/link_namespace_to_address', ['py', 'js', 'java']) }}
 
 ## コード解説 {: #code-explanation }
 
