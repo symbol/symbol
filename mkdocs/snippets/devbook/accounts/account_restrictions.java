@@ -176,10 +176,14 @@ final class AccountRestrictions {
 	} // [<step-6]
 
 	public static void main(final String[] args) {
-		new AccountRestrictions().run();
+		try {
+			new AccountRestrictions().run();
+		} catch (final Exception ex) {
+			System.out.println(ex.getMessage());
+		}
 	}
 
-	private void run() {
+	private void run() throws IOException, InterruptedException {
 		System.out.printf("Using node %s%n", nodeUrl);
 
 		// [>step-1]
@@ -193,84 +197,78 @@ final class AccountRestrictions {
 		System.out.printf("Authorized address: %s%n", authAddress);
 		// [<step-1]
 
-		try {
-			// Fetch current network time [>step-2]
-			final String timePath = "/node/time";
-			System.out.printf(
-				"Fetching current network time from %s%n", timePath);
-			final HttpRequest timeRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + timePath)).GET().build();
-			final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
-				timeRequest, BodyHandlers.ofString());
-			final JsonNode timeJson = JSON_MAPPER.readTree(
-				timeResponse.body());
-			final NetworkTimestamp timestamp = new NetworkTimestamp(
-				timeJson.get("communicationTimestamps")
-					.get("receiveTimestamp").asLong());
-			System.out.printf("  Network time: %dms since nemesis%n",
-				timestamp.timestamp);
+		// Fetch current network time [>step-2]
+		final String timePath = "/node/time";
+		System.out.printf(
+			"Fetching current network time from %s%n", timePath);
+		final HttpRequest timeRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + timePath)).GET().build();
+		final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
+			timeRequest, BodyHandlers.ofString());
+		final JsonNode timeJson = JSON_MAPPER.readTree(
+			timeResponse.body());
+		final NetworkTimestamp timestamp = new NetworkTimestamp(
+			timeJson.get("communicationTimestamps")
+				.get("receiveTimestamp").asLong());
+		System.out.printf("  Network time: %dms since nemesis%n",
+			timestamp.timestamp);
 
-			// Fetch recommended fees
-			final String feePath = "/network/fees/transaction";
-			System.out.printf(
-				"Fetching recommended fees from %s%n", feePath);
-			final HttpRequest feeRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + feePath)).GET().build();
-			final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
-				feeRequest, BodyHandlers.ofString());
-			final JsonNode feeJson = JSON_MAPPER.readTree(
-				feeResponse.body());
-			final long feeMultiplier = Math.max(
-				feeJson.get("medianFeeMultiplier").asLong(),
-				feeJson.get("minFeeMultiplier").asLong());
-			System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
-			// [<step-2]
-			// Get current state of the restriction and decide which
-			// operation to perform
-			// [>step-4]
-			final JsonNode restrictions = getAccountRestrictions(
-				signerAddress);
-			Transaction transaction;
-			if (restrictions.isEmpty()) {
-				System.out.println("\n--- Enabling restriction ---");
-				transaction = restrictionEnableTransaction(
-					timestamp, feeMultiplier);
-			} else {
-				System.out.println("\n--- Disabling restriction ---");
-				transaction = restrictionDisableTransaction(
-					timestamp, feeMultiplier, restrictions.get(0));
-			}
-			// [<step-4]
-			// Sign, announce and wait for confirmation [>step-7]
-			String payload = SymbolTransactionFactory.attachSignature(
-				transaction,
-				facade.signTransaction(signerKeyPair, transaction));
-			String hash = facade.hashTransaction(transaction).toString();
-			announceTransaction(payload, "restriction transaction");
-			waitForConfirmation(hash, "restriction transaction");
-			// [<step-7]
-			// [>step-8]
-			// Try a dummy transfer to a random address with no mosaics
-			transaction = facade.transactionFactory.create(Map.of(
-				"type", "transfer_transaction_v1",
-				"signerPublicKey", signerKeyPair.getPublicKey(),
-				"deadline", timestamp.addHours(2).timestamp,
-				"recipientAddress",
-					"TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y"));
-			transaction.setFee(new Amount(
-				FeeCalculator.calculateTransactionFee(
-					transaction, feeMultiplier)));
-			payload = SymbolTransactionFactory.attachSignature(
-				transaction,
-				facade.signTransaction(signerKeyPair, transaction));
-			hash = facade.hashTransaction(transaction).toString();
-			System.out.println(
-				"\n--- Attempting transfer to unauthorized address ---");
-			announceTransaction(payload, "test transfer");
-			waitForConfirmation(hash, "test transfer");
-			// [<step-8]
-		} catch (final Exception ex) {
-			System.out.println(ex.getMessage());
+		// Fetch recommended fees
+		final String feePath = "/network/fees/transaction";
+		System.out.printf("Fetching recommended fees from %s%n", feePath);
+		final HttpRequest feeRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + feePath)).GET().build();
+		final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
+			feeRequest, BodyHandlers.ofString());
+		final JsonNode feeJson = JSON_MAPPER.readTree(feeResponse.body());
+		final long feeMultiplier = Math.max(
+			feeJson.get("medianFeeMultiplier").asLong(),
+			feeJson.get("minFeeMultiplier").asLong());
+		System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
+		// [<step-2]
+		// Get current state of the restriction and decide which
+		// operation to perform
+		// [>step-4]
+		final JsonNode restrictions = getAccountRestrictions(
+			signerAddress);
+		Transaction transaction;
+		if (restrictions.isEmpty()) {
+			System.out.println("\n--- Enabling restriction ---");
+			transaction = restrictionEnableTransaction(
+				timestamp, feeMultiplier);
+		} else {
+			System.out.println("\n--- Disabling restriction ---");
+			transaction = restrictionDisableTransaction(
+				timestamp, feeMultiplier, restrictions.get(0));
 		}
+		// [<step-4]
+		// Sign, announce and wait for confirmation [>step-7]
+		String payload = SymbolTransactionFactory.attachSignature(
+			transaction,
+			facade.signTransaction(signerKeyPair, transaction));
+		String hash = facade.hashTransaction(transaction).toString();
+		announceTransaction(payload, "restriction transaction");
+		waitForConfirmation(hash, "restriction transaction");
+		// [<step-7]
+		// [>step-8]
+		// Try a dummy transfer to a random address with no mosaics
+		transaction = facade.transactionFactory.create(Map.of(
+			"type", "transfer_transaction_v1",
+			"signerPublicKey", signerKeyPair.getPublicKey(),
+			"deadline", timestamp.addHours(2).timestamp,
+			"recipientAddress",
+				"TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y"));
+		transaction.setFee(new Amount(
+			FeeCalculator.calculateTransactionFee(
+				transaction, feeMultiplier)));
+		payload = SymbolTransactionFactory.attachSignature(
+			transaction,
+			facade.signTransaction(signerKeyPair, transaction));
+		hash = facade.hashTransaction(transaction).toString();
+		System.out.println(
+			"\n--- Attempting transfer to unauthorized address ---");
+		announceTransaction(payload, "test transfer");
+		waitForConfirmation(hash, "test transfer");
+		// [<step-8]
 	}
 }
