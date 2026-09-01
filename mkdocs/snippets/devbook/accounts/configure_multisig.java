@@ -228,7 +228,9 @@ final class ConfigureMultisig {
 		try {
 			new ConfigureMultisig().run();
 		} catch (final Exception ex) {
-			System.out.printf("%s%n", ex.getMessage());
+			System.out.println(null == ex.getMessage()
+				? ex.toString()
+				: ex.getMessage());
 		}
 	}
 

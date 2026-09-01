@@ -28,7 +28,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/monitoring_status', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/monitoring_status', ['py', 'js', 'java']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default one is used.

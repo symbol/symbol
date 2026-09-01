@@ -182,8 +182,8 @@ try {
 	);
 	await waitForStatus(hashLockHash, 'confirmed', 'Hash lock');
 	// [<step-6]
-	// Announce bonded aggregate and wait for partial status
-	await announceTransaction( // [>step-7]
+	// Announce bonded aggregate and wait for partial status // [>step-7]
+	await announceTransaction(
 		bondedJsonPayload, '/transactions/partial',
 		'Bonded aggregate transaction'
 	);

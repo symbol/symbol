@@ -61,7 +61,7 @@ payment, which users can remove individually once they choose to manage fees the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/fee_sponsorship', ['py', 'js'], show=false) }}
+{{ tutorial.code_full_tagged('devbook/transactions/fee_sponsorship', ['py', 'js', 'java'], show=false) }}
 
 ## Option 1: Prefunded Fees
 
@@ -145,7 +145,7 @@ prefund transaction has been modified.
 !!! caution
 
     As shown in the code, when setting the {{ tutorial.var('transactions_hash') }} field, use the model-specific type
-    `sc.Hash256` (:simple-python:) or `models.Hash256` (:simple-javascript:),
+    `sc.Hash256` (:simple-python:) or `models.Hash256` (:simple-javascript:, :fontawesome-brands-java:),
     and not the generic cryptography type `Hash256`.
 
 {{ tutorial.code_snippet_tagged('step-4') }}

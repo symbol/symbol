@@ -31,7 +31,7 @@ calculation, network time, and transaction confirmation work.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/messages', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/messages', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 
