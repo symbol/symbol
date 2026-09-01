@@ -11,7 +11,7 @@ print(f"Network name: {facade.network.name}")
 launch_date = facade.network.to_datetime(NetworkTimestamp(0))
 print(f"Network launch date: {launch_date}")  # [<step-1]
 # [>step-2]
-NODE_URL = 'https://reference.symboltest.net:3001'
+NODE_URL = 'https://whydah.symbolmain.net:3001'
 print(f'Using node {NODE_URL}')
 try:
 	# Fetch current chain information
