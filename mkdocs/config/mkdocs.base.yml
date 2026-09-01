@@ -129,8 +129,6 @@ extra:
       javadoc_build_dir: ../../sdk/java/build/docs/javadoc/org/symbol/sdk  # Where the Java SDK writes the docs
       output_dir: devbook/reference/java  # Generated markdown files
       ignore-files:
-        - package-summary
-        - package-tree
         - NemFacade
         - NemFacade.NemAccount
         - NemFacade.NemPublicAccount
