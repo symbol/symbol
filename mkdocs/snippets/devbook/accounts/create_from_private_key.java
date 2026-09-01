@@ -7,13 +7,15 @@ import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.KeyPair;
 
 final class CreateFromPrivateKey {
-	private CreateFromPrivateKey() {
-	}
+	// Initialize the facade for the testnet network [>step-1]
+	private final SymbolFacade facade = new SymbolFacade("testnet");
+	// [<step-1]
 
 	public static void main(final String[] args) {
-		// Initialize the facade for the testnet network [>step-1]
-		final SymbolFacade facade = new SymbolFacade("testnet");
-		// [<step-1]
+		new CreateFromPrivateKey().run();
+	}
+
+	private void run() {
 		// Use an existing private key if provided, [>step-2]
 		// Otherwise generate a random one.
 		final String privateKeyString = System.getenv("PRIVATE_KEY");
@@ -37,8 +39,8 @@ final class CreateFromPrivateKey {
 			publicKey);
 
 		// Output the account details
-		System.out.println("Address: " + address);
-		System.out.println("Public key: " + publicKey);
-		System.out.println("Private key: " + privateKey); // [<step-3]
+		System.out.printf("Address: %s%n", address);
+		System.out.printf("Public key: %s%n", publicKey);
+		System.out.printf("Private key: %s%n", privateKey); // [<step-3]
 	}
 }

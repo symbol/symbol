@@ -35,9 +35,6 @@ final class AccountMetadata {
 
 	private final SymbolFacade facade = new SymbolFacade("testnet");
 
-	private AccountMetadata() {
-	}
-
 	private void announceTransaction(
 		final String payload,
 		final String label
@@ -278,8 +275,9 @@ final class AccountMetadata {
 			// Announce and wait for confirmation
 			final String updateTxHash =
 				facade.hashTransaction(updateTx).toString();
-			System.out.println(
-				"Built aggregate transaction with hash: " + updateTxHash);
+			System.out.printf(
+				"Built aggregate transaction with hash: %s%n",
+				updateTxHash);
 			announceTransaction(updatePayload, "update transaction");
 			waitForConfirmation(updateTxHash, "update transaction");
 			// [<step-9]

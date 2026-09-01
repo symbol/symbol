@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,180 +21,160 @@ import org.symbol.sdk.symbol.FeeCalculator;
 import org.symbol.sdk.symbol.KeyPair;
 import org.symbol.sdk.symbol.NetworkTimestamp;
 import org.symbol.sdk.symbol.SymbolTransactionFactory;
-import org.symbol.sdk.symbol.descriptors.*;
 import org.symbol.sdk.symbol.models.*;
 
 final class ConfigureMultisig {
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-	private static final String NODE_URL = System.getenv()
-		.getOrDefault("NODE_URL", "https://reference.symboltest.net:3001");
-
-	private static final SymbolFacade FACADE = new SymbolFacade("testnet");
+	private static final HttpClient HTTP_CLIENT =
+		HttpClient.newHttpClient();
 
 	private static final String KEY_PREFIX = "0".repeat(63);
 
-	private static final KeyPair MULTISIG_KEY_PAIR;
+	private final String nodeUrl = System.getenv().getOrDefault(
+		"NODE_URL", "https://reference.symboltest.net:3001");
 
-	private static final Address MULTISIG_ADDRESS;
+	private final SymbolFacade facade = new SymbolFacade("testnet");
 
-	private static final List<KeyPair> COSIGNATORY_KEY_PAIRS =
+	private KeyPair multisigKeyPair;
+
+	private Address multisigAddress;
+
+	private final List<KeyPair> cosignatoryKeyPairs =
 		new ArrayList<>();
 
-	private static final List<Address> COSIGNATORY_ADDRESSES =
+	private final List<Address> cosignatoryAddresses =
 		new ArrayList<>();
 
-	static {
-		// [>step-1]
-		final String multisigPrivateKey = System.getenv().getOrDefault(
-			"MULTISIG_PRIVATE_KEY", KEY_PREFIX + "1");
-		MULTISIG_KEY_PAIR = new KeyPair(
-			new CryptoTypes.PrivateKey(multisigPrivateKey));
-		MULTISIG_ADDRESS = FACADE.network.publicKeyToAddress(
-			MULTISIG_KEY_PAIR.getPublicKey());
-		System.out.println("Multisig address: " + MULTISIG_ADDRESS
-			+ " (public key " + MULTISIG_KEY_PAIR.getPublicKey() + ")");
-
-		for (int i = 0; 2 > i; ++i) {
-			final String cosignatoryPrivateKey = System.getenv()
-				.getOrDefault(
-					"COSIGNATORY" + i + "_PRIVATE_KEY",
-					KEY_PREFIX + (i + 2));
-			final KeyPair keyPair = new KeyPair(
-				new CryptoTypes.PrivateKey(cosignatoryPrivateKey));
-			COSIGNATORY_KEY_PAIRS.add(keyPair);
-			final Address address = FACADE.network.publicKeyToAddress(
-				keyPair.getPublicKey());
-			COSIGNATORY_ADDRESSES.add(address);
-			System.out.println("Cosignatory " + i + " address: " + address
-				+ " (public key " + keyPair.getPublicKey() + ")");
-		}
-		// [<step-1]
-	}
-
-	private ConfigureMultisig() {
-	}
-
-	private static JsonNode fetchJson(final String path)
-		throws IOException, InterruptedException {
-		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(NODE_URL + path)).GET().build();
-		final HttpResponse<String> response = HttpClient.newHttpClient()
-			.send(request, BodyHandlers.ofString());
-		return OBJECT_MAPPER.readTree(response.body());
-	}
-
-	private static void announceTransaction(
+	private void announceTransaction(
 		final String payload,
-		final String label)
-		throws IOException, InterruptedException {
-		System.out.println("Announcing " + label + " to /transactions");
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Announcing %s to /transactions%n", label);
 		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(NODE_URL + "/transactions"))
+			URI.create(nodeUrl + "/transactions"))
 			.header("Content-Type", "application/json")
 			.PUT(HttpRequest.BodyPublishers.ofString(payload))
 			.build();
-		final HttpResponse<String> response = HttpClient.newHttpClient()
-			.send(request, BodyHandlers.ofString());
-		System.out.println("  Response: " + response.body());
+		final HttpResponse<String> response = HTTP_CLIENT.send(
+			request, BodyHandlers.ofString());
+		System.out.printf("  Response: %s%n", response.body());
 	}
 
-	private static void waitForConfirmation(
+	private void waitForConfirmation(
 		final String transactionHash,
-		final String label)
-		throws IOException, InterruptedException {
-		System.out.println("Waiting for " + label + " confirmation...");
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Waiting for %s confirmation...%n", label);
 		for (int attempt = 0; 60 > attempt; ++attempt) {
 			Thread.sleep(1000);
 			try {
-				final JsonNode status = fetchJson(
-					"/transactionStatus/" + transactionHash);
+				final String statusPath =
+					"/transactionStatus/" + transactionHash;
+				final HttpRequest statusRequest = HttpRequest.newBuilder(
+					URI.create(nodeUrl + statusPath)).GET().build();
+				final HttpResponse<String> statusResponse = HTTP_CLIENT
+					.send(statusRequest, BodyHandlers.ofString());
+				final JsonNode status =
+					JSON_MAPPER.readTree(statusResponse.body());
 				final String group = status.get("group").asText();
-				System.out.println("  Transaction status: " + group);
+				System.out.printf("  Transaction status: %s%n", group);
 				if ("confirmed".equals(group)) {
-					System.out.println(
-						label + " confirmed in " + attempt + " seconds");
+					System.out.printf("%s confirmed in %d seconds%n",
+						label, attempt);
 					return;
 				}
 				if ("failed".equals(group))
-					throw new IOException(label + " failed: "
-						+ status.get("code").asText());
-			} catch (final JsonProcessingException ex) {
+					throw new IOException(String.format("%s failed: %s",
+						label, status.get("code").asText()));
+			} catch (final IOException ex) {
+				if (ex.getMessage().contains("failed"))
+					throw ex;
+
 				System.out.println("  Transaction status: unknown");
 			}
 		}
-		throw new IOException(label + " not confirmed after 60 seconds");
+		throw new IOException(String.format(
+			"%s not confirmed after 60 seconds", label));
 	}
 
 	// [>step-3]
 	// Returns the cosignatory addresses of the provided multisig account,
-	// or an empty list if the account is not multisig or has
+	// or an empty array if the account is not multisig or has
 	// never been used
-	private static List<String> getMultisigCosignatories(
-		final Address address)
-		throws IOException, InterruptedException {
-		final String multisigPath = "/account/" + address + "/multisig";
-		System.out.println("Getting cosignatories from " + multisigPath);
+	private JsonNode getMultisigCosignatories(
+		final Address address
+	) throws IOException, InterruptedException {
+		final String multisigPath = String.format(
+			"/account/%s/multisig", address);
+		System.out.printf("Getting cosignatories from %s%n",
+			multisigPath);
 		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(NODE_URL + multisigPath)).GET().build();
-		final HttpResponse<String> response = HttpClient.newHttpClient()
+			URI.create(nodeUrl + multisigPath)).GET().build();
+		final HttpResponse<String> response = HTTP_CLIENT
 			.send(request, BodyHandlers.ofString());
 		if (2 != response.statusCode() / 100) {
 			System.out.println("  Response: No cosignatories");
-			return List.of();
+			return JSON_MAPPER.createArrayNode();
 		}
 
-		final JsonNode cosignatories = OBJECT_MAPPER
-			.readTree(response.body())
-			.get("multisig")
+		final JsonNode cosignatories = JSON_MAPPER
+			.readTree(response.body()).get("multisig")
 			.get("cosignatoryAddresses");
-		System.out.println("  Response: " + cosignatories);
-
-		final List<String> result = new ArrayList<>();
-		cosignatories.forEach(addressNode -> result.add(
-			addressNode.asText()));
-		return result;
+		System.out.printf("  Response: %s%n", cosignatories);
+		return cosignatories;
 	} // [<step-3]
 
 	// Returns a transaction that turns a regular account into a multisig
-	private static
-	AggregateCompleteTransactionV3 multisigEnableTransaction(
+	private Transaction multisigEnableTransaction(
 		final NetworkTimestamp timestamp,
-		final long feeMultiplier) {
+		final long feeMultiplier
+	) throws IOException {
 		// [>step-5]
 		// Create an embedded multisig account modification transaction
 		// that adds two cosignatories
-		final var embeddedDescriptor = new
-			MultisigAccountModificationTransactionV1Descriptor(1, 1)
-				.addressAdditions(COSIGNATORY_ADDRESSES);
 		final EmbeddedTransaction embeddedTransaction =
-			FACADE.createEmbeddedTransactionFromTypedDescriptor(
-				embeddedDescriptor, MULTISIG_KEY_PAIR.getPublicKey());
+			facade.transactionFactory.createEmbedded(Map.of(
+				"type", "multisig_account_modification_transaction_v1",
+				"signerPublicKey", multisigKeyPair.getPublicKey(),
+				"minApprovalDelta", 1,
+				"minRemovalDelta", 1,
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"addressAdditions", (Object) cosignatoryAddresses));
 		// [<step-5]
 		// Build the aggregate transaction [>step-6]
 		final List<EmbeddedTransaction> embeddedTransactions = List.of(
 			embeddedTransaction);
-		final AggregateCompleteTransactionV3 transaction =
-			createAggregateTransaction(
-				embeddedTransactions,
-				MULTISIG_KEY_PAIR,
-				timestamp,
-				feeMultiplier,
-				COSIGNATORY_KEY_PAIRS.size());
+		final var transaction = (AggregateCompleteTransactionV3)
+			facade.transactionFactory.create(Map.of(
+				"type", "aggregate_complete_transaction_v3",
+				"signerPublicKey", multisigKeyPair.getPublicKey(),
+				"deadline", timestamp.addHours(2).timestamp,
+				"transactionsHash", SymbolFacade.hashEmbeddedTransactions(
+					embeddedTransactions),
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"transactions", (Object) embeddedTransactions));
+		final int cosignatureCount = cosignatoryKeyPairs.size();
+		transaction.setFee(new Amount(
+			FeeCalculator.calculateTransactionFee(
+				transaction, feeMultiplier, cosignatureCount)));
 		System.out.println(
 			"Enabling the multisig with the aggregate transaction:");
-		System.out.println(toPrettyJson(transaction.toJson()));
+		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
+			.writeValueAsString(transaction.toJson()));
 		// [<step-6]
 		// [>step-7]
 		// Sign the aggregate transaction with the multisig's signature
 		SymbolTransactionFactory.attachSignature(
 			transaction,
-			FACADE.signTransaction(MULTISIG_KEY_PAIR, transaction));
+			facade.signTransaction(multisigKeyPair, transaction));
 
 		// Append signatures from all cosignatories
 		final List<Cosignature> cosignatures = new ArrayList<>();
-		for (final KeyPair cosignatoryKeyPair : COSIGNATORY_KEY_PAIRS)
-			cosignatures.add(FACADE.cosignTransaction(
+		for (final KeyPair cosignatoryKeyPair : cosignatoryKeyPairs)
+			cosignatures.add(facade.cosignTransaction(
 				cosignatoryKeyPair, transaction));
 		transaction.setCosignatures(cosignatures);
 		// [<step-7]
@@ -203,112 +182,136 @@ final class ConfigureMultisig {
 	}
 
 	// Returns a transaction that turns a multisig into a regular account
-	private static
-	AggregateCompleteTransactionV3 multisigDisableTransaction(
+	private Transaction multisigDisableTransaction(
 		final NetworkTimestamp timestamp,
-		final long feeMultiplier) {
+		final long feeMultiplier
+	) throws IOException {
 		// [>step-8]
 		// Create two embedded multisig account modification transactions
 		// because cosignatories must be removed one by one
-		final var embeddedDescriptor1 = new
-			MultisigAccountModificationTransactionV1Descriptor(0, 0)
-				.addressDeletions(List.of(COSIGNATORY_ADDRESSES.get(1)));
 		final EmbeddedTransaction embeddedTransaction1 =
-			FACADE.createEmbeddedTransactionFromTypedDescriptor(
-				embeddedDescriptor1, MULTISIG_KEY_PAIR.getPublicKey());
-		final var embeddedDescriptor2 = new
-			MultisigAccountModificationTransactionV1Descriptor(-1, -1)
-				.addressDeletions(List.of(COSIGNATORY_ADDRESSES.get(0)));
+			facade.transactionFactory.createEmbedded(Map.of(
+				"type", "multisig_account_modification_transaction_v1",
+				"signerPublicKey", multisigKeyPair.getPublicKey(),
+				"minApprovalDelta", 0,
+				"minRemovalDelta", 0,
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"addressDeletions",
+					(Object) List.of(cosignatoryAddresses.get(1))));
 		final EmbeddedTransaction embeddedTransaction2 =
-			FACADE.createEmbeddedTransactionFromTypedDescriptor(
-				embeddedDescriptor2, MULTISIG_KEY_PAIR.getPublicKey());
+			facade.transactionFactory.createEmbedded(Map.of(
+				"type", "multisig_account_modification_transaction_v1",
+				"signerPublicKey", multisigKeyPair.getPublicKey(),
+				"minApprovalDelta", -1,
+				"minRemovalDelta", -1,
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"addressDeletions",
+					(Object) List.of(cosignatoryAddresses.get(0))));
 		// [<step-8]
 		// Build the aggregate transaction [>step-9]
 		final List<EmbeddedTransaction> embeddedTransactions = List.of(
 			embeddedTransaction1, embeddedTransaction2);
-		final AggregateCompleteTransactionV3 transaction =
-			createAggregateTransaction(
-				embeddedTransactions,
-				COSIGNATORY_KEY_PAIRS.get(0),
-				timestamp,
-				feeMultiplier,
-				0);
+		final var transaction = (AggregateCompleteTransactionV3)
+			facade.transactionFactory.create(Map.of(
+				"type", "aggregate_complete_transaction_v3",
+				"signerPublicKey", cosignatoryKeyPairs.get(0)
+					.getPublicKey(),
+				"deadline", timestamp.addHours(2).timestamp,
+				"transactionsHash", SymbolFacade.hashEmbeddedTransactions(
+					embeddedTransactions),
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"transactions", (Object) embeddedTransactions));
+		transaction.setFee(new Amount(
+			FeeCalculator.calculateTransactionFee(
+				transaction, feeMultiplier)));
 		System.out.println(
 			"Disabling the multisig with the aggregate transaction:");
-		System.out.println(toPrettyJson(transaction.toJson()));
+		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
+			.writeValueAsString(transaction.toJson()));
 
 		SymbolTransactionFactory.attachSignature(
 			transaction,
-			FACADE.signTransaction(
-				COSIGNATORY_KEY_PAIRS.get(0), transaction));
+			facade.signTransaction(
+				cosignatoryKeyPairs.get(0), transaction));
 		// [<step-9]
 		return transaction;
 	}
 
-	private static
-	AggregateCompleteTransactionV3 createAggregateTransaction(
-		final List<EmbeddedTransaction> embeddedTransactions,
-		final KeyPair signerKeyPair,
-		final NetworkTimestamp timestamp,
-		final long feeMultiplier,
-		final int cosignatureCount) {
-		final var descriptor = new
-			AggregateCompleteTransactionV3Descriptor(
-			SymbolFacade.hashEmbeddedTransactions(embeddedTransactions))
-			.transactions(embeddedTransactions);
-		final Map<String, Object> aggregateMap = descriptor.toMap();
-		aggregateMap.put("signerPublicKey", signerKeyPair.getPublicKey());
-		aggregateMap.put(
-			"deadline", timestamp.addSeconds(7200).timestamp);
-		final AggregateCompleteTransactionV3 transaction =
-			(AggregateCompleteTransactionV3) FACADE.transactionFactory
-				.create(aggregateMap);
-		transaction.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				transaction, feeMultiplier, cosignatureCount)));
-		return transaction;
-	}
-
-	private static String toPrettyJson(final Object value) {
-		try {
-			return OBJECT_MAPPER.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(value);
-		} catch (final JsonProcessingException ex) {
-			return value.toString();
-		}
-	}
-
 	public static void main(final String[] args) {
-		System.out.println("Using node " + NODE_URL);
+		new ConfigureMultisig().run();
+	}
+
+	private void run() {
+		System.out.printf("Using node %s%n", nodeUrl);
+
+		// [>step-1]
+		final String multisigPrivateKey = System.getenv().getOrDefault(
+			"MULTISIG_PRIVATE_KEY", KEY_PREFIX + "1");
+		multisigKeyPair = new KeyPair(
+			new CryptoTypes.PrivateKey(multisigPrivateKey));
+		multisigAddress = facade.network.publicKeyToAddress(
+			multisigKeyPair.getPublicKey());
+		System.out.printf("Multisig address: %s (public key %s)%n",
+			multisigAddress, multisigKeyPair.getPublicKey());
+
+		for (int i = 0; 2 > i; ++i) {
+			final String cosignatoryPrivateKey =
+				System.getenv().getOrDefault(
+					String.format("COSIGNATORY%d_PRIVATE_KEY", i),
+					KEY_PREFIX + (i + 2));
+			final KeyPair keyPair = new KeyPair(
+				new CryptoTypes.PrivateKey(cosignatoryPrivateKey));
+			cosignatoryKeyPairs.add(keyPair);
+			final Address address = facade.network.publicKeyToAddress(
+				keyPair.getPublicKey());
+			cosignatoryAddresses.add(address);
+			System.out.printf(
+				"Cosignatory %d address: %s (public key %s)%n",
+				i, address, keyPair.getPublicKey());
+		}
+		// [<step-1]
 
 		try {
 			// Fetch current network time [>step-2]
 			final String timePath = "/node/time";
-			System.out.println("Fetching current network time from "
-				+ timePath);
-			final JsonNode timeJson = fetchJson(timePath);
+			System.out.printf(
+				"Fetching current network time from %s%n", timePath);
+			final HttpRequest timeRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + timePath)).GET().build();
+			final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
+				timeRequest, BodyHandlers.ofString());
+			final JsonNode timeJson = JSON_MAPPER.readTree(
+				timeResponse.body());
 			final NetworkTimestamp timestamp = new NetworkTimestamp(
 				timeJson.get("communicationTimestamps")
 					.get("receiveTimestamp").asLong());
-			System.out.println("  Network time: " + timestamp.timestamp
-				+ " ms since nemesis");
+			System.out.printf("  Network time: %dms since nemesis%n",
+				timestamp.timestamp);
 
 			// Fetch recommended fees
 			final String feePath = "/network/fees/transaction";
-			System.out.println("Fetching recommended fees from "
-				+ feePath);
-			final JsonNode feeJson = fetchJson(feePath);
+			System.out.printf(
+				"Fetching recommended fees from %s%n", feePath);
+			final HttpRequest feeRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + feePath)).GET().build();
+			final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
+				feeRequest, BodyHandlers.ofString());
+			final JsonNode feeJson = JSON_MAPPER.readTree(
+				feeResponse.body());
 			final long feeMultiplier = Math.max(
 				feeJson.get("medianFeeMultiplier").asLong(),
 				feeJson.get("minFeeMultiplier").asLong());
-			System.out.println("  Fee multiplier: " + feeMultiplier);
+			System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
 			// [<step-2]
 			// [>step-4]
 			// Get current state of the multisig account and decide which
 			// operation to perform
-			final List<String> cosignatories = getMultisigCosignatories(
-				MULTISIG_ADDRESS);
-			final AggregateCompleteTransactionV3 transaction;
+			final JsonNode cosignatories =
+				getMultisigCosignatories(multisigAddress);
+			final Transaction transaction;
 			if (cosignatories.isEmpty())
 				transaction = multisigEnableTransaction(
 					timestamp, feeMultiplier);
@@ -321,15 +324,15 @@ final class ConfigureMultisig {
 			// [<step-4]
 			// Announce and wait for confirmation [>step-10]
 			final String transactionHash =
-				FACADE.hashTransaction(transaction).toString();
-			System.out.println(
-				"Built aggregate transaction with hash: "
-					+ transactionHash);
+				facade.hashTransaction(transaction).toString();
+			System.out.printf(
+				"Built aggregate transaction with hash: %s%n",
+				transactionHash);
 			announceTransaction(payload, "aggregate transaction");
 			waitForConfirmation(transactionHash, "aggregate transaction");
 			// [<step-10]
 		} catch (final IOException | InterruptedException ex) {
-			System.out.println(ex.getMessage());
+			System.out.printf("%s%n", ex.getMessage());
 		}
 	}
 }
