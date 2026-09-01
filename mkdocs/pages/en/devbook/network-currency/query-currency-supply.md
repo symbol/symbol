@@ -21,7 +21,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query_currency_supply', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_currency_supply', ['py', 'js', 'java']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.
@@ -53,7 +53,8 @@ All three endpoints return a plain-text number (not JSON), already expressed in 
 A supply value like `8323505878.695894` has 16 digits, but a floating-point number can only store about 15 digits
 accurately.
 Parsing these values as floats can silently change the last digit, so the code parses and subtracts them using exact
-numeric types instead (`Decimal` in Python, and the `toAtomic` helper with `BigInt` in JavaScript).
+numeric types instead (`Decimal` in Python, the `toAtomic` helper with `BigInt` in JavaScript, and `BigDecimal` in
+Java).
 
 !!! warning "Circulating supply is node-dependent"
     The list of non-circulating accounts is configured by each node operator (in the node's `rest.json` file),
