@@ -25,6 +25,8 @@ NAV_ORDER_OVERRIDES = {
 VERSIONED_CLASS_NAME = re.compile(
 	r"^(?P<base>.+)V(?P<version>\d+)(?P<suffix>Descriptor)?$")
 JAVA_CLASS_NAME = re.compile(r"(?<![\w.])[A-Z]\w*(?![\w])")
+BACKTICKED_SNAKE_CASE = re.compile(
+	r"(?<!`)`([a-z][a-z0-9]*(?:_[a-z0-9]+)+)`(?!`)")
 JAVA_AUTOLINK_SKIP_PARENTS = {"a", "code", "pre", "script", "style"}
 java_reference_paths = {}
 
@@ -323,6 +325,14 @@ def add_java_reference_links(soup: BeautifulSoup, current_path: PurePosixPath) -
 			text_node.replace_with(
 				before, link, NavigableString(text[match.end():]))
 			text_node = before
+
+
+def convert_backticked_identifier(match: re.Match) -> str:
+	"""
+	Converts a backticked snake-case identifier to Java lower camel case.
+	"""
+	first, *remaining = match.group(1).split("_")
+	return f"`{first}{''.join(part.capitalize() for part in remaining)}`"
 
 
 def render_markdown_contents(node) -> None:
