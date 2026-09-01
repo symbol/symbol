@@ -1,5 +1,6 @@
 import posixpath
 from pathlib import Path, PurePosixPath
+from typing import Optional
 from urllib.parse import urlsplit, urlunsplit
 
 import mkdocs_gen_files
@@ -43,11 +44,11 @@ def source_file_sort_key(path: Path) -> tuple[tuple[str, ...], int, str]:
 	Sorts Javadoc source files in the order they should appear in literate-nav.
 	"""
 	# Sort per source folder first, then apply local package-page priority.
-	relative_path = PurePosixPath(path.relative_to(src_dir).as_posix()).with_suffix("")
+	rel_path = PurePosixPath(path.relative_to(src_dir).as_posix()).with_suffix("")
 	return (
-		relative_path.parent.parts,
-		NAV_ORDER_OVERRIDES.get(relative_path.name, len(NAV_ORDER_OVERRIDES)),
-		relative_path.name,
+		rel_path.parent.parts,
+		NAV_ORDER_OVERRIDES.get(rel_path.name, len(NAV_ORDER_OVERRIDES)),
+		rel_path.name,
 	)
 
 
@@ -74,7 +75,7 @@ def rewrite_javadoc_link(current_path: PurePosixPath, href: str) -> str:
 	return urlunsplit(("", "", rewritten_path, url.query, url.fragment))
 
 
-def javadoc_link_path(current_path: PurePosixPath, href: str) -> PurePosixPath | None:
+def javadoc_link_path(current_path: PurePosixPath, href: str) -> Optional[PurePosixPath]:
 	"""
 	Resolves a Javadoc link target relative to the current source page.
 	"""
@@ -184,18 +185,18 @@ def java_glossary_term(name: str) -> str:
 	return f"java:{name}"
 
 
-def remap_class_name(name: str, class_remaps: dict[str, str]) -> str:
+def remap_class_name(name: str, remaps: dict[str, str]) -> str:
 	"""
 	Returns the configured glossary name for a Java class.
 	"""
-	return class_remaps.get(name, name)
+	return remaps.get(name, name)
 
 
-def remap_method_name(class_name: str, method_name: str, class_remaps: dict[str, str]) -> str:
+def remap_method_name(class_name: str, method_name: str, remaps: dict[str, str]) -> str:
 	"""
 	Returns the configured glossary name for a Java method.
 	"""
-	return class_remaps.get(f"{class_name}.{method_name}", class_remaps.get(method_name, method_name))
+	return remaps.get(f"{class_name}.{method_name}", remaps.get(method_name, method_name))
 
 
 def add_class_definition_list(soup: BeautifulSoup) -> None:
@@ -271,20 +272,21 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 
 	return str(soup)
 
+
 config = mkdocs_gen_files.config
 project_dir = Path(config.config_file_path).resolve().parent
 
-src_dir = config['extra']['symbol']['java-sdk']['javadoc_build_dir']
+src_dir = config["extra"]["symbol"]["java-sdk"]["javadoc_build_dir"]
 src_dir = (project_dir / src_dir).resolve()
 if not src_dir.is_dir():
 	raise FileNotFoundError(
 		f"Javadoc build directory does not exist: {src_dir}"
 	)
 
-dst_dir = PurePosixPath(config['extra']['symbol']['java-sdk']['output_dir'])
-ignored_files = config['extra']['symbol']['java-sdk']['ignore-files']
-ignored_folders = config['extra']['symbol']['java-sdk']['ignore-folders']
-class_remaps = config['extra']['symbol']['java-sdk']['class-remaps']
+dst_dir = PurePosixPath(config["extra"]["symbol"]["java-sdk"]["output_dir"])
+ignored_files = config["extra"]["symbol"]["java-sdk"]["ignore-files"]
+ignored_folders = config["extra"]["symbol"]["java-sdk"]["ignore-folders"]
+class_remaps = config["extra"]["symbol"]["java-sdk"]["class-remaps"]
 
 source_files = sorted((path for path in src_dir.rglob("*") if path.is_file()), key=source_file_sort_key)
 for source_file in source_files:
@@ -293,14 +295,14 @@ for source_file in source_files:
 		# Generated files must use docs-relative POSIX paths for mkdocs-gen-files.
 		destination = dst_dir / relative_path.with_suffix(".md")
 
-		parts = relative_path.with_suffix('').parts
-		if parts[-1] in ignored_files:
+		src_parts = relative_path.with_suffix("").parts
+		if src_parts[-1] in ignored_files:
 			continue
-		if any(e in parts for e in ignored_folders):
+		if any(e in src_parts for e in ignored_folders):
 			continue
 
-		html = transform_javadoc_html(source_file.read_text(encoding="utf-8"), relative_path)
-		title = TITLE_OVERRIDES.get(parts[-1])
+		full_html = transform_javadoc_html(source_file.read_text(encoding="utf-8"), relative_path)
+		title = TITLE_OVERRIDES.get(src_parts[-1])
 
 		with mkdocs_gen_files.open(destination, "w") as output:
 			print("---", file=output)
@@ -311,13 +313,13 @@ for source_file in source_files:
 			print("---", file=output)
 			print(file=output)
 			print('<div class="javadoc-container">', file=output)
-			print(html, file=output)
+			print(full_html, file=output)
 			print("</div>", file=output)
 
 		mkdocs_gen_files.set_edit_path(destination, source_file.as_posix())
-		nav[nav_parts(parts)] = relative_path.with_suffix(".md").as_posix()
+		nav[nav_parts(src_parts)] = relative_path.with_suffix(".md").as_posix()
 
-with mkdocs_gen_files.open('devbook/reference/java/links.md', 'w') as nav_file:
+with mkdocs_gen_files.open("devbook/reference/java/links.md", "w") as nav_file:
 	# Exclude the index file from being indexed by the search plugin
-	nav_file.writelines(['---\n', 'search:\n', '    exclude: true\n', '---\n\n'])
+	nav_file.writelines(["---\n", "search:\n", "    exclude: true\n", "---\n\n"])
 	nav_file.writelines(nav.build_literate_nav())
