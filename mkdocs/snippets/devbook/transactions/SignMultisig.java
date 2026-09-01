@@ -20,20 +20,19 @@ import org.symbol.sdk.symbol.SymbolTransactionFactory;
 import org.symbol.sdk.symbol.descriptors.*;
 import org.symbol.sdk.symbol.models.*;
 
-final class Transfer {
+public final class SignMultisig {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =
 		HttpClient.newHttpClient();
 
-	private final String nodeUrl = System.getenv().getOrDefault(
-		"NODE_URL", "https://reference.symboltest.net:3001");
+	private final String nodeUrl = "https://reference.symboltest.net:3001";
 
 	private final SymbolFacade facade = new SymbolFacade("testnet");
 
 	public static void main(final String[] args) {
 		try {
-			new Transfer().run();
+			new SignMultisig().run();
 		} catch (final Exception ex) {
 			System.out.println(null == ex.getMessage()
 				? ex.toString()
@@ -45,10 +44,22 @@ final class Transfer {
 		System.out.printf("Using node %s%n", nodeUrl);
 
 		// [>step-1]
-		final String signerPrivateKey = System.getenv().getOrDefault(
-			"SIGNER_PRIVATE_KEY", "0".repeat(64));
-		final KeyPair signerKeyPair = new KeyPair(
-			new CryptoTypes.PrivateKey(signerPrivateKey));
+		final String multisigPrivateKey = System.getenv().getOrDefault(
+			"MULTISIG_PRIVATE_KEY",
+			"00000000000000000000000000000000000000000000000000000000"
+				+ "00000001");
+		final KeyPair multisigKeyPair = new KeyPair(
+			new CryptoTypes.PrivateKey(multisigPrivateKey));
+		System.out.printf("Multisig public key: %s%n",
+			multisigKeyPair.getPublicKey());
+		final String cosignatory0PrivateKey = System.getenv().getOrDefault(
+			"COSIGNATORY0_PRIVATE_KEY",
+			"00000000000000000000000000000000000000000000000000000000"
+				+ "00000002");
+		final KeyPair cosignatoryKeyPair = new KeyPair(
+			new CryptoTypes.PrivateKey(cosignatory0PrivateKey));
+		System.out.printf("Cosignatory public key: %s%n",
+			cosignatoryKeyPair.getPublicKey());
 		// [<step-1]
 
 		// Fetch recommended fees [>step-2]
@@ -67,32 +78,46 @@ final class Transfer {
 			medianMultiplier, minimumMultiplier);
 		System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
 		// [<step-2]
-		// Build the transaction [>step-3]
-		final Transaction transaction =
-			facade.createTransactionFromTypedDescriptor(
+		// Build the embedded transfer transaction [>step-3]
+		final EmbeddedTransaction transferTransaction =
+			facade.createEmbeddedTransactionFromTypedDescriptor(
 				new TransferTransactionV1Descriptor(
 					facade.network.publicKeyToAddress(
-						signerKeyPair.getPublicKey()),
+						multisigKeyPair.getPublicKey()),
 					List.of(new UnresolvedMosaicDescriptor(
 						new UnresolvedMosaicId(
 							IdGenerator.generateMosaicAliasId(
 								"symbol.xym")),
 						new Amount(1_000_000))), // 1 XYM
 					null),
-				signerKeyPair.getPublicKey(),
+				multisigKeyPair.getPublicKey());
+		// [<step-3]
+		// Build the wrapper aggregate transaction [>step-4]
+		final List<EmbeddedTransaction> embeddedTransactions =
+			List.of(transferTransaction);
+		final Transaction transaction =
+			facade.createTransactionFromTypedDescriptor(
+				new AggregateCompleteTransactionV3Descriptor(
+					SymbolFacade.hashEmbeddedTransactions(
+						embeddedTransactions),
+					embeddedTransactions,
+					null),
+				cosignatoryKeyPair.getPublicKey(),
 				feeMultiplier,
 				2 * 60 * 60);
-		// [<step-3]
-		// Sign transaction and generate final payload [>step-4]
-		final CryptoTypes.Signature signature = facade.signTransaction(
-			signerKeyPair, transaction);
+		// [<step-4]
+		// [>step-5]
+		// Sign the aggregate using the cosignatory's signature
 		final String jsonPayload = SymbolTransactionFactory
-			.attachSignature(transaction, signature);
+			.attachSignature(
+				transaction,
+				facade.signTransaction(
+					cosignatoryKeyPair, transaction));
 		System.out.println("Built transaction:");
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
 			.writeValueAsString(transaction.toJson()));
-		// [<step-4]
-		// Announce the transaction [>step-5]
+		// [<step-5]
+		// Announce the transaction [>step-6]
 		final String announcePath = "/transactions";
 		System.out.printf("Announcing transaction to %s%n", announcePath);
 		final HttpRequest announceRequest = HttpRequest.newBuilder(
@@ -103,13 +128,13 @@ final class Transfer {
 		final HttpResponse<String> announceResponse = HTTP_CLIENT.send(
 			announceRequest, BodyHandlers.ofString());
 		System.out.printf("  Response: %s%n", announceResponse.body());
-		// [<step-5]
-		// Wait for confirmation [>step-6]
+
+		// Wait for confirmation
 		final String transactionHash =
 			facade.hashTransaction(transaction).toString();
 		final String statusPath = "/transactionStatus/" + transactionHash;
-		System.out.printf("Waiting for confirmation from %s%n",
-			statusPath);
+			System.out.printf(
+				"Waiting for confirmation from %s%n", statusPath);
 
 		for (int attempt = 1; 60 >= attempt; ++attempt) {
 			final HttpRequest statusRequest = HttpRequest.newBuilder(
@@ -124,7 +149,8 @@ final class Transfer {
 					status.get("group").asText());
 				if ("confirmed".equals(status.get("group").asText())) {
 					System.out.printf(
-						"Transaction confirmed in %d seconds%n", attempt);
+						"Transaction confirmed in %d seconds%n",
+						attempt);
 					break;
 				}
 				if ("failed".equals(status.get("group").asText())) {

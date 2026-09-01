@@ -9,7 +9,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Locale;
 
-final class QueryCurrencySupply {
+public final class QueryCurrencySupply {
 	private static final HttpClient HTTP_CLIENT =
 		HttpClient.newHttpClient();
 

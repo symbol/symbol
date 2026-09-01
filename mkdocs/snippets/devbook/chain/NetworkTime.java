@@ -12,7 +12,7 @@ import java.time.Instant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-final class NetworkTime {
+public final class NetworkTime {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =

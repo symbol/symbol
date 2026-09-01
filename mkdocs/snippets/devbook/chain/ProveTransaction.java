@@ -17,7 +17,7 @@ import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.symbol.Merkle;
 import org.symbol.sdk.symbol.Merkle.MerklePart;
 
-final class ProveTransaction {
+public final class ProveTransaction {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =

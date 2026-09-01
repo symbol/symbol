@@ -82,7 +82,7 @@ Select the language you prefer:
     <tr markdown><td>Running the Sample Code</td><td markdown>
     Download a sample and run it with:
     ```bash
-    jbang hello_world.java
+    jbang HelloWorld.java
     ```
     </td></tr></table>
 
@@ -128,7 +128,7 @@ Select the language you prefer:
 
             ```bash
             jbang cache clear
-            jbang hello_world.java
+            jbang HelloWorld.java
             ```
 
 ## Next Steps

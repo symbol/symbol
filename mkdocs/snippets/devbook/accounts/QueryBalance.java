@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-final class QueryBalance {
+public final class QueryBalance {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final String NODE_URL = System.getenv().getOrDefault(

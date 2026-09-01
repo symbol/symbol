@@ -6,7 +6,7 @@ import org.symbol.sdk.facade.SymbolFacade;
 import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.KeyPair;
 
-final class CreateFromPrivateKey {
+public final class CreateFromPrivateKey {
 	// Initialize the facade for the testnet network [>step-1]
 	private final SymbolFacade facade = new SymbolFacade("testnet");
 	// [<step-1]

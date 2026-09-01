@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.symbol.sdk.facade.SymbolFacade;
 import org.symbol.sdk.symbol.NetworkTimestamp;
 
-final class HelloWorld {
+public final class HelloWorld {
 	public static void main(final String[] args) {
 		try {
 			new HelloWorld().run();

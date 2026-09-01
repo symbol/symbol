@@ -11,7 +11,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-final class ChainHeights {
+public final class ChainHeights {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =
