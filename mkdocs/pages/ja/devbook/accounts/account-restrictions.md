@@ -43,7 +43,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/account_restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account_restrictions', ['py', 'js', 'java']) }}
 
 ## コード解説 {: #code-explanation }
 
