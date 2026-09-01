@@ -88,10 +88,14 @@ final class AccountMetadata {
 	}
 
 	public static void main(final String[] args) {
-		new AccountMetadata().run();
+		try {
+			new AccountMetadata().run();
+		} catch (final Exception ex) {
+			System.out.println(ex.getMessage());
+		}
 	}
 
-	private void run() {
+	private void run() throws IOException, InterruptedException {
 		System.out.printf("Using node %s%n", nodeUrl);
 
 		// [>step-1]
@@ -104,185 +108,179 @@ final class AccountMetadata {
 			signerKeyPair.getPublicKey());
 		System.out.printf("Signer address: %s%n", signerAddress);
 		// [<step-1]
-		try {
-			// Fetch current network time [>step-2]
-			final String timePath = "/node/time";
-			System.out.printf(
-				"Fetching current network time from %s%n", timePath);
-			final HttpRequest timeRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + timePath)).GET().build();
-			final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
-				timeRequest, BodyHandlers.ofString());
-			final JsonNode timeJson = JSON_MAPPER.readTree(
-				timeResponse.body());
-			final NetworkTimestamp timestamp = new NetworkTimestamp(
-				timeJson.get("communicationTimestamps")
-					.get("receiveTimestamp").asLong());
-			System.out.printf("  Network time: %dms since nemesis%n",
-				timestamp.timestamp);
+		// Fetch current network time [>step-2]
+		final String timePath = "/node/time";
+		System.out.printf(
+			"Fetching current network time from %s%n", timePath);
+		final HttpRequest timeRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + timePath)).GET().build();
+		final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
+			timeRequest, BodyHandlers.ofString());
+		final JsonNode timeJson = JSON_MAPPER.readTree(
+			timeResponse.body());
+		final NetworkTimestamp timestamp = new NetworkTimestamp(
+			timeJson.get("communicationTimestamps")
+				.get("receiveTimestamp").asLong());
+		System.out.printf("  Network time: %dms since nemesis%n",
+			timestamp.timestamp);
 
-			// Fetch recommended fees
-			final String feePath = "/network/fees/transaction";
-			System.out.printf(
-				"Fetching recommended fees from %s%n", feePath);
-			final HttpRequest feeRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + feePath)).GET().build();
-			final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
-				feeRequest, BodyHandlers.ofString());
-			final JsonNode feeJson = JSON_MAPPER.readTree(
-				feeResponse.body());
-			final long feeMultiplier = Math.max(
-				feeJson.get("medianFeeMultiplier").asLong(),
-				feeJson.get("minFeeMultiplier").asLong());
-			System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
-			// [<step-2]
-			System.out.println("\n--- Adding new metadata ---");
+		// Fetch recommended fees
+		final String feePath = "/network/fees/transaction";
+		System.out.printf("Fetching recommended fees from %s%n", feePath);
+		final HttpRequest feeRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + feePath)).GET().build();
+		final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
+			feeRequest, BodyHandlers.ofString());
+		final JsonNode feeJson = JSON_MAPPER.readTree(feeResponse.body());
+		final long feeMultiplier = Math.max(
+			feeJson.get("medianFeeMultiplier").asLong(),
+			feeJson.get("minFeeMultiplier").asLong());
+		System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
+		// [<step-2]
+		System.out.println("\n--- Adding new metadata ---");
 
-			// Define metadata key and value [>step-3]
-			final String keyString = String.format(
-				"username_%d", System.currentTimeMillis());
-			final long scopedMetadataKey = Metadata.generateKey(keyString);
-			final byte[] metadataValue =
-				"alice".getBytes(StandardCharsets.UTF_8);
-			// [<step-3]
-			// Create the embedded metadata transaction [>step-4]
-			final EmbeddedTransaction creationEmbeddedTx =
-				facade.transactionFactory.createEmbedded(Map.of(
-					"type", "account_metadata_transaction_v1",
-					"signerPublicKey", signerKeyPair.getPublicKey(),
-					"targetAddress", signerAddress,
-					"scopedMetadataKey", scopedMetadataKey,
-					// When creating new metadata, valueSizeDelta
-					// equals the value length
-					"valueSizeDelta", metadataValue.length,
-					// Cast one value to infer Map<String, Object>,
-					// as expected by the SDK.
-					"value", (Object) metadataValue));
-			System.out.println("Created embedded metadata transaction:");
-			System.out.println(JSON_MAPPER
-				.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(creationEmbeddedTx.toJson()));
-			// [<step-4]
-			// Build the aggregate transaction [>step-5]
-			final List<EmbeddedTransaction> creationEmbeddedTxs =
-				List.of(creationEmbeddedTx);
-			final Transaction creationTx =
-				facade.transactionFactory.create(Map.of(
-					"type", "aggregate_complete_transaction_v3",
-					"signerPublicKey", signerKeyPair.getPublicKey(),
-					"deadline", timestamp.addHours(2).timestamp,
-					"transactionsHash",
-						SymbolFacade.hashEmbeddedTransactions(
-							creationEmbeddedTxs),
-					// Cast one value to infer Map<String, Object>,
-					// as expected by the SDK.
-					"transactions", (Object) creationEmbeddedTxs));
-			creationTx.setFee(new Amount(
-				FeeCalculator.calculateTransactionFee(
-					creationTx, feeMultiplier)));
-			// [<step-5]
-			// Sign and generate final payload [>step-6]
-			final String creationPayload = SymbolTransactionFactory
-				.attachSignature(creationTx,
-					facade.signTransaction(signerKeyPair, creationTx));
+		// Define metadata key and value [>step-3]
+		final String keyString = String.format(
+			"username_%d", System.currentTimeMillis());
+		final long scopedMetadataKey = Metadata.generateKey(keyString);
+		final byte[] metadataValue =
+			"alice".getBytes(StandardCharsets.UTF_8);
+		// [<step-3]
+		// Create the embedded metadata transaction [>step-4]
+		final EmbeddedTransaction creationEmbeddedTx =
+			facade.transactionFactory.createEmbedded(Map.of(
+				"type", "account_metadata_transaction_v1",
+				"signerPublicKey", signerKeyPair.getPublicKey(),
+				"targetAddress", signerAddress,
+				"scopedMetadataKey", scopedMetadataKey,
+				// When creating new metadata, valueSizeDelta
+				// equals the value length
+				"valueSizeDelta", metadataValue.length,
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"value", (Object) metadataValue));
+		System.out.println("Created embedded metadata transaction:");
+		System.out.println(JSON_MAPPER
+			.writerWithDefaultPrettyPrinter()
+			.writeValueAsString(creationEmbeddedTx.toJson()));
+		// [<step-4]
+		// Build the aggregate transaction [>step-5]
+		final List<EmbeddedTransaction> creationEmbeddedTxs =
+			List.of(creationEmbeddedTx);
+		final Transaction creationTx =
+			facade.transactionFactory.create(Map.of(
+				"type", "aggregate_complete_transaction_v3",
+				"signerPublicKey", signerKeyPair.getPublicKey(),
+				"deadline", timestamp.addHours(2).timestamp,
+				"transactionsHash",
+					SymbolFacade.hashEmbeddedTransactions(
+						creationEmbeddedTxs),
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"transactions", (Object) creationEmbeddedTxs));
+		creationTx.setFee(new Amount(
+			FeeCalculator.calculateTransactionFee(
+				creationTx, feeMultiplier)));
+		// [<step-5]
+		// Sign and generate final payload [>step-6]
+		final String creationPayload = SymbolTransactionFactory
+			.attachSignature(creationTx,
+				facade.signTransaction(signerKeyPair, creationTx));
 
-			// Announce and wait for confirmation
-			final String creationTxHash =
-				facade.hashTransaction(creationTx).toString();
-			System.out.printf(
-				"Built aggregate transaction with hash: %s%n",
-					creationTxHash);
-			announceTransaction(creationPayload, "creation transaction");
-			waitForConfirmation(creationTxHash, "creation transaction");
-			// [<step-6]
-			System.out.println("\n--- Modifying existing metadata ---");
+		// Announce and wait for confirmation
+		final String creationTxHash =
+			facade.hashTransaction(creationTx).toString();
+		System.out.printf(
+			"Built aggregate transaction with hash: %s%n",
+			creationTxHash);
+		announceTransaction(creationPayload, "creation transaction");
+		waitForConfirmation(creationTxHash, "creation transaction");
+		// [<step-6]
+		System.out.println("\n--- Modifying existing metadata ---");
 
-			// Fetch current metadata value from network [>step-7]
-			final String scopedKeyHex = "%016X".formatted(
-				scopedMetadataKey);
-			final String metadataPath = String.format(
-				"/metadata?sourceAddress=%s&targetAddress=%s"
-					+ "&scopedMetadataKey=%s&metadataType=0",
-				signerAddress, signerAddress, scopedKeyHex);
-			System.out.printf("Fetching current metadata from %s%n",
-				metadataPath);
-			final HttpRequest metadataRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + metadataPath)).GET().build();
-			final HttpResponse<String> metadataResponse = HTTP_CLIENT.send(
-				metadataRequest, BodyHandlers.ofString());
-			final JsonNode metadataJson = JSON_MAPPER.readTree(
-				metadataResponse.body());
+		// Fetch current metadata value from network [>step-7]
+		final String scopedKeyHex = "%016X".formatted(
+			scopedMetadataKey);
+		final String metadataPath = String.format(
+			"/metadata?sourceAddress=%s&targetAddress=%s"
+				+ "&scopedMetadataKey=%s&metadataType=0",
+			signerAddress, signerAddress, scopedKeyHex);
+		System.out.printf("Fetching current metadata from %s%n",
+			metadataPath);
+		final HttpRequest metadataRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + metadataPath)).GET().build();
+		final HttpResponse<String> metadataResponse = HTTP_CLIENT.send(
+			metadataRequest, BodyHandlers.ofString());
+		final JsonNode metadataJson = JSON_MAPPER.readTree(
+			metadataResponse.body());
 
-			// Get the metadata entry
-			final JsonNode metadataData = metadataJson.get("data");
-			if (null == metadataData)
-				throw new IOException(
-					"Unexpected metadata response: " + metadataJson);
+		// Get the metadata entry
+		final JsonNode metadataData = metadataJson.get("data");
+		if (null == metadataData)
+			throw new IOException(
+				"Unexpected metadata response: " + metadataJson);
 
-			if (metadataData.isEmpty())
-				throw new IOException("Metadata entry not found");
+		if (metadataData.isEmpty())
+			throw new IOException("Metadata entry not found");
 
-			final JsonNode metadataEntry = metadataData.get(0)
-				.get("metadataEntry");
-			final byte[] currentValue = java.util.HexFormat.of()
-				.parseHex(metadataEntry.get("value").asText());
-			System.out.printf("  Current value: %s%n",
-				new String(currentValue, StandardCharsets.UTF_8));
-			// [<step-7]
-			// XOR the current and new values [>step-8]
-			final byte[] newValue = "bob".getBytes(StandardCharsets.UTF_8);
-			final byte[] updateValue = Metadata.updateValue(
-				currentValue, newValue);
+		final JsonNode metadataEntry = metadataData.get(0)
+			.get("metadataEntry");
+		final byte[] currentValue = java.util.HexFormat.of()
+			.parseHex(metadataEntry.get("value").asText());
+		System.out.printf("  Current value: %s%n",
+			new String(currentValue, StandardCharsets.UTF_8));
+		// [<step-7]
+		// XOR the current and new values [>step-8]
+		final byte[] newValue = "bob".getBytes(StandardCharsets.UTF_8);
+		final byte[] updateValue = Metadata.updateValue(
+			currentValue, newValue);
 
-			// Create the update transaction with XOR'd value
-			final EmbeddedTransaction updateEmbeddedTx =
-				facade.transactionFactory.createEmbedded(Map.of(
-					"type", "account_metadata_transaction_v1",
-					"signerPublicKey", signerKeyPair.getPublicKey(),
-					"targetAddress", signerAddress,
-					"scopedMetadataKey", scopedMetadataKey,
-					// valueSizeDelta is the difference in length
-					// (can be negative)
-					"valueSizeDelta",
-						newValue.length - currentValue.length,
-					// Cast one value to infer Map<String, Object>,
-					// as expected by the SDK.
-					"value", (Object) updateValue));
-			// [<step-8]
-			// Build the aggregate for the update [>step-9]
-			final List<EmbeddedTransaction> updateEmbeddedTxs =
-				List.of(updateEmbeddedTx);
-			final Transaction updateTx =
-				facade.transactionFactory.create(Map.of(
-					"type", "aggregate_complete_transaction_v3",
-					"signerPublicKey", signerKeyPair.getPublicKey(),
-					"deadline", timestamp.addHours(2).timestamp,
-					"transactionsHash",
-						SymbolFacade.hashEmbeddedTransactions(
-							updateEmbeddedTxs),
-					// Cast one value to infer Map<String, Object>,
-					// as expected by the SDK.
-					"transactions", (Object) updateEmbeddedTxs));
-			updateTx.setFee(new Amount(
-				FeeCalculator.calculateTransactionFee(
-					updateTx, feeMultiplier)));
+		// Create the update transaction with XOR'd value
+		final EmbeddedTransaction updateEmbeddedTx =
+			facade.transactionFactory.createEmbedded(Map.of(
+				"type", "account_metadata_transaction_v1",
+				"signerPublicKey", signerKeyPair.getPublicKey(),
+				"targetAddress", signerAddress,
+				"scopedMetadataKey", scopedMetadataKey,
+				// valueSizeDelta is the difference in length
+				// (can be negative)
+				"valueSizeDelta",
+					newValue.length - currentValue.length,
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"value", (Object) updateValue));
+		// [<step-8]
+		// Build the aggregate for the update [>step-9]
+		final List<EmbeddedTransaction> updateEmbeddedTxs =
+			List.of(updateEmbeddedTx);
+		final Transaction updateTx =
+			facade.transactionFactory.create(Map.of(
+				"type", "aggregate_complete_transaction_v3",
+				"signerPublicKey", signerKeyPair.getPublicKey(),
+				"deadline", timestamp.addHours(2).timestamp,
+				"transactionsHash",
+					SymbolFacade.hashEmbeddedTransactions(
+						updateEmbeddedTxs),
+				// Cast one value to infer Map<String, Object>,
+				// as expected by the SDK.
+				"transactions", (Object) updateEmbeddedTxs));
+		updateTx.setFee(new Amount(
+			FeeCalculator.calculateTransactionFee(
+				updateTx, feeMultiplier)));
 
-			// Sign and announce the update
-			final String updatePayload = SymbolTransactionFactory
-				.attachSignature(updateTx,
-					facade.signTransaction(signerKeyPair, updateTx));
+		// Sign and announce the update
+		final String updatePayload = SymbolTransactionFactory
+			.attachSignature(updateTx,
+				facade.signTransaction(signerKeyPair, updateTx));
 
-			// Announce and wait for confirmation
-			final String updateTxHash =
-				facade.hashTransaction(updateTx).toString();
-			System.out.printf(
-				"Built aggregate transaction with hash: %s%n",
-				updateTxHash);
-			announceTransaction(updatePayload, "update transaction");
-			waitForConfirmation(updateTxHash, "update transaction");
-			// [<step-9]
-		} catch (final Exception ex) {
-			System.out.println(ex.getMessage());
-		}
+		// Announce and wait for confirmation
+		final String updateTxHash =
+			facade.hashTransaction(updateTx).toString();
+		System.out.printf(
+			"Built aggregate transaction with hash: %s%n",
+			updateTxHash);
+		announceTransaction(updatePayload, "update transaction");
+		waitForConfirmation(updateTxHash, "update transaction");
+		// [<step-9]
 	}
 }

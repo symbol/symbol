@@ -241,10 +241,14 @@ final class ConfigureMultisig {
 	}
 
 	public static void main(final String[] args) {
-		new ConfigureMultisig().run();
+		try {
+			new ConfigureMultisig().run();
+		} catch (final Exception ex) {
+			System.out.printf("%s%n", ex.getMessage());
+		}
 	}
 
-	private void run() {
+	private void run() throws IOException, InterruptedException {
 		System.out.printf("Using node %s%n", nodeUrl);
 
 		// [>step-1]
@@ -274,65 +278,59 @@ final class ConfigureMultisig {
 		}
 		// [<step-1]
 
-		try {
-			// Fetch current network time [>step-2]
-			final String timePath = "/node/time";
-			System.out.printf(
-				"Fetching current network time from %s%n", timePath);
-			final HttpRequest timeRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + timePath)).GET().build();
-			final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
-				timeRequest, BodyHandlers.ofString());
-			final JsonNode timeJson = JSON_MAPPER.readTree(
-				timeResponse.body());
-			final NetworkTimestamp timestamp = new NetworkTimestamp(
-				timeJson.get("communicationTimestamps")
-					.get("receiveTimestamp").asLong());
-			System.out.printf("  Network time: %dms since nemesis%n",
-				timestamp.timestamp);
+		// Fetch current network time [>step-2]
+		final String timePath = "/node/time";
+		System.out.printf(
+			"Fetching current network time from %s%n", timePath);
+		final HttpRequest timeRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + timePath)).GET().build();
+		final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
+			timeRequest, BodyHandlers.ofString());
+		final JsonNode timeJson = JSON_MAPPER.readTree(
+			timeResponse.body());
+		final NetworkTimestamp timestamp = new NetworkTimestamp(
+			timeJson.get("communicationTimestamps")
+				.get("receiveTimestamp").asLong());
+		System.out.printf("  Network time: %dms since nemesis%n",
+			timestamp.timestamp);
 
-			// Fetch recommended fees
-			final String feePath = "/network/fees/transaction";
-			System.out.printf(
-				"Fetching recommended fees from %s%n", feePath);
-			final HttpRequest feeRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + feePath)).GET().build();
-			final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
-				feeRequest, BodyHandlers.ofString());
-			final JsonNode feeJson = JSON_MAPPER.readTree(
-				feeResponse.body());
-			final long feeMultiplier = Math.max(
-				feeJson.get("medianFeeMultiplier").asLong(),
-				feeJson.get("minFeeMultiplier").asLong());
-			System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
-			// [<step-2]
-			// [>step-4]
-			// Get current state of the multisig account and decide which
-			// operation to perform
-			final JsonNode cosignatories =
-				getMultisigCosignatories(multisigAddress);
-			final Transaction transaction;
-			if (cosignatories.isEmpty())
-				transaction = multisigEnableTransaction(
-					timestamp, feeMultiplier);
-			else
-				transaction = multisigDisableTransaction(
-					timestamp, feeMultiplier);
+		// Fetch recommended fees
+		final String feePath = "/network/fees/transaction";
+		System.out.printf("Fetching recommended fees from %s%n", feePath);
+		final HttpRequest feeRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + feePath)).GET().build();
+		final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
+			feeRequest, BodyHandlers.ofString());
+		final JsonNode feeJson = JSON_MAPPER.readTree(feeResponse.body());
+		final long feeMultiplier = Math.max(
+			feeJson.get("medianFeeMultiplier").asLong(),
+			feeJson.get("minFeeMultiplier").asLong());
+		System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
+		// [<step-2]
+		// [>step-4]
+		// Get current state of the multisig account and decide which
+		// operation to perform
+		final JsonNode cosignatories =
+			getMultisigCosignatories(multisigAddress);
+		final Transaction transaction;
+		if (cosignatories.isEmpty())
+			transaction = multisigEnableTransaction(
+				timestamp, feeMultiplier);
+		else
+			transaction = multisigDisableTransaction(
+				timestamp, feeMultiplier);
 
-			final String payload =
-				SymbolTransactionFactory.toJson(transaction);
-			// [<step-4]
-			// Announce and wait for confirmation [>step-10]
-			final String transactionHash =
-				facade.hashTransaction(transaction).toString();
-			System.out.printf(
-				"Built aggregate transaction with hash: %s%n",
-				transactionHash);
-			announceTransaction(payload, "aggregate transaction");
-			waitForConfirmation(transactionHash, "aggregate transaction");
-			// [<step-10]
-		} catch (final Exception ex) {
-			System.out.printf("%s%n", ex.getMessage());
-		}
+		final String payload =
+			SymbolTransactionFactory.toJson(transaction);
+		// [<step-4]
+		// Announce and wait for confirmation [>step-10]
+		final String transactionHash =
+			facade.hashTransaction(transaction).toString();
+		System.out.printf(
+			"Built aggregate transaction with hash: %s%n",
+			transactionHash);
+		announceTransaction(payload, "aggregate transaction");
+		waitForConfirmation(transactionHash, "aggregate transaction");
+		// [<step-10]
 	}
 }
