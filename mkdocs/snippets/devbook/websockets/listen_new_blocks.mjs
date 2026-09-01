@@ -32,21 +32,17 @@ try {
 			const block = message.data.block;
 			const blockMeta = message.data.meta;
 			console.log(
-				'New block:' +
-				' height=' +
-				`${BigInt(block.height).toLocaleString()}` +
-				` hash=${blockMeta.hash.substring(0, 16)}...`
-			);
+				`New block: height=${
+					BigInt(block.height).toLocaleString()}` +
+				` hash=${blockMeta.hash.substring(0, 16)}...`);
 		}
 
 		if ('finalizedBlock' === topic) {
 			const finalized = message.data;
 			console.log(
-				'Finalized:' +
-				' height=' +
-				`${BigInt(finalized.height).toLocaleString()}` +
-				` hash=${finalized.hash.substring(0, 16)}...`
-			);
+				`Finalized: height=${
+					BigInt(finalized.height).toLocaleString()}` +
+				` hash=${finalized.hash.substring(0, 16)}...`);
 		}
 	});
 	// [<step-3]
