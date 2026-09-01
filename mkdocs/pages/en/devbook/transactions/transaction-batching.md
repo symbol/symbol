@@ -66,7 +66,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/transaction_batching', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/transaction_batching', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 

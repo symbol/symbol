@@ -52,7 +52,7 @@ digraph FeeSponsorshipProblem {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/fee_sponsorship', ['py', 'js'], show=false) }}
+{{ tutorial.code_full_tagged('devbook/transactions/fee_sponsorship', ['py', 'js', 'java'], show=false) }}
 
 ## オプション 1: 手数料前払い {: #option-1-prefunded-fees }
 
@@ -126,7 +126,7 @@ digraph Option1 {
 
 !!! caution "注意"
 
-    コードに示されているように、 `transactions_hash` フィールドを設定する際は、モデル固有の型である `sc.Hash256` (:simple-python:) または `models.Hash256` (:simple-javascript:) を使用し、汎用的な暗号化型である `Hash256` は使用しないでください。
+    コードに示されているように、 `transactions_hash` フィールドを設定する際は、モデル固有の型である `sc.Hash256` (:simple-python:) または `models.Hash256` (:simple-javascript:, :fontawesome-brands-java:) を使用し、汎用的な暗号化型である `Hash256` は使用しないでください。
 
 {{ tutorial.code_snippet_tagged('step-4') }}
 

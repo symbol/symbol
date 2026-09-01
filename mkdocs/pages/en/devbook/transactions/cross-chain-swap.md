@@ -79,11 +79,15 @@ Before you start, make sure to:
         npm install ethers
         ```
 
+    === ":fontawesome-brands-java: Java"
+
+        `org.web3j:core` is installed automatically by [jbang](../start/setup.md) from code annotations.
+
 ## Full Code
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap', ['py', 'js', 'java']) }}
 
 ## Ethereum HTLC Contract
 

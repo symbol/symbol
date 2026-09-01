@@ -46,7 +46,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/sign_multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/sign_multisig', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 

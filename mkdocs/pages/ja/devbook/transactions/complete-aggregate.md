@@ -71,7 +71,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/complete_aggregate', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/complete_aggregate', ['py', 'js', 'java']) }}
 
 コード全体は、単純なエラー処理を提供するために単一の `try` ブロックでラップされていますが、実際のアプリケーションではより詳細な制御が必要になるでしょう。
 

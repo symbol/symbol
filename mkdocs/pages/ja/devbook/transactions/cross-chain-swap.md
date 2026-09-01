@@ -71,11 +71,15 @@ HTLCプロトコル、タイミングの制約、および制限の背景につ�
         npm install ethers
         ```
 
+    === ":fontawesome-brands-java: Java"
+
+        `org.web3j:core` は、[jbang](../start/setup.md) によりコードアノテーションから自動的にインストールされます。
+
 ## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap', ['py', 'js', 'java']) }}
 
 ## イーサリアムHTLCコントラクト {: #ethereum-htlc-contract }
 

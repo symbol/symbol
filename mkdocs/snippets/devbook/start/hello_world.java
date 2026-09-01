@@ -21,7 +21,9 @@ final class HelloWorld {
 		try {
 			new HelloWorld().run();
 		} catch (final Exception ex) {
-			System.out.println(ex.getMessage());
+			System.out.println(null == ex.getMessage()
+				? ex.toString()
+				: ex.getMessage());
 		}
 	}
 
