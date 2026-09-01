@@ -21,7 +21,7 @@ Symbol のすべての [ブロック](default: ブロック) ヘッダーには�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/prove_mosaic_definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove_mosaic_definition', ['py', 'js', 'java']) }}
 
 この例では、 <get:/network/properties> から自動的に検出された ID を持つ、ネットワークの通貨モザイク（[メインネット](default: メインネット) では [XYM](default: XYM) ）を検証します。
 通貨モザイクはすべての Symbol ネットワークに存在するため便利な選択肢ですが、ID を置き換えればどのモザイクでも同じプロセスが機能します。
