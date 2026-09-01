@@ -280,53 +280,71 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 	return "".join(str(child) for child in main.contents)
 
 
+def write_nav_file(dst_dir: PurePosixPath) -> None:
+	"""
+	Writes the generated Java reference navigation file.
+	"""
+	with mkdocs_gen_files.open(dst_dir / "links.md", "w") as nav_file:
+		# Exclude the index file from being indexed by the search plugin
+		nav_file.writelines([
+			"---\n",
+			"search:\n",
+			"    exclude: true\n",
+			"---\n\n"
+		])
+		nav_file.writelines(nav.build_literate_nav())
+
+
 config = mkdocs_gen_files.config
 project_dir = Path(config.config_file_path).resolve().parent
-
-src_dir = config["extra"]["symbol"]["java-sdk"]["javadoc_build_dir"]
-src_dir = (project_dir / src_dir).resolve()
-if not src_dir.is_dir():
-	raise FileNotFoundError(
-		f"Javadoc build directory does not exist: {src_dir}"
-	)
-
 dst_dir = PurePosixPath(config["extra"]["symbol"]["java-sdk"]["output_dir"])
-ignored_files = config["extra"]["symbol"]["java-sdk"]["ignore-files"]
-ignored_folders = config["extra"]["symbol"]["java-sdk"]["ignore-folders"]
-class_remaps = config["extra"]["symbol"]["java-sdk"]["class-remaps"]
 
-source_files = sorted((path for path in src_dir.rglob("*") if path.is_file()), key=source_file_sort_key)
-for source_file in source_files:
-	relative_path = PurePosixPath(source_file.relative_to(src_dir).as_posix())
-	if relative_path.suffix.lower() == ".html":
-		# Generated files must use docs-relative POSIX paths for mkdocs-gen-files.
-		destination = dst_dir / relative_path.with_suffix(".md")
+if config["extra"]["symbol"]["java-sdk"]["disabled"]:
+	write_nav_file(dst_dir)
+else:
+	src_dir = config["extra"]["symbol"]["java-sdk"]["javadoc_build_dir"]
+	src_dir = (project_dir / src_dir).resolve()
+	if not src_dir.is_dir():
+		raise FileNotFoundError(
+			f"Javadoc build directory does not exist: {src_dir}"
+		)
 
-		src_parts = relative_path.with_suffix("").parts
-		if src_parts[-1] in ignored_files:
-			continue
-		if any(e in src_parts for e in ignored_folders):
-			continue
+	ignored_files = config["extra"]["symbol"]["java-sdk"]["ignore-files"]
+	ignored_folders = config["extra"]["symbol"]["java-sdk"]["ignore-folders"]
+	class_remaps = config["extra"]["symbol"]["java-sdk"]["class-remaps"]
 
-		full_html = transform_javadoc_html(source_file.read_text(encoding="utf-8"), relative_path)
-		title = TITLE_OVERRIDES.get(src_parts[-1])
+	source_files = sorted(
+		(path for path in src_dir.rglob("*") if path.is_file()),
+		key=source_file_sort_key)
+	for source_file in source_files:
+		relative_path = PurePosixPath(source_file.relative_to(src_dir).as_posix())
+		if relative_path.suffix.lower() == ".html":
+			# Generated files must use docs-relative POSIX paths for mkdocs-gen-files.
+			destination = dst_dir / relative_path.with_suffix(".md")
 
-		with mkdocs_gen_files.open(destination, "w") as output:
-			print("---", file=output)
-			if title:
-				print(f'title: "{title}"', file=output)
-			print("hide:", file=output)
-			print("  - toc", file=output)
-			print("---", file=output)
-			print(file=output)
-			print('<div class="javadoc-container">', file=output)
-			print(full_html, file=output)
-			print("</div>", file=output)
+			src_parts = relative_path.with_suffix("").parts
+			if src_parts[-1] in ignored_files:
+				continue
+			if any(e in src_parts for e in ignored_folders):
+				continue
 
-		mkdocs_gen_files.set_edit_path(destination, source_file.as_posix())
-		nav[nav_parts(src_parts)] = relative_path.with_suffix(".md").as_posix()
+			full_html = transform_javadoc_html(
+				source_file.read_text(encoding="utf-8"), relative_path)
+			title = TITLE_OVERRIDES.get(src_parts[-1])
 
-with mkdocs_gen_files.open("devbook/reference/java/links.md", "w") as nav_file:
-	# Exclude the index file from being indexed by the search plugin
-	nav_file.writelines(["---\n", "search:\n", "    exclude: true\n", "---\n\n"])
-	nav_file.writelines(nav.build_literate_nav())
+			with mkdocs_gen_files.open(destination, "w") as output:
+				print("---", file=output)
+				if title:
+					print(f'title: "{title}"', file=output)
+				print("hide:", file=output)
+				print("  - toc", file=output)
+				print("---", file=output)
+				print(file=output)
+				print('<div class="javadoc-container">', file=output)
+				print(full_html, file=output)
+				print("</div>", file=output)
+
+			mkdocs_gen_files.set_edit_path(destination, source_file.as_posix())
+			nav[nav_parts(src_parts)] = relative_path.with_suffix(".md").as_posix()
+
+	write_nav_file(dst_dir)
