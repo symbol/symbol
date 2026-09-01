@@ -18,7 +18,7 @@ import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.Network;
 
-final class QueryBlockRewards {
+public final class QueryBlockRewards {
 	private static final HttpClient HTTP_CLIENT =
 		HttpClient.newHttpClient();
 

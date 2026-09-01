@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.symbol.sdk.symbol.models.MosaicFlags;
 
-final class GetMosaicInfo {
+public final class GetMosaicInfo {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =

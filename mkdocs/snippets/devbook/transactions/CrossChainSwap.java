@@ -47,7 +47,7 @@ import org.symbol.sdk.symbol.descriptors.*;
 import org.symbol.sdk.symbol.models.*;
 import org.symbol.sdk.utils.Converter;
 
-final class CrossChainSwap {
+public final class CrossChainSwap {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =

@@ -24,7 +24,7 @@ import org.symbol.sdk.symbol.Merkle.TreeNode;
 import org.symbol.sdk.utils.Converter;
 import org.symbol.sdk.utils.Transforms;
 
-final class ProveMosaicDefinition {
+public final class ProveMosaicDefinition {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =

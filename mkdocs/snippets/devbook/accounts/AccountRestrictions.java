@@ -21,7 +21,7 @@ import org.symbol.sdk.symbol.SymbolTransactionFactory;
 import org.symbol.sdk.symbol.descriptors.*;
 import org.symbol.sdk.symbol.models.*;
 
-final class AccountRestrictions {
+public final class AccountRestrictions {
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private static final HttpClient HTTP_CLIENT =
