@@ -5,6 +5,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.3.3] - 31-Aug-2026
+
+### Fixed
+- fixed the fee calculator for Symbol where the cosignature size was not being multiplied by the fee multiplier.
+
 ## [3.3.2] - 15-Jun-2026
 
 ### Added
@@ -159,6 +164,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.3.3]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.3.2...sdk%2Fjavascript%2Fv3.3.3
 [3.3.2]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.3.1...sdk%2Fjavascript%2Fv3.3.2
 [3.3.1]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.3.0...sdk%2Fjavascript%2Fv3.3.1
 [3.3.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.3...sdk%2Fjavascript%2Fv3.3.0
