@@ -331,6 +331,9 @@ def render_markdown_contents(node) -> None:
 	"""
 	markdown_text = node.decode_contents().replace(
 		r"\note ", "<br/>**Note:** ")
+	# Restore lists flattened into inline text before Javadoc generated the HTML.
+	markdown_text = markdown_text.replace(": - ", ":\n\n- ")
+	markdown_text = markdown_text.replace(". - ", ".\n- ")
 	rendered_html = markdown.markdown(
 		markdown_text, extensions=["md_in_html"])
 	rendered_soup = BeautifulSoup(rendered_html, "html.parser")
