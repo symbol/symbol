@@ -23,6 +23,7 @@ plugins:
     scripts:
       - ../scripts/gen_ref_pages_py.py
       - ../scripts/gen_ref_pages_ts.py
+      - ../scripts/gen_ref_pages_java.py
   mkdocstrings:  # Generate API reference docs for Python
     default_handler: python
     custom_templates: ../templates/mkdocstrings
@@ -75,6 +76,7 @@ markdown_extensions:
   pymdownx.snippets:
     base_path: !relative $config_dir/../snippets
     check_paths: true
+    restrict_base_path: false
   pymdownx.superfences: {}
   pymdownx.tabbed:
     alternate_style: true
@@ -124,7 +126,17 @@ extra:
   symbol:
     branch: dev
     java-sdk:
-      include-prefixes: [classorg, interfaceorg]
+      javadoc_build_dir: ../../sdk/java/build/docs/javadoc/org/symbol/sdk  # Where the Java SDK writes the docs
+      output_dir: devbook/reference/java  # Generated markdown files
+      ignore-files:
+        - package-summary
+        - package-tree
+        - NemFacade
+        - NemFacade.NemAccount
+        - NemFacade.NemPublicAccount
+      ignore-folders:
+        - nem
+        - impl
     ts-sdk:
       output_dir: devbook/reference/ts
       tsconfig: ../sdk/javascript/tsconfig/check-bindings.json

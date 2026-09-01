@@ -82,15 +82,10 @@ def on_files(in_files: mkdocs_files.Files, config: base.Config) -> mkdocs_files.
 	Parse frontmatter of developer tutorials to find their level and store it for later.
 	"""
 	out_files: list[File] = []
-	prefixes = tuple(config['extra']['symbol']['java-sdk']['include-prefixes'] + ['links'])
 	config['extra']['symbol']['tutorials'] = {}
 	nav_order, nav_section = build_nav_order_and_section(config)
 	section_order = {}
 	for file in in_files:
-		if file.src_uri.startswith('devbook/reference/java'):
-			if not file.name.startswith(prefixes):
-				log.debug('Custom hook: Removing %s', file.name)
-				continue
 		out_files.append(file)
 
 		if not file.src_path.startswith('devbook/') or not file.src_path.endswith('.md'):
