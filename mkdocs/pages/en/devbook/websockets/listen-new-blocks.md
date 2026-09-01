@@ -32,13 +32,17 @@ This tutorial shows how to subscribe to both channels and display each update as
     This tutorial uses the native `WebSocket` API available in Node.js 22 or later.
     No additional packages are required.
 
+=== ":fontawesome-brands-java: Java"
+
+    This tutorial uses the Tyrus WebSocket client, which is loaded by the JBang dependency line in the snippet.
+
 See the [WebSocket reference](../reference/websockets/index.md) for details on the connection protocol.
 
 ## Full Code
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen_new_blocks', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_new_blocks', ['py', 'js', 'java']) }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.

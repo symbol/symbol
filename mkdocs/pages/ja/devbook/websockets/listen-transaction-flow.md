@@ -40,13 +40,17 @@ Symbolは、特定の[アカウント](default: アカウント) に対する[�
     このチュートリアルでは、Node.js 22以降で利用可能なネイティブの `WebSocket` APIを使用します。
     追加のパッケージは必要ありません。
 
+=== ":fontawesome-brands-java: Java"
+
+    このチュートリアルでは Tyrus WebSocket クライアントを使用します。これはスニペット内の JBang 依存関係の行によって読み込まれます。
+
 接続プロトコルの詳細については、[WebSocket リファレンス](../reference/websockets/index.md) を参照してください。
 
 ## 完全なコード {: #full-code }
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_flow', ['py', 'js', 'java']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol API[ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
