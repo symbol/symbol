@@ -4,7 +4,7 @@ from typing import Optional
 from urllib.parse import urlsplit, urlunsplit
 
 import mkdocs_gen_files
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 
 nav = mkdocs_gen_files.Nav()
 
@@ -270,7 +270,14 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 	add_class_definition_list(soup)
 	add_method_definition_lists(soup)
 
-	return str(soup)
+	main = soup.find("main")
+	if not main:
+		raise ValueError(f"Javadoc page does not contain a main element: {current_path}")
+
+	for comment in main.find_all(string=lambda text: isinstance(text, Comment)):
+		comment.extract()
+
+	return "".join(str(child) for child in main.contents)
 
 
 config = mkdocs_gen_files.config
