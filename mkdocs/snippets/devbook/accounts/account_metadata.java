@@ -9,7 +9,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,11 +16,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.facade.SymbolFacade;
 import org.symbol.sdk.symbol.Address;
-import org.symbol.sdk.symbol.FeeCalculator;
 import org.symbol.sdk.symbol.KeyPair;
 import org.symbol.sdk.symbol.Metadata;
-import org.symbol.sdk.symbol.NetworkTimestamp;
 import org.symbol.sdk.symbol.SymbolTransactionFactory;
+import org.symbol.sdk.symbol.descriptors.*;
 import org.symbol.sdk.symbol.models.*;
 
 final class AccountMetadata {
@@ -108,23 +106,7 @@ final class AccountMetadata {
 			signerKeyPair.getPublicKey());
 		System.out.printf("Signer address: %s%n", signerAddress);
 		// [<step-1]
-		// Fetch current network time [>step-2]
-		final String timePath = "/node/time";
-		System.out.printf(
-			"Fetching current network time from %s%n", timePath);
-		final HttpRequest timeRequest = HttpRequest.newBuilder(
-			URI.create(nodeUrl + timePath)).GET().build();
-		final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
-			timeRequest, BodyHandlers.ofString());
-		final JsonNode timeJson = JSON_MAPPER.readTree(
-			timeResponse.body());
-		final NetworkTimestamp timestamp = new NetworkTimestamp(
-			timeJson.get("communicationTimestamps")
-				.get("receiveTimestamp").asLong());
-		System.out.printf("  Network time: %dms since nemesis%n",
-			timestamp.timestamp);
-
-		// Fetch recommended fees
+		// Fetch recommended fees [>step-2]
 		final String feePath = "/network/fees/transaction";
 		System.out.printf("Fetching recommended fees from %s%n", feePath);
 		final HttpRequest feeRequest = HttpRequest.newBuilder(
@@ -148,17 +130,13 @@ final class AccountMetadata {
 		// [<step-3]
 		// Create the embedded metadata transaction [>step-4]
 		final EmbeddedTransaction creationEmbeddedTx =
-			facade.transactionFactory.createEmbedded(Map.of(
-				"type", "account_metadata_transaction_v1",
-				"signerPublicKey", signerKeyPair.getPublicKey(),
-				"targetAddress", signerAddress,
-				"scopedMetadataKey", scopedMetadataKey,
-				// When creating new metadata, valueSizeDelta
-				// equals the value length
-				"valueSizeDelta", metadataValue.length,
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"value", (Object) metadataValue));
+			facade.createEmbeddedTransactionFromTypedDescriptor(
+				new AccountMetadataTransactionV1Descriptor(
+					signerAddress,
+					scopedMetadataKey,
+					metadataValue.length,
+					metadataValue),
+				signerKeyPair.getPublicKey());
 		System.out.println("Created embedded metadata transaction:");
 		System.out.println(JSON_MAPPER
 			.writerWithDefaultPrettyPrinter()
@@ -168,19 +146,15 @@ final class AccountMetadata {
 		final List<EmbeddedTransaction> creationEmbeddedTxs =
 			List.of(creationEmbeddedTx);
 		final Transaction creationTx =
-			facade.transactionFactory.create(Map.of(
-				"type", "aggregate_complete_transaction_v3",
-				"signerPublicKey", signerKeyPair.getPublicKey(),
-				"deadline", timestamp.addHours(2).timestamp,
-				"transactionsHash",
+			facade.createTransactionFromTypedDescriptor(
+				new AggregateCompleteTransactionV3Descriptor(
 					SymbolFacade.hashEmbeddedTransactions(
 						creationEmbeddedTxs),
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"transactions", (Object) creationEmbeddedTxs));
-		creationTx.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				creationTx, feeMultiplier)));
+					creationEmbeddedTxs,
+					null),
+				signerKeyPair.getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60);
 		// [<step-5]
 		// Sign and generate final payload [>step-6]
 		final String creationPayload = SymbolTransactionFactory
@@ -237,36 +211,27 @@ final class AccountMetadata {
 
 		// Create the update transaction with XOR'd value
 		final EmbeddedTransaction updateEmbeddedTx =
-			facade.transactionFactory.createEmbedded(Map.of(
-				"type", "account_metadata_transaction_v1",
-				"signerPublicKey", signerKeyPair.getPublicKey(),
-				"targetAddress", signerAddress,
-				"scopedMetadataKey", scopedMetadataKey,
-				// valueSizeDelta is the difference in length
-				// (can be negative)
-				"valueSizeDelta",
+			facade.createEmbeddedTransactionFromTypedDescriptor(
+				new AccountMetadataTransactionV1Descriptor(
+					signerAddress,
+					scopedMetadataKey,
 					newValue.length - currentValue.length,
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"value", (Object) updateValue));
+					updateValue),
+				signerKeyPair.getPublicKey());
 		// [<step-8]
 		// Build the aggregate for the update [>step-9]
 		final List<EmbeddedTransaction> updateEmbeddedTxs =
 			List.of(updateEmbeddedTx);
 		final Transaction updateTx =
-			facade.transactionFactory.create(Map.of(
-				"type", "aggregate_complete_transaction_v3",
-				"signerPublicKey", signerKeyPair.getPublicKey(),
-				"deadline", timestamp.addHours(2).timestamp,
-				"transactionsHash",
+			facade.createTransactionFromTypedDescriptor(
+				new AggregateCompleteTransactionV3Descriptor(
 					SymbolFacade.hashEmbeddedTransactions(
 						updateEmbeddedTxs),
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"transactions", (Object) updateEmbeddedTxs));
-		updateTx.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				updateTx, feeMultiplier)));
+					updateEmbeddedTxs,
+					null),
+				signerKeyPair.getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60);
 
 		// Sign and announce the update
 		final String updatePayload = SymbolTransactionFactory

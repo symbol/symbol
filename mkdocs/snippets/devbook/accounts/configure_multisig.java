@@ -9,7 +9,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,10 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.facade.SymbolFacade;
 import org.symbol.sdk.symbol.Address;
-import org.symbol.sdk.symbol.FeeCalculator;
 import org.symbol.sdk.symbol.KeyPair;
-import org.symbol.sdk.symbol.NetworkTimestamp;
 import org.symbol.sdk.symbol.SymbolTransactionFactory;
+import org.symbol.sdk.symbol.descriptors.*;
 import org.symbol.sdk.symbol.models.*;
 
 final class ConfigureMultisig {
@@ -127,39 +125,34 @@ final class ConfigureMultisig {
 
 	// Returns a transaction that turns a regular account into a multisig
 	private Transaction multisigEnableTransaction(
-		final NetworkTimestamp timestamp,
 		final long feeMultiplier
 	) throws IOException {
 		// [>step-5]
 		// Create an embedded multisig account modification transaction
 		// that adds two cosignatories
 		final EmbeddedTransaction embeddedTransaction =
-			facade.transactionFactory.createEmbedded(Map.of(
-				"type", "multisig_account_modification_transaction_v1",
-				"signerPublicKey", multisigKeyPair.getPublicKey(),
-				"minApprovalDelta", 1,
-				"minRemovalDelta", 1,
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"addressAdditions", (Object) cosignatoryAddresses));
+			facade.createEmbeddedTransactionFromTypedDescriptor(
+				new MultisigAccountModificationTransactionV1Descriptor(
+					1,
+					1,
+					cosignatoryAddresses,
+					null),
+				multisigKeyPair.getPublicKey());
 		// [<step-5]
 		// Build the aggregate transaction [>step-6]
 		final List<EmbeddedTransaction> embeddedTransactions = List.of(
 			embeddedTransaction);
 		final var transaction = (AggregateCompleteTransactionV3)
-			facade.transactionFactory.create(Map.of(
-				"type", "aggregate_complete_transaction_v3",
-				"signerPublicKey", multisigKeyPair.getPublicKey(),
-				"deadline", timestamp.addHours(2).timestamp,
-				"transactionsHash", SymbolFacade.hashEmbeddedTransactions(
-					embeddedTransactions),
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"transactions", (Object) embeddedTransactions));
-		final int cosignatureCount = cosignatoryKeyPairs.size();
-		transaction.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				transaction, feeMultiplier, cosignatureCount)));
+			facade.createTransactionFromTypedDescriptor(
+				new AggregateCompleteTransactionV3Descriptor(
+					SymbolFacade.hashEmbeddedTransactions(
+						embeddedTransactions),
+					embeddedTransactions,
+					null),
+				multisigKeyPair.getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60,
+				cosignatoryKeyPairs.size());
 		System.out.println(
 			"Enabling the multisig with the aggregate transaction:");
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
@@ -183,50 +176,41 @@ final class ConfigureMultisig {
 
 	// Returns a transaction that turns a multisig into a regular account
 	private Transaction multisigDisableTransaction(
-		final NetworkTimestamp timestamp,
 		final long feeMultiplier
 	) throws IOException {
 		// [>step-8]
 		// Create two embedded multisig account modification transactions
 		// because cosignatories must be removed one by one
 		final EmbeddedTransaction embeddedTransaction1 =
-			facade.transactionFactory.createEmbedded(Map.of(
-				"type", "multisig_account_modification_transaction_v1",
-				"signerPublicKey", multisigKeyPair.getPublicKey(),
-				"minApprovalDelta", 0,
-				"minRemovalDelta", 0,
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"addressDeletions",
-					(Object) List.of(cosignatoryAddresses.get(1))));
+			facade.createEmbeddedTransactionFromTypedDescriptor(
+				new MultisigAccountModificationTransactionV1Descriptor(
+					0,
+					0,
+					null,
+					List.of(cosignatoryAddresses.get(1))),
+				multisigKeyPair.getPublicKey());
 		final EmbeddedTransaction embeddedTransaction2 =
-			facade.transactionFactory.createEmbedded(Map.of(
-				"type", "multisig_account_modification_transaction_v1",
-				"signerPublicKey", multisigKeyPair.getPublicKey(),
-				"minApprovalDelta", -1,
-				"minRemovalDelta", -1,
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"addressDeletions",
-					(Object) List.of(cosignatoryAddresses.get(0))));
+			facade.createEmbeddedTransactionFromTypedDescriptor(
+				new MultisigAccountModificationTransactionV1Descriptor(
+					-1,
+					-1,
+					null,
+					List.of(cosignatoryAddresses.get(0))),
+				multisigKeyPair.getPublicKey());
 		// [<step-8]
 		// Build the aggregate transaction [>step-9]
 		final List<EmbeddedTransaction> embeddedTransactions = List.of(
 			embeddedTransaction1, embeddedTransaction2);
 		final var transaction = (AggregateCompleteTransactionV3)
-			facade.transactionFactory.create(Map.of(
-				"type", "aggregate_complete_transaction_v3",
-				"signerPublicKey", cosignatoryKeyPairs.get(0)
-					.getPublicKey(),
-				"deadline", timestamp.addHours(2).timestamp,
-				"transactionsHash", SymbolFacade.hashEmbeddedTransactions(
-					embeddedTransactions),
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"transactions", (Object) embeddedTransactions));
-		transaction.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				transaction, feeMultiplier)));
+			facade.createTransactionFromTypedDescriptor(
+				new AggregateCompleteTransactionV3Descriptor(
+					SymbolFacade.hashEmbeddedTransactions(
+						embeddedTransactions),
+					embeddedTransactions,
+					null),
+				cosignatoryKeyPairs.get(0).getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60);
 		System.out.println(
 			"Disabling the multisig with the aggregate transaction:");
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
@@ -278,23 +262,7 @@ final class ConfigureMultisig {
 		}
 		// [<step-1]
 
-		// Fetch current network time [>step-2]
-		final String timePath = "/node/time";
-		System.out.printf(
-			"Fetching current network time from %s%n", timePath);
-		final HttpRequest timeRequest = HttpRequest.newBuilder(
-			URI.create(nodeUrl + timePath)).GET().build();
-		final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
-			timeRequest, BodyHandlers.ofString());
-		final JsonNode timeJson = JSON_MAPPER.readTree(
-			timeResponse.body());
-		final NetworkTimestamp timestamp = new NetworkTimestamp(
-			timeJson.get("communicationTimestamps")
-				.get("receiveTimestamp").asLong());
-		System.out.printf("  Network time: %dms since nemesis%n",
-			timestamp.timestamp);
-
-		// Fetch recommended fees
+		// Fetch recommended fees [>step-2]
 		final String feePath = "/network/fees/transaction";
 		System.out.printf("Fetching recommended fees from %s%n", feePath);
 		final HttpRequest feeRequest = HttpRequest.newBuilder(
@@ -315,10 +283,10 @@ final class ConfigureMultisig {
 		final Transaction transaction;
 		if (cosignatories.isEmpty())
 			transaction = multisigEnableTransaction(
-				timestamp, feeMultiplier);
+				feeMultiplier);
 		else
 			transaction = multisigDisableTransaction(
-				timestamp, feeMultiplier);
+				feeMultiplier);
 
 		final String payload =
 			SymbolTransactionFactory.toJson(transaction);
