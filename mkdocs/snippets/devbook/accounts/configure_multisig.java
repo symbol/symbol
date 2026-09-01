@@ -331,7 +331,7 @@ final class ConfigureMultisig {
 			announceTransaction(payload, "aggregate transaction");
 			waitForConfirmation(transactionHash, "aggregate transaction");
 			// [<step-10]
-		} catch (final IOException | InterruptedException ex) {
+		} catch (final Exception ex) {
 			System.out.printf("%s%n", ex.getMessage());
 		}
 	}

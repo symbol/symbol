@@ -269,7 +269,7 @@ final class AccountRestrictions {
 			announceTransaction(payload, "test transfer");
 			waitForConfirmation(hash, "test transfer");
 			// [<step-8]
-		} catch (final IOException | InterruptedException ex) {
+		} catch (final Exception ex) {
 			System.out.println(ex.getMessage());
 		}
 	}
