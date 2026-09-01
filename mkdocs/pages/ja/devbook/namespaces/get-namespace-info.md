@@ -17,7 +17,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/get_namespace_info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/get_namespace_info', ['py', 'js', 'java']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol APIノードを設定します。
 値が指定されない場合は、デフォルトの [テストネット](default:テストネット) ノードが使用されます。
