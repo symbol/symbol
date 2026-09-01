@@ -28,10 +28,12 @@ tasks.register("checkJavaSnippetLineLength") {
 
 	doLast {
 		val maxLineLength = 75
+		val tabWidth = 4
 		val violations = snippets.files.flatMap { file ->
 			file.readLines().mapIndexedNotNull { index, line ->
-				if (line.length > maxLineLength)
-					"${file.relativeTo(projectDir)}:${index + 1}: ${line.length} columns"
+				val expandedLine = line.replace("\t", " ".repeat(tabWidth))
+				if (expandedLine.length > maxLineLength)
+					"${file.relativeTo(projectDir)}:${index + 1}: ${expandedLine.length} columns"
 				else
 					null
 			}
