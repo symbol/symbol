@@ -31,7 +31,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/create_mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/create_mosaic', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 
@@ -219,12 +219,12 @@ in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 This tutorial showed how to:
 
-| Step                                                                 | Related documentation                                                       |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [Generate mosaic ID](#generating-the-mosaic-nonce)                   | <dy:IdGenerator.generateMosaicId>                                           |
+| Step                                                                 | Related documentation                                                                         |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [Generate mosaic ID](#generating-the-mosaic-nonce)                   | <dy:IdGenerator.generateMosaicId>                                                             |
 | [Define the mosaic](#building-the-mosaic-definition-transaction)     | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicDefinitionTransactionV1>   |
 | [Mint mosaic supply](#building-the-mosaic-supply-change-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicSupplyChangeTransactionV1> |
-| [Retrieve the mosaic](#retrieving-the-mosaic)                        | <get:/mosaics/{mosaicId}>                                                   |
+| [Retrieve the mosaic](#retrieving-the-mosaic)                        | <get:/mosaics/{mosaicId}>                                                                     |
 
 ## Next Steps
 

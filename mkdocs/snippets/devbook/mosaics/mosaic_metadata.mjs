@@ -176,7 +176,7 @@ try {
 		feeMultiplier,
 		2 * 60 * 60);
 
-	// Sign and announce the update
+	// Sign the update
 	const updateSignature = facade.signTransaction(
 		signerKeyPair, updateTransaction);
 	const updatePayload = facade.transactionFactory.static

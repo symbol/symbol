@@ -48,7 +48,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_metadata', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_metadata', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 
@@ -245,9 +245,9 @@ The transaction hashes can be used to search for the transactions in the
 
 This tutorial showed how to:
 
-| Step                                                                                       | Related documentation                                                           |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| [Define metadata key and value](#defining-the-metadata)                                    | <dy:Metadata.metadataGenerateKey>                                               |
+| Step                                                                                       | Related documentation                                                                             |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| [Define metadata key and value](#defining-the-metadata)                                    | <dy:Metadata.metadataGenerateKey>                                                                 |
 | [Create a mosaic metadata transaction](#creating-the-embedded-mosaic-metadata-transaction) | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MosaicMetadataTransactionV1> |
-| [Retrieve metadata](#retrieving-metadata)                                                  | <get:/metadata>                                                                 |
-| [Modify existing metadata](#modifying-existing-metadata)                                   | <dy:Metadata.metadataUpdateValue>                                               |
+| [Retrieve metadata](#retrieving-metadata)                                                  | <get:/metadata>                                                                                   |
+| [Modify existing metadata](#modifying-existing-metadata)                                   | <dy:Metadata.metadataUpdateValue>                                                                 |

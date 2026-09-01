@@ -19,7 +19,7 @@ Symbol上のすべての[モザイク](default:モザイク)には、供給量�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/get_mosaic_info', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/get_mosaic_info', ['py', 'js', 'java']) }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol APIノードを設定します。
 値が指定されない場合は、デフォルトの[テストネット](default:テストネット)ノードが使用されます。

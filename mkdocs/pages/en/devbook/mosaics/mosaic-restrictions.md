@@ -67,7 +67,7 @@ transactions are announced and confirmed, and how to bundle them.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_restrictions', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_restrictions', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 
@@ -289,9 +289,9 @@ The following table summarizes the most common error sources:
 
 This tutorial showed how to:
 
-| Step                                                                                        | Related documentation                       |
-|---------------------------------------------------------------------------------------------|---------------------------------------------|
-| [Retrieve the current mosaic restriction configuration](#enabling-the-global-restriction)   | <get:/restrictions/mosaic>                  |
-| [Configure a mosaic global restriction](#enabling-the-global-restriction)                   | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MosaicGlobalRestrictionTransactionV1> |
-| [Retrieve an account's mosaic restriction configuration](#toggling-the-address-restriction) | <get:/restrictions/mosaic>                  |
+| Step                                                                                        | Related documentation                                                                                       |
+|---------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------ |
+| [Retrieve the current mosaic restriction configuration](#enabling-the-global-restriction)   | <get:/restrictions/mosaic>                                                                                  |
+| [Configure a mosaic global restriction](#enabling-the-global-restriction)                   | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MosaicGlobalRestrictionTransactionV1>  |
+| [Retrieve an account's mosaic restriction configuration](#toggling-the-address-restriction) | <get:/restrictions/mosaic>                                                                                  |
 | [Configure a mosaic address restriction](#toggling-the-address-restriction)                 | <dy:SymbolFacade.createEmbeddedTransactionFromTypedDescriptor>, <ser:MosaicAddressRestrictionTransactionV1> |
