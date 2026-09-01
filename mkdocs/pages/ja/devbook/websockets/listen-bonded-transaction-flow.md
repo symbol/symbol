@@ -33,6 +33,10 @@ tutorial_level: advanced
     このチュートリアルでは、Node.js 22 以降で利用可能なネイティブの `WebSocket` API を使用します。
     追加のパッケージは必要ありません。
 
+=== ":fontawesome-brands-java: Java"
+
+    このチュートリアルでは Tyrus WebSocket クライアントを使用します。これはスニペット内の JBang 依存関係の行によって読み込まれます。
+
 また、スワップを完了させるために、 [XYM](default: XYM) を持つ2つの [アカウント](default: アカウント) と1つのカスタム [モザイク](default:モザイク) が必要です。便宜上、事前に資金供給されたアカウントが提供されていますが、これらはメンテナンスされておらず資金が不足している可能性があります。
 
 自身のアカウントを使用する場合は、以下の手順を完了してください。
@@ -48,7 +52,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow', ['py', 'js', 'java']) }}
 
 ボンデッドアグリゲートトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築、署名、アナウンスする **開始者** （アカウント A）と、WebSocket チャネルを監視し、トランザクションを検証した後に連署する1人以上の **連署者** （アカウント B）です。
 

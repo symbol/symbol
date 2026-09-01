@@ -37,6 +37,10 @@ Additionally, install the language-specific WebSocket library:
     This tutorial uses the native `WebSocket` API available in Node.js 22 or later.
     No additional packages are required.
 
+=== ":fontawesome-brands-java: Java"
+
+    This tutorial uses the Tyrus WebSocket client, which is loaded by the JBang dependency line in the snippet.
+
 You also need two <accounts:> with <XYM:> and one custom <mosaic:> to complete the swap.
 Although pre-funded accounts are provided for convenience, they are not maintained and may run out of funds.
 
@@ -55,7 +59,7 @@ To use your own accounts, complete the following steps:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow', ['py', 'js', 'java']) }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B and any additional cosigners) that monitor
