@@ -436,6 +436,16 @@ code.doc-symbol-interface::after {
 	content: "interface";
 }
 
+code.doc-symbol-variable,
+a code.doc-symbol-variable {
+	color: var(--doc-symbol-attribute-fg-color);
+	background-color: var(--doc-symbol-attribute-bg-color);
+}
+
+code.doc-symbol-variable::after {
+	content: "var";
+}
+
 /* Reset admonition text size to normal */
 .md-typeset .admonition,
 .md-typeset details {
