@@ -105,6 +105,9 @@ detours.
 * Markdown linting rules are configured in `.markdownlint.jsonc`.
     If a formatting convention and the linter appear to disagree, update the shared config instead of relying on local editor settings.
     The same settings can be included directly in VS Code's `markdownlint.config` setting when configuring an editor.
+* The CI server performs additional linting checks which can be triggered locally by calling `scripts/ci/lint.sh`.
+    Before first usage call `scripts/ci/setup_lint.sh`.
+    This will check all Python, JS, and Java code in the `mkdocs` folder, including tool Python scripts.
 
 ## Additional Formatting and Macros
 
@@ -134,7 +137,8 @@ This is useful when a plural fits better in a sentence, but the term is defined 
 
 Every API class and method defines a term, so they can be linked to using, for example: `<py:SymbolFacade>`.
 The available categories are `py`, `js`, and `java`.
-REST endpoints do not support glossary links yet.
+REST endpoints support glossary-like links via the `get`, `put`,  and `post` categories
+(implemented in `hooks.py` instead of `ezglossary`).
 
 ### Dynamic Links
 
@@ -146,15 +150,15 @@ when the last tab the user has read was **JavaScript**, and will change to `<py:
 **Python** was selected.
 Note that the name of the method changes automatically.
 
-The code to handle this conversion is located in `hooks.py` and it takes care of JS to Python name changes.
+The code to handle this conversion is located in `hooks.py` and it takes care of Python, JS, and Java name changes.
 Additionally:
 
-* Class name remaps can be provided in `mkdocs.base.yml` in the `extra.symbol.py-sdk.class-remaps` key.
+* Class name remaps can be provided in `config/mkdocs.base.yml` in the `extra.symbol.{py-sdk, java-sdk}.class-remaps` keys.
 * Global functions must be prepended by their Python module, even in JS, so Python can find them.
-    The list of modules which contain global functions is in the `extra.symbol.global.namespaces` key.
+    The list of modules which contain global functions is in the `extra.symbol.global-namespaces` key.
 
-    For example, `<dy:Metadata.metadataGenerateKey>` will turn into `<py:Metadata.metadata_generate_key>` and
-    `<js:metadataGenerateKey>`.
+    For example, `<dy:Metadata.metadataGenerateKey>` will turn into `<py:Metadata.metadata_generate_key>`,
+    `<js:metadataGenerateKey>`, and `<java:Metadata.metadataGenerateKey>`.
 
 ### Tutorial Steps
 
@@ -180,31 +184,29 @@ Add as many `step_begin()` / `step_end()` pairs as required.
 
 ### Multi-Language Code Snippets
 
-These macros create a tab group with a code block and optional caption.
+These macros create a tab group with a code block.
 
 ```jinja
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged("devbook/hello_world", ["py", "js"]) }}
+{{ tutorial.code_full_tagged("devbook/hello_world", ["py", "js", "java"]) }}
 {{ tutorial.code_snippet_tagged("step-1")}}
 ```
 
-`code_snippet` uses the filename of the previous `code_full`.
+`code_snippet_tagged` uses the filename of the previous `code_full_tagged`.
 
 [Usage example](./pages/en/devbook/start/hello-world.md).
 
-`code_full` inserts the whole source file, for all the listed languages, and sets the file name to be used by the snippet macros.
+`code_full_tagged` inserts the whole source file, for all the listed languages, and sets the file name to be used by the snippet macros.
+It also adds a short intro (defined in `config.extra.symbol.code_full_intro`) to the code and a download link.
+The `show=false` parameter omits the code listing, but still initializes variables so snippets can be used.
 
-`code_snippet` inserts the specified named range.
+`code_snippet_tagged` inserts the specified named range.
 Ranges are set with comment tags in the source code: `[>step-1]` and `[<step-1]`.
 [Example](./snippets/devbook/start/hello-world.py).
 
-Supported languages are: Python (`py`) and JavaScript (`js`).
+Supported languages are: Python (`py`), JavaScript (`js`), and Java (`java`).
 See [`tutorial.jinja2`](./templates/macros/tutorial.jinja2) for details.
-
-### Links to Reference Guides
-
-All classes
 
 ## Technical Writing
 
