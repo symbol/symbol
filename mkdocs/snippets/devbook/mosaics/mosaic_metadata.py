@@ -178,7 +178,7 @@ try:
 		fee_multiplier,
 		2 * 60 * 60)
 
-	# Sign and announce the update
+	# Sign the update
 	signature = facade.sign_transaction(
 		signer_key_pair, update_transaction)
 	json_payload = facade.transaction_factory.attach_signature(

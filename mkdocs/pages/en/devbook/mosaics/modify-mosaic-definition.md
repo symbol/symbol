@@ -44,7 +44,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/modify_mosaic_definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/modify_mosaic_definition', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 

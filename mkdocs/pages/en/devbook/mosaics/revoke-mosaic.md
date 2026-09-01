@@ -33,7 +33,7 @@ For more details on revocability, see [Revocability](../../textbook/mosaics.md#r
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/revoke_mosaic', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/revoke_mosaic', ['py', 'js', 'java']) }}
 
 ## Code Explanation
 
@@ -139,8 +139,8 @@ The transaction hash printed in the output can be used to search for the transac
 
 This tutorial showed how to:
 
-| Step                                                        | Related documentation                                                           |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [Check account balance](#checking-initial-balance)          | <get:/accounts/{accountId}>                                                     |
+| Step                                                        | Related documentation                                                                             |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [Check account balance](#checking-initial-balance)          | <get:/accounts/{accountId}>                                                                       |
 | [Revoke mosaic units](#building-the-revocation-transaction) | <dy:SymbolFacade.createTransactionFromTypedDescriptor>, <ser:MosaicSupplyRevocationTransactionV1> |
-| [Verify the revocation](#verifying-the-revocation)          | <get:/accounts/{accountId}>                                                     |
+| [Verify the revocation](#verifying-the-revocation)          | <get:/accounts/{accountId}>                                                                       |
