@@ -31,7 +31,7 @@ final class HelloWorld {
 		System.out.println(
 			"Network launch date: " + launchDate); // [<step-1]
 		// [>step-2]
-		final String nodeUrl = "https://reference.symboltest.net:3001";
+		final String nodeUrl = "https://whydah.symbolmain.net:3001";
 		System.out.println("Using node " + nodeUrl);
 		try {
 			// Fetch current chain information
