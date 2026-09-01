@@ -8,13 +8,15 @@ import org.symbol.sdk.symbol.Address;
 import org.symbol.sdk.symbol.KeyPair;
 
 final class CreateFromMnemonic {
-	private CreateFromMnemonic() {
-	}
+	// Initialize the facade for the testnet network [>step-1]
+	private final SymbolFacade facade = new SymbolFacade("testnet");
+	// [<step-1]
 
 	public static void main(final String[] args) {
-		// Initialize the facade for the testnet network [>step-1]
-		final SymbolFacade facade = new SymbolFacade("testnet");
-		// [<step-1]
+		new CreateFromMnemonic().run();
+	}
+
+	private void run() {
 		// Use an existing mnemonic if provided, [>step-2]
 		// otherwise generate a random one.
 		final Bip32 bip32 = new Bip32(SymbolFacade.BIP32_CURVE_NAME);
@@ -26,12 +28,12 @@ final class CreateFromMnemonic {
 			System.out.println("Generating random mnemonic phrase...");
 			mnemonic = bip32.random();
 		}
-		System.out.println("Mnemonic phrase: " + mnemonic);
+		System.out.printf("Mnemonic phrase: %s%n", mnemonic);
 		// [<step-2]
 		// Load password from environment variable or use default [>step-3]
 		final String password = System.getenv().getOrDefault(
 			"PASSWORD", "correcthorsebatterystaple");
-		System.out.println("Password: " + password);
+		System.out.printf("Password: %s%n", password);
 
 		// Derive a root Bip32 node from the mnemonic and a password
 		final Bip32.Bip32Node rootNode = bip32.fromMnemonic(
@@ -51,9 +53,9 @@ final class CreateFromMnemonic {
 			publicKey);
 
 		// Output the account details
-		System.out.println("Address: " + address);
-		System.out.println("Public key: " + publicKey);
-		System.out.println(
-			"Private key: " + keyPair.getPrivateKey()); // [<step-5]
+		System.out.printf("Address: %s%n", address);
+		System.out.printf("Public key: %s%n", publicKey);
+		System.out.printf("Private key: %s%n",
+			keyPair.getPrivateKey()); // [<step-5]
 	}
 }
