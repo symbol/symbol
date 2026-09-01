@@ -140,10 +140,14 @@ final class QueryBalance {
 	} // [<step-4]
 
 	public static void main(final String[] args) {
-		new QueryBalance().run();
+		try {
+			new QueryBalance().run();
+		} catch (final Exception ex) {
+			System.out.println(ex.getMessage());
+		}
 	}
 
-	private void run() {
+	private void run() throws IOException, InterruptedException {
 		System.out.printf("Using node %s%n", NODE_URL);
 
 		// The account address to query [>step-5]
@@ -152,65 +156,61 @@ final class QueryBalance {
 		System.out.printf("Fetching account information from %s%n",
 			address);
 
-		try {
-			// Get account information
-			final JsonNode account = getAccountInfo(address);
+		// Get account information
+		final JsonNode account = getAccountInfo(address);
 
-			// Display balances for all mosaics the account holds
-			final JsonNode accountMosaics = account.get("mosaics");
-			if (accountMosaics.isEmpty()) {
-				System.out.println("Account holds no mosaics");
-			} else {
-				System.out.printf("Account holds %d mosaic(s):%n",
-					accountMosaics.size());
+		// Display balances for all mosaics the account holds
+		final JsonNode accountMosaics = account.get("mosaics");
+		if (accountMosaics.isEmpty()) {
+			System.out.println("Account holds no mosaics");
+		} else {
+			System.out.printf("Account holds %d mosaic(s):%n",
+				accountMosaics.size());
 
-				// Fetch mosaic properties and names for all mosaics
-				final List<BigInteger> mosaicIds = new ArrayList<>();
-				for (final JsonNode mosaicEntry : accountMosaics)
-					mosaicIds.add(new BigInteger(
-						mosaicEntry.get("id").asText(), 16));
-				final Map<BigInteger, List<String>> mosaicNames =
-					getMosaicNames(mosaicIds);
-				final Map<BigInteger, JsonNode> mosaicsInfo =
-					getMosaicsInfo(mosaicIds);
+			// Fetch mosaic properties and names for all mosaics
+			final List<BigInteger> mosaicIds = new ArrayList<>();
+			for (final JsonNode mosaicEntry : accountMosaics)
+				mosaicIds.add(new BigInteger(
+					mosaicEntry.get("id").asText(), 16));
+			final Map<BigInteger, List<String>> mosaicNames =
+				getMosaicNames(mosaicIds);
+			final Map<BigInteger, JsonNode> mosaicsInfo =
+				getMosaicsInfo(mosaicIds);
 
-				for (final JsonNode mosaicEntry : accountMosaics) {
-					final BigInteger mosaicId = new BigInteger(
-						mosaicEntry.get("id").asText(), 16);
-					final BigInteger balance = new BigInteger(
-						mosaicEntry.get("amount").asText());
+			for (final JsonNode mosaicEntry : accountMosaics) {
+				final BigInteger mosaicId = new BigInteger(
+					mosaicEntry.get("id").asText(), 16);
+				final BigInteger balance = new BigInteger(
+					mosaicEntry.get("amount").asText());
 
-					// Get mosaic properties
-					final JsonNode info = mosaicsInfo.get(mosaicId);
-					final int divisibility = info.get("divisibility")
-						.asInt();
+				// Get mosaic properties
+				final JsonNode info = mosaicsInfo.get(mosaicId);
+				final int divisibility = info.get("divisibility")
+					.asInt();
 
-					// Format and display the balance
-					final String formattedBalance = formatAmount(
-						balance, divisibility);
-					final String mosaicIdHex = String.format(
-						"0x%016X", mosaicId);
+				// Format and display the balance
+				final String formattedBalance = formatAmount(
+					balance, divisibility);
+				final String mosaicIdHex = String.format(
+					"0x%016X", mosaicId);
 
-					// Display mosaic ID and names (if available)
-					final List<String> names = mosaicNames.getOrDefault(
-						mosaicId, List.of());
-					if (names.isEmpty())
-						System.out.printf("- Mosaic %s%n", mosaicIdHex);
-					else
-						System.out.printf("- Mosaic %s (%s)%n",
-							mosaicIdHex,
-							String.join(", ", names));
+				// Display mosaic ID and names (if available)
+				final List<String> names = mosaicNames.getOrDefault(
+					mosaicId, List.of());
+				if (names.isEmpty())
+					System.out.printf("- Mosaic %s%n", mosaicIdHex);
+				else
+					System.out.printf("- Mosaic %s (%s)%n",
+						mosaicIdHex,
+						String.join(", ", names));
 
-					System.out.printf("  Balance: %s%n",
-						formattedBalance);
-					System.out.printf("  Balance (atomic): %s%n",
-						balance);
-					System.out.printf("  Divisibility: %d%n",
-						divisibility);
-				}
+				System.out.printf("  Balance: %s%n",
+					formattedBalance);
+				System.out.printf("  Balance (atomic): %s%n",
+					balance);
+				System.out.printf("  Divisibility: %d%n",
+					divisibility);
 			}
-		} catch (final Exception ex) {
-			System.out.println(ex.getMessage());
 		} // [<step-5]
 	}
 }

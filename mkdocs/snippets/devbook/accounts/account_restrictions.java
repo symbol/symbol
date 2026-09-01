@@ -9,7 +9,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,10 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.symbol.sdk.CryptoTypes;
 import org.symbol.sdk.facade.SymbolFacade;
 import org.symbol.sdk.symbol.Address;
-import org.symbol.sdk.symbol.FeeCalculator;
 import org.symbol.sdk.symbol.KeyPair;
-import org.symbol.sdk.symbol.NetworkTimestamp;
 import org.symbol.sdk.symbol.SymbolTransactionFactory;
+import org.symbol.sdk.symbol.descriptors.*;
 import org.symbol.sdk.symbol.models.*;
 
 final class AccountRestrictions {
@@ -119,23 +117,19 @@ final class AccountRestrictions {
 
 	// Returns a transaction that restricts an account
 	private Transaction restrictionEnableTransaction( // [>step-5]
-		final NetworkTimestamp timestamp,
 		final long feeMultiplier
 	) throws IOException {
 		final Transaction transaction =
-			facade.transactionFactory.create(Map.of(
-				"type", "account_address_restriction_transaction_v1",
-				"signerPublicKey", signerKeyPair.getPublicKey(),
-				"deadline", timestamp.addHours(2).timestamp,
-				"restrictionFlags", new AccountRestrictionFlags(
-					AccountRestrictionFlags.ADDRESS.value |
-					AccountRestrictionFlags.OUTGOING.value),
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"restrictionAdditions", (Object) List.of(authAddress)));
-		transaction.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				transaction, feeMultiplier)));
+			facade.createTransactionFromTypedDescriptor(
+				new AccountAddressRestrictionTransactionV1Descriptor(
+					new AccountRestrictionFlags(
+						AccountRestrictionFlags.ADDRESS.value |
+						AccountRestrictionFlags.OUTGOING.value),
+					List.of(authAddress),
+					null),
+				signerKeyPair.getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60);
 		System.out.println("Enabling the restriction with transaction:");
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
 			.writeValueAsString(transaction.toJson()));
@@ -145,7 +139,6 @@ final class AccountRestrictions {
 
 	// Returns a transaction that removes a restriction from an account
 	private Transaction restrictionDisableTransaction( // [>step-6]
-		final NetworkTimestamp timestamp,
 		final long feeMultiplier,
 		final JsonNode restriction
 	) throws IOException {
@@ -155,19 +148,16 @@ final class AccountRestrictions {
 				Address.fromDecodedAddressHexString(value.asText()));
 
 		final Transaction transaction =
-			facade.transactionFactory.create(Map.of(
-				"type", "account_address_restriction_transaction_v1",
-				"signerPublicKey", signerKeyPair.getPublicKey(),
-				"deadline", timestamp.addHours(2).timestamp,
-				"restrictionFlags", new AccountRestrictionFlags(
-					AccountRestrictionFlags.ADDRESS.value |
-					AccountRestrictionFlags.OUTGOING.value),
-				// Cast one value to infer Map<String, Object>,
-				// as expected by the SDK.
-				"restrictionDeletions", (Object) restrictionDeletions));
-		transaction.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				transaction, feeMultiplier)));
+			facade.createTransactionFromTypedDescriptor(
+				new AccountAddressRestrictionTransactionV1Descriptor(
+					new AccountRestrictionFlags(
+						AccountRestrictionFlags.ADDRESS.value |
+						AccountRestrictionFlags.OUTGOING.value),
+					null,
+					restrictionDeletions),
+				signerKeyPair.getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60);
 		System.out.println("Disabling the restriction with transaction:");
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
 			.writeValueAsString(transaction.toJson()));
@@ -197,23 +187,7 @@ final class AccountRestrictions {
 		System.out.printf("Authorized address: %s%n", authAddress);
 		// [<step-1]
 
-		// Fetch current network time [>step-2]
-		final String timePath = "/node/time";
-		System.out.printf(
-			"Fetching current network time from %s%n", timePath);
-		final HttpRequest timeRequest = HttpRequest.newBuilder(
-			URI.create(nodeUrl + timePath)).GET().build();
-		final HttpResponse<String> timeResponse = HTTP_CLIENT.send(
-			timeRequest, BodyHandlers.ofString());
-		final JsonNode timeJson = JSON_MAPPER.readTree(
-			timeResponse.body());
-		final NetworkTimestamp timestamp = new NetworkTimestamp(
-			timeJson.get("communicationTimestamps")
-				.get("receiveTimestamp").asLong());
-		System.out.printf("  Network time: %dms since nemesis%n",
-			timestamp.timestamp);
-
-		// Fetch recommended fees
+		// Fetch recommended fees [>step-2]
 		final String feePath = "/network/fees/transaction";
 		System.out.printf("Fetching recommended fees from %s%n", feePath);
 		final HttpRequest feeRequest = HttpRequest.newBuilder(
@@ -235,11 +209,11 @@ final class AccountRestrictions {
 		if (restrictions.isEmpty()) {
 			System.out.println("\n--- Enabling restriction ---");
 			transaction = restrictionEnableTransaction(
-				timestamp, feeMultiplier);
+				feeMultiplier);
 		} else {
 			System.out.println("\n--- Disabling restriction ---");
 			transaction = restrictionDisableTransaction(
-				timestamp, feeMultiplier, restrictions.get(0));
+				feeMultiplier, restrictions.get(0));
 		}
 		// [<step-4]
 		// Sign, announce and wait for confirmation [>step-7]
@@ -252,15 +226,14 @@ final class AccountRestrictions {
 		// [<step-7]
 		// [>step-8]
 		// Try a dummy transfer to a random address with no mosaics
-		transaction = facade.transactionFactory.create(Map.of(
-			"type", "transfer_transaction_v1",
-			"signerPublicKey", signerKeyPair.getPublicKey(),
-			"deadline", timestamp.addHours(2).timestamp,
-			"recipientAddress",
-				"TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y"));
-		transaction.setFee(new Amount(
-			FeeCalculator.calculateTransactionFee(
-				transaction, feeMultiplier)));
+		transaction = facade.createTransactionFromTypedDescriptor(
+			new TransferTransactionV1Descriptor(
+				new Address("TBBHGE77IHHOIYA46B3XSORRNR2L5MLW54YO75Y"),
+				null,
+				null),
+			signerKeyPair.getPublicKey(),
+			feeMultiplier,
+			2 * 60 * 60);
 		payload = SymbolTransactionFactory.attachSignature(
 			transaction,
 			facade.signTransaction(signerKeyPair, transaction));

@@ -17,10 +17,15 @@ import org.symbol.sdk.facade.SymbolFacade;
 import org.symbol.sdk.symbol.NetworkTimestamp;
 
 final class HelloWorld {
-	private HelloWorld() {
+	public static void main(final String[] args) {
+		try {
+			new HelloWorld().run();
+		} catch (final Exception ex) {
+			System.out.println(ex.getMessage());
+		}
 	}
 
-	public static void main(final String[] args) {
+	private void run() throws IOException, InterruptedException {
 		// [>step-1]
 		final SymbolFacade facade = new SymbolFacade("mainnet");
 		System.out.println(
@@ -33,27 +38,22 @@ final class HelloWorld {
 		// [>step-2]
 		final String nodeUrl = "https://whydah.symbolmain.net:3001";
 		System.out.println("Using node " + nodeUrl);
-		try {
-			// Fetch current chain information
-			final String infoPath = "/chain/info";
-			System.out.println(
-				"Fetching chain information from " + infoPath);
-			final HttpClient client = HttpClient.newHttpClient();
-			final HttpRequest request = HttpRequest
-				.newBuilder(URI.create(nodeUrl + infoPath))
-				.timeout(Duration.ofSeconds(10))
-				.GET()
-				.build();
-			final HttpResponse<String> response = client.send(
-				request, BodyHandlers.ofString());
-			final JsonNode responseJson = new ObjectMapper()
-				.readTree(response.body());
-			final long height = responseJson.get("height").asLong();
-			System.out.printf(
-				"  Blockchain height: %,d blocks%n", height);
-
-		} catch (final IOException | InterruptedException ex) {
-			System.out.println(ex.getMessage());
-		} // [<step-2]
+		// Fetch current chain information
+		final String infoPath = "/chain/info";
+		System.out.println(
+			"Fetching chain information from " + infoPath);
+		final HttpClient client = HttpClient.newHttpClient();
+		final HttpRequest request = HttpRequest
+			.newBuilder(URI.create(nodeUrl + infoPath))
+			.timeout(Duration.ofSeconds(10))
+			.GET()
+			.build();
+		final HttpResponse<String> response = client.send(
+			request, BodyHandlers.ofString());
+		final JsonNode responseJson = new ObjectMapper()
+			.readTree(response.body());
+		final long height = responseJson.get("height").asLong();
+		System.out.printf(
+			"  Blockchain height: %,d blocks%n", height); // [<step-2]
 	}
 }
