@@ -8,5 +8,5 @@ export NO_MKDOCS_2_WARNING=1
 export DISABLE_MKDOCS_2_WARNING=true
 
 # Run from the mkdocs folder
-mkdocs build -f config/mkdocs.en.yml
-mkdocs build -f config/mkdocs.ja.yml
+mkdocs build -f config/mkdocs.en.yml -v --strict
+mkdocs build -f config/mkdocs.ja.yml -v --strict
