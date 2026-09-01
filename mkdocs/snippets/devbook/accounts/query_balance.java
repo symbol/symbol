@@ -209,7 +209,7 @@ final class QueryBalance {
 						divisibility);
 				}
 			}
-		} catch (final IOException | InterruptedException ex) {
+		} catch (final Exception ex) {
 			System.out.println(ex.getMessage());
 		} // [<step-5]
 	}

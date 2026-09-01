@@ -281,7 +281,7 @@ final class AccountMetadata {
 			announceTransaction(updatePayload, "update transaction");
 			waitForConfirmation(updateTxHash, "update transaction");
 			// [<step-9]
-		} catch (final IOException | InterruptedException ex) {
+		} catch (final Exception ex) {
 			System.out.println(ex.getMessage());
 		}
 	}
