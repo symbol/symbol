@@ -1,11 +1,12 @@
 import posixpath
+import re
 from pathlib import Path, PurePosixPath
 from typing import Optional
 from urllib.parse import urlsplit, urlunsplit
 
-import mkdocs_gen_files
 import markdown
-from bs4 import BeautifulSoup, Comment
+import mkdocs_gen_files
+from bs4 import BeautifulSoup, Comment, NavigableString
 
 nav = mkdocs_gen_files.Nav()
 
@@ -20,6 +21,12 @@ NAV_ORDER_OVERRIDES = {
 	"package-summary": 0,
 	"package-tree": 1,
 }
+
+VERSIONED_CLASS_NAME = re.compile(
+	r"^(?P<base>.+)V(?P<version>\d+)(?P<suffix>Descriptor)?$")
+JAVA_CLASS_NAME = re.compile(r"(?<![\w.])[A-Z]\w*(?![\w])")
+JAVA_AUTOLINK_SKIP_PARENTS = {"a", "code", "pre", "script", "style"}
+java_reference_paths = {}
 
 
 def javadoc_path_to_page_dir(path: PurePosixPath) -> PurePosixPath:
@@ -71,16 +78,28 @@ def rewrite_javadoc_link(current_path: PurePosixPath, href: str) -> str:
 	# Resolve Javadoc's relative HTML target, then express the equivalent MkDocs page URL
 	# relative to the current generated page.
 	target_path = PurePosixPath(posixpath.normpath((current_path.parent / url.path).as_posix()))
+	return relative_javadoc_url(current_path, target_path, url.query, url.fragment)
+
+
+def relative_javadoc_url(
+	current_path: PurePosixPath,
+	target_path: PurePosixPath,
+	query: str = "",
+	fragment: str = ""
+) -> str:
+	"""
+	Returns the MkDocs directory-style relative URL between two Javadoc pages.
+	"""
 	current_page_dir = javadoc_path_to_page_dir(current_path)
 	target_page_dir = javadoc_path_to_page_dir(target_path)
 
 	if target_page_dir == current_page_dir:
-		rewritten_path = "" if url.fragment else "./"
+		rewritten_path = "" if fragment else "./"
 	else:
 		rewritten_path = posixpath.relpath(target_page_dir.as_posix(), current_page_dir.as_posix() or ".")
 		rewritten_path = f"{rewritten_path}/"
 
-	return urlunsplit(("", "", rewritten_path, url.query, url.fragment))
+	return urlunsplit(("", "", rewritten_path, query, fragment))
 
 
 def relative_docs_url(current_path: PurePosixPath, target_url) -> str:
@@ -241,6 +260,71 @@ def remap_method_name(class_name: str, method_name: str, remaps: dict[str, str])
 	return remaps.get(f"{class_name}.{method_name}", remaps.get(method_name, method_name))
 
 
+def build_java_reference_paths(
+	html_files: list[Path], root_dir: Path
+) -> dict[str, PurePosixPath]:
+	"""
+	Builds an index of exact and latest-version Java class names.
+	"""
+	paths = {}
+	versioned_paths = {}
+	for html_file in html_files:
+		indexed_path = PurePosixPath(html_file.relative_to(root_dir).as_posix())
+		class_name = html_file.stem.rsplit(".", 1)[-1]
+		paths[class_name] = indexed_path
+		match = VERSIONED_CLASS_NAME.match(class_name)
+		if not match:
+			continue
+
+		base_name = match.group("base") + (match.group("suffix") or "")
+		version = int(match.group("version"))
+		if version > versioned_paths.get(base_name, (0, None))[0]:
+			versioned_paths[base_name] = (version, indexed_path)
+
+	for base_name, (_, target_path) in versioned_paths.items():
+		paths.setdefault(base_name, target_path)
+
+	return paths
+
+
+def add_java_reference_links(soup: BeautifulSoup, current_path: PurePosixPath) -> None:
+	"""
+	Adds links to plain Java class names inside rendered descriptions.
+	"""
+	descriptions = soup.select(
+		"dl.automatic-reference-term > dd, dl.notes dd")
+	for text_node in list(
+		text for node in descriptions for text in node.find_all(string=True)
+	):
+		if not isinstance(text_node, NavigableString):
+			continue
+		if text_node.find_parent(JAVA_AUTOLINK_SKIP_PARENTS):
+			continue
+
+		for match in reversed(list(JAVA_CLASS_NAME.finditer(text_node))):
+			class_name = match.group(0)
+			target_name = (
+				f"{class_name}Descriptor"
+				if current_path.parent.name == "descriptors"
+				else class_name
+			)
+			target_path = java_reference_paths.get(
+				target_name, java_reference_paths.get(class_name))
+			if not target_path:
+				continue
+			if javadoc_path_to_page_dir(target_path) == javadoc_path_to_page_dir(current_path):
+				continue
+
+			text = str(text_node)
+			link = soup.new_tag(
+				"a", href=relative_javadoc_url(current_path, target_path))
+			link.string = class_name
+			before = NavigableString(text[:match.start()])
+			text_node.replace_with(
+				before, link, NavigableString(text[match.end():]))
+			text_node = before
+
+
 def render_markdown_contents(node) -> None:
 	"""
 	Renders Markdown-ish text inside a selected Javadoc documentation node.
@@ -332,6 +416,7 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 	add_class_definition_list(soup)
 	add_method_definition_lists(soup)
 	render_note_descriptions(soup)
+	add_java_reference_links(soup, current_path)
 
 	for link in soup.find_all("a", href=True):
 		link["href"] = rewrite_javadoc_link(current_path, link["href"])
@@ -346,11 +431,11 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 	return "".join(str(child) for child in main.contents)
 
 
-def write_nav_file(dst_dir: PurePosixPath) -> None:
+def write_nav_file(output_dir: PurePosixPath) -> None:
 	"""
 	Writes the generated Java reference navigation file.
 	"""
-	with mkdocs_gen_files.open(dst_dir / "links.md", "w") as nav_file:
+	with mkdocs_gen_files.open(output_dir / "links.md", "w") as nav_file:
 		# Exclude the index file from being indexed by the search plugin
 		nav_file.writelines([
 			"---\n",
@@ -363,62 +448,62 @@ def write_nav_file(dst_dir: PurePosixPath) -> None:
 
 config = mkdocs_gen_files.config
 project_dir = Path(config.config_file_path).resolve().parent
-dst_dir = PurePosixPath(config["extra"]["symbol"]["java-sdk"]["output_dir"])
+symbol_config = config["extra"]["symbol"]
+java_sdk_config = symbol_config["java-sdk"]
+dst_dir = PurePosixPath(java_sdk_config["output_dir"])
+src_dir = (project_dir / java_sdk_config["javadoc_build_dir"]).resolve()
+ignored_files = java_sdk_config["ignore-files"]
+ignored_folders = java_sdk_config["ignore-folders"]
+class_remaps = java_sdk_config["class-remaps"]
+redirects = {
+	redirect["from"].lstrip("/"): redirect["to"]
+	for redirect in symbol_config.get("redirections", [])
+}
+languages = {
+	alternate["lang"]
+	for alternate in config["extra"].get("alternate", [])
+}
 
-if config["extra"]["symbol"]["java-sdk"]["disabled"]:
+if java_sdk_config["disabled"]:
 	write_nav_file(dst_dir)
 else:
-	src_dir = config["extra"]["symbol"]["java-sdk"]["javadoc_build_dir"]
-	src_dir = (project_dir / src_dir).resolve()
 	if not src_dir.is_dir():
 		raise FileNotFoundError(
 			f"Javadoc build directory does not exist: {src_dir}"
 		)
 
-	ignored_files = config["extra"]["symbol"]["java-sdk"]["ignore-files"]
-	ignored_folders = config["extra"]["symbol"]["java-sdk"]["ignore-folders"]
-	class_remaps = config["extra"]["symbol"]["java-sdk"]["class-remaps"]
-	redirects = {
-		redirect["from"].lstrip("/"): redirect["to"]
-		for redirect in config["extra"]["symbol"].get("redirections", [])
-	}
-	languages = {
-		alternate["lang"]
-		for alternate in config["extra"].get("alternate", [])
-	}
-
 	source_files = sorted(
-		(path for path in src_dir.rglob("*") if path.is_file()),
+		(
+			path for path in src_dir.rglob("*.html")
+			if not is_ignored_javadoc_path(
+				PurePosixPath(path.relative_to(src_dir).as_posix()))
+		),
 		key=source_file_sort_key)
+	java_reference_paths = build_java_reference_paths(source_files, src_dir)
+
 	for source_file in source_files:
 		relative_path = PurePosixPath(source_file.relative_to(src_dir).as_posix())
-		if relative_path.suffix.lower() == ".html":
-			# Generated files must use docs-relative POSIX paths for mkdocs-gen-files.
-			destination = dst_dir / relative_path.with_suffix(".md")
+		# Generated files must use docs-relative POSIX paths for mkdocs-gen-files.
+		destination = dst_dir / relative_path.with_suffix(".md")
 
-			src_parts = relative_path.with_suffix("").parts
-			if src_parts[-1] in ignored_files:
-				continue
-			if any(e in src_parts for e in ignored_folders):
-				continue
+		src_parts = relative_path.with_suffix("").parts
+		full_html = transform_javadoc_html(
+			source_file.read_text(encoding="utf-8"), relative_path)
+		title = TITLE_OVERRIDES.get(src_parts[-1])
 
-			full_html = transform_javadoc_html(
-				source_file.read_text(encoding="utf-8"), relative_path)
-			title = TITLE_OVERRIDES.get(src_parts[-1])
+		with mkdocs_gen_files.open(destination, "w") as output:
+			print("---", file=output)
+			if title:
+				print(f'title: "{title}"', file=output)
+			print("hide:", file=output)
+			print("  - toc", file=output)
+			print("---", file=output)
+			print(file=output)
+			print('<div class="javadoc-container">', file=output)
+			print(full_html, file=output)
+			print("</div>", file=output)
 
-			with mkdocs_gen_files.open(destination, "w") as output:
-				print("---", file=output)
-				if title:
-					print(f'title: "{title}"', file=output)
-				print("hide:", file=output)
-				print("  - toc", file=output)
-				print("---", file=output)
-				print(file=output)
-				print('<div class="javadoc-container">', file=output)
-				print(full_html, file=output)
-				print("</div>", file=output)
-
-			mkdocs_gen_files.set_edit_path(destination, source_file.as_posix())
-			nav[nav_parts(src_parts)] = relative_path.with_suffix(".md").as_posix()
+		mkdocs_gen_files.set_edit_path(destination, source_file.as_posix())
+		nav[nav_parts(src_parts)] = relative_path.with_suffix(".md").as_posix()
 
 	write_nav_file(dst_dir)
