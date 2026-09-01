@@ -4,6 +4,7 @@ from typing import Optional
 from urllib.parse import urlsplit, urlunsplit
 
 import mkdocs_gen_files
+import markdown
 from bs4 import BeautifulSoup, Comment
 
 nav = mkdocs_gen_files.Nav()
@@ -57,7 +58,14 @@ def rewrite_javadoc_link(current_path: PurePosixPath, href: str) -> str:
 	Rewrites internal Javadoc .html links to MkDocs directory-style links.
 	"""
 	url = urlsplit(href)
-	if url.scheme or url.netloc or not url.path.endswith(".html"):
+	if url.scheme or url.netloc:
+		return href
+
+	redirect = redirect_url(current_path, url)
+	if redirect:
+		return redirect
+
+	if not url.path.endswith(".html"):
 		return href
 
 	# Resolve Javadoc's relative HTML target, then express the equivalent MkDocs page URL
@@ -73,6 +81,40 @@ def rewrite_javadoc_link(current_path: PurePosixPath, href: str) -> str:
 		rewritten_path = f"{rewritten_path}/"
 
 	return urlunsplit(("", "", rewritten_path, url.query, url.fragment))
+
+
+def relative_docs_url(current_path: PurePosixPath, target_url) -> str:
+	"""
+	Returns a language-neutral relative link to a docs-root target URL.
+	"""
+	current_page_dir = dst_dir / javadoc_path_to_page_dir(current_path)
+	target_path = PurePosixPath(target_url.path.lstrip("/"))
+	if target_path.parts and target_path.parts[0] in languages:
+		target_path = PurePosixPath(*target_path.parts[1:])
+
+	rewritten_path = posixpath.relpath(
+		target_path.as_posix(), current_page_dir.as_posix() or ".")
+	if target_url.path.endswith("/"):
+		rewritten_path = f"{rewritten_path}/"
+
+	return urlunsplit(("", "", rewritten_path, target_url.query, target_url.fragment))
+
+
+def redirect_url(current_path: PurePosixPath, url) -> Optional[str]:
+	"""
+	Returns the configured replacement for an old docs URL, if one exists.
+	"""
+	redirect = redirects.get(url.path.lstrip("/"))
+	if not redirect:
+		return None
+
+	target = urlsplit(redirect)
+	query = target.query or url.query
+	fragment = target.fragment or url.fragment
+	return relative_docs_url(
+		current_path,
+		target._replace(query=query, fragment=fragment)
+	)
 
 
 def javadoc_link_path(current_path: PurePosixPath, href: str) -> Optional[PurePosixPath]:
@@ -199,6 +241,27 @@ def remap_method_name(class_name: str, method_name: str, remaps: dict[str, str])
 	return remaps.get(f"{class_name}.{method_name}", remaps.get(method_name, method_name))
 
 
+def render_markdown_contents(node) -> None:
+	"""
+	Renders Markdown-ish text inside a selected Javadoc documentation node.
+	"""
+	markdown_text = node.decode_contents().replace(
+		r"\note ", "<br/>**Note:** ")
+	rendered_html = markdown.markdown(
+		markdown_text, extensions=["md_in_html"])
+	rendered_soup = BeautifulSoup(rendered_html, "html.parser")
+	node.clear()
+	node.extend(rendered_soup.contents)
+
+
+def render_note_descriptions(soup: BeautifulSoup) -> None:
+	"""
+	Renders Markdown-ish text in Javadoc notes, such as parameter descriptions.
+	"""
+	for description_node in soup.select("dl.notes dd"):
+		render_markdown_contents(description_node)
+
+
 def add_class_definition_list(soup: BeautifulSoup) -> None:
 	"""
 	Wraps the class description in a definition list used by ezglossary.
@@ -213,6 +276,7 @@ def add_class_definition_list(soup: BeautifulSoup) -> None:
 		return
 
 	class_name = short_class_name(name_node.get_text("", strip=True))
+	render_markdown_contents(description_node)
 	definition_list = soup.new_tag("dl", attrs={"class": "automatic-reference-term", "markdown": ""})
 	definition_title = soup.new_tag("dt")
 	definition_title.string = java_glossary_term(remap_class_name(class_name, class_remaps))
@@ -241,6 +305,7 @@ def add_method_definition_lists(soup: BeautifulSoup) -> None:
 
 		method_name = name_node.get_text("", strip=True)
 		remapped_method_name = remap_method_name(class_name, method_name, class_remaps)
+		render_markdown_contents(description_node)
 		definition_list = soup.new_tag("dl", attrs={"class": "automatic-reference-term", "markdown": ""})
 		definition_title = soup.new_tag("dt")
 		definition_title.string = java_glossary_term(f"{remap_class_name(class_name, class_remaps)}.{remapped_method_name}")
@@ -264,11 +329,12 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 
 	remove_ignored_javadoc_references(soup, current_path)
 
-	for link in soup.find_all("a", href=True):
-		link["href"] = rewrite_javadoc_link(current_path, link["href"])
-
 	add_class_definition_list(soup)
 	add_method_definition_lists(soup)
+	render_note_descriptions(soup)
+
+	for link in soup.find_all("a", href=True):
+		link["href"] = rewrite_javadoc_link(current_path, link["href"])
 
 	main = soup.find("main")
 	if not main:
@@ -312,6 +378,14 @@ else:
 	ignored_files = config["extra"]["symbol"]["java-sdk"]["ignore-files"]
 	ignored_folders = config["extra"]["symbol"]["java-sdk"]["ignore-folders"]
 	class_remaps = config["extra"]["symbol"]["java-sdk"]["class-remaps"]
+	redirects = {
+		redirect["from"].lstrip("/"): redirect["to"]
+		for redirect in config["extra"]["symbol"].get("redirections", [])
+	}
+	languages = {
+		alternate["lang"]
+		for alternate in config["extra"].get("alternate", [])
+	}
 
 	source_files = sorted(
 		(path for path in src_dir.rglob("*") if path.is_file()),
