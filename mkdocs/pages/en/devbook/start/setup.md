@@ -62,6 +62,75 @@ Select the language you prefer:
     ```
     </td></tr></table>
 
+=== ":fontawesome-brands-java: Java"
+
+    <table markdown class="setup">
+    <tr markdown><td>Prerequisites</td><td markdown>[JBang](https://www.jbang.dev/download/)
+
+    The tutorials use JBang to simplify Java version and dependency management, but it is not a requirement
+    for applications.</td></tr>
+    <tr markdown><td>Installation</td><td markdown>
+    The Java snippets use JBang comments to select a compatible Java version and load the Symbol SDK directly from Maven Central:
+    ```java
+    //JAVA 21+
+    //DEPS org.symbol:symbol-sdk:3.3.1
+    ```
+
+    When you run a snippet, JBang downloads the Symbol SDK and its dependencies into its local cache.
+    No `pom.xml`, `build.gradle`, or manual classpath setup is required.
+    </td></tr>
+    <tr markdown><td>Running the Sample Code</td><td markdown>
+    Download a sample and run it with:
+    ```bash
+    jbang hello_world.java
+    ```
+    </td></tr></table>
+
+    ??? note "Alternate SDK installation"
+
+        If you are building a Java application instead of running standalone snippets, add the Symbol SDK to your
+        project with your build tool.
+
+        === "Gradle"
+
+            ```kotlin
+            repositories {
+                mavenCentral()
+            }
+
+            dependencies {
+                implementation("org.symbol:symbol-sdk:3.3.1")
+            }
+            ```
+
+        === "Maven"
+
+            ```xml
+            <dependency>
+                <groupId>org.symbol</groupId>
+                <artifactId>symbol-sdk</artifactId>
+                <version>3.3.1</version>
+            </dependency>
+            ```
+
+        Use Java 21 or later.
+
+    ??? warning "Troubleshooting"
+
+        * If the `jbang` command is not found after installation, restart your terminal and try again.
+
+        * Java snippets declare `#!java //JAVA 21+`, so JBang will use a compatible JDK when available.
+
+            If JBang cannot find or download one, install a Java 21 or later JDK and run the snippet again.
+
+        * If the Symbol SDK dependency cannot be resolved, check your network connection, clear JBang's cache,
+            and run the snippet again:
+
+            ```bash
+            jbang cache clear
+            jbang hello_world.java
+            ```
+
 ## Next Steps
 
 * Proceed to [Creating a Hello World Application](./hello-world.md)
