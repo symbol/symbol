@@ -138,7 +138,7 @@ COMMENT_RE = re.compile(r'(?P<prefix>[ \t]*(#|//))\s*(?P<body>.*)$')
 
 def extract_tutorial_code(config: base.Config) -> None:
 	"""
-	Scans all .py and .mjs files under snippets/devbook and reads all tutorial code, separating it into
+	Scans all .py, .mjs, and .java files under snippets/devbook and reads all tutorial code, separating it into
 	sections using [>start] and [<end] markers, and removing the markers.
 	Stores the result in config.extra.symbol.tutorial_code:
 	{
@@ -271,7 +271,7 @@ def extract_tutorial_code(config: base.Config) -> None:
 		if not path.is_file():
 			continue
 
-		if path.suffix not in {'.py', '.mjs'}:
+		if path.suffix not in {'.py', '.mjs', '.java'}:
 			continue
 
 		rel_path = path.relative_to(root).as_posix()
@@ -398,8 +398,8 @@ def page_markdown_dylinks(content, page, config, in_files):
 	- method-remaps does the same for methods.
 	- The array extra.symbol.global-namespaces lists class names which do not exist in JS and must be removed.
 	"""
-	langs = ['py', 'js']
-	lang_names = ['Python', 'JavaScript']
+	langs = ['py', 'js', 'java']
+	lang_names = ['Python', 'JavaScript', 'Java']
 	class_remaps = config['extra']['symbol']['py-sdk']['class-remaps']
 	method_remaps = config['extra']['symbol']['py-sdk']['method-remaps']
 	global_namespaces = config['extra']['symbol']['global-namespaces']
