@@ -74,6 +74,87 @@ def rewrite_javadoc_link(current_path: PurePosixPath, href: str) -> str:
 	return urlunsplit(("", "", rewritten_path, url.query, url.fragment))
 
 
+def short_class_name(name: str) -> str:
+	"""
+	Returns an unqualified class name from Javadoc's type label text.
+	"""
+	return name.split("<", 1)[0].rsplit(".", 1)[-1].strip()
+
+
+def java_glossary_term(name: str) -> str:
+	"""
+	Returns the ezglossary term key for a Java API symbol.
+	"""
+	return f"java:{name}"
+
+
+def remap_class_name(name: str, class_remaps: dict[str, str]) -> str:
+	"""
+	Returns the configured glossary name for a Java class.
+	"""
+	return class_remaps.get(name, name)
+
+
+def remap_method_name(class_name: str, method_name: str, class_remaps: dict[str, str]) -> str:
+	"""
+	Returns the configured glossary name for a Java method.
+	"""
+	return class_remaps.get(f"{class_name}.{method_name}", class_remaps.get(method_name, method_name))
+
+
+def add_class_definition_list(soup: BeautifulSoup) -> None:
+	"""
+	Wraps the class description in a definition list used by ezglossary.
+	"""
+	class_description = soup.select_one("section#class-description")
+	if not class_description:
+		return
+
+	name_node = class_description.select_one(".type-signature .element-name.type-name-label")
+	description_node = class_description.select_one(".type-signature + .block")
+	if not name_node or not description_node:
+		return
+
+	class_name = short_class_name(name_node.get_text("", strip=True))
+	definition_list = soup.new_tag("dl", attrs={"class": "automatic-reference-term", "markdown": ""})
+	definition_title = soup.new_tag("dt")
+	definition_title.string = java_glossary_term(remap_class_name(class_name, class_remaps))
+	definition_description = soup.new_tag("dd")
+
+	description_node.replace_with(definition_list)
+	definition_list.append(definition_title)
+	definition_list.append(definition_description)
+	definition_description.append(description_node)
+
+
+def add_method_definition_lists(soup: BeautifulSoup) -> None:
+	"""
+	Wraps method descriptions in definition lists used by ezglossary.
+	"""
+	class_name_node = soup.select_one("section#class-description .type-signature .element-name.type-name-label")
+	if not class_name_node:
+		return
+
+	class_name = short_class_name(class_name_node.get_text("", strip=True))
+	for method in soup.select("section.method-details section.detail"):
+		name_node = method.select_one(".member-signature .element-name")
+		description_node = method.select_one(".member-signature + .block")
+		if not name_node or not description_node:
+			continue
+
+		method_name = name_node.get_text("", strip=True)
+		remapped_method_name = remap_method_name(class_name, method_name, class_remaps)
+		definition_list = soup.new_tag("dl", attrs={"class": "automatic-reference-term", "markdown": ""})
+		definition_title = soup.new_tag("dt")
+		definition_title.string = java_glossary_term(f"{remap_class_name(class_name, class_remaps)}.{remapped_method_name}")
+		definition_description = soup.new_tag("dd")
+
+		description_node.replace_with(definition_list)
+		definition_list.append(definition_title)
+		definition_list.append(definition_description)
+		definition_description.append(description_node)
+
+
 def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 	"""
 	Transforms raw Javadoc HTML so it can be embedded inside a MkDocs page.
@@ -86,6 +167,9 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 
 	for link in soup.find_all("a", href=True):
 		link["href"] = rewrite_javadoc_link(current_path, link["href"])
+
+	add_class_definition_list(soup)
+	add_method_definition_lists(soup)
 
 	return str(soup)
 
@@ -102,6 +186,7 @@ if not src_dir.is_dir():
 dst_dir = PurePosixPath(config['extra']['symbol']['java-sdk']['output_dir'])
 ignored_files = config['extra']['symbol']['java-sdk']['ignore-files']
 ignored_folders = config['extra']['symbol']['java-sdk']['ignore-folders']
+class_remaps = config['extra']['symbol']['java-sdk']['class-remaps']
 
 source_files = sorted((path for path in src_dir.rglob("*") if path.is_file()), key=source_file_sort_key)
 for source_file in source_files:

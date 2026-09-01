@@ -135,6 +135,10 @@ extra:
       ignore-folders:
         - nem
         - impl
+      class-remaps:
+        generateKey: metadataGenerateKey
+        updateValue: metadataUpdateValue
+        getPublicKey: publicKey
     ts-sdk:
       output_dir: devbook/reference/ts
       tsconfig: ../sdk/javascript/tsconfig/check-bindings.json
