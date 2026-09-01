@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 # install dependencies (install tzdata first to prevent 'geographic area' prompt)
 RUN apt-get update \
 	&& apt-get install -y tzdata \
-	&& apt-get install -y openjdk-21-jdk-headless git curl libssl-dev maven ca-certificates zip unzip \
+	&& apt-get install -y openjdk-21-jdk-headless git curl libssl-dev maven ca-certificates zip unzip graphviz \
 	&& update-ca-certificates
 
 # install python
