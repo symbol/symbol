@@ -24,7 +24,7 @@ section.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/prove_mosaic_definition', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove_mosaic_definition', ['py', 'js', 'java']) }}
 
 This example verifies the network's currency mosaic (<XYM:> on mainnet), whose ID is discovered automatically from
 <get:/network/properties>.

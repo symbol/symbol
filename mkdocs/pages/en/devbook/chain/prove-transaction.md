@@ -27,7 +27,7 @@ This tutorial only reads data from the network. No <account:> or <XYM:> balance 
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/prove_transaction', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/chain/prove_transaction', ['py', 'js', 'java']) }}
 
 The snippet reads the hash of the transaction to prove from the `TRANSACTION_HASH` environment variable.
 If not set, a known transaction from block `55` of the Symbol testnet is used as the default.
