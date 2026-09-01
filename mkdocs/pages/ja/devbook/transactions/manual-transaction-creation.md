@@ -22,7 +22,7 @@ tutorial_level: intermediate
 * 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
 * [コード](../accounts/create-from-private-key.md) または
-    [ウォレットを使用して](../../userbook/wallet/create-account.md)、 <account:> を作成していること。
+    [ウォレットを使用して](../../userbook/wallet/create-account.md)、 [アカウント](default:アカウント) を作成していること。
 * トランザクション手数料を支払うための <XYM:> を入手していること。
     [蛇口 (Faucet) からの通貨の入手](../accounts/testnet-faucet.md) を参照してください。
 
@@ -45,8 +45,8 @@ tutorial_level: intermediate
 
 {{ tutorial.code_snippet_tagged('step-2') }}
 
-手動トランザクション作成では、 <network time:> で表される絶対的なデッドラインが必要です。
-ネットワーク時間は、 <nemesis block:> からの経過ミリ秒数として測定されます。
+手動トランザクション作成では、 [ネットワーク時間](default:ネットワーク時間) で表される絶対的なデッドラインが必要です。
+ネットワーク時間は、 [ネメシスブロック](default:ネメシスブロック) からの経過ミリ秒数として測定されます。
 
 ディスクリプタベースのトランザクション作成を使用する場合、SDK は代わりに現在からの秒数で表したデッドラインの期間を受け取るため、現在のネットワーク時間を取得する必要はありません。
 
@@ -79,7 +79,7 @@ Symbol のトランザクションは、ノードにトランザクションを�
 * {{ tutorial.var('deadline') }}: ネットワーク時間で表される絶対的なデッドラインです。
 * {{ tutorial.var('recipient_address') }}: この例では、受信者は送信者と同じです。
 * {{ tutorial.var('mosaics') }}: 送信するモザイクです。
-    この例では 1 XYM を送信します。XYM の <divisibility:> は 6 であるため、 `1_000_000` 絶対単位として表します。
+    この例では 1 XYM を送信します。XYM の [可分性](default:可分性) は 6 であるため、 `1_000_000` 絶対単位として表します。
 
 トランザクションが作成されると、そのサイズが分かります。
 最終的な手数料は <dy:FeeCalculator.calculateTransactionFee> を使用して計算されます。
