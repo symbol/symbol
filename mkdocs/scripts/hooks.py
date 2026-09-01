@@ -77,8 +77,7 @@ def parse_page_header(text: str) -> tuple[dict, Optional[str]]:
 @mkdocs.plugins.event_priority(-50)
 def on_files(in_files: mkdocs_files.Files, config: base.Config) -> mkdocs_files.Files:
 	"""
-	Exclude from processing files we don't care about:
-		Doxygen-generated: We only keep filenames starting with configured prefixes.
+	Exclude from processing files we don't care about.
 	Parse frontmatter of developer tutorials to find their level and store it for later.
 	"""
 	out_files: list[File] = []
