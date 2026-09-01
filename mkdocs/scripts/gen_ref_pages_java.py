@@ -74,6 +74,102 @@ def rewrite_javadoc_link(current_path: PurePosixPath, href: str) -> str:
 	return urlunsplit(("", "", rewritten_path, url.query, url.fragment))
 
 
+def javadoc_link_path(current_path: PurePosixPath, href: str) -> PurePosixPath | None:
+	"""
+	Resolves a Javadoc link target relative to the current source page.
+	"""
+	url = urlsplit(href)
+	if url.scheme or url.netloc or not url.path.endswith(".html"):
+		return None
+
+	return PurePosixPath(posixpath.normpath((current_path.parent / url.path).as_posix()))
+
+
+def is_ignored_javadoc_path(path: PurePosixPath) -> bool:
+	"""
+	Returns true when a Javadoc source path points at an ignored Java reference page.
+	"""
+	parts = path.with_suffix("").parts
+	return parts[-1] in ignored_files or any(part in ignored_folders for part in parts)
+
+
+def remove_adjacent_separator(node) -> None:
+	"""
+	Removes a comma separator next to an item removed from an inline Javadoc list.
+	"""
+	for sibling in (node.next_sibling, node.previous_sibling):
+		if not isinstance(sibling, str):
+			continue
+
+		stripped = sibling.strip()
+		if stripped == ",":
+			sibling.extract()
+			return
+		if stripped.startswith(","):
+			sibling.replace_with(sibling.replace(",", "", 1))
+			return
+		if stripped.endswith(","):
+			sibling.replace_with(sibling.rsplit(",", 1)[0])
+			return
+
+
+def remove_empty_note_list(node) -> None:
+	"""
+	Removes a notes definition list if all of its definitions became empty.
+	"""
+	notes = node.find_parent("dl", class_="notes")
+	if not notes:
+		return
+
+	if not any(dd.get_text("", strip=True) for dd in notes.find_all("dd")):
+		notes.decompose()
+
+
+def remove_summary_table_row(node) -> bool:
+	"""
+	Removes a Javadoc summary-table row whose first column references an ignored page.
+	"""
+	cell = node.find_parent("div", class_=lambda value: value and "col-first" in value.split())
+	if not cell:
+		return False
+
+	next_cell = cell.find_next_sibling("div", class_=lambda value: value and "col-last" in value.split())
+	cell.decompose()
+	if next_cell:
+		next_cell.decompose()
+	return True
+
+
+def remove_ignored_javadoc_reference(link) -> None:
+	"""
+	Removes a link to an ignored Java reference page and the smallest useful containing item.
+	"""
+	if remove_summary_table_row(link):
+		return
+
+	item = link.find_parent("code") or link.find_parent("li")
+	if not item:
+		link.decompose()
+		return
+
+	remove_adjacent_separator(item)
+	parent = item.parent
+	item.decompose()
+	remove_empty_note_list(parent)
+
+
+def remove_ignored_javadoc_references(soup: BeautifulSoup, current_path: PurePosixPath) -> None:
+	"""
+	Removes references to Java API pages excluded by the ignore-file/folder configuration.
+	"""
+	for link in list(soup.find_all("a", href=True)):
+		if not link.attrs:
+			continue
+		target_path = javadoc_link_path(current_path, link["href"])
+		if target_path and is_ignored_javadoc_path(target_path):
+			remove_ignored_javadoc_reference(link)
+
+
 def short_class_name(name: str) -> str:
 	"""
 	Returns an unqualified class name from Javadoc's type label text.
@@ -164,6 +260,8 @@ def transform_javadoc_html(html: str, current_path: PurePosixPath) -> str:
 	# Material already provides global navigation, so remove Javadoc's own header chrome.
 	for header in soup.select("header.flex-header"):
 		header.decompose()
+
+	remove_ignored_javadoc_references(soup, current_path)
 
 	for link in soup.find_all("a", href=True):
 		link["href"] = rewrite_javadoc_link(current_path, link["href"])
