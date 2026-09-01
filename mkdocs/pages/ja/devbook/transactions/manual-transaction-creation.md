@@ -30,7 +30,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/manual_transaction_creation', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/manual_transaction_creation', ['py', 'js', 'java']) }}
 
 ## コード解説 {: #code-explanation }
 
