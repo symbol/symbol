@@ -127,17 +127,13 @@ public final class BondedAggregate {
 		// Account A (initiates the aggregate tx
 		// and sends XYM to Account B)
 		final String accountAPrivateKey = System.getenv().getOrDefault(
-			"ACCOUNT_A_PRIVATE_KEY",
-			"00000000000000000000000000000000000000000000000000000000"
-				+ "00000000");
+			"ACCOUNT_A_PRIVATE_KEY", "0".repeat(64));
 		accountAKeyPair = new KeyPair(
 			new CryptoTypes.PrivateKey(accountAPrivateKey));
 
 		// Account B (sends custom mosaic to Account A)
 		final String accountBPrivateKey = System.getenv().getOrDefault(
-			"ACCOUNT_B_PRIVATE_KEY",
-			"11111111111111111111111111111111111111111111111111111111"
-				+ "11111111");
+			"ACCOUNT_B_PRIVATE_KEY", "1".repeat(64));
 		accountBKeyPair = new KeyPair(
 			new CryptoTypes.PrivateKey(accountBPrivateKey));
 

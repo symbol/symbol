@@ -86,6 +86,7 @@ public final class QueryBalance {
 				names.add(name.asText());
 			namesMap.put(mosaicId, names);
 		}
+
 		return namesMap;
 	} // [<step-2]
 
@@ -119,6 +120,7 @@ public final class QueryBalance {
 				mosaic.get("id").asText(), 16);
 			mosaicsMap.put(mosaicId, mosaic);
 		}
+
 		return mosaicsMap;
 	} // [<step-3]
 
