@@ -13,7 +13,7 @@ spotless {
 		trimTrailingWhitespace()
 		endWithNewline()
 		removeUnusedImports()
-		importOrder("java", "javax", "org.bouncycastle", "", "org.symbol")
+		importOrder("java", "javax", "", "org.symbol")
 	}
 }
 

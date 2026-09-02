@@ -28,6 +28,7 @@ public final class CreateFromPrivateKey {
 			System.out.println("Generating random account...");
 			privateKey = CryptoTypes.PrivateKey.random();
 		} // [<step-2]
+
 		// Create a key pair from the private key [>step-3]
 		final KeyPair keyPair = new KeyPair(privateKey);
 

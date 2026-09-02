@@ -45,17 +45,14 @@ public final class SignMultisig {
 
 		// [>step-1]
 		final String multisigPrivateKey = System.getenv().getOrDefault(
-			"MULTISIG_PRIVATE_KEY",
-			"00000000000000000000000000000000000000000000000000000000"
-				+ "00000001");
+			"MULTISIG_PRIVATE_KEY", "%064X".formatted(1));
+
 		final KeyPair multisigKeyPair = new KeyPair(
 			new CryptoTypes.PrivateKey(multisigPrivateKey));
 		System.out.printf("Multisig public key: %s%n",
 			multisigKeyPair.getPublicKey());
 		final String cosignatory0PrivateKey = System.getenv().getOrDefault(
-			"COSIGNATORY0_PRIVATE_KEY",
-			"00000000000000000000000000000000000000000000000000000000"
-				+ "00000002");
+			"COSIGNATORY0_PRIVATE_KEY", "%064X".formatted(2));
 		final KeyPair cosignatoryKeyPair = new KeyPair(
 			new CryptoTypes.PrivateKey(cosignatory0PrivateKey));
 		System.out.printf("Cosignatory public key: %s%n",

@@ -47,9 +47,7 @@ public final class FeeSponsorship {
 			appKeyPair.getPublicKey());
 
 		final String userPrivateKey = System.getenv().getOrDefault(
-			"USER_PRIVATE_KEY",
-			"00000000000000000000000000000000000000000000000000000000"
-				+ "00000099");
+			"USER_PRIVATE_KEY", "%064X".formatted(99));
 		userKeyPair = new KeyPair(
 			new CryptoTypes.PrivateKey(userPrivateKey));
 		System.out.printf("User public key: %s%n",

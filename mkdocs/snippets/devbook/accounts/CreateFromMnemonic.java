@@ -28,8 +28,8 @@ public final class CreateFromMnemonic {
 			System.out.println("Generating random mnemonic phrase...");
 			mnemonic = bip32.random();
 		}
-		System.out.printf("Mnemonic phrase: %s%n", mnemonic);
-		// [<step-2]
+		System.out.printf("Mnemonic phrase: %s%n", mnemonic); // [<step-2]
+
 		// Load password from environment variable or use default [>step-3]
 		final String password = System.getenv().getOrDefault(
 			"PASSWORD", "correcthorsebatterystaple");

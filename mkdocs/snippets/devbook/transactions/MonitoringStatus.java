@@ -35,16 +35,15 @@ public final class MonitoringStatus {
 		System.out.printf("Using node %s%n", NODE_URL);
 
 		// Transaction hash to monitor.
-		// [>step-1]
-		final String transactionHash = System.getenv().getOrDefault(
-			"TRANSACTION_HASH",
+		final String transactionHash = // [>step-1]
+			System.getenv().getOrDefault("TRANSACTION_HASH",
 			"2B6D3B5232E06B9D32682F518C765301FCF9716BFA1EEEF95236534"
 				+ "06E04C7EA");
 		// [<step-1]
 		System.out.printf("Monitoring transaction: %s%n", transactionHash);
 
 		// Monitor the transaction until it's confirmed
-		waitForTransactionConfirmation(transactionHash);
+		waitForTransactionConfirmation(transactionHash, 60, 2);
 	}
 
 	// [>step-2]
@@ -66,18 +65,21 @@ public final class MonitoringStatus {
 		System.out.printf("Polling %s%n", statusPath);
 
 		for (int attempt = 1; attempt <= maxAttempts; ++attempt) {
-			try {
-				// Query the transaction status endpoint
-				final HttpRequest statusRequest = HttpRequest.newBuilder(
-					URI.create(NODE_URL + statusPath)).GET().build();
-				final HttpResponse<String> statusResponse =
-					HTTP_CLIENT.send(
-						statusRequest, BodyHandlers.ofString());
+			// Query the transaction status endpoint
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(NODE_URL + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT.send(
+				statusRequest, BodyHandlers.ofString());
 
-				if (responseFailed(statusResponse)) {
-					throw new HttpErrorException(
-						statusResponse.statusCode());
-				}
+			if (404 == statusResponse.statusCode()) { // [>step-5]
+				System.out.printf(
+					"  Attempt %d: Transaction status not yet available%n",
+					attempt);
+			} // [<step-5]
+			else {
+				if (statusResponse.statusCode() / 100 != 2)
+					throw new IOException(
+						"HTTP " + statusResponse.statusCode());
 
 				final JsonNode statusJSON = JSON_MAPPER.readTree(
 					statusResponse.body());
@@ -100,8 +102,8 @@ public final class MonitoringStatus {
 				if ("confirmed".equals(statusGroup)) {
 					System.out.println("\nTransaction confirmed!");
 					return true;
-				}
-				// [<step-3]
+				} // [<step-3]
+
 				// Check if the transaction failed [>step-4]
 				if ("failed".equals(statusGroup)) {
 					System.out.printf(
@@ -110,55 +112,19 @@ public final class MonitoringStatus {
 					throw new IOException(
 						"Transaction failed: " + statusCode);
 				} // [<step-4]
-			// [>step-5]
-			} catch (final HttpErrorException ex) {
-				if (404 == ex.statusCode()) {
-					System.out.printf(
-						"  Attempt %d: Transaction status not "
-						+ "yet available%n",
-						attempt);
-				} else {
-					throw ex;
-				}
 			}
-			// [<step-5]
+
 			// Wait before next attempt (except on last attempt) [>step-6]
 			if (attempt < maxAttempts)
 				Thread.sleep(waitSeconds * 1000L);
 			// [<step-6]
 		}
-		// [>step-7]
-		System.out.printf(
+
+		System.out.printf( // [>step-7]
 			"%nTransaction not confirmed after %d attempts%n",
 			maxAttempts);
 		throw new IOException(
 			"Transaction " + txHash + " not confirmed in time"
 		); // [<step-7]
-	}
-
-	private boolean waitForTransactionConfirmation(
-		final String txHash
-	) throws IOException, InterruptedException {
-		return waitForTransactionConfirmation(txHash, 60, 2);
-	}
-
-	private static boolean responseFailed(
-		final HttpResponse<String> response
-	) {
-		return response.statusCode() / 100 != 2;
-	}
-
-	private static final class HttpErrorException
-		extends IOException {
-		private final int statusCode;
-
-		HttpErrorException(final int statusCode) {
-			super("HTTP " + statusCode);
-			this.statusCode = statusCode;
-		}
-
-		int statusCode() {
-			return statusCode;
-		}
 	}
 }
